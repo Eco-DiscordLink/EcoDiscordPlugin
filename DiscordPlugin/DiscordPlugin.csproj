@@ -1,0 +1,104 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{C0B072E3-7A38-44DD-BAE0-340937173150}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Eco.Spoffy</RootNamespace>
+    <AssemblyName>SpoffyDiscordPlugin</AssemblyName>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <LangVersion>5</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="DSharpPlus, Version=3.2.3.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\DSharpPlus.3.2.3\lib\net46\DSharpPlus.dll</HintPath>
+    </Reference>
+    <Reference Include="Eco.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\DLLs\eco.core.dll</HintPath>
+    </Reference>
+    <Reference Include="Eco.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\DLLs\eco.core.dll</HintPath>
+    </Reference>
+    <Reference Include="Eco.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\DLLs\eco.core.dll</HintPath>
+    </Reference>
+    <Reference Include="Eco.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\DLLs\Eco.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Eco.Gameplay, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\DLLs\eco.gameplay.dll</HintPath>
+    </Reference>
+    <Reference Include="Eco.ModKit, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\DLLs\eco.modkit.dll</HintPath>
+    </Reference>
+    <Reference Include="Eco.Mods, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\DLLs\Eco.Mods.dll</HintPath>
+    </Reference>
+    <Reference Include="Eco.Plugins, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\DLLs\eco.plugins.dll</HintPath>
+    </Reference>
+    <Reference Include="Eco.Shared, Version=0.7.1.2, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\DLLs\eco.shared.dll</HintPath>
+    </Reference>
+    <Reference Include="Eco.Simulation, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\DLLs\eco.simulation.dll</HintPath>
+    </Reference>
+    <Reference Include="Eco.Stats, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\DLLs\eco.stats.dll</HintPath>
+    </Reference>
+    <Reference Include="Eco.WebServer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\DLLs\eco.webserver.dll</HintPath>
+    </Reference>
+    <Reference Include="Eco.World, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\DLLs\eco.world.dll</HintPath>
+    </Reference>
+    <Reference Include="Eco.WorldGenerator, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\DLLs\eco.worldgenerator.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="DiscordPlugin.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+         Other similar extension points exist, see Microsoft.Common.targets.
+    <Target Name="BeforeBuild">
+    </Target>
+    <Target Name="AfterBuild">
+    </Target>
+    -->
+</Project>
