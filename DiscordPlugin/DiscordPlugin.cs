@@ -10,6 +10,7 @@ using Eco.Core.Plugins;
 using Eco.Core.Plugins.Interfaces;
 using Eco.Gameplay.Players;
 using Eco.Gameplay.Systems.Chat;
+using Eco.Mods.TechTree;
 using Eco.Shared.Utils;
 
 namespace Eco.Spoffy
@@ -39,11 +40,11 @@ namespace Eco.Spoffy
         public DiscordPlugin()
         {
             configOptions = new PluginConfig<DiscordConfig>("DiscordPluginSpoffy");
-            configOptions.Config.BotToken = "";
+            configOptions.Config.BotToken = configOptions.Config.BotToken ?? "";
 
             _discordClient = new DiscordClient(new DiscordConfiguration
             {
-                Token = "hello",
+                Token = configOptions.Config.BotToken,
                 TokenType = TokenType.Bot
             });
             
@@ -119,6 +120,7 @@ namespace Eco.Spoffy
             try
             {
                 await _discordClient.ConnectAsync();
+                Log.Write("Connected to Discord.");
             } 
             catch (Exception e)
             {
