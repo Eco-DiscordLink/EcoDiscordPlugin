@@ -11,6 +11,7 @@ using Eco.Core.Plugins;
 using Eco.Core.Plugins.Interfaces;
 using Eco.Gameplay.Players;
 using Eco.Gameplay.Stats;
+using Eco.Gameplay.Systems.Chat;
 using Eco.Mods.TechTree;
 using Eco.Shared.Utils;
 
@@ -21,7 +22,8 @@ namespace Eco.Spoffy
         private PluginConfig<DiscordConfig> configOptions;
         private DiscordClient _discordClient;
         private CommandsNextModule _commands;
-
+        private string _currentToken;
+        
         public IPluginConfig PluginConfig
         {
             get { return configOptions; }
@@ -45,24 +47,61 @@ namespace Eco.Spoffy
 
         public DiscordPlugin()
         {
-            // Loading the configuration
             configOptions = new PluginConfig<DiscordConfig>("DiscordPluginSpoffy");
-            configOptions.Config.BotToken = configOptions.Config.BotToken ?? "";
+            SetUpClient();
+        }
 
-            // Create the new client
-            _discordClient = new DiscordClient(new DiscordConfiguration
+        private async Task<object> DisposeOfClient()
+        {
+            if (_discordClient != null)
             {
-                Token = configOptions.Config.BotToken,
-                TokenType = TokenType.Bot
-            });
+                await _discordClient.DisconnectAsync();
+                _discordClient.Dispose();
+            }
+            return null;
+        }
 
-            // Set up the client to use CommandsNext
-            _commands = _discordClient.UseCommandsNext(new CommandsNextConfiguration()
+        private bool SetUpClient()
+        {
+            DisposeOfClient();
+            // Loading the configuration
+            _currentToken = String.IsNullOrWhiteSpace(DiscordPluginConfig.BotToken)
+                ? "ThisTokenWillNeverWork" //Whitespace isn't allowed, and it should trigger an obvious authentication error rather than crashing.
+                : DiscordPluginConfig.BotToken;
+
+            try
             {
-                StringPrefix = "?"
-            });
-            
-            _commands.RegisterCommands<DiscordDiscordCommands>();
+                // Create the new client
+                _discordClient = new DiscordClient(new DiscordConfiguration
+                {
+                    Token = _currentToken,
+                    TokenType = TokenType.Bot
+                });
+
+                // Set up the client to use CommandsNext
+                _commands = _discordClient.UseCommandsNext(new CommandsNextConfiguration()
+                {
+                    StringPrefix = "?"
+                });
+
+                _commands.RegisterCommands<DiscordDiscordCommands>();
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                Log.Write("ERROR: Unable to create the discord client. Error message was: " + e.Message + "\n");
+                Log.Write("Backtrace: " + e.StackTrace);
+            }
+
+            return false;
+        }
+
+        public async Task<bool> RestartClient()
+        {
+            var result = SetUpClient();
+            await ConnectAsync();
+            return result;
         }
 
         public string[] GuildNames
@@ -151,17 +190,19 @@ namespace Eco.Spoffy
             return await SendMessage(String.Format("*{0}*: {1}", user.Name, message), channel);
         }
         
-        public async void ConnectAsync()
+        public async Task<object> ConnectAsync()
         {
             try
             {
                 await _discordClient.ConnectAsync();
-                Log.Write("Connected to Discord.");
+                Log.Write("Connected to Discord.\n");
             } 
             catch (Exception e)
             {
-                Log.Write("Error connecting to discord: " + e.Message);
+                Log.Write("Error connecting to discord: \n" + e.Message);
             }
+
+            return null;
         }
 
         public static DiscordPlugin Obj
@@ -176,7 +217,14 @@ namespace Eco.Spoffy
 
         public void OnEditObjectChanged(object o, string param)
         {
+            
             configOptions.Save();
+            if (DiscordPluginConfig.BotToken != _currentToken)
+            {
+                //Reinitialise client.
+                Log.Write("Discord Token changed, reinitialising client.\n");
+                RestartClient();
+            }
         }
         
         public DiscordPlayerConfig GetOrCreatePlayerConfig(string identifier)
@@ -226,6 +274,7 @@ namespace Eco.Spoffy
             var playerConfig = GetOrCreatePlayerConfig(identifier);
             playerConfig.DefaultChannel.Guild = guildName;
             playerConfig.DefaultChannel.Channel = channelName;
+            SavePlayerConfig();
         }
     }
 
