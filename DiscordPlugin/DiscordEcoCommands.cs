@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Runtime.Remoting.Messaging;
 using System.Threading.Tasks;
 using Eco.Gameplay.Players;
+using Eco.Gameplay.Stats;
 using Eco.Gameplay.Systems.Chat;
 using Eco.Shared.Utils;
 
@@ -58,8 +60,8 @@ namespace Eco.Spoffy
 
         }
         
-        [ChatCommand("Lists Discord Servers the bot is in. ", ChatAuthorizationLevel.Admin)]
-        public static void DiscordSendMessage(User user, string guild, string channel, string server)
+        [ChatCommand("Sends a message to a specific server and channel.", ChatAuthorizationLevel.Admin)]
+        public static void DiscordSendToChannel(User user, string guild, string channel, string outerMessage)
         {
             CallWithErrorHandling<object>((lUser, args) =>
                 {
@@ -70,15 +72,33 @@ namespace Eco.Spoffy
                     var channelName = args[1];
                     var message = args[2];
 
-                    plugin.SendMessageAsUser(message, channelName, guildName, user).ContinueWith(result =>
+                    plugin.SendMessageAsUser(message, user, channelName, guildName).ContinueWith(result =>
                     {
                         ChatManager.ServerMessageToPlayer(result.Result, user);   
                     });
                 },
-                user, guild, channel, server);
+                user, guild, channel, outerMessage);
         }
         
-        [ChatCommand("Lists Discord Servers the bot is in. ", ChatAuthorizationLevel.Admin)]
+        [ChatCommand("Sends a message to the default server and channel.", ChatAuthorizationLevel.Admin)]
+        public static void DiscordMessage(User user, string message)
+        {
+            CallWithErrorHandling<object>((lUser, args) =>
+                {
+                    var plugin = DiscordPlugin.Obj;
+                    if (plugin == null) return;
+
+                    var defaultChannel = plugin.GetDefaultChannelForPlayer(user.Name);
+
+                    plugin.SendMessageAsUser(message, user, defaultChannel).ContinueWith(result =>
+                    {
+                        ChatManager.ServerMessageToPlayer(result.Result, user);   
+                    });
+                },
+                user, message);
+        }
+        
+        [ChatCommand("Lists channels available to the bot in a specific server.", ChatAuthorizationLevel.Admin)]
         public static void DiscordChannels(User user, string guildName)
         {   
             CallWithErrorHandling<object>((lUser, args) =>
@@ -101,6 +121,20 @@ namespace Eco.Spoffy
                 },
                 user);
 
+        }
+        
+        [ChatCommand("Set default channel to use.", ChatAuthorizationLevel.Admin)]
+        public static void DiscordDefaultChannel(User user, string guildName, string channelName)
+        {
+            CallWithErrorHandling<object>((lUser, args) =>
+                {
+                    var plugin = DiscordPlugin.Obj;
+                    if (plugin == null) return;
+
+                    plugin.SetDefaultChannelForPlayer(user.Name, guildName, channelName);
+                    ChatManager.ServerMessageToPlayer("Default channel set to " + channelName, user);
+                },
+                user);
         }
     }
 }

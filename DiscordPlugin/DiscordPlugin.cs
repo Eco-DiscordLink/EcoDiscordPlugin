@@ -106,6 +106,22 @@ namespace Eco.Spoffy
 
         }
 
+        public DiscordChannel ChannelByName(string guildName, string channelName)
+        {
+            var guild = GuildByName(guildName);
+            return ChannelByName(guild, channelName);
+        }
+
+        public DiscordChannel ChannelByName(DiscordGuild guild, string channelName)
+        {
+            if (guild == null)
+            {
+                return null;
+            }
+
+            return guild.Channels.FirstOrDefault(channel => channel.Name == channelName);
+        }
+
         public async Task<string> SendMessage(string message, string channelName, string guildName)
         {
             if (_discordClient == null) return "No discord client";
@@ -113,15 +129,26 @@ namespace Eco.Spoffy
             if (guild == null) return "No guild of that name found";
 
             var channel = guild.Channels.FirstOrDefault(currChannel => currChannel.Name == channelName);
+            return await SendMessage(message, channel);
+        }
+        
+        public async Task<string> SendMessage(string message, DiscordChannel channel)
+        {
+            if (_discordClient == null) return "No discord client";
             if (channel == null) return "No channel of that name found in that guild";
 
-            await this._discordClient.SendMessageAsync(channel, message);
+            await _discordClient.SendMessageAsync(channel, message);
             return "Message sent successfully!";
         }
 
-        public async Task<String> SendMessageAsUser(string message, string channelName, string guildName, User user)
+        public async Task<string> SendMessageAsUser(string message, User user, string channelName, string guildName)
         {
             return await SendMessage(String.Format("*{0}*: {1}", user.Name, message), channelName, guildName);
+        }
+        
+        public async Task<String> SendMessageAsUser(string message, User user, DiscordChannel channel)
+        {
+            return await SendMessage(String.Format("*{0}*: {1}", user.Name, message), channel);
         }
         
         public async void ConnectAsync()
@@ -152,17 +179,53 @@ namespace Eco.Spoffy
             configOptions.Save();
         }
         
-        public DiscordPlayerConfig GetPlayerConfig(string id)
+        public DiscordPlayerConfig GetOrCreatePlayerConfig(string identifier)
         {
-            return DiscordPluginConfig.PlayerConfigs.FirstOrDefault(user => user.UserId == id);
+            var config = DiscordPluginConfig.PlayerConfigs.FirstOrDefault(user => user.Username == identifier);
+            if (config == null)
+            {
+                config = new DiscordPlayerConfig
+                {
+                    Username = identifier
+                };
+                AddOrReplacePlayerConfig(config);
+            }
+
+            return config;
         }
 
         public bool AddOrReplacePlayerConfig(DiscordPlayerConfig config)
         {
             var removed = DiscordPluginConfig.PlayerConfigs.Remove(config);
             DiscordPluginConfig.PlayerConfigs.Add(config);
-            configOptions.Save();
+            SavePlayerConfig();
             return removed;
+        }
+
+        public void SavePlayerConfig()
+        {
+            configOptions.Save();
+        }
+
+        public DiscordChannel GetDefaultChannelForPlayer(string identifier)
+        {
+            var playerConfig = GetOrCreatePlayerConfig(identifier);
+            if (playerConfig.DefaultChannel == null
+                || String.IsNullOrEmpty(playerConfig.DefaultChannel.Guild)
+                || String.IsNullOrEmpty(playerConfig.DefaultChannel.Channel))
+            {
+                return null;
+            }
+
+            return ChannelByName(playerConfig.DefaultChannel.Guild, playerConfig.DefaultChannel.Channel);
+        }
+        
+        
+        public void SetDefaultChannelForPlayer(string identifier, string guildName, string channelName)
+        {
+            var playerConfig = GetOrCreatePlayerConfig(identifier);
+            playerConfig.DefaultChannel.Guild = guildName;
+            playerConfig.DefaultChannel.Channel = channelName;
         }
     }
 
@@ -198,8 +261,13 @@ namespace Eco.Spoffy
     {
         [Description("ID of the user")]
         public string Username { get; set; }
-        
-        public DiscordChannelIdentifier DefaultChannel { get; set; }
+
+        private DiscordChannelIdentifier _defaultChannel = new DiscordChannelIdentifier();
+        public DiscordChannelIdentifier DefaultChannel
+        {
+            get { return _defaultChannel; }
+            set { _defaultChannel = value; }
+        }
 
         public class DiscordChannelIdentifier
         {
