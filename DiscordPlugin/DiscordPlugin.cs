@@ -152,5 +152,14 @@ namespace Eco.Spoffy
     {
         [Description("The token provided by the Discord API to allow access to the bot"), Category("Bot Configuration")]
         public string BotToken { get; set; }
+        
+        [Description("The name of the Eco server, overriding the name configured within Eco."), Category("Server Details")]
+        public string ServerName { get; set; }
+        
+        [Description("The description of the Eco server, overriding the description configured within Eco."), Category("Server Details")]
+        public string ServerDescription { get; set; }
+        
+        [Description("The logo of the server as a URL."), Category("Server Details")]
+        public string ServerLogo { get; set; }
     }
 }
