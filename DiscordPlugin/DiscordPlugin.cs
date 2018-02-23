@@ -23,6 +23,7 @@ namespace Eco.Spoffy
         private DiscordClient _discordClient;
         private CommandsNextModule _commands;
         private string _currentToken;
+        private string _status = "No Connection Attempt Made";
         
         public IPluginConfig PluginConfig
         {
@@ -36,7 +37,7 @@ namespace Eco.Spoffy
 
         public string GetStatus()
         {
-            return "Who knows";
+            return _status;
         }
 
         public void Initialize()
@@ -64,6 +65,7 @@ namespace Eco.Spoffy
         private bool SetUpClient()
         {
             DisposeOfClient();
+            _status = "Setting up client";
             // Loading the configuration
             _currentToken = String.IsNullOrWhiteSpace(DiscordPluginConfig.BotToken)
                 ? "ThisTokenWillNeverWork" //Whitespace isn't allowed, and it should trigger an obvious authentication error rather than crashing.
@@ -194,12 +196,15 @@ namespace Eco.Spoffy
         {
             try
             {
+                _status = "Attempting connection...";
                 await _discordClient.ConnectAsync();
                 Log.Write("Connected to Discord.\n");
+                _status = "Connection successful";
             } 
             catch (Exception e)
             {
-                Log.Write("Error connecting to discord: \n" + e.Message);
+                Log.Write("Error connecting to discord: " + e.Message + "\n");
+                _status = "Connection failed";
             }
 
             return null;
