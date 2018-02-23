@@ -93,6 +93,7 @@
     <Compile Include="DiscordDiscordCommands.cs" />
     <Compile Include="DiscordEcoCommands.cs" />
     <Compile Include="DiscordPlugin.cs" />
+    <Compile Include="IPUtil.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

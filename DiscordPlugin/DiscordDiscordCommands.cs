@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
@@ -44,8 +45,9 @@ namespace Eco.Spoffy
             string name = FirstNonEmptyString(pluginConfig.ServerName, serverInfo.Name);
             string description = FirstNonEmptyString(pluginConfig.ServerDescription, serverInfo.Description,
                 "No server description is available.");
-     
-            string serverAddress = (serverInfo.Address ?? "0.0.0.0") + ":" + serverInfo.WebPort;
+
+            IPAddress addr = IPUtil.GetInterNetworkIP().FirstOrDefault();
+            string serverAddress = (addr != null? addr.ToString() : "No Configured Address") + ":" + serverInfo.WebPort;
             
             string players = serverInfo.OnlinePlayers + "/" + serverInfo.TotalPlayers;
             
@@ -69,7 +71,7 @@ namespace Eco.Spoffy
                 .AddField("Time Since Game Start", timeSinceStart)
                 .AddField("Current Leader", leader);
 
-            builder = String.IsNullOrEmpty(pluginConfig.ServerLogo)
+            builder = String.IsNullOrWhiteSpace(pluginConfig.ServerLogo)
                 ? builder
                 : builder.WithThumbnailUrl(pluginConfig.ServerLogo);
 
