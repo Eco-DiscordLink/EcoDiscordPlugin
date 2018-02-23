@@ -10,6 +10,8 @@ using Eco.Core;
 using Eco.Core.Plugins;
 using Eco.Core.Plugins.Interfaces;
 using Eco.Gameplay.Players;
+using Eco.Gameplay.Stats;
+using Eco.Mods.TechTree;
 using Eco.Shared.Utils;
 
 namespace Eco.Spoffy
@@ -75,7 +77,7 @@ namespace Eco.Spoffy
             get {
                 if (_discordClient != null)
                 {
-                    return _discordClient.Guilds.First().Value;
+                    return _discordClient.Guilds.FirstOrDefault().Value;
                 }
 
                 return null;
@@ -96,7 +98,8 @@ namespace Eco.Spoffy
         public DiscordGuild GuildByName(string name)
         {
             if (_discordClient == null) return null;
-            return _discordClient.Guilds.Values.First(guild => guild.Name == name);
+            return _discordClient.Guilds.Values.FirstOrDefault(guild => guild.Name == name);
+
         }
 
         public async Task<string> SendMessage(string message, string channelName, string guildName)
@@ -105,7 +108,7 @@ namespace Eco.Spoffy
             var guild = GuildByName(guildName);
             if (guild == null) return "No guild of that name found";
 
-            var channel = guild.Channels.First(currChannel => currChannel.Name == channelName);
+            var channel = guild.Channels.FirstOrDefault(currChannel => currChannel.Name == channelName);
             if (channel == null) return "No channel of that name found in that guild";
 
             await this._discordClient.SendMessageAsync(channel, message);

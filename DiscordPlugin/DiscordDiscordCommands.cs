@@ -16,14 +16,7 @@ namespace Eco.Spoffy
     {
         private string FirstNonEmptyString(params string[] strings)
         {
-            try
-            {
-                return strings.First(str => !String.IsNullOrEmpty(str));
-            }
-            catch (Exception e)
-            {
-                return "";
-            }
+            return strings.FirstOrDefault(str => !String.IsNullOrEmpty(str)) ?? "";
         }
 
         [Command("ping")]
