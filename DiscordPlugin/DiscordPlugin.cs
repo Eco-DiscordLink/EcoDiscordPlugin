@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
@@ -10,8 +10,6 @@ using Eco.Core;
 using Eco.Core.Plugins;
 using Eco.Core.Plugins.Interfaces;
 using Eco.Gameplay.Players;
-using Eco.Gameplay.Systems.Chat;
-using Eco.Mods.TechTree;
 using Eco.Shared.Utils;
 
 namespace Eco.Spoffy
@@ -161,5 +159,15 @@ namespace Eco.Spoffy
         
         [Description("The logo of the server as a URL."), Category("Server Details")]
         public string ServerLogo { get; set; }
+        
+        [Description("A mapping from user to user config parameters.")]
+        public List<DiscordPlayerConfig> PlayerConfigs { get; set; }
+        
+    }
+
+    public class DiscordPlayerConfig
+    {
+        [Description("ID of the user")]
+        public string UserId { get; set; }
     }
 }
