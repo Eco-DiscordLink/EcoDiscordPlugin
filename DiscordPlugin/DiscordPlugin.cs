@@ -15,7 +15,7 @@ using Eco.Shared.Utils;
 
 namespace Eco.Spoffy
 {
-    public class DiscordPlugin : IModKitPlugin, IInitializablePlugin, IChatCommandHandler, IConfigurablePlugin
+    public class DiscordPlugin : IModKitPlugin, IInitializablePlugin, IConfigurablePlugin
     {
         private PluginConfig<DiscordConfig> configOptions;
         private DiscordClient _discordClient;
@@ -142,64 +142,6 @@ namespace Eco.Spoffy
         {
             configOptions.Save();
         }
-
-        [ChatCommand("Verifies that the Discord plugin is loaded", ChatAuthorizationLevel.Admin)]
-        public static void VerifyDiscord(User user)
-        {
-            ChatManager.ServerMessageToPlayer("Discord Plugin is loaded.", user);
-        }
-        
-        [ChatCommand("Lists Discord Servers the bot is in. ", ChatAuthorizationLevel.Admin)]
-        public static void DiscordGuilds(User user)
-        {
-            var plugin = Obj;
-            if (plugin == null) return;
-
-            var joinedNames = String.Join(", ", plugin.GuildNames);
-            
-            ChatManager.ServerMessageToPlayer("Servers: " + joinedNames, user, false);
-        }
-        
-        [ChatCommand("Lists Discord Servers the bot is in. ", ChatAuthorizationLevel.Admin)]
-        public static void DiscordMessage(User user, String input)
-        {
-            var plugin = Obj;
-            if (plugin == null) return;
-
-            ChatManager.ServerMessageToAll("Params: " + input, false);
-            var commandRegex = new Regex("\"(?<guild>[^\"]*)\"\\s+\"(?<channel>[^\"]*)\"\\s+\"(?<message>[^\"]*)\"");
-            var isMatch = commandRegex.IsMatch("\"Server\" \"Guild\" \"Message\"");
-            ChatManager.ServerMessageToAll("Match:" + isMatch, false);
-            var match = commandRegex.Match(input);
-            ChatManager.ServerMessageToAll("" + match.Groups["guild"] + " " + match.Groups["channel"] + " " + match.Groups["message"], false);
-
-            var guildName = match.Groups["guild"].Value;
-            var channelName = match.Groups["channel"].Value;
-            var message = match.Groups["message"].Value;
-
-            plugin.SendMessageAsUser(message, channelName, guildName, user);
-        }
-        
-        [ChatCommand("Lists Discord Servers the bot is in. ", ChatAuthorizationLevel.Admin)]
-        public static void DiscordChannels(User user, string guildName)
-        {
-            var plugin = Obj;
-            if (plugin == null) return;
-
-            var guild = (guildName != null && guildName.Length > 0)
-                ? plugin.GuildByName(guildName)
-                : plugin.DefaultGuild;
-
-            if (guild == null)
-            {
-                ChatManager.ServerMessageToPlayer("Unable to find that guild, perhaps the name was misspelled?", user);
-            }
-
-            var joinedGames = String.Join(", ", plugin.ChannelsInGuild(guild));
-            ChatManager.ServerMessageToAll("Channels: " + joinedGames, false);
-        }
-
-        
     }
 
     public class DiscordConfig
