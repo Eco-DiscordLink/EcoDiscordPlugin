@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DSharpPlus;
+using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 using Eco.Core;
 using Eco.Core.Plugins;
@@ -19,6 +20,7 @@ namespace Eco.Spoffy
     {
         private PluginConfig<DiscordConfig> configOptions;
         private DiscordClient _discordClient;
+        private CommandsNextModule _commands;
 
         public IPluginConfig PluginConfig
         {
@@ -39,22 +41,24 @@ namespace Eco.Spoffy
 
         public DiscordPlugin()
         {
+            // Loading the configuration
             configOptions = new PluginConfig<DiscordConfig>("DiscordPluginSpoffy");
             configOptions.Config.BotToken = configOptions.Config.BotToken ?? "";
 
+            // Create the new client
             _discordClient = new DiscordClient(new DiscordConfiguration
             {
                 Token = configOptions.Config.BotToken,
                 TokenType = TokenType.Bot
             });
-            
-            _discordClient.MessageCreated += async e =>
+
+            // Set up the client to use CommandsNext
+            _commands = _discordClient.UseCommandsNext(new CommandsNextConfiguration()
             {
-                if (e.Message.Content.ToLower().StartsWith("ping"))
-                {
-                    await e.Message.RespondAsync("pong!");
-                }
-            };
+                StringPrefix = "?"
+            });
+            
+            _commands.RegisterCommands<DiscordDiscordCommands>();
         }
 
         public string[] GuildNames

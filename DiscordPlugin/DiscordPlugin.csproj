@@ -36,6 +36,9 @@
     <Reference Include="DSharpPlus, Version=3.2.3.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\packages\DSharpPlus.3.2.3\lib\net46\DSharpPlus.dll</HintPath>
     </Reference>
+    <Reference Include="DSharpPlus.CommandsNext, Version=3.2.3.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\DSharpPlus.CommandsNext.3.2.3\lib\net46\DSharpPlus.CommandsNext.dll</HintPath>
+    </Reference>
     <Reference Include="Eco.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\..\DLLs\eco.core.dll</HintPath>
     </Reference>
@@ -87,6 +90,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DiscordDiscordCommands.cs" />
+    <Compile Include="DiscordEcoCommands.cs" />
     <Compile Include="DiscordPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
