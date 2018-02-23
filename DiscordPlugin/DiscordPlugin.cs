@@ -25,7 +25,11 @@ namespace Eco.Spoffy
         public IPluginConfig PluginConfig
         {
             get { return configOptions; }
-            private set { }
+        }
+
+        public DiscordConfig DiscordPluginConfig
+        {
+            get { return PluginConfig.GetConfig() as DiscordConfig; }
         }
 
         public string GetStatus()
@@ -147,6 +151,19 @@ namespace Eco.Spoffy
         {
             configOptions.Save();
         }
+        
+        public DiscordPlayerConfig GetPlayerConfig(string id)
+        {
+            return DiscordPluginConfig.PlayerConfigs.FirstOrDefault(user => user.UserId == id);
+        }
+
+        public bool AddOrReplacePlayerConfig(DiscordPlayerConfig config)
+        {
+            var removed = DiscordPluginConfig.PlayerConfigs.Remove(config);
+            DiscordPluginConfig.PlayerConfigs.Add(config);
+            configOptions.Save();
+            return removed;
+        }
     }
 
     public class DiscordConfig
@@ -162,15 +179,33 @@ namespace Eco.Spoffy
         
         [Description("The logo of the server as a URL."), Category("Server Details")]
         public string ServerLogo { get; set; }
+
+        private List<DiscordPlayerConfig> _playerConfigs = new List<DiscordPlayerConfig>();
         
         [Description("A mapping from user to user config parameters.")]
-        public List<DiscordPlayerConfig> PlayerConfigs { get; set; }
-        
+        public List<DiscordPlayerConfig> PlayerConfigs {
+            get {
+                return _playerConfigs;
+            }
+            set
+            {
+                _playerConfigs = value;
+            }
+        }
     }
 
     public class DiscordPlayerConfig
     {
         [Description("ID of the user")]
-        public string UserId { get; set; }
+        public string Username { get; set; }
+        
+        public DiscordChannelIdentifier DefaultChannel { get; set; }
+
+        public class DiscordChannelIdentifier
+        {
+            public string Guild { get; set; }
+            public string Channel { get; set; }
+        }
     }
+    
 }

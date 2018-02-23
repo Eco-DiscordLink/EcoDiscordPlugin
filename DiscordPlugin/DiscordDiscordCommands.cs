@@ -37,8 +37,8 @@ namespace Eco.Spoffy
                     "The plugin was unable to be found on the server. Please report this to the plugin author.");
                 return;
             }
-            
-            var pluginConfig = plugin.PluginConfig.GetConfig() as DiscordConfig;        
+
+            var pluginConfig = plugin.DiscordPluginConfig;       
             var serverInfo = NetworkManager.GetServerInfo();
 
             string name = FirstNonEmptyString(pluginConfig.ServerName, serverInfo.Name);
