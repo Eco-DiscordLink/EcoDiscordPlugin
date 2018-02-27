@@ -8,7 +8,7 @@ using DSharpPlus.Entities;
 using Eco.Plugins.Networking;
 using Eco.Shared.Services;
 
-namespace Eco.Spoffy
+namespace Eco.Plugins.DiscordLink
 {
     /**
      * Handles commands coming from Discord.

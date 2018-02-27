@@ -15,7 +15,7 @@ using Eco.Gameplay.Systems.Chat;
 using Eco.Mods.TechTree;
 using Eco.Shared.Utils;
 
-namespace Eco.Spoffy
+namespace Eco.Plugins.DiscordLink
 {
     public class DiscordLink : IModKitPlugin, IInitializablePlugin, IConfigurablePlugin
     {
