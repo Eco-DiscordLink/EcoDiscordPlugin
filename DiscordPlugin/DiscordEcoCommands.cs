@@ -49,7 +49,7 @@ namespace Eco.Spoffy
         {
             CallWithErrorHandling<object>((lUser, args) =>
                 {
-                    var plugin = DiscordPlugin.Obj;
+                    var plugin = DiscordLink.Obj;
                     if (plugin == null) return;
 
                     var joinedNames = String.Join(", ", plugin.GuildNames);
@@ -65,7 +65,7 @@ namespace Eco.Spoffy
         {
             CallWithErrorHandling<object>((lUser, args) =>
                 {
-                    var plugin = DiscordPlugin.Obj;
+                    var plugin = DiscordLink.Obj;
                     if (plugin == null) return;
 
                     var guildName = args[0];
@@ -85,7 +85,7 @@ namespace Eco.Spoffy
         {
             CallWithErrorHandling<object>((lUser, args) =>
                 {
-                    var plugin = DiscordPlugin.Obj;
+                    var plugin = DiscordLink.Obj;
                     if (plugin == null) return;
 
                     var defaultChannel = plugin.GetDefaultChannelForPlayer(user.Name);
@@ -103,7 +103,7 @@ namespace Eco.Spoffy
         {   
             CallWithErrorHandling<object>((lUser, args) =>
                 {
-                    var plugin = DiscordPlugin.Obj;
+                    var plugin = DiscordLink.Obj;
                     if (plugin == null) return;
 
                     var guild = string.IsNullOrEmpty(guildName)
@@ -128,7 +128,7 @@ namespace Eco.Spoffy
         {
             CallWithErrorHandling<object>((lUser, args) =>
                 {
-                    var plugin = DiscordPlugin.Obj;
+                    var plugin = DiscordLink.Obj;
                     if (plugin == null) return;
 
                     plugin.SetDefaultChannelForPlayer(user.Name, guildName, channelName);

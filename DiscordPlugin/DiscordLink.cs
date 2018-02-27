@@ -17,7 +17,7 @@ using Eco.Shared.Utils;
 
 namespace Eco.Spoffy
 {
-    public class DiscordPlugin : IModKitPlugin, IInitializablePlugin, IConfigurablePlugin
+    public class DiscordLink : IModKitPlugin, IInitializablePlugin, IConfigurablePlugin
     {
         private PluginConfig<DiscordConfig> configOptions;
         private DiscordClient _discordClient;
@@ -51,7 +51,7 @@ namespace Eco.Spoffy
             ConnectAsync();
         }
 
-        public DiscordPlugin()
+        public DiscordLink()
         {
             configOptions = new PluginConfig<DiscordConfig>("DiscordPluginSpoffy");
             SetUpClient();
@@ -215,9 +215,9 @@ namespace Eco.Spoffy
             return null;
         }
 
-        public static DiscordPlugin Obj
+        public static DiscordLink Obj
         {
-            get { return PluginManager.GetPlugin<DiscordPlugin>(); }
+            get { return PluginManager.GetPlugin<DiscordLink>(); }
         }
         
         public object GetEditObject()
