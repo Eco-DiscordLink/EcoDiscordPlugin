@@ -2,17 +2,19 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
+using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
 using Eco.Core;
 using Eco.Core.Plugins;
 using Eco.Core.Plugins.Interfaces;
 using Eco.Gameplay.Players;
-using Eco.Gameplay.Stats;
 using Eco.Gameplay.Systems.Chat;
-using Eco.Mods.TechTree;
+using Eco.Shared.Services;
 using Eco.Shared.Utils;
 
 namespace Eco.Plugins.DiscordLink
@@ -24,6 +26,8 @@ namespace Eco.Plugins.DiscordLink
         private CommandsNextModule _commands;
         private string _currentToken;
         private string _status = "No Connection Attempt Made";
+
+        protected ChatNotifier chatNotifier;
 
         public override string ToString()
         {
@@ -49,11 +53,22 @@ namespace Eco.Plugins.DiscordLink
         {
             if (_discordClient == null) return;
             ConnectAsync();
+            StartChatNotifier();
+        }
+
+        private void StartChatNotifier()
+        {
+            chatNotifier.Initialize();
+            new Thread(() => { chatNotifier.Run(); })
+            {
+                Name = "ChatNotifierThread"
+            }.Start();
         }
 
         public DiscordLink()
         {
             configOptions = new PluginConfig<DiscordConfig>("DiscordPluginSpoffy");
+            chatNotifier = new ChatNotifier();
             SetUpClient();
         }
 
@@ -63,6 +78,7 @@ namespace Eco.Plugins.DiscordLink
             {
                 await _discordClient.DisconnectAsync();
                 _discordClient.Dispose();
+                DisposeRelay();
             }
             return null;
         }
@@ -92,6 +108,8 @@ namespace Eco.Plugins.DiscordLink
                 });
 
                 _commands.RegisterCommands<DiscordDiscordCommands>();
+                
+                InitializeRelay();
 
                 return true;
             }
@@ -216,6 +234,55 @@ namespace Eco.Plugins.DiscordLink
 
             return null;
         }
+
+        #region MessageRelaying
+
+        private string EcoUserSteamId = "DiscordLinkSteam";
+        private string EcoUserSlgId = "DiscordLinkSlg";
+        private string EcoUserName = "Discord";
+        private User _user;
+        
+        protected User EcoUser => _user ?? (_user = UserManager.GetOrCreateUser(EcoUserSteamId, EcoUserSlgId, EcoUserName));
+
+        private void InitializeRelay()
+        {
+            chatNotifier.OnMessageReceived.Add(OnMessageReceivedFromEco);
+            _discordClient.MessageCreated += OnDiscordMessageCreateEvent;
+        }
+
+        private void DisposeRelay()
+        {
+            chatNotifier.OnMessageReceived.Remove(OnMessageReceivedFromEco);
+            _discordClient.MessageCreated -= OnDiscordMessageCreateEvent;
+        }
+
+        public void OnMessageReceivedFromEco(ChatMessage message)
+        {
+            if (message.Sender == EcoUser.Name) { return; }
+            Log.Write("Message: " + message.Text + "\n");
+            Log.Write("Tag: " + message.Tag + "\n");
+            Log.Write("Category: " + message.Category + "\n");
+            Log.Write("Temporary: " + message.Temporary + "\n");
+            Log.Write("Sender: " + message.Sender + "\n");
+            if (String.IsNullOrWhiteSpace(message.Sender)) { return; };
+            SendMessage($"**{message.Sender}**: {message.Text}", "", "");
+        }
+
+        public async Task OnDiscordMessageCreateEvent(MessageCreateEventArgs messageArgs)
+        {
+            Log.Write("Message from Discord!");
+            OnMessageReceivedFromDiscord(messageArgs.Message);
+        }
+
+        public void OnMessageReceivedFromDiscord(DiscordMessage message)
+        {
+            if (message.Author == _discordClient.CurrentUser) { return; }
+            var text = "#Discord " + message.Author.Username + ": " + message.Content;
+            ChatManager.SendChat(text, EcoUser);;
+        }
+        
+
+        #endregion
 
         public static DiscordLink Obj
         {
