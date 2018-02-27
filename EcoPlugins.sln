@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscordPlugin", "DiscordPlugin\DiscordPlugin.csproj", "{C0B072E3-7A38-44DD-BAE0-340937173150}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscordLink", "DiscordLink\DiscordLink.csproj", "{C0B072E3-7A38-44DD-BAE0-340937173150}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
