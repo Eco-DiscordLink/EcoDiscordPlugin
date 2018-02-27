@@ -6,7 +6,7 @@ using Eco.Gameplay.Stats;
 using Eco.Gameplay.Systems.Chat;
 using Eco.Shared.Utils;
 
-namespace Eco.Spoffy
+namespace Eco.Plugins.DiscordLink
 {
     /**
      * Handles commands coming from the Eco server.

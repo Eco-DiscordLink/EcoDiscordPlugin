@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 
-namespace Eco.Spoffy
+namespace Eco.Plugins.DiscordLink
 {
     public class IPUtil
     {
