@@ -5,20 +5,20 @@ This Eco Global Survival plugin connects Discord servers to the game server, pro
 
 ## Usage
 
-From Discord
+From Discord:
 
-`?help` - Lists available commands
-`?ecostatus` - Prints the status of the Eco Server.
+* `?help` - Lists available commands
+* `?ecostatus` - Prints the status of the Eco Server.
 
-From Eco
-`/verifydiscord` - Confirms the plugin is loaded
+From Eco:
+* `/verifydiscord` - Confirms the plugin is loaded
 
-`/discordguilds` - Lists all servers that this bot is connected to
-`/discordchannels [guildname]` - Lists all channels in a specific server.
-`/discorddefaultchannel [guildname],[channelname]` - Sets the channel that `/discordmessage` sends to for you and only you.
+* `/discordguilds` - Lists all servers that this bot is connected to
+* `/discordchannels [guildname]` - Lists all channels in a specific server.
+* `/discorddefaultchannel [guildname],[channelname]` - Sets the channel that `/discordmessage` sends to for you and only you.
 
-`/discordsendtochannel [guildname],[channelname],[message]` - Sends a message to the given channel, if the Bot has access to that channel.
-`/discordmessage [message]` - Sends a message to the default channel.
+* `/discordsendtochannel [guildname],[channelname],[message]` - Sends a message to the given channel, if the Bot has access to that channel.
+* `/discordmessage [message]` - Sends a message to the default channel.
 
 ## Installation
 
