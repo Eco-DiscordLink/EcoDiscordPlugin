@@ -24,7 +24,12 @@ namespace Eco.Spoffy
         private CommandsNextModule _commands;
         private string _currentToken;
         private string _status = "No Connection Attempt Made";
-        
+
+        public override string ToString()
+        {
+            return "DiscordLink";
+        }
+
         public IPluginConfig PluginConfig
         {
             get { return configOptions; }
