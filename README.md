@@ -1,3 +1,4 @@
+![DiscordLink Logo](images/DiscordLinkLogo.png)
 # DiscordLink
 ## Introduction
 
@@ -31,4 +32,7 @@ From Eco:
 
 ## Configuration
 
-All configuaration is done via the Server GUI.
+All configuration is done via the Server GUI.
+
+
+DiscordLink Logo &copy; 2018 Phlo
