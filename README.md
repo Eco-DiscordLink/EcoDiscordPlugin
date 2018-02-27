@@ -1,4 +1,4 @@
-![DiscordLink Logo](images/DiscordLinkLogo_Small.png)
+![DiscordLink Logo](images/DiscordLinkLogo_Nameless_Small.png)
 # DiscordLink
 ## Introduction
 
