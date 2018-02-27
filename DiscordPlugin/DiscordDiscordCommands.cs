@@ -31,7 +31,7 @@ namespace Eco.Spoffy
         [Description("Retrieves the current status of the Eco Server")]
         public async Task EcoStatus(CommandContext ctx)
         {
-            var plugin = DiscordPlugin.Obj;
+            var plugin = DiscordLink.Obj;
             if (plugin == null)
             {
                 await ctx.RespondAsync(
