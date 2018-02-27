@@ -136,7 +136,14 @@ namespace Eco.Plugins.DiscordLink
 
         public string[] ChannelsInGuild(DiscordGuild guild)
         {
-            return guild != null ? guild.Channels.Select(channel => channel.Name).ToArray() : new string[0];
+            return guild != null ? TextChannelsInGuild(guild).Select(channel => channel.Name).ToArray() : new string[0];
+        }
+        
+        public IReadOnlyList<DiscordChannel> TextChannelsInGuild(DiscordGuild guild)
+        {
+            return guild != null
+                ? guild.Channels.Where(channel => channel.Type == ChannelType.Text).ToList()
+                : new List<DiscordChannel>();
         }
 
         public string[] ChannelsByGuildName(string guildName)
@@ -160,12 +167,7 @@ namespace Eco.Plugins.DiscordLink
 
         public DiscordChannel ChannelByName(DiscordGuild guild, string channelName)
         {
-            if (guild == null)
-            {
-                return null;
-            }
-
-            return guild.Channels.FirstOrDefault(channel => channel.Name == channelName);
+            return guild != null? TextChannelsInGuild(guild).FirstOrDefault(channel => channel.Name == channelName) : null;
         }
 
         public async Task<string> SendMessage(string message, string channelName, string guildName)
@@ -174,7 +176,7 @@ namespace Eco.Plugins.DiscordLink
             var guild = GuildByName(guildName);
             if (guild == null) return "No guild of that name found";
 
-            var channel = guild.Channels.FirstOrDefault(currChannel => currChannel.Name == channelName);
+            var channel = ChannelByName(guild, channelName);
             return await SendMessage(message, channel);
         }
         
