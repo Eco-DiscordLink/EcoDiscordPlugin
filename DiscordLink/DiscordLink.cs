@@ -76,9 +76,8 @@ namespace Eco.Plugins.DiscordLink
         {
             if (_discordClient != null)
             {
-                await _discordClient.DisconnectAsync();
+                await DisconnectAsync();
                 _discordClient.Dispose();
-                DisposeRelay();
             }
             return null;
         }
@@ -108,8 +107,6 @@ namespace Eco.Plugins.DiscordLink
                 });
 
                 _commands.RegisterCommands<DiscordDiscordCommands>();
-                
-                InitializeRelay();
 
                 return true;
             }
@@ -223,12 +220,30 @@ namespace Eco.Plugins.DiscordLink
             {
                 _status = "Attempting connection...";
                 await _discordClient.ConnectAsync();
+                BeginRelaying();
                 Log.Write("Connected to Discord.\n");
                 _status = "Connection successful";
+                
             } 
             catch (Exception e)
             {
                 Log.Write("Error connecting to discord: " + e.Message + "\n");
+                _status = "Connection failed";
+            }
+
+            return null;
+        }
+        
+        public async Task<object> DisconnectAsync()
+        {
+            try
+            {
+                StopRelaying();
+                await _discordClient.DisconnectAsync();           
+            } 
+            catch (Exception e)
+            {
+                Log.Write("Error Disconnecting from discord: " + e.Message + "\n");
                 _status = "Connection failed";
             }
 
@@ -240,20 +255,31 @@ namespace Eco.Plugins.DiscordLink
         private string EcoUserSteamId = "DiscordLinkSteam";
         private string EcoUserSlgId = "DiscordLinkSlg";
         private string EcoUserName = "Discord";
-        private User _user;
+        private User _ecoUser;
+        private bool _relayInitialised = false;
         
-        protected User EcoUser => _user ?? (_user = UserManager.GetOrCreateUser(EcoUserSteamId, EcoUserSlgId, EcoUserName));
+        protected User EcoUser => _ecoUser ?? (_ecoUser = UserManager.GetOrCreateUser(EcoUserSteamId, EcoUserSlgId, EcoUserName));
 
-        private void InitializeRelay()
+        private void BeginRelaying()
         {
-            chatNotifier.OnMessageReceived.Add(OnMessageReceivedFromEco);
-            _discordClient.MessageCreated += OnDiscordMessageCreateEvent;
+            if (!_relayInitialised)
+            {
+                chatNotifier.OnMessageReceived.Add(OnMessageReceivedFromEco);
+                _discordClient.MessageCreated += OnDiscordMessageCreateEvent;
+            }
+
+            _relayInitialised = true;
         }
 
-        private void DisposeRelay()
+        private void StopRelaying()
         {
-            chatNotifier.OnMessageReceived.Remove(OnMessageReceivedFromEco);
-            _discordClient.MessageCreated -= OnDiscordMessageCreateEvent;
+            if (_relayInitialised)
+            {
+                chatNotifier.OnMessageReceived.Remove(OnMessageReceivedFromEco);
+                _discordClient.MessageCreated -= OnDiscordMessageCreateEvent;
+            }
+
+            _relayInitialised = false;
         }
 
         public void OnMessageReceivedFromEco(ChatMessage message)
@@ -265,7 +291,7 @@ namespace Eco.Plugins.DiscordLink
             Log.Write("Temporary: " + message.Temporary + "\n");
             Log.Write("Sender: " + message.Sender + "\n");
             if (String.IsNullOrWhiteSpace(message.Sender)) { return; };
-            SendMessage($"**{message.Sender}**: {message.Text}", "", "");
+            SendMessage($"**{message.Sender}**: {message.Text}", "just-spoffy", "Full Duplex Game Testing");
         }
 
         public async Task OnDiscordMessageCreateEvent(MessageCreateEventArgs messageArgs)
@@ -280,7 +306,6 @@ namespace Eco.Plugins.DiscordLink
             var text = "#Discord " + message.Author.Username + ": " + message.Content;
             ChatManager.SendChat(text, EcoUser);;
         }
-        
 
         #endregion
 
