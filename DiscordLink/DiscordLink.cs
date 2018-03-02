@@ -285,12 +285,12 @@ namespace Eco.Plugins.DiscordLink
         public void OnMessageReceivedFromEco(ChatMessage message)
         {
             if (message.Sender == EcoUser.Name) { return; }
-            Log.Write("Message: " + message.Text + "\n");
-            Log.Write("Tag: " + message.Tag + "\n");
-            Log.Write("Category: " + message.Category + "\n");
-            Log.Write("Temporary: " + message.Temporary + "\n");
-            Log.Write("Sender: " + message.Sender + "\n");
             if (String.IsNullOrWhiteSpace(message.Sender)) { return; };
+            //Log.Write("Message: " + message.Text + "\n");
+            //Log.Write("Tag: " + message.Tag + "\n");
+            //Log.Write("Category: " + message.Category + "\n");
+            //Log.Write("Temporary: " + message.Temporary + "\n");
+            //Log.Write("Sender: " + message.Sender + "\n");
             SendMessage($"**{message.Sender}**: {message.Text}", "just-spoffy", "Full Duplex Game Testing");
         }
 
@@ -309,6 +309,8 @@ namespace Eco.Plugins.DiscordLink
 
         #endregion
 
+        #region Configuration
+        
         public static DiscordLink Obj
         {
             get { return PluginManager.GetPlugin<DiscordLink>(); }
@@ -330,6 +332,10 @@ namespace Eco.Plugins.DiscordLink
                 RestartClient();
             }
         }
+        
+        #endregion
+
+        #region Player Configs
         
         public DiscordPlayerConfig GetOrCreatePlayerConfig(string identifier)
         {
@@ -380,6 +386,8 @@ namespace Eco.Plugins.DiscordLink
             playerConfig.DefaultChannel.Channel = channelName;
             SavePlayerConfig();
         }
+        
+        #endregion
     }
 
     public class DiscordConfig
@@ -408,6 +416,9 @@ namespace Eco.Plugins.DiscordLink
                 _playerConfigs = value;
             }
         }
+
+        [Description("Channels to connect together."), Category("Channel Configuration")]
+        public List<ChannelLink> ChannelLinks { get; set; } = new List<ChannelLink>();
     }
 
     public class DiscordPlayerConfig
@@ -428,5 +439,13 @@ namespace Eco.Plugins.DiscordLink
             public string Channel { get; set; }
         }
     }
-    
+
+    public class ChannelLink
+    {
+        [Description("Discord Channel to use. Case sensitive.")]
+        public string DiscordChannel { get; set; }
+        
+        [Description("Eco Channel to use. Case sensitive.")]
+        public string EcoChannel { get; set; }
+    }
 }
