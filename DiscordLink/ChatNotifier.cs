@@ -28,7 +28,7 @@ namespace Eco.Plugins.DiscordLink
                 var newMessages = ChatServer.GetPlayerMessages(lastCheckTime);
                 newMessages.ForEach(message =>
                 {
-                    Log.Write("Message found, invoking callback.");
+                    //Log.Write("Message found, invoking callback.");
                     OnMessageReceived.Invoke(message);
                 });
                 lastCheckTime = WorldTime.Seconds;
