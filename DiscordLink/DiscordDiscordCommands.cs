@@ -47,7 +47,10 @@ namespace Eco.Plugins.DiscordLink
                 "No server description is available.");
 
             IPAddress addr = IPUtil.GetInterNetworkIP().FirstOrDefault();
-            string serverAddress = (addr != null? addr.ToString() : "No Configured Address") + ":" + serverInfo.WebPort;
+            string serverAddress = String.IsNullOrEmpty(pluginConfig.ServerIP)
+                ? addr == null ? "No Configured Address"
+                : addr + ":" + serverInfo.WebPort
+                : pluginConfig.ServerIP;
             
             string players = serverInfo.OnlinePlayers + "/" + serverInfo.TotalPlayers;
             
