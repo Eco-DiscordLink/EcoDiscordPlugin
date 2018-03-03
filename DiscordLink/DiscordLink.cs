@@ -12,8 +12,10 @@ using DSharpPlus.EventArgs;
 using Eco.Core;
 using Eco.Core.Plugins;
 using Eco.Core.Plugins.Interfaces;
+using Eco.Gameplay.Pipes.Gases;
 using Eco.Gameplay.Players;
 using Eco.Gameplay.Systems.Chat;
+using Eco.ModKit.Statics;
 using Eco.Shared.Services;
 using Eco.Shared.Utils;
 
@@ -21,6 +23,7 @@ namespace Eco.Plugins.DiscordLink
 {
     public class DiscordLink : IModKitPlugin, IInitializablePlugin, IConfigurablePlugin
     {
+        protected string NametagColor = "7289DAFF";
         private PluginConfig<DiscordConfig> configOptions;
         private DiscordClient _discordClient;
         private CommandsNextModule _commands;
@@ -282,16 +285,34 @@ namespace Eco.Plugins.DiscordLink
             _relayInitialised = false;
         }
 
+        private ChannelLink GetLinkForEcoChannel(string discordChannelName)
+        {
+            return DiscordPluginConfig.ChannelLinks.FirstOrDefault(link => link.DiscordChannel == discordChannelName);
+        }
+
+        private ChannelLink GetLinkForDiscordChannel(string ecoChannelName)
+        {
+            return DiscordPluginConfig.ChannelLinks.FirstOrDefault(link => link.EcoChannel == ecoChannelName);
+        }
+
         public void OnMessageReceivedFromEco(ChatMessage message)
         {
             if (message.Sender == EcoUser.Name) { return; }
             if (String.IsNullOrWhiteSpace(message.Sender)) { return; };
-            //Log.Write("Message: " + message.Text + "\n");
-            //Log.Write("Tag: " + message.Tag + "\n");
-            //Log.Write("Category: " + message.Category + "\n");
-            //Log.Write("Temporary: " + message.Temporary + "\n");
-            //Log.Write("Sender: " + message.Sender + "\n");
-            SendMessage($"**{message.Sender}**: {message.Text}", "just-spoffy", "Full Duplex Game Testing");
+            
+            //Remove the # character from the start.
+            var channelLink = GetLinkForDiscordChannel(message.Tag.Substring(1));
+            var channel = channelLink?.DiscordChannel;
+            var guild = channelLink?.DiscordGuild;
+            /*Log.Write("Message: " + message.Text + "\n");
+            Log.Write("Tag: " + message.Tag + "\n");
+            Log.Write("Category: " + message.Category + "\n");
+            Log.Write("Temporary: " + message.Temporary + "\n");
+            Log.Write("Sender: " + message.Sender + "\n");*/
+            if (!String.IsNullOrWhiteSpace(channel) && !String.IsNullOrWhiteSpace(guild))
+            {
+                SendMessage($"**{message.Sender}**: {message.Text}", channel, guild);
+            }
         }
 
         public async Task OnDiscordMessageCreateEvent(MessageCreateEventArgs messageArgs)
@@ -303,8 +324,16 @@ namespace Eco.Plugins.DiscordLink
         public void OnMessageReceivedFromDiscord(DiscordMessage message)
         {
             if (message.Author == _discordClient.CurrentUser) { return; }
-            var text = "#Discord " + message.Author.Username + ": " + message.Content;
-            ChatManager.SendChat(text, EcoUser);;
+            Log.Write("Discord message from channel " + message.Channel.Name);
+            var channelLink = GetLinkForEcoChannel(message.Channel.Name);
+            var channel = channelLink?.EcoChannel; 
+            if (!String.IsNullOrWhiteSpace(channel))
+            {
+                Log.Write("Sending message to Eco channel: " + channelLink);
+                var nametag = Text.Bold(Text.Color(NametagColor, message.Author.Username));
+                var text = $"#{channel} {nametag}: {message.Content}";
+                ChatManager.SendChat(text, EcoUser);
+            }
         }
 
         #endregion
@@ -442,6 +471,9 @@ namespace Eco.Plugins.DiscordLink
 
     public class ChannelLink
     {
+        [Description("Discord Guild channel is in. Case sensitive.")]
+        public string DiscordGuild { get; set; }
+        
         [Description("Discord Channel to use. Case sensitive.")]
         public string DiscordChannel { get; set; }
         
