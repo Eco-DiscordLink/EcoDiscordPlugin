@@ -441,6 +441,9 @@ namespace Eco.Plugins.DiscordLink
         
         [Description("The logo of the server as a URL."), Category("Server Details")]
         public string ServerLogo { get; set; }
+        
+        [Description("IP of the server. Overrides the automatically detected IP."), Category("Server Details")]
+        public string ServerIP { get; set; }
 
         private List<DiscordPlayerConfig> _playerConfigs = new List<DiscordPlayerConfig>();
         
