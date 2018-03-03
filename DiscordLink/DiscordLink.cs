@@ -317,19 +317,19 @@ namespace Eco.Plugins.DiscordLink
 
         public async Task OnDiscordMessageCreateEvent(MessageCreateEventArgs messageArgs)
         {
-            Log.Write("Message from Discord!");
+            //Log.Write("Message from Discord!");
             OnMessageReceivedFromDiscord(messageArgs.Message);
         }
 
         public void OnMessageReceivedFromDiscord(DiscordMessage message)
         {
             if (message.Author == _discordClient.CurrentUser) { return; }
-            Log.Write("Discord message from channel " + message.Channel.Name);
+            //Log.Write("Discord message from channel " + message.Channel.Name);
             var channelLink = GetLinkForEcoChannel(message.Channel.Name);
             var channel = channelLink?.EcoChannel; 
             if (!String.IsNullOrWhiteSpace(channel))
             {
-                Log.Write("Sending message to Eco channel: " + channelLink);
+                //Log.Write("Sending message to Eco channel: " + channelLink);
                 var nametag = Text.Bold(Text.Color(NametagColor, message.Author.Username));
                 var text = $"#{channel} {nametag}: {message.Content}";
                 ChatManager.SendChat(text, EcoUser);
