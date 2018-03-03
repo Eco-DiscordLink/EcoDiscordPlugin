@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.Remoting.Messaging;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus;
@@ -29,6 +30,8 @@ namespace Eco.Plugins.DiscordLink
         private CommandsNextModule _commands;
         private string _currentToken;
         private string _status = "No Connection Attempt Made";
+        
+        private Regex tagStripRegex = new Regex("<[^>]*>");
 
         protected ChatNotifier chatNotifier;
 
@@ -295,6 +298,11 @@ namespace Eco.Plugins.DiscordLink
             return DiscordPluginConfig.ChannelLinks.FirstOrDefault(link => link.EcoChannel == ecoChannelName);
         }
 
+        public string StripTags(string toStrip)
+        {
+            return tagStripRegex.Replace(toStrip, String.Empty);
+        }
+
         public void OnMessageReceivedFromEco(ChatMessage message)
         {
             if (message.Sender == EcoUser.Name) { return; }
@@ -304,6 +312,7 @@ namespace Eco.Plugins.DiscordLink
             var channelLink = GetLinkForDiscordChannel(message.Tag.Substring(1));
             var channel = channelLink?.DiscordChannel;
             var guild = channelLink?.DiscordGuild;
+            var messageContent = StripTags(message.Text);
             /*Log.Write("Message: " + message.Text + "\n");
             Log.Write("Tag: " + message.Tag + "\n");
             Log.Write("Category: " + message.Category + "\n");
@@ -311,7 +320,7 @@ namespace Eco.Plugins.DiscordLink
             Log.Write("Sender: " + message.Sender + "\n");*/
             if (!String.IsNullOrWhiteSpace(channel) && !String.IsNullOrWhiteSpace(guild))
             {
-                SendMessage($"**{message.Sender}**: {message.Text}", channel, guild);
+                SendMessage($"**{message.Sender}**: {messageContent}", channel, guild);
             }
         }
 
