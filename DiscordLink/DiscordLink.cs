@@ -103,16 +103,16 @@ namespace Eco.Plugins.DiscordLink
                 // Create the new client
                 _discordClient = new DiscordClient(new DiscordConfiguration
                 {
+                    AutoReconnect = true,
                     Token = _currentToken,
                     TokenType = TokenType.Bot
                 });
 
                 _discordClient.Ready += async args => { Logger.Info("Connected and Ready"); };
-                _discordClient.ClientErrored += async args =>
-                {
-                    Logger.Error(args.EventName + " " + args.Exception.Message);
-                };
-                _discordClient.SocketErrored += async args => { Logger.Error(args.Exception.Message); };
+                _discordClient.ClientErrored += async args => { Logger.Error(args.EventName + " " + args.Exception.ToString()); };
+                _discordClient.SocketErrored += async args => { Logger.Error(args.Exception.ToString()); };
+                _discordClient.SocketClosed += async args => { Logger.DebugVerbose("Socket Closed: " + args.CloseMessage + " " + args.CloseCode); };
+                _discordClient.Resumed += async args => { Logger.Info("Resumed connection"); };
 
                 // Set up the client to use CommandsNext
                 _commands = _discordClient.UseCommandsNext(new CommandsNextConfiguration()
