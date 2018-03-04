@@ -9,6 +9,13 @@ namespace Eco.Plugins.DiscordLink
             Log.Write("DISCORDLINK DEBUG:" + message);
         }
 
+        public static void DebugVerbose(string message)
+        {
+            #if DEBUGVERBOSE
+            Log.Write("DISCORDLINK DEBUG:" + message);
+            #endif
+        }
+
         public static void Info(string message)
         {
             Log.Write("DISCORDLINK: " + message);
