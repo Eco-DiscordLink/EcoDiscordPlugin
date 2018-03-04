@@ -95,6 +95,7 @@
     <Compile Include="DiscordEcoCommands.cs" />
     <Compile Include="DiscordLink.cs" />
     <Compile Include="IPUtil.cs" />
+    <Compile Include="Logger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
