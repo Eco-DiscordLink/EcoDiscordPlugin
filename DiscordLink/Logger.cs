@@ -23,7 +23,7 @@ namespace Eco.Plugins.DiscordLink
 
         public static void Error(string message)
         {
-            Log.Write("DISCORDLINK ERROR:" + message + "\n");
+            Log.Write("DISCORDLINK ERROR: " + message + "\n");
         }
     }
 }
