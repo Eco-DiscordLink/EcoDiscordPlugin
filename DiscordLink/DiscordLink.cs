@@ -30,7 +30,7 @@ namespace Eco.Plugins.DiscordLink
         private CommandsNextModule _commands;
         private string _currentToken;
         private string _status = "No Connection Attempt Made";
-        
+
         private Regex tagStripRegex = new Regex("<[^>]*>");
 
         protected ChatNotifier chatNotifier;
@@ -85,6 +85,7 @@ namespace Eco.Plugins.DiscordLink
                 await DisconnectAsync();
                 _discordClient.Dispose();
             }
+
             return null;
         }
 
@@ -107,7 +108,10 @@ namespace Eco.Plugins.DiscordLink
                 });
 
                 _discordClient.Ready += async args => { Logger.Info("Connected and Ready"); };
-                _discordClient.ClientErrored += async args => { Logger.Error(args.EventName + " " + args.Exception.Message); };
+                _discordClient.ClientErrored += async args =>
+                {
+                    Logger.Error(args.EventName + " " + args.Exception.Message);
+                };
                 _discordClient.SocketErrored += async args => { Logger.Error(args.Exception.Message); };
 
                 // Set up the client to use CommandsNext
@@ -138,18 +142,21 @@ namespace Eco.Plugins.DiscordLink
 
         public string[] GuildNames
         {
-            get {
+            get
+            {
                 if (_discordClient != null)
                 {
                     return _discordClient.Guilds.Values.Select((guild => guild.Name)).ToArray();
                 }
+
                 return null;
             }
         }
 
         public DiscordGuild DefaultGuild
         {
-            get {
+            get
+            {
                 if (_discordClient != null)
                 {
                     return _discordClient.Guilds.FirstOrDefault().Value;
@@ -163,7 +170,7 @@ namespace Eco.Plugins.DiscordLink
         {
             return guild != null ? TextChannelsInGuild(guild).Select(channel => channel.Name).ToArray() : new string[0];
         }
-        
+
         public IReadOnlyList<DiscordChannel> TextChannelsInGuild(DiscordGuild guild)
         {
             return guild != null
@@ -192,7 +199,9 @@ namespace Eco.Plugins.DiscordLink
 
         public DiscordChannel ChannelByName(DiscordGuild guild, string channelName)
         {
-            return guild != null? TextChannelsInGuild(guild).FirstOrDefault(channel => channel.Name == channelName) : null;
+            return guild != null
+                ? TextChannelsInGuild(guild).FirstOrDefault(channel => channel.Name == channelName)
+                : null;
         }
 
         public async Task<string> SendMessage(string message, string channelName, string guildName)
@@ -204,7 +213,7 @@ namespace Eco.Plugins.DiscordLink
             var channel = ChannelByName(guild, channelName);
             return await SendMessage(message, channel);
         }
-        
+
         public async Task<string> SendMessage(string message, DiscordChannel channel)
         {
             if (_discordClient == null) return "No discord client";
@@ -218,12 +227,12 @@ namespace Eco.Plugins.DiscordLink
         {
             return await SendMessage(String.Format("*{0}*: {1}", user.Name, message), channelName, guildName);
         }
-        
+
         public async Task<String> SendMessageAsUser(string message, User user, DiscordChannel channel)
         {
             return await SendMessage(String.Format("*{0}*: {1}", user.Name, message), channel);
         }
-        
+
         public async Task<object> ConnectAsync()
         {
             try
@@ -234,8 +243,8 @@ namespace Eco.Plugins.DiscordLink
                 Logger.Info("Connected to Discord.\n");
                 _status = "Connection successful";
 
-                
-            } 
+
+            }
             catch (Exception e)
             {
                 Logger.Error("Error connecting to discord: " + e.Message + "\n");
@@ -244,14 +253,14 @@ namespace Eco.Plugins.DiscordLink
 
             return null;
         }
-        
+
         public async Task<object> DisconnectAsync()
         {
             try
             {
                 StopRelaying();
-                await _discordClient.DisconnectAsync();           
-            } 
+                await _discordClient.DisconnectAsync();
+            }
             catch (Exception e)
             {
                 Logger.Error("Disconnecting from discord: " + e.Message + "\n");
@@ -268,8 +277,9 @@ namespace Eco.Plugins.DiscordLink
         private string EcoUserName = "Discord";
         private User _ecoUser;
         private bool _relayInitialised = false;
-        
-        protected User EcoUser => _ecoUser ?? (_ecoUser = UserManager.GetOrCreateUser(EcoUserSteamId, EcoUserSlgId, EcoUserName));
+
+        protected User EcoUser =>
+            _ecoUser ?? (_ecoUser = UserManager.GetOrCreateUser(EcoUserSteamId, EcoUserSlgId, EcoUserName));
 
         private void BeginRelaying()
         {
@@ -308,8 +318,21 @@ namespace Eco.Plugins.DiscordLink
             return tagStripRegex.Replace(toStrip, String.Empty);
         }
 
-        public void OnMessageReceivedFromEco(ChatMessage message)
+        public void LogEcoMessage(ChatMessage message)
         {
+            #if DEBUGVERBOSE
+            Logger.DebugVerbose("Eco Message Processed:");
+            Logger.DebugVerbose("Message: " + message.Text);
+            Logger.DebugVerbose("Tag: " + message.Tag);
+            Logger.DebugVerbose("Category: " + message.Category);
+            Logger.DebugVerbose("Temporary: " + message.Temporary);
+            Logger.DebugVerbose("Sender: " + message.Sender);
+            #endif
+        }
+
+    public void OnMessageReceivedFromEco(ChatMessage message)
+        {
+            LogEcoMessage(message);
             if (message.Sender == EcoUser.Name) { return; }
             if (String.IsNullOrWhiteSpace(message.Sender)) { return; };
             
@@ -318,32 +341,28 @@ namespace Eco.Plugins.DiscordLink
             var channel = channelLink?.DiscordChannel;
             var guild = channelLink?.DiscordGuild;
             var messageContent = StripTags(message.Text);
-            /*Log.Write("Message: " + message.Text + "\n");
-            Log.Write("Tag: " + message.Tag + "\n");
-            Log.Write("Category: " + message.Category + "\n");
-            Log.Write("Temporary: " + message.Temporary + "\n");
-            Log.Write("Sender: " + message.Sender + "\n");*/
+
             if (!String.IsNullOrWhiteSpace(channel) && !String.IsNullOrWhiteSpace(guild))
             {
+                Logger.DebugVerbose("Sending Eco message to Discord");
                 SendMessage($"**{message.Sender}**: {messageContent}", channel, guild);
             }
         }
 
         public async Task OnDiscordMessageCreateEvent(MessageCreateEventArgs messageArgs)
         {
-            //Log.Write("Message from Discord!");
             OnMessageReceivedFromDiscord(messageArgs.Message);
         }
 
         public void OnMessageReceivedFromDiscord(DiscordMessage message)
         {
+            Logger.DebugVerbose("Message received from Discord on channel: " + message.Channel.Name);
             if (message.Author == _discordClient.CurrentUser) { return; }
-            //Log.Write("Discord message from channel " + message.Channel.Name);
             var channelLink = GetLinkForEcoChannel(message.Channel.Name);
             var channel = channelLink?.EcoChannel; 
             if (!String.IsNullOrWhiteSpace(channel))
             {
-                //Log.Write("Sending message to Eco channel: " + channelLink);
+                Logger.DebugVerbose("Sending message to Eco channel: " + channelLink);
                 var nametag = Text.Bold(Text.Color(NametagColor, message.Author.Username));
                 var text = $"#{channel} {nametag}: {message.Content}";
                 ChatManager.SendChat(text, EcoUser);
