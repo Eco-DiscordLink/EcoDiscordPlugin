@@ -106,6 +106,10 @@ namespace Eco.Plugins.DiscordLink
                     TokenType = TokenType.Bot
                 });
 
+                _discordClient.Ready += async args => { Logger.Info("Connected and Ready"); };
+                _discordClient.ClientErrored += async args => { Logger.Error(args.EventName + " " + args.Exception.Message); };
+                _discordClient.SocketErrored += async args => { Logger.Error(args.Exception.Message); };
+
                 // Set up the client to use CommandsNext
                 _commands = _discordClient.UseCommandsNext(new CommandsNextConfiguration()
                 {
@@ -118,8 +122,8 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (Exception e)
             {
-                Log.Write("ERROR: Unable to create the discord client. Error message was: " + e.Message + "\n");
-                Log.Write("Backtrace: " + e.StackTrace);
+                Logger.Error("ERROR: Unable to create the discord client. Error message was: " + e.Message + "\n");
+                Logger.Error("Backtrace: " + e.StackTrace);
             }
 
             return false;
@@ -227,13 +231,14 @@ namespace Eco.Plugins.DiscordLink
                 _status = "Attempting connection...";
                 await _discordClient.ConnectAsync();
                 BeginRelaying();
-                Log.Write("Connected to Discord.\n");
+                Logger.Info("Connected to Discord.\n");
                 _status = "Connection successful";
+
                 
             } 
             catch (Exception e)
             {
-                Log.Write("Error connecting to discord: " + e.Message + "\n");
+                Logger.Error("Error connecting to discord: " + e.Message + "\n");
                 _status = "Connection failed";
             }
 
@@ -249,7 +254,7 @@ namespace Eco.Plugins.DiscordLink
             } 
             catch (Exception e)
             {
-                Log.Write("Error Disconnecting from discord: " + e.Message + "\n");
+                Logger.Error("Disconnecting from discord: " + e.Message + "\n");
                 _status = "Connection failed";
             }
 
@@ -366,7 +371,7 @@ namespace Eco.Plugins.DiscordLink
             if (DiscordPluginConfig.BotToken != _currentToken)
             {
                 //Reinitialise client.
-                Log.Write("Discord Token changed, reinitialising client.\n");
+                Logger.Info("Discord Token changed, reinitialising client.\n");
                 RestartClient();
             }
         }
