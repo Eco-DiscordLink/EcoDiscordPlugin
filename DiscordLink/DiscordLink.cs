@@ -235,7 +235,7 @@ namespace Eco.Plugins.DiscordLink
 
         public async Task<String> SendMessageAsUser(string message, User user, DiscordChannel channel)
         {
-            return await SendMessage(String.Format("*{0}*: {1}", user.Name, message), channel);
+            return await SendMessage($"**{user.Name}**: {StripTags(message)}", channel);
         }
 
         public async Task<object> ConnectAsync()
