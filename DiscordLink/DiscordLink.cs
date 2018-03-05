@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,10 +13,8 @@ using DSharpPlus.EventArgs;
 using Eco.Core;
 using Eco.Core.Plugins;
 using Eco.Core.Plugins.Interfaces;
-using Eco.Gameplay.Pipes.Gases;
 using Eco.Gameplay.Players;
 using Eco.Gameplay.Systems.Chat;
-using Eco.ModKit.Statics;
 using Eco.Shared.Services;
 using Eco.Shared.Utils;
 
@@ -73,9 +71,15 @@ namespace Eco.Plugins.DiscordLink
 
         public DiscordLink()
         {
-            configOptions = new PluginConfig<DiscordConfig>("DiscordPluginSpoffy");
+            SetupConfig();
             chatNotifier = new ChatNotifier();
             SetUpClient();
+        }
+
+        private void SetupConfig()
+        {
+            configOptions = new PluginConfig<DiscordConfig>("DiscordPluginSpoffy");
+            DiscordPluginConfig.ChannelLinks.CollectionChanged += (obj, args) => { SaveConfig(); };
         }
 
         private async Task<object> DisposeOfClient()
@@ -385,7 +389,12 @@ namespace Eco.Plugins.DiscordLink
 
         public void OnEditObjectChanged(object o, string param)
         {
-            
+            SaveConfig();
+        }
+
+        protected void SaveConfig()
+        {
+            Logger.DebugVerbose("Saving Config");
             configOptions.Save();
             if (DiscordPluginConfig.BotToken != _currentToken)
             {
@@ -483,7 +492,7 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [Description("Channels to connect together."), Category("Channel Configuration")]
-        public List<ChannelLink> ChannelLinks { get; set; } = new List<ChannelLink>();
+        public ObservableCollection<ChannelLink> ChannelLinks { get; set; } = new ObservableCollection<ChannelLink>();
     }
 
     public class DiscordPlayerConfig
