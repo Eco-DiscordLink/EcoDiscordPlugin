@@ -13,6 +13,7 @@ using DSharpPlus.EventArgs;
 using Eco.Core;
 using Eco.Core.Plugins;
 using Eco.Core.Plugins.Interfaces;
+using Eco.Core.Utils;
 using Eco.Gameplay.Players;
 using Eco.Gameplay.Stats.ConcretePlayerActions;
 using Eco.Gameplay.Systems.Chat;
@@ -54,7 +55,7 @@ namespace Eco.Plugins.DiscordLink
             return _status;
         }
 
-        public void Initialize()
+        public void Initialize(TimedTask timer)
         {
             if (_discordClient == null) return;
             ConnectAsync();
