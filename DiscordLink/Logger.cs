@@ -11,9 +11,10 @@ namespace Eco.Plugins.DiscordLink
 
         public static void DebugVerbose(string message)
         {
-            #if DEBUGVERBOSE
-            Log.Write("DISCORDLINK DEBUG:" + message + "\n");
-            #endif
+            if (DiscordLink.Obj?.DiscordPluginConfig.Debug == true)
+            {
+                Log.Write("DISCORDLINK DEBUG:" + message + "\n");
+            }
         }
 
         public static void Info(string message)
