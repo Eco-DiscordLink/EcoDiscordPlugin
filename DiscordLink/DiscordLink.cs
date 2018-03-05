@@ -14,6 +14,7 @@ using Eco.Core;
 using Eco.Core.Plugins;
 using Eco.Core.Plugins.Interfaces;
 using Eco.Gameplay.Players;
+using Eco.Gameplay.Stats.ConcretePlayerActions;
 using Eco.Gameplay.Systems.Chat;
 using Eco.Shared.Services;
 using Eco.Shared.Utils;
@@ -324,14 +325,12 @@ namespace Eco.Plugins.DiscordLink
 
         public void LogEcoMessage(ChatMessage message)
         {
-            #if DEBUGVERBOSE
             Logger.DebugVerbose("Eco Message Processed:");
             Logger.DebugVerbose("Message: " + message.Text);
             Logger.DebugVerbose("Tag: " + message.Tag);
             Logger.DebugVerbose("Category: " + message.Category);
             Logger.DebugVerbose("Temporary: " + message.Temporary);
             Logger.DebugVerbose("Sender: " + message.Sender);
-            #endif
         }
 
     public void OnMessageReceivedFromEco(ChatMessage message)
@@ -493,6 +492,9 @@ namespace Eco.Plugins.DiscordLink
 
         [Description("Channels to connect together."), Category("Channel Configuration")]
         public ObservableCollection<ChannelLink> ChannelLinks { get; set; } = new ObservableCollection<ChannelLink>();
+
+        [Description("Enables debugging output to the console."), Category("Debugging")]
+        public bool Debug { get; set; } = false;
     }
 
     public class DiscordPlayerConfig
