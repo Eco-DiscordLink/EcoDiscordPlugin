@@ -219,6 +219,11 @@ namespace Eco.Plugins.DiscordLink
             return await SendMessage(message, channel);
         }
 
+        private string FormatMessageFromUsername(string message, string username)
+        {
+            return $"**{username}**: {StripTags(message)}";
+        }
+
         public async Task<string> SendMessage(string message, DiscordChannel channel)
         {
             if (_discordClient == null) return "No discord client";
@@ -230,12 +235,12 @@ namespace Eco.Plugins.DiscordLink
 
         public async Task<string> SendMessageAsUser(string message, User user, string channelName, string guildName)
         {
-            return await SendMessage(String.Format("*{0}*: {1}", user.Name, message), channelName, guildName);
+            return await SendMessage(FormatMessageFromUsername(message, user.Name), channelName, guildName);
         }
 
         public async Task<String> SendMessageAsUser(string message, User user, DiscordChannel channel)
         {
-            return await SendMessage($"**{user.Name}**: {StripTags(message)}", channel);
+            return await SendMessage(FormatMessageFromUsername(message, user.Name), channel);
         }
 
         public async Task<object> ConnectAsync()
@@ -344,12 +349,11 @@ namespace Eco.Plugins.DiscordLink
             var channelLink = GetLinkForDiscordChannel(message.Tag.Substring(1));
             var channel = channelLink?.DiscordChannel;
             var guild = channelLink?.DiscordGuild;
-            var messageContent = StripTags(message.Text);
 
             if (!String.IsNullOrWhiteSpace(channel) && !String.IsNullOrWhiteSpace(guild))
             {
                 Logger.DebugVerbose("Sending Eco message to Discord");
-                SendMessage($"**{message.Sender}**: {messageContent}", channel, guild);
+                SendMessage(FormatMessageFromUsername(message.Text, message.Sender), channel, guild);
             }
         }
 
