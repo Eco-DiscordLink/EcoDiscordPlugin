@@ -29,16 +29,13 @@ For example: `/discordmessage Hello everyone, my name is Bob` will come out as "
 
 ## Installation
 
-1. Download a release of the plugin, which should contain DiscordLink.dll.
-2. Download DLLs for DSharpPlus and DSharpPlus.CommandsNext. These MAY be included in the above release.
-3. Place all 3 .dlls in "Eco Server/Mods/DiscordLink" (Or wherever you fancy, really, as along as all of them are loaded."
-4. Follow this guide: https://discordpy.readthedocs.io/en/rewrite/discord.html to set up a Discord bot user on your server.
-5. Copy the token (see above guide) into the appropriate field in the server config GUI.
-6. Set the other settings in the server config GUI to your liking and enjoy!
+See the [installation guide](Installation.md)
 
 ## Configuration
 
-All configuration is done via the Server GUI.
+All configuration is done via the Server GUI, and should be straightforward.
+
+For more information, see the [configuration guide](Configuration.md)
 
 
 DiscordLink Logo &copy; 2018 Phlo
