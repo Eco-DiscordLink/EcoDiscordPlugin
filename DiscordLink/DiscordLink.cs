@@ -365,7 +365,7 @@ namespace Eco.Plugins.DiscordLink
             var channel = channelLink?.EcoChannel; 
             if (!String.IsNullOrWhiteSpace(channel))
             {
-                Logger.DebugVerbose("Sending message to Eco channel: " + channelLink);
+                Logger.DebugVerbose("Sending message to Eco channel: " + channel);
                 var nametag = Text.Bold(Text.Color(NametagColor, message.Author.Username));
                 var text = $"#{channel} {nametag}: {message.Content}";
                 ChatManager.SendChat(text, EcoUser);
