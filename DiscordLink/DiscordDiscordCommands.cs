@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using Eco.Gameplay.Players;
 using Eco.Plugins.Networking;
 using Eco.Shared.Services;
 
@@ -15,6 +16,8 @@ namespace Eco.Plugins.DiscordLink
      */
     public class DiscordDiscordCommands
     {
+        public static DiscordColor EmbedColor = DiscordColor.Green;
+        
         private string FirstNonEmptyString(params string[] strings)
         {
             return strings.FirstOrDefault(str => !String.IsNullOrEmpty(str)) ?? "";
@@ -65,7 +68,7 @@ namespace Eco.Plugins.DiscordLink
             string leader = String.IsNullOrEmpty(serverInfo.Leader) ? "No leader" : serverInfo.Leader;
 
             DiscordEmbedBuilder builder = new DiscordEmbedBuilder()
-                .WithColor(DiscordColor.Green)
+                .WithColor(EmbedColor)
                 .WithTitle("**" + name + " Server Status**")
                 .WithDescription(description)
                 .AddField("Online Players", players)
@@ -79,6 +82,31 @@ namespace Eco.Plugins.DiscordLink
                 : builder.WithThumbnailUrl(pluginConfig.ServerLogo);
 
             await ctx.RespondAsync("Current status of the server:", false, builder.Build());
+        }
+
+        
+        [Command("players")]
+        [Description("Lists the players currently online on the server")]
+        public async Task PlayerList(CommandContext ctx)
+        {
+            var plugin = DiscordLink.Obj;
+            if (plugin == null)
+            {
+                await ctx.RespondAsync(
+                    "The plugin was unable to be found on the server. Please report this to the plugin author.");
+                return;
+            }
+
+            var onlineUsers = UserManager.OnlineUsers.Select(user => user.Name);
+            var numberOnline = onlineUsers.Count();
+            var message = $"{numberOnline} Online Players:\n";
+            var playerList = String.Join("\n", onlineUsers);
+            var embed = new DiscordEmbedBuilder()
+                .WithColor(EmbedColor)
+                .WithTitle(message)
+                .WithDescription(playerList);
+
+            await ctx.RespondAsync("Displaying Online Players", false, embed);
         }
     }
 }
