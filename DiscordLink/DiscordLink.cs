@@ -315,7 +315,8 @@ namespace Eco.Plugins.DiscordLink
 
         private ChannelLink GetLinkForDiscordChannel(string ecoChannelName)
         {
-            return DiscordPluginConfig.ChannelLinks.FirstOrDefault(link => link.EcoChannel == ecoChannelName);
+            var lowercaseEcoChannelName = ecoChannelName.ToLower();
+            return DiscordPluginConfig.ChannelLinks.FirstOrDefault(link => link.EcoChannel.ToLower() == lowercaseEcoChannelName);
         }
 
         public string StripTags(string toStrip)
