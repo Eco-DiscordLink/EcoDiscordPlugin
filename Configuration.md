@@ -1,6 +1,6 @@
 # DiscordLink Configuration
 
-* [Linking Channels][#Linking Channels]
+* [Linking Channels](#linking-channels)
 
 ## Linking Channels
 
