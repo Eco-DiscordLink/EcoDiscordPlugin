@@ -5,6 +5,8 @@
 
 ![Download page](images/tutorials/1.png)
 
-### 2. Go to your server's mods folder (Eco Server/Mods/) and extract the .zip there, overwriting any old files.
+### 2. Go to your server's mods folder (Eco Server/Mods/) and extract the .zip there.
 
 ![Unzip dialog](images/tutorials/2.png)
+
+### 3. Delete the previous version of the mod (the folder DiscordLink_1.X.X), as appropriate.
