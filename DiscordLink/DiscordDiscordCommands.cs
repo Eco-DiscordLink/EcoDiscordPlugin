@@ -45,37 +45,35 @@ namespace Eco.Plugins.DiscordLink
             var pluginConfig = plugin.DiscordPluginConfig;       
             var serverInfo = NetworkManager.GetServerInfo();
 
-            string name = FirstNonEmptyString(pluginConfig.ServerName, serverInfo.Name);
-            string description = FirstNonEmptyString(pluginConfig.ServerDescription, serverInfo.Description,
+            var name = FirstNonEmptyString(pluginConfig.ServerName, serverInfo.Name);
+            var description = FirstNonEmptyString(pluginConfig.ServerDescription, serverInfo.Description,
                 "No server description is available.");
 
-            IPAddress addr = IPUtil.GetInterNetworkIP().FirstOrDefault();
-            string serverAddress = String.IsNullOrEmpty(pluginConfig.ServerIP)
+            var addr = IPUtil.GetInterNetworkIP().FirstOrDefault();
+            var serverAddress = String.IsNullOrEmpty(pluginConfig.ServerIP)
                 ? addr == null ? "No Configured Address"
                 : addr + ":" + serverInfo.WebPort
                 : pluginConfig.ServerIP;
             
-            string players = serverInfo.OnlinePlayers + "/" + serverInfo.TotalPlayers;
+            var players = $"{serverInfo.OnlinePlayers}/{serverInfo.TotalPlayers}";
             
             var timeRemainingSpan = new TimeSpan(0, 0, (int) serverInfo.TimeLeft);
-            string timeRemaining = String.Format("{0} Days, {1} hours, {2} minutes", 
-                timeRemainingSpan.Days, timeRemainingSpan.Hours, timeRemainingSpan.Minutes);
+            var timeRemaining = $"{timeRemainingSpan.Days} Days, {timeRemainingSpan.Hours} hours, {timeRemainingSpan.Minutes} minutes";
             
             var timeSinceStartSpan = new TimeSpan(0, 0, (int) serverInfo.TimeSinceStart);
-            string timeSinceStart = String.Format("{0} Days, {1} hours, {2} minutes", 
-                timeSinceStartSpan.Days, timeSinceStartSpan.Hours, timeSinceStartSpan.Minutes);
+            var timeSinceStart = $"{timeSinceStartSpan.Days} Days, {timeSinceStartSpan.Hours} hours, {timeSinceStartSpan.Minutes} minutes";
             
-            string leader = String.IsNullOrEmpty(serverInfo.Leader) ? "No leader" : serverInfo.Leader;
+            var leader = String.IsNullOrEmpty(serverInfo.Leader) ? "No leader" : serverInfo.Leader;
 
-            DiscordEmbedBuilder builder = new DiscordEmbedBuilder()
+            var builder = new DiscordEmbedBuilder()
                 .WithColor(EmbedColor)
-                .WithTitle("**" + name + " Server Status**")
+                .WithTitle($"**{name} Server Status**")
                 .WithDescription(description)
-                .AddField("Online Players", players)
-                .AddField("Address", serverAddress)
-                .AddField("Time Left until Meteor", timeRemaining)
-                .AddField("Time Since Game Start", timeSinceStart)
-                .AddField("Current Leader", leader);
+                .AddField($"Online Players {players}")
+                .AddField($"Address {serverAddress}")
+                .AddField($"Time Left until Meteor {timeRemaining}")
+                .AddField($"Time Since Game Start {timeSinceStart}")
+                .AddField($"Current Leader {leader}");
 
             builder = String.IsNullOrWhiteSpace(pluginConfig.ServerLogo)
                 ? builder
