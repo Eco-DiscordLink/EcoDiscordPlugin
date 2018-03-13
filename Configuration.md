@@ -12,7 +12,7 @@
 
 ![Add new link](images/configuration/ChannelLinking2.png)
 
-3. Enter the name of the Discord channel you want to link to Eco, the name of the Discord server the channel is in, and the Eco channel name to link. Then hit "Ok"
+3. Enter the parameters for the channel link. "DiscordChannel" should be the Discord channel you want to link to Eco. For example, "general". DiscordGuild is the name of the Discord Server, for example "Eco" for the official Eco discord. Finally, EcoChannel is the channel in Eco you want to link to Discord, for example "General". Once entered, hit "Ok".
 
 ![Configure Link](images/configuration/ChannelLinking3.png)
 
