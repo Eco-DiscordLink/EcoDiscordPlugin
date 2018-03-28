@@ -97,6 +97,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ChatNotifier.cs" />
+    <Compile Include="DSharpExtensions.cs" />
     <Compile Include="DiscordDiscordCommands.cs" />
     <Compile Include="DiscordEcoCommands.cs" />
     <Compile Include="DiscordLink.cs" />
