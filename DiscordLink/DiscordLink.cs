@@ -146,69 +146,20 @@ namespace Eco.Plugins.DiscordLink
             return result;
         }
 
-        public string[] GuildNames
-        {
-            get
-            {
-                if (_discordClient != null)
-                {
-                    return _discordClient.Guilds.Values.Select((guild => guild.Name)).ToArray();
-                }
 
-                return null;
-            }
-        }
+        public DiscordClient DiscordClient => _discordClient;
+        
+        #region Discord Guild Access
 
-        public DiscordGuild DefaultGuild
-        {
-            get
-            {
-                if (_discordClient != null)
-                {
-                    return _discordClient.Guilds.FirstOrDefault().Value;
-                }
-
-                return null;
-            }
-        }
-
-        public string[] ChannelsInGuild(DiscordGuild guild)
-        {
-            return guild != null ? TextChannelsInGuild(guild).Select(channel => channel.Name).ToArray() : new string[0];
-        }
-
-        public IReadOnlyList<DiscordChannel> TextChannelsInGuild(DiscordGuild guild)
-        {
-            return guild != null
-                ? guild.Channels.Where(channel => channel.Type == ChannelType.Text).ToList()
-                : new List<DiscordChannel>();
-        }
-
-        public string[] ChannelsByGuildName(string guildName)
-        {
-            if (_discordClient == null) return new string[0];
-            return ChannelsInGuild(GuildByName(guildName));
-        }
-
+        public string[] GuildNames => _discordClient.GuildNames();
+        public DiscordGuild DefaultGuild => _discordClient.DefaultGuild();
+        
         public DiscordGuild GuildByName(string name)
         {
-            if (_discordClient == null) return null;
-            return _discordClient.Guilds.Values.FirstOrDefault(guild => guild.Name == name);
-
+            return _discordClient.GuildByName(name);
         }
-
-        public DiscordChannel ChannelByName(string guildName, string channelName)
-        {
-            var guild = GuildByName(guildName);
-            return ChannelByName(guild, channelName);
-        }
-
-        public DiscordChannel ChannelByName(DiscordGuild guild, string channelName)
-        {
-            return guild != null
-                ? TextChannelsInGuild(guild).FirstOrDefault(channel => channel.Name == channelName)
-                : null;
-        }
+        
+        #endregion
 
         public async Task<string> SendMessage(string message, string channelName, string guildName)
         {
@@ -216,7 +167,7 @@ namespace Eco.Plugins.DiscordLink
             var guild = GuildByName(guildName);
             if (guild == null) return "No guild of that name found";
 
-            var channel = ChannelByName(guild, channelName);
+            var channel = guild.ChannelByName(channelName);
             return await SendMessage(message, channel);
         }
 
@@ -451,7 +402,7 @@ namespace Eco.Plugins.DiscordLink
                 return null;
             }
 
-            return ChannelByName(playerConfig.DefaultChannel.Guild, playerConfig.DefaultChannel.Channel);
+            return GuildByName(playerConfig.DefaultChannel.Guild).ChannelByName(playerConfig.DefaultChannel.Channel);
         }
         
         
