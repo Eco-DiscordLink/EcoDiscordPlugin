@@ -116,7 +116,7 @@ namespace Eco.Plugins.DiscordLink
                         ChatManager.ServerMessageToPlayer("Unable to find that guild, perhaps the name was misspelled?", user);
                     }
 
-                    var joinedGames = String.Join(", ", plugin.ChannelsInGuild(guild));
+                    var joinedGames = String.Join(", ", guild.TextChannelNames());
                     ChatManager.ServerMessageToAll("Channels: " + joinedGames, false);
                 },
                 user);
