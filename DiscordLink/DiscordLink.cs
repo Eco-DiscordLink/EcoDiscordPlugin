@@ -83,6 +83,8 @@ namespace Eco.Plugins.DiscordLink
             configOptions = new PluginConfig<DiscordConfig>("DiscordPluginSpoffy");
             DiscordPluginConfig.ChannelLinks.CollectionChanged += (obj, args) => { SaveConfig(); };
         }
+        
+        #region DiscordClient Management
 
         private async Task<object> DisposeOfClient()
         {
@@ -145,56 +147,6 @@ namespace Eco.Plugins.DiscordLink
             await ConnectAsync();
             return result;
         }
-
-
-        public DiscordClient DiscordClient => _discordClient;
-        
-        #region Discord Guild Access
-
-        public string[] GuildNames => _discordClient.GuildNames();
-        public DiscordGuild DefaultGuild => _discordClient.DefaultGuild();
-        
-        public DiscordGuild GuildByName(string name)
-        {
-            return _discordClient.GuildByName(name);
-        }
-        
-        #endregion
-
-        public async Task<string> SendMessage(string message, string channelName, string guildName)
-        {
-            if (_discordClient == null) return "No discord client";
-            var guild = GuildByName(guildName);
-            if (guild == null) return "No guild of that name found";
-
-            var channel = guild.ChannelByName(channelName);
-            return await SendMessage(message, channel);
-        }
-
-        private string FormatMessageFromUsername(string message, string username)
-        {
-            return $"**{username}**: {StripTags(message)}";
-        }
-
-        public async Task<string> SendMessage(string message, DiscordChannel channel)
-        {
-            if (_discordClient == null) return "No discord client";
-            if (channel == null) return "No channel of that name found in that guild";
-
-            await _discordClient.SendMessageAsync(channel, message);
-            return "Message sent successfully!";
-        }
-
-        public async Task<string> SendMessageAsUser(string message, User user, string channelName, string guildName)
-        {
-            return await SendMessage(FormatMessageFromUsername(message, user.Name), channelName, guildName);
-        }
-
-        public async Task<String> SendMessageAsUser(string message, User user, DiscordChannel channel)
-        {
-            return await SendMessage(FormatMessageFromUsername(message, user.Name), channel);
-        }
-
         public async Task<object> ConnectAsync()
         {
             try
@@ -231,6 +183,60 @@ namespace Eco.Plugins.DiscordLink
 
             return null;
         }
+
+        public DiscordClient DiscordClient => _discordClient;
+        
+        #endregion
+        
+        #region Discord Guild Access
+
+        public string[] GuildNames => _discordClient.GuildNames();
+        public DiscordGuild DefaultGuild => _discordClient.DefaultGuild();
+        
+        public DiscordGuild GuildByName(string name)
+        {
+            return _discordClient.GuildByName(name);
+        }
+        
+        #endregion
+
+        #region Message Sending
+        
+        public async Task<string> SendMessage(string message, string channelName, string guildName)
+        {
+            if (_discordClient == null) return "No discord client";
+            var guild = GuildByName(guildName);
+            if (guild == null) return "No guild of that name found";
+
+            var channel = guild.ChannelByName(channelName);
+            return await SendMessage(message, channel);
+        }
+
+        private string FormatMessageFromUsername(string message, string username)
+        {
+            return $"**{username}**: {StripTags(message)}";
+        }
+
+        public async Task<string> SendMessage(string message, DiscordChannel channel)
+        {
+            if (_discordClient == null) return "No discord client";
+            if (channel == null) return "No channel of that name found in that guild";
+
+            await _discordClient.SendMessageAsync(channel, message);
+            return "Message sent successfully!";
+        }
+
+        public async Task<string> SendMessageAsUser(string message, User user, string channelName, string guildName)
+        {
+            return await SendMessage(FormatMessageFromUsername(message, user.Name), channelName, guildName);
+        }
+
+        public async Task<String> SendMessageAsUser(string message, User user, DiscordChannel channel)
+        {
+            return await SendMessage(FormatMessageFromUsername(message, user.Name), channel);
+        }
+
+        #endregion
 
         #region MessageRelaying
 
