@@ -95,7 +95,7 @@ namespace Eco.Plugins.DiscordLink
                 return;
             }
 
-            var onlineUsers = UserManager.OnlineUsers.Select(user => user.Name);
+            var onlineUsers = UserManager.OnlineUsers.Where(user => user.Client.Connected).Select(user => user.Name);
             var numberOnline = onlineUsers.Count();
             var message = $"{numberOnline} Online Players:\n";
             var playerList = String.Join("\n", onlineUsers);
