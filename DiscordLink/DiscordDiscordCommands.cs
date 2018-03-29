@@ -69,11 +69,11 @@ namespace Eco.Plugins.DiscordLink
                 .WithColor(EmbedColor)
                 .WithTitle($"**{name} Server Status**")
                 .WithDescription(description)
-                .AddField($"Online Players {players}")
-                .AddField($"Address {serverAddress}")
-                .AddField($"Time Left until Meteor {timeRemaining}")
-                .AddField($"Time Since Game Start {timeSinceStart}")
-                .AddField($"Current Leader {leader}");
+                .AddField("Online Players", players)
+                .AddField("Address", serverAddress)
+                .AddField("Time Left until Meteor", timeRemaining)
+                .AddField("Time Since Game Start", timeSinceStart)
+                .AddField("Current Leader", leader);
 
             builder = String.IsNullOrWhiteSpace(pluginConfig.ServerLogo)
                 ? builder
