@@ -28,7 +28,7 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (Exception e)
             {
-                ChatManager.ServerMessageToPlayer("Error occurred while attempting to run that command. Error message: " + e, user, false);
+                ChatManager.ServerMessageToPlayerAlreadyLocalized("Error occurred while attempting to run that command. Error message: " + e, user, false);
                 Log("Error occurred while attempting to run that command. Error message: " + e);
                 Log(e.StackTrace);
             }
@@ -39,7 +39,7 @@ namespace Eco.Plugins.DiscordLink
         {
             CallWithErrorHandling<object>((lUser, args) =>
                 {
-                    ChatManager.ServerMessageToPlayer("Discord Plugin is loaded.", lUser);
+                    ChatManager.ServerMessageToPlayerAlreadyLocalized("Discord Plugin is loaded.", lUser);
                 },
                 user);
         }
@@ -54,7 +54,7 @@ namespace Eco.Plugins.DiscordLink
 
                     var joinedNames = String.Join(", ", plugin.GuildNames);
             
-                    ChatManager.ServerMessageToPlayer("Servers: " + joinedNames, user, false);
+                    ChatManager.ServerMessageToPlayerAlreadyLocalized("Servers: " + joinedNames, user, false);
                 },
                 user);
 
@@ -74,7 +74,7 @@ namespace Eco.Plugins.DiscordLink
 
                     plugin.SendMessageAsUser(message, user, channelName, guildName).ContinueWith(result =>
                     {
-                        ChatManager.ServerMessageToPlayer(result.Result, user);   
+                        ChatManager.ServerMessageToPlayerAlreadyLocalized(result.Result, user);   
                     });
                 },
                 user, guild, channel, outerMessage);
@@ -92,7 +92,7 @@ namespace Eco.Plugins.DiscordLink
 
                     plugin.SendMessageAsUser(message, user, defaultChannel).ContinueWith(result =>
                     {
-                        ChatManager.ServerMessageToPlayer(result.Result, user);   
+                        ChatManager.ServerMessageToPlayerAlreadyLocalized(result.Result, user);   
                     });
                 },
                 user, message);
@@ -113,11 +113,11 @@ namespace Eco.Plugins.DiscordLink
                     //Can happen in DefaultGuild is not configured.
                     if (guild == null)
                     {
-                        ChatManager.ServerMessageToPlayer("Unable to find that guild, perhaps the name was misspelled?", user);
+                        ChatManager.ServerMessageToPlayerAlreadyLocalized("Unable to find that guild, perhaps the name was misspelled?", user);
                     }
 
                     var joinedGames = String.Join(", ", guild.TextChannelNames());
-                    ChatManager.ServerMessageToAll("Channels: " + joinedGames, false);
+                    ChatManager.ServerMessageToAllAlreadyLocalized("Channels: " + joinedGames, false);
                 },
                 user);
 
@@ -132,7 +132,7 @@ namespace Eco.Plugins.DiscordLink
                     if (plugin == null) return;
 
                     plugin.SetDefaultChannelForPlayer(user.Name, guildName, channelName);
-                    ChatManager.ServerMessageToPlayer("Default channel set to " + channelName, user);
+                    ChatManager.ServerMessageToPlayerAlreadyLocalized("Default channel set to " + channelName, user);
                 },
                 user);
         }
