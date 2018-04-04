@@ -330,11 +330,17 @@ namespace Eco.Plugins.DiscordLink
             var channel = channelLink?.EcoChannel; 
             if (!String.IsNullOrWhiteSpace(channel))
             {
-                Logger.DebugVerbose("Sending message to Eco channel: " + channel);
-                var nametag = Text.Bold(Text.Color(NametagColor, message.Author.Username));
-                var text = $"#{channel} {nametag}: {message.Content}";
-                ChatManager.SendChat(text, EcoUser);
+                ForwardMessageToEcoChannel(message, channel);
             }
+        }
+
+        private async void ForwardMessageToEcoChannel(DiscordMessage message, string channelName)
+        {
+            Logger.DebugVerbose("Sending message to Eco channel: " + channelName);
+            var author = await message.Channel.Guild.GetMemberAsync(message.Author.Id);
+            var nametag = Text.Bold(Text.Color(NametagColor, author.DisplayName));
+            var text = $"#{channelName} {nametag}: {message.Content}";
+            ChatManager.SendChat(text, EcoUser);
         }
 
         #endregion
