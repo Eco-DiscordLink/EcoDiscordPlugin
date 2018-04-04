@@ -339,8 +339,32 @@ namespace Eco.Plugins.DiscordLink
             Logger.DebugVerbose("Sending message to Eco channel: " + channelName);
             var author = await message.Channel.Guild.GetMemberAsync(message.Author.Id);
             var nametag = Text.Bold(Text.Color(NametagColor, author.DisplayName));
-            var text = $"#{channelName} {nametag}: {message.Content}";
+            var text = $"#{channelName} {nametag}: {GetReadableContent(message)}";
             ChatManager.SendChat(text, EcoUser);
+        }
+
+        private String GetReadableContent(DiscordMessage message)
+        {
+            var content = message.Content;
+            foreach (var user in message.MentionedUsers)
+            {
+                if (user == null) continue;
+                DiscordMember member = message.Channel.Guild.Members.FirstOrDefault(m => m?.Id == user?.Id);
+                String name = "@" + (member?.DisplayName ?? user.Username);
+                content = content.Replace($"<@{user.Id}>", name)
+                        .Replace($"<@!{user.Id}>", name);
+            }
+            foreach (var role in message.MentionedRoles)
+            {
+                if (role == null) continue;
+                content = content.Replace($"<@&{role.Id}>", $"@{role.Name}");
+            }
+            foreach (var channel in message.MentionedChannels)
+            {
+                if (channel == null) continue;
+                content = content.Replace($"<#{channel.Id}>", $"#{channel.Name}");
+            }
+            return content;
         }
 
         #endregion
