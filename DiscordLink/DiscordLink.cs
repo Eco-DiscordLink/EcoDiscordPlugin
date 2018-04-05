@@ -206,26 +206,20 @@ namespace Eco.Plugins.DiscordLink
 
         public async Task<string> SendMessage(string message, string channelNameOrId, string guildNameOrId)
         {
+            var id = 0UL;
+
             if (_discordClient == null) return "No discord client";
-            var guild = SelectByNameOrById(guildNameOrId, GuildByName, id => _discordClient.Guilds[id]);
+
+            var guild = TryParseSnowflakeId(guildNameOrId, out id) ? _discordClient.Guilds[id] : GuildByName(guildNameOrId);
             if (guild == null) return "No guild of that name found";
 
-            var channel = SelectByNameOrById(channelNameOrId, guild.ChannelByName, guild.GetChannel);
+            var channel = TryParseSnowflakeId(channelNameOrId, out id) ? guild.GetChannel(id) : guild.ChannelByName(channelNameOrId);
             return await SendMessage(message, channel);
         }
 
-        private T SelectByNameOrById<T>(string nameOrId, Func<string, T> byName, Func<ulong, T> byId)
+        private bool TryParseSnowflakeId(string nameOrId, out ulong id)
         {
-            ulong id;
-            if (ulong.TryParse(nameOrId, out id) && id > 0xFFFFFFFFFFFFFul)
-            {
-                Logger.DebugVerbose($"Detected ID: {id}");
-                return byId(id);
-            }
-            else
-            {
-                return byName(nameOrId);
-            }
+            return ulong.TryParse(nameOrId, out id) && id > 0xFFFFFFFFFFFFFUL;
         }
 
         private string FormatMessageFromUsername(string message, string username)
