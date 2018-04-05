@@ -84,7 +84,7 @@ namespace Eco.Plugins.DiscordLink
             configOptions = new PluginConfig<DiscordConfig>("DiscordPluginSpoffy");
             DiscordPluginConfig.ChannelLinks.CollectionChanged += (obj, args) => { SaveConfig(); };
         }
-        
+
         #region DiscordClient Management
 
         private async Task<object> DisposeOfClient()
@@ -187,31 +187,45 @@ namespace Eco.Plugins.DiscordLink
         }
 
         public DiscordClient DiscordClient => _discordClient;
-        
+
         #endregion
-        
+
         #region Discord Guild Access
 
         public string[] GuildNames => _discordClient.GuildNames();
         public DiscordGuild DefaultGuild => _discordClient.DefaultGuild();
-        
+
         public DiscordGuild GuildByName(string name)
         {
             return _discordClient.GuildByName(name);
         }
-        
+
         #endregion
 
         #region Message Sending
-        
-        public async Task<string> SendMessage(string message, string channelName, string guildName)
+
+        public async Task<string> SendMessage(string message, string channelNameOrId, string guildNameOrId)
         {
             if (_discordClient == null) return "No discord client";
-            var guild = GuildByName(guildName);
+            var guild = SelectByNameOrById(guildNameOrId, GuildByName, id => _discordClient.Guilds[id]);
             if (guild == null) return "No guild of that name found";
 
-            var channel = guild.ChannelByName(channelName);
+            var channel = SelectByNameOrById(channelNameOrId, guild.ChannelByName, guild.GetChannel);
             return await SendMessage(message, channel);
+        }
+
+        private T SelectByNameOrById<T>(string nameOrId, Func<string, T> byName, Func<ulong, T> byId)
+        {
+            ulong id;
+            if (ulong.TryParse(nameOrId, out id) && id > 0xFFFFFFFFFFFFFul)
+            {
+                Logger.DebugVerbose($"Detected ID: {id}");
+                return byId(id);
+            }
+            else
+            {
+                return byName(nameOrId);
+            }
         }
 
         private string FormatMessageFromUsername(string message, string username)
@@ -222,7 +236,7 @@ namespace Eco.Plugins.DiscordLink
         public async Task<string> SendMessage(string message, DiscordChannel channel)
         {
             if (_discordClient == null) return "No discord client";
-            if (channel == null) return "No channel of that name found in that guild";
+            if (channel == null) return "No channel of that name or ID found in that guild";
 
             await _discordClient.SendMessageAsync(channel, message);
             return "Message sent successfully!";
@@ -273,9 +287,9 @@ namespace Eco.Plugins.DiscordLink
             _relayInitialised = false;
         }
 
-        private ChannelLink GetLinkForEcoChannel(string discordChannelName)
+        private ChannelLink GetLinkForEcoChannel(string discordChannelNameOrId)
         {
-            return DiscordPluginConfig.ChannelLinks.FirstOrDefault(link => link.DiscordChannel == discordChannelName);
+            return DiscordPluginConfig.ChannelLinks.FirstOrDefault(link => link.DiscordChannel == discordChannelNameOrId);
         }
 
         private ChannelLink GetLinkForDiscordChannel(string ecoChannelName)
@@ -299,12 +313,12 @@ namespace Eco.Plugins.DiscordLink
             Logger.DebugVerbose("Sender: " + message.Sender);
         }
 
-    public void OnMessageReceivedFromEco(ChatMessage message)
+        public void OnMessageReceivedFromEco(ChatMessage message)
         {
             LogEcoMessage(message);
             if (message.Sender == EcoUser.Name) { return; }
             if (String.IsNullOrWhiteSpace(message.Sender)) { return; };
-            
+
             //Remove the # character from the start.
             var channelLink = GetLinkForDiscordChannel(message.Tag.Substring(1));
             var channel = channelLink?.DiscordChannel;
@@ -326,8 +340,8 @@ namespace Eco.Plugins.DiscordLink
         {
             Logger.DebugVerbose("Message received from Discord on channel: " + message.Channel.Name);
             if (message.Author == _discordClient.CurrentUser) { return; }
-            var channelLink = GetLinkForEcoChannel(message.Channel.Name);
-            var channel = channelLink?.EcoChannel; 
+            var channelLink = GetLinkForEcoChannel(message.Channel.Name) ?? GetLinkForEcoChannel(message.Channel.Id.ToString());
+            var channel = channelLink?.EcoChannel;
             if (!String.IsNullOrWhiteSpace(channel))
             {
                 ForwardMessageToEcoChannel(message, channel);
@@ -370,12 +384,12 @@ namespace Eco.Plugins.DiscordLink
         #endregion
 
         #region Configuration
-        
+
         public static DiscordLink Obj
         {
             get { return PluginManager.GetPlugin<DiscordLink>(); }
         }
-        
+
         public object GetEditObject()
         {
             return configOptions.Config;
@@ -397,11 +411,11 @@ namespace Eco.Plugins.DiscordLink
                 RestartClient();
             }
         }
-        
+
         #endregion
 
         #region Player Configs
-        
+
         public DiscordPlayerConfig GetOrCreatePlayerConfig(string identifier)
         {
             var config = DiscordPluginConfig.PlayerConfigs.FirstOrDefault(user => user.Username == identifier);
@@ -442,8 +456,8 @@ namespace Eco.Plugins.DiscordLink
 
             return GuildByName(playerConfig.DefaultChannel.Guild).ChannelByName(playerConfig.DefaultChannel.Channel);
         }
-        
-        
+
+
         public void SetDefaultChannelForPlayer(string identifier, string guildName, string channelName)
         {
             var playerConfig = GetOrCreatePlayerConfig(identifier);
@@ -451,7 +465,7 @@ namespace Eco.Plugins.DiscordLink
             playerConfig.DefaultChannel.Channel = channelName;
             SavePlayerConfig();
         }
-        
+
         #endregion
     }
 
@@ -459,24 +473,26 @@ namespace Eco.Plugins.DiscordLink
     {
         [Description("The token provided by the Discord API to allow access to the bot"), Category("Bot Configuration")]
         public string BotToken { get; set; }
-        
+
         [Description("The name of the Eco server, overriding the name configured within Eco."), Category("Server Details")]
         public string ServerName { get; set; }
-        
+
         [Description("The description of the Eco server, overriding the description configured within Eco."), Category("Server Details")]
         public string ServerDescription { get; set; }
-        
+
         [Description("The logo of the server as a URL."), Category("Server Details")]
         public string ServerLogo { get; set; }
-        
+
         [Description("IP of the server. Overrides the automatically detected IP."), Category("Server Details")]
         public string ServerIP { get; set; }
 
         private List<DiscordPlayerConfig> _playerConfigs = new List<DiscordPlayerConfig>();
-        
+
         [Description("A mapping from user to user config parameters.")]
-        public List<DiscordPlayerConfig> PlayerConfigs {
-            get {
+        public List<DiscordPlayerConfig> PlayerConfigs
+        {
+            get
+            {
                 return _playerConfigs;
             }
             set
@@ -513,12 +529,12 @@ namespace Eco.Plugins.DiscordLink
 
     public class ChannelLink
     {
-        [Description("Discord Guild channel is in. Case sensitive.")]
+        [Description("Discord Guild channel is in by name or ID. Case sensitive.")]
         public string DiscordGuild { get; set; }
-        
-        [Description("Discord Channel to use. Case sensitive.")]
+
+        [Description("Discord Channel to use by name or ID. Case sensitive.")]
         public string DiscordChannel { get; set; }
-        
+
         [Description("Eco Channel to use. Case sensitive.")]
         public string EcoChannel { get; set; }
     }
