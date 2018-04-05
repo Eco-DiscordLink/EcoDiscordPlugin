@@ -194,10 +194,16 @@ namespace Eco.Plugins.DiscordLink
 
         public string[] GuildNames => _discordClient.GuildNames();
         public DiscordGuild DefaultGuild => _discordClient.DefaultGuild();
-
+        
         public DiscordGuild GuildByName(string name)
         {
             return _discordClient.GuildByName(name);
+        }
+
+        public DiscordGuild GuildByNameOrId(string nameOrId)
+        {
+            var maybeGuildId = DSharpExtensions.TryParseSnowflakeId(nameOrId);
+            return maybeGuildId != null ? _discordClient.Guilds[maybeGuildId.Value] : GuildByName(nameOrId);
         }
 
         #endregion
@@ -206,20 +212,13 @@ namespace Eco.Plugins.DiscordLink
 
         public async Task<string> SendMessage(string message, string channelNameOrId, string guildNameOrId)
         {
-            var id = 0UL;
-
             if (_discordClient == null) return "No discord client";
 
-            var guild = TryParseSnowflakeId(guildNameOrId, out id) ? _discordClient.Guilds[id] : GuildByName(guildNameOrId);
+            var guild = GuildByNameOrId(guildNameOrId);
             if (guild == null) return "No guild of that name found";
 
-            var channel = TryParseSnowflakeId(channelNameOrId, out id) ? guild.GetChannel(id) : guild.ChannelByName(channelNameOrId);
+            var channel = guild.ChannelByNameOrId(channelNameOrId);
             return await SendMessage(message, channel);
-        }
-
-        private bool TryParseSnowflakeId(string nameOrId, out ulong id)
-        {
-            return ulong.TryParse(nameOrId, out id) && id > 0xFFFFFFFFFFFFFUL;
         }
 
         private string FormatMessageFromUsername(string message, string username)
@@ -356,9 +355,10 @@ namespace Eco.Plugins.DiscordLink
             var content = message.Content;
             foreach (var user in message.MentionedUsers)
             {
-                if (user == null) continue;
-                DiscordMember member = message.Channel.Guild.Members.FirstOrDefault(m => m?.Id == user?.Id);
-                String name = "@" + (member?.DisplayName ?? user.Username);
+                if (user == null) { continue; }
+                DiscordMember member = message.Channel.Guild.Members.FirstOrDefault(m => m?.Id == user.Id);
+                if (member == null) { continue; }
+                String name = "@" + member.DisplayName;
                 content = content.Replace($"<@{user.Id}>", name)
                         .Replace($"<@!{user.Id}>", name);
             }
