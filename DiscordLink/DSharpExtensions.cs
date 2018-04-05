@@ -8,6 +8,12 @@ namespace Eco.Plugins.DiscordLink
 {
     public static class DSharpExtensions
     {
+        public static ulong? TryParseSnowflakeId(string nameOrId)
+        {
+            ulong id;
+            return ulong.TryParse(nameOrId, out id) && id > 0xFFFFFFFFFFFFFUL ? new ulong?(id) : null;
+        }
+        
         public static string[] TextChannelNames(this DiscordGuild guild)
         {
             return guild != null ? guild.TextChannels().Select(channel => channel.Name).ToArray() : new string[0];
@@ -25,6 +31,14 @@ namespace Eco.Plugins.DiscordLink
             return guild != null
                 ? guild.TextChannels().FirstOrDefault(channel => channel.Name == channelName)
                 : null;
+        }
+
+        public static DiscordChannel ChannelByNameOrId(this DiscordGuild guild, string channelNameOrId)
+        {
+            if (guild == null) { return null; }
+
+            var maybeChannelId = TryParseSnowflakeId(channelNameOrId);
+            return maybeChannelId != null ? guild.GetChannel(maybeChannelId.Value) : guild.ChannelByName(channelNameOrId);
         }
 
 
