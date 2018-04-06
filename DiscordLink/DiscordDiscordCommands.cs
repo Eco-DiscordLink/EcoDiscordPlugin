@@ -165,74 +165,87 @@ namespace Eco.Plugins.DiscordLink
                     .WithTitle("Trade Listings");
 
                 var stores = WorldObjectManager.All.SelectMany(o => o.Components.OfType<StoreComponent>());
-                var lookupItem = Item.AllItems.FirstOrDefault(i => i.FriendlyName.ToLower() == playerOrItem.ToLower());
-                if (lookupItem == default(Item))
+
+                List<object> lookup = new List<object>();
+                lookup.AddRange(Item.AllItems);
+                lookup.AddRange(UserManager.Users);
+
+                var match = BestMatchOrDefault(playerOrItem, lookup, o =>
                 {
-                    var user = UserManager.Users.OrderBy(u=>u.Name).FirstOrDefault(u=>u.Name.ToLower().StartsWith(playerOrItem.ToLower()));
-                    if (user == default(User))
+                    if (o is Item) return (o as Item).FriendlyName;
+                    else return (o as User).Name;
+                });
+
+                if (match != default(object))
+                {
+                    if (match is Item)
                     {
-                        await ctx.RespondAsync(
-                        "The player or item was not found.");
-                        return;
+                        var matchItem = match as Item;
+                        embed.WithAuthor(matchItem.FriendlyName);
+
+                        var sellOffers = stores
+                            .SelectMany(s => s.SellOffers().Where(t => t.IsSet && t.Stack.Item == matchItem).Select(o => Tuple.Create(s, o)))
+                            .OrderBy(t => t.Item2.Stack.Item.FriendlyName).ToList();
+                        if (sellOffers.Count > 0)
+                        {
+                            embed.AddField("**Sell Offers**",
+                                TradeOffersFieldMessage(sellOffers,
+                                t => null,
+                                t => t.Item1.Parent.OwnerUser.Name,
+                                t => t.Item2.Stack.Quantity)
+                                , true);
+                        }
+
+                        var buyOffers = stores
+                            .SelectMany(s => s.BuyOffers().Where(t => t.IsSet && t.Stack.Item == matchItem).Select(o => Tuple.Create(s, o)))
+                            .OrderBy(t => t.Item2.Stack.Item.FriendlyName).ToList();
+                        if (buyOffers.Count > 0)
+                        {
+                            embed.AddField("**Buy Offers**",
+                                TradeOffersFieldMessage(buyOffers,
+                                t => null,
+                                t => t.Item1.Parent.OwnerUser.Name,
+                                t => t.Item2.ShouldLimit ? (int?)t.Item2.Stack.Quantity : null)
+                                , true);
+                        }
                     }
-
-                    embed.WithAuthor(user.Name);
-
-                    var sellOffers = stores.Where(s => s.Parent.OwnerUser == user)
-                        .SelectMany(s => s.SellOffers().Where(t => t.IsSet).Select(o => Tuple.Create(s, o)))
-                        .OrderBy(t => t.Item2.Stack.Item.FriendlyName).ToList();
-                    if (sellOffers.Count > 0)
+                    else if (match is User)
                     {
-                        embed.AddField("**Sell Offers**",
-                            TradeOffersFieldMessage(sellOffers,
-                            t => null,
-                            t => t.Item2.Stack.Item.FriendlyName,
-                            t => t.Item2.Stack.Quantity)
-                            , true);
-                    }
+                        var matchUser = match as User;
+                        embed.WithAuthor(matchUser.Name);
 
-                    var buyOffers = stores.Where(s => s.Parent.OwnerUser == user)
-                        .SelectMany(s=>s.BuyOffers().Where(t => t.IsSet).Select(o => Tuple.Create(s, o)))
-                        .OrderBy(t => t.Item2.Stack.Item.FriendlyName).ToList();
-                    if (buyOffers.Count > 0)
-                    {
-                        embed.AddField("**Buy Offers**",
-                            TradeOffersFieldMessage(buyOffers,
-                            t => null,
-                            t => t.Item2.Stack.Item.FriendlyName,
-                            t => t.Item2.ShouldLimit ? (int?)t.Item2.Stack.Quantity : null)
-                            ,true);
+                        var sellOffers = stores.Where(s => s.Parent.OwnerUser == matchUser)
+                            .SelectMany(s => s.SellOffers().Where(t => t.IsSet).Select(o => Tuple.Create(s, o)))
+                            .OrderBy(t => t.Item2.Stack.Item.FriendlyName).ToList();
+                        if (sellOffers.Count > 0)
+                        {
+                            embed.AddField("**Sell Offers**",
+                                TradeOffersFieldMessage(sellOffers,
+                                t => null,
+                                t => t.Item2.Stack.Item.FriendlyName,
+                                t => t.Item2.Stack.Quantity)
+                                , true);
+                        }
+
+                        var buyOffers = stores.Where(s => s.Parent.OwnerUser == matchUser)
+                            .SelectMany(s => s.BuyOffers().Where(t => t.IsSet).Select(o => Tuple.Create(s, o)))
+                            .OrderBy(t => t.Item2.Stack.Item.FriendlyName).ToList();
+                        if (buyOffers.Count > 0)
+                        {
+                            embed.AddField("**Buy Offers**",
+                                TradeOffersFieldMessage(buyOffers,
+                                t => null,
+                                t => t.Item2.Stack.Item.FriendlyName,
+                                t => t.Item2.ShouldLimit ? (int?)t.Item2.Stack.Quantity : null)
+                                , true);
+                        }
                     }
                 }
                 else
                 {
-                    embed.WithAuthor(lookupItem.FriendlyName);
-
-                    var sellOffers = stores
-                        .SelectMany(s => s.SellOffers().Where(t => t.IsSet && t.Stack.Item == lookupItem).Select(o => Tuple.Create(s, o)))
-                        .OrderBy(t => t.Item2.Stack.Item.FriendlyName).ToList();
-                    if (sellOffers.Count > 0)
-                    {
-                        embed.AddField("**Sell Offers**",
-                            TradeOffersFieldMessage(sellOffers,
-                            t => null,
-                            t => t.Item1.Parent.OwnerUser.Name,
-                            t => t.Item2.Stack.Quantity)
-                            , true);
-                    }
-
-                    var buyOffers = stores
-                        .SelectMany(s => s.BuyOffers().Where(t => t.IsSet && t.Stack.Item == lookupItem).Select(o => Tuple.Create(s, o)))
-                        .OrderBy(t => t.Item2.Stack.Item.FriendlyName).ToList();
-                    if (buyOffers.Count > 0)
-                    {
-                        embed.AddField("**Buy Offers**",
-                            TradeOffersFieldMessage(buyOffers,
-                            t => null,
-                            t => t.Item1.Parent.OwnerUser.Name,
-                            t => t.Item2.ShouldLimit ? (int?)t.Item2.Stack.Quantity : null)
-                            , true);
-                    }
+                    await ctx.RespondAsync(
+                        "The player or item was not found.");
+                    return;
                 }
 
                 await ctx.RespondAsync(null, false, embed);
@@ -258,5 +271,27 @@ namespace Eco.Plugins.DiscordLink
         }
 
         #endregion Trades
+
+        private T BestMatchOrDefault<T>(string query, IEnumerable<T> lookup, Func<T,string> getKey)
+        {
+            var orderedAndKeyed = lookup.Select(t => Tuple.Create(getKey(t).ToLower(), t)).OrderBy(t => t.Item1);
+
+            var matches = new List<Predicate<string>> {
+                k => k == query,
+                k => k.StartsWith(query),
+                k => k.Contains(query)
+            };
+
+            foreach (var matcher in matches)
+            {
+                var match = orderedAndKeyed.FirstOrDefault(t => matcher(t.Item1));
+                if (match != default(Tuple<string,T>))
+                {
+                    return match.Item2;
+                }
+            }
+
+            return default(T);
+        }
     }
 }
