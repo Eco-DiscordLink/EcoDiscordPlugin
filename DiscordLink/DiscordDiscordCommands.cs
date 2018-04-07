@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using Eco.Gameplay.Components;
+using Eco.Gameplay.Items;
+using Eco.Gameplay.Objects;
 using Eco.Gameplay.Players;
 using Eco.Plugins.Networking;
 
@@ -15,18 +19,18 @@ namespace Eco.Plugins.DiscordLink
     public class DiscordDiscordCommands
     {
         public static DiscordColor EmbedColor = DiscordColor.Green;
-        
+
         private string FirstNonEmptyString(params string[] strings)
         {
             return strings.FirstOrDefault(str => !String.IsNullOrEmpty(str)) ?? "";
         }
 
         public delegate Task DiscordCommand(CommandContext ctx);
-        
+
         private static void LogCommandException(Exception e)
         {
-                Logger.Error("Error occurred while attempting to run that command. Error message: " + e);
-                Logger.Error(e.StackTrace);
+            Logger.Error("Error occurred while attempting to run that command. Error message: " + e);
+            Logger.Error(e.StackTrace);
         }
 
         [Command("ping")]
@@ -96,7 +100,7 @@ namespace Eco.Plugins.DiscordLink
                 {
                     Logger.Info("Warning: The Configured Server Logo is not a valid URL.");
                 }
-                
+
 
                 await ctx.RespondAsync("Current status of the server:", false, builder.Build());
             }
@@ -106,7 +110,7 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
-        
+
         [Command("players")]
         [Description("Lists the players currently online on the server")]
         public async Task PlayerList(CommandContext ctx)
@@ -137,6 +141,140 @@ namespace Eco.Plugins.DiscordLink
             {
                 LogCommandException(e);
             }
+        }
+
+        #region Trades
+
+        [Command("trades")]
+        [Description("Displays the latest trades by person or by item.")]
+        [Aliases("trade","offers","offer")]
+        public async Task Trades(CommandContext ctx,[Description("The player name or item name in question.")] string playerOrItem)
+        {
+            try
+            {
+                var plugin = DiscordLink.Obj;
+                if (plugin == null)
+                {
+                    await ctx.RespondAsync(
+                        "The plugin was unable to be found on the server. Please report this to the plugin author.");
+                    return;
+                }
+
+                var embed = new DiscordEmbedBuilder()
+                    .WithColor(EmbedColor)
+                    .WithTitle("Trade Listings");
+
+                List<object> lookup = new List<object>();
+                lookup.AddRange(Item.AllItems);
+                lookup.AddRange(UserManager.Users);
+
+                var match = BestMatchOrDefault(playerOrItem, lookup, o =>
+                {
+                    if (o is Item) return (o as Item).FriendlyName;
+                    else return (o as User).Name;
+                });
+
+                if (match != default(object))
+                {
+                    if (match is Item)
+                    {
+                        var matchItem = match as Item;
+                        embed.WithAuthor(matchItem.FriendlyName);
+                        TradeOffersBuySell(plugin, embed, t => t.Item2.Stack.Item == matchItem, t => t.Item1.Parent.OwnerUser.Name);
+                    }
+                    else if (match is User)
+                    {
+                        var matchUser = match as User;
+                        embed.WithAuthor(matchUser.Name);
+                        TradeOffersBuySell(plugin, embed, t => t.Item1.Parent.OwnerUser == matchUser, t => t.Item2.Stack.Item.FriendlyName);
+                    }
+                }
+                else
+                {
+                    await ctx.RespondAsync(
+                        "The player or item was not found.");
+                    return;
+                }
+
+                await ctx.RespondAsync(null, false, embed);
+            }
+            catch (Exception e)
+            {
+                LogCommandException(e);
+            }
+        }
+
+        private void TradeOffersBuySell(DiscordLink plugin, DiscordEmbedBuilder embed, Func<Tuple<StoreComponent,TradeOffer>,bool> filter, Func<Tuple<StoreComponent,TradeOffer>,string> context)
+        {
+            var stores = WorldObjectManager.All.SelectMany(o => o.Components.OfType<StoreComponent>());
+
+            var sellOffers = stores
+                .SelectMany(s => s.SellOffers().Where(t => t.IsSet).Select(o => Tuple.Create(s, o)).Where(filter))
+                .OrderBy(t => t.Item2.Stack.Item.FriendlyName).ToList();
+            foreach (var offers in sellOffers.GroupBy(t => TradeStoreCurrencyName(plugin, t.Item1)).OrderBy(g => g.Key))
+            {
+                embed.AddField($"**Selling for {offers.Key}**",
+                    TradeOffersFieldMessage(sellOffers,
+                    t => t.Item2.Price.ToString(),
+                    t => context(t),
+                    t => t.Item2.Stack.Quantity)
+                    , true);
+            }
+
+            var buyOffers = stores
+                .SelectMany(s => s.BuyOffers().Where(t => t.IsSet).Select(o => Tuple.Create(s, o)).Where(filter))
+                .OrderBy(t => t.Item2.Stack.Item.FriendlyName).ToList();
+            foreach (var offers in buyOffers.GroupBy(t => TradeStoreCurrencyName(plugin, t.Item1)).OrderBy(g => g.Key))
+            {
+                embed.AddField($"**Buying with {offers.Key}**",
+                    TradeOffersFieldMessage(buyOffers,
+                    t => t.Item2.Price.ToString(),
+                    t => context(t),
+                    t => t.Item2.ShouldLimit ? (int?)t.Item2.Stack.Quantity : null)
+                    , true);
+            }
+        }
+
+        private string TradeOffersFieldMessage<T>(IEnumerable<T> offers, Func<T, string> getPrice, Func<T,string> getLabel, Func<T,int?> getQuantity)
+        {
+            return String.Join("\n", offers.Select(t =>
+            {
+                var price = getPrice(t);
+                var quantity = getQuantity(t);
+                var quantityString = quantity.HasValue ? $"{quantity.Value} - " : "";
+                var line = $"{quantityString}${price} {getLabel(t)}";
+                if (quantity == 0) line = $"~~{line}~~";
+                return line;
+            }));
+        }
+
+        private string TradeStoreCurrencyName(DiscordLink plugin, StoreComponent store)
+        {
+            return plugin.StripTags(store.Parent.GetComponent<CreditComponent>().CurrencyName);
+        }
+
+        #endregion Trades
+
+        private T BestMatchOrDefault<T>(string query, IEnumerable<T> lookup, Func<T,string> getKey)
+        {
+            var orderedAndKeyed = lookup.Select(t => Tuple.Create(getKey(t).ToLower(), t)).OrderBy(t => t.Item1);
+
+            var matches = new List<Predicate<string>> {
+                k => k == query,
+                k => k.StartsWith(query),
+                k => k.Contains(query)
+            };
+
+            foreach (var matcher in matches)
+            {
+                var match = orderedAndKeyed.FirstOrDefault(t => matcher(t.Item1));
+                if (match != default(Tuple<string,T>))
+                {
+                    return match.Item2;
+                }
+            }
+
+            return default(T);
         }
     }
 }
