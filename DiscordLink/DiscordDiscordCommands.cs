@@ -164,8 +164,6 @@ namespace Eco.Plugins.DiscordLink
                     .WithColor(EmbedColor)
                     .WithTitle("Trade Listings");
 
-                var stores = WorldObjectManager.All.SelectMany(o => o.Components.OfType<StoreComponent>());
-
                 List<object> lookup = new List<object>();
                 lookup.AddRange(Item.AllItems);
                 lookup.AddRange(UserManager.Users);
@@ -182,63 +180,13 @@ namespace Eco.Plugins.DiscordLink
                     {
                         var matchItem = match as Item;
                         embed.WithAuthor(matchItem.FriendlyName);
-
-                        var sellOffers = stores
-                            .SelectMany(s => s.SellOffers().Where(t => t.IsSet && t.Stack.Item == matchItem).Select(o => Tuple.Create(s, o)))
-                            .OrderBy(t => t.Item2.Stack.Item.FriendlyName).ToList();
-                        if (sellOffers.Count > 0)
-                        {
-                            embed.AddField("**Sell Offers**",
-                                TradeOffersFieldMessage(sellOffers,
-                                t => null,
-                                t => t.Item1.Parent.OwnerUser.Name,
-                                t => t.Item2.Stack.Quantity)
-                                , true);
-                        }
-
-                        var buyOffers = stores
-                            .SelectMany(s => s.BuyOffers().Where(t => t.IsSet && t.Stack.Item == matchItem).Select(o => Tuple.Create(s, o)))
-                            .OrderBy(t => t.Item2.Stack.Item.FriendlyName).ToList();
-                        if (buyOffers.Count > 0)
-                        {
-                            embed.AddField("**Buy Offers**",
-                                TradeOffersFieldMessage(buyOffers,
-                                t => null,
-                                t => t.Item1.Parent.OwnerUser.Name,
-                                t => t.Item2.ShouldLimit ? (int?)t.Item2.Stack.Quantity : null)
-                                , true);
-                        }
+                        TradeOffersBuySell(plugin, embed, t => t.Item2.Stack.Item == matchItem, t => t.Item1.Parent.OwnerUser.Name);
                     }
                     else if (match is User)
                     {
                         var matchUser = match as User;
                         embed.WithAuthor(matchUser.Name);
-
-                        var sellOffers = stores.Where(s => s.Parent.OwnerUser == matchUser)
-                            .SelectMany(s => s.SellOffers().Where(t => t.IsSet).Select(o => Tuple.Create(s, o)))
-                            .OrderBy(t => t.Item2.Stack.Item.FriendlyName).ToList();
-                        if (sellOffers.Count > 0)
-                        {
-                            embed.AddField("**Sell Offers**",
-                                TradeOffersFieldMessage(sellOffers,
-                                t => null,
-                                t => t.Item2.Stack.Item.FriendlyName,
-                                t => t.Item2.Stack.Quantity)
-                                , true);
-                        }
-
-                        var buyOffers = stores.Where(s => s.Parent.OwnerUser == matchUser)
-                            .SelectMany(s => s.BuyOffers().Where(t => t.IsSet).Select(o => Tuple.Create(s, o)))
-                            .OrderBy(t => t.Item2.Stack.Item.FriendlyName).ToList();
-                        if (buyOffers.Count > 0)
-                        {
-                            embed.AddField("**Buy Offers**",
-                                TradeOffersFieldMessage(buyOffers,
-                                t => null,
-                                t => t.Item2.Stack.Item.FriendlyName,
-                                t => t.Item2.ShouldLimit ? (int?)t.Item2.Stack.Quantity : null)
-                                , true);
-                        }
+                        TradeOffersBuySell(plugin, embed, t => t.Item1.Parent.OwnerUser == matchUser, t => t.Item2.Stack.Item.FriendlyName);
                     }
                 }
                 else
@@ -256,18 +204,53 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
+        private void TradeOffersBuySell(DiscordLink plugin, DiscordEmbedBuilder embed, Func<Tuple<StoreComponent,TradeOffer>,bool> filter, Func<Tuple<StoreComponent,TradeOffer>,string> context)
+        {
+            var stores = WorldObjectManager.All.SelectMany(o => o.Components.OfType<StoreComponent>());
+
+            var sellOffers = stores
+                .SelectMany(s => s.SellOffers().Where(t => t.IsSet).Select(o => Tuple.Create(s, o)).Where(filter))
+                .OrderBy(t => t.Item2.Stack.Item.FriendlyName).ToList();
+            foreach (var offers in sellOffers.GroupBy(t => TradeStoreCurrencyName(plugin, t.Item1)).OrderBy(g => g.Key))
+            {
+                embed.AddField($"**Selling for {offers.Key}**",
+                    TradeOffersFieldMessage(sellOffers,
+                    t => t.Item2.Price.ToString(),
+                    t => context(t),
+                    t => t.Item2.Stack.Quantity)
+                    , true);
+            }
+
+            var buyOffers = stores
+                .SelectMany(s => s.BuyOffers().Where(t => t.IsSet).Select(o => Tuple.Create(s, o)).Where(filter))
+                .OrderBy(t => t.Item2.Stack.Item.FriendlyName).ToList();
+            foreach (var offers in buyOffers.GroupBy(t => TradeStoreCurrencyName(plugin, t.Item1)).OrderBy(g => g.Key))
+            {
+                embed.AddField($"**Buying with {offers.Key}**",
+                    TradeOffersFieldMessage(buyOffers,
+                    t => t.Item2.Price.ToString(),
+                    t => context(t),
+                    t => t.Item2.ShouldLimit ? (int?)t.Item2.Stack.Quantity : null)
+                    , true);
+            }
+        }
+
         private string TradeOffersFieldMessage<T>(IEnumerable<T> offers, Func<T, string> getPrice, Func<T,string> getLabel, Func<T,int?> getQuantity)
         {
             return String.Join("\n", offers.Select(t =>
             {
                 var price = getPrice(t);
-                var priceString = String.IsNullOrWhiteSpace(price) ? "" : $"{price} - ";
                 var quantity = getQuantity(t);
-                var quantityString = quantity.HasValue ? $"({quantity.Value})" : "";
-                var line = $"{priceString}{quantityString} {getLabel(t)}";
+                var quantityString = quantity.HasValue ? $"{quantity.Value} - " : "";
+                var line = $"{quantityString}${price} {getLabel(t)}";
                 if (quantity == 0) line = $"~~{line}~~";
                 return line;
             }));
+        }
+
+        private string TradeStoreCurrencyName(DiscordLink plugin, StoreComponent store)
+        {
+            return plugin.StripTags(store.Parent.GetComponent<CreditComponent>().CurrencyName);
         }
 
         #endregion Trades
