@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,6 +10,7 @@ using Eco.Gameplay.Components;
 using Eco.Gameplay.Items;
 using Eco.Gameplay.Objects;
 using Eco.Gameplay.Players;
+using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Plugins.Networking;
 
 namespace Eco.Plugins.DiscordLink
@@ -145,6 +147,13 @@ namespace Eco.Plugins.DiscordLink
 
         #region Trades
 
+        private static List<Either<Item, User>> _itemLookup = null;
+
+        private static List<Either<Item, User>> ItemLookup =>
+            _itemLookup == null
+                ? Item.AllItems.Select(item => new Either<Item, User>(item)).ToList()
+                : _itemLookup;
+
         [Command("trades")]
         [Description("Displays the latest trades by person or by item.")]
         [Aliases("trade","offers","offer")]
@@ -164,30 +173,25 @@ namespace Eco.Plugins.DiscordLink
                     .WithColor(EmbedColor)
                     .WithTitle("Trade Listings");
 
-                List<object> lookup = new List<object>();
-                lookup.AddRange(Item.AllItems);
-                lookup.AddRange(UserManager.Users);
-
+                var lookup = ItemLookup.Concat(UserManager.Users.Select(user => new Either<Item, User>(user)));
+                
                 var match = BestMatchOrDefault(playerOrItem, lookup, o =>
                 {
-                    if (o is Item) return (o as Item).FriendlyName;
-                    else return (o as User).Name;
+                    if (o.Is<Item>()) return o.Get<Item>().FriendlyName;
+                    return o.Get<User>().Name;
                 });
 
-                if (match != default(object))
+                if (match.Is<Item>())
                 {
-                    if (match is Item)
-                    {
-                        var matchItem = match as Item;
-                        embed.WithAuthor(matchItem.FriendlyName);
-                        TradeOffersBuySell(plugin, embed, t => t.Item2.Stack.Item == matchItem, t => t.Item1.Parent.OwnerUser.Name);
-                    }
-                    else if (match is User)
-                    {
-                        var matchUser = match as User;
-                        embed.WithAuthor(matchUser.Name);
-                        TradeOffersBuySell(plugin, embed, t => t.Item1.Parent.OwnerUser == matchUser, t => t.Item2.Stack.Item.FriendlyName);
-                    }
+                    var matchItem = match.Get<Item>();
+                    embed.WithAuthor(matchItem.FriendlyName);
+                    TradeOffersBuySell(plugin, embed, t => t.Item2.Stack.Item == matchItem, t => t.Item1.Parent.OwnerUser.Name);
+                }
+                else if (match.Is<User>())
+                {
+                    var matchUser = match.Get<User>();
+                    embed.WithAuthor(matchUser.Name);
+                    TradeOffersBuySell(plugin, embed, t => t.Item1.Parent.OwnerUser == matchUser, t => t.Item2.Stack.Item.FriendlyName);
                 }
                 else
                 {
