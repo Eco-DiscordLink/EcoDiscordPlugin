@@ -259,8 +259,9 @@ namespace Eco.Plugins.DiscordLink
 
         #endregion Trades
 
-        private T BestMatchOrDefault<T>(string query, IEnumerable<T> lookup, Func<T,string> getKey)
+        private T BestMatchOrDefault<T>(string rawQuery, IEnumerable<T> lookup, Func<T,string> getKey)
         {
+            var query = rawQuery.ToLower();
             var orderedAndKeyed = lookup.Select(t => Tuple.Create(getKey(t).ToLower(), t)).OrderBy(t => t.Item1);
 
             var matches = new List<Predicate<string>> {
