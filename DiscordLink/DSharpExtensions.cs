@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Remoting.Channels;
+using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
+using DSharpPlus.Exceptions;
 
 namespace Eco.Plugins.DiscordLink
 {
@@ -38,7 +41,13 @@ namespace Eco.Plugins.DiscordLink
             if (guild == null) { return null; }
 
             var maybeChannelId = TryParseSnowflakeId(channelNameOrId);
-            return maybeChannelId != null ? guild.GetChannel(maybeChannelId.Value) : guild.ChannelByName(channelNameOrId);
+                return maybeChannelId != null ? guild.GetChannel(maybeChannelId.Value) : guild.ChannelByName(channelNameOrId);
+        }
+
+        public async static Task<DiscordMember> MaybeGetMemberAsync(this DiscordGuild guild, ulong userId)
+        {
+            try { return await guild.GetMemberAsync(userId); }
+            catch (NotFoundException ex) { return null; }
         }
 
 
