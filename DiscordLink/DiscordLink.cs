@@ -344,8 +344,10 @@ namespace Eco.Plugins.DiscordLink
         private async void ForwardMessageToEcoChannel(DiscordMessage message, string channelName)
         {
             Logger.DebugVerbose("Sending message to Eco channel: " + channelName);
-            var author = await message.Channel.Guild.GetMemberAsync(message.Author.Id);
-            var nametag = Text.Bold(Text.Color(NametagColor, author.DisplayName));
+            var author = await message.Channel.Guild.MaybeGetMemberAsync(message.Author.Id);
+            var nametag = author != null
+                ? Text.Bold(Text.Color(NametagColor, author.DisplayName))
+                : message.Author.Username;
             var text = $"#{channelName} {nametag}: {GetReadableContent(message)}";
             ChatManager.SendChat(text, EcoUser);
         }
