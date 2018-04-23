@@ -32,7 +32,7 @@ namespace Eco.Plugins.DiscordLink
         private string _currentToken;
         private string _status = "No Connection Attempt Made";
 
-        private Regex tagStripRegex = new Regex("<[^>]*>");
+        private static readonly Regex TagStripRegex = new Regex("<[^>]*>");
 
         protected ChatNotifier chatNotifier;
 
@@ -291,9 +291,9 @@ namespace Eco.Plugins.DiscordLink
             return DiscordPluginConfig.ChannelLinks.FirstOrDefault(link => link.EcoChannel.ToLower() == lowercaseEcoChannelName);
         }
 
-        public string StripTags(string toStrip)
+        public static string StripTags(string toStrip)
         {
-            return tagStripRegex.Replace(toStrip, String.Empty);
+            return TagStripRegex.Replace(toStrip, String.Empty);
         }
 
         public void LogEcoMessage(ChatMessage message)
