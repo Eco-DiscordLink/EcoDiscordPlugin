@@ -147,17 +147,10 @@ namespace Eco.Plugins.DiscordLink
 
         #region Trades
 
-        private static List<Either<Item, User>> _itemLookup = null;
-
-        private static List<Either<Item, User>> ItemLookup =>
-            _itemLookup == null
-                ? Item.AllItems.Select(item => new Either<Item, User>(item)).ToList()
-                : _itemLookup;
-
         [Command("trades")]
         [Description("Displays the latest trades by person or by item.")]
         [Aliases("trade","offers","offer")]
-        public async Task Trades(CommandContext ctx,[Description("The player name or item name in question.")] string playerOrItem)
+        public async Task Trades(CommandContext ctx,[Description("The player name or item name in question.")] string itemNameOrUserName)
         {
             try
             {
@@ -173,25 +166,19 @@ namespace Eco.Plugins.DiscordLink
                     .WithColor(EmbedColor)
                     .WithTitle("Trade Listings");
 
-                var lookup = ItemLookup.Concat(UserManager.Users.Select(user => new Either<Item, User>(user)));
-                
-                var match = BestMatchOrDefault(playerOrItem, lookup, o =>
-                {
-                    if (o.Is<Item>()) return o.Get<Item>().FriendlyName;
-                    return o.Get<User>().Name;
-                });
+                var match = TradeHelper.MatchItemOrUser(itemNameOrUserName);
 
                 if (match.Is<Item>())
                 {
                     var matchItem = match.Get<Item>();
                     embed.WithAuthor(matchItem.FriendlyName);
-                    TradeOffersBuySell(plugin, embed, t => t.Item2.Stack.Item == matchItem, t => t.Item1.Parent.OwnerUser.Name);
+                    TradeOffersBuySell(plugin, embed, (store, offer) => offer.Stack.Item == matchItem, t => t.Item1.Parent.OwnerUser.Name);
                 }
                 else if (match.Is<User>())
                 {
                     var matchUser = match.Get<User>();
                     embed.WithAuthor(matchUser.Name);
-                    TradeOffersBuySell(plugin, embed, t => t.Item1.Parent.OwnerUser == matchUser, t => t.Item2.Stack.Item.FriendlyName);
+                    TradeOffersBuySell(plugin, embed, (store, offer) => store.Parent.OwnerUser == matchUser, t => t.Item2.Stack.Item.FriendlyName);
                 }
                 else
                 {
@@ -208,14 +195,13 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
-        private void TradeOffersBuySell(DiscordLink plugin, DiscordEmbedBuilder embed, Func<Tuple<StoreComponent,TradeOffer>,bool> filter, Func<Tuple<StoreComponent,TradeOffer>,string> context)
+        private void TradeOffersBuySell(DiscordLink plugin, DiscordEmbedBuilder embed, Func<StoreComponent,TradeOffer, bool> filter, Func<Tuple<StoreComponent,TradeOffer>,string> context)
         {
             var stores = WorldObjectManager.All.SelectMany(o => o.Components.OfType<StoreComponent>());
 
-            var sellOffers = stores
-                .SelectMany(s => s.SellOffers().Where(t => t.IsSet).Select(o => Tuple.Create(s, o)).Where(filter))
-                .OrderBy(t => t.Item2.Stack.Item.FriendlyName).ToList();
-            foreach (var offers in sellOffers.GroupBy(t => TradeStoreCurrencyName(plugin, t.Item1)).OrderBy(g => g.Key))
+            var sellOffers = TradeHelper.SellOffers(filter);
+            
+            foreach (var offers in sellOffers.GroupBy(t => TradeHelper.StoreCurrencyName(t.Item1)).OrderBy(g => g.Key))
             {
                 embed.AddField($"**Selling for {offers.Key}**",
                     TradeOffersFieldMessage(sellOffers,
@@ -225,10 +211,9 @@ namespace Eco.Plugins.DiscordLink
                     , true);
             }
 
-            var buyOffers = stores
-                .SelectMany(s => s.BuyOffers().Where(t => t.IsSet).Select(o => Tuple.Create(s, o)).Where(filter))
-                .OrderBy(t => t.Item2.Stack.Item.FriendlyName).ToList();
-            foreach (var offers in buyOffers.GroupBy(t => TradeStoreCurrencyName(plugin, t.Item1)).OrderBy(g => g.Key))
+            var buyOffers = TradeHelper.BuyOffers(filter);
+            
+            foreach (var offers in buyOffers.GroupBy(t => TradeHelper.StoreCurrencyName(t.Item1)).OrderBy(g => g.Key))
             {
                 embed.AddField($"**Buying with {offers.Key}**",
                     TradeOffersFieldMessage(buyOffers,
@@ -252,34 +237,6 @@ namespace Eco.Plugins.DiscordLink
             }));
         }
 
-        private string TradeStoreCurrencyName(DiscordLink plugin, StoreComponent store)
-        {
-            return plugin.StripTags(store.Parent.GetComponent<CreditComponent>().CurrencyName);
-        }
-
         #endregion Trades
-
-        private T BestMatchOrDefault<T>(string rawQuery, IEnumerable<T> lookup, Func<T,string> getKey)
-        {
-            var query = rawQuery.ToLower();
-            var orderedAndKeyed = lookup.Select(t => Tuple.Create(getKey(t).ToLower(), t)).OrderBy(t => t.Item1);
-
-            var matches = new List<Predicate<string>> {
-                k => k == query,
-                k => k.StartsWith(query),
-                k => k.Contains(query)
-            };
-
-            foreach (var matcher in matches)
-            {
-                var match = orderedAndKeyed.FirstOrDefault(t => matcher(t.Item1));
-                if (match != default(Tuple<string,T>))
-                {
-                    return match.Item2;
-                }
-            }
-
-            return default(T);
-        }
     }
 }
