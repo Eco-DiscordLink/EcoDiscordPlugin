@@ -149,7 +149,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("trades")]
         [Description("Displays the latest trades by person or by item.")]
-        [Aliases("trade","offers","offer")]
+        [Aliases("trade")]
         public async Task Trades(CommandContext ctx,[Description("The player name or item name in question.")] string itemNameOrUserName)
         {
             try
@@ -204,7 +204,7 @@ namespace Eco.Plugins.DiscordLink
             foreach (var offers in sellOffers.GroupBy(t => TradeHelper.StoreCurrencyName(t.Item1)).OrderBy(g => g.Key))
             {
                 embed.AddField($"**Selling for {offers.Key}**",
-                    TradeOffersFieldMessage(sellOffers,
+                    TradeOffersFieldMessage(offers,
                     t => t.Item2.Price.ToString(),
                     t => context(t),
                     t => t.Item2.Stack.Quantity)
@@ -216,7 +216,7 @@ namespace Eco.Plugins.DiscordLink
             foreach (var offers in buyOffers.GroupBy(t => TradeHelper.StoreCurrencyName(t.Item1)).OrderBy(g => g.Key))
             {
                 embed.AddField($"**Buying with {offers.Key}**",
-                    TradeOffersFieldMessage(buyOffers,
+                    TradeOffersFieldMessage(offers,
                     t => t.Item2.Price.ToString(),
                     t => context(t),
                     t => t.Item2.ShouldLimit ? (int?)t.Item2.Stack.Quantity : null)
