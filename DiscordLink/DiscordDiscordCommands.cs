@@ -2,6 +2,7 @@
 using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
@@ -12,6 +13,7 @@ using Eco.Gameplay.Objects;
 using Eco.Gameplay.Players;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Plugins.Networking;
+using Eco.Shared.Math;
 
 namespace Eco.Plugins.DiscordLink
 {
@@ -172,13 +174,13 @@ namespace Eco.Plugins.DiscordLink
                 {
                     var matchItem = match.Get<Item>();
                     embed.WithAuthor(matchItem.FriendlyName);
-                    TradeOffersBuySell(plugin, embed, (store, offer) => offer.Stack.Item == matchItem, t => t.Item1.Parent.OwnerUser.Name);
+                    TradeOffersBuySell(embed, (store, offer) => offer.Stack.Item == matchItem, t => t.Item1.Parent.OwnerUser.Name);
                 }
                 else if (match.Is<User>())
                 {
                     var matchUser = match.Get<User>();
                     embed.WithAuthor(matchUser.Name);
-                    TradeOffersBuySell(plugin, embed, (store, offer) => store.Parent.OwnerUser == matchUser, t => t.Item2.Stack.Item.FriendlyName);
+                    TradeOffersBuySell(embed, (store, offer) => store.Parent.OwnerUser == matchUser, t => t.Item2.Stack.Item.FriendlyName);
                 }
                 else
                 {
@@ -195,13 +197,52 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
-        private void TradeOffersBuySell(DiscordLink plugin, DiscordEmbedBuilder embed, Func<StoreComponent,TradeOffer, bool> filter, Func<Tuple<StoreComponent,TradeOffer>,string> context)
-        {
-            var stores = WorldObjectManager.All.SelectMany(o => o.Components.OfType<StoreComponent>());
+        private IEnumerable<Tuple<string, string>> OffersToFields<T>(T buyOffers, T sellOffers, Func<Tuple<StoreComponent,TradeOffer>,string> context)
+            where T : IEnumerable<IGrouping<string, Tuple<StoreComponent, TradeOffer>>>
+        {   
+            foreach(var group in sellOffers)
+            {
+                yield return Tuple.Create($"**Selling for {group.Key}**", TradeOffersFieldMessage(group,
+                    t => t.Item2.Price.ToString(),
+                    t => context(t),
+                    t => t.Item2.Stack.Quantity));
+            }
+            foreach(var group in buyOffers)
+            {
+                yield return Tuple.Create($"**Buying with {group.Key}**", TradeOffersFieldMessage(group,
+                    t => t.Item2.Price.ToString(),
+                    t => context(t),
+                    t => t.Item2.ShouldLimit ? (int?)t.Item2.Stack.Quantity : null));
+            }
+        }
 
+        private void TradeOffersBuySell(DiscordEmbedBuilder embed, Func<StoreComponent,TradeOffer, bool> filter, Func<Tuple<StoreComponent,TradeOffer>,string> context)
+        {
             var sellOffers = TradeHelper.SellOffers(filter);
+            var groupedSellOffers = sellOffers.GroupBy(t => TradeHelper.StoreCurrencyName(t.Item1)).OrderBy(g => g.Key);
             
-            foreach (var offers in sellOffers.GroupBy(t => TradeHelper.StoreCurrencyName(t.Item1)).OrderBy(g => g.Key))
+            var buyOffers = TradeHelper.BuyOffers(filter);
+            var groupedBuyOffers = buyOffers.GroupBy(t => TradeHelper.StoreCurrencyName(t.Item1)).OrderBy(g => g.Key);
+
+            var fieldEnumerator = OffersToFields(groupedBuyOffers, groupedSellOffers, context).GetEnumerator();
+
+            var totalContentLength = 0;
+            var contentLengthLimit = 5000;
+            
+            while (fieldEnumerator.MoveNext())
+            {
+                var field = fieldEnumerator.Current;
+                if (field == null) { continue; }
+                
+                var additionalLength = field.Item1.Length + field.Item2.Length;
+                
+                if (totalContentLength + additionalLength > contentLengthLimit) { break; }
+
+                totalContentLength += additionalLength;
+                embed.AddField(field.Item1, field.Item2, true);
+            }         
+            /*
+            foreach (var offers in groupedSellOffers)
             {
                 embed.AddField($"**Selling for {offers.Key}**",
                     TradeOffersFieldMessage(offers,
@@ -210,10 +251,8 @@ namespace Eco.Plugins.DiscordLink
                     t => t.Item2.Stack.Quantity)
                     , true);
             }
-
-            var buyOffers = TradeHelper.BuyOffers(filter);
             
-            foreach (var offers in buyOffers.GroupBy(t => TradeHelper.StoreCurrencyName(t.Item1)).OrderBy(g => g.Key))
+            foreach (var offers in groupedBuyOffers)
             {
                 embed.AddField($"**Buying with {offers.Key}**",
                     TradeOffersFieldMessage(offers,
@@ -221,7 +260,7 @@ namespace Eco.Plugins.DiscordLink
                     t => context(t),
                     t => t.Item2.ShouldLimit ? (int?)t.Item2.Stack.Quantity : null)
                     , true);
-            }
+            }*/
         }
 
         private string TradeOffersFieldMessage<T>(IEnumerable<T> offers, Func<T, string> getPrice, Func<T,string> getLabel, Func<T,int?> getQuantity)
