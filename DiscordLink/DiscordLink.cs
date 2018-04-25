@@ -31,6 +31,7 @@ namespace Eco.Plugins.DiscordLink
         private CommandsNextModule _commands;
         private string _currentToken;
         private string _status = "No Connection Attempt Made";
+        private const string CommandPrefix = "?";
 
         private static readonly Regex TagStripRegex = new Regex("<[^>]*>");
 
@@ -125,9 +126,9 @@ namespace Eco.Plugins.DiscordLink
                 _discordClient.Resumed += async args => { Logger.Info("Resumed connection"); };
 
                 // Set up the client to use CommandsNext
-                _commands = _discordClient.UseCommandsNext(new CommandsNextConfiguration()
+                _commands = _discordClient.UseCommandsNext(new CommandsNextConfiguration
                 {
-                    StringPrefix = "?"
+                    StringPrefix = CommandPrefix
                 });
 
                 _commands.RegisterCommands<DiscordDiscordCommands>();
@@ -333,6 +334,8 @@ namespace Eco.Plugins.DiscordLink
         {
             Logger.DebugVerbose("Message received from Discord on channel: " + message.Channel.Name);
             if (message.Author == _discordClient.CurrentUser) { return; }
+            if (message.Content.StartsWith(CommandPrefix)) { return; }
+            
             var channelLink = GetLinkForEcoChannel(message.Channel.Name) ?? GetLinkForEcoChannel(message.Channel.Id.ToString());
             var channel = channelLink?.EcoChannel;
             if (!String.IsNullOrWhiteSpace(channel))
