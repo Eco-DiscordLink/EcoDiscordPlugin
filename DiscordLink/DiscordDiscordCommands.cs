@@ -178,6 +178,9 @@ namespace Eco.Plugins.DiscordLink
 
         #region Trades
 
+        private static int EMBED_CONTENT_CHARACTER_LIMIT = 5000;
+        private static int EMBED_FIELD_CHARACTER_LIMIT = 1000;
+
         private Dictionary<ulong, PagedEnumerator<Tuple<string, string>>> previousQueryEnumerator = 
             new Dictionary<ulong, PagedEnumerator<Tuple<string, string>>>();
         
@@ -293,7 +296,7 @@ namespace Eco.Plugins.DiscordLink
 
             var fieldEnumerator = OffersToFields(groupedBuyOffers, groupedSellOffers, context).GetEnumerator();
             
-            var pagedFieldEnumerator = new PagedEnumerator<Tuple<string, string>>(fieldEnumerator, 500, field => field.Item1.Length + field.Item2.Length);
+            var pagedFieldEnumerator = new PagedEnumerator<Tuple<string, string>>(fieldEnumerator, EMBED_CONTENT_CHARACTER_LIMIT, field => field.Item1.Length + field.Item2.Length);
             
             pagedFieldEnumerator.ForEachInPage(field => { embed.AddField(field.Item1, field.Item2, true); });
 
