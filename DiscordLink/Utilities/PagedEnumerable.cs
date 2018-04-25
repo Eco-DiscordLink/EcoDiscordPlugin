@@ -85,7 +85,9 @@ namespace Eco.Plugins.DiscordLink
 
         public void Reset()
         {
-            throw new NotImplementedException();
+            _wrappedEnumerator.Reset();
+            _count = 0;
+            _previous = default(T);
         }
 
         public T Current => _count > _pageSize ? _previous : _wrappedEnumerator.Current;
