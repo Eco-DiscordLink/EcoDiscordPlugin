@@ -1,19 +1,16 @@
 ﻿using System;
-using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using Eco.Gameplay.Components;
 using Eco.Gameplay.Items;
-using Eco.Gameplay.Objects;
 using Eco.Gameplay.Players;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Plugins.Networking;
-using Eco.Shared.Math;
+using Eco.Shared.Utils;
 
 namespace Eco.Plugins.DiscordLink
 {
@@ -113,6 +110,38 @@ namespace Eco.Plugins.DiscordLink
                 LogCommandException(e);
             }
         }
+        
+        [Command("debug")]
+        [Description("Runs the current debugging command.")]
+        public async Task Debug(CommandContext ctx)
+        {
+            try
+            {
+                var iterable = new[] {1, 2, 3, 4, 5, 6, 7, 8, 9};
+                var pagedEnumerable = new PagedEnumerable<int>(iterable, 2, val => 1);
+
+                var output = "";
+                
+                var enumerator = pagedEnumerable.GetPagedEnumerator();
+                enumerator.ForEachInPage(item => output += " " + item);
+                output += " |~| ";
+                enumerator.ForEachInPage(item => output += " " + item);
+                output += " |~| ";
+                enumerator.ForEachInPage(item => output += " " + item);
+                output += " |~| ";
+                enumerator.ForEachInPage(item => output += " " + item);
+                output += " |~| ";
+                enumerator.ForEachInPage(item => output += " " + item);
+                enumerator.Dispose();
+
+                    
+                await ctx.RespondAsync(output);
+            }
+            catch (Exception e)
+            {
+                LogCommandException(e);
+            }
+        }
 
 
         [Command("players")]
@@ -149,6 +178,42 @@ namespace Eco.Plugins.DiscordLink
 
         #region Trades
 
+        private Dictionary<ulong, PagedEnumerator<Tuple<string, string>>> previousQueryEnumerator = 
+            new Dictionary<ulong, PagedEnumerator<Tuple<string, string>>>();
+        
+        [Command("nextpage")]
+        [Description("Continues onto the next page of a trade listing.")]
+        [Aliases("continuetrades")]
+        public async Task NextPageOfTrades(CommandContext ctx)
+        {
+            try
+            {   
+                var pagedFieldEnumerator = previousQueryEnumerator.GetOrDefault(ctx.Member.Id);
+                //MoveNext() once, to see if we have ANY values. If not, we can say there's no more pages.
+                if (pagedFieldEnumerator == null || !pagedFieldEnumerator.MoveNext()) { 
+                    await ctx.RespondAsync("No further pages found");
+                    return;
+                }
+                
+                
+                var embed = new DiscordEmbedBuilder()
+                    .WithColor(EmbedColor)
+                    .WithTitle("Trade Listings");
+
+                //We've managed to advance once with MoveNext(), so we have at least 1 value available.
+                do
+                {
+                    embed.AddField(pagedFieldEnumerator.Current.Item1, pagedFieldEnumerator.Current.Item2, true);
+                } while (pagedFieldEnumerator.MoveNext());
+
+                await ctx.RespondAsync(null, false, embed);
+            }
+            catch (Exception e)
+            {
+                LogCommandException(e);
+            }
+        }
+
         [Command("trades")]
         [Description("Displays the latest trades by person or by item.")]
         [Aliases("trade")]
@@ -174,13 +239,13 @@ namespace Eco.Plugins.DiscordLink
                 {
                     var matchItem = match.Get<Item>();
                     embed.WithAuthor(matchItem.FriendlyName);
-                    TradeOffersBuySell(embed, (store, offer) => offer.Stack.Item == matchItem, t => t.Item1.Parent.OwnerUser.Name);
+                    previousQueryEnumerator[ctx.Member.Id] = TradeOffersBuySell(embed, (store, offer) => offer.Stack.Item == matchItem, t => t.Item1.Parent.OwnerUser.Name);
                 }
                 else if (match.Is<User>())
                 {
                     var matchUser = match.Get<User>();
                     embed.WithAuthor(matchUser.Name);
-                    TradeOffersBuySell(embed, (store, offer) => store.Parent.OwnerUser == matchUser, t => t.Item2.Stack.Item.FriendlyName);
+                    previousQueryEnumerator[ctx.Member.Id] = TradeOffersBuySell(embed, (store, offer) => store.Parent.OwnerUser == matchUser, t => t.Item2.Stack.Item.FriendlyName);
                 }
                 else
                 {
@@ -202,21 +267,23 @@ namespace Eco.Plugins.DiscordLink
         {   
             foreach(var group in sellOffers)
             {
-                yield return Tuple.Create($"**Selling for {group.Key}**", TradeOffersFieldMessage(group,
+                var body = TradeOffersFieldMessage(group,
                     t => t.Item2.Price.ToString(),
                     t => context(t),
-                    t => t.Item2.Stack.Quantity));
+                    t => t.Item2.Stack.Quantity);
+                yield return Tuple.Create($"**Selling for {group.Key}**", body.Substring(0, body.Length > 1000? 1000 : body.Length));
             }
             foreach(var group in buyOffers)
             {
-                yield return Tuple.Create($"**Buying with {group.Key}**", TradeOffersFieldMessage(group,
+                var body = TradeOffersFieldMessage(group,
                     t => t.Item2.Price.ToString(),
                     t => context(t),
-                    t => t.Item2.ShouldLimit ? (int?)t.Item2.Stack.Quantity : null));
+                    t => t.Item2.ShouldLimit ? (int?) t.Item2.Stack.Quantity : null);
+                yield return Tuple.Create($"**Buying with {group.Key}**", body.Substring(0, body.Length > 1000? 1000 : body.Length));
             }
         }
 
-        private void TradeOffersBuySell(DiscordEmbedBuilder embed, Func<StoreComponent,TradeOffer, bool> filter, Func<Tuple<StoreComponent,TradeOffer>,string> context)
+        private PagedEnumerator<Tuple<string, string>> TradeOffersBuySell(DiscordEmbedBuilder embed, Func<StoreComponent,TradeOffer, bool> filter, Func<Tuple<StoreComponent,TradeOffer>,string> context)
         {
             var sellOffers = TradeHelper.SellOffers(filter);
             var groupedSellOffers = sellOffers.GroupBy(t => TradeHelper.StoreCurrencyName(t.Item1)).OrderBy(g => g.Key);
@@ -225,42 +292,12 @@ namespace Eco.Plugins.DiscordLink
             var groupedBuyOffers = buyOffers.GroupBy(t => TradeHelper.StoreCurrencyName(t.Item1)).OrderBy(g => g.Key);
 
             var fieldEnumerator = OffersToFields(groupedBuyOffers, groupedSellOffers, context).GetEnumerator();
-
-            var totalContentLength = 0;
-            var contentLengthLimit = 5000;
             
-            while (fieldEnumerator.MoveNext())
-            {
-                var field = fieldEnumerator.Current;
-                if (field == null) { continue; }
-                
-                var additionalLength = field.Item1.Length + field.Item2.Length;
-                
-                if (totalContentLength + additionalLength > contentLengthLimit) { break; }
-
-                totalContentLength += additionalLength;
-                embed.AddField(field.Item1, field.Item2, true);
-            }         
-            /*
-            foreach (var offers in groupedSellOffers)
-            {
-                embed.AddField($"**Selling for {offers.Key}**",
-                    TradeOffersFieldMessage(offers,
-                    t => t.Item2.Price.ToString(),
-                    t => context(t),
-                    t => t.Item2.Stack.Quantity)
-                    , true);
-            }
+            var pagedFieldEnumerator = new PagedEnumerator<Tuple<string, string>>(fieldEnumerator, 500, field => field.Item1.Length + field.Item2.Length);
             
-            foreach (var offers in groupedBuyOffers)
-            {
-                embed.AddField($"**Buying with {offers.Key}**",
-                    TradeOffersFieldMessage(offers,
-                    t => t.Item2.Price.ToString(),
-                    t => context(t),
-                    t => t.Item2.ShouldLimit ? (int?)t.Item2.Stack.Quantity : null)
-                    , true);
-            }*/
+            pagedFieldEnumerator.ForEachInPage(field => { embed.AddField(field.Item1, field.Item2, true); });
+
+            return pagedFieldEnumerator;
         }
 
         private string TradeOffersFieldMessage<T>(IEnumerable<T> offers, Func<T, string> getPrice, Func<T,string> getLabel, Func<T,int?> getQuantity)
