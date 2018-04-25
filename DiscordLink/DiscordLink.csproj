@@ -100,6 +100,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TradeHelper.cs" />
     <Compile Include="Utilities\Either.cs" />
+    <Compile Include="Utilities\PagedEnumerable.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
