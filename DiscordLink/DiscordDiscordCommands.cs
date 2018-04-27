@@ -193,7 +193,7 @@ namespace Eco.Plugins.DiscordLink
             {   
                 var pagedFieldEnumerator = previousQueryEnumerator.GetOrDefault(ctx.Member.Id);
                 //MoveNext() once, to see if we have ANY values. If not, we can say there's no more pages.
-                if (pagedFieldEnumerator == null || !pagedFieldEnumerator.MoveNext()) { 
+                if (pagedFieldEnumerator == null || !pagedFieldEnumerator.HasMorePages) { 
                     await ctx.RespondAsync("No further pages found");
                     return;
                 }
@@ -203,11 +203,10 @@ namespace Eco.Plugins.DiscordLink
                     .WithColor(EmbedColor)
                     .WithTitle("Trade Listings");
 
-                //We've managed to advance once with MoveNext(), so we have at least 1 value available.
-                do
+                while (pagedFieldEnumerator.MoveNext())
                 {
                     embed.AddField(pagedFieldEnumerator.Current.Item1, pagedFieldEnumerator.Current.Item2, true);
-                } while (pagedFieldEnumerator.MoveNext());
+                }
 
                 await ctx.RespondAsync(null, false, embed);
             }
@@ -255,6 +254,12 @@ namespace Eco.Plugins.DiscordLink
                     await ctx.RespondAsync(
                         "The player or item was not found.");
                     return;
+                }
+
+                var pagedEnumerator = previousQueryEnumerator[ctx.Member.Id];
+                if (pagedEnumerator.HasMorePages)
+                {
+                    embed.WithFooter("More pages available. Use ?nextpage.");
                 }
 
                 await ctx.RespondAsync(null, false, embed);
