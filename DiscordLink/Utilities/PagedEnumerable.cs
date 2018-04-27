@@ -68,7 +68,11 @@ namespace Eco.Plugins.DiscordLink
             //new page.
             if (_count <= _pageSize || _pageSize <= 0)
             {
-                if (!_wrappedEnumerator.MoveNext()) { return false; }
+                if (!_wrappedEnumerator.MoveNext())
+                {
+                    _hasMorePages = false;
+                    return false;
+                }
             }
             else { _count = 0; }
 
@@ -77,6 +81,7 @@ namespace Eco.Plugins.DiscordLink
             if (_count > _pageSize)
             {
                 _previous = _wrappedEnumerator.Current;
+                _hasMorePages = true;
                 return false;
             }
 
@@ -93,6 +98,9 @@ namespace Eco.Plugins.DiscordLink
         public T Current => _count > _pageSize ? _previous : _wrappedEnumerator.Current;
 
         object IEnumerator.Current => Current;
+
+        private bool _hasMorePages = true;
+        public bool HasMorePages => _hasMorePages;
 
         public void ForEachInPage(Action<T> action)
         {
