@@ -71,6 +71,9 @@ namespace Eco.Plugins.DiscordLink
                 var players = $"{serverInfo.OnlinePlayers}/{serverInfo.TotalPlayers}";
 
                 var timeRemainingSpan = new TimeSpan(0, 0, (int) serverInfo.TimeLeft);
+                var meteorHasHit = timeRemainingSpan.Seconds < 0;
+                var timeRemainingFieldName = "Time Left until Meteor";
+                timeRemainingSpan = meteorHasHit ? new TimeSpan(0, 0, 0) : timeRemainingSpan; 
                 var timeRemaining =
                     $"{timeRemainingSpan.Days} Days, {timeRemainingSpan.Hours} hours, {timeRemainingSpan.Minutes} minutes";
 
@@ -86,7 +89,7 @@ namespace Eco.Plugins.DiscordLink
                     .WithDescription(description)
                     .AddField("Online Players", players)
                     .AddField("Address", serverAddress)
-                    .AddField("Time Left until Meteor", timeRemaining)
+                    .AddField(timeRemainingFieldName, timeRemaining)
                     .AddField("Time Since Game Start", timeSinceStart)
                     .AddField("Current Leader", leader);
 
