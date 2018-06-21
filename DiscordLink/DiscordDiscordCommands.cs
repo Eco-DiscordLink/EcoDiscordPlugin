@@ -219,10 +219,11 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
+
         [Command("trades")]
         [Description("Displays the latest trades by person or by item.")]
         [Aliases("trade")]
-        public async Task Trades(CommandContext ctx,[Description("The player name or item name in question.")] string itemNameOrUserName)
+        public async Task Trades(CommandContext ctx,[Description("The player name or item name in question.")] string itemNameOrUserName = "")
         {
             try
             {
@@ -231,6 +232,14 @@ namespace Eco.Plugins.DiscordLink
                 {
                     await ctx.RespondAsync(
                         "The plugin was unable to be found on the server. Please report this to the plugin author.");
+                    return;
+                }
+
+                if (itemNameOrUserName == "")
+                {
+                    await ctx.RespondAsync(
+                        "Please provide the name of an item or player to search for. " +
+                        "Usage: trades <item name or player name>");
                     return;
                 }
 
