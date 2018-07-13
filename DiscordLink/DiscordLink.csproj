@@ -49,34 +49,34 @@
       <HintPath>..\packages\DSharpPlus.WebSocket.WebSocket4Net.3.2.3\lib\net46\DSharpPlus.WebSocket.WebSocket4Net.dll</HintPath>
     </Reference>
     <Reference Include="Eco.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\DLLs-7.5.0\eco.core.dll</HintPath>
+      <HintPath>..\..\DLLs-7.6.0\eco.core.dll</HintPath>
     </Reference>
     <Reference Include="Eco.Gameplay, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\DLLs-7.5.0\eco.gameplay.dll</HintPath>
+      <HintPath>..\..\DLLs-7.6.0\eco.gameplay.dll</HintPath>
     </Reference>
     <Reference Include="Eco.ModKit, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\DLLs-7.5.0\eco.modkit.dll</HintPath>
+      <HintPath>..\..\DLLs-7.6.0\eco.modkit.dll</HintPath>
     </Reference>
     <Reference Include="Eco.Plugins, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\DLLs-7.5.0\eco.plugins.dll</HintPath>
+      <HintPath>..\..\DLLs-7.6.0\eco.plugins.dll</HintPath>
     </Reference>
-    <Reference Include="Eco.Shared, Version=0.7.5.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\DLLs-7.5.0\eco.shared.dll</HintPath>
+    <Reference Include="Eco.Shared, Version=0.7.6.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\DLLs-7.6.0\eco.shared.dll</HintPath>
     </Reference>
     <Reference Include="Eco.Simulation, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\DLLs-7.5.0\eco.simulation.dll</HintPath>
+      <HintPath>..\..\DLLs-7.6.0\eco.simulation.dll</HintPath>
     </Reference>
     <Reference Include="Eco.Stats, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\DLLs-7.5.0\eco.stats.dll</HintPath>
+      <HintPath>..\..\DLLs-7.6.0\eco.stats.dll</HintPath>
     </Reference>
     <Reference Include="Eco.WebServer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\DLLs-7.5.0\eco.webserver.dll</HintPath>
+      <HintPath>..\..\DLLs-7.6.0\eco.webserver.dll</HintPath>
     </Reference>
     <Reference Include="Eco.World, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\DLLs-7.5.0\eco.world.dll</HintPath>
+      <HintPath>..\..\DLLs-7.6.0\eco.world.dll</HintPath>
     </Reference>
     <Reference Include="Eco.WorldGenerator, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\DLLs-7.5.0\eco.worldgenerator.dll</HintPath>
+      <HintPath>..\..\DLLs-7.6.0\eco.worldgenerator.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed">
       <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -116,11 +116,9 @@
   </PropertyGroup>
   <Target Name="AfterBuild">
     <GetFrameworkPath>
-      <Output
-              TaskParameter="Path"
-              PropertyName="FrameworkPath" />
+      <Output TaskParameter="Path" PropertyName="FrameworkPath" />
     </GetFrameworkPath>
-    <Exec Command="echo $(FrameworkPath)"/>
+    <Exec Command="echo $(FrameworkPath)" />
     <Exec Command="$(ILMergeConsoleCommand) /lib:$(FrameworkPath) /targetplatform:v4 /out:$(OutputPath)$(MergeOutput) $(OutputPath)DiscordLink.dll $(OutputPath)DSharpPlus/DSharpPlus.dll $(OutputPath)Newtonsoft.json.dll $(OutputPath)DSharpPlus.CommandsNext.dll $(OutputPath)WebSocket4Net.dll $(OutputPath)DSharpPlus.WebSocket.WebSocket4Net.dll " />
   </Target>
 </Project>
