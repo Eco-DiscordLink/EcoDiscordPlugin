@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using System.Runtime.Remoting.Messaging;
 using System.Threading.Tasks;
 using Eco.Gameplay.Players;
 using Eco.Gameplay.Stats;
 using Eco.Gameplay.Systems.Chat;
+using Eco.Shared.Localization;
 using Eco.Shared.Utils;
 
 namespace Eco.Plugins.DiscordLink
@@ -15,7 +16,7 @@ namespace Eco.Plugins.DiscordLink
     {
         private static void Log(string message)
         {
-            Eco.Shared.Utils.Log.Write("DiscordLink: " + message);
+            Eco.Shared.Utils.Log.Write(new LocString("DiscordLink: " + message));
         }
         
         private delegate void EcoCommandFunction(User user, params string[] args);
@@ -28,7 +29,7 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (Exception e)
             {
-                ChatManager.ServerMessageToPlayerAlreadyLocalized("Error occurred while attempting to run that command. Error message: " + e, user, false);
+                ChatManager.ServerMessageToPlayer(new LocString("Error occurred while attempting to run that command. Error message: " + e), user, false);
                 Log("Error occurred while attempting to run that command. Error message: " + e);
                 Log(e.StackTrace);
             }
@@ -39,7 +40,7 @@ namespace Eco.Plugins.DiscordLink
         {
             CallWithErrorHandling<object>((lUser, args) =>
                 {
-                    ChatManager.ServerMessageToPlayerAlreadyLocalized("Discord Plugin is loaded.", lUser);
+                    ChatManager.ServerMessageToPlayer(new LocString("Discord Plugin is loaded."), lUser);
                 },
                 user);
         }
@@ -54,7 +55,7 @@ namespace Eco.Plugins.DiscordLink
 
                     var joinedNames = String.Join(", ", plugin.GuildNames);
             
-                    ChatManager.ServerMessageToPlayerAlreadyLocalized("Servers: " + joinedNames, user, false);
+                    ChatManager.ServerMessageToPlayer(new LocString("Servers: " + joinedNames), user, false);
                 },
                 user);
 
@@ -74,7 +75,7 @@ namespace Eco.Plugins.DiscordLink
 
                     plugin.SendMessageAsUser(message, user, channelName, guildName).ContinueWith(result =>
                     {
-                        ChatManager.ServerMessageToPlayerAlreadyLocalized(result.Result, user);   
+                        ChatManager.ServerMessageToPlayer(new LocString(result.Result), user);   
                     });
                 },
                 user, guild, channel, outerMessage);
@@ -92,7 +93,7 @@ namespace Eco.Plugins.DiscordLink
 
                     plugin.SendMessageAsUser(message, user, defaultChannel).ContinueWith(result =>
                     {
-                        ChatManager.ServerMessageToPlayerAlreadyLocalized(result.Result, user);   
+                        ChatManager.ServerMessageToPlayer(new LocString(result.Result), user);   
                     });
                 },
                 user, message);
@@ -113,11 +114,11 @@ namespace Eco.Plugins.DiscordLink
                     //Can happen in DefaultGuild is not configured.
                     if (guild == null)
                     {
-                        ChatManager.ServerMessageToPlayerAlreadyLocalized("Unable to find that guild, perhaps the name was misspelled?", user);
+                        ChatManager.ServerMessageToPlayer(new LocString("Unable to find that guild, perhaps the name was misspelled?"), user);
                     }
 
                     var joinedGames = String.Join(", ", guild.TextChannelNames());
-                    ChatManager.ServerMessageToAllAlreadyLocalized("Channels: " + joinedGames, false);
+                    ChatManager.ServerMessageToAll( new LocString("Channels: " + joinedGames), false);
                 },
                 user);
 
@@ -132,7 +133,7 @@ namespace Eco.Plugins.DiscordLink
                     if (plugin == null) return;
 
                     plugin.SetDefaultChannelForPlayer(user.Name, guildName, channelName);
-                    ChatManager.ServerMessageToPlayerAlreadyLocalized("Default channel set to " + channelName, user);
+                    ChatManager.ServerMessageToPlayer(new LocString("Default channel set to " + channelName), user);
                 },
                 user);
         }
