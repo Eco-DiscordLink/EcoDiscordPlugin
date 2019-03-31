@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
@@ -182,7 +183,7 @@ namespace Eco.Plugins.DiscordLink
         #region Trades
 
         private static int EMBED_CONTENT_CHARACTER_LIMIT = 5000;
-        private static int EMBED_FIELD_CHARACTER_LIMIT = 1000;
+        private static int EMBED_FIELD_CHARACTER_LIMIT = 900;
 
         private Dictionary<ulong, PagedEnumerator<Tuple<string, string>>> previousQueryEnumerator = 
             new Dictionary<ulong, PagedEnumerator<Tuple<string, string>>>();
@@ -287,20 +288,48 @@ namespace Eco.Plugins.DiscordLink
         {   
             foreach(var group in sellOffers)
             {
-                var body = TradeOffersFieldMessage(group,
+                var offer_descriptions = TradeOffersToDescriptions(group,
                     t => t.Item2.Price.ToString(),
                     t => context(t),
                     t => t.Item2.Stack.Quantity);
-                yield return Tuple.Create($"**Selling for {group.Key}**", body.Substring(0, body.Length > 1000? 1000 : body.Length));
+                var enumerator = new PagedEnumerable<string>(offer_descriptions, EMBED_FIELD_CHARACTER_LIMIT, str => str.Length).GetPagedEnumerator();
+                while (enumerator.HasMorePages)
+                {
+                    var fieldBodyBuilder = new StringBuilder();
+                    while (enumerator.MoveNext())
+                    {
+                        fieldBodyBuilder.Append(enumerator.Current);
+                        fieldBodyBuilder.Append("\n");
+                    }
+                    yield return Tuple.Create($"**Selling for {group.Key}**", fieldBodyBuilder.ToString());
+                }
             }
             foreach(var group in buyOffers)
+            {
+                var offer_descriptions = TradeOffersToDescriptions(group,
+                    t => t.Item2.Price.ToString(),
+                    t => context(t),
+                    t => t.Item2.Stack.Quantity);
+                var enumerator = new PagedEnumerable<string>(offer_descriptions, EMBED_FIELD_CHARACTER_LIMIT, str => str.Length).GetPagedEnumerator();
+                while (enumerator.HasMorePages)
+                {
+                    var fieldBodyBuilder = new StringBuilder();
+                    while (enumerator.MoveNext())
+                    {
+                        fieldBodyBuilder.Append(enumerator.Current);
+                        fieldBodyBuilder.Append("\n");
+                    }
+                    yield return Tuple.Create($"**Buying for {group.Key}**", fieldBodyBuilder.ToString());
+                }
+            }
+/*            foreach(var group in buyOffers)
             {
                 var body = TradeOffersFieldMessage(group,
                     t => t.Item2.Price.ToString(),
                     t => context(t),
                     t => t.Item2.ShouldLimit ? (int?) t.Item2.Stack.Quantity : null);
                 yield return Tuple.Create($"**Buying with {group.Key}**", body.Substring(0, body.Length > 1000? 1000 : body.Length));
-            }
+            }*/
         }
 
         private PagedEnumerator<Tuple<string, string>> TradeOffersBuySell(DiscordEmbedBuilder embed, Func<StoreComponent,TradeOffer, bool> filter, Func<Tuple<StoreComponent,TradeOffer>,string> context)
@@ -320,9 +349,9 @@ namespace Eco.Plugins.DiscordLink
             return pagedFieldEnumerator;
         }
 
-        private string TradeOffersFieldMessage<T>(IEnumerable<T> offers, Func<T, string> getPrice, Func<T,string> getLabel, Func<T,int?> getQuantity)
+        private IEnumerable<string> TradeOffersToDescriptions<T>(IEnumerable<T> offers, Func<T, string> getPrice, Func<T,string> getLabel, Func<T,int?> getQuantity)
         {
-            return String.Join("\n", offers.Select(t =>
+            return offers.Select(t =>
             {
                 var price = getPrice(t);
                 var quantity = getQuantity(t);
@@ -330,7 +359,7 @@ namespace Eco.Plugins.DiscordLink
                 var line = $"{quantityString}${price} {getLabel(t)}";
                 if (quantity == 0) line = $"~~{line}~~";
                 return line;
-            }));
+            });
         }
 
         #endregion Trades
