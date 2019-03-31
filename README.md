@@ -12,6 +12,7 @@ From Discord:
 * `?help` - Lists available commands
 * `?ecostatus` - Prints the status of the Eco Server.
 * `?players` - Displays the currently online players.
+* `?trades <player or item name>` - Lists all of the items sold by a player, or all of the shops that sell an item
 
 From Eco:
 * `/verifydiscord` - Confirms the plugin is loaded
