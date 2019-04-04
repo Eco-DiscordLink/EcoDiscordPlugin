@@ -45,7 +45,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             var lookup = ItemLookup.Concat(UserManager.Users.Select(user => new Either<Item, User>(user)));
             return BestMatchOrDefault(itemNameOrPlayerName, lookup, o =>
             {
-                if (o.Is<Item>()) return o.Get<Item>().FriendlyName;
+                if (o.Is<Item>()) return o.Get<Item>().DisplayName;
                 return o.Get<User>().Name;
             });
         }
@@ -86,7 +86,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     storeToOffers(store)
                         .Where(offer => offer.IsSet && shouldIncludeFilter(store, offer))
                         .Select(offer => Tuple.Create(store, offer)))
-                .OrderBy(t => t.Item2.Stack.Item.FriendlyName)
+                .OrderBy(t => t.Item2.Stack.Item.DisplayName)
                 .Skip(start)
                 .Take(count);
         }
