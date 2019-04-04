@@ -185,8 +185,8 @@ namespace Eco.Plugins.DiscordLink
         private static int EMBED_CONTENT_CHARACTER_LIMIT = 5000;
         private static int EMBED_FIELD_CHARACTER_LIMIT = 900;
 
-        private Dictionary<ulong, PagedEnumerator<Tuple<string, string>>> previousQueryEnumerator = 
-            new Dictionary<ulong, PagedEnumerator<Tuple<string, string>>>();
+        private Dictionary<string, PagedEnumerator<Tuple<string, string>>> previousQueryEnumerator = 
+            new Dictionary<string, PagedEnumerator<Tuple<string, string>>>();
         
         [Command("nextpage")]
         [Description("Continues onto the next page of a trade listing.")]
@@ -195,7 +195,7 @@ namespace Eco.Plugins.DiscordLink
         {
             try
             {   
-                var pagedFieldEnumerator = previousQueryEnumerator.GetOrDefault(ctx.Member.Id);
+                var pagedFieldEnumerator = previousQueryEnumerator.GetOrDefault(ctx.User.UniqueUsername());
                 //MoveNext() once, to see if we have ANY values. If not, we can say there's no more pages.
                 if (pagedFieldEnumerator == null || !pagedFieldEnumerator.HasMorePages) { 
                     await ctx.RespondAsync("No further pages found");
@@ -253,14 +253,14 @@ namespace Eco.Plugins.DiscordLink
                 if (match.Is<Item>())
                 {
                     var matchItem = match.Get<Item>();
-                    embed.WithAuthor(matchItem.FriendlyName);
-                    previousQueryEnumerator[ctx.Member.Id] = TradeOffersBuySell(embed, (store, offer) => offer.Stack.Item == matchItem, t => t.Item1.Parent.OwnerUser.Name);
+                    embed.WithAuthor(matchItem.DisplayName);
+                    previousQueryEnumerator[ctx.User.UniqueUsername()] = TradeOffersBuySell(embed, (store, offer) => offer.Stack.Item == matchItem, t => t.Item1.Parent.OwnerUser.Name);
                 }
                 else if (match.Is<User>())
                 {
                     var matchUser = match.Get<User>();
                     embed.WithAuthor(matchUser.Name);
-                    previousQueryEnumerator[ctx.Member.Id] = TradeOffersBuySell(embed, (store, offer) => store.Parent.OwnerUser == matchUser, t => t.Item2.Stack.Item.FriendlyName);
+                    previousQueryEnumerator[ctx.User.UniqueUsername()] = TradeOffersBuySell(embed, (store, offer) => store.Parent.OwnerUser == matchUser, t => t.Item2.Stack.Item.DisplayName);
                 }
                 else
                 {
@@ -269,7 +269,7 @@ namespace Eco.Plugins.DiscordLink
                     return;
                 }
 
-                var pagedEnumerator = previousQueryEnumerator[ctx.Member.Id];
+                var pagedEnumerator = previousQueryEnumerator[ctx.User.UniqueUsername()];
                 if (pagedEnumerator.HasMorePages)
                 {
                     embed.WithFooter("More pages available. Use ?nextpage.");
