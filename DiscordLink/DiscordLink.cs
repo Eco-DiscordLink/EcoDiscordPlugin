@@ -75,7 +75,7 @@ namespace Eco.Plugins.DiscordLink
         public DiscordLink()
         {
             SetupConfig();
-            chatNotifier = new ChatNotifier();
+            chatNotifier = new ChatNotifier(new IChatMessageProviderChatServerWrapper());
             SetUpClient();
         }
 
