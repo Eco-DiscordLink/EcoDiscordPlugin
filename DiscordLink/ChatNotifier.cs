@@ -28,19 +28,27 @@ namespace Eco.Plugins.DiscordLink
         {
             lastCheckTime = WorldTime.Seconds;
         }
+
+        public void ProcessMessagesAfterTime(double startTime)
+        {
+            var newMessages = chatMessageProvider.GetChatMessages(lastCheckTime);
+            
+            newMessages.ForEach(message =>
+            {
+                //Log.Write("Message found, invoking callback.");
+                OnMessageReceived.Invoke(message);
+            });
+        }
         
         public void Run()
         {
             while (true)
             {
-                var newMessages = chatMessageProvider.GetChatMessages(lastCheckTime);
+                var getMessagesAfterTime = lastCheckTime;
                 lastCheckTime = WorldTime.Seconds;
                 
-                newMessages.ForEach(message =>
-                {
-                    //Log.Write("Message found, invoking callback.");
-                    OnMessageReceived.Invoke(message);
-                });
+                ProcessMessagesAfterTime(getMessagesAfterTime);
+                
                 Thread.Sleep(POLL_DELAY);
             }
         }
