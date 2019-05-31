@@ -1,5 +1,7 @@
 # How to install the DiscordLink plugin on your Eco Server.
 
+Note: If you do *not* have access to the server's GUI, copy the config file from the ExampleConfig folder and fill in the values directly in the file.
+
 ### 1. Download the latest DiscordLink release .zip file from <https://github.com/Spoffy/EcoDiscordPlugin/releases>
 
 ![Download page](images/tutorials/1.png)
