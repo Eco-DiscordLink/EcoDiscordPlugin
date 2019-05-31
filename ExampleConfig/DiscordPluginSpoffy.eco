@@ -1,0 +1,15 @@
+{
+  "BotToken": "",
+  "ServerName": "[Insert Server Name Here]",
+  "ServerDescription": "This is my description..(banana)",
+  "ServerLogo": "http://github.com/Spoffy/EcoDiscordPlugin/raw/master/images/DiscordLinkLogo_Nameless.png",
+  "ServerIP": "255.255.255.255",
+  "ChannelLinks": [
+    {
+      "DiscordGuild": "NUMBER GOES HERE",
+      "DiscordChannel": "General",
+      "EcoChannel": "General"
+    }
+  ],
+  "Debug": false
+}
