@@ -26,12 +26,13 @@ namespace Eco.Plugins.DiscordLink
             while (true)
             {
                 var newMessages = ChatServer.GetPlayerMessages(lastCheckTime);
+                lastCheckTime = WorldTime.Seconds;
+                
                 newMessages.ForEach(message =>
                 {
                     //Log.Write("Message found, invoking callback.");
                     OnMessageReceived.Invoke(message);
                 });
-                lastCheckTime = WorldTime.Seconds;
                 Thread.Sleep(POLL_DELAY);
             }
         }
