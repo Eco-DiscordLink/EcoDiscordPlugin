@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using Eco.Core.Utils;
 using Eco.Gameplay.Systems.Chat;
+using Eco.Plugins.DiscordLink.Interfaces;
 using Eco.Shared.Services;
 using Eco.Shared.Utils;
 using Eco.Simulation.Time;
@@ -13,8 +14,15 @@ namespace Eco.Plugins.DiscordLink
     {
         public ThreadSafeAction<ChatMessage> OnMessageReceived { get; set; } = new ThreadSafeAction<ChatMessage>();
 
+        private IChatMessageProvider chatMessageProvider;
+        
         private double lastCheckTime = Double.MaxValue;
         private const int POLL_DELAY = 500;
+
+        public ChatNotifier(IChatMessageProvider chatMessageProvider)
+        {
+            this.chatMessageProvider = chatMessageProvider;
+        }
 
         public void Initialize()
         {
@@ -25,7 +33,7 @@ namespace Eco.Plugins.DiscordLink
         {
             while (true)
             {
-                var newMessages = ChatServer.GetPlayerMessages(lastCheckTime);
+                var newMessages = chatMessageProvider.GetChatMessages(lastCheckTime);
                 lastCheckTime = WorldTime.Seconds;
                 
                 newMessages.ForEach(message =>
