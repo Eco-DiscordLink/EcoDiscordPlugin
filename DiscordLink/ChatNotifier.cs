@@ -31,7 +31,7 @@ namespace Eco.Plugins.DiscordLink
 
         public void ProcessMessagesAfterTime(double startTime)
         {
-            var newMessages = chatMessageProvider.GetChatMessages(lastCheckTime);
+            var newMessages = chatMessageProvider.GetChatMessages(startTime);
             
             newMessages.ForEach(message =>
             {
