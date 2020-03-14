@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -30,6 +31,8 @@ namespace Eco.Plugins.DiscordLink
         private CommandsNextModule _commands;
         private string _currentToken;
         private string _status = "No Connection Attempt Made";
+        private StreamWriter _chatLogWriter;
+
         private const string CommandPrefix = "?";
 
         private static readonly Regex TagStripRegex = new Regex("<[^>]*>");
@@ -77,6 +80,18 @@ namespace Eco.Plugins.DiscordLink
             SetupConfig();
             chatNotifier = new ChatNotifier(new IChatMessageProviderChatServerWrapper());
             SetUpClient();
+            if(configOptions.Config.LogChat)
+            {
+                StartChatlog();
+            }
+        }
+
+        ~DiscordLink()
+        {
+            if (configOptions.Config.LogChat)
+            {
+                StopChatlog();
+            }
         }
 
         private void SetupConfig()
@@ -306,6 +321,14 @@ namespace Eco.Plugins.DiscordLink
             Logger.DebugVerbose("Sender: " + message.Sender);
         }
 
+        public void LogDiscordMessage(DiscordMessage message)
+        {
+            Logger.DebugVerbose("Discord Message Processed");
+            Logger.DebugVerbose("Message: " + message.Content);
+            Logger.DebugVerbose("Channel: " + message.Channel.Name);
+            Logger.DebugVerbose("Sender: " + message.Author);
+        }
+
         public void OnMessageReceivedFromEco(ChatMessage message)
         {
             LogEcoMessage(message);
@@ -319,8 +342,7 @@ namespace Eco.Plugins.DiscordLink
 
             if (!String.IsNullOrWhiteSpace(channel) && !String.IsNullOrWhiteSpace(guild))
             {
-                Logger.DebugVerbose("Sending Eco message to Discord");
-                SendMessage(FormatMessageFromUsername(message.Text, message.Sender), channel, guild);
+                ForwardMessageToDiscordChannel(message, channel, guild);
             }
         }
 
@@ -331,7 +353,7 @@ namespace Eco.Plugins.DiscordLink
 
         public void OnMessageReceivedFromDiscord(DiscordMessage message)
         {
-            Logger.DebugVerbose("Message received from Discord on channel: " + message.Channel.Name);
+            LogDiscordMessage(message);
             if (message.Author == _discordClient.CurrentUser) { return; }
             if (message.Content.StartsWith(CommandPrefix)) { return; }
             
@@ -352,6 +374,22 @@ namespace Eco.Plugins.DiscordLink
                 : message.Author.Username;
             var text = $"#{channelName} {nametag}: {GetReadableContent(message)}";
             ChatManager.SendChat(text, EcoUser);
+
+            if (_chatlogInitialized)
+            {
+                _chatLogWriter.WriteLine("[Discord] (" + DateTime.Now.ToShortDateString() + ":" + DateTime.Now.ToShortTimeString() + ") " + $"{StripTags(message.Author.Username) + ": " + StripTags(message.Content)}");
+            }
+        }
+
+        private void ForwardMessageToDiscordChannel(ChatMessage message, string channel, string guild)
+        {
+            Logger.DebugVerbose("Sending Eco message to Discord");
+            SendMessage(FormatMessageFromUsername(message.Text, message.Sender), channel, guild);
+
+            if (_chatlogInitialized)
+            {
+                _chatLogWriter.WriteLine("[Eco] (" + DateTime.Now.ToShortDateString() + ":" + DateTime.Now.ToShortTimeString() + ") " + $"{StripTags(message.Sender) + ": " + StripTags(message.Text)}");
+            }
         }
 
         private String GetReadableContent(DiscordMessage message)
@@ -465,6 +503,32 @@ namespace Eco.Plugins.DiscordLink
         }
 
         #endregion
+
+        #region Chatlog
+        bool _chatlogInitialized = false;
+
+        private void StartChatlog()
+        {
+            try
+            {
+                _chatLogWriter = new StreamWriter(configOptions.Config.ChatlogPath, append: true);
+                _chatLogWriter.AutoFlush = true;
+                _chatlogInitialized = true;
+            }
+            catch(Exception)
+            {
+                Logger.Error("Failed to initialize chat logger using path \"" + configOptions.Config.ChatlogPath + "\"");
+            }
+        }
+
+        private void StopChatlog()
+        {
+            _chatLogWriter?.Close();
+            _chatLogWriter = null;
+            _chatlogInitialized = false;
+        }
+        }
+        #endregion
     }
 
     public class DiscordConfig
@@ -504,6 +568,12 @@ namespace Eco.Plugins.DiscordLink
 
         [Description("Enables debugging output to the console."), Category("Debugging")]
         public bool Debug { get; set; } = false;
+
+        [Description("Enables logging of chat messages into the file at ChatlogPath."), Category("Chatlog Configuration")]
+        public bool LogChat { get; set; } = false;
+
+        [Description("The path to the chatlog file, including file name and extension."), Category("Chatlog Configuration")]
+        public string ChatlogPath { get; set; } = Directory.GetCurrentDirectory() + "\\Logs\\DiscordLinkChatlog.txt";
     }
 
     public class DiscordPlayerConfig
