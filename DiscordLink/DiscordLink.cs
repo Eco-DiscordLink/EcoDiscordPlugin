@@ -527,7 +527,6 @@ namespace Eco.Plugins.DiscordLink
             _chatLogWriter = null;
             _chatlogInitialized = false;
         }
-        }
         #endregion
     }
 
