@@ -204,7 +204,7 @@ namespace Eco.Plugins.DiscordLink
                 if (!inviteMessage.Contains(DiscordLink.InviteCommandLinkToken) || string.IsNullOrEmpty(serverInfo.DiscordAddress))
                 {
                     await ctx.RespondAsync(
-                        "This server is not configured for using the " + DiscordLink.DiscordCommandPrefix + "DiscordInvite command.");
+                        "This server is not configured for using the " + config.DiscordCommandPrefix + "DiscordInvite command.");
                     return;
                 }
 
