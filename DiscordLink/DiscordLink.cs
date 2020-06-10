@@ -26,6 +26,8 @@ namespace Eco.Plugins.DiscordLink
 {
     public class DiscordLink : IModKitPlugin, IInitializablePlugin, IConfigurablePlugin
     {
+        public const string InviteCommandLinkToken = "[LINK]";
+        public const string DiscordCommandPrefix = "?";
         protected string NametagColor = "7289DAFF";
         private PluginConfig<DiscordConfig> _configOptions;
         private DiscordConfig _prevConfigOptions; // Used to detect differances when the config is saved
@@ -35,7 +37,6 @@ namespace Eco.Plugins.DiscordLink
         private string _status = "No Connection Attempt Made";
         private StreamWriter _chatLogWriter;
 
-        private const string CommandPrefix = "?";
 
         private static readonly Regex TagStripRegex = new Regex("<[^>]*>");
 
@@ -147,7 +148,7 @@ namespace Eco.Plugins.DiscordLink
                 // Set up the client to use CommandsNext
                 _commands = _discordClient.UseCommandsNext(new CommandsNextConfiguration
                 {
-                    StringPrefix = CommandPrefix
+                    StringPrefix = DiscordCommandPrefix
                 });
 
                 _commands.RegisterCommands<DiscordDiscordCommands>();
@@ -272,10 +273,10 @@ namespace Eco.Plugins.DiscordLink
         private string EcoUserSteamId = "DiscordLinkSteam";
         private string EcoUserSlgId = "DiscordLinkSlg";
         private string EcoUserName = "Discord";
-        private User _ecoUser;
         private bool _relayInitialised = false;
 
-        protected User EcoUser =>
+        private User _ecoUser;
+        public User EcoUser =>
             _ecoUser ?? (_ecoUser = UserManager.GetOrCreateUser(EcoUserSteamId, EcoUserSlgId, EcoUserName));
 
         private void BeginRelaying()
@@ -360,7 +361,7 @@ namespace Eco.Plugins.DiscordLink
         {
             LogDiscordMessage(message);
             if (message.Author == _discordClient.CurrentUser) { return; }
-            if (message.Content.StartsWith(CommandPrefix)) { return; }
+            if (message.Content.StartsWith(DiscordCommandPrefix)) { return; }
             
             var channelLink = GetLinkForEcoChannel(message.Channel.Name) ?? GetLinkForEcoChannel(message.Channel.Id.ToString());
             var channel = channelLink?.EcoChannel;
@@ -476,6 +477,16 @@ namespace Eco.Plugins.DiscordLink
                 RestartChatlog();
             }
 
+            if(string.IsNullOrEmpty(_configOptions.Config.EcoCommandChannel))
+            {
+                _configOptions.Config.EcoCommandChannel = DiscordConfig.DefaultValues.EcoCommandChannel;
+            }
+
+            if (string.IsNullOrEmpty(_configOptions.Config.InviteMessage))
+            {
+                _configOptions.Config.InviteMessage = DiscordConfig.DefaultValues.InviteMessage;
+            }
+
             _prevConfigOptions = (DiscordConfig)_configOptions.Config.Clone();
         }
 
@@ -527,7 +538,7 @@ namespace Eco.Plugins.DiscordLink
                     var channel = guild.ChannelByNameOrId(link.DiscordChannel);
                     if (channel == null)
                     {
-                        errorMessages.Add("[Channel Links] No Channel with the name \"" + link.DiscordChannel + "\" could be found in the Guild \"" + link.DiscordGuild + "\"" );
+                        errorMessages.Add("[Channel Links] No Channel with the name \"" + link.DiscordGuild + "\" could be found in the Guild \"" + link.DiscordGuild + "\"" );
                     }
                 }
             }
@@ -536,6 +547,18 @@ namespace Eco.Plugins.DiscordLink
                 errorMessages.Add("[Verification] No Discord Client available.");
             }
 
+            // Eco command channel
+            if (_configOptions.Config.EcoCommandChannel.Contains('#'))
+            {
+                errorMessages.Add("[Eco Command Channel] Channel name contains a channel indicator (#). The channel indicator will be added automatically and adding one manually may cause message sending to fail");
+            }
+
+            if (!_configOptions.Config.InviteMessage.Contains(InviteCommandLinkToken))
+            {
+                errorMessages.Add("[Invite Message] Message does not contain the invite link token " + InviteCommandLinkToken + ". If the invite link has been added manually, consider adding it to the network config instead");
+            }
+
+            // Report errors
             if (errorMessages.Count <= 0)
             {
                 Logger.Info("Configuration verification completed without errors");
@@ -641,6 +664,12 @@ namespace Eco.Plugins.DiscordLink
 
     public class DiscordConfig : ICloneable
     {
+        public static class DefaultValues
+        {
+            public const string EcoCommandChannel = "General";
+            public const string InviteMessage = "Join us on Discord!\n" + DiscordLink.InviteCommandLinkToken;
+        }
+
         public object Clone() // Be careful not to change the original object here as that will trigger endless recursion.
         {
             return new DiscordConfig
@@ -699,6 +728,12 @@ namespace Eco.Plugins.DiscordLink
 
         [Description("The path to the chatlog file, including file name and extension. This setting can be changed while the server is running, but the existing chatlog will not transfer."), Category("Chatlog Configuration")]
         public string ChatlogPath { get; set; } = Directory.GetCurrentDirectory() + "\\Logs\\DiscordLinkChatlog.txt";
+
+        [Description("The Eco chat channel to use for commands that outputs public messages, excluding the initial # character. This setting can be changed while the server is running."), Category("Command Settings")]
+        public string EcoCommandChannel { get; set; } = DefaultValues.EcoCommandChannel;
+
+        [Description("The message to use for the /DiscordInvite command. The invite link is fetched from the network config and will replace the token " + DiscordLink.InviteCommandLinkToken + ". This setting can be changed while the server is running."), Category("Command Settings")]
+        public string InviteMessage { get; set; } = DefaultValues.InviteMessage;
     }
 
     public class DiscordPlayerConfig : ICloneable
