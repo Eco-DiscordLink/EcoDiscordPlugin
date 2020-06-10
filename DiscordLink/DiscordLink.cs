@@ -26,7 +26,8 @@ namespace Eco.Plugins.DiscordLink
     public class DiscordLink : IModKitPlugin, IInitializablePlugin, IConfigurablePlugin
     {
         protected string NametagColor = "7289DAFF";
-        private PluginConfig<DiscordConfig> configOptions;
+        private PluginConfig<DiscordConfig> _configOptions;
+        private DiscordConfig _prevConfigOptions; // Used to detect differances when the config is saved
         private DiscordClient _discordClient;
         private CommandsNextModule _commands;
         private string _currentToken;
@@ -46,7 +47,7 @@ namespace Eco.Plugins.DiscordLink
 
         public IPluginConfig PluginConfig
         {
-            get { return configOptions; }
+            get { return _configOptions; }
         }
 
         public DiscordConfig DiscordPluginConfig
@@ -80,7 +81,7 @@ namespace Eco.Plugins.DiscordLink
             SetupConfig();
             chatNotifier = new ChatNotifier(new IChatMessageProviderChatServerWrapper());
             SetUpClient();
-            if(configOptions.Config.LogChat)
+            if(_configOptions.Config.LogChat)
             {
                 StartChatlog();
             }
@@ -88,7 +89,7 @@ namespace Eco.Plugins.DiscordLink
 
         ~DiscordLink()
         {
-            if (configOptions.Config.LogChat)
+            if (_configOptions.Config.LogChat)
             {
                 StopChatlog();
             }
@@ -96,7 +97,8 @@ namespace Eco.Plugins.DiscordLink
 
         private void SetupConfig()
         {
-            configOptions = new PluginConfig<DiscordConfig>("DiscordPluginSpoffy");
+            _configOptions = new PluginConfig<DiscordConfig>("DiscordPluginSpoffy");
+            _prevConfigOptions = (DiscordConfig)_configOptions.Config.Clone();
             DiscordPluginConfig.ChannelLinks.CollectionChanged += (obj, args) => { SaveConfig(); };
         }
 
@@ -428,7 +430,7 @@ namespace Eco.Plugins.DiscordLink
 
         public object GetEditObject()
         {
-            return configOptions.Config;
+            return _configOptions.Config;
         }
 
         public void OnEditObjectChanged(object o, string param)
@@ -439,13 +441,33 @@ namespace Eco.Plugins.DiscordLink
         protected void SaveConfig()
         {
             Logger.DebugVerbose("Saving Config");
-            configOptions.Save();
+            _configOptions.Save();
+
             if (DiscordPluginConfig.BotToken != _currentToken)
             {
                 //Reinitialise client.
                 Logger.Info("Discord Token changed, reinitialising client.\n");
                 RestartClient();
             }
+
+            if(_configOptions.Config.LogChat && !_prevConfigOptions.LogChat)
+            {
+                Logger.Info("Chatlog enabled");
+                StartChatlog();
+            }
+            else if(!_configOptions.Config.LogChat && _prevConfigOptions.LogChat)
+            {
+                Logger.Info("Chatlog disabled");
+                StopChatlog();
+            }
+
+            if( _configOptions.Config.ChatlogPath != _prevConfigOptions.ChatlogPath)
+            {
+                Logger.Info("Chatlog path changed. New path: " + _configOptions.Config.ChatlogPath);
+                RestartChatlog();
+            }
+
+            _prevConfigOptions = (DiscordConfig)_configOptions.Config.Clone();
         }
 
         #endregion
@@ -477,7 +499,7 @@ namespace Eco.Plugins.DiscordLink
 
         public void SavePlayerConfig()
         {
-            configOptions.Save();
+            _configOptions.Save();
         }
 
         public DiscordChannel GetDefaultChannelForPlayer(string identifier)
@@ -511,13 +533,13 @@ namespace Eco.Plugins.DiscordLink
         {
             try
             {
-                _chatLogWriter = new StreamWriter(configOptions.Config.ChatlogPath, append: true);
+                _chatLogWriter = new StreamWriter(_configOptions.Config.ChatlogPath, append: true);
                 _chatLogWriter.AutoFlush = true;
                 _chatlogInitialized = true;
             }
             catch(Exception)
             {
-                Logger.Error("Failed to initialize chat logger using path \"" + configOptions.Config.ChatlogPath + "\"");
+                Logger.Error("Failed to initialize chat logger using path \"" + _configOptions.Config.ChatlogPath + "\"");
             }
         }
 
@@ -527,29 +549,52 @@ namespace Eco.Plugins.DiscordLink
             _chatLogWriter = null;
             _chatlogInitialized = false;
         }
+
+        private void RestartChatlog()
+        {
+            StopChatlog();
+            StartChatlog();
+        }
         #endregion
     }
 
-    public class DiscordConfig
+    public class DiscordConfig : ICloneable
     {
-        [Description("The token provided by the Discord API to allow access to the bot"), Category("Bot Configuration")]
+        public object Clone() // Be careful not to change the original object here as that will trigger endless recursion.
+        {
+            return new DiscordConfig
+            {
+                BotToken = this.BotToken,
+                ServerName = this.ServerName,
+                ServerDescription = this.ServerDescription,
+                ServerLogo = this.ServerLogo,
+                ServerIP = this.ServerIP,
+                Debug = this.Debug,
+                LogChat = this.LogChat,
+                ChatlogPath = this.ChatlogPath,
+                PlayerConfigs = this.PlayerConfigs.Select(t => t.Clone()).Cast<DiscordPlayerConfig>().ToList(),
+                ChannelLinks = new ObservableCollection<ChannelLink>(this.ChannelLinks.Select(t => t.Clone()).Cast<ChannelLink>())
+            };
+        }
+
+        [Description("The token provided by the Discord API to allow access to the bot. This setting can be changed while the server is running and will in that case trigger a reconnection to Discord."), Category("Bot Configuration")]
         public string BotToken { get; set; }
 
-        [Description("The name of the Eco server, overriding the name configured within Eco."), Category("Server Details")]
+        [Description("The name of the Eco server, overriding the name configured within Eco. This setting can be changed while the server is running."), Category("Server Details")]
         public string ServerName { get; set; }
 
-        [Description("The description of the Eco server, overriding the description configured within Eco."), Category("Server Details")]
+        [Description("The description of the Eco server, overriding the description configured within Eco. This setting can be changed while the server is running."), Category("Server Details")]
         public string ServerDescription { get; set; }
 
-        [Description("The logo of the server as a URL."), Category("Server Details")]
+        [Description("The logo of the server as a URL. This setting can be changed while the server is running."), Category("Server Details")]
         public string ServerLogo { get; set; }
 
-        [Description("IP of the server. Overrides the automatically detected IP."), Category("Server Details")]
+        [Description("IP of the server. Overrides the automatically detected IP. This setting can be changed while the server is running."), Category("Server Details")]
         public string ServerIP { get; set; }
 
         private List<DiscordPlayerConfig> _playerConfigs = new List<DiscordPlayerConfig>();
 
-        [Description("A mapping from user to user config parameters.")]
+        [Description("A mapping from user to user config parameters. This setting can be changed while the server is running.")]
         public List<DiscordPlayerConfig> PlayerConfigs
         {
             get
@@ -562,21 +607,26 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
-        [Description("Channels to connect together."), Category("Channel Configuration")]
+        [Description("Channels to connect together. This setting can be changed while the server is running."), Category("Channel Configuration")]
         public ObservableCollection<ChannelLink> ChannelLinks { get; set; } = new ObservableCollection<ChannelLink>();
 
-        [Description("Enables debugging output to the console."), Category("Debugging")]
+        [Description("Enables debugging output to the console. This setting can be changed while the server is running."), Category("Debugging")]
         public bool Debug { get; set; } = false;
 
-        [Description("Enables logging of chat messages into the file at ChatlogPath."), Category("Chatlog Configuration")]
+        [Description("Enables logging of chat messages into the file at Chatlog Path. This setting can be changed while the server is running."), Category("Chatlog Configuration")]
         public bool LogChat { get; set; } = false;
 
-        [Description("The path to the chatlog file, including file name and extension."), Category("Chatlog Configuration")]
+        [Description("The path to the chatlog file, including file name and extension. This setting can be changed while the server is running, but the existing chatlog will not transfer."), Category("Chatlog Configuration")]
         public string ChatlogPath { get; set; } = Directory.GetCurrentDirectory() + "\\Logs\\DiscordLinkChatlog.txt";
     }
 
-    public class DiscordPlayerConfig
+    public class DiscordPlayerConfig : ICloneable
     {
+        public object Clone()
+        {
+            return this.MemberwiseClone();
+        }
+
         [Description("ID of the user")]
         public string Username { get; set; }
 
@@ -594,8 +644,13 @@ namespace Eco.Plugins.DiscordLink
         }
     }
 
-    public class ChannelLink
+    public class ChannelLink : ICloneable
     {
+        public object Clone()
+        {
+            return this.MemberwiseClone();
+        }
+
         [Description("Discord Guild channel is in by name or ID. Case sensitive.")]
         public string DiscordGuild { get; set; }
 
