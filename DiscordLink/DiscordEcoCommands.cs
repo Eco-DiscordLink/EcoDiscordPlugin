@@ -74,7 +74,7 @@ namespace Eco.Plugins.DiscordLink
                     var channelName = args[1];
                     var message = args[2];
 
-                    plugin.SendMessageAsUser(message, user, channelName, guildName).ContinueWith(result =>
+                    plugin.SendDiscordMessageAsUser(message, user, channelName, guildName).ContinueWith(result =>
                     {
                         ChatManager.ServerMessageToPlayer(new LocString(result.Result), user);   
                     });
@@ -92,7 +92,7 @@ namespace Eco.Plugins.DiscordLink
 
                     var defaultChannel = plugin.GetDefaultChannelForPlayer(user.Name);
 
-                    plugin.SendMessageAsUser(message, user, defaultChannel).ContinueWith(result =>
+                    plugin.SendDiscordMessageAsUser(message, user, defaultChannel).ContinueWith(result =>
                     {
                         ChatManager.ServerMessageToPlayer(new LocString(result.Result), user);   
                     });
