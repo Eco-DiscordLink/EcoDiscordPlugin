@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
@@ -9,6 +10,7 @@ using DSharpPlus.Entities;
 using Eco.Gameplay.Components;
 using Eco.Gameplay.Items;
 using Eco.Gameplay.Players;
+using Eco.Gameplay.Systems.Chat;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Plugins.Networking;
 using Eco.Shared.Utils;
@@ -173,6 +175,49 @@ namespace Eco.Plugins.DiscordLink
                     .WithDescription(playerList);
 
                 await ctx.RespondAsync("Displaying Online Players", false, embed);
+            }
+            catch (Exception e)
+            {
+                LogCommandException(e);
+            }
+        }
+
+        [Command("DiscordInvite")]
+        [Description("Posts the Discord invite message to the Eco chat")]
+        public async Task DiscordInvite(CommandContext ctx)
+        {
+            try
+            {
+                var plugin = DiscordLink.Obj;
+                if (plugin == null)
+                {
+                    await ctx.RespondAsync(
+                        "The plugin was unable to be found on the server. Please report this to the plugin author.");
+                    return;
+                }
+
+                var config = plugin.DiscordPluginConfig;
+                var serverInfo = Networking.NetworkManager.GetServerInfo();
+
+                // Send to Eco
+                string inviteMessage = config.InviteMessage;
+                if (!inviteMessage.Contains(DiscordLink.InviteCommandLinkToken) || string.IsNullOrEmpty(serverInfo.DiscordAddress))
+                {
+                    await ctx.RespondAsync(
+                        "This server is not configured for using the " + DiscordLink.DiscordCommandPrefix + "DiscordInvite command.");
+                    return;
+                }
+
+                inviteMessage = Regex.Replace(inviteMessage, Regex.Escape(DiscordLink.InviteCommandLinkToken), serverInfo.DiscordAddress);
+                string formattedInviteMessage = $"#{config.EcoCommandChannel} {inviteMessage}";
+                ChatManager.SendChat(formattedInviteMessage, plugin.EcoUser);
+
+                // Respond to Discord
+                var embed = new DiscordEmbedBuilder()
+                    .WithColor(EmbedColor)
+                    .WithDescription(inviteMessage);
+
+                await ctx.RespondAsync("Posted message to Eco channel #" + plugin.DiscordPluginConfig.EcoCommandChannel, false, embed);
             }
             catch (Exception e)
             {

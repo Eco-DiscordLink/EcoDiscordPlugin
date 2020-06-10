@@ -6,6 +6,7 @@ using Eco.Gameplay.Stats;
 using Eco.Gameplay.Systems.Chat;
 using Eco.Shared.Localization;
 using Eco.Shared.Utils;
+using System.Text.RegularExpressions;
 
 namespace Eco.Plugins.DiscordLink
 {
@@ -136,6 +137,31 @@ namespace Eco.Plugins.DiscordLink
                     ChatManager.ServerMessageToPlayer(new LocString("Default channel set to " + channelName), user);
                 },
                 user);
+        }
+
+        [ChatCommand("Display Discord invite message.", ChatAuthorizationLevel.User)]
+        public static void DiscordInvite(User user)
+        {
+            CallWithErrorHandling<object>((lUser, args) =>
+            {
+                var plugin = DiscordLink.Obj;
+                if (plugin == null) return;
+
+                var config = plugin.DiscordPluginConfig;
+                var serverInfo = Networking.NetworkManager.GetServerInfo();
+
+                string inviteMessage = config.InviteMessage;
+                if (!inviteMessage.Contains(DiscordLink.InviteCommandLinkToken) || string.IsNullOrEmpty(serverInfo.DiscordAddress))
+                {
+                    ChatManager.ServerMessageToPlayer("This server is not configured for using the /DiscordInvite command.", user);
+                    return;
+                }
+                
+                inviteMessage = Regex.Replace(inviteMessage, Regex.Escape(DiscordLink.InviteCommandLinkToken), serverInfo.DiscordAddress);
+                string formattedInviteMessage = $"#{config.EcoCommandChannel} {inviteMessage}";
+                ChatManager.SendChat(formattedInviteMessage, plugin.EcoUser);
+            },
+            user);
         }
     }
 }
