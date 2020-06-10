@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -81,7 +82,8 @@ namespace Eco.Plugins.DiscordLink
             SetupConfig();
             chatNotifier = new ChatNotifier(new IChatMessageProviderChatServerWrapper());
             SetUpClient();
-            if(_configOptions.Config.LogChat)
+            VerifyConfig(); // Requires SetUpClient to run first so that the DiscordClient exists
+            if (_configOptions.Config.LogChat)
             {
                 StartChatlog();
             }
@@ -99,7 +101,8 @@ namespace Eco.Plugins.DiscordLink
         {
             _configOptions = new PluginConfig<DiscordConfig>("DiscordPluginSpoffy");
             _prevConfigOptions = (DiscordConfig)_configOptions.Config.Clone();
-            DiscordPluginConfig.ChannelLinks.CollectionChanged += (obj, args) => { SaveConfig(); };
+            DiscordPluginConfig.PlayerConfigs.CollectionChanged += (obj, args) => { OnConfigChanged(); };
+            DiscordPluginConfig.ChannelLinks.CollectionChanged += (obj, args) => { OnConfigChanged(); };
         }
 
         #region DiscordClient Management
@@ -435,7 +438,13 @@ namespace Eco.Plugins.DiscordLink
 
         public void OnEditObjectChanged(object o, string param)
         {
+            OnConfigChanged();
+        }
+
+        public void OnConfigChanged()
+        {
             SaveConfig();
+            VerifyConfig();
         }
 
         protected void SaveConfig()
@@ -468,6 +477,78 @@ namespace Eco.Plugins.DiscordLink
             }
 
             _prevConfigOptions = (DiscordConfig)_configOptions.Config.Clone();
+        }
+
+        private void VerifyConfig()
+        {
+            List<string> errorMessages = new List<string>();
+
+            // Server IP
+            if (!string.IsNullOrWhiteSpace(_configOptions.Config.ServerIP))
+            {
+                IPAddress address;
+                if (!IPAddress.TryParse(_configOptions.Config.ServerIP, out address)
+                    || (address.AddressFamily != System.Net.Sockets.AddressFamily.InterNetwork
+                    && address.AddressFamily != System.Net.Sockets.AddressFamily.InterNetworkV6))
+                {
+                    errorMessages.Add("[ServerIP] Not a valid IPv4 or IPv6 address");
+                }
+            }
+
+            // Player configs
+            foreach (DiscordPlayerConfig playerConfig in _configOptions.Config.PlayerConfigs)
+            {
+                bool found = false;
+                foreach(User user in UserManager.Users)
+                {
+                    if (user.Name == playerConfig.Username)
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+                if(!found)
+                {
+                    errorMessages.Add("[Player Configs] No user with name \"" + playerConfig.Username + "\" was found");
+                }
+            }
+
+            // Channel links
+            if (_discordClient != null)
+            {
+                foreach (ChannelLink link in _configOptions.Config.ChannelLinks)
+                {
+                    var guild = GuildByNameOrId(link.DiscordGuild);
+                    if(guild == null)
+                    {
+                        errorMessages.Add("[Channel Links] No Discord Guild with the name \"" + link.DiscordGuild + "\" could be found");
+                        continue; // The channel will always fail if the guild fails
+                    }
+                    var channel = guild.ChannelByNameOrId(link.DiscordChannel);
+                    if (channel == null)
+                    {
+                        errorMessages.Add("[Channel Links] No Channel with the name \"" + link.DiscordChannel + "\" could be found in the Guild \"" + link.DiscordGuild + "\"" );
+                    }
+                }
+            }
+            else
+            {
+                errorMessages.Add("[Verification] No Discord Client available.");
+            }
+
+            if (errorMessages.Count <= 0)
+            {
+                Logger.Info("Configuration verification completed without errors");
+            }
+            else
+            {
+                string concatenatedMessages = "";
+                foreach (string message in errorMessages)
+                {
+                    concatenatedMessages += message + "\n";
+                }
+                Logger.Error("Configuration errors detected!\n" + concatenatedMessages);
+            }
         }
 
         #endregion
@@ -572,7 +653,7 @@ namespace Eco.Plugins.DiscordLink
                 Debug = this.Debug,
                 LogChat = this.LogChat,
                 ChatlogPath = this.ChatlogPath,
-                PlayerConfigs = this.PlayerConfigs.Select(t => t.Clone()).Cast<DiscordPlayerConfig>().ToList(),
+                PlayerConfigs = new ObservableCollection<DiscordPlayerConfig>(this.PlayerConfigs.Select(t => t.Clone()).Cast<DiscordPlayerConfig>()),
                 ChannelLinks = new ObservableCollection<ChannelLink>(this.ChannelLinks.Select(t => t.Clone()).Cast<ChannelLink>())
             };
         }
@@ -592,10 +673,10 @@ namespace Eco.Plugins.DiscordLink
         [Description("IP of the server. Overrides the automatically detected IP. This setting can be changed while the server is running."), Category("Server Details")]
         public string ServerIP { get; set; }
 
-        private List<DiscordPlayerConfig> _playerConfigs = new List<DiscordPlayerConfig>();
+        private ObservableCollection<DiscordPlayerConfig> _playerConfigs = new ObservableCollection<DiscordPlayerConfig>();
 
         [Description("A mapping from user to user config parameters. This setting can be changed while the server is running.")]
-        public List<DiscordPlayerConfig> PlayerConfigs
+        public ObservableCollection<DiscordPlayerConfig> PlayerConfigs
         {
             get
             {
