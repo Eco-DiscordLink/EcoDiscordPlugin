@@ -758,7 +758,7 @@ namespace Eco.Plugins.DiscordLink
                     link.DiscordChannel = link.DiscordChannel.ToLower();
                 }
 
-                if (link.DiscordChannel.Contains(' ')) // Discord channels always replace spaces with dashes
+                if (link.DiscordChannel.Contains(" ")) // Discord channels always replace spaces with dashes
                 {
                     link.DiscordChannel = link.DiscordChannel.Replace(' ', '-');
                 }
@@ -781,7 +781,7 @@ namespace Eco.Plugins.DiscordLink
                     statusChannel.DiscordChannel = statusChannel.DiscordChannel.ToLower();
                 }
 
-                if (statusChannel.DiscordChannel.Contains(' '))
+                if (statusChannel.DiscordChannel.Contains(" "))
                 {
                     statusChannel.DiscordChannel = statusChannel.DiscordChannel.Replace(' ', '-');
                 }
@@ -876,7 +876,7 @@ namespace Eco.Plugins.DiscordLink
                 }
 
                 // Eco command channel
-                if (!string.IsNullOrWhiteSpace(_configOptions.Config.EcoCommandChannel) && _configOptions.Config.EcoCommandChannel.Contains('#'))
+                if (!string.IsNullOrWhiteSpace(_configOptions.Config.EcoCommandChannel) && _configOptions.Config.EcoCommandChannel.Contains("#"))
                 {
                     errorMessages.Add("[Eco Command Channel] Channel name contains a channel indicator (#). The channel indicator will be added automatically and adding one manually may cause message sending to fail");
                 }
