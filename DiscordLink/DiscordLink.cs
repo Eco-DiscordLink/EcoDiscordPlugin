@@ -27,6 +27,7 @@ namespace Eco.Plugins.DiscordLink
     public class DiscordLink : IModKitPlugin, IInitializablePlugin, IConfigurablePlugin, IShutdownablePlugin
     {
         public const string InviteCommandLinkToken = "[LINK]";
+        public ThreadSafeAction<object, string> ParamChanged { get; set; }
         protected string NametagColor = "7289DAFF";
         private PluginConfig<DiscordConfig> _configOptions;
         private DiscordConfig _prevConfigOptions; // Used to detect differences when the config is saved
@@ -826,7 +827,7 @@ namespace Eco.Plugins.DiscordLink
                 correctionMade = true;
             }
 
-            _configOptions.Save();
+            _configOptions.SaveAsync();
             _prevConfigOptions = (DiscordConfig)_configOptions.Config.Clone();
 
             return !correctionMade;
@@ -1025,7 +1026,7 @@ namespace Eco.Plugins.DiscordLink
 
         public void SavePlayerConfig()
         {
-            _configOptions.Save();
+            _configOptions.SaveAsync();
         }
 
         public DiscordChannel GetDefaultChannelForPlayer(string identifier)

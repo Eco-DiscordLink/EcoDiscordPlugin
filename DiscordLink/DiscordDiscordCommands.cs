@@ -215,13 +215,13 @@ namespace Eco.Plugins.DiscordLink
                 {
                     var matchItem = match.Get<Item>();
                     embed.WithAuthor(matchItem.DisplayName);
-                    previousQueryEnumerator[ctx.User.UniqueUsername()] = TradeOffersBuySell(embed, (store, offer) => offer.Stack.Item == matchItem, t => t.Item1.Parent.OwnerUser.Name);
+                    previousQueryEnumerator[ctx.User.UniqueUsername()] = TradeOffersBuySell(embed, (store, offer) => offer.Stack.Item == matchItem, t => t.Item1.Parent.Owners.Name);
                 }
                 else if (match.Is<User>())
                 {
                     var matchUser = match.Get<User>();
                     embed.WithAuthor(matchUser.Name);
-                    previousQueryEnumerator[ctx.User.UniqueUsername()] = TradeOffersBuySell(embed, (store, offer) => store.Parent.OwnerUser == matchUser, t => t.Item2.Stack.Item.DisplayName);
+                    previousQueryEnumerator[ctx.User.UniqueUsername()] = TradeOffersBuySell(embed, (store, offer) => store.Parent.Owners == matchUser, t => t.Item2.Stack.Item.DisplayName);
                 }
                 else
                 {
