@@ -1,152 +1,76 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\xunit.core.2.4.1\build\xunit.core.props" Condition="Exists('..\packages\xunit.core.2.4.1\build\xunit.core.props')" />
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{C0B072E3-7A38-44DD-BAE0-340937173150}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <RootNamespace>Eco.Plugins.DiscordLink</RootNamespace>
-    <AssemblyName>DiscordLink</AssemblyName>
-    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <LangVersion>6</LangVersion>
+    <Configurations>Debug;Release;DebugVerbose</Configurations>
+    <PackageProjectUrl>https://github.com/Spoffy/EcoDiscordPlugin</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Spoffy/EcoDiscordPlugin.git</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <PackageTags>Eco Discord</PackageTags>
+    <PackageLicenseExpression>Gnu Affero</PackageLicenseExpression>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugVerbose|AnyCPU'">
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE;DEBUGVERBOSE</DefineConstants>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugVerbose|AnyCPU'">
+    <DefineConstants>TRACE;DEBUG;DEBUGVERBOSE</DefineConstants>
+    <OutputPath>bin\Debug\</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>bin\Release\</OutputPath>
+  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="Castle.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc">
-      <HintPath>..\packages\Castle.Core.4.4.0\lib\net45\Castle.Core.dll</HintPath>
+    <PackageReference Include="Castle.Core" Version="4.4.0" />
+    <PackageReference Include="Castle.Windsor" Version="5.0.0" />
+    <PackageReference Include="DSharpPlus" Version="3.2.3" />
+    <PackageReference Include="DSharpPlus.CommandsNext" Version="3.2.3" />
+    <PackageReference Include="DSharpPlus.WebSocket.WebSocket4Net" Version="3.2.3" />
+    <PackageReference Include="ILMerge" Version="3.0.40" />
+    <PackageReference Include="Moq" Version="4.13.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.5.2" />
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.3" />
+    <PackageReference Include="WebSocket4Net" Version="0.15.2" />
+    <PackageReference Include="xunit" Version="2.4.1" />
+    <PackageReference Include="xunit.abstractions" Version="2.0.3" />
+    <PackageReference Include="xunit.analyzers" Version="0.10.0" />
+    <PackageReference Include="xunit.assert" Version="2.4.1" />
+    <PackageReference Include="xunit.core" Version="2.4.1" />
+    <PackageReference Include="xunit.extensibility.core" Version="2.4.1" />
+    <PackageReference Include="xunit.extensibility.execution" Version="2.4.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Eco.Core">
+      <HintPath>..\EcoDependencies\Eco.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Castle.Windsor, Version=5.0.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc">
-      <HintPath>..\packages\Castle.Windsor.5.0.0\lib\net45\Castle.Windsor.dll</HintPath>
+    <Reference Include="Eco.Gameplay">
+      <HintPath>..\EcoDependencies\Eco.Gameplay.dll</HintPath>
     </Reference>
-    <Reference Include="DSharpPlus, Version=3.2.3.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\DSharpPlus.3.2.3\lib\net46\DSharpPlus.dll</HintPath>
+    <Reference Include="Eco.Plugins">
+      <HintPath>..\EcoDependencies\Eco.Plugins.dll</HintPath>
     </Reference>
-    <Reference Include="DSharpPlus.CommandsNext, Version=3.2.3.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\DSharpPlus.CommandsNext.3.2.3\lib\net46\DSharpPlus.CommandsNext.dll</HintPath>
+    <Reference Include="Eco.Shared">
+      <HintPath>..\EcoDependencies\Eco.Shared.dll</HintPath>
     </Reference>
-    <Reference Include="DSharpPlus.WebSocket.WebSocket4Net, Version=3.2.3.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\DSharpPlus.WebSocket.WebSocket4Net.3.2.3\lib\net46\DSharpPlus.WebSocket.WebSocket4Net.dll</HintPath>
-    </Reference>
-    <Reference Include="Eco.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\DLLs-8.1.0\eco.core.dll</HintPath>
-    </Reference>
-    <Reference Include="Eco.Gameplay, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\DLLs-8.1.0\eco.gameplay.dll</HintPath>
-    </Reference>
-    <Reference Include="Eco.ModKit, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\DLLs-8.1.0\eco.modkit.dll</HintPath>
-    </Reference>
-    <Reference Include="Eco.Plugins, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\DLLs-8.1.0\eco.plugins.dll</HintPath>
-    </Reference>
-    <Reference Include="Eco.Shared, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\DLLs-8.1.0\eco.shared.dll</HintPath>
-    </Reference>
-    <Reference Include="Eco.Simulation, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\DLLs-8.1.0\eco.simulation.dll</HintPath>
-    </Reference>
-    <Reference Include="Eco.Stats, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\DLLs-8.1.0\eco.stats.dll</HintPath>
-    </Reference>
-    <Reference Include="Eco.World, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\DLLs-8.1.0\eco.world.dll</HintPath>
-    </Reference>
-    <Reference Include="Eco.WorldGenerator, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\DLLs-8.1.0\eco.worldgenerator.dll</HintPath>
-    </Reference>
-    <Reference Include="Moq, Version=4.11.0.0, Culture=neutral, PublicKeyToken=69f491c39445e920">
-      <HintPath>..\packages\Moq.4.11.0\lib\net45\Moq.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed">
-      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.0\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51">
-      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.1\lib\netstandard2.0\System.Threading.Tasks.Extensions.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Xml" />
-    <Reference Include="WebSocket4Net, Version=0.14.1.0, Culture=neutral, PublicKeyToken=eb4e154b696bf72a">
-      <HintPath>..\packages\WebSocket4Net.0.14.1\lib\net45\WebSocket4Net.dll</HintPath>
-    </Reference>
-    <Reference Include="xunit.abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c">
-      <HintPath>..\packages\xunit.abstractions.2.0.3\lib\net35\xunit.abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="xunit.assert, Version=2.4.1.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c">
-      <HintPath>..\packages\xunit.assert.2.4.1\lib\netstandard1.1\xunit.assert.dll</HintPath>
-    </Reference>
-    <Reference Include="xunit.core, Version=2.4.1.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c">
-      <HintPath>..\packages\xunit.extensibility.core.2.4.1\lib\net452\xunit.core.dll</HintPath>
-    </Reference>
-    <Reference Include="xunit.execution.desktop, Version=2.4.1.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c">
-      <HintPath>..\packages\xunit.extensibility.execution.2.4.1\lib\net452\xunit.execution.desktop.dll</HintPath>
+    <Reference Include="Eco.Simulation">
+      <HintPath>..\EcoDependencies\Eco.Simulation.dll</HintPath>
     </Reference>
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Adapters\IChatMessageProviderChatServerWrapper.cs" />
-    <Compile Include="ChatNotifier.cs" />
-    <Compile Include="DiscordDiscordCommands.cs" />
-    <Compile Include="DiscordEcoCommands.cs" />
-    <Compile Include="DiscordLink.cs" />
-    <Compile Include="Extensions\DSharpExtensions.cs" />
-    <Compile Include="Interfaces\IChatMessageProvider.cs" />
-    <Compile Include="IPUtil.cs" />
-    <Compile Include="Logger.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TradeHelper.cs" />
-    <Compile Include="Utilities\Either.cs" />
-    <Compile Include="Utilities\PagedEnumerable.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-         Other similar extension points exist, see Microsoft.Common.targets.
-    <Target Name="BeforeBuild">
-    </Target> -->
+  
   <PropertyGroup>
-    <ILMergeConsoleCommand>C:\"Program Files (x86)"\Microsoft\ILMerge\ILMerge.exe</ILMergeConsoleCommand>
-    <MergeOutput>DiscordLinkUnified.dll</MergeOutput>
+	<ILMergeConsoleCommand>$(SolutionDir)\packages\ILMerge.3.0.40\tools\net452\ILMerge.exe</ILMergeConsoleCommand>
+    <MergeOutputName>DiscordLink.dll</MergeOutputName>
+	<MergeOutputPath>..\..\EcoTestServer\Mods\DiscordLink\</MergeOutputPath>
   </PropertyGroup>
-  <Target Name="AfterBuild">
-    <GetFrameworkPath>
-      <Output TaskParameter="Path" PropertyName="FrameworkPath" />
-    </GetFrameworkPath>
-    <Exec Command="echo $(FrameworkPath)" />
-    <Exec Command="$(ILMergeConsoleCommand) /lib:$(FrameworkPath) /targetplatform:v4 /out:$(OutputPath)$(MergeOutput) $(OutputPath)DiscordLink.dll $(OutputPath)DSharpPlus/DSharpPlus.dll $(OutputPath)Newtonsoft.json.dll $(OutputPath)DSharpPlus.CommandsNext.dll $(OutputPath)WebSocket4Net.dll $(OutputPath)DSharpPlus.WebSocket.WebSocket4Net.dll " />
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="$(ILMergeConsoleCommand) /ndebug /targetplatform:v4 /out:$(MergeOutputPath)$(MergeOutputName) $(OutputPath)DiscordLink.dll $(OutputPath)DSharpPlus.dll $(OutputPath)Newtonsoft.json.dll $(OutputPath)DSharpPlus.CommandsNext.dll $(OutputPath)WebSocket4Net.dll $(OutputPath)DSharpPlus.WebSocket.WebSocket4Net.dll "/>
   </Target>
-  <Import Project="..\packages\xunit.core.2.4.1\build\xunit.core.targets" Condition="Exists('..\packages\xunit.core.2.4.1\build\xunit.core.targets')" />
 </Project>
