@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
@@ -9,6 +9,7 @@
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Eco Discord</PackageTags>
     <PackageLicenseExpression>Gnu Affero</PackageLicenseExpression>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -33,23 +34,23 @@
 
   <ItemGroup>
     <Reference Include="Eco.Core">
-      <HintPath>..\EcoDependencies\Eco.Core.dll</HintPath>
+      <HintPath>..\Dependencies\Eco.Core.dll</HintPath>
     </Reference>
     <Reference Include="Eco.Gameplay">
-      <HintPath>..\EcoDependencies\Eco.Gameplay.dll</HintPath>
+      <HintPath>..\Dependencies\Eco.Gameplay.dll</HintPath>
     </Reference>
     <Reference Include="Eco.Plugins">
-      <HintPath>..\EcoDependencies\Eco.Plugins.dll</HintPath>
+      <HintPath>..\Dependencies\Eco.Plugins.dll</HintPath>
     </Reference>
     <Reference Include="Eco.Shared">
-      <HintPath>..\EcoDependencies\Eco.Shared.dll</HintPath>
+      <HintPath>..\Dependencies\Eco.Shared.dll</HintPath>
     </Reference>
     <Reference Include="Eco.Simulation">
-      <HintPath>..\EcoDependencies\Eco.Simulation.dll</HintPath>
+      <HintPath>..\Dependencies\Eco.Simulation.dll</HintPath>
     </Reference>
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="$(ILMergeConsoleCommand) /ndebug /targetplatform:v4 /out:$(MergeOutputPath)$(MergeOutputName) $(OutputPath)DiscordLink.dll $(OutputPath)DSharpPlus.dll $(OutputPath)Newtonsoft.json.dll $(OutputPath)DSharpPlus.CommandsNext.dll $(OutputPath)WebSocket4Net.dll $(OutputPath)DSharpPlus.WebSocket.WebSocket4Net.dll "/>
+    <Exec Command="set server_dir=$(SolutionDir)..\EcoServer\&#xD;&#xA;set server_mod_dir=$(SolutionDir)..\EcoServer\Mods\DiscordLink\&#xD;&#xA;for /f &quot;tokens=*&quot; %25%25i in ($(SolutionDir)DLLCopyList.txt) DO (&#xD;&#xA;    xcopy /Y &quot;$(OutDir)%25%25i&quot; &quot;%25server_mod_dir%25&quot;&#xD;&#xA;)&#xD;&#xA;xcopy /Y &quot;$(OutDir)DiscordLink.pdb&quot; &quot;%25server_dir%25&quot;" />
   </Target>
 </Project>
