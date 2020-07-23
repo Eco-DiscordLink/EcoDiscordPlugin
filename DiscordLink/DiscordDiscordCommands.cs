@@ -20,7 +20,7 @@ namespace Eco.Plugins.DiscordLink
     /**
      * Handles commands coming from Discord.
      */
-    public class DiscordDiscordCommands
+    public class DiscordDiscordCommands : BaseCommandModule
     {
         public delegate Task DiscordCommand(CommandContext ctx);
 

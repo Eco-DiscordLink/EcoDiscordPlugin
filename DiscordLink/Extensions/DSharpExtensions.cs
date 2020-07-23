@@ -21,20 +21,20 @@ namespace Eco.Plugins.DiscordLink
 
         public static string[] TextChannelNames(this DiscordGuild guild)
         {
-            return guild != null ? guild.TextChannels().Select(channel => channel.Name).ToArray() : new string[0];
+            return guild != null ? guild.TextChannels().Select(channel => channel.Value.Name).ToArray() : new string[0];
         }
         
-        public static IReadOnlyList<DiscordChannel> TextChannels(this DiscordGuild guild)
+        public static IReadOnlyList<KeyValuePair<ulong, DiscordChannel>> TextChannels(this DiscordGuild guild)
         {
             return guild != null
-                ? guild.Channels.Where(channel => channel.Type == ChannelType.Text).ToList()
-                : new List<DiscordChannel>();
+                ? guild.Channels.Where(channel => channel.Value.Type == ChannelType.Text).ToList()
+                : new List<KeyValuePair<ulong, DiscordChannel>>();
         }
         
         public static DiscordChannel ChannelByName(this DiscordGuild guild, string channelName)
         {
             return guild != null
-                ? guild.TextChannels().FirstOrDefault(channel => channel.Name == channelName)
+                ? guild.TextChannels().FirstOrDefault(channel => channel.Value.Name == channelName).Value
                 : null;
         }
 
