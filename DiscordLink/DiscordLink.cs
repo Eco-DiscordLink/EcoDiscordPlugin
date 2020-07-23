@@ -32,7 +32,7 @@ namespace Eco.Plugins.DiscordLink
         private PluginConfig<DiscordConfig> _configOptions;
         private DiscordConfig _prevConfigOptions; // Used to detect differences when the config is saved
         private DiscordClient _discordClient;
-        private CommandsNextModule _commands;
+        private CommandsNextExtension _commands;
         private string _currentToken;
         private string _status = "No Connection Attempt Made";
 
@@ -156,7 +156,7 @@ namespace Eco.Plugins.DiscordLink
                     Token = _currentToken,
                     TokenType = TokenType.Bot
                 });
-                _discordClient.SetWebSocketClient<WebSocket4NetClient>();
+                //_discordClient.SetWebSocketClient<WebSocket4NetClient>();
 
                 _discordClient.Ready += async args => { Logger.Info("Connected and Ready"); };
                 _discordClient.ClientErrored += async args => { Logger.Error(args.EventName + " " + args.Exception.ToString()); };
@@ -167,9 +167,8 @@ namespace Eco.Plugins.DiscordLink
                 // Set up the client to use CommandsNext
                 _commands = _discordClient.UseCommandsNext(new CommandsNextConfiguration
                 {
-                    StringPrefix = _configOptions.Config.DiscordCommandPrefix
+                    StringPrefixes = _configOptions.Config.DiscordCommandPrefix.SingleItemAsEnumerable()
                 });
-
                 _commands.RegisterCommands<DiscordDiscordCommands>();
 
                 return true;
@@ -435,7 +434,7 @@ namespace Eco.Plugins.DiscordLink
             foreach (var user in message.MentionedUsers)
             {
                 if (user == null) { continue; }
-                DiscordMember member = message.Channel.Guild.Members.FirstOrDefault(m => m?.Id == user.Id);
+                DiscordMember member = message.Channel.Guild.Members.FirstOrDefault(m => m.Value?.Id == user.Id).Value;
                 if (member == null) { continue; }
                 String name = "@" + member.DisplayName;
                 content = content.Replace($"<@{user.Id}>", name)
@@ -508,7 +507,7 @@ namespace Eco.Plugins.DiscordLink
                 {
                     if (allowRoleMentions)
                     {
-                        foreach (var role in channel.Guild.Roles) // Checking roles first in case a user has name identiacal to that of a role
+                        foreach (var role in channel.Guild.Roles.Values) // Checking roles first in case a user has name identiacal to that of a role
                         {
                             if (!role.IsMentionable) continue;
 
@@ -522,7 +521,7 @@ namespace Eco.Plugins.DiscordLink
 
                     if (allowMemberMentions)
                     {
-                        foreach (var member in channel.Guild.Members)
+                        foreach (var member in channel.Guild.Members.Values)
                         {
                             string name = member.DisplayName.ToLower();
                             if (match.Contains(name))
@@ -534,7 +533,7 @@ namespace Eco.Plugins.DiscordLink
                 }
                 else if(capture.ToString()[0] == '#' && allowChannelMentions)
                 {
-                    foreach(var listChannel in channel.Guild.Channels)
+                    foreach(var listChannel in channel.Guild.Channels.Values)
                     {
                         string name = listChannel.Name.ToLower();
                         if(match.Contains(name))
