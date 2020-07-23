@@ -48,12 +48,6 @@
       <HintPath>..\EcoDependencies\Eco.Simulation.dll</HintPath>
     </Reference>
   </ItemGroup>
-  
-  <PropertyGroup>
-	<ILMergeConsoleCommand>$(SolutionDir)\packages\ILMerge.3.0.40\tools\net452\ILMerge.exe</ILMergeConsoleCommand>
-    <MergeOutputName>DiscordLink.dll</MergeOutputName>
-	<MergeOutputPath>..\..\EcoTestServer\Mods\DiscordLink\</MergeOutputPath>
-  </PropertyGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="$(ILMergeConsoleCommand) /ndebug /targetplatform:v4 /out:$(MergeOutputPath)$(MergeOutputName) $(OutputPath)DiscordLink.dll $(OutputPath)DSharpPlus.dll $(OutputPath)Newtonsoft.json.dll $(OutputPath)DSharpPlus.CommandsNext.dll $(OutputPath)WebSocket4Net.dll $(OutputPath)DSharpPlus.WebSocket.WebSocket4Net.dll "/>
