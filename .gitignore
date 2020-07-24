@@ -1,4 +1,5 @@
-﻿/packages
+﻿*.dll
+/packages
 /.vs
 /DiscordLink/bin
 /DiscordLink/obj

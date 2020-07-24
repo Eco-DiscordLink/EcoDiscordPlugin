@@ -2,7 +2,7 @@
 # DiscordLink
 ## Introduction
 
-This Eco Global Survival plugin connects Discord servers to the game server. It allows you link a Discord Channel to an Eco Channel for (reasonably) seamless communication between the two. 
+This Eco Global Survival plugin connects Discord servers to the game server. It allows you to link a Discord Channel to an Eco Channel for (reasonably) seamless communication between the two. 
 DiscordLink also adds a number of commands to Discord and Eco that provide a variety of helpful features.
 
 ## Usage
@@ -40,5 +40,9 @@ All configuration is done via the Server GUI, and should be straightforward.
 
 For more information, see the [configuration guide](Configuration.md)
 
+## I want to contribute!
+
+Merge requests are very welcome!
+For information on how to set up the development environment, see the [project setup guide](ProjectSetup.md)
 
 DiscordLink Logo &copy; 2018 Phlo

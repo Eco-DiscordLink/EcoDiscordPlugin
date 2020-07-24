@@ -26,7 +26,7 @@ namespace Eco.Plugins.DiscordLink
 
         public static DiscordColor EmbedColor = DiscordColor.Green;
 
-        public static DiscordEmbedBuilder GetEcoStatus(EcoStatusComponentFlag flag)
+        public static DiscordEmbed GetEcoStatus(EcoStatusComponentFlag flag)
         {
             var plugin = DiscordLink.Obj;
             if (plugin == null) { return null; }
@@ -56,7 +56,7 @@ namespace Eco.Plugins.DiscordLink
             {
                 try
                 {
-                    builder.WithThumbnailUrl(pluginConfig.ServerLogo);
+                    builder.WithThumbnail(pluginConfig.ServerLogo);
                 }
                 catch (UriFormatException)
                 { }
@@ -110,7 +110,7 @@ namespace Eco.Plugins.DiscordLink
                 builder.AddField("Current Leader", leader);
             }
 
-            return builder;
+            return builder.Build();
         }
 
         public static DiscordEmbedBuilder GetPlayerList()

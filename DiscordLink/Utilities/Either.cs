@@ -1,7 +1,4 @@
-﻿using System;
-using Eco.Gameplay.LegislationSystem.LawLogic.NumericValues;
-
-namespace Eco.Plugins.DiscordLink.Utilities
+﻿namespace Eco.Plugins.DiscordLink.Utilities
 {
     public struct Either<T1, T2> where T1 : class where T2 : class
     {
