@@ -22,13 +22,6 @@ namespace Eco.Plugins.DiscordLink
      */
     public class DiscordDiscordCommands
     {
-        public static DiscordColor EmbedColor = DiscordColor.Green;
-
-        private string FirstNonEmptyString(params string[] strings)
-        {
-            return strings.FirstOrDefault(str => !String.IsNullOrEmpty(str)) ?? "";
-        }
-
         public delegate Task DiscordCommand(CommandContext ctx);
 
         private static void LogCommandException(Exception e)
@@ -50,66 +43,7 @@ namespace Eco.Plugins.DiscordLink
         {
             try
             {
-                var plugin = DiscordLink.Obj;
-                if (plugin == null)
-                {
-                    await ctx.RespondAsync(
-                        "The plugin was unable to be found on the server. Please report this to the plugin author.");
-                    return;
-                }
-
-                var pluginConfig = plugin.DiscordPluginConfig;
-                var serverInfo = NetworkManager.GetServerInfo();
-
-                var name = FirstNonEmptyString(pluginConfig.ServerName, serverInfo.Name);
-                var description = FirstNonEmptyString(pluginConfig.ServerDescription, serverInfo.Description,
-                    "No server description is available.");
-
-                var addr = IPUtil.GetInterNetworkIP().FirstOrDefault();
-                var serverAddress = String.IsNullOrEmpty(pluginConfig.ServerIP)
-                    ? addr == null ? "No Configured Address"
-                    : addr + ":" + serverInfo.WebPort
-                    : pluginConfig.ServerIP;
-
-                var players = $"{serverInfo.OnlinePlayers}/{serverInfo.TotalPlayers}";
-
-                var timeRemainingSpan = new TimeSpan(0, 0, (int) serverInfo.TimeLeft);
-                var meteorHasHit = timeRemainingSpan.Seconds < 0;
-                var timeRemainingFieldName = "Time Left until Meteor";
-                timeRemainingSpan = meteorHasHit ? new TimeSpan(0, 0, 0) : timeRemainingSpan; 
-                var timeRemaining =
-                    $"{timeRemainingSpan.Days} Days, {timeRemainingSpan.Hours} hours, {timeRemainingSpan.Minutes} minutes";
-
-                var timeSinceStartSpan = new TimeSpan(0, 0, (int) serverInfo.TimeSinceStart);
-                var timeSinceStart =
-                    $"{timeSinceStartSpan.Days} Days, {timeSinceStartSpan.Hours} hours, {timeSinceStartSpan.Minutes} minutes";
-
-                var leader = String.IsNullOrEmpty(serverInfo.Leader) ? "No leader" : serverInfo.Leader;
-
-                var builder = new DiscordEmbedBuilder()
-                    .WithColor(EmbedColor)
-                    .WithTitle($"**{name} Server Status**")
-                    .WithDescription(description)
-                    .AddField("Online Players", players)
-                    .AddField("Address", serverAddress)
-                    .AddField(timeRemainingFieldName, timeRemaining)
-                    .AddField("Time Since Game Start", timeSinceStart)
-                    .AddField("Current Leader", leader);
-
-                //Add the Server Logo Thumbnail
-                try
-                {
-                    builder = String.IsNullOrWhiteSpace(pluginConfig.ServerLogo)
-                        ? builder
-                        : builder.WithThumbnailUrl(pluginConfig.ServerLogo);
-                }
-                catch (UriFormatException e)
-                {
-                    Logger.Info("Warning: The Configured Server Logo is not a valid URL.");
-                }
-
-
-                await ctx.RespondAsync("Current status of the server:", false, builder.Build());
+                await ctx.RespondAsync("Current status of the server:", false, MessageBuilder.GetEcoStatus(MessageBuilder.EcoStatusComponentFlag.All));
             }
             catch (Exception e)
             {
@@ -156,25 +90,7 @@ namespace Eco.Plugins.DiscordLink
         {
             try
             {
-                var plugin = DiscordLink.Obj;
-                if (plugin == null)
-                {
-                    await ctx.RespondAsync(
-                        "The plugin was unable to be found on the server. Please report this to the plugin author.");
-                    return;
-                }
-
-                var onlineUsers = UserManager.OnlineUsers.Where(user => user.Client.Connected)
-                    .Select(user => user.Name);
-                var numberOnline = onlineUsers.Count();
-                var message = $"{numberOnline} Online Players:\n";
-                var playerList = String.Join("\n", onlineUsers);
-                var embed = new DiscordEmbedBuilder()
-                    .WithColor(EmbedColor)
-                    .WithTitle(message)
-                    .WithDescription(playerList);
-
-                await ctx.RespondAsync("Displaying Online Players", false, embed);
+                await ctx.RespondAsync("Displaying Online Players", false, MessageBuilder.GetPlayerList());
             }
             catch (Exception e)
             {
@@ -214,7 +130,7 @@ namespace Eco.Plugins.DiscordLink
 
                 // Respond to Discord
                 var embed = new DiscordEmbedBuilder()
-                    .WithColor(EmbedColor)
+                    .WithColor(MessageBuilder.EmbedColor)
                     .WithDescription(inviteMessage);
 
                 await ctx.RespondAsync("Posted message to Eco channel #" + plugin.DiscordPluginConfig.EcoCommandChannel, false, embed);
@@ -249,7 +165,7 @@ namespace Eco.Plugins.DiscordLink
                 
                 
                 var embed = new DiscordEmbedBuilder()
-                    .WithColor(EmbedColor)
+                    .WithColor(MessageBuilder.EmbedColor)
                     .WithTitle("Trade Listings");
 
                 while (pagedFieldEnumerator.MoveNext())
@@ -290,7 +206,7 @@ namespace Eco.Plugins.DiscordLink
                 }
 
                 var embed = new DiscordEmbedBuilder()
-                    .WithColor(EmbedColor)
+                    .WithColor(MessageBuilder.EmbedColor)
                     .WithTitle("Trade Listings");
 
                 var match = TradeHelper.MatchItemOrUser(itemNameOrUserName);
@@ -367,14 +283,6 @@ namespace Eco.Plugins.DiscordLink
                     yield return Tuple.Create($"**Buying for {group.Key}**", fieldBodyBuilder.ToString());
                 }
             }
-/*            foreach(var group in buyOffers)
-            {
-                var body = TradeOffersFieldMessage(group,
-                    t => t.Item2.Price.ToString(),
-                    t => context(t),
-                    t => t.Item2.ShouldLimit ? (int?) t.Item2.Stack.Quantity : null);
-                yield return Tuple.Create($"**Buying with {group.Key}**", body.Substring(0, body.Length > 1000? 1000 : body.Length));
-            }*/
         }
 
         private PagedEnumerator<Tuple<string, string>> TradeOffersBuySell(DiscordEmbedBuilder embed, Func<StoreComponent,TradeOffer, bool> filter, Func<Tuple<StoreComponent,TradeOffer>,string> context)

@@ -43,7 +43,7 @@ namespace Eco.Plugins.DiscordLink
             if (guild == null) { return null; }
 
             var maybeChannelId = TryParseSnowflakeId(channelNameOrId);
-                return maybeChannelId != null ? guild.GetChannel(maybeChannelId.Value) : guild.ChannelByName(channelNameOrId);
+            return maybeChannelId != null ? guild.GetChannel(maybeChannelId.Value) : guild.ChannelByName(channelNameOrId);
         }
 
         public async static Task<DiscordMember> MaybeGetMemberAsync(this DiscordGuild guild, ulong userId)
