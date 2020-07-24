@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using Eco.Core.Utils;
 using Eco.Gameplay.Components;
 using Eco.Gameplay.Items;
 using Eco.Gameplay.Players;
@@ -50,7 +51,8 @@ namespace Eco.Plugins.DiscordLink
                 LogCommandException(e);
             }
         }
-        
+
+#if DEBUG
         [Command("debug")]
         [Description("Runs the current debugging command.")]
         public async Task Debug(CommandContext ctx)
@@ -82,7 +84,58 @@ namespace Eco.Plugins.DiscordLink
                 LogCommandException(e);
             }
         }
+#endif
 
+        [Command("echo")]
+        [Description("Sends the provided message to Eco and back to Discord again.")]
+        public async Task Echo(CommandContext ctx, [Description("The message to send and then receive back again. A random message will be sent if this parameter is omitted.")] string message = "")
+        {
+            try
+            {
+                var plugin = DiscordLink.Obj;
+                if (plugin == null)
+                {
+                    await ctx.RespondAsync(
+                        "The plugin was unable to be found on the server. Please report this to the plugin author.");
+                    return;
+                }
+                var config = plugin.DiscordPluginConfig;
+
+                if (message.IsEmpty())
+                {
+                    Random rnd = new Random();
+                    switch(rnd.Next(1,5))
+                    {
+                        case 1:
+                            message = "One thing has suddenly ceased to lead to another.";
+                            break;
+
+                        case 2:
+                            message = "Nothing travels faster than the speed of light with the possible exception of bad news, which obeys its own special laws.";
+                            break;
+
+                        case 3:
+                            message = "Life... is like a grapefruit. It's orange and squishy, and has a few pips in it, and some folks have half a one for breakfast.";
+                            break;
+
+                        case 4:
+                            message = "So long and thanks for all the fish.";
+                            break;
+
+                        case 5:
+                            message = "Time is an illusion. Lunch-time doubly so.";
+                            break;
+                    }
+                }
+
+                string formattedMessage = $"#{config.EcoCommandChannel} {DiscordLink.EchoCommandToken + " " + message}";
+                ChatManager.SendChat(formattedMessage, plugin.EcoUser);
+            }
+            catch(Exception e)
+            {
+                LogCommandException(e);
+            }
+        }
 
         [Command("players")]
         [Description("Lists the players currently online on the server")]
