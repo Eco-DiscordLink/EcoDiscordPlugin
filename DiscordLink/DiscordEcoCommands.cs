@@ -1,11 +1,7 @@
 using System;
-using System.Runtime.Remoting.Messaging;
-using System.Threading.Tasks;
 using Eco.Gameplay.Players;
-using Eco.Gameplay.Stats;
 using Eco.Gameplay.Systems.Chat;
 using Eco.Shared.Localization;
-using Eco.Shared.Utils;
 using System.Text.RegularExpressions;
 
 namespace Eco.Plugins.DiscordLink
@@ -112,7 +108,7 @@ namespace Eco.Plugins.DiscordLink
                         ? plugin.DefaultGuild 
                         : plugin.GuildByName(guildName);
 
-                    //Can happen in DefaultGuild is not configured.
+                    // Can happen if DefaultGuild is not configured.
                     if (guild == null)
                     {
                         ChatManager.ServerMessageToPlayer(new LocString("Unable to find that guild, perhaps the name was misspelled?"), user);
@@ -122,7 +118,6 @@ namespace Eco.Plugins.DiscordLink
                     ChatManager.ServerMessageToAll( new LocString("Channels: " + joinedGames), false);
                 },
                 user);
-
         }
         
         [ChatCommand("Set default channel to use.", ChatAuthorizationLevel.Admin)]
