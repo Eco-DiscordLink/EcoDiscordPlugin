@@ -12,11 +12,11 @@ using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
-using DSharpPlus.Net.WebSocket;
 using Eco.Core;
 using Eco.Core.Plugins;
 using Eco.Core.Plugins.Interfaces;
 using Eco.Core.Utils;
+using Eco.Gameplay.GameActions;
 using Eco.Gameplay.Players;
 using Eco.Gameplay.Systems.Chat;
 using Eco.Shared.Services;
@@ -24,21 +24,24 @@ using Eco.Shared.Utils;
 
 namespace Eco.Plugins.DiscordLink
 {
-    public class DiscordLink : IModKitPlugin, IInitializablePlugin, IConfigurablePlugin, IShutdownablePlugin
+    public class DiscordLink : IModKitPlugin, IInitializablePlugin, IConfigurablePlugin, IShutdownablePlugin, IGameActionAware
     {
         public const string InviteCommandLinkToken = "[LINK]";
+        public const string EchoCommandToken = "[ECHO]";
         public ThreadSafeAction<object, string> ParamChanged { get; set; }
         protected string NametagColor = "7289DAFF";
         private PluginConfig<DiscordConfig> _configOptions;
         private DiscordConfig _prevConfigOptions; // Used to detect differences when the config is saved
         private DiscordClient _discordClient;
         private CommandsNextExtension _commands;
-        private string _currentToken;
+        private string _currentBotToken;
         private string _status = "No Connection Attempt Made";
 
-        private static readonly Regex TagStripRegex = new Regex("<[^>]*>"); // Strips the tags used by Eco message formatting (color codes, badges, links etc)
+        // Finds the tags used by Eco message formatting (color codes, badges, links etc)
+        private static readonly Regex EcoNameTagRegex = new Regex("<[^>]*>");
 
-        protected ChatNotifier chatNotifier;
+        // Discord mention matching regex: Match all characters followed by a mention character(@ or #) character (including that character) until encountering any type of whitespace, end of string or a new mention character
+        private static readonly Regex DiscordMentionRegex = new Regex("([@#].+?)(?=\\s|$|@|#)");
 
         public override string ToString()
         {
@@ -64,22 +67,11 @@ namespace Eco.Plugins.DiscordLink
         {
             if (_discordClient == null) return;
             ConnectAsync().Wait();
-            StartChatNotifier();
-        }
-
-        private void StartChatNotifier()
-        {
-            chatNotifier.Initialize();
-            new Thread(() => { chatNotifier.Run(); })
-            {
-                Name = "ChatNotifierThread"
-            }.Start();
         }
 
         public DiscordLink()
         {
             SetupConfig();
-            chatNotifier = new ChatNotifier(new IChatMessageProviderChatServerWrapper());
             SetUpClient();
 
             _discordClient.Ready += async args =>
@@ -143,7 +135,7 @@ namespace Eco.Plugins.DiscordLink
             DisposeOfClient();
             _status = "Setting up client";
             // Loading the configuration
-            _currentToken = String.IsNullOrWhiteSpace(DiscordPluginConfig.BotToken)
+            _currentBotToken = String.IsNullOrWhiteSpace(DiscordPluginConfig.BotToken)
                 ? "ThisTokenWillNeverWork" // Whitespace isn't allowed, and it should trigger an obvious authentication error rather than crashing.
                 : DiscordPluginConfig.BotToken;
 
@@ -153,10 +145,9 @@ namespace Eco.Plugins.DiscordLink
                 _discordClient = new DiscordClient(new DiscordConfiguration
                 {
                     AutoReconnect = true,
-                    Token = _currentToken,
+                    Token = _currentBotToken,
                     TokenType = TokenType.Bot
                 });
-                //_discordClient.SetWebSocketClient<WebSocket4NetClient>();
 
                 _discordClient.Ready += async args => { Logger.Info("Connected and Ready"); };
                 _discordClient.ClientErrored += async args => { Logger.Error(args.EventName + " " + args.Exception.ToString()); };
@@ -296,11 +287,34 @@ namespace Eco.Plugins.DiscordLink
         public User EcoUser =>
             _ecoUser ?? (_ecoUser = UserManager.GetOrCreateUser(EcoUserSteamId, EcoUserSlgId, EcoUserName));
 
+        public void ActionPerformed(GameAction action)
+        {
+            switch(action)
+            {
+                case ChatSent chatSent:
+                    OnMessageReceivedFromEco(chatSent);
+                break;
+
+                case FirstLogin firstLogin:
+                case Play play:
+                    UpdateEcoStatus();
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        public Result ShouldOverrideAuth(GameAction action)
+        {
+            throw new NotImplementedException();
+        }
+
         private void BeginRelaying()
         {
             if (!_relayInitialised)
             {
-                chatNotifier.OnMessageReceived.Add(OnMessageReceivedFromEco);
+                ActionUtil.AddListener(this);
                 _discordClient.MessageCreated += OnDiscordMessageCreateEvent;
             }
 
@@ -311,7 +325,7 @@ namespace Eco.Plugins.DiscordLink
         {
             if (_relayInitialised)
             {
-                chatNotifier.OnMessageReceived.Remove(OnMessageReceivedFromEco);
+                ActionUtil.RemoveListener(this);
                 _discordClient.MessageCreated -= OnDiscordMessageCreateEvent;
             }
         }
@@ -327,14 +341,12 @@ namespace Eco.Plugins.DiscordLink
             return DiscordPluginConfig.ChatChannelLinks.FirstOrDefault(link => link.EcoChannel.ToLower() == lowercaseEcoChannelName);
         }
 
-        public void LogEcoMessage(ChatMessage message)
+        public void LogEcoMessage(ChatSent chatMessage)
         {
             Logger.DebugVerbose("Eco Message Processed:");
-            Logger.DebugVerbose("Message: " + message.Text);
-            Logger.DebugVerbose("Tag: " + message.Tag);
-            Logger.DebugVerbose("Category: " + message.Category);
-            Logger.DebugVerbose("Temporary: " + message.Temporary);
-            Logger.DebugVerbose("Sender: " + message.Sender);
+            Logger.DebugVerbose("Message: " + chatMessage.Message);
+            Logger.DebugVerbose("Tag: " + chatMessage.Tag);
+            Logger.DebugVerbose("Sender: " + chatMessage.Citizen);
         }
 
         public void LogDiscordMessage(DiscordMessage message)
@@ -345,27 +357,24 @@ namespace Eco.Plugins.DiscordLink
             Logger.DebugVerbose("Sender: " + message.Author);
         }
 
-        public void OnMessageReceivedFromEco(ChatMessage message)
+        public void OnMessageReceivedFromEco(ChatSent chatMessage)
         {
-            LogEcoMessage(message);
-            if (message.Sender == EcoUser.Name) { return; } // Ignore messages sent by our bot 
+            LogEcoMessage(chatMessage);
 
-            // Handle messages sent by the server
-            if (String.IsNullOrWhiteSpace(message.Sender))
+            // Ignore messages sent by our bot
+            if (chatMessage.Citizen.Name == EcoUser.Name && !chatMessage.Message.StartsWith(EchoCommandToken))
             {
-                HandleEcoStatusOnMessage(message);
+                return;
             }
-            else
-            {
-                // Remove the # character from the start.
-                var channelLink = GetLinkForDiscordChannel(message.Tag.Substring(1));
-                var channel = channelLink?.DiscordChannel;
-                var guild = channelLink?.DiscordGuild;
 
-                if (!String.IsNullOrWhiteSpace(channel) && !String.IsNullOrWhiteSpace(guild))
-                {
-                    ForwardMessageToDiscordChannel(message, channel, guild);
-                }
+            // Remove the # character from the start.
+            var channelLink = GetLinkForDiscordChannel(chatMessage.Tag.Substring(1));
+            var channel = channelLink?.DiscordChannel;
+            var guild = channelLink?.DiscordGuild;
+
+            if (!String.IsNullOrWhiteSpace(channel) && !String.IsNullOrWhiteSpace(guild))
+            {
+                ForwardMessageToDiscordChannel(chatMessage, channel, guild);
             }
         }
 
@@ -404,27 +413,27 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
-        private void ForwardMessageToDiscordChannel(ChatMessage message, string channelNameOrId, string guildNameOrId)
+        private void ForwardMessageToDiscordChannel(ChatSent chatMessage, string channelNameOrId, string guildNameOrId)
         {
             Logger.DebugVerbose("Sending Eco message to Discord channel " + channelNameOrId + " in guild " + guildNameOrId);
             var guild = GuildByNameOrId(guildNameOrId);
             if (guild == null)
             {
-                Logger.Error("Failed to forward Eco message from user " + StripTags(message.Sender) + " as no guild with the name or ID " + guildNameOrId + " exists");
+                Logger.Error("Failed to forward Eco message from user " + StripTags(chatMessage.Citizen.Name) + " as no guild with the name or ID " + guildNameOrId + " exists");
                 return;
             }
             var channel = guild.ChannelByNameOrId(channelNameOrId);
             if(channel == null)
             {
-                Logger.Error("Failed to forward Eco message from user " + StripTags(message.Sender) + " as no channel with the name or ID " + channelNameOrId + " exists in the guild " + guild.Name);
+                Logger.Error("Failed to forward Eco message from user " + StripTags(chatMessage.Citizen.Name) + " as no channel with the name or ID " + channelNameOrId + " exists in the guild " + guild.Name);
                 return;
             }
 
-            SendDiscordMessage(FormatDiscordMessage(message.Text, channel, message.Sender), channel);
+            SendDiscordMessage(FormatDiscordMessage(chatMessage.Message, channel, chatMessage.Citizen.Name), channel);
 
             if (_chatlogInitialized)
             {
-                _chatLogWriter.WriteLine("[Eco] (" + DateTime.Now.ToShortDateString() + ":" + DateTime.Now.ToShortTimeString() + ") " + $"{StripTags(message.Sender) + ": " + StripTags(message.Text)}");
+                _chatLogWriter.WriteLine("[Eco] (" + DateTime.Now.ToShortDateString() + ":" + DateTime.Now.ToShortTimeString() + ") " + $"{StripTags(chatMessage.Citizen.Name) + ": " + StripTags(chatMessage.Message)}");
             }
         }
 
@@ -437,8 +446,7 @@ namespace Eco.Plugins.DiscordLink
                 DiscordMember member = message.Channel.Guild.Members.FirstOrDefault(m => m.Value?.Id == user.Id).Value;
                 if (member == null) { continue; }
                 String name = "@" + member.DisplayName;
-                content = content.Replace($"<@{user.Id}>", name)
-                        .Replace($"<@!{user.Id}>", name);
+                content = content.Replace($"<@{user.Id}>", name).Replace($"<@!{user.Id}>", name);
             }
             foreach (var role in message.MentionedRoles)
             {
@@ -459,7 +467,7 @@ namespace Eco.Plugins.DiscordLink
 
         public static string StripTags(string toStrip)
         {
-            return TagStripRegex.Replace(toStrip, String.Empty);
+            return EcoNameTagRegex.Replace(toStrip, String.Empty);
         }
 
         public string FormatDiscordMessage(string message, DiscordChannel channel, string username = "" )
@@ -470,7 +478,7 @@ namespace Eco.Plugins.DiscordLink
 
         private string FormatDiscordMentions(string message, DiscordChannel channel)
         {
-            return Regex.Replace(message, "([@#].+?)(?=\\s|$|@|#)", capture => // Mention matching regex: Match all characters followed by a mention character(@ or #) character (including that character) until encountering any type of whitespace, end of string or a new mention character
+            return DiscordMentionRegex.Replace(message, capture =>
             {
                 string match = capture.ToString().Substring(1).ToLower(); // Strip the mention character from the match
                 Func<string, string, string> FormatMention = (name, mention) =>
@@ -566,7 +574,7 @@ namespace Eco.Plugins.DiscordLink
 
         private void SetupEcoStatusCallback()
         {
-            EcoStatusUpdateTimer = new Timer(this.UpdateEcoStatusTimed, null, 0, STATUS_TIMER_INTERAVAL_SECONDS); 
+            EcoStatusUpdateTimer = new Timer(this.UpdateEcoStatusOnTimer, null, 0, STATUS_TIMER_INTERAVAL_SECONDS); 
         }
 
         private async Task<string> SetupEcoStatusMessages(EcoStatusChannel statusChannel, DiscordChannel discordChannel)
@@ -581,32 +589,12 @@ namespace Eco.Plugins.DiscordLink
             return "Success";
         }
 
-        private async Task<string> HandleEcoStatusOnMessage(ChatMessage chatMessage)
+        private void UpdateEcoStatusOnTimer(Object stateInfo)
         {
-            if (chatMessage.Text.Contains("has returned to the game") // TODO[MonzUn] Use callbacks on actions instead of looking at the messages
-                || chatMessage.Text.Contains("has left the game")
-                || chatMessage.Text.Contains("has logged in to this world for the first time"))
-            {
-                foreach (EcoStatusChannel statusChannel in _configOptions.Config.EcoStatusDiscordChannels)
-                {
-                    DiscordGuild discordGuild = _discordClient.GuildByName(statusChannel.DiscordGuild);
-                    if (discordGuild == null) return "Failed to find Discord Guild";
-                    DiscordChannel discordChannel = discordGuild.ChannelByName(statusChannel.DiscordChannel);
-                    if (discordChannel == null) return "Failed to find Discord Channel";
-
-                    VerifyEcoStatusMessage(statusChannel, discordChannel);
-
-                    IReadOnlyList<DiscordMessage> ecoStatusChannelMessages = discordChannel.GetMessagesAsync().Result;
-                    if (ecoStatusChannelMessages.Count == 1)
-                    {
-                        ecoStatusChannelMessages[0].ModifyAsync("", MessageBuilder.GetEcoStatus(GetEcoStatusFlagForChannel(statusChannel)));
-                    }
-                }
-            }
-            return "Success";
+            UpdateEcoStatus();
         }
 
-        private void UpdateEcoStatusTimed(Object stateInfo)
+        private void UpdateEcoStatus()
         {
             foreach (EcoStatusChannel statusChannel in _configOptions.Config.EcoStatusDiscordChannels)
             {
@@ -726,7 +714,7 @@ namespace Eco.Plugins.DiscordLink
         protected bool SaveConfig() // Returns true if no correction was needed
         {
             bool correctionMade = false;
-            if (DiscordPluginConfig.BotToken != _currentToken)
+            if (DiscordPluginConfig.BotToken != _currentBotToken)
             {
                 //Reinitialise client.
                 Logger.Info("Discord Token changed, reinitialising client.");
