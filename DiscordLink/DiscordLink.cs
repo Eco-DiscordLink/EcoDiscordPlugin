@@ -117,7 +117,7 @@ namespace Eco.Plugins.DiscordLink
 
         private void SetupConfig()
         {
-            _configOptions = new PluginConfig<DiscordConfig>("DiscordPluginSpoffy");
+            _configOptions = new PluginConfig<DiscordConfig>("DiscordLink");
             _prevConfigOptions = (DiscordConfig)_configOptions.Config.Clone();
             DiscordPluginConfig.PlayerConfigs.CollectionChanged += (obj, args) => { OnConfigChanged(); };
             DiscordPluginConfig.ChatChannelLinks.CollectionChanged += (obj, args) => { OnConfigChanged(); };
