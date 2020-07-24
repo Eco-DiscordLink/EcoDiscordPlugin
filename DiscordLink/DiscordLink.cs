@@ -27,11 +27,12 @@ namespace Eco.Plugins.DiscordLink
     public class DiscordLink : IModKitPlugin, IInitializablePlugin, IConfigurablePlugin, IShutdownablePlugin
     {
         public const string InviteCommandLinkToken = "[LINK]";
+        public ThreadSafeAction<object, string> ParamChanged { get; set; }
         protected string NametagColor = "7289DAFF";
         private PluginConfig<DiscordConfig> _configOptions;
         private DiscordConfig _prevConfigOptions; // Used to detect differences when the config is saved
         private DiscordClient _discordClient;
-        private CommandsNextModule _commands;
+        private CommandsNextExtension _commands;
         private string _currentToken;
         private string _status = "No Connection Attempt Made";
 
@@ -155,7 +156,7 @@ namespace Eco.Plugins.DiscordLink
                     Token = _currentToken,
                     TokenType = TokenType.Bot
                 });
-                _discordClient.SetWebSocketClient<WebSocket4NetClient>();
+                //_discordClient.SetWebSocketClient<WebSocket4NetClient>();
 
                 _discordClient.Ready += async args => { Logger.Info("Connected and Ready"); };
                 _discordClient.ClientErrored += async args => { Logger.Error(args.EventName + " " + args.Exception.ToString()); };
@@ -166,9 +167,8 @@ namespace Eco.Plugins.DiscordLink
                 // Set up the client to use CommandsNext
                 _commands = _discordClient.UseCommandsNext(new CommandsNextConfiguration
                 {
-                    StringPrefix = _configOptions.Config.DiscordCommandPrefix
+                    StringPrefixes = _configOptions.Config.DiscordCommandPrefix.SingleItemAsEnumerable()
                 });
-
                 _commands.RegisterCommands<DiscordDiscordCommands>();
 
                 return true;
@@ -434,7 +434,7 @@ namespace Eco.Plugins.DiscordLink
             foreach (var user in message.MentionedUsers)
             {
                 if (user == null) { continue; }
-                DiscordMember member = message.Channel.Guild.Members.FirstOrDefault(m => m?.Id == user.Id);
+                DiscordMember member = message.Channel.Guild.Members.FirstOrDefault(m => m.Value?.Id == user.Id).Value;
                 if (member == null) { continue; }
                 String name = "@" + member.DisplayName;
                 content = content.Replace($"<@{user.Id}>", name)
@@ -507,7 +507,7 @@ namespace Eco.Plugins.DiscordLink
                 {
                     if (allowRoleMentions)
                     {
-                        foreach (var role in channel.Guild.Roles) // Checking roles first in case a user has name identiacal to that of a role
+                        foreach (var role in channel.Guild.Roles.Values) // Checking roles first in case a user has name identiacal to that of a role
                         {
                             if (!role.IsMentionable) continue;
 
@@ -521,7 +521,7 @@ namespace Eco.Plugins.DiscordLink
 
                     if (allowMemberMentions)
                     {
-                        foreach (var member in channel.Guild.Members)
+                        foreach (var member in channel.Guild.Members.Values)
                         {
                             string name = member.DisplayName.ToLower();
                             if (match.Contains(name))
@@ -533,7 +533,7 @@ namespace Eco.Plugins.DiscordLink
                 }
                 else if(capture.ToString()[0] == '#' && allowChannelMentions)
                 {
-                    foreach(var listChannel in channel.Guild.Channels)
+                    foreach(var listChannel in channel.Guild.Channels.Values)
                     {
                         string name = listChannel.Name.ToLower();
                         if(match.Contains(name))
@@ -758,7 +758,7 @@ namespace Eco.Plugins.DiscordLink
                     link.DiscordChannel = link.DiscordChannel.ToLower();
                 }
 
-                if (link.DiscordChannel.Contains(' ')) // Discord channels always replace spaces with dashes
+                if (link.DiscordChannel.Contains(" ")) // Discord channels always replace spaces with dashes
                 {
                     link.DiscordChannel = link.DiscordChannel.Replace(' ', '-');
                 }
@@ -781,7 +781,7 @@ namespace Eco.Plugins.DiscordLink
                     statusChannel.DiscordChannel = statusChannel.DiscordChannel.ToLower();
                 }
 
-                if (statusChannel.DiscordChannel.Contains(' '))
+                if (statusChannel.DiscordChannel.Contains(" "))
                 {
                     statusChannel.DiscordChannel = statusChannel.DiscordChannel.Replace(' ', '-');
                 }
@@ -826,7 +826,7 @@ namespace Eco.Plugins.DiscordLink
                 correctionMade = true;
             }
 
-            _configOptions.Save();
+            _configOptions.SaveAsync();
             _prevConfigOptions = (DiscordConfig)_configOptions.Config.Clone();
 
             return !correctionMade;
@@ -876,7 +876,7 @@ namespace Eco.Plugins.DiscordLink
                 }
 
                 // Eco command channel
-                if (!string.IsNullOrWhiteSpace(_configOptions.Config.EcoCommandChannel) && _configOptions.Config.EcoCommandChannel.Contains('#'))
+                if (!string.IsNullOrWhiteSpace(_configOptions.Config.EcoCommandChannel) && _configOptions.Config.EcoCommandChannel.Contains("#"))
                 {
                     errorMessages.Add("[Eco Command Channel] Channel name contains a channel indicator (#). The channel indicator will be added automatically and adding one manually may cause message sending to fail");
                 }
@@ -1025,7 +1025,7 @@ namespace Eco.Plugins.DiscordLink
 
         public void SavePlayerConfig()
         {
-            _configOptions.Save();
+            _configOptions.SaveAsync();
         }
 
         public DiscordChannel GetDefaultChannelForPlayer(string identifier)

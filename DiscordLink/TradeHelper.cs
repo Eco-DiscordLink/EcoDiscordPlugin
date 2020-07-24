@@ -50,13 +50,12 @@ namespace Eco.Plugins.DiscordLink.Utilities
             });
         }
 
-        public static IEnumerable<StoreComponent> Stores => 
-            WorldObjectManager.All.SelectMany(o => o.Components.OfType<StoreComponent>());
+        public static IEnumerable<StoreComponent> Stores => WorldObjectUtil.AllObjsWithComponent<StoreComponent>();
 
         public static string StoreCurrencyName(StoreComponent store)
         {
             //TODO Remove unnecessary coupling to DiscordLink
-            return DiscordLink.StripTags(store.Parent.GetComponent<CreditComponent>().CurrencyName);
+            return DiscordLink.StripTags(store.Parent.GetComponent<CreditComponent>().CreditData.Currency.Name);
         }
         
         public static IEnumerable<Tuple<StoreComponent, TradeOffer>>
@@ -64,7 +63,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                        int start = 0, 
                        int count = Int32.MaxValue)
         {
-            return AllStoresToOffers(store => store.SellOffers(), shouldIncludeFilter, start, count);
+            return AllStoresToOffers(store => store.StoreData.SellOffers, shouldIncludeFilter, start, count);
         }
         
         public static IEnumerable<Tuple<StoreComponent, TradeOffer>>
@@ -72,7 +71,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 int start = 0, 
                 int count = Int32.MaxValue)
         {
-            return AllStoresToOffers(store => store.BuyOffers(), shouldIncludeFilter, start, count);
+            return AllStoresToOffers(store => store.StoreData.BuyOffers, shouldIncludeFilter, start, count);
         }
 
         public static IEnumerable<Tuple<StoreComponent, TradeOffer>>

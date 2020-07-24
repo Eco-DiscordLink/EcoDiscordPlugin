@@ -26,7 +26,7 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (Exception e)
             {
-                ChatManager.ServerMessageToPlayer(new LocString("Error occurred while attempting to run that command. Error message: " + e), user, false);
+                ChatManager.ServerMessageToPlayer(new LocString("Error occurred while attempting to run that command. Error message: " + e), user);
                 Log("Error occurred while attempting to run that command. Error message: " + e);
                 Log(e.StackTrace);
             }
@@ -52,7 +52,7 @@ namespace Eco.Plugins.DiscordLink
 
                     var joinedNames = String.Join(", ", plugin.GuildNames);
             
-                    ChatManager.ServerMessageToPlayer(new LocString("Servers: " + joinedNames), user, false);
+                    ChatManager.ServerMessageToPlayer(new LocString("Servers: " + joinedNames), user);
                 },
                 user);
 
@@ -115,7 +115,7 @@ namespace Eco.Plugins.DiscordLink
                     }
 
                     var joinedGames = String.Join(", ", guild.TextChannelNames());
-                    ChatManager.ServerMessageToAll( new LocString("Channels: " + joinedGames), false);
+                    ChatManager.ServerMessageToAll( new LocString("Channels: " + joinedGames) );
                 },
                 user);
         }
@@ -148,7 +148,7 @@ namespace Eco.Plugins.DiscordLink
                 string inviteMessage = config.InviteMessage;
                 if (!inviteMessage.Contains(DiscordLink.InviteCommandLinkToken) || string.IsNullOrEmpty(serverInfo.DiscordAddress))
                 {
-                    ChatManager.ServerMessageToPlayer("This server is not configured for using the /DiscordInvite command.", user);
+                    ChatManager.ServerMessageToPlayer( new LocString("This server is not configured for using the /DiscordInvite command."), user);
                     return;
                 }
                 
