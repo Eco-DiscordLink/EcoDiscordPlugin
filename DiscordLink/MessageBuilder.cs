@@ -20,7 +20,6 @@ namespace Eco.Plugins.DiscordLink
             TimeSinceStart  = 1 << 6,
             TimeRemaining   = 1 << 7,
             MeteorHasHit    = 1 << 8,
-            WorldLeader     = 1 << 9,
             All             = ~0
         }
 
@@ -102,12 +101,6 @@ namespace Eco.Plugins.DiscordLink
             {
                 TimeSpan timeRemainingSpan = new TimeSpan(0, 0, (int)serverInfo.TimeLeft);
                 builder.AddField("Meteor Has Hit", timeRemainingSpan.Seconds < 0 ? "Yes" : "No");
-            }
-
-            if(flag.HasFlag(EcoStatusComponentFlag.WorldLeader))
-            {
-                string leader = String.IsNullOrEmpty(serverInfo.Leader) ? "No leader" : serverInfo.Leader;
-                builder.AddField("Current Leader", leader);
             }
 
             return builder.Build();
