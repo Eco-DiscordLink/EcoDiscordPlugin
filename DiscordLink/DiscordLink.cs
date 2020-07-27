@@ -634,8 +634,6 @@ namespace Eco.Plugins.DiscordLink
                 statusFlag |= MessageBuilder.EcoStatusComponentFlag.TimeRemaining;
             if (statusChannel.UseMeteorHasHit)
                 statusFlag |= MessageBuilder.EcoStatusComponentFlag.MeteorHasHit;
-            if (statusChannel.UseWorldLeader)
-                statusFlag |= MessageBuilder.EcoStatusComponentFlag.WorldLeader;
 
             return statusFlag;
         }
@@ -1251,8 +1249,5 @@ namespace Eco.Plugins.DiscordLink
 
         [Description("Display a boolean for if the metoer has hit yet or not, in the status message.")]
         public bool UseMeteorHasHit { get; set; } = false;
-
-        [Description("Display the name of the current world leader in the status message.")]
-        public bool UseWorldLeader { get; set; } = true;
     }
 }
