@@ -307,7 +307,7 @@ namespace Eco.Plugins.DiscordLink
 
         public Result ShouldOverrideAuth(GameAction action)
         {
-            throw new NotImplementedException();
+            return new Result(ResultType.None);
         }
 
         private void BeginRelaying()
