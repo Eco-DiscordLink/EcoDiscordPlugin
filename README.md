@@ -8,13 +8,13 @@ This Eco Global Survival plugin connects Discord servers to the game server.
 ### Features
 * `Seamless communication`  
 Connect your Eco chat to one or multiple Discord servers and channels for seamless and automated communication between Eco and Discord.
-* `Live Eco Server Status Display`
+* `Live Eco Server Status Display`  
 Display live updates of online players, remaining time, your server logo and more in a Discord channel.
-* `Chat logging`
+* `Chat logging`  
 Record the combined Discord and Eco chat in a chat log that persists between server restarts.
-* `Assisted Configuration`
+* `Assisted Configuration`  
 DiscordLink will run verification passes on your configuration upon startup and configuration changes and output the result in the server log, helping you diagnose configuration errors.
-* `Helpful Commands`
+* `Helpful Commands`  
 DiscordLink features a number of helpful commands both from within the game and from Discord.
 _/DiscordInvite_ will help you invite players ingame to your Discord server, while _?Trade_ will help you figure out who has the best deal on those yummy 
 huckleberry muffins!
@@ -27,7 +27,7 @@ See [installation guide](Installation.md) for information on how to do this.
 
 ### Commands
 ##### From Discord:
-* `?Help` - Lists available commands
+* `?Help` - Lists available commands.
 * `?EcoStatus` - Prints the status of the Eco Server.
 * `?Players` - Displays the currently online players.
 * `?Trades [player or item name]` - Lists all of the items sold by a player, or all of the shops that sell an item.
@@ -37,8 +37,8 @@ See [installation guide](Installation.md) for information on how to do this.
 * `?Echo [message]` - Sends the provided message to Eco and back to Discord again.
 
 ##### From Eco:
-* `/VerifyDiscord` - Confirms the plugin is loaded
-* `/DiscordGuilds` - Lists all servers that this bot is connected to
+* `/VerifyDiscord` - Confirms the plugin is loaded.
+* `/DiscordGuilds` - Lists all servers that this bot is connected to.
 * `/DiscordChannels [guildname]` - Lists all channels in a specific server.
 * `/DiscordDefaultChannel [guildname], [channelname]` - Sets the channel that `/discordmessage` sends to for you and only you.
 * `/DiscordMessage [message]` - Sends a message to the default server and channel.
@@ -46,11 +46,11 @@ See [installation guide](Installation.md) for information on how to do this.
 * `/DiscordInvite` - Displays Discord invite message.
 
 ##### Notes:
-1. **Commas**
+1. **Commas**  
 When writing messages to send from Eco, **do not include commas in your messages.** 
 Eco will consider them extra parameters to the commands, and any text after the comma will be lost, due to the way Eco handles commands.
 
-2. **Discord Mentions**
+2. **Discord Mentions**  
 Make sure that `@` or `#` is not the first character in your message when writing Discord mentions.
 Eco will consider them ingame mentions of players or channels and your message will open a chat channel ingame instead of being sent to the chat you intended and will therefore never get sent to Discord.
 
@@ -62,6 +62,8 @@ See the [installation guide](Installation.md)
 
 ### Server GUI
 [configuration guide](ConfigurationGUI.md) for self hosted servers with access to the server GUI.
+
+### Config file
 [configuration guide](ConfigurationNoGUI.md) for servers hosted by third parties, where you lack access to the server GUI.
 
 ## I want to contribute!

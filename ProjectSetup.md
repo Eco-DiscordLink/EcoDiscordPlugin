@@ -13,5 +13,5 @@ This will:
    3. Execute the server .exe
    4. Connect the debugger to the server application, allowing you to use breakpoints and other runtime debugging tools.
 
-(\*1) Which branch you should be using should be clear from looking at the branch list.
+(\*1) Which branch you should be using should be clear from looking at the branch list.  
 (\*2) Note that DSharpPlus needs to be downloaded from [SlimGet](https://nuget.emzi0767.com/gallery/packages).

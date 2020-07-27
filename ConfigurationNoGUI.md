@@ -16,7 +16,7 @@ See this page for a text version of the [sample config](SampleConfig.md)
 ![Sample Config](images/configuration/no_gui/1.png)
 
 ## Bot Token
-See the [installation guide](Installation.md) for instructions on how to get a bot token.
+See the [installation guide](Installation.md) for instructions on how to get a bot token.  
 Once you have a bot token, copy the _"BotToken"_ field in the sample config and paste your generated bot token.
 
 ## Linking Channels
@@ -34,21 +34,21 @@ Once you have a bot token, copy the _"BotToken"_ field in the sample config and 
 **Note**: The Eco status message is continiously being rewritten by DiscordLink. It should be the top message in its channel and the message should not be removed.
 
 ## Chat Log
-To enable/disable logging of the chat, set the _"Log Chat"_ option to true/false.
+To enable/disable logging of the chat, set the _"Log Chat"_ option to true/false.  
 **Optional**: Select where the log should be stored by entering an **absolute** file path.  
 Keeping it in the mod directory is recommended in order to make sure the mod has permissions to write to files at the location and to keep it excluded from actions taken by the Eco server.
 
 ## Command Settings
-**Discord Command Prefix**
+**Discord Command Prefix**  
 The prefix to put before commands in order for the Discord bot to recognize them as such.  
-In all command examples `?` is used as Discord command prefix as this is the default prefix.
+In all command examples `?` is used as Discord command prefix as this is the default prefix.  
 Eco commands always use `/` as command prexis as this is hard coded into the game client.
 
-**Eco Command Channel**
+**Eco Command Channel**  
 The Eco chat channel to use for commands that outputs public messages, excluding the initial # character.
 
-**Invite Message**
-The message to use for the /DiscordInvite command. The invite link is fetched from the Network configuration (the _Discord Address_ field in _Network.eco_) and will replace the [LINK] token. The message needs to include at least one [LINK] token in order to function and the Network configuration needs to have the _Discord Address_ field filled out.
+**Invite Message**  
+The message to use for the /DiscordInvite command. The invite link is fetched from the Network configuration (the _Discord Address_ field in _Network.eco_) and will replace the [LINK] token. The message needs to include at least one [LINK] token in order to function and the _Network_ configuration needs to have the _Discord Address_ field filled out.
 
 ## Server Details
 All fields here are for display purposes only and will not impact the functionality of DiscordLink.
