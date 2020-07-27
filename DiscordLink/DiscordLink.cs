@@ -794,6 +794,12 @@ namespace Eco.Plugins.DiscordLink
             }
 
             // Chatlog path
+            if(string.IsNullOrEmpty(_configOptions.Config.ChatlogPath))
+            {
+                _configOptions.Config.ChatlogPath = Directory.GetCurrentDirectory() + "\\Mods\\DiscordLink\\Chatlog.txt";
+                correctionMade = true;
+            }
+
             if( _configOptions.Config.ChatlogPath != _prevConfigOptions.ChatlogPath)
             {
                 Logger.Info("Chatlog path changed. New path: " + _configOptions.Config.ChatlogPath);
