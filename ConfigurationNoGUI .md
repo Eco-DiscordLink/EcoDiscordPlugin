@@ -1,0 +1,56 @@
+# DiscordLink Configuration
+As we don't have access to the eco server GUI, we will need to do the configuration via the DiscordLink config file.
+The config file is named "DiscordLink.eco" is generated inside the _"Config"_ directory of the Eco Server after having started the server once with the mod loaded.
+
+#### Sections
+* [Sample Config](#sample-config)
+* [Bot Token](#bot-token)
+* [Linking Channels](#linking-channels)
+* [Eco Status](#eco-status)
+* [Chat Log](#chat-log)
+* [Command Settings](#command-settings)
+* [Server Details](#server-details)
+
+## Sample Config
+See this page for a text version of the [sample config](SampleConfig.md)
+![Sample Config](images/configuration/no_gui/1.png)
+
+## Bot Token
+See the [installation guide](Installation.md) for instructions on how to get a bot token.
+Once you have a bot token, copy the _"BotToken"_ field in the sample config and paste your generated bot token.
+
+## Linking Channels
+1. Copy the _"ChatChannelLinks"_ section of the sample config into your config file.
+2. Set _"DiscordGuild"_ field to the name or ID of your Discord Server.
+3. Set the _"DiscordChannel"_ field to the name or ID of the Discord channel you wish to synchronize with a channel in Eco.
+4. Set the _"EcoChannel"_ field to the name of the Eco channel you wish to synchronize with the Discord channel in the previous step.
+5. **Optional**: Configure the three flags for Discord mention tag permissions according to your preference of allowing role, user and Channel mentions to be used from Eco.
+
+## Eco Status
+1. Copy the _"EcoStatusDiscordChannels"_ section of the sample config into your config file.
+2. Set _"DiscordGuild"_ field to the name or ID of your Discord Server.
+3. Set the _"DiscordChannel"_ field to the name or ID of the Discord channel you want the status message to be posted in.
+4. **Optional**: Configure the usage flags according to your preferences.  
+**Note**: The Eco status message is continiously being rewritten by DiscordLink. It should be the top message in its channel and the message should not be removed.
+
+## Chat Log
+To enable/disable logging of the chat, set the _"Log Chat"_ option to true/false.
+**Optional**: Select where the log should be stored by entering an **absolute** file path.  
+Keeping it in the mod directory is recommended in order to make sure the mod has permissions to write to files at the location and to keep it excluded from actions taken by the Eco server.
+
+## Command Settings
+**Discord Command Prefix**
+The prefix to put before commands in order for the Discord bot to recognize them as such.  
+In all command examples `?` is used as Discord command prefix as this is the default prefix.
+Eco commands always use `/` as command prexis as this is hard coded into the game client.
+
+**Eco Command Channel**
+The Eco chat channel to use for commands that outputs public messages, excluding the initial # character.
+
+**Invite Message**
+The message to use for the /DiscordInvite command. The invite link is fetched from the Network configuration (the _Discord Address_ field in _Network.eco_) and will replace the [LINK] token. The message needs to include at least one [LINK] token in order to function and the Network configuration needs to have the _Discord Address_ field filled out.
+
+## Server Details
+All fields here are for display purposes only and will not impact the functionality of DiscordLink.
+The name, IP address and other fields here will be used for example in the Eco Status feature to show the users on Discord what the name and IP of the server is.
+Where possible, information from the Eco server configuration will be used here for fields that are not filled.
