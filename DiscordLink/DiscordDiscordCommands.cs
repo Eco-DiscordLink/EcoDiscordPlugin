@@ -29,7 +29,6 @@ namespace Eco.Plugins.DiscordLink
         private static void LogCommandException(Exception e)
         {
             Logger.Error("Error occurred while attempting to run that command. Error message: " + e);
-            Logger.Error(e.StackTrace);
         }
 
         private async Task RespondToCommand(CommandContext ctx, string textContent, DiscordEmbed embedContent = null)
@@ -115,8 +114,6 @@ namespace Eco.Plugins.DiscordLink
                 var plugin = DiscordLink.Obj;
                 if (plugin == null)
                 {
-                    await ctx.RespondAsync(
-                        "The plugin was unable to be found on the server. Please report this to the plugin author.");
                     return;
                 }
                 var config = plugin.DiscordPluginConfig;
@@ -180,8 +177,6 @@ namespace Eco.Plugins.DiscordLink
                 var plugin = DiscordLink.Obj;
                 if (plugin == null)
                 {
-                    await ctx.RespondAsync(
-                        "The plugin was unable to be found on the server. Please report this to the plugin author.");
                     return;
                 }
 
@@ -265,12 +260,10 @@ namespace Eco.Plugins.DiscordLink
                 var plugin = DiscordLink.Obj;
                 if (plugin == null)
                 {
-                    await ctx.RespondAsync(
-                        "The plugin was unable to be found on the server. Please report this to the plugin author.");
                     return;
                 }
 
-                if (itemNameOrUserName == "")
+                if (string.IsNullOrEmpty(itemNameOrUserName))
                 {
                     await RespondToCommand(ctx,
                         "Please provide the name of an item or player to search for. " +
@@ -298,15 +291,14 @@ namespace Eco.Plugins.DiscordLink
                 }
                 else
                 {
-                    await ctx.RespondAsync(
-                        "The player or item was not found.");
+                    await RespondToCommand(ctx, "The player or item was not found.");
                     return;
                 }
 
                 var pagedEnumerator = previousQueryEnumerator[ctx.User.UniqueUsername()];
                 if (pagedEnumerator.HasMorePages)
                 {
-                    embed.WithFooter("More pages available. Use ?nextpage.");
+                    embed.WithFooter("More pages available. Use " + DiscordLink.EchoCommandToken + "nextpage to show.");
                 }
 
                 await RespondToCommand(ctx, null, embed);
