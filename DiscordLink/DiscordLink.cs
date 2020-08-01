@@ -628,7 +628,7 @@ namespace Eco.Plugins.DiscordLink
             if (statusChannel.UseLogo)
                 statusFlag |= MessageBuilder.EcoStatusComponentFlag.Logo;
             if(statusChannel.UseAddress)
-                statusFlag |= MessageBuilder.EcoStatusComponentFlag.IPAddress;
+                statusFlag |= MessageBuilder.EcoStatusComponentFlag.ServerAddress;
             if (statusChannel.UsePlayerCount)
                 statusFlag |= MessageBuilder.EcoStatusComponentFlag.PlayerCount;
             if (statusChannel.UsePlayerList)
@@ -848,18 +848,6 @@ namespace Eco.Plugins.DiscordLink
                     errorMessages.Add("[Bot Token] Bot token not configured. See Github page for install instructions.");
                 }
 
-                // Server IP
-                if (!string.IsNullOrWhiteSpace(_configOptions.Config.ServerIP))
-                {
-                    IPAddress address;
-                    if (!IPAddress.TryParse(_configOptions.Config.ServerIP, out address)
-                        || (address.AddressFamily != System.Net.Sockets.AddressFamily.InterNetwork
-                        && address.AddressFamily != System.Net.Sockets.AddressFamily.InterNetworkV6))
-                    {
-                        errorMessages.Add("[ServerIP] Not a valid IPv4 or IPv6 address");
-                    }
-                }
-
                 // Player configs
                 foreach (DiscordPlayerConfig playerConfig in _configOptions.Config.PlayerConfigs)
                 {
@@ -1075,7 +1063,7 @@ namespace Eco.Plugins.DiscordLink
                 ServerName = this.ServerName,
                 ServerDescription = this.ServerDescription,
                 ServerLogo = this.ServerLogo,
-                ServerIP = this.ServerIP,
+                ServerAddress = this.ServerAddress,
                 Debug = this.Debug,
                 LogChat = this.LogChat,
                 ChatlogPath = this.ChatlogPath,
