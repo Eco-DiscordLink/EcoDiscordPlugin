@@ -14,7 +14,7 @@ namespace Eco.Plugins.DiscordLink
             Name            = 1 << 0,
             Description     = 1 << 1,
             Logo            = 1 << 2,
-            IPAddress       = 1 << 3,
+            ServerAddress   = 1 << 3,
             PlayerCount     = 1 << 4,
             PlayerList      = 1 << 5,
             TimeSinceStart  = 1 << 6,
@@ -88,14 +88,9 @@ namespace Eco.Plugins.DiscordLink
                 { }
             }
 
-            if (flag.HasFlag(EcoStatusComponentFlag.IPAddress))
+            if (flag.HasFlag(EcoStatusComponentFlag.ServerAddress))
             {
-                string addr = serverInfo.Address;
-                string serverAddress = String.IsNullOrEmpty(pluginConfig.ServerIP)
-                    ? addr == null ? "No Configured Address"
-                    : addr + ":" + serverInfo.WebPort
-                    : pluginConfig.ServerIP;
-                builder.AddField("Server Address", serverAddress);
+                builder.AddField("Server Address", pluginConfig.ServerAddress );
             }
 
             if(flag.HasFlag(EcoStatusComponentFlag.PlayerCount))
