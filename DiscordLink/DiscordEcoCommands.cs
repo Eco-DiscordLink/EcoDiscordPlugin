@@ -10,12 +10,7 @@ namespace Eco.Plugins.DiscordLink
      * Handles commands coming from the Eco server.
      */
     public class DiscordEcoCommands : IChatCommandHandler
-    {
-        private static void Log(string message)
-        {
-            Eco.Shared.Utils.Log.Write(new LocString("DiscordLink: " + message));
-        }
-        
+    {   
         private delegate void EcoCommandFunction(User user, params string[] args);
 
         private static void CallWithErrorHandling<TRet>(EcoCommandFunction toCall, User user, params string[] args)
@@ -27,8 +22,7 @@ namespace Eco.Plugins.DiscordLink
             catch (Exception e)
             {
                 ChatManager.ServerMessageToPlayer(new LocString("Error occurred while attempting to run that command. Error message: " + e), user);
-                Log("Error occurred while attempting to run that command. Error message: " + e);
-                Log(e.StackTrace);
+                Logger.Error("Error occurred while attempting to run that command. Error message: " + e);
             }
         }
         
@@ -55,7 +49,6 @@ namespace Eco.Plugins.DiscordLink
                     ChatManager.ServerMessageToPlayer(new LocString("Servers: " + joinedNames), user);
                 },
                 user);
-
         }
         
         [ChatCommand("Sends a message to a specific server and channel.", ChatAuthorizationLevel.Admin)]

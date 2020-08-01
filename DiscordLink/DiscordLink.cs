@@ -77,9 +77,9 @@ namespace Eco.Plugins.DiscordLink
             _discordClient.Ready += async args =>
             {
                 // When Discord is ready, queue up the check for unverified channels
-                linkVerificationTimeoutTimer = new Timer(async innerArgs =>
+                _linkVerificationTimeoutTimer = new Timer(async innerArgs =>
                 {
-                    linkVerificationTimeoutTimer = null;
+                    _linkVerificationTimeoutTimer = null;
                     ReportUnverifiedChannels();
                     _verifiedLinks.Clear();
                 }, null, LINK_VERIFICATION_TIMEOUT_MS, 0);
@@ -515,7 +515,7 @@ namespace Eco.Plugins.DiscordLink
                 {
                     if (allowRoleMentions)
                     {
-                        foreach (var role in channel.Guild.Roles.Values) // Checking roles first in case a user has name identiacal to that of a role
+                        foreach (var role in channel.Guild.Roles.Values) // Checking roles first in case a user has a name identiacal to that of a role
                         {
                             if (!role.IsMentionable) continue;
 
@@ -673,7 +673,7 @@ namespace Eco.Plugins.DiscordLink
         #region Configuration
 
         private List<String> _verifiedLinks = new List<string>();
-        private Timer linkVerificationTimeoutTimer = null;
+        private Timer _linkVerificationTimeoutTimer = null;
         private const int LINK_VERIFICATION_TIMEOUT_MS = 15000;
         private const int STATIC_VERIFICATION_OUTPUT_DELAY_MS = 5000;
         private const int GUILD_VERIFICATION_OUTPUT_DELAY_MS = 3000;
@@ -947,7 +947,7 @@ namespace Eco.Plugins.DiscordLink
                 {
                     Logger.Info("All channel links sucessfully verified");
                 }
-                else if(linkVerificationTimeoutTimer == null) // If no timer is used, then the discord guild info should already be set up
+                else if(_linkVerificationTimeoutTimer == null) // If no timer is used, then the discord guild info should already be set up
                 {
                     ReportUnverifiedChannels();
                 }
