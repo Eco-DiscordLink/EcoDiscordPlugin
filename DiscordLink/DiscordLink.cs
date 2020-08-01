@@ -577,7 +577,7 @@ namespace Eco.Plugins.DiscordLink
             EcoStatusUpdateTimer = new Timer(this.UpdateEcoStatusOnTimer, null, 0, STATUS_TIMER_INTERAVAL_SECONDS); 
         }
 
-        private async Task<string> SetupEcoStatusMessages(EcoStatusChannel statusChannel, DiscordChannel discordChannel)
+        private async Task SetupEcoStatusMessages(EcoStatusChannel statusChannel, DiscordChannel discordChannel)
         {
             IReadOnlyList<DiscordMessage> ecoStatusChannelMessages = discordChannel.GetMessagesAsync().Result;
             foreach (DiscordMessage message in ecoStatusChannelMessages)
@@ -585,8 +585,7 @@ namespace Eco.Plugins.DiscordLink
                 await message.DeleteAsync();
             }
 
-            await _discordClient.SendMessageAsync(discordChannel, "", false, MessageBuilder.GetEcoStatus(GetEcoStatusFlagForChannel(statusChannel)));
-            return "Success";
+            await DiscordUtil.SendAsync(discordChannel, null, MessageBuilder.GetEcoStatus(GetEcoStatusFlagForChannel(statusChannel)));
         }
 
         private void UpdateEcoStatusOnTimer(Object stateInfo)
@@ -608,7 +607,7 @@ namespace Eco.Plugins.DiscordLink
                 IReadOnlyList<DiscordMessage> ecoStatusChannelMessages = discordChannel.GetMessagesAsync().Result;
                 if (ecoStatusChannelMessages.Count == 1)
                 {
-                    ecoStatusChannelMessages[0].ModifyAsync("", MessageBuilder.GetEcoStatus(GetEcoStatusFlagForChannel(statusChannel)));
+                    DiscordUtil.ModifyAsync(ecoStatusChannelMessages[0], "", MessageBuilder.GetEcoStatus(GetEcoStatusFlagForChannel(statusChannel)));
                 }
             }
         }
