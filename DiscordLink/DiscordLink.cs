@@ -72,26 +72,11 @@ namespace Eco.Plugins.DiscordLink
         public DiscordLink()
         {
             SetupConfig();
-            SetUpClient();
-
-            _discordClient.Ready += async args =>
+            if (!SetUpClient())
             {
-                // When Discord is ready, queue up the check for unverified channels
-                _linkVerificationTimeoutTimer = new Timer(async innerArgs =>
-                {
-                    _linkVerificationTimeoutTimer = null;
-                    ReportUnverifiedChannels();
-                    _verifiedLinks.Clear();
-                }, null, LINK_VERIFICATION_TIMEOUT_MS, 0);
-
-                Thread.Sleep(STATIC_VERIFICATION_OUTPUT_DELAY_MS); // Avoid writing async while the server is still outputting initilization info
                 VerifyConfig(VerificationFlags.Static);
-            };
-            _discordClient.GuildAvailable += async args =>
-            {
-                Thread.Sleep(GUILD_VERIFICATION_OUTPUT_DELAY_MS);
-                VerifyConfig(VerificationFlags.ChannelLinks);
-            };
+                return;
+            }
 
             if (_configOptions.Config.LogChat)
             {
@@ -134,10 +119,12 @@ namespace Eco.Plugins.DiscordLink
         {
             DisposeOfClient();
             _status = "Setting up client";
-            // Loading the configuration
-            _currentBotToken = String.IsNullOrWhiteSpace(DiscordPluginConfig.BotToken)
-                ? "ThisTokenWillNeverWork" // Whitespace isn't allowed, and it should trigger an obvious authentication error rather than crashing.
-                : DiscordPluginConfig.BotToken;
+
+            if (String.IsNullOrWhiteSpace(DiscordPluginConfig.BotToken)) // Do not attempt to initialize if the bot token is empty
+            {
+                return false;
+            }
+            _currentBotToken = DiscordPluginConfig.BotToken;
 
             try
             {
@@ -154,6 +141,25 @@ namespace Eco.Plugins.DiscordLink
                 _discordClient.SocketErrored += async args => { Logger.Error(args.Exception.ToString()); };
                 _discordClient.SocketClosed += async args => { Logger.DebugVerbose("Socket Closed: " + args.CloseMessage + " " + args.CloseCode); };
                 _discordClient.Resumed += async args => { Logger.Info("Resumed connection"); };
+
+                _discordClient.Ready += async args =>
+                {
+                    // When Discord is ready, queue up the check for unverified channels
+                    _linkVerificationTimeoutTimer = new Timer(async innerArgs =>
+                    {
+                        _linkVerificationTimeoutTimer = null;
+                        ReportUnverifiedChannels();
+                        _verifiedLinks.Clear();
+                    }, null, LINK_VERIFICATION_TIMEOUT_MS, 0);
+
+                    Thread.Sleep(STATIC_VERIFICATION_OUTPUT_DELAY_MS); // Avoid writing async while the server is still outputting initilization info
+                    VerifyConfig(VerificationFlags.Static);
+                };
+                _discordClient.GuildAvailable += async args =>
+                {
+                    Thread.Sleep(GUILD_VERIFICATION_OUTPUT_DELAY_MS);
+                    VerifyConfig(VerificationFlags.ChannelLinks);
+                };
 
                 // Set up the client to use CommandsNext
                 _commands = _discordClient.UseCommandsNext(new CommandsNextConfiguration
@@ -702,7 +708,9 @@ namespace Eco.Plugins.DiscordLink
 
         public void OnConfigChanged()
         {
-            if (SaveConfig()) // Do not verify if change occurred as this function is going to be called again in that case
+            // Do not verify if change occurred as this function is going to be called again in that case
+            // Do not verify the config in case the bot token has been changed, as the client will be restarted and that will trigger verification
+            if (SaveConfig() && DiscordPluginConfig.BotToken == _currentBotToken)
             {
                 VerifyConfig();
             }   
@@ -834,6 +842,12 @@ namespace Eco.Plugins.DiscordLink
 
             if (verificationFlags.HasFlag(VerificationFlags.Static))
             {
+                // Bot Token
+                if(String.IsNullOrWhiteSpace(_configOptions.Config.BotToken))
+                {
+                    errorMessages.Add("[Bot Token] Bot token not configured. See Github page for install instructions.");
+                }
+
                 // Server IP
                 if (!string.IsNullOrWhiteSpace(_configOptions.Config.ServerIP))
                 {
