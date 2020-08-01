@@ -25,6 +25,33 @@ namespace Eco.Plugins.DiscordLink
 
         public static DiscordColor EmbedColor = DiscordColor.Green;
 
+        public static string EmbedToText(string textContent, DiscordEmbed embedContent)
+        {
+            string message = "";
+            if (!string.IsNullOrEmpty(textContent))
+            {
+                message += textContent + "\n\n";
+            }
+            if (embedContent != null)
+            {
+                if (!String.IsNullOrEmpty(embedContent.Title))
+                {
+                    message += embedContent.Title + "\n\n";
+                }
+
+                foreach (DiscordEmbedField field in embedContent.Fields)
+                {
+                    message += "**" + field.Name + "**\n" + field.Value + "\n\n";
+                }
+
+                if(!String.IsNullOrEmpty(embedContent.Footer?.Text))
+                {
+                    message += embedContent.Footer.Text;
+                }
+            }
+            return message.Trim();
+        }
+
         public static DiscordEmbed GetEcoStatus(EcoStatusComponentFlag flag)
         {
             var plugin = DiscordLink.Obj;
