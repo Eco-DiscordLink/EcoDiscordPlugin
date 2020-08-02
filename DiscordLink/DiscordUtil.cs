@@ -6,27 +6,27 @@ namespace Eco.Plugins.DiscordLink
 {
     public static class DiscordUtil
     {
-        public static bool HasEmbedPermission(DiscordChannel channel)
+        public static bool ChannelHasPermission(DiscordChannel channel, Permissions permission)
         {
-            return channel.PermissionsFor(channel.Guild.CurrentMember).HasPermission(Permissions.EmbedLinks);
+            return channel.PermissionsFor(channel.Guild.CurrentMember).HasPermission(permission);
         }
 
-        public static async Task SendAsync(DiscordChannel channel, string textContent, DiscordEmbed embedContent = null)
+        public static async Task<DiscordMessage> SendAsync(DiscordChannel channel, string textContent, DiscordEmbed embedContent = null)
         {
             if (embedContent == null)
             {
-                await channel.SendMessageAsync(textContent, false);
+                return await channel.SendMessageAsync(textContent, false);
             }
             else
             {
                 // Either make sure we have permission to use embeds or convert the embed to text
-                if (DiscordUtil.HasEmbedPermission(channel))
+                if (ChannelHasPermission(channel, Permissions.EmbedLinks))
                 {
-                    await channel.SendMessageAsync(textContent, false, embedContent);
+                    return await channel.SendMessageAsync(textContent, false, embedContent);
                 }
                 else
                 {
-                    await channel.SendMessageAsync(MessageBuilder.EmbedToText(textContent, embedContent));
+                    return await channel.SendMessageAsync(MessageBuilder.EmbedToText(textContent, embedContent));
                 }
             }
         }
@@ -40,7 +40,7 @@ namespace Eco.Plugins.DiscordLink
             else
             {
                 // Either make sure we have permission to use embeds or convert the embed to text
-                if (DiscordUtil.HasEmbedPermission(message.Channel))
+                if (ChannelHasPermission(message.Channel, Permissions.EmbedLinks))
                 {
                     await message.ModifyAsync(textContent, embedContent);
                 }
