@@ -42,7 +42,7 @@ namespace Eco.Plugins.DiscordLink
                 else
                 {
                     // Either make sure we have permission to use embeds or convert the embed to text
-                    if (DiscordUtil.HasEmbedPermission(ctx.Channel))
+                    if (DiscordUtil.ChannelHasPermission(ctx.Channel, Permissions.EmbedLinks))
                     {
                         await ctx.RespondAsync(textContent, false, embedContent);
                     }

@@ -566,32 +566,11 @@ namespace Eco.Plugins.DiscordLink
         #region EcoStatus
         private Timer EcoStatusUpdateTimer = null;
         private const int STATUS_TIMER_INTERAVAL_SECONDS = 300000; // 5 minute interval
-
-        private void VerifyEcoStatusMessage(EcoStatusChannel statusChannel, DiscordChannel discordChannel)
-        {
-            IReadOnlyList<DiscordMessage> ecoStatusChannelMessages = discordChannel.GetMessagesAsync().Result;
-            if (ecoStatusChannelMessages.Count != 1
-                || ecoStatusChannelMessages[0].Embeds.Count != 1
-                || !ecoStatusChannelMessages[0].Embeds[0].Title.Contains("Server Status")) // Make sure that it's really our message we're finding
-            {
-                SetupEcoStatusMessages(statusChannel, discordChannel).Wait();
-            }
-        }
+        private Dictionary<EcoStatusChannel, ulong> _ecoStatusMessages = new Dictionary<EcoStatusChannel, ulong>();
 
         private void SetupEcoStatusCallback()
         {
             EcoStatusUpdateTimer = new Timer(this.UpdateEcoStatusOnTimer, null, 0, STATUS_TIMER_INTERAVAL_SECONDS); 
-        }
-
-        private async Task SetupEcoStatusMessages(EcoStatusChannel statusChannel, DiscordChannel discordChannel)
-        {
-            IReadOnlyList<DiscordMessage> ecoStatusChannelMessages = discordChannel.GetMessagesAsync().Result;
-            foreach (DiscordMessage message in ecoStatusChannelMessages)
-            {
-                await message.DeleteAsync();
-            }
-
-            await DiscordUtil.SendAsync(discordChannel, null, MessageBuilder.GetEcoStatus(GetEcoStatusFlagForChannel(statusChannel)));
         }
 
         private void UpdateEcoStatusOnTimer(Object stateInfo)
@@ -608,12 +587,42 @@ namespace Eco.Plugins.DiscordLink
                 DiscordChannel discordChannel = discordGuild.ChannelByName(statusChannel.DiscordChannel);
                 if (discordChannel == null) return;
 
-                VerifyEcoStatusMessage(statusChannel, discordChannel);
+                bool HasEmbedPermission = DiscordUtil.ChannelHasPermission(discordChannel, Permissions.EmbedLinks);
 
-                IReadOnlyList<DiscordMessage> ecoStatusChannelMessages = discordChannel.GetMessagesAsync().Result;
-                if (ecoStatusChannelMessages.Count == 1)
+                DiscordMessage ecoStatusMessage = null;
+                bool created = false;
+                ulong statusMessageID;
+                if (_ecoStatusMessages.TryGetValue(statusChannel, out statusMessageID))
                 {
-                    DiscordUtil.ModifyAsync(ecoStatusChannelMessages[0], "", MessageBuilder.GetEcoStatus(GetEcoStatusFlagForChannel(statusChannel)));
+                    ecoStatusMessage = discordChannel.GetMessageAsync(statusMessageID).Result;
+                }
+                else
+                {
+                    IReadOnlyList<DiscordMessage> ecoStatusChannelMessages = discordChannel.GetMessagesAsync().Result;
+                    foreach(DiscordMessage message in ecoStatusChannelMessages)
+                    {
+                        // We assume that it's our status message if it has parts of our string in it
+                        if(message.Author == _discordClient.CurrentUser 
+                            && (HasEmbedPermission ? (message.Embeds.Count == 1 && message.Embeds[0].Title.Contains("Server Status**")) : message.Content.Contains("Server Status**")))
+                        {
+                            ecoStatusMessage = message;
+                            break;
+                        }
+                    }
+
+                    // If we couldn't find a status message, create a new one
+                    if(ecoStatusMessage == null)
+                    {
+                        ecoStatusMessage = DiscordUtil.SendAsync(discordChannel, null, MessageBuilder.GetEcoStatus(GetEcoStatusFlagForChannel(statusChannel))).Result;
+                        created = true;
+                    }
+
+                    _ecoStatusMessages.Add(statusChannel, ecoStatusMessage.Id);
+                }
+
+                if (!created) // It is pointless to update the message if it was just created
+                {
+                    DiscordUtil.ModifyAsync(ecoStatusMessage, "", MessageBuilder.GetEcoStatus(GetEcoStatusFlagForChannel(statusChannel)));
                 }
             }
         }
