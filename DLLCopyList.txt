@@ -1,4 +1,3 @@
 DiscordLink.dll
 DSharpPlus.dll
 DSharpPlus.CommandsNext.dll
-Newtonsoft.Json.dll
