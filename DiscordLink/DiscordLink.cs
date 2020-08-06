@@ -253,16 +253,8 @@ namespace Eco.Plugins.DiscordLink
             if (guild == null) return "No guild of that name found";
 
             var channel = guild.ChannelByNameOrId(channelNameOrId);
-            return await SendDiscordMessage(message, channel);
-        }
-
-        public async Task<string> SendDiscordMessage(string message, DiscordChannel channel)
-        {
-            if (_discordClient == null) return "No discord client";
-            if (channel == null) return "No channel of that name or ID found in that guild";
-
-            await _discordClient.SendMessageAsync(channel, message);
-            return "Message sent successfully!";
+            await DiscordUtil.SendAsync(channel, message);
+            return "Message sent";
         }
 
         public async Task<string> SendDiscordMessageAsUser(string message, User user, string channelNameOrId, string guildNameOrId)
@@ -272,12 +264,14 @@ namespace Eco.Plugins.DiscordLink
 
             var channel = guild.ChannelByNameOrId(channelNameOrId);
             if (channel == null) return "No channel of that name or ID found in that guild";
-            return await SendDiscordMessage(FormatDiscordMessage(message, channel, user.Name), channel);
+            await DiscordUtil.SendAsync(channel, FormatDiscordMessage(message, channel, user.Name));
+            return "Message sent";
         }
 
         public async Task<String> SendDiscordMessageAsUser(string message, User user, DiscordChannel channel)
         {
-            return await SendDiscordMessage(FormatDiscordMessage(message, channel, user.Name), channel);
+            await DiscordUtil.SendAsync(channel, FormatDiscordMessage(message, channel, user.Name));
+            return "Message sent";
         }
 
         #endregion
@@ -435,11 +429,14 @@ namespace Eco.Plugins.DiscordLink
                 return;
             }
 
-            SendDiscordMessage(FormatDiscordMessage(chatMessage.Message, channel, chatMessage.Citizen.Name), channel);
+            DiscordUtil.SendAsync(channel, FormatDiscordMessage(chatMessage.Message, channel, chatMessage.Citizen.Name));
 
             if (_chatlogInitialized)
             {
-                _chatLogWriter.WriteLine("[Eco] (" + DateTime.Now.ToShortDateString() + ":" + DateTime.Now.ToShortTimeString() + ") " + $"{StripTags(chatMessage.Citizen.Name) + ": " + StripTags(chatMessage.Message)}");
+                DateTime time = DateTime.Now;
+                int utcOffset = TimeZoneInfo.Local.GetUtcOffset(time).Hours;
+                _chatLogWriter.WriteLine("[Eco] [" + DateTime.Now.ToString("yyyy-MM-dd : HH:mm", CultureInfo.InvariantCulture) + " UTC " + (utcOffset != 0 ? (utcOffset >= 0 ? "+" : "-") + utcOffset : "") + "] "
+                    + $"{StripTags(chatMessage.Citizen.Name) + ": " + StripTags(chatMessage.Message)}");
             }
         }
 
