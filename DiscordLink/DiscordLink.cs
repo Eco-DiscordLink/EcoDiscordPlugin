@@ -1115,8 +1115,8 @@ namespace Eco.Plugins.DiscordLink
         [Description("The logo of the server as a URL. This setting can be changed while the server is running."), Category("Server Details")]
         public string ServerLogo { get; set; }
 
-        [Description("IP of the server. Overrides the automatically detected IP. This setting can be changed while the server is running."), Category("Server Details")]
-        public string ServerIP { get; set; }
+        [Description("The address (URL or IP) of the server. Overrides the automatically detected IP. This setting can be changed while the server is running."), Category("Server Details")]
+        public string ServerAddress { get; set; }
 
         [Description("A mapping from user to user config parameters. This setting can be changed while the server is running.")]
         public ObservableCollection<DiscordPlayerConfig> PlayerConfigs = new ObservableCollection<DiscordPlayerConfig>();

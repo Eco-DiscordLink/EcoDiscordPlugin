@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using DSharpPlus.Entities;
+using Eco.Gameplay.Civics.GameValues;
 using Eco.Gameplay.Players;
 using Eco.Plugins.Networking;
 
@@ -90,7 +91,16 @@ namespace Eco.Plugins.DiscordLink
 
             if (flag.HasFlag(EcoStatusComponentFlag.ServerAddress))
             {
-                builder.AddField("Server Address", pluginConfig.ServerAddress );
+                string fieldText = "-- No address configured --";
+                if (!string.IsNullOrEmpty(pluginConfig.ServerAddress))
+                {
+                    fieldText = pluginConfig.ServerAddress;
+                }
+                else if(!string.IsNullOrEmpty(serverInfo.Address))
+                {
+                    fieldText = serverInfo.Address;
+                }
+                builder.AddField("Server Address", fieldText);
             }
 
             if(flag.HasFlag(EcoStatusComponentFlag.PlayerCount))
