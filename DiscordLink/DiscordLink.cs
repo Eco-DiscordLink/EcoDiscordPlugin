@@ -149,7 +149,7 @@ namespace Eco.Plugins.DiscordLink
                         _linkVerificationTimeoutTimer = null;
                         ReportUnverifiedChannels();
                         _verifiedLinks.Clear();
-                    }, null, LINK_VERIFICATION_TIMEOUT_MS, 0);
+                    }, null, LINK_VERIFICATION_TIMEOUT_MS, Timeout.Infinite);
 
                     Thread.Sleep(STATIC_VERIFICATION_OUTPUT_DELAY_MS); // Avoid writing async while the server is still outputting initilization info
                     VerifyConfig(VerificationFlags.Static);
@@ -568,7 +568,7 @@ namespace Eco.Plugins.DiscordLink
 
         private void SetupEcoStatusCallback()
         {
-            _ecoStatusUpdateTimer = new Timer(this.UpdateEcoStatusOnTimer, null, 0, STATUS_TIMER_INTERAVAL_SECONDS); 
+            _ecoStatusUpdateTimer = new Timer(this.UpdateEcoStatusOnTimer, null, Timeout.Infinite, STATUS_TIMER_INTERAVAL_SECONDS); 
         }
 
         private void UpdateEcoStatusOnTimer(Object stateInfo)
