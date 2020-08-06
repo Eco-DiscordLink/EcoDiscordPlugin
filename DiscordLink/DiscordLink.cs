@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -409,7 +410,10 @@ namespace Eco.Plugins.DiscordLink
 
             if (_chatlogInitialized)
             {
-                _chatLogWriter.WriteLine("[Discord] (" + DateTime.Now.ToShortDateString() + ":" + DateTime.Now.ToShortTimeString() + ") " + $"{StripTags(message.Author.Username) + ": " + StripTags(message.Content)}");
+                DateTime time = DateTime.Now;
+                int utcOffset = TimeZoneInfo.Local.GetUtcOffset(time).Hours;
+                _chatLogWriter.WriteLine("[Discord] [" + DateTime.Now.ToString("yyyy-MM-dd : HH:mm", CultureInfo.InvariantCulture) + " UTC " + (utcOffset != 0 ? (utcOffset >= 0 ? "+" : "-") + utcOffset : "") + "] "
+                    + $"{StripTags(message.Author.Username) + ": " + StripTags(message.Content)}");
             }
         }
 
