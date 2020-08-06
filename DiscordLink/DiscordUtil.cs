@@ -13,6 +13,8 @@ namespace Eco.Plugins.DiscordLink
 
         public static async Task<DiscordMessage> SendAsync(DiscordChannel channel, string textContent, DiscordEmbed embedContent = null)
         {
+            if (!ChannelHasPermission(channel, Permissions.SendMessages)) { return null; }
+
             if (embedContent == null)
             {
                 return await channel.SendMessageAsync(textContent, false);
@@ -31,23 +33,25 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
-        public static async Task ModifyAsync(DiscordMessage message, string textContent, DiscordEmbed embedContent = null)
+        public static async Task<DiscordMessage> ModifyAsync(DiscordMessage message, string textContent, DiscordEmbed embedContent = null)
         {
+            if (!ChannelHasPermission(message.Channel, Permissions.ManageMessages)) { return null; }
+
             if (embedContent == null)
             {
-                await message.ModifyAsync(textContent);
+                return await message.ModifyAsync(textContent);
             }
             else
             {
                 // Either make sure we have permission to use embeds or convert the embed to text
                 if (ChannelHasPermission(message.Channel, Permissions.EmbedLinks))
                 {
-                    await message.ModifyAsync(textContent, embedContent);
+                    return await message.ModifyAsync(textContent, embedContent);
                 }
                 else
                 {
                     await message.ModifyEmbedSuppressionAsync(true); // Remove existing embeds
-                    await message.ModifyAsync(MessageBuilder.EmbedToText(textContent, embedContent));
+                    return await message.ModifyAsync(MessageBuilder.EmbedToText(textContent, embedContent));
                 }
             }
         }
