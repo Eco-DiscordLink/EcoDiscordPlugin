@@ -5,7 +5,6 @@ using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,7 +19,6 @@ using Eco.Core.Utils;
 using Eco.Gameplay.GameActions;
 using Eco.Gameplay.Players;
 using Eco.Gameplay.Systems.Chat;
-using Eco.Shared.Services;
 using Eco.Shared.Utils;
 
 namespace Eco.Plugins.DiscordLink
@@ -173,8 +171,7 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (Exception e)
             {
-                Logger.Error("Unable to create the discord client. Error message was: " + e.Message + "\n");
-                Logger.Error("Backtrace: " + e.StackTrace);
+                Logger.Error("Unable to create the discord client. Error message was: " + e );
             }
 
             return false;
@@ -199,7 +196,7 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (Exception e)
             {
-                Logger.Error("Error connecting to discord: " + e.Message + "\n");
+                Logger.Error("Error connecting to discord: " + e.Message);
                 _status = "Connection failed";
             }
 
@@ -731,8 +728,8 @@ namespace Eco.Plugins.DiscordLink
             bool correctionMade = false;
             if (DiscordPluginConfig.BotToken != _currentBotToken)
             {
-                //Reinitialise client.
-                Logger.Info("Discord Token changed, reinitialising client.");
+                // Reinitialise client.
+                Logger.Info("Discord Bot Token changed, reinitialising client.");
                 RestartClient();
             }
 
@@ -746,7 +743,6 @@ namespace Eco.Plugins.DiscordLink
 
                     Logger.Info("Command prefix found empty - Resetting to default");
                 }
-
                 Logger.Info("Command prefix changed - Restart required to take effect");
             }
 
@@ -847,7 +843,7 @@ namespace Eco.Plugins.DiscordLink
 
             if(_discordClient == null)
             {
-                errorMessages.Add("[General Verification] No Discord Client available.");
+                errorMessages.Add("[General Verification] No Discord client connected.");
             }
 
             if (verificationFlags.HasFlag(VerificationFlags.Static))
@@ -901,7 +897,7 @@ namespace Eco.Plugins.DiscordLink
                     {
                         concatenatedMessages += message + "\n";
                     }
-                    Logger.Error("Static configuration errors detected!\n" + concatenatedMessages);
+                    Logger.Error("Static configuration errors detected!\n" + concatenatedMessages.Trim());
                 }
             }
 
