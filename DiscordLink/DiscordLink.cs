@@ -151,6 +151,11 @@ namespace Eco.Plugins.DiscordLink
                         _verifiedLinks.Clear();
                     }, null, LINK_VERIFICATION_TIMEOUT_MS, Timeout.Infinite);
 
+                    new Timer(async innerArgs =>
+                    {
+                        UpdateEcoStatus();
+                    }, null, ECO_STATUS_FIRST_UPDATE_DELAY_MS, Timeout.Infinite);
+
                     Thread.Sleep(STATIC_VERIFICATION_OUTPUT_DELAY_MS); // Avoid writing async while the server is still outputting initilization info
                     VerifyConfig(VerificationFlags.Static);
                 };
@@ -688,6 +693,7 @@ namespace Eco.Plugins.DiscordLink
         private List<String> _verifiedLinks = new List<string>();
         private Timer _linkVerificationTimeoutTimer = null;
         private const int LINK_VERIFICATION_TIMEOUT_MS = 15000;
+        private const int ECO_STATUS_FIRST_UPDATE_DELAY_MS = 16000;
         private const int STATIC_VERIFICATION_OUTPUT_DELAY_MS = 5000;
         private const int GUILD_VERIFICATION_OUTPUT_DELAY_MS = 3000;
 
