@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using DSharpPlus.Entities;
 using Eco.Gameplay.Players;
@@ -70,7 +71,9 @@ namespace Eco.Plugins.DiscordLink
             }
             else
             {
-                builder.WithTitle("**Server Status**\n" + DateTime.Now.ToShortDateString() + " - " + DateTime.Now.ToShortTimeString());
+                DateTime time = DateTime.Now;
+                int utcOffset = TimeZoneInfo.Local.GetUtcOffset(time).Hours;
+                builder.WithTitle("**Server Status**\n" + "[" + DateTime.Now.ToString("yyyy-MM-dd : HH:mm", CultureInfo.InvariantCulture) + " UTC " + (utcOffset != 0 ? (utcOffset >= 0 ? "+" : "-") + utcOffset : "") + "]");
             }
 
             if (flag.HasFlag(EcoStatusComponentFlag.Description))
