@@ -561,13 +561,13 @@ namespace Eco.Plugins.DiscordLink
         #endregion
 
         #region EcoStatus
-        private Timer EcoStatusUpdateTimer = null;
+        private Timer _ecoStatusUpdateTimer = null;
         private const int STATUS_TIMER_INTERAVAL_SECONDS = 300000; // 5 minute interval
         private Dictionary<EcoStatusChannel, ulong> _ecoStatusMessages = new Dictionary<EcoStatusChannel, ulong>();
 
         private void SetupEcoStatusCallback()
         {
-            EcoStatusUpdateTimer = new Timer(this.UpdateEcoStatusOnTimer, null, 0, STATUS_TIMER_INTERAVAL_SECONDS); 
+            _ecoStatusUpdateTimer = new Timer(this.UpdateEcoStatusOnTimer, null, 0, STATUS_TIMER_INTERAVAL_SECONDS); 
         }
 
         private void UpdateEcoStatusOnTimer(Object stateInfo)
