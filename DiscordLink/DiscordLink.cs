@@ -568,12 +568,13 @@ namespace Eco.Plugins.DiscordLink
 
         #region EcoStatus
         private Timer _ecoStatusUpdateTimer = null;
-        private const int STATUS_TIMER_INTERAVAL_SECONDS = 300000; // 5 minute interval
+        private const int ECO_STATUS_TIMER_INTERAVAL_MS = 60000; // 1 minute interval
+        private const int ECO_STATUS_FIRST_UPDATE_DELAY_MS = 16000;
         private Dictionary<EcoStatusChannel, ulong> _ecoStatusMessages = new Dictionary<EcoStatusChannel, ulong>();
 
         private void SetupEcoStatusCallback()
         {
-            _ecoStatusUpdateTimer = new Timer(this.UpdateEcoStatusOnTimer, null, Timeout.Infinite, STATUS_TIMER_INTERAVAL_SECONDS); 
+            _ecoStatusUpdateTimer = new Timer(this.UpdateEcoStatusOnTimer, null, 0, ECO_STATUS_TIMER_INTERAVAL_MS);
         }
 
         private void UpdateEcoStatusOnTimer(Object stateInfo)
@@ -693,7 +694,6 @@ namespace Eco.Plugins.DiscordLink
         private List<String> _verifiedLinks = new List<string>();
         private Timer _linkVerificationTimeoutTimer = null;
         private const int LINK_VERIFICATION_TIMEOUT_MS = 15000;
-        private const int ECO_STATUS_FIRST_UPDATE_DELAY_MS = 16000;
         private const int STATIC_VERIFICATION_OUTPUT_DELAY_MS = 5000;
         private const int GUILD_VERIFICATION_OUTPUT_DELAY_MS = 3000;
 
