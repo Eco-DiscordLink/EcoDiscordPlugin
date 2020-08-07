@@ -621,7 +621,10 @@ namespace Eco.Plugins.DiscordLink
                         created = true;
                     }
 
-                    _ecoStatusMessages.Add(statusChannel, ecoStatusMessage.Id);
+                    if (ecoStatusMessage != null) // SendAsync may return null in case an exception is raised
+                    {
+                        _ecoStatusMessages.Add(statusChannel, ecoStatusMessage.Id);
+                    }
                 }
 
                 if (!created) // It is pointless to update the message if it was just created
