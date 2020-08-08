@@ -662,7 +662,9 @@ namespace Eco.Plugins.DiscordLink
         #endregion
 
         #region Chatlog
+        private const int CHATLOG_FLUSH_TIMER_INTERAVAL_MS = 60000; // 1 minute interval
         private StreamWriter _chatLogWriter;
+        private Timer _flushChatlogTimer = null;
         private bool _chatlogInitialized = false;
 
         private void StartChatlog()
@@ -670,17 +672,34 @@ namespace Eco.Plugins.DiscordLink
             try
             {
                 _chatLogWriter = new StreamWriter(_configOptions.Config.ChatlogPath, append: true);
-                _chatLogWriter.AutoFlush = true;
                 _chatlogInitialized = true;
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                Logger.Error("Failed to initialize chat logger using path \"" + _configOptions.Config.ChatlogPath + "\"");
+                Logger.Error("Error occured while attempting to initialize the chat logger using path \"" + _configOptions.Config.ChatlogPath + "\". Error message: " + e);
+            }
+
+            if(_chatlogInitialized)
+            {
+                _flushChatlogTimer = new Timer(async innerArgs =>
+                {
+                    await FlushChatlog();
+                }, null, 0, CHATLOG_FLUSH_TIMER_INTERAVAL_MS);
             }
         }
 
         private void StopChatlog()
         {
+            _flushChatlogTimer = null;
+            try
+            {
+                _chatLogWriter.Close();
+            }
+            catch (Exception e)
+            {
+                Logger.Error("Error occurred while attempting to close the chatlog file writer. Error message: " + e);
+            }
+
             _chatLogWriter = null;
             _chatlogInitialized = false;
         }
@@ -690,6 +709,19 @@ namespace Eco.Plugins.DiscordLink
             StopChatlog();
             StartChatlog();
         }
+
+        private async Task FlushChatlog()
+        {
+            try
+            {
+                _chatLogWriter.Flush();
+            }
+            catch(Exception e)
+            {
+                Logger.Error("Error occurred while attempting to write the chatlog to file. Error message: " + e);
+            }
+        }
+        
         #endregion
 
         #region Configuration
