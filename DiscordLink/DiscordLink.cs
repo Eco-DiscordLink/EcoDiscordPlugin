@@ -25,6 +25,8 @@ namespace Eco.Plugins.DiscordLink
 {
     public class DiscordLink : IModKitPlugin, IInitializablePlugin, IConfigurablePlugin, IShutdownablePlugin, IGameActionAware
     {
+        public readonly Version PluginVersion = new Version(2, 0);
+
         public const string InviteCommandLinkToken = "[LINK]";
         public const string EchoCommandToken = "[ECHO]";
         public ThreadSafeAction<object, string> ParamChanged { get; set; }
@@ -70,6 +72,8 @@ namespace Eco.Plugins.DiscordLink
 
         public DiscordLink()
         {
+            Logger.Info("Plugin version is " + PluginVersion);
+
             SetupConfig();
             if (!SetUpClient())
             {
@@ -135,12 +139,10 @@ namespace Eco.Plugins.DiscordLink
                     TokenType = TokenType.Bot
                 });
 
-                _discordClient.Ready += async args => { Logger.Info("Connected and Ready"); };
                 _discordClient.ClientErrored += async args => { Logger.Error(args.EventName + " " + args.Exception.ToString()); };
                 _discordClient.SocketErrored += async args => { Logger.Error(args.Exception.ToString()); };
                 _discordClient.SocketClosed += async args => { Logger.DebugVerbose("Socket Closed: " + args.CloseMessage + " " + args.CloseCode); };
                 _discordClient.Resumed += async args => { Logger.Info("Resumed connection"); };
-
                 _discordClient.Ready += async args =>
                 {
                     // When Discord is ready, queue up the check for unverified channels
