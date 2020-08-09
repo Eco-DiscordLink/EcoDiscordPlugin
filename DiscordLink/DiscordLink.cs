@@ -131,8 +131,8 @@ namespace Eco.Plugins.DiscordLink
                     TokenType = TokenType.Bot
                 });
 
-                _discordClient.ClientErrored += async args => { Logger.Error(args.EventName + " " + args.Exception.ToString()); };
-                _discordClient.SocketErrored += async args => { Logger.Error(args.Exception.ToString()); };
+                _discordClient.ClientErrored += async args => { Logger.Error("A Discord client error occured. Error messages was: " + args.EventName + " " + args.Exception.ToString()); };
+                _discordClient.SocketErrored += async args => { Logger.Error("A socket error occured. Error message was: " + args.Exception.ToString()); };
                 _discordClient.SocketClosed += async args => { Logger.DebugVerbose("Socket Closed: " + args.CloseMessage + " " + args.CloseCode); };
                 _discordClient.Resumed += async args => { Logger.Info("Resumed connection"); };
                 _discordClient.Ready += async args =>
@@ -181,7 +181,7 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (Exception e)
             {
-                Logger.Error("Unable to create the discord client. Error message was: " + e );
+                Logger.Error("Error occured while creating the Discord client. Error message: " + e );
             }
 
             return false;
@@ -239,7 +239,7 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (Exception e)
             {
-                Logger.Error("Error connecting to discord: " + e.Message);
+                Logger.Error("Error occured when connecting to Discord: Error message: " + e.Message);
                 _status = "Connection failed";
             }
 
@@ -255,7 +255,7 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (Exception e)
             {
-                Logger.Error("Disconnecting from discord: " + e.Message + "\n");
+                Logger.Error("An Error occured when disconnecting from Discord: Error message: " + e.Message);
                 _status = "Connection failed";
             }
 
@@ -811,9 +811,9 @@ namespace Eco.Plugins.DiscordLink
                     _configOptions.Config.DiscordCommandPrefix = DiscordConfig.DefaultValues.DiscordCommandPrefix;
                     correctionMade = true;
 
-                    Logger.Info("Command prefix found empty - Resetting to default");
+                    Logger.Info("Command prefix found empty - Resetting to default.");
                 }
-                Logger.Info("Command prefix changed - Restart required to take effect");
+                Logger.Info("Command prefix changed - Restart required to take effect.");
             }
 
             // Chat channel links
