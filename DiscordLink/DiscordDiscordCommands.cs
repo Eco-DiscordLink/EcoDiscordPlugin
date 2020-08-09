@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
@@ -28,28 +29,47 @@ namespace Eco.Plugins.DiscordLink
         private static void LogCommandException(Exception e)
         {
             Logger.Error("Error occurred while attempting to run that command. Error message: " + e);
-            Logger.Error(e.StackTrace);
+        }
+
+        private async Task RespondToCommand(CommandContext ctx, string textContent, DiscordEmbed embedContent = null)
+        {
+            try
+            {
+                if (embedContent == null)
+                {
+                    await ctx.RespondAsync(textContent, false);
+                }
+                else
+                {
+                    // Either make sure we have permission to use embeds or convert the embed to text
+                    if (DiscordUtil.HasEmbedPermission(ctx.Channel))
+                    {
+                        await ctx.RespondAsync(textContent, false, embedContent);
+                    }
+                    else
+                    {
+                        await ctx.RespondAsync(MessageBuilder.EmbedToText(textContent, embedContent), false);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                LogCommandException(e);
+            }
         }
 
         [Command("ping")]
         [Description("Checks if the bot is online.")]
         public async Task Ping(CommandContext ctx)
         {
-            await ctx.RespondAsync("Pong " + ctx.User.Mention);
+            await RespondToCommand(ctx, "Pong " + ctx.User.Mention);
         }
 
         [Command("ecostatus")]
         [Description("Retrieves the current status of the Eco Server")]
         public async Task EcoStatus(CommandContext ctx)
         {
-            try
-            {
-                await ctx.RespondAsync("Current status of the server:", false, MessageBuilder.GetEcoStatus(MessageBuilder.EcoStatusComponentFlag.All));
-            }
-            catch (Exception e)
-            {
-                LogCommandException(e);
-            }
+            await RespondToCommand(ctx, "", MessageBuilder.GetEcoStatus(MessageBuilder.EcoStatusComponentFlag.All));
         }
 
 #if DEBUG
@@ -76,8 +96,7 @@ namespace Eco.Plugins.DiscordLink
                 enumerator.ForEachInPage(item => output += " " + item);
                 enumerator.Dispose();
 
-                    
-                await ctx.RespondAsync(output);
+                await RespondToCommand(ctx, output);
             }
             catch (Exception e)
             {
@@ -95,8 +114,6 @@ namespace Eco.Plugins.DiscordLink
                 var plugin = DiscordLink.Obj;
                 if (plugin == null)
                 {
-                    await ctx.RespondAsync(
-                        "The plugin was unable to be found on the server. Please report this to the plugin author.");
                     return;
                 }
                 var config = plugin.DiscordPluginConfig;
@@ -143,7 +160,7 @@ namespace Eco.Plugins.DiscordLink
         {
             try
             {
-                await ctx.RespondAsync("Displaying Online Players", false, MessageBuilder.GetPlayerList());
+                await RespondToCommand(ctx, "Displaying Online Players", MessageBuilder.GetPlayerList());
             }
             catch (Exception e)
             {
@@ -160,8 +177,6 @@ namespace Eco.Plugins.DiscordLink
                 var plugin = DiscordLink.Obj;
                 if (plugin == null)
                 {
-                    await ctx.RespondAsync(
-                        "The plugin was unable to be found on the server. Please report this to the plugin author.");
                     return;
                 }
 
@@ -172,8 +187,8 @@ namespace Eco.Plugins.DiscordLink
                 string inviteMessage = config.InviteMessage;
                 if (!inviteMessage.Contains(DiscordLink.InviteCommandLinkToken) || string.IsNullOrEmpty(serverInfo.DiscordAddress))
                 {
-                    await ctx.RespondAsync(
-                        "This server is not configured for using the " + config.DiscordCommandPrefix + "DiscordInvite command.");
+
+                    await RespondToCommand(ctx, "This server is not configured for using the " + config.DiscordCommandPrefix + "DiscordInvite command.");
                     return;
                 }
 
@@ -186,7 +201,7 @@ namespace Eco.Plugins.DiscordLink
                     .WithColor(MessageBuilder.EmbedColor)
                     .WithDescription(inviteMessage);
 
-                await ctx.RespondAsync("Posted message to Eco channel #" + plugin.DiscordPluginConfig.EcoCommandChannel, false, embed);
+                await RespondToCommand(ctx, "Posted message to Eco channel #" + plugin.DiscordPluginConfig.EcoCommandChannel, embed);
             }
             catch (Exception e)
             {
@@ -210,9 +225,9 @@ namespace Eco.Plugins.DiscordLink
             try
             {   
                 var pagedFieldEnumerator = previousQueryEnumerator.GetOrDefault(ctx.User.UniqueUsername());
-                //MoveNext() once, to see if we have ANY values. If not, we can say there's no more pages.
-                if (pagedFieldEnumerator == null || !pagedFieldEnumerator.HasMorePages) { 
-                    await ctx.RespondAsync("No further pages found");
+                if (pagedFieldEnumerator == null || !pagedFieldEnumerator.HasMorePages)
+                {
+                    await RespondToCommand(ctx, "No further trade pages found or no trade command executed");
                     return;
                 }
                 
@@ -226,7 +241,7 @@ namespace Eco.Plugins.DiscordLink
                     embed.AddField(pagedFieldEnumerator.Current.Item1, pagedFieldEnumerator.Current.Item2, true);
                 }
 
-                await ctx.RespondAsync(null, false, embed);
+                await RespondToCommand(ctx, null, embed);
             }
             catch (Exception e)
             {
@@ -245,14 +260,12 @@ namespace Eco.Plugins.DiscordLink
                 var plugin = DiscordLink.Obj;
                 if (plugin == null)
                 {
-                    await ctx.RespondAsync(
-                        "The plugin was unable to be found on the server. Please report this to the plugin author.");
                     return;
                 }
 
-                if (itemNameOrUserName == "")
+                if (string.IsNullOrEmpty(itemNameOrUserName))
                 {
-                    await ctx.RespondAsync(
+                    await RespondToCommand(ctx,
                         "Please provide the name of an item or player to search for. " +
                         "Usage: trades <item name or player name>");
                     return;
@@ -278,18 +291,17 @@ namespace Eco.Plugins.DiscordLink
                 }
                 else
                 {
-                    await ctx.RespondAsync(
-                        "The player or item was not found.");
+                    await RespondToCommand(ctx, "The player or item was not found.");
                     return;
                 }
 
                 var pagedEnumerator = previousQueryEnumerator[ctx.User.UniqueUsername()];
                 if (pagedEnumerator.HasMorePages)
                 {
-                    embed.WithFooter("More pages available. Use ?nextpage.");
+                    embed.WithFooter("More pages available. Use " + DiscordLink.EchoCommandToken + "nextpage to show.");
                 }
 
-                await ctx.RespondAsync(null, false, embed);
+                await RespondToCommand(ctx, null, embed);
             }
             catch (Exception e)
             {
