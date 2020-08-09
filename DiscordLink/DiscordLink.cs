@@ -35,6 +35,9 @@ namespace Eco.Plugins.DiscordLink
         private DiscordConfig _prevConfigOptions; // Used to detect differences when the config is saved
         private DiscordClient _discordClient;
         private CommandsNextExtension _commands;
+        private Timer _ecoStatusStartupTimer = null;
+        private Timer _guildVerificationOutputTimer = null;
+        private Timer _staticVerificationOutputDelayTimer = null;
         private string _currentBotToken;
         private string _status = "No Connection Attempt Made";
 
@@ -77,7 +80,6 @@ namespace Eco.Plugins.DiscordLink
             SetupConfig();
             if (!SetUpClient())
             {
-                VerifyConfig(VerificationFlags.Static);
                 return;
             }
 
@@ -85,7 +87,6 @@ namespace Eco.Plugins.DiscordLink
             {
                 StartChatlog();
             }
-            SetupEcoStatusCallback();
         }
 
         public void Shutdown()
@@ -107,27 +108,18 @@ namespace Eco.Plugins.DiscordLink
 
         #region DiscordClient Management
 
-        private async Task<object> DisposeOfClient()
-        {
-            if (_discordClient != null)
-            {
-                await DisconnectAsync();
-                _discordClient.Dispose();
-            }
-
-            return null;
-        }
-
         private bool SetUpClient()
         {
-            DisposeOfClient();
             _status = "Setting up client";
 
-            if (String.IsNullOrWhiteSpace(DiscordPluginConfig.BotToken)) // Do not attempt to initialize if the bot token is empty
+            bool BotTokenIsNull = String.IsNullOrWhiteSpace(DiscordPluginConfig.BotToken);
+            if (BotTokenIsNull)
             {
-                return false;
+                VerifyConfig(VerificationFlags.Static); // Make the user aware of the empty bot token
             }
             _currentBotToken = DiscordPluginConfig.BotToken;
+
+            if(BotTokenIsNull) return false; // Do not attempt to initialize if the bot token is empty
 
             try
             {
@@ -145,7 +137,7 @@ namespace Eco.Plugins.DiscordLink
                 _discordClient.Resumed += async args => { Logger.Info("Resumed connection"); };
                 _discordClient.Ready += async args =>
                 {
-                    // When Discord is ready, queue up the check for unverified channels
+                    // Queue up the check for unverified channels
                     _linkVerificationTimeoutTimer = new Timer(async innerArgs =>
                     {
                         _linkVerificationTimeoutTimer = null;
@@ -153,18 +145,27 @@ namespace Eco.Plugins.DiscordLink
                         _verifiedLinks.Clear();
                     }, null, LINK_VERIFICATION_TIMEOUT_MS, Timeout.Infinite);
 
-                    new Timer(async innerArgs =>
+                    // Run EcoStatus once when the server has started
+                    _ecoStatusStartupTimer = new Timer(async innerArgs =>
                     {
+                        _ecoStatusStartupTimer = null;
                         UpdateEcoStatus();
                     }, null, ECO_STATUS_FIRST_UPDATE_DELAY_MS, Timeout.Infinite);
 
-                    Thread.Sleep(STATIC_VERIFICATION_OUTPUT_DELAY_MS); // Avoid writing async while the server is still outputting initilization info
-                    VerifyConfig(VerificationFlags.Static);
+                    // Avoid writing async while the server is still outputting initilization info
+                    _staticVerificationOutputDelayTimer = new Timer(async innerArgs =>
+                    {
+                        _staticVerificationOutputDelayTimer = null;
+                         VerifyConfig(VerificationFlags.Static);
+                    }, null, STATIC_VERIFICATION_OUTPUT_DELAY_MS, Timeout.Infinite);
                 };
                 _discordClient.GuildAvailable += async args =>
                 {
-                    Thread.Sleep(GUILD_VERIFICATION_OUTPUT_DELAY_MS);
-                    VerifyConfig(VerificationFlags.ChannelLinks);
+                    _guildVerificationOutputTimer = new Timer(async innerArgs =>
+                    {
+                        _guildVerificationOutputTimer = null;
+                        VerifyConfig(VerificationFlags.ChannelLinks);
+                    }, null, GUILD_VERIFICATION_OUTPUT_DELAY_MS, Timeout.Infinite);
                 };
 
                 // Set up the client to use CommandsNext
@@ -173,6 +174,8 @@ namespace Eco.Plugins.DiscordLink
                     StringPrefixes = _configOptions.Config.DiscordCommandPrefix.SingleItemAsEnumerable()
                 });
                 _commands.RegisterCommands<DiscordDiscordCommands>();
+
+                _ecoStatusUpdateTimer = new Timer(this.UpdateEcoStatusOnTimer, null, 0, ECO_STATUS_TIMER_INTERAVAL_MS);
 
                 return true;
             }
@@ -184,10 +187,43 @@ namespace Eco.Plugins.DiscordLink
             return false;
         }
 
+        void StopClient()
+        {
+            // Stop various timers that may have been set up so they do not trigger while the reset is ongoing
+            SystemUtil.StopAndDestroyTimer(ref _linkVerificationTimeoutTimer);
+            SystemUtil.StopAndDestroyTimer(ref _ecoStatusStartupTimer);
+            SystemUtil.StopAndDestroyTimer(ref _ecoStatusUpdateTimer);
+            SystemUtil.StopAndDestroyTimer(ref _staticVerificationOutputDelayTimer);
+            SystemUtil.StopAndDestroyTimer(ref _guildVerificationOutputTimer);
+
+            // Clear all the stored message references as they may become invalid if the token has changed
+            _ecoStatusMessages.Clear();
+
+            // If we were waiting to verify channel links, we need to clear this list or risk false positives
+            _verifiedLinks.Clear();
+
+            if (_discordClient != null)
+            {
+                StopRelaying();
+
+                // If DisconnectAsync() is called in the GUI thread, it will cause a deadlock
+                SystemUtil.SynchronousThreadExecute( () =>
+                {
+                    _discordClient.DisconnectAsync().Wait();
+                });
+                _discordClient.Dispose();
+                _discordClient = null;
+            }
+        }
+
         public async Task<bool> RestartClient()
         {
-            var result = SetUpClient();
-            await ConnectAsync();
+            StopClient();
+            bool result = SetUpClient();
+            if (result)
+            {
+                await ConnectAsync();
+            }
             return result;
         }
 
@@ -286,7 +322,6 @@ namespace Eco.Plugins.DiscordLink
         private string EcoUserSteamId = "DiscordLinkSteam";
         private string EcoUserSlgId = "DiscordLinkSlg";
         private string EcoUserName = "Discord";
-        private bool _relayInitialised = false;
 
         private User _ecoUser;
         public User EcoUser =>
@@ -317,22 +352,14 @@ namespace Eco.Plugins.DiscordLink
 
         private void BeginRelaying()
         {
-            if (!_relayInitialised)
-            {
-                ActionUtil.AddListener(this);
-                _discordClient.MessageCreated += OnDiscordMessageCreateEvent;
-            }
-
-            _relayInitialised = true;
+            ActionUtil.AddListener(this);
+            _discordClient.MessageCreated += OnDiscordMessageCreateEvent;
         }
 
         private void StopRelaying()
         {
-            if (_relayInitialised)
-            {
-                ActionUtil.RemoveListener(this);
-                _discordClient.MessageCreated -= OnDiscordMessageCreateEvent;
-            }
+            ActionUtil.RemoveListener(this);
+            _discordClient.MessageCreated -= OnDiscordMessageCreateEvent;
         }
 
         private ChannelLink GetLinkForEcoChannel(string discordChannelNameOrId)
@@ -570,14 +597,9 @@ namespace Eco.Plugins.DiscordLink
 
         #region EcoStatus
         private Timer _ecoStatusUpdateTimer = null;
-        private const int ECO_STATUS_TIMER_INTERAVAL_MS = 60000; // 1 minute interval
-        private const int ECO_STATUS_FIRST_UPDATE_DELAY_MS = 16000;
+        private const int ECO_STATUS_TIMER_INTERAVAL_MS = 60000;
+        private const int ECO_STATUS_FIRST_UPDATE_DELAY_MS = 20000;
         private Dictionary<EcoStatusChannel, ulong> _ecoStatusMessages = new Dictionary<EcoStatusChannel, ulong>();
-
-        private void SetupEcoStatusCallback()
-        {
-            _ecoStatusUpdateTimer = new Timer(this.UpdateEcoStatusOnTimer, null, 0, ECO_STATUS_TIMER_INTERAVAL_MS);
-        }
 
         private void UpdateEcoStatusOnTimer(Object stateInfo)
         {
@@ -586,6 +608,7 @@ namespace Eco.Plugins.DiscordLink
 
         private void UpdateEcoStatus()
         {
+            if (_discordClient == null) return;
             foreach (EcoStatusChannel statusChannel in _configOptions.Config.EcoStatusDiscordChannels)
             {
                 DiscordGuild discordGuild = _discordClient.GuildByName(statusChannel.DiscordGuild);
@@ -629,7 +652,7 @@ namespace Eco.Plugins.DiscordLink
                     }
                 }
 
-                if (!created) // It is pointless to update the message if it was just created
+                if (ecoStatusMessage != null && !created) // It is pointless to update the message if it was just created
                 {
                     DiscordUtil.ModifyAsync(ecoStatusMessage, "", MessageBuilder.GetEcoStatus(GetEcoStatusFlagForChannel(statusChannel)));
                 }
@@ -731,7 +754,7 @@ namespace Eco.Plugins.DiscordLink
         private List<String> _verifiedLinks = new List<string>();
         private Timer _linkVerificationTimeoutTimer = null;
         private const int LINK_VERIFICATION_TIMEOUT_MS = 15000;
-        private const int STATIC_VERIFICATION_OUTPUT_DELAY_MS = 5000;
+        private const int STATIC_VERIFICATION_OUTPUT_DELAY_MS = 2000;
         private const int GUILD_VERIFICATION_OUTPUT_DELAY_MS = 3000;
 
         enum VerificationFlags
@@ -760,7 +783,17 @@ namespace Eco.Plugins.DiscordLink
         {
             // Do not verify if change occurred as this function is going to be called again in that case
             // Do not verify the config in case the bot token has been changed, as the client will be restarted and that will trigger verification
-            if (SaveConfig() && DiscordPluginConfig.BotToken == _currentBotToken)
+            bool tokenChanged = DiscordPluginConfig.BotToken != _currentBotToken;
+            bool correctionMade = !SaveConfig();
+
+            if (DiscordPluginConfig.BotToken != _currentBotToken)
+            {
+                // Reinitialise client.
+                Logger.Info("Discord Bot Token changed - Reinitialising client.");
+                RestartClient();
+            }
+
+            if ( !correctionMade && !tokenChanged)
             {
                 VerifyConfig();
             }   
@@ -769,12 +802,6 @@ namespace Eco.Plugins.DiscordLink
         protected bool SaveConfig() // Returns true if no correction was needed
         {
             bool correctionMade = false;
-            if (DiscordPluginConfig.BotToken != _currentBotToken)
-            {
-                // Reinitialise client.
-                Logger.Info("Discord Bot Token changed, reinitialising client.");
-                RestartClient();
-            }
 
             // Discord Command Prefix
             if (_configOptions.Config.DiscordCommandPrefix != _prevConfigOptions.DiscordCommandPrefix)
