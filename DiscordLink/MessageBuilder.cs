@@ -73,7 +73,7 @@ namespace Eco.Plugins.DiscordLink
 
             if(flag.HasFlag(EcoStatusComponentFlag.PlayerCount))
             {
-                builder.AddField("Online Players", $"{serverInfo.OnlinePlayers}/{serverInfo.TotalPlayers}");
+                builder.AddField("Online Players", $"{UserManager.OnlineUsers.Where(user => user.Client.Connected).Count()}/{serverInfo.TotalPlayers}");
             }
 
             if(flag.HasFlag(EcoStatusComponentFlag.PlayerList))
