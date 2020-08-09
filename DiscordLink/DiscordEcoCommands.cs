@@ -42,7 +42,7 @@ namespace Eco.Plugins.DiscordLink
                 user);
         }
         
-        [ChatCommand("Lists Discord Servers the bot is in. ", ChatAuthorizationLevel.Admin)]
+        [ChatCommand("Lists Discord servers the bot is in.", ChatAuthorizationLevel.Admin)]
         public static void DiscordGuilds(User user)
         {
             CallWithErrorHandling<object>((lUser, args) =>
@@ -120,7 +120,7 @@ namespace Eco.Plugins.DiscordLink
                 user);
         }
         
-        [ChatCommand("Set default channel to use.", ChatAuthorizationLevel.Admin)]
+        [ChatCommand("Sets default channel to use.", ChatAuthorizationLevel.Admin)]
         public static void DiscordDefaultChannel(User user, string guildName, string channelName)
         {
             CallWithErrorHandling<object>((lUser, args) =>
@@ -134,7 +134,7 @@ namespace Eco.Plugins.DiscordLink
                 user);
         }
 
-        [ChatCommand("Display Discord invite message.", ChatAuthorizationLevel.User)]
+        [ChatCommand("Displays Discord invite message.", ChatAuthorizationLevel.User)]
         public static void DiscordInvite(User user)
         {
             CallWithErrorHandling<object>((lUser, args) =>

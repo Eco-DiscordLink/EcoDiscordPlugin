@@ -307,7 +307,7 @@ namespace Eco.Plugins.DiscordLink
 
         public Result ShouldOverrideAuth(GameAction action)
         {
-            throw new NotImplementedException();
+            return new Result(ResultType.None);
         }
 
         private void BeginRelaying()
@@ -634,8 +634,6 @@ namespace Eco.Plugins.DiscordLink
                 statusFlag |= MessageBuilder.EcoStatusComponentFlag.TimeRemaining;
             if (statusChannel.UseMeteorHasHit)
                 statusFlag |= MessageBuilder.EcoStatusComponentFlag.MeteorHasHit;
-            if (statusChannel.UseWorldLeader)
-                statusFlag |= MessageBuilder.EcoStatusComponentFlag.WorldLeader;
 
             return statusFlag;
         }
@@ -794,6 +792,12 @@ namespace Eco.Plugins.DiscordLink
             }
 
             // Chatlog path
+            if(string.IsNullOrEmpty(_configOptions.Config.ChatlogPath))
+            {
+                _configOptions.Config.ChatlogPath = Directory.GetCurrentDirectory() + "\\Mods\\DiscordLink\\Chatlog.txt";
+                correctionMade = true;
+            }
+
             if( _configOptions.Config.ChatlogPath != _prevConfigOptions.ChatlogPath)
             {
                 Logger.Info("Chatlog path changed. New path: " + _configOptions.Config.ChatlogPath);
@@ -1245,8 +1249,5 @@ namespace Eco.Plugins.DiscordLink
 
         [Description("Display a boolean for if the metoer has hit yet or not, in the status message.")]
         public bool UseMeteorHasHit { get; set; } = false;
-
-        [Description("Display the name of the current world leader in the status message.")]
-        public bool UseWorldLeader { get; set; } = true;
     }
 }

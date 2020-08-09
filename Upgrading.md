@@ -3,10 +3,10 @@
 
 ### 1. Download the latest DiscordLink release .zip file from <https://github.com/Spoffy/EcoDiscordPlugin/releases>
 
-![Download page](images/tutorials/1.png)
+![Download page](images/installation/1.png)
 
 ### 2. Go to your server's mods folder (Eco Server/Mods/) and extract the .zip there.
 
-![Unzip dialog](images/tutorials/2.png)
+![Unzip dialog](images/installation/2.png)
 
-### 3. Delete the previous version of the mod (the folder DiscordLink_1.X.X), as appropriate.
+### 3. Delete the previous version of the mod (the folder DiscordLink_X.X.X), as appropriate.
