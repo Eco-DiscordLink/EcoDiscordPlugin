@@ -632,7 +632,7 @@ namespace Eco.Plugins.DiscordLink
                     {
                         // We assume that it's our status message if it has parts of our string in it
                         if(message.Author == _discordClient.CurrentUser 
-                            && (HasEmbedPermission ? (message.Embeds.Count == 1 && message.Embeds[0].Title.Contains("Server Status**")) : message.Content.Contains("Server Status**")))
+                            && (HasEmbedPermission ? (message.Embeds.Count == 1 && message.Embeds[0].Title.Contains("Live Server Status**")) : message.Content.Contains("Live Server Status**")))
                         {
                             ecoStatusMessage = message;
                             break;
@@ -642,7 +642,7 @@ namespace Eco.Plugins.DiscordLink
                     // If we couldn't find a status message, create a new one
                     if(ecoStatusMessage == null)
                     {
-                        ecoStatusMessage = DiscordUtil.SendAsync(discordChannel, null, MessageBuilder.GetEcoStatus(GetEcoStatusFlagForChannel(statusChannel))).Result;
+                        ecoStatusMessage = DiscordUtil.SendAsync(discordChannel, null, MessageBuilder.GetEcoStatus(GetEcoStatusFlagForChannel(statusChannel), isLiveMessage: true)).Result;
                         created = true;
                     }
 
@@ -654,7 +654,7 @@ namespace Eco.Plugins.DiscordLink
 
                 if (ecoStatusMessage != null && !created) // It is pointless to update the message if it was just created
                 {
-                    DiscordUtil.ModifyAsync(ecoStatusMessage, "", MessageBuilder.GetEcoStatus(GetEcoStatusFlagForChannel(statusChannel)));
+                    DiscordUtil.ModifyAsync(ecoStatusMessage, "", MessageBuilder.GetEcoStatus(GetEcoStatusFlagForChannel(statusChannel), isLiveMessage: true));
                 }
             }
         }
