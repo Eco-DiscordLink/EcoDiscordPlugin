@@ -916,6 +916,8 @@ namespace Eco.Plugins.DiscordLink
                 correctionMade = true;
             }
 
+            _ecoStatusMessages.Clear(); // The status channels may have changed so we should find the messages again;
+
             _configOptions.SaveAsync();
             _prevConfigOptions = (DiscordConfig)_configOptions.Config.Clone();
 
