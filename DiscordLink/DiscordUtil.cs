@@ -1,6 +1,7 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Entities;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink
@@ -69,6 +70,35 @@ namespace Eco.Plugins.DiscordLink
             catch(Exception e)
             {
                 Logger.Error("Error occurred while attempting to modify Discord message. Error message: " + e);
+                return null;
+            }
+        }
+
+        public static async Task<DiscordMessage> GetMessageAsync(DiscordChannel channel, ulong messageID)
+        {
+            try
+            {
+                if (!ChannelHasPermission(channel, Permissions.ReadMessageHistory)) { return null; }
+                return await channel.GetMessageAsync(messageID);
+            }
+            catch (Exception e)
+            {
+                Logger.Error("Error occurred when attempting to read message with ID " + messageID + " from channel \"" + channel.Name + "\". Error message: " + e);
+                return null;
+            }
+        }
+
+        public static async Task<IReadOnlyList<DiscordMessage>> GetMessagesAsync(DiscordChannel channel)
+        {
+            if (!ChannelHasPermission(channel, Permissions.ReadMessageHistory)) { return null; }
+
+            try
+            {
+                return await channel.GetMessagesAsync();
+            }
+            catch (Exception e)
+            {
+                Logger.Error("Error occurred when attempting to read message history from channel \"" + channel.Name + "\". Error message: " + e);
                 return null;
             }
         }
