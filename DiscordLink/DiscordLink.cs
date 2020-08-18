@@ -624,11 +624,25 @@ namespace Eco.Plugins.DiscordLink
                 ulong statusMessageID;
                 if (_ecoStatusMessages.TryGetValue(statusChannel, out statusMessageID))
                 {
-                    ecoStatusMessage = discordChannel.GetMessageAsync(statusMessageID).Result;
+                    try
+                    {
+                         ecoStatusMessage = discordChannel.GetMessageAsync(statusMessageID).Result;
+                    }
+                    catch(System.AggregateException)
+                    {
+                        _ecoStatusMessages.Remove(statusChannel); // The message has been removed, take it out of the list
+                    }
+                    catch(Exception e)
+                    {
+                        Logger.Error("Error occurred when attempting to read message with ID " + statusMessageID + " from channel \"" + discordChannel.Name + "\". Error message: " + e);
+                        continue;
+                    }
                 }
                 else
                 {
-                    IReadOnlyList<DiscordMessage> ecoStatusChannelMessages = discordChannel.GetMessagesAsync().Result;
+                    IReadOnlyList<DiscordMessage> ecoStatusChannelMessages = DiscordUtil.GetMessagesAsync(discordChannel).Result;
+                    if (ecoStatusChannelMessages == null) continue;
+
                     foreach(DiscordMessage message in ecoStatusChannelMessages)
                     {
                         // We assume that it's our status message if it has parts of our string in it
