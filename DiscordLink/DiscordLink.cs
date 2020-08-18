@@ -131,8 +131,8 @@ namespace Eco.Plugins.DiscordLink
                     TokenType = TokenType.Bot
                 });
 
-                _discordClient.ClientErrored += async args => { Logger.Error("A Discord client error occured. Error messages was: " + args.EventName + " " + args.Exception.ToString()); };
-                _discordClient.SocketErrored += async args => { Logger.Error("A socket error occured. Error message was: " + args.Exception.ToString()); };
+                _discordClient.ClientErrored += async args => { Logger.Error("A Discord client error occurred. Error messages was: " + args.EventName + " " + args.Exception.ToString()); };
+                _discordClient.SocketErrored += async args => { Logger.Error("A socket error occurred. Error message was: " + args.Exception.ToString()); };
                 _discordClient.SocketClosed += async args => { Logger.DebugVerbose("Socket Closed: " + args.CloseMessage + " " + args.CloseCode); };
                 _discordClient.Resumed += async args => { Logger.Info("Resumed connection"); };
                 _discordClient.Ready += async args =>
@@ -181,7 +181,7 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (Exception e)
             {
-                Logger.Error("Error occured while creating the Discord client. Error message: " + e );
+                Logger.Error("Error occurred while creating the Discord client. Error message: " + e );
             }
 
             return false;
@@ -239,7 +239,7 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (Exception e)
             {
-                Logger.Error("Error occured when connecting to Discord: Error message: " + e.Message);
+                Logger.Error("Error occurred when connecting to Discord: Error message: " + e.Message);
                 _status = "Connection failed";
             }
 
@@ -255,7 +255,7 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (Exception e)
             {
-                Logger.Error("An Error occured when disconnecting from Discord: Error message: " + e.Message);
+                Logger.Error("An Error occurred when disconnecting from Discord: Error message: " + e.Message);
                 _status = "Connection failed";
             }
 
@@ -701,7 +701,7 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (Exception e)
             {
-                Logger.Error("Error occured while attempting to initialize the chat logger using path \"" + _configOptions.Config.ChatlogPath + "\". Error message: " + e);
+                Logger.Error("Error occurred while attempting to initialize the chat logger using path \"" + _configOptions.Config.ChatlogPath + "\". Error message: " + e);
             }
 
             if(_chatlogInitialized)
