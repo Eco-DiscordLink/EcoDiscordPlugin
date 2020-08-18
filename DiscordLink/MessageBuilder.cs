@@ -54,7 +54,7 @@ namespace Eco.Plugins.DiscordLink
             return message.Trim();
         }
 
-        public static DiscordEmbed GetEcoStatus(EcoStatusComponentFlag flag)
+        public static DiscordEmbed GetEcoStatus(EcoStatusComponentFlag flag, bool isLiveMessage)
         {
             var plugin = DiscordLink.Obj;
             if (plugin == null) { return null; }
@@ -68,13 +68,13 @@ namespace Eco.Plugins.DiscordLink
 
             if (flag.HasFlag(EcoStatusComponentFlag.Name))
             {
-                builder.WithTitle($"**{FirstNonEmptyString(pluginConfig.ServerName, serverInfo.Name)} Server Status**\n" + DateTime.Now.ToShortDateString() + " : " + DateTime.Now.ToShortTimeString());
+                builder.WithTitle($"**{FirstNonEmptyString(pluginConfig.ServerName, serverInfo.Name)} " + (isLiveMessage ? "Live Server Status" : "Server Status") + "**\n" + DateTime.Now.ToShortDateString() + " : " + DateTime.Now.ToShortTimeString());
             }
             else
             {
                 DateTime time = DateTime.Now;
                 int utcOffset = TimeZoneInfo.Local.GetUtcOffset(time).Hours;
-                builder.WithTitle("**Server Status**\n" + "[" + DateTime.Now.ToString("yyyy-MM-dd : HH:mm", CultureInfo.InvariantCulture) + " UTC " + (utcOffset != 0 ? (utcOffset >= 0 ? "+" : "-") + utcOffset : "") + "]");
+                builder.WithTitle("**" + (isLiveMessage ? "Live Server Status" : "Server Status") + "**\n" + "[" + DateTime.Now.ToString("yyyy-MM-dd : HH:mm", CultureInfo.InvariantCulture) + " UTC " + (utcOffset != 0 ? (utcOffset >= 0 ? "+" : "-") + utcOffset : "") + "]");
             }
 
             if (flag.HasFlag(EcoStatusComponentFlag.Description))
