@@ -612,10 +612,11 @@ namespace Eco.Plugins.DiscordLink
             foreach (EcoStatusChannel statusChannel in _configOptions.Config.EcoStatusDiscordChannels)
             {
                 DiscordGuild discordGuild = _discordClient.GuildByName(statusChannel.DiscordGuild);
-                if (discordGuild == null) return;
+                if (discordGuild == null) continue;
                 DiscordChannel discordChannel = discordGuild.ChannelByName(statusChannel.DiscordChannel);
-                if (discordChannel == null) return;
+                if (discordChannel == null) continue;
 
+                if (!DiscordUtil.ChannelHasPermission(discordChannel, Permissions.ReadMessageHistory)) continue;
                 bool HasEmbedPermission = DiscordUtil.ChannelHasPermission(discordChannel, Permissions.EmbedLinks);
 
                 DiscordMessage ecoStatusMessage = null;
