@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -40,6 +39,7 @@ namespace Eco.Plugins.DiscordLink
         private Timer _staticVerificationOutputDelayTimer = null;
         private string _currentBotToken;
         private string _status = "No Connection Attempt Made";
+        private ChatLogger _chatLogger = new ChatLogger();
 
         // Finds the tags used by Eco message formatting (color codes, badges, links etc)
         private static readonly Regex EcoNameTagRegex = new Regex("<[^>]*>");
@@ -85,7 +85,7 @@ namespace Eco.Plugins.DiscordLink
 
             if (_configOptions.Config.LogChat)
             {
-                StartChatlog();
+                _chatLogger.Start();
             }
         }
 
@@ -93,7 +93,7 @@ namespace Eco.Plugins.DiscordLink
         {
             if (_configOptions.Config.LogChat)
             {
-                StopChatlog();
+                _chatLogger.Stop();
             }
         }
 
@@ -439,12 +439,9 @@ namespace Eco.Plugins.DiscordLink
             var text = $"#{channelName} {nametag}: {GetReadableContent(message)}";
             ChatManager.SendChat(text, EcoUser);
 
-            if (_chatlogInitialized)
+            if (_configOptions.Config.LogChat)
             {
-                DateTime time = DateTime.Now;
-                int utcOffset = TimeZoneInfo.Local.GetUtcOffset(time).Hours;
-                _chatLogWriter.WriteLine("[Discord] [" + DateTime.Now.ToString("yyyy-MM-dd : HH:mm", CultureInfo.InvariantCulture) + " UTC " + (utcOffset != 0 ? (utcOffset >= 0 ? "+" : "-") + utcOffset : "") + "] "
-                    + $"{StripTags(message.Author.Username) + ": " + StripTags(message.Content)}");
+                _chatLogger.Write(message);
             }
         }
 
@@ -466,12 +463,9 @@ namespace Eco.Plugins.DiscordLink
 
             DiscordUtil.SendAsync(channel, FormatDiscordMessage(chatMessage.Message, channel, chatMessage.Citizen.Name));
 
-            if (_chatlogInitialized)
+            if (_configOptions.Config.LogChat)
             {
-                DateTime time = DateTime.Now;
-                int utcOffset = TimeZoneInfo.Local.GetUtcOffset(time).Hours;
-                _chatLogWriter.WriteLine("[Eco] [" + DateTime.Now.ToString("yyyy-MM-dd : HH:mm", CultureInfo.InvariantCulture) + " UTC " + (utcOffset != 0 ? (utcOffset >= 0 ? "+" : "-") + utcOffset : "") + "] "
-                    + $"{StripTags(chatMessage.Citizen.Name) + ": " + StripTags(chatMessage.Message)}");
+                _chatLogger.Write(chatMessage);
             }
         }
 
@@ -701,71 +695,6 @@ namespace Eco.Plugins.DiscordLink
 
         #endregion
 
-        #region Chatlog
-        private const int CHATLOG_FLUSH_TIMER_INTERAVAL_MS = 60000; // 1 minute interval
-        private StreamWriter _chatLogWriter;
-        private Timer _flushChatlogTimer = null;
-        private bool _chatlogInitialized = false;
-
-        private void StartChatlog()
-        {
-            try
-            {
-                _chatLogWriter = new StreamWriter(_configOptions.Config.ChatlogPath, append: true);
-                _chatlogInitialized = true;
-            }
-            catch (Exception e)
-            {
-                Logger.Error("Error occurred while attempting to initialize the chat logger using path \"" + _configOptions.Config.ChatlogPath + "\". Error message: " + e);
-            }
-
-            if(_chatlogInitialized)
-            {
-                _flushChatlogTimer = new Timer(async innerArgs =>
-                {
-                    await FlushChatlog();
-                }, null, 0, CHATLOG_FLUSH_TIMER_INTERAVAL_MS);
-            }
-        }
-
-        private void StopChatlog()
-        {
-            if (!_chatlogInitialized) return;
-
-            SystemUtil.StopAndDestroyTimer(ref _flushChatlogTimer);
-            try
-            {
-                _chatLogWriter.Close();
-            }
-            catch (Exception e)
-            {
-                Logger.Error("Error occurred while attempting to close the chatlog file writer. Error message: " + e);
-            }
-
-            _chatLogWriter = null;
-            _chatlogInitialized = false;
-        }
-
-        private void RestartChatlog()
-        {
-            StopChatlog();
-            StartChatlog();
-        }
-
-        private async Task FlushChatlog()
-        {
-            try
-            {
-                _chatLogWriter.Flush();
-            }
-            catch(Exception e)
-            {
-                Logger.Error("Error occurred while attempting to write the chatlog to file. Error message: " + e);
-            }
-        }
-        
-        #endregion
-
         #region Configuration
 
         private List<String> _verifiedLinks = new List<string>();
@@ -883,12 +812,12 @@ namespace Eco.Plugins.DiscordLink
             if (_configOptions.Config.LogChat && !_prevConfigOptions.LogChat)
             {
                 Logger.Info("Chatlog enabled");
-                StartChatlog();
+                _chatLogger.Start();
             }
             else if(!_configOptions.Config.LogChat && _prevConfigOptions.LogChat)
             {
                 Logger.Info("Chatlog disabled");
-                StopChatlog();
+                _chatLogger.Stop();
             }
 
             // Chatlog path
@@ -901,7 +830,7 @@ namespace Eco.Plugins.DiscordLink
             if( _configOptions.Config.ChatlogPath != _prevConfigOptions.ChatlogPath)
             {
                 Logger.Info("Chatlog path changed. New path: " + _configOptions.Config.ChatlogPath);
-                RestartChatlog();
+                _chatLogger.Restart();
             }
 
             // Eco command channel
