@@ -730,7 +730,9 @@ namespace Eco.Plugins.DiscordLink
 
         private void StopChatlog()
         {
-            _flushChatlogTimer = null;
+            if (!_chatlogInitialized) return;
+
+            SystemUtil.StopAndDestroyTimer(ref _flushChatlogTimer);
             try
             {
                 _chatLogWriter.Close();
