@@ -69,12 +69,6 @@ namespace Eco.Plugins.DiscordLink
 
         public void Initialize(TimedTask timer)
         {
-            if (_discordClient == null) return;
-            ConnectAsync().Wait();
-        }
-
-        public DiscordLink()
-        {
             Logger.Info("Plugin version is " + PluginVersion);
 
             SetupConfig();
@@ -82,6 +76,8 @@ namespace Eco.Plugins.DiscordLink
             {
                 return;
             }
+
+            ConnectAsync().Wait();
 
             if (_configOptions.Config.LogChat)
             {
@@ -152,7 +148,7 @@ namespace Eco.Plugins.DiscordLink
                         UpdateEcoStatus();
                     }, null, ECO_STATUS_FIRST_UPDATE_DELAY_MS, Timeout.Infinite);
 
-                    // Avoid writing async while the server is still outputting initilization info
+                    // Avoid writing async while the server is still outputting initialization info
                     _staticVerificationOutputDelayTimer = new Timer(async innerArgs =>
                     {
                         _staticVerificationOutputDelayTimer = null;
