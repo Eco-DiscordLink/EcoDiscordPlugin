@@ -14,7 +14,6 @@ using Eco.Gameplay.Items;
 using Eco.Gameplay.Players;
 using Eco.Gameplay.Systems.Chat;
 using Eco.Plugins.DiscordLink.Utilities;
-using Eco.Plugins.Networking;
 using Eco.Shared.Utils;
 
 namespace Eco.Plugins.DiscordLink
@@ -116,7 +115,6 @@ namespace Eco.Plugins.DiscordLink
                 {
                     return;
                 }
-                var config = plugin.DiscordPluginConfig;
 
                 if (message.IsEmpty())
                 {
@@ -145,7 +143,7 @@ namespace Eco.Plugins.DiscordLink
                     }
                 }
 
-                string formattedMessage = $"#{config.EcoCommandChannel} {DiscordLink.EchoCommandToken + " " + message}";
+                string formattedMessage = $"#{DLConfig.Data.EcoCommandChannel} {DiscordLink.EchoCommandToken + " " + message}";
                 ChatManager.SendChat(formattedMessage, plugin.EcoUser);
             }
             catch(Exception e)
@@ -180,19 +178,19 @@ namespace Eco.Plugins.DiscordLink
                     return;
                 }
 
-                var config = plugin.DiscordPluginConfig;
+                var config = DLConfig.Data;
                 var serverInfo = Networking.NetworkManager.GetServerInfo();
 
                 // Send to Eco
                 string inviteMessage = config.InviteMessage;
-                if (!inviteMessage.Contains(DiscordLink.InviteCommandLinkToken) || string.IsNullOrEmpty(serverInfo.DiscordAddress))
+                if (!inviteMessage.Contains(DLConfig.InviteCommandLinkToken) || string.IsNullOrEmpty(serverInfo.DiscordAddress))
                 {
 
                     await RespondToCommand(ctx, "This server is not configured for using the " + config.DiscordCommandPrefix + "DiscordInvite command.");
                     return;
                 }
 
-                inviteMessage = Regex.Replace(inviteMessage, Regex.Escape(DiscordLink.InviteCommandLinkToken), serverInfo.DiscordAddress);
+                inviteMessage = Regex.Replace(inviteMessage, Regex.Escape(DLConfig.InviteCommandLinkToken), serverInfo.DiscordAddress);
                 string formattedInviteMessage = $"#{config.EcoCommandChannel} {inviteMessage}";
                 ChatManager.SendChat(formattedInviteMessage, plugin.EcoUser);
 
@@ -201,7 +199,7 @@ namespace Eco.Plugins.DiscordLink
                     .WithColor(MessageBuilder.EmbedColor)
                     .WithDescription(inviteMessage);
 
-                await RespondToCommand(ctx, "Posted message to Eco channel #" + plugin.DiscordPluginConfig.EcoCommandChannel, embed);
+                await RespondToCommand(ctx, "Posted message to Eco channel #" + config.EcoCommandChannel, embed);
             }
             catch (Exception e)
             {

@@ -135,17 +135,17 @@ namespace Eco.Plugins.DiscordLink
                 var plugin = DiscordLink.Obj;
                 if (plugin == null) return;
 
-                var config = plugin.DiscordPluginConfig;
+                var config = DLConfig.Data;
                 var serverInfo = Networking.NetworkManager.GetServerInfo();
 
                 string inviteMessage = config.InviteMessage;
-                if (!inviteMessage.Contains(DiscordLink.InviteCommandLinkToken) || string.IsNullOrEmpty(serverInfo.DiscordAddress))
+                if (!inviteMessage.Contains(DLConfig.InviteCommandLinkToken) || string.IsNullOrEmpty(serverInfo.DiscordAddress))
                 {
                     ChatManager.ServerMessageToPlayer( new LocString("This server is not configured for using the /DiscordInvite command."), user);
                     return;
                 }
                 
-                inviteMessage = Regex.Replace(inviteMessage, Regex.Escape(DiscordLink.InviteCommandLinkToken), serverInfo.DiscordAddress);
+                inviteMessage = Regex.Replace(inviteMessage, Regex.Escape(DLConfig.InviteCommandLinkToken), serverInfo.DiscordAddress);
                 string formattedInviteMessage = $"#{config.EcoCommandChannel} {inviteMessage}";
                 ChatManager.SendChat(formattedInviteMessage, plugin.EcoUser);
             },

@@ -12,7 +12,7 @@ namespace Eco.Plugins.DiscordLink
 
         public static void DebugVerbose(string message)
         {
-            if (DiscordLink.Obj?.DiscordPluginConfig.Debug == true)
+            if (DLConfig.Data.Debug)
             {
                 Log.Write(new LocString("[DiscordLink] DEBUG: " + message + "\n"));
             }

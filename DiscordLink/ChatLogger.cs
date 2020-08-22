@@ -20,7 +20,7 @@ namespace Eco.Plugins.DiscordLink
         {
             if (_initialized) return;
 
-            DiscordConfig config = DiscordLink.Obj.DiscordPluginConfig;
+            DLConfigData config = DLConfig.Data;
             try
             {
                 _writer = new StreamWriter(config.ChatlogPath, append: true);
