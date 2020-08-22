@@ -42,7 +42,7 @@ namespace Eco.Plugins.DiscordLink
         public const int STATIC_VERIFICATION_OUTPUT_DELAY_MS = 2000;
         public const int GUILD_VERIFICATION_OUTPUT_DELAY_MS = 3000;
 
-        private List<String> _verifiedLinks = new List<string>();
+        private readonly List<String> _verifiedLinks = new List<string>();
         private DLConfigData _prevConfig; // Used to detect differences when the config is saved
         private Timer _linkVerificationTimeoutTimer = null;
         private Timer _guildVerificationOutputTimer = null;
@@ -103,7 +103,7 @@ namespace Eco.Plugins.DiscordLink
         public void EnqueueFullVerification()
         {
             // Queue up the check for unverified channels
-            _linkVerificationTimeoutTimer = new Timer(async innerArgs =>
+            _linkVerificationTimeoutTimer = new Timer(innerArgs =>
             {
                 _linkVerificationTimeoutTimer = null;
                 ReportUnverifiedChannels();
@@ -111,7 +111,7 @@ namespace Eco.Plugins.DiscordLink
             }, null, LINK_VERIFICATION_TIMEOUT_MS, Timeout.Infinite);
 
             // Avoid writing async while the server is still outputting initialization info
-            _staticVerificationOutputDelayTimer = new Timer(async innerArgs =>
+            _staticVerificationOutputDelayTimer = new Timer(innerArgs =>
             {
                 _staticVerificationOutputDelayTimer = null;
                 VerifyConfig(VerificationFlags.Static);
@@ -120,7 +120,7 @@ namespace Eco.Plugins.DiscordLink
 
         public void EnqueueGuildVerification()
         {
-            _guildVerificationOutputTimer = new Timer(async innerArgs =>
+            _guildVerificationOutputTimer = new Timer(innerArgs =>
             {
                 _guildVerificationOutputTimer = null;
                 VerifyConfig(VerificationFlags.ChannelLinks);

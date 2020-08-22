@@ -11,8 +11,7 @@ namespace Eco.Plugins.DiscordLink
     {
         public static ulong? TryParseSnowflakeId(string nameOrId)
         {
-            ulong id;
-            return ulong.TryParse(nameOrId, out id) && id > 0xFFFFFFFFFFFFFUL ? new ulong?(id) : null;
+            return ulong.TryParse(nameOrId, out ulong id) && id > 0xFFFFFFFFFFFFFUL ? new ulong?(id) : null;
         }
 
         #region DiscordGuild
@@ -31,9 +30,7 @@ namespace Eco.Plugins.DiscordLink
         
         public static DiscordChannel ChannelByName(this DiscordGuild guild, string channelName)
         {
-            return guild != null
-                ? guild.TextChannels().FirstOrDefault(channel => channel.Value.Name == channelName).Value
-                : null;
+            return guild?.TextChannels().FirstOrDefault(channel => channel.Value.Name == channelName).Value;
         }
 
         public static DiscordChannel ChannelByNameOrId(this DiscordGuild guild, string channelNameOrId)
@@ -47,7 +44,7 @@ namespace Eco.Plugins.DiscordLink
         public async static Task<DiscordMember> MaybeGetMemberAsync(this DiscordGuild guild, ulong userId)
         {
             try { return await guild.GetMemberAsync(userId); }
-            catch (NotFoundException ex) { return null; }
+            catch (NotFoundException) { return null; }
         }
         
         #endregion

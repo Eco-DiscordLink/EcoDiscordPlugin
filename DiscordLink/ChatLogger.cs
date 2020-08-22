@@ -33,7 +33,7 @@ namespace Eco.Plugins.DiscordLink
 
             if (_initialized)
             {
-                _flushTimer = new Timer(async innerArgs =>
+                _flushTimer = new Timer(innerArgs =>
                 {
                     Flush();
                 }, null, 0, CHATLOG_FLUSH_TIMER_INTERAVAL_MS);

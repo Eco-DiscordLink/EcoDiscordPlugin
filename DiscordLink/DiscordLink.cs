@@ -32,7 +32,7 @@ namespace Eco.Plugins.DiscordLink
 
         private const string NametagColor = "7289DAFF";
         private string _status = "No Connection Attempt Made";
-        private ChatLogger _chatLogger = new ChatLogger();
+        private readonly ChatLogger _chatLogger = new ChatLogger();
         private CommandsNextExtension _commands;
         private Timer _ecoStatusStartupTimer = null;
 
@@ -98,7 +98,7 @@ namespace Eco.Plugins.DiscordLink
             config.OnTokenChanged += (obj, args) =>
             {
                 Logger.Info("Discord Bot Token changed - Reinitialising client");
-                RestartClient();
+                _ = RestartClient();
             };
             config.OnConfigSaved += (obj, args) =>
             {
@@ -140,7 +140,7 @@ namespace Eco.Plugins.DiscordLink
                     DLConfig.Instance.EnqueueFullVerification();
 
                     // Run EcoStatus once when the server has started
-                    _ecoStatusStartupTimer = new Timer(async innerArgs =>
+                    _ecoStatusStartupTimer = new Timer(innerArgs =>
                     {
                         _ecoStatusStartupTimer = null;
                         UpdateEcoStatus();
@@ -149,7 +149,7 @@ namespace Eco.Plugins.DiscordLink
 
                 DiscordClient.GuildAvailable += async args =>
                 {
-                     DLConfig.Instance.EnqueueGuildVerification();
+                    DLConfig.Instance.EnqueueGuildVerification();
                 };
 
                 // Set up the client to use CommandsNext
@@ -299,13 +299,12 @@ namespace Eco.Plugins.DiscordLink
 
         #region Message Relaying
 
-        private string EcoUserSteamId = "DiscordLinkSteam";
-        private string EcoUserSlgId = "DiscordLinkSlg";
-        private string EcoUserName = "Discord";
+        private const string EcoUserSteamId = "DiscordLinkSteam";
+        private const string EcoUserSlgId = "DiscordLinkSlg";
+        private const string EcoUserName = "Discord";
 
         private User _ecoUser;
-        public User EcoUser =>
-            _ecoUser ?? (_ecoUser = UserManager.GetOrCreateUser(EcoUserSteamId, EcoUserSlgId, EcoUserName));
+        public User EcoUser => _ecoUser ??= UserManager.GetOrCreateUser(EcoUserSteamId, EcoUserSlgId, EcoUserName);
 
         public void ActionPerformed(GameAction action)
         {
@@ -315,8 +314,8 @@ namespace Eco.Plugins.DiscordLink
                     OnMessageReceivedFromEco(chatSent);
                     break;
 
-                case FirstLogin firstLogin:
-                case Play play:
+                case FirstLogin _:
+                case Play _:
                     UpdateEcoStatus();
                     break;
 
@@ -441,7 +440,7 @@ namespace Eco.Plugins.DiscordLink
                 return;
             }
 
-            DiscordUtil.SendAsync(channel, FormatDiscordMessage(chatMessage.Message, channel, chatMessage.Citizen.Name));
+            _ = DiscordUtil.SendAsync(channel, FormatDiscordMessage(chatMessage.Message, channel, chatMessage.Citizen.Name));
 
             if (DLConfig.Data.LogChat)
             {
@@ -493,7 +492,7 @@ namespace Eco.Plugins.DiscordLink
             return DiscordMentionRegex.Replace(message, capture =>
             {
                 string match = capture.ToString().Substring(1).ToLower(); // Strip the mention character from the match
-                Func<string, string, string> FormatMention = (name, mention) =>
+                string FormatMention(string name, string mention)
                 {
                     if (match == name)
                     {
@@ -516,7 +515,7 @@ namespace Eco.Plugins.DiscordLink
                     }
 
                     return beforeMatch + mention + afterMatch; // Add whatever characters came before or after the username when replacing the match in order to avoid changing the message context
-                };
+                }
 
                 ChannelLink link = DLConfig.Instance.GetChannelLinkFromDiscordChannel(channel.Guild.Name, channel.Name);
                 bool allowRoleMentions = (link == null ? true : link.AllowRoleMentions);
@@ -573,7 +572,7 @@ namespace Eco.Plugins.DiscordLink
         private Timer _ecoStatusUpdateTimer = null;
         private const int ECO_STATUS_TIMER_INTERAVAL_MS = 60000;
         private const int ECO_STATUS_FIRST_UPDATE_DELAY_MS = 20000;
-        private Dictionary<EcoStatusChannel, ulong> _ecoStatusMessages = new Dictionary<EcoStatusChannel, ulong>();
+        private readonly Dictionary<EcoStatusChannel, ulong> _ecoStatusMessages = new Dictionary<EcoStatusChannel, ulong>();
 
         private void UpdateEcoStatusOnTimer(Object stateInfo)
         {
@@ -595,8 +594,7 @@ namespace Eco.Plugins.DiscordLink
 
                 DiscordMessage ecoStatusMessage = null;
                 bool created = false;
-                ulong statusMessageID;
-                if (_ecoStatusMessages.TryGetValue(statusChannel, out statusMessageID))
+                if (_ecoStatusMessages.TryGetValue(statusChannel, out ulong statusMessageID))
                 {
                     try
                     {
@@ -643,7 +641,7 @@ namespace Eco.Plugins.DiscordLink
 
                 if (ecoStatusMessage != null && !created) // It is pointless to update the message if it was just created
                 {
-                    DiscordUtil.ModifyAsync(ecoStatusMessage, "", MessageBuilder.GetEcoStatus(GetEcoStatusFlagForChannel(statusChannel), isLiveMessage: true));
+                    _ = DiscordUtil.ModifyAsync(ecoStatusMessage, "", MessageBuilder.GetEcoStatus(GetEcoStatusFlagForChannel(statusChannel), isLiveMessage: true));
                 }
             }
         }

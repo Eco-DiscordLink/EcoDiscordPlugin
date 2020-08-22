@@ -8,6 +8,8 @@ namespace Eco.Plugins.DiscordLink
 {
     public static class DiscordUtil
     {
+        public const int EMBED_CONTENT_CHARACTER_LIMIT = 5000;
+        public const int EMBED_FIELD_CHARACTER_LIMIT = 900;
         public static bool ChannelHasPermission(DiscordChannel channel, Permissions permission)
         {
             return channel.PermissionsFor(channel.Guild.CurrentMember).HasPermission(permission);
