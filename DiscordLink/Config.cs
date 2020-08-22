@@ -475,6 +475,8 @@ namespace Eco.Plugins.DiscordLink
                 Debug = this.Debug,
                 LogChat = this.LogChat,
                 ChatlogPath = this.ChatlogPath,
+                EcoCommandChannel = this.EcoCommandChannel,
+                InviteMessage = this.InviteMessage,
                 PlayerConfigs = new ObservableCollection<DiscordPlayerConfig>(this.PlayerConfigs.Select(t => t.Clone()).Cast<DiscordPlayerConfig>()),
                 ChatChannelLinks = new ObservableCollection<ChannelLink>(this.ChatChannelLinks.Select(t => t.Clone()).Cast<ChannelLink>()),
                 EcoStatusDiscordChannels = new ObservableCollection<EcoStatusChannel>(this.EcoStatusDiscordChannels.Select(t => t.Clone()).Cast<EcoStatusChannel>())
