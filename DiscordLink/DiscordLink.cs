@@ -32,17 +32,10 @@ namespace Eco.Plugins.DiscordLink
         public DiscordClient DiscordClient { get; private set; }
         public const string EchoCommandToken = "[ECHO]";
 
-        private const string NametagColor = "7289DAFF";
         private string _status = "No Connection Attempt Made";
         private readonly ChatLogger _chatLogger = new ChatLogger();
         private CommandsNextExtension _commands;
         private Timer _ecoStatusStartupTimer = null;
-
-        // Finds the tags used by Eco message formatting (color codes, badges, links etc)
-        private static readonly Regex EcoNameTagRegex = new Regex("<[^>]*>");
-
-        // Discord mention matching regex: Match all characters followed by a mention character(@ or #) character (including that character) until encountering any type of whitespace, end of string or a new mention character
-        private static readonly Regex DiscordMentionRegex = new Regex("([@#].+?)(?=\\s|$|@|#)");
 
         public override string ToString()
         {
@@ -112,6 +105,29 @@ namespace Eco.Plugins.DiscordLink
                 _ecoStatusMessages.Clear(); // The status channels may have changed so we should find the messages again;
                 DLConfig.Instance.PluginConfig.SaveAsync();
             };
+        }
+
+        public void ActionPerformed(GameAction action)
+        {
+            switch (action)
+            {
+                case ChatSent chatSent:
+                    OnMessageReceivedFromEco(chatSent);
+                    break;
+
+                case FirstLogin _:
+                case Play _:
+                    UpdateEcoStatus();
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        public Result ShouldOverrideAuth(GameAction action)
+        {
+            return new Result(ResultType.None);
         }
 
         #region DiscordClient Management
@@ -292,13 +308,13 @@ namespace Eco.Plugins.DiscordLink
 
             var channel = guild.ChannelByNameOrId(channelNameOrId);
             if (channel == null) return "No channel of that name or ID found in that guild";
-            await DiscordUtil.SendAsync(channel, FormatDiscordMessage(message, channel, user.Name));
+            await DiscordUtil.SendAsync(channel, MessageUtil.FormatMessageForDiscord(message, channel, user.Name));
             return "Message sent";
         }
 
         public async Task<String> SendDiscordMessageAsUser(string message, User user, DiscordChannel channel)
         {
-            await DiscordUtil.SendAsync(channel, FormatDiscordMessage(message, channel, user.Name));
+            await DiscordUtil.SendAsync(channel, MessageUtil.FormatMessageForDiscord(message, channel, user.Name));
             return "Message sent";
         }
 
@@ -312,29 +328,6 @@ namespace Eco.Plugins.DiscordLink
 
         private User _ecoUser;
         public User EcoUser => _ecoUser ??= UserManager.GetOrCreateUser(EcoUserSteamId, EcoUserSlgId, EcoUserName);
-
-        public void ActionPerformed(GameAction action)
-        {
-            switch (action)
-            {
-                case ChatSent chatSent:
-                    OnMessageReceivedFromEco(chatSent);
-                    break;
-
-                case FirstLogin _:
-                case Play _:
-                    UpdateEcoStatus();
-                    break;
-
-                default:
-                    break;
-            }
-        }
-
-        public Result ShouldOverrideAuth(GameAction action)
-        {
-            return new Result(ResultType.None);
-        }
 
         private void BeginRelaying()
         {
@@ -407,23 +400,13 @@ namespace Eco.Plugins.DiscordLink
             if (message.Author == DiscordClient.CurrentUser) { return; }
             if (message.Content.StartsWith( DLConfig.Data.DiscordCommandPrefix)) { return; }
 
-            var channelLink = GetLinkForEcoChannel(message.Channel.Name) ?? GetLinkForEcoChannel(message.Channel.Id.ToString());
-            var channel = channelLink?.EcoChannel;
-            if (!String.IsNullOrWhiteSpace(channel))
-            {
-                ForwardMessageToEcoChannel(message, channel);
-            }
+            ForwardMessageToEcoChannel(message);
         }
 
-        private async void ForwardMessageToEcoChannel(DiscordMessage message, string channelName)
+        private async void ForwardMessageToEcoChannel(DiscordMessage message)
         {
-            Logger.DebugVerbose("Sending Discord message to Eco channel: " + channelName);
-            var author = await message.Channel.Guild.MaybeGetMemberAsync(message.Author.Id);
-            var nametag = author != null
-                ? Text.Bold(Text.Color(NametagColor, author.DisplayName))
-                : message.Author.Username;
-            var text = $"#{channelName} {nametag}: {GetReadableContent(message)}";
-            ChatManager.SendChat(text, EcoUser);
+            Logger.DebugVerbose("Sending Discord message to Eco channel: " + message.Channel.Name);
+            ChatManager.SendChat(MessageUtil.FormatMessageForEco(message), EcoUser);
 
             if (DLConfig.Data.LogChat)
             {
@@ -437,17 +420,17 @@ namespace Eco.Plugins.DiscordLink
             var guild = GuildByNameOrId(guildNameOrId);
             if (guild == null)
             {
-                Logger.Error("Failed to forward Eco message from user " + StripTags(chatMessage.Citizen.Name) + " as no guild with the name or ID " + guildNameOrId + " exists");
+                Logger.Error("Failed to forward Eco message from user " + MessageUtil.StripEcoTags(chatMessage.Citizen.Name) + " as no guild with the name or ID " + guildNameOrId + " exists");
                 return;
             }
             var channel = guild.ChannelByNameOrId(channelNameOrId);
             if (channel == null)
             {
-                Logger.Error("Failed to forward Eco message from user " + StripTags(chatMessage.Citizen.Name) + " as no channel with the name or ID " + channelNameOrId + " exists in the guild " + guild.Name);
+                Logger.Error("Failed to forward Eco message from user " + MessageUtil.StripEcoTags(chatMessage.Citizen.Name) + " as no channel with the name or ID " + channelNameOrId + " exists in the guild " + guild.Name);
                 return;
             }
 
-            _ = DiscordUtil.SendAsync(channel, FormatDiscordMessage(chatMessage.Message, channel, chatMessage.Citizen.Name));
+            _ = DiscordUtil.SendAsync(channel, MessageUtil.FormatMessageForDiscord(chatMessage.Message, channel, chatMessage.Citizen.Name));
 
             if (DLConfig.Data.LogChat)
             {
@@ -455,123 +438,7 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
-        private String GetReadableContent(DiscordMessage message)
-        {
-            var content = message.Content;
-            foreach (var user in message.MentionedUsers)
-            {
-                if (user == null) { continue; }
-                DiscordMember member = message.Channel.Guild.Members.FirstOrDefault(m => m.Value?.Id == user.Id).Value;
-                if (member == null) { continue; }
-                String name = "@" + member.DisplayName;
-                content = content.Replace($"<@{user.Id}>", name).Replace($"<@!{user.Id}>", name);
-            }
-            foreach (var role in message.MentionedRoles)
-            {
-                if (role == null) continue;
-                content = content.Replace($"<@&{role.Id}>", $"@{role.Name}");
-            }
-            foreach (var channel in message.MentionedChannels)
-            {
-                if (channel == null) continue;
-                content = content.Replace($"<#{channel.Id}>", $"#{channel.Name}");
-            }
-            return content;
-        }
 
-        #endregion
-
-        #region Message Formatting
-
-        public static string StripTags(string toStrip)
-        {
-            return EcoNameTagRegex.Replace(toStrip, String.Empty);
-        }
-
-        public string FormatDiscordMessage(string message, DiscordChannel channel, string username = "")
-        {
-            string formattedMessage = (username.IsEmpty() ? "" : $"**{username.Replace("@", "")}**:") + StripTags(message); // All @ characters are removed from the name in order to avoid unintended mentions of the sender
-            return FormatDiscordMentions(formattedMessage, channel);
-        }
-
-        private string FormatDiscordMentions(string message, DiscordChannel channel)
-        {
-            return DiscordMentionRegex.Replace(message, capture =>
-            {
-                string match = capture.ToString().Substring(1).ToLower(); // Strip the mention character from the match
-                string FormatMention(string name, string mention)
-                {
-                    if (match == name)
-                    {
-                        return mention;
-                    }
-
-                    string beforeMatch = "";
-                    int matchStartIndex = match.IndexOf(name);
-                    if (matchStartIndex > 0) // There are characters before @username
-                    {
-                        beforeMatch = match.Substring(0, matchStartIndex);
-                    }
-
-                    string afterMatch = "";
-                    int matchStopIndex = matchStartIndex + name.Length - 1;
-                    int numCharactersAfter = match.Length - 1 - matchStopIndex;
-                    if (numCharactersAfter > 0) // There are characters after @username
-                    {
-                        afterMatch = match.Substring(matchStopIndex + 1, numCharactersAfter);
-                    }
-
-                    return beforeMatch + mention + afterMatch; // Add whatever characters came before or after the username when replacing the match in order to avoid changing the message context
-                }
-
-                ChannelLink link = DLConfig.Instance.GetChannelLinkFromDiscordChannel(channel.Guild.Name, channel.Name);
-                bool allowRoleMentions = (link == null ? true : link.AllowRoleMentions);
-                bool allowMemberMentions = (link == null ? true : link.AllowUserMentions);
-                bool allowChannelMentions = (link == null ? true : link.AllowChannelMentions);
-
-                if (capture.ToString()[0] == '@')
-                {
-                    if (allowRoleMentions)
-                    {
-                        foreach (var role in channel.Guild.Roles.Values) // Checking roles first in case a user has a name identiacal to that of a role
-                        {
-                            if (!role.IsMentionable) continue;
-
-                            string name = role.Name.ToLower();
-                            if (match.Contains(name))
-                            {
-                                return FormatMention(name, role.Mention);
-                            }
-                        }
-                    }
-
-                    if (allowMemberMentions)
-                    {
-                        foreach (var member in channel.Guild.Members.Values)
-                        {
-                            string name = member.DisplayName.ToLower();
-                            if (match.Contains(name))
-                            {
-                                return FormatMention(name, member.Mention);
-                            }
-                        }
-                    }
-                }
-                else if (capture.ToString()[0] == '#' && allowChannelMentions)
-                {
-                    foreach (var listChannel in channel.Guild.Channels.Values)
-                    {
-                        string name = listChannel.Name.ToLower();
-                        if (match.Contains(name))
-                        {
-                            return FormatMention(name, listChannel.Mention);
-                        }
-                    }
-                }
-
-                return capture.ToString(); // No match found, just return the original string
-            });
-        }
 
         #endregion
 

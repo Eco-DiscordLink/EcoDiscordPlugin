@@ -72,7 +72,7 @@ namespace Eco.Plugins.DiscordLink
             DateTime time = DateTime.Now;
             int utcOffset = TimeZoneInfo.Local.GetUtcOffset(time).Hours;
             _writer.WriteLine("[Discord] [" + DateTime.Now.ToString("yyyy-MM-dd : HH:mm", CultureInfo.InvariantCulture) + " UTC " + (utcOffset != 0 ? (utcOffset >= 0 ? "+" : "-") + utcOffset : "") + "] "
-                + $"{DiscordLink.StripTags(message.Author.Username) + ": " + DiscordLink.StripTags(message.Content)}");
+                + $"{MessageUtil.StripEcoTags(message.Author.Username) + ": " + MessageUtil.StripEcoTags(message.Content)}");
         }
 
         public void Write(ChatSent message)
@@ -82,7 +82,7 @@ namespace Eco.Plugins.DiscordLink
             DateTime time = DateTime.Now;
             int utcOffset = TimeZoneInfo.Local.GetUtcOffset(time).Hours;
             _writer.WriteLine("[Eco] [" + DateTime.Now.ToString("yyyy-MM-dd : HH:mm", CultureInfo.InvariantCulture) + " UTC " + (utcOffset != 0 ? (utcOffset >= 0 ? "+" : "-") + utcOffset : "") + "] "
-                + $"{DiscordLink.StripTags(message.Citizen.Name) + ": " + DiscordLink.StripTags(message.Message)}");
+                + $"{MessageUtil.StripEcoTags(message.Citizen.Name) + ": " + MessageUtil.StripEcoTags(message.Message)}");
         }
 
         private void Flush()
