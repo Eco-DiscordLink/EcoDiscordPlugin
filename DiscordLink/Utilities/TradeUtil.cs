@@ -8,7 +8,7 @@ using Eco.Gameplay.Players;
 
 namespace Eco.Plugins.DiscordLink.Utilities
 {
-    public class TradeHelper
+    public class TradeUtil
     {
         private static List<Either<Item, User>> _itemLookup = null;
 

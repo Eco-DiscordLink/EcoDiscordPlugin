@@ -15,6 +15,7 @@ using Eco.Core.Utils;
 using Eco.Gameplay.GameActions;
 using Eco.Gameplay.Players;
 using Eco.Gameplay.Systems.Chat;
+using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Utils;
 
 namespace Eco.Plugins.DiscordLink

@@ -1,7 +1,7 @@
 using Eco.Shared.Localization;
 using Eco.Shared.Utils;
 
-namespace Eco.Plugins.DiscordLink
+namespace Eco.Plugins.DiscordLink.Utilities
 {
     public class Logger
     {

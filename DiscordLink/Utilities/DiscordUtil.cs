@@ -1,10 +1,11 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Entities;
+using Eco.Plugins.DiscordLink.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Eco.Plugins.DiscordLink
+namespace Eco.Plugins.DiscordLink.Utilities
 {
     public static class DiscordUtil
     {

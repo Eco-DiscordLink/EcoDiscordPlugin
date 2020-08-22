@@ -272,7 +272,7 @@ namespace Eco.Plugins.DiscordLink
                     .WithColor(MessageBuilder.EmbedColor)
                     .WithTitle("Trade Listings");
 
-                var match = TradeHelper.MatchItemOrUser(itemNameOrUserName);
+                var match = TradeUtil.MatchItemOrUser(itemNameOrUserName);
 
                 if (match.Is<Item>())
                 {
@@ -349,11 +349,11 @@ namespace Eco.Plugins.DiscordLink
 
         private PagedEnumerator<Tuple<string, string>> TradeOffersBuySell(DiscordEmbedBuilder embed, Func<StoreComponent,TradeOffer, bool> filter, Func<Tuple<StoreComponent,TradeOffer>,string> context)
         {
-            var sellOffers = TradeHelper.SellOffers(filter);
-            var groupedSellOffers = sellOffers.GroupBy(t => TradeHelper.StoreCurrencyName(t.Item1)).OrderBy(g => g.Key);
+            var sellOffers = TradeUtil.SellOffers(filter);
+            var groupedSellOffers = sellOffers.GroupBy(t => TradeUtil.StoreCurrencyName(t.Item1)).OrderBy(g => g.Key);
             
-            var buyOffers = TradeHelper.BuyOffers(filter);
-            var groupedBuyOffers = buyOffers.GroupBy(t => TradeHelper.StoreCurrencyName(t.Item1)).OrderBy(g => g.Key);
+            var buyOffers = TradeUtil.BuyOffers(filter);
+            var groupedBuyOffers = buyOffers.GroupBy(t => TradeUtil.StoreCurrencyName(t.Item1)).OrderBy(g => g.Key);
 
             var fieldEnumerator = OffersToFields(groupedBuyOffers, groupedSellOffers, context).GetEnumerator();
             

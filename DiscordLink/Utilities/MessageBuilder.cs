@@ -7,7 +7,7 @@ using Eco.Gameplay.Civics.GameValues;
 using Eco.Gameplay.Players;
 using Eco.Plugins.Networking;
 
-namespace Eco.Plugins.DiscordLink
+namespace Eco.Plugins.DiscordLink.Utilities
 {
     static class MessageBuilder
     {

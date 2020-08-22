@@ -3,6 +3,7 @@ using Eco.Gameplay.Players;
 using Eco.Gameplay.Systems.Chat;
 using Eco.Shared.Localization;
 using System.Text.RegularExpressions;
+using Eco.Plugins.DiscordLink.Utilities;
 
 namespace Eco.Plugins.DiscordLink
 {
