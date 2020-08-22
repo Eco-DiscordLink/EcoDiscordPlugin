@@ -27,6 +27,7 @@ namespace Eco.Plugins.DiscordLink
         public event EventHandler OnClientStarted;
         public event EventHandler OnClientStopped;
 
+        public static DiscordLink Obj { get { return PluginManager.GetPlugin<DiscordLink>(); } }
         public ThreadSafeAction<object, string> ParamChanged { get; set; }
         public DiscordClient DiscordClient { get; private set; }
         public const string EchoCommandToken = "[ECHO]";
@@ -53,6 +54,21 @@ namespace Eco.Plugins.DiscordLink
             return _status;
         }
 
+        public IPluginConfig PluginConfig
+        {
+            get { return DLConfig.Instance.PluginConfig; }
+        }
+
+        public object GetEditObject()
+        {
+            return DLConfig.Data;
+        }
+
+        public void OnEditObjectChanged(object o, string param)
+        {
+            DLConfig.Instance.OnConfigChanged();
+        }
+
         public void Initialize(TimedTask timer)
         {
             Logger.Info("Plugin version is " + PluginVersion);
@@ -77,16 +93,6 @@ namespace Eco.Plugins.DiscordLink
             {
                 _chatLogger.Stop();
             }
-        }
-
-        public IPluginConfig PluginConfig
-        {
-            get { return DLConfig.Instance.PluginConfig; }
-        }
-
-        public void OnEditObjectChanged(object o, string param)
-        {
-            DLConfig.Instance.OnConfigChanged();
         }
 
         private void SetupConfig()
@@ -673,16 +679,6 @@ namespace Eco.Plugins.DiscordLink
         }
 
         #endregion
-
-        public static DiscordLink Obj
-        {
-            get { return PluginManager.GetPlugin<DiscordLink>(); }
-        }
-
-        public object GetEditObject()
-        {
-            return DLConfig.Data;
-        }
 
         #region Player Configs
 
