@@ -400,13 +400,18 @@ namespace Eco.Plugins.DiscordLink
             if (message.Author == DiscordClient.CurrentUser) { return; }
             if (message.Content.StartsWith( DLConfig.Data.DiscordCommandPrefix)) { return; }
 
-            ForwardMessageToEcoChannel(message);
+            var channelLink = GetLinkForEcoChannel(message.Channel.Name) ?? GetLinkForEcoChannel(message.Channel.Id.ToString());
+            var channel = channelLink?.EcoChannel;
+            if (!String.IsNullOrWhiteSpace(channel))
+            {
+                ForwardMessageToEcoChannel(message, channel);
+            }
         }
 
-        private async void ForwardMessageToEcoChannel(DiscordMessage message)
+        private async void ForwardMessageToEcoChannel(DiscordMessage message, string ecoChannel)
         {
-            Logger.DebugVerbose("Sending Discord message to Eco channel: " + message.Channel.Name);
-            ChatManager.SendChat(MessageUtil.FormatMessageForEco(message), EcoUser);
+            Logger.DebugVerbose("Sending Discord message to Eco channel: " + ecoChannel);
+            ChatManager.SendChat(MessageUtil.FormatMessageForEco(message, ecoChannel), EcoUser);
 
             if (DLConfig.Data.LogChat)
             {

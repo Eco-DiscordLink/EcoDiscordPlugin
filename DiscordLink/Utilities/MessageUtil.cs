@@ -115,13 +115,13 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         #region Discord -> Eco
 
-        public static string FormatMessageForEco(DiscordMessage message)
+        public static string FormatMessageForEco(DiscordMessage message, string ecoChannel)
         {
             DiscordMember author = message.Channel.Guild.MaybeGetMemberAsync(message.Author.Id).Result;
             string nametag = author != null
                 ? Text.Bold(Text.Color(EcoNametagColor, author.DisplayName))
                 : message.Author.Username;
-            return $"#{message.Channel.Name} {nametag}: {MessageUtil.GetReadableContent(message)}";
+            return $"#{ecoChannel} {nametag}: {GetReadableContent(message)}";
         }
 
         public static String GetReadableContent(DiscordMessage message)
