@@ -73,6 +73,7 @@ namespace Eco.Plugins.DiscordLink
             Data.ChatChannelLinks.CollectionChanged += (obj, args) => { HandleConfigChanged(); };
             Data.EcoStatusDiscordChannels.CollectionChanged += (obj, args) => { HandleConfigChanged(); };
             Data.SnippetChannels.CollectionChanged += (obj, args) => { HandleConfigChanged(); };
+            Data.TradeChannels.CollectionChanged += (obj, args) => { HandleConfigChanged(); };
 
             DiscordLink.Obj.OnClientStopped += (obj, args) =>
             {
@@ -228,6 +229,29 @@ namespace Eco.Plugins.DiscordLink
                 {
                     correctionMade = true;
                     Logger.Info("Corrected Discord channel name in Snippet Channel with Guild name/ID \"" + snippetChannel.DiscordGuild + "\" from \"" + original + "\" to \"" + snippetChannel.DiscordChannel + "\"");
+                }
+            }
+
+            // Trade Discord channels
+            foreach (DiscordChannelIdentifier snippetChannel in Data.TradeChannels) // TODO[MonzUn] Create a reusable way to fix erronous channel links
+            {
+                if (string.IsNullOrWhiteSpace(snippetChannel.DiscordChannel)) continue;
+
+                string original = snippetChannel.DiscordChannel;
+                if (snippetChannel.DiscordChannel != snippetChannel.DiscordChannel.ToLower())
+                {
+                    snippetChannel.DiscordChannel = snippetChannel.DiscordChannel.ToLower();
+                }
+
+                if (snippetChannel.DiscordChannel.Contains(" "))
+                {
+                    snippetChannel.DiscordChannel = snippetChannel.DiscordChannel.Replace(' ', '-');
+                }
+
+                if (snippetChannel.DiscordChannel != original)
+                {
+                    correctionMade = true;
+                    Logger.Info("Corrected Discord channel name in Trade Channel with Guild name/ID \"" + snippetChannel.DiscordGuild + "\" from \"" + original + "\" to \"" + snippetChannel.DiscordChannel + "\"");
                 }
             }
 
@@ -414,6 +438,30 @@ namespace Eco.Plugins.DiscordLink
                     }
                 }
 
+                // Trade Discord channels
+                foreach (DiscordChannelIdentifier snippetChannel in Data.TradeChannels)
+                {
+                    if (string.IsNullOrWhiteSpace(snippetChannel.DiscordGuild) || string.IsNullOrWhiteSpace(snippetChannel.DiscordChannel)) continue;
+
+                    var guild = DiscordLink.Obj.GuildByNameOrId(snippetChannel.DiscordGuild);
+                    if (guild == null)
+                    {
+                        continue; // The channel will always fail if the guild fails
+                    }
+                    var channel = guild.ChannelByNameOrId(snippetChannel.DiscordChannel);
+                    if (channel == null)
+                    {
+                        continue;
+                    }
+
+                    string channelID = snippetChannel.ToString();
+                    if (!_verifiedLinks.Contains(channelID))
+                    {
+                        _verifiedLinks.Add(channelID);
+                        Logger.Info("Channel Link Verified: " + channelID);
+                    }
+                }
+
                 if (_verifiedLinks.Count >= Data.ChatChannelLinks.Count + Data.EcoStatusDiscordChannels.Count)
                 {
                     Logger.Info("All channel links sucessfully verified");
@@ -453,6 +501,17 @@ namespace Eco.Plugins.DiscordLink
             }
 
             foreach (DiscordChannelIdentifier snippetChannel in Data.SnippetChannels )
+            {
+                if (string.IsNullOrWhiteSpace(snippetChannel.DiscordGuild) || string.IsNullOrWhiteSpace(snippetChannel.DiscordChannel)) continue;
+
+                string channelID = snippetChannel.ToString();
+                if (!_verifiedLinks.Contains(channelID))
+                {
+                    unverifiedLinks.Add(channelID);
+                }
+            }
+
+            foreach (DiscordChannelIdentifier snippetChannel in Data.TradeChannels)
             {
                 if (string.IsNullOrWhiteSpace(snippetChannel.DiscordGuild) || string.IsNullOrWhiteSpace(snippetChannel.DiscordChannel)) continue;
 
@@ -514,6 +573,7 @@ namespace Eco.Plugins.DiscordLink
                 PlayerConfigs = new ObservableCollection<DiscordPlayerConfig>(this.PlayerConfigs.Select(t => t.Clone()).Cast<DiscordPlayerConfig>()),
                 ChatChannelLinks = new ObservableCollection<ChatChannelLink>(this.ChatChannelLinks.Select(t => t.Clone()).Cast<ChatChannelLink>()),
                 EcoStatusDiscordChannels = new ObservableCollection<EcoStatusChannel>(this.EcoStatusDiscordChannels.Select(t => t.Clone()).Cast<EcoStatusChannel>()),
+                TradeChannels = new ObservableCollection<DiscordChannelIdentifier>(this.TradeChannels.Select(t => t.Clone()).Cast<DiscordChannelIdentifier>()),
                 SnippetChannels = new ObservableCollection<DiscordChannelIdentifier>(this.SnippetChannels.Select(t => t.Clone()).Cast<DiscordChannelIdentifier>()),
             };
         }
@@ -538,6 +598,9 @@ namespace Eco.Plugins.DiscordLink
 
         [Description("The address (URL or IP) of the server. Overrides the automatically detected IP. This setting can be changed while the server is running."), Category("Server Details")]
         public string ServerAddress { get; set; }
+
+        [Description("Channels in which trade events will be posted. This setting can be changed while the server is running."), Category("Channel Configuration")]
+        public ObservableCollection<DiscordChannelIdentifier> TradeChannels { get; set; } = new ObservableCollection<DiscordChannelIdentifier>();
 
         [Description("Channels in which to search for snippets for the Snippet command. This setting can be changed while the server is running."), Category("Channel Configuration")]
         public ObservableCollection<DiscordChannelIdentifier> SnippetChannels { get; set; } = new ObservableCollection<DiscordChannelIdentifier>();
