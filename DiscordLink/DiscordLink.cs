@@ -341,12 +341,12 @@ namespace Eco.Plugins.DiscordLink
             DiscordClient.MessageCreated -= OnDiscordMessageCreateEvent;
         }
 
-        private ChannelLink GetLinkForEcoChannel(string discordChannelNameOrId)
+        private ChatChannelLink GetLinkForEcoChannel(string discordChannelNameOrId)
         {
             return DLConfig.Data.ChatChannelLinks.FirstOrDefault(link => link.DiscordChannel == discordChannelNameOrId);
         }
 
-        private ChannelLink GetLinkForDiscordChannel(string ecoChannelName)
+        private ChatChannelLink GetLinkForDiscordChannel(string ecoChannelName)
         {
             var lowercaseEcoChannelName = ecoChannelName.ToLower();
             return DLConfig.Data.ChatChannelLinks.FirstOrDefault(link => link.EcoChannel.ToLower() == lowercaseEcoChannelName);

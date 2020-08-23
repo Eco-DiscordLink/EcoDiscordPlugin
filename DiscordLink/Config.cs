@@ -153,7 +153,7 @@ namespace Eco.Plugins.DiscordLink
             }
 
             // Chat channel links
-            foreach (ChannelLink link in Data.ChatChannelLinks)
+            foreach (ChatChannelLink link in Data.ChatChannelLinks)
             {
                 if (string.IsNullOrWhiteSpace(link.DiscordChannel)) continue;
 
@@ -309,7 +309,7 @@ namespace Eco.Plugins.DiscordLink
             if (verificationFlags.HasFlag(VerificationFlags.ChannelLinks) && DiscordLink.Obj.DiscordClient != null) // Discord guild and channel information isn't available the first time this function is called
             {
                 // Channel links
-                foreach (ChannelLink chatLink in Data.ChatChannelLinks)
+                foreach (ChatChannelLink chatLink in Data.ChatChannelLinks)
                 {
                     if (string.IsNullOrWhiteSpace(chatLink.DiscordGuild) || string.IsNullOrWhiteSpace(chatLink.DiscordChannel) || string.IsNullOrWhiteSpace(chatLink.EcoChannel)) continue;
 
@@ -372,7 +372,7 @@ namespace Eco.Plugins.DiscordLink
             if (_verifiedLinks.Count >= Data.ChatChannelLinks.Count + Data.EcoStatusDiscordChannels.Count) return; // All are verified; nothing to report.
 
             List<string> unverifiedLinks = new List<string>();
-            foreach (ChannelLink chatLink in Data.ChatChannelLinks)
+            foreach (ChatChannelLink chatLink in Data.ChatChannelLinks)
             {
                 if (string.IsNullOrWhiteSpace(chatLink.DiscordGuild) || string.IsNullOrWhiteSpace(chatLink.DiscordChannel) || string.IsNullOrWhiteSpace(chatLink.EcoChannel)) continue;
 
@@ -400,9 +400,9 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
-        public ChannelLink GetChannelLinkFromDiscordChannel(string guild, string channelName)
+        public ChatChannelLink GetChannelLinkFromDiscordChannel(string guild, string channelName)
         {
-            foreach (ChannelLink channelLink in Data.ChatChannelLinks)
+            foreach (ChatChannelLink channelLink in Data.ChatChannelLinks)
             {
                 if (channelLink.DiscordGuild.ToLower() == guild.ToLower() && channelLink.DiscordChannel.ToLower() == channelName.ToLower())
                 {
@@ -412,9 +412,9 @@ namespace Eco.Plugins.DiscordLink
             return null;
         }
 
-        public ChannelLink GetChannelLinkFromEcoChannel(string channelName)
+        public ChatChannelLink GetChannelLinkFromEcoChannel(string channelName)
         {
-            foreach (ChannelLink channelLink in Data.ChatChannelLinks)
+            foreach (ChatChannelLink channelLink in Data.ChatChannelLinks)
             {
                 if (channelLink.EcoChannel.ToLower() == channelName.ToLower())
                 {
@@ -478,7 +478,7 @@ namespace Eco.Plugins.DiscordLink
                 EcoCommandChannel = this.EcoCommandChannel,
                 InviteMessage = this.InviteMessage,
                 PlayerConfigs = new ObservableCollection<DiscordPlayerConfig>(this.PlayerConfigs.Select(t => t.Clone()).Cast<DiscordPlayerConfig>()),
-                ChatChannelLinks = new ObservableCollection<ChannelLink>(this.ChatChannelLinks.Select(t => t.Clone()).Cast<ChannelLink>()),
+                ChatChannelLinks = new ObservableCollection<ChatChannelLink>(this.ChatChannelLinks.Select(t => t.Clone()).Cast<ChatChannelLink>()),
                 EcoStatusDiscordChannels = new ObservableCollection<EcoStatusChannel>(this.EcoStatusDiscordChannels.Select(t => t.Clone()).Cast<EcoStatusChannel>())
             };
         }
@@ -508,7 +508,7 @@ namespace Eco.Plugins.DiscordLink
         public ObservableCollection<DiscordPlayerConfig> PlayerConfigs = new ObservableCollection<DiscordPlayerConfig>();
 
         [Description("Channels to connect together. This setting can be changed while the server is running."), Category("Channel Configuration")]
-        public ObservableCollection<ChannelLink> ChatChannelLinks { get; set; } = new ObservableCollection<ChannelLink>();
+        public ObservableCollection<ChatChannelLink> ChatChannelLinks { get; set; } = new ObservableCollection<ChatChannelLink>();
 
         [Description("Enables debugging output to the console. This setting can be changed while the server is running."), Category("Debugging")]
         public bool Debug { get; set; } = false;
@@ -526,7 +526,7 @@ namespace Eco.Plugins.DiscordLink
         public string InviteMessage { get; set; } = DLConfig.DefaultValues.InviteMessage;
     }
 
-    public class ChannelLink : ICloneable
+    public class ChatChannelLink : ICloneable
     {
         public object Clone()
         {

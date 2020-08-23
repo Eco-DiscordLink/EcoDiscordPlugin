@@ -65,6 +65,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 bool allowRoleMentions = (link == null ? true : link.AllowRoleMentions);
                 bool allowMemberMentions = (link == null ? true : link.AllowUserMentions);
                 bool allowChannelMentions = (link == null ? true : link.AllowChannelMentions);
+                ChatChannelLink link = DLConfig.Instance.GetChannelLinkFromDiscordChannel(channel.Guild.Name, channel.Name);
 
                 if (capture.ToString()[0] == '@')
                 {
