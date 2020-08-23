@@ -26,6 +26,7 @@ namespace Eco.Plugins.DiscordLink
 
         public event EventHandler OnClientStarted;
         public event EventHandler OnClientStopped;
+        public event EventHandler OnDiscordMaybeReady;
 
         public static DiscordLink Obj { get { return PluginManager.GetPlugin<DiscordLink>(); } }
         public ThreadSafeAction<object, string> ParamChanged { get; set; }
@@ -35,7 +36,7 @@ namespace Eco.Plugins.DiscordLink
         private string _status = "No Connection Attempt Made";
         private readonly ChatLogger _chatLogger = new ChatLogger();
         private CommandsNextExtension _commands;
-        private Timer _ecoStatusStartupTimer = null;
+        private Timer _discordDataMaybeAvailable = null;
 
         public override string ToString()
         {
@@ -78,6 +79,13 @@ namespace Eco.Plugins.DiscordLink
             {
                 _chatLogger.Start();
             }
+
+            // Triggered on a timer that starts when the Discord client connects.
+            // It is likely that the client object has fetched all the relevant data, but there are not guarantees.
+            OnDiscordMaybeReady += (obj, args) =>
+            {
+                UpdateEcoStatus();
+            };
         }
 
         public void Shutdown()
@@ -162,10 +170,10 @@ namespace Eco.Plugins.DiscordLink
                     DLConfig.Instance.EnqueueFullVerification();
 
                     // Run EcoStatus once when the server has started
-                    _ecoStatusStartupTimer = new Timer(innerArgs =>
+                    _discordDataMaybeAvailable = new Timer(innerArgs =>
                     {
-                        _ecoStatusStartupTimer = null;
-                        UpdateEcoStatus();
+                        OnDiscordMaybeReady?.Invoke(this, EventArgs.Empty);
+                        _discordDataMaybeAvailable = null;
                     }, null, ECO_STATUS_FIRST_UPDATE_DELAY_MS, Timeout.Infinite);
                 };
 
@@ -198,7 +206,7 @@ namespace Eco.Plugins.DiscordLink
         {
             // Stop various timers that may have been set up so they do not trigger while the reset is ongoing
             DLConfig.Instance.DequeueAllVerification();
-            SystemUtil.StopAndDestroyTimer(ref _ecoStatusStartupTimer);
+            SystemUtil.StopAndDestroyTimer(ref _discordDataMaybeAvailable);
             SystemUtil.StopAndDestroyTimer(ref _ecoStatusUpdateTimer);
             
             // Clear all the stored message references as they may become invalid if the token has changed
