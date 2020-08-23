@@ -21,6 +21,12 @@
   "ServerDescription": "The place to play Eco!",  
   "ServerAddress": "xxx.xxx.xxx.xx",  
   "ServerLogo": "http://github.com/Spoffy/EcoDiscordPlugin/raw/master/images/DiscordLinkLogo_Nameless.png",  
+  "SnippetChannels": [  
+    {  
+      "DiscordGuild": "EcoDiscordServer",  
+      "DiscordChannel": "snippets"  
+    }  
+  ],  
   "ChatChannelLinks": [  
     {  
       "DiscordGuild": "EcoDiscordServer",  
