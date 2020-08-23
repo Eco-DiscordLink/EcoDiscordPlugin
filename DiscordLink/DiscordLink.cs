@@ -443,8 +443,6 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
-
-
         #endregion
 
         #region EcoStatus

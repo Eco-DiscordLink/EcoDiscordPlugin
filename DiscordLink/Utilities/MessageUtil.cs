@@ -10,7 +10,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 {
     public static class MessageUtil
     {
-        // Finds the tags used by Eco message formatting (color codes, badges, links etc)
+        // Eco tag matching regex: Match all characters that are used to tag data inside the character name in Eco message formatting (color codes, badges, links etc)
         private static readonly Regex EcoNameTagRegex = new Regex("<[^>]*>");
 
         // Discord mention matching regex: Match all characters followed by a mention character(@ or #) character (including that character) until encountering any type of whitespace, end of string or a new mention character
@@ -61,11 +61,10 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     return beforeMatch + mention + afterMatch; // Add whatever characters came before or after the username when replacing the match in order to avoid changing the message context
                 }
 
-                ChannelLink link = DLConfig.Instance.GetChannelLinkFromDiscordChannel(channel.Guild.Name, channel.Name);
-                bool allowRoleMentions = (link == null ? true : link.AllowRoleMentions);
-                bool allowMemberMentions = (link == null ? true : link.AllowUserMentions);
-                bool allowChannelMentions = (link == null ? true : link.AllowChannelMentions);
                 ChatChannelLink link = DLConfig.Instance.GetChannelLinkFromDiscordChannel(channel.Guild.Name, channel.Name);
+                bool allowRoleMentions = (link == null || link.AllowRoleMentions);
+                bool allowMemberMentions = (link == null || link.AllowUserMentions);
+                bool allowChannelMentions = (link == null || link.AllowChannelMentions);
 
                 if (capture.ToString()[0] == '@')
                 {
@@ -124,7 +123,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             return $"#{ecoChannel} {nametag}: {GetReadableContent(message)}";
         }
 
-        public static String GetReadableContent(DiscordMessage message)
+        public static string GetReadableContent(DiscordMessage message)
         {
             var content = message.Content;
             foreach (var user in message.MentionedUsers)
@@ -132,7 +131,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 if (user == null) { continue; }
                 DiscordMember member = message.Channel.Guild.Members.FirstOrDefault(m => m.Value?.Id == user.Id).Value;
                 if (member == null) { continue; }
-                String name = "@" + member.DisplayName;
+                string name = "@" + member.DisplayName;
                 content = content.Replace($"<@{user.Id}>", name).Replace($"<@!{user.Id}>", name);
             }
             foreach (var role in message.MentionedRoles)

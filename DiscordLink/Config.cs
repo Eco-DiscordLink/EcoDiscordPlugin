@@ -383,14 +383,14 @@ namespace Eco.Plugins.DiscordLink
                 }
             }
 
-            foreach (EcoStatusChannel statusLink in Data.EcoStatusDiscordChannels)
+            foreach (EcoStatusChannel statusChannel in Data.EcoStatusDiscordChannels)
             {
-                if (string.IsNullOrWhiteSpace(statusLink.DiscordGuild) || string.IsNullOrWhiteSpace(statusLink.DiscordChannel)) continue;
+                if (string.IsNullOrWhiteSpace(statusChannel.DiscordGuild) || string.IsNullOrWhiteSpace(statusChannel.DiscordChannel)) continue;
 
-                string linkID = statusLink.ToString();
-                if (!_verifiedLinks.Contains(linkID))
+                string channelID = statusChannel.ToString();
+                if (!_verifiedLinks.Contains(channelID))
                 {
-                    unverifiedLinks.Add(linkID);
+                    unverifiedLinks.Add(channelID);
                 }
             }
 
@@ -422,41 +422,6 @@ namespace Eco.Plugins.DiscordLink
                 }
             }
             return null;
-        }
-    }
-
-    public class DiscordChannelIdentifier : ICloneable
-    {
-        public object Clone()
-        {
-            return this.MemberwiseClone();
-        }
-
-        public string Guild { get; set; }
-        public string Channel { get; set; }
-    }
-
-    public class DiscordPlayerConfig : ICloneable
-    {
-        public object Clone()
-        {
-            return this.MemberwiseClone();
-        }
-
-        [Description("ID of the user")]
-        public string Username { get; set; }
-
-        private DiscordChannelIdentifier _defaultChannel = new DiscordChannelIdentifier();
-        public DiscordChannelIdentifier DefaultChannel
-        {
-            get { return _defaultChannel; }
-            set { _defaultChannel = value; }
-        }
-
-        public class DiscordChannelIdentifier
-        {
-            public string Guild { get; set; }
-            public string Channel { get; set; }
         }
     }
 
@@ -526,16 +491,35 @@ namespace Eco.Plugins.DiscordLink
         public string InviteMessage { get; set; } = DLConfig.DefaultValues.InviteMessage;
     }
 
-    public class ChatChannelLink : ICloneable
+    public class DiscordChannelIdentifier : ICloneable
     {
+        public override string ToString()
+        {
+            return DiscordGuild + " - " + DiscordChannel;
+        }
+
         public object Clone()
         {
             return MemberwiseClone();
         }
-    
+
+        [Description("Discord Guild (Server) by name or ID.")]
+        public string DiscordGuild { get; set; }
+
+        [Description("Discord Channel by name or ID.")]
+        public string DiscordChannel { get; set; }
+    }
+
+    public class ChatChannelLink : ICloneable
+    {
         public override string ToString()
         {
             return DiscordGuild + " - " + DiscordChannel + " <--> " + EcoChannel + " (Chat Link)";
+        }
+
+        public object Clone()
+        {
+            return MemberwiseClone();
         }
     
         [Description("Discord Guild (Server) by name or ID.")]
@@ -547,26 +531,26 @@ namespace Eco.Plugins.DiscordLink
         [Description("Eco Channel to use.")]
         public string EcoChannel { get; set; }
     
-        [Description("Allow mentions of usernames to be forwarded from Eco to the Discord channel")]
+        [Description("Allow mentions of usernames to be forwarded from Eco to the Discord channel.")]
         public bool AllowUserMentions { get; set; } = true;
     
-        [Description("Allow mentions of roles to be forwarded from Eco to the Discord channel")]
+        [Description("Allow mentions of roles to be forwarded from Eco to the Discord channel.")]
         public bool AllowRoleMentions { get; set; } = true;
     
-        [Description("Allow mentions of channels to be forwarded from Eco to the Discord channel")]
+        [Description("Allow mentions of channels to be forwarded from Eco to the Discord channel.")]
         public bool AllowChannelMentions { get; set; } = true;
     }
     
     public class EcoStatusChannel : ICloneable
     {
-        public object Clone()
-        {
-            return MemberwiseClone();
-        }
-    
         public override string ToString()
         {
             return DiscordGuild + " - " + DiscordChannel + " (Eco Status)";
+        }
+
+        public object Clone()
+        {
+            return MemberwiseClone();
         }
     
         [Description("Discord Guild (Server) by name or ID.")]
@@ -601,5 +585,29 @@ namespace Eco.Plugins.DiscordLink
     
         [Description("Display a boolean for if the metoer has hit yet or not, in the status message.")]
         public bool UseMeteorHasHit { get; set; } = false;
+    }
+
+    public class DiscordPlayerConfig : ICloneable
+    {
+        public object Clone()
+        {
+            return this.MemberwiseClone();
+        }
+
+        [Description("ID of the user")]
+        public string Username { get; set; }
+
+        private DiscordChannelIdentifier _defaultChannel = new DiscordChannelIdentifier();
+        public DiscordChannelIdentifier DefaultChannel
+        {
+            get { return _defaultChannel; }
+            set { _defaultChannel = value; }
+        }
+
+        public class DiscordChannelIdentifier
+        {
+            public string Guild { get; set; }
+            public string Channel { get; set; }
+        }
     }
 }
