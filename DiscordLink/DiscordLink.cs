@@ -59,7 +59,7 @@ namespace Eco.Plugins.DiscordLink
 
         public void OnEditObjectChanged(object o, string param)
         {
-            DLConfig.Instance.OnConfigChanged();
+            DLConfig.Instance.HandleConfigChanged();
         }
 
         public void Initialize(TimedTask timer)
@@ -100,10 +100,9 @@ namespace Eco.Plugins.DiscordLink
                 Logger.Info("Discord Bot Token changed - Reinitialising client");
                 _ = RestartClient();
             };
-            config.OnConfigSaved += (obj, args) =>
+            config.OnConfigChanged += (obj, args) =>
             {
                 _ecoStatusMessages.Clear(); // The status channels may have changed so we should find the messages again;
-                DLConfig.Instance.PluginConfig.SaveAsync();
             };
         }
 

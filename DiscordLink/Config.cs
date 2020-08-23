@@ -31,6 +31,7 @@ namespace Eco.Plugins.DiscordLink
         public static DLConfigData Data { get { return Instance._config.Config; } }
         public PluginConfig<DLConfigData> PluginConfig { get { return Instance._config; } }
 
+        public event EventHandler OnConfigChanged;
         public event EventHandler OnConfigSaved;
         public event EventHandler OnChatlogEnabled;
         public event EventHandler OnChatlogDisabled;
@@ -64,13 +65,13 @@ namespace Eco.Plugins.DiscordLink
         {
             _config = new PluginConfig<DLConfigData>("DiscordLink");
             _prevConfig = (DLConfigData)Data.Clone();
-            Data.PlayerConfigs.CollectionChanged += (obj, args) => { OnConfigChanged(); };
-            Data.ChatChannelLinks.CollectionChanged += (obj, args) => { OnConfigChanged(); };
-            Data.EcoStatusDiscordChannels.CollectionChanged += (obj, args) => { OnConfigChanged(); };
+            Data.PlayerConfigs.CollectionChanged += (obj, args) => { HandleConfigChanged(); };
+            Data.ChatChannelLinks.CollectionChanged += (obj, args) => { HandleConfigChanged(); };
+            Data.EcoStatusDiscordChannels.CollectionChanged += (obj, args) => { HandleConfigChanged(); };
             
-            Data.PlayerConfigs.CollectionChanged += (obj, args) => { OnConfigChanged(); };
-            Data.ChatChannelLinks.CollectionChanged += (obj, args) => { OnConfigChanged(); };
-            Data.EcoStatusDiscordChannels.CollectionChanged += (obj, args) => { OnConfigChanged(); };
+            Data.PlayerConfigs.CollectionChanged += (obj, args) => { HandleConfigChanged(); };
+            Data.ChatChannelLinks.CollectionChanged += (obj, args) => { HandleConfigChanged(); };
+            Data.EcoStatusDiscordChannels.CollectionChanged += (obj, args) => { HandleConfigChanged(); };
 
             DiscordLink.Obj.OnClientStopped += (obj, args) =>
             {
@@ -83,7 +84,7 @@ namespace Eco.Plugins.DiscordLink
             _verifiedLinks.Clear(); // If we were waiting to verify channel links, we need to clear this list or risk false positives
         }
 
-        public void OnConfigChanged()
+        public void HandleConfigChanged()
         {
             // Do not verify if change occurred as this function is going to be called again in that case
             // Do not verify the config in case the bot token has been changed, as the client will be restarted and that will trigger verification
@@ -93,11 +94,19 @@ namespace Eco.Plugins.DiscordLink
             if (tokenChanged)
             {
                 OnTokenChanged?.Invoke(this, EventArgs.Empty);
+                return; // The token changing will trigger a reset
             }
 
-            if (!correctionMade && !tokenChanged)
+            if (!correctionMade) // If a correction was made, this function will be called again
             {
                 VerifyConfig();
+
+                // This function executes on the GUI thread and therefore async calls will trigger deadlocks.
+                // We execute the callbacks on a separate joined thread to avoid these deadlocks.
+                SystemUtil.SynchronousThreadExecute(() =>
+                {
+                   OnConfigChanged?.Invoke(this, EventArgs.Empty);
+                });
             }
         }
 
@@ -237,6 +246,7 @@ namespace Eco.Plugins.DiscordLink
                 correctionMade = true;
             }
 
+            _config.SaveAsync();
             OnConfigSaved?.Invoke(this, EventArgs.Empty);
             _prevConfig = (DLConfigData)Data.Clone();
 
