@@ -128,8 +128,8 @@ namespace Eco.Plugins.DiscordLink
                 user);
         }
 
-        [ChatCommand("Displays Discord invite message.", ChatAuthorizationLevel.User)]
-        public static void DiscordInvite(User user)
+        [ChatCommand("Displays Discord invite message.", "dl-invite", ChatAuthorizationLevel.User)]
+        public static void DiscordInvite(User user, string ecoChannel = "")
         {
             CallWithErrorHandling<object>((lUser, args) =>
             {
@@ -147,7 +147,7 @@ namespace Eco.Plugins.DiscordLink
                 }
                 
                 inviteMessage = Regex.Replace(inviteMessage, Regex.Escape(DLConfig.InviteCommandLinkToken), serverInfo.DiscordAddress);
-                string formattedInviteMessage = $"#{config.EcoCommandChannel} {inviteMessage}";
+                string formattedInviteMessage = $"#{(string.IsNullOrEmpty(ecoChannel) ? config.EcoCommandChannel : ecoChannel) } {inviteMessage}";
                 ChatManager.SendChat(formattedInviteMessage, plugin.EcoUser);
             },
             user);
