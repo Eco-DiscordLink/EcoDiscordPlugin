@@ -10,6 +10,9 @@ namespace Eco.Plugins.DiscordLink.Utilities
 {
     public static class MessageUtil
     {
+        // Snippet matching regex: Match the (case insensitive) [Snippet] header and capture the the content of the following bracket pair
+        public static readonly Regex SnippetRegex = new Regex("(?i)\\[snippet\\]\\s*\\[([^\\]]+)\\].*\\s([^$]*)");
+
         // Eco tag matching regex: Match all characters that are used to tag data inside the character name in Eco message formatting (color codes, badges, links etc)
         private static readonly Regex EcoNameTagRegex = new Regex("<[^>]*>");
 

@@ -85,6 +85,7 @@ namespace Eco.Plugins.DiscordLink
             OnDiscordMaybeReady += (obj, args) =>
             {
                 UpdateEcoStatus();
+                _ = UpdateSnippets();
             };
         }
 
@@ -111,6 +112,7 @@ namespace Eco.Plugins.DiscordLink
             config.OnConfigChanged += (obj, args) =>
             {
                 _ecoStatusMessages.Clear(); // The status channels may have changed so we should find the messages again;
+                UpdateSnippets();
             };
         }
 
@@ -553,6 +555,38 @@ namespace Eco.Plugins.DiscordLink
                 statusFlag |= MessageBuilder.EcoStatusComponentFlag.MeteorHasHit;
 
             return statusFlag;
+        }
+
+        #endregion
+
+        #region Snippets
+
+        public Dictionary<string, string> Snippets { get; private set; } = new Dictionary<string, string>();
+
+        private async Task UpdateSnippets()
+        {
+            foreach(DiscordChannelIdentifier snippetChannel in DLConfig.Data.SnippetChannels)
+            {
+                if (DiscordClient == null) return;
+                DiscordGuild discordGuild = DiscordClient.GuildByName(snippetChannel.DiscordGuild);
+                if (discordGuild == null) continue;
+                DiscordChannel discordChannel = discordGuild.ChannelByName(snippetChannel.DiscordChannel);
+                if (discordChannel == null) continue;
+                if (!DiscordUtil.ChannelHasPermission(discordChannel, Permissions.ReadMessageHistory)) continue;
+
+                IReadOnlyList<DiscordMessage> snippetChannelMessages = DiscordUtil.GetMessagesAsync(discordChannel).Result;
+                if (snippetChannelMessages == null) continue;
+
+                Snippets.Clear();
+                foreach (DiscordMessage message in snippetChannelMessages)
+                {
+                    Match match = MessageUtil.SnippetRegex.Match(message.Content);
+                    if (match.Groups.Count == 3)
+                    {
+                        Snippets.Add(match.Groups[1].Value.ToLower(), match.Groups[2].Value);
+                    }
+                }
+            }
         }
 
         #endregion

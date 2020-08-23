@@ -152,5 +152,43 @@ namespace Eco.Plugins.DiscordLink
             },
             user);
         }
+
+        [ChatCommand("Print a predefined snippet from Discord.", "dl-snippet", ChatAuthorizationLevel.User)]
+        public static void DiscordSnippet(User user, string snippetKey = "", string ecoChannel = "")
+        {
+            CallWithErrorHandling<object>((lUser, args) =>
+            {
+                var plugin = DiscordLink.Obj;
+                if (plugin == null) return;
+
+                var snippets = DiscordLink.Obj.Snippets;
+                string response;
+                if (string.IsNullOrWhiteSpace(snippetKey)) // List all snippets if no key is given
+                {
+                    response = (snippets.Count > 0 ? "Available snippets:\n" : "There are no registered snippets.");
+                    foreach (var snippetKeyVal in snippets)
+                    {
+                        response += snippetKeyVal.Key + "\n";
+                    }
+                    ChatManager.ServerMessageToPlayer(new LocString(response), user);
+                }
+                else
+                {
+                    string snippetKeyLower = snippetKey.ToLower();
+                    if (snippets.TryGetValue(snippetKeyLower, out string sippetText))
+                    {
+                        response = user.Name + " invoked snippet \"" + snippetKey + "\"\n- - -\n" + sippetText + "\n- - -";
+                        string formattedSnippetMessage = $"#{(string.IsNullOrEmpty(ecoChannel) ? DLConfig.Data.EcoCommandChannel : ecoChannel) } {response}";
+                        ChatManager.SendChat(formattedSnippetMessage, plugin.EcoUser);
+                    }
+                    else
+                    {
+                        response = "No snippet with key \"" + snippetKey + "\" could be found.";
+                        ChatManager.ServerMessageToPlayer(new LocString(response), user);
+                    }
+                }
+            },
+            user);
+        }
     }
 }
