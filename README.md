@@ -45,7 +45,7 @@ See [installation guide](Installation.md) for information on how to do this.
 * `/DiscordSendToChannel [guildname], [channelname], [message]` - Sends a message to a specific server and channel.
 * `/DiscordInvite` - Displays Discord invite message.
 
-##### Notes:
+### Notes:
 1. **Emojis**  
 When sending Emojis from Discord to Eco, bear in mind that these may either be removed or show up ingame as a ? character.
 This means that some sentences may appear to be questions when read from within Eco if they end with an emoji.
