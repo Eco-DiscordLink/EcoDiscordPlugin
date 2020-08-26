@@ -501,6 +501,8 @@ namespace Eco.Plugins.DiscordLink
         public string FormatDiscordMessage(string message, DiscordChannel channel, string username = "" )
         {
             string formattedMessage = (username.IsEmpty() ? "" : $"**{username.Replace("@", "")}**:") + StripTags(message); // All @ characters are removed from the name in order to avoid unintended mentions of the sender
+            formattedMessage = formattedMessage.Replace("@here", "@ here");
+            formattedMessage = formattedMessage.Replace("@everyone", "@ everyone");
             return FormatDiscordMentions(formattedMessage, channel);
         }
 
