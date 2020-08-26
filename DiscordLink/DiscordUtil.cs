@@ -1,54 +1,105 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Entities;
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink
 {
     public static class DiscordUtil
     {
-        public static bool HasEmbedPermission(DiscordChannel channel)
+        public static bool ChannelHasPermission(DiscordChannel channel, Permissions permission)
         {
-            return channel.PermissionsFor(channel.Guild.CurrentMember).HasPermission(Permissions.EmbedLinks);
+            return channel.PermissionsFor(channel.Guild.CurrentMember).HasPermission(permission);
         }
 
-        public static async Task SendAsync(DiscordChannel channel, string textContent, DiscordEmbed embedContent = null)
+        public static async Task<DiscordMessage> SendAsync(DiscordChannel channel, string textContent, DiscordEmbed embedContent = null)
         {
-            if (embedContent == null)
+            try
             {
-                await channel.SendMessageAsync(textContent, false);
-            }
-            else
-            {
-                // Either make sure we have permission to use embeds or convert the embed to text
-                if (DiscordUtil.HasEmbedPermission(channel))
+                if (!ChannelHasPermission(channel, Permissions.SendMessages)) { return null; }
+
+                if (embedContent == null)
                 {
-                    await channel.SendMessageAsync(textContent, false, embedContent);
+                    return await channel.SendMessageAsync(textContent, false);
                 }
                 else
                 {
-                    await channel.SendMessageAsync(MessageBuilder.EmbedToText(textContent, embedContent));
+                    // Either make sure we have permission to use embeds or convert the embed to text
+                    if (ChannelHasPermission(channel, Permissions.EmbedLinks))
+                    {
+                        return await channel.SendMessageAsync(textContent, false, embedContent);
+                    }
+                    else
+                    {
+                        return await channel.SendMessageAsync(MessageBuilder.EmbedToText(textContent, embedContent));
+                    }
                 }
+            }
+            catch(Exception e)
+            {
+                Logger.Error("Error occurred while attempting to send Discord message. Error message: " + e);
+                return null;
             }
         }
 
-        public static async Task ModifyAsync(DiscordMessage message, string textContent, DiscordEmbed embedContent = null)
+        public static async Task<DiscordMessage> ModifyAsync(DiscordMessage message, string textContent, DiscordEmbed embedContent = null)
         {
-            if (embedContent == null)
+            try
             {
-                await message.ModifyAsync(textContent);
-            }
-            else
-            {
-                // Either make sure we have permission to use embeds or convert the embed to text
-                if (DiscordUtil.HasEmbedPermission(message.Channel))
+                if (!ChannelHasPermission(message.Channel, Permissions.ManageMessages)) { return null; }
+
+                if (embedContent == null)
                 {
-                    await message.ModifyAsync(textContent, embedContent);
+                    return await message.ModifyAsync(textContent);
                 }
                 else
                 {
-                    await message.ModifyEmbedSuppressionAsync(true); // Remove existing embeds
-                    await message.ModifyAsync(MessageBuilder.EmbedToText(textContent, embedContent));
+                    // Either make sure we have permission to use embeds or convert the embed to text
+                    if (ChannelHasPermission(message.Channel, Permissions.EmbedLinks))
+                    {
+                        return await message.ModifyAsync(textContent, embedContent);
+                    }
+                    else
+                    {
+                        await message.ModifyEmbedSuppressionAsync(true); // Remove existing embeds
+                        return await message.ModifyAsync(MessageBuilder.EmbedToText(textContent, embedContent));
+                    }
                 }
+            }
+            catch(Exception e)
+            {
+                Logger.Error("Error occurred while attempting to modify Discord message. Error message: " + e);
+                return null;
+            }
+        }
+
+        public static async Task<DiscordMessage> GetMessageAsync(DiscordChannel channel, ulong messageID)
+        {
+            try
+            {
+                if (!ChannelHasPermission(channel, Permissions.ReadMessageHistory)) { return null; }
+                return await channel.GetMessageAsync(messageID);
+            }
+            catch (Exception e)
+            {
+                Logger.Error("Error occurred when attempting to read message with ID " + messageID + " from channel \"" + channel.Name + "\". Error message: " + e);
+                return null;
+            }
+        }
+
+        public static async Task<IReadOnlyList<DiscordMessage>> GetMessagesAsync(DiscordChannel channel)
+        {
+            if (!ChannelHasPermission(channel, Permissions.ReadMessageHistory)) { return null; }
+
+            try
+            {
+                return await channel.GetMessagesAsync();
+            }
+            catch (Exception e)
+            {
+                Logger.Error("Error occurred when attempting to read message history from channel \"" + channel.Name + "\". Error message: " + e);
+                return null;
             }
         }
     }

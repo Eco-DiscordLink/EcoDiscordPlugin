@@ -1,6 +1,6 @@
 {
   "PlayerConfigs": [],
-  "BotToken": "NjggMDg3MjI1OTg2MDg5MDQx.Xlmuqw.ZYhFUjNFZ8IUYQTR7ng2CxFAy4Q",
+  "BotToken": "NjggMDg3MjIDOTg2MFg5MDQx.Xlmuqw.ZYhFUjNFZ8IUYQTR7ng2CxFAy4Q",
   "DiscordCommandPrefix": "?",
   "EcoStatusDiscordChannels": [
     {
@@ -9,7 +9,7 @@
       "UseName": true,
       "UseDescription": false,
       "UseLogo": true,
-      "UseAddress": true,
+      "UseAddress": false,
       "UsePlayerCount": true,
       "UsePlayerList": true,
       "UseTimeSinceStart": true,
@@ -19,7 +19,7 @@
   ],
   "ServerName": "TheEcoServer",
   "ServerDescription": "The place to play Eco!",
-  "ServerIP": "162.158.134.52",
+  "ServerIP": "192.168.0.5",
   "ServerLogo": "http://github.com/Spoffy/EcoDiscordPlugin/raw/master/images/DiscordLinkLogo_Nameless.png",
   "ChatChannelLinks": [
     {

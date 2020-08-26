@@ -42,7 +42,7 @@ namespace Eco.Plugins.DiscordLink
                 else
                 {
                     // Either make sure we have permission to use embeds or convert the embed to text
-                    if (DiscordUtil.HasEmbedPermission(ctx.Channel))
+                    if (DiscordUtil.ChannelHasPermission(ctx.Channel, Permissions.EmbedLinks))
                     {
                         await ctx.RespondAsync(textContent, false, embedContent);
                     }
@@ -69,7 +69,7 @@ namespace Eco.Plugins.DiscordLink
         [Description("Retrieves the current status of the Eco Server")]
         public async Task EcoStatus(CommandContext ctx)
         {
-            await RespondToCommand(ctx, "", MessageBuilder.GetEcoStatus(MessageBuilder.EcoStatusComponentFlag.All));
+            await RespondToCommand(ctx, "", MessageBuilder.GetEcoStatus(MessageBuilder.EcoStatusComponentFlag.All, isLiveMessage: false));
         }
 
 #if DEBUG

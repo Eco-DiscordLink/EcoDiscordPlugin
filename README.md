@@ -45,10 +45,11 @@ See [installation guide](Installation.md) for information on how to do this.
 * `/DiscordSendToChannel [guildname], [channelname], [message]` - Sends a message to a specific server and channel.
 * `/DiscordInvite` - Displays Discord invite message.
 
-##### Notes:
-1. **Commas**  
-When writing messages to send from Eco, **do not include commas in your messages.** 
-Eco will consider them extra parameters to the commands, and any text after the comma will be lost, due to the way Eco handles commands.
+### Notes:
+1. **Emojis**  
+When sending Emojis from Discord to Eco, bear in mind that these may either be removed or show up ingame as a ? character.
+This means that some sentences may appear to be questions when read from within Eco if they end with an emoji.
+As an example; _"We have trucks :D"_ may become _"We have trucks ?"_ which may cause some confusion.
 
 2. **Discord Mentions**  
 Make sure that `@` or `#` is not the first character in your message when writing Discord mentions.
