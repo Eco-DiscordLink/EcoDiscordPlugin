@@ -936,8 +936,15 @@ namespace Eco.Plugins.DiscordLink
                     string linkID = chatLink.ToString();
                     if (!_verifiedLinks.Contains(linkID))
                     {
-                        _verifiedLinks.Add(linkID);
-                        Logger.Info("Channel Link Verified: " + linkID);
+                        if(!DiscordUtil.ChannelHasPermission(channel, Permissions.SendMessages))
+                        {
+                            Logger.Info("Channel " + linkID + " lacks permission SendMessages");
+                        }
+                        else
+                        {
+                            _verifiedLinks.Add(linkID);
+                            Logger.Info("Channel Link Verified: " + linkID);
+                        }
                     }
                 }
 
@@ -960,8 +967,30 @@ namespace Eco.Plugins.DiscordLink
                     string linkID = statusLink.ToString();
                     if (!_verifiedLinks.Contains(linkID))
                     {
-                        _verifiedLinks.Add(linkID);
-                        Logger.Info("Channel Link Verified: " + linkID);
+                        bool hasPermissions = true;
+                        if (!DiscordUtil.ChannelHasPermission(channel, Permissions.SendMessages))
+                        {
+                            Logger.Info("Channel " + linkID + " lacks permission SendMessages");
+                            hasPermissions = false;
+                        }
+
+                        if (!DiscordUtil.ChannelHasPermission(channel, Permissions.ReadMessageHistory))
+                        {
+                            Logger.Info("Channel " + linkID + " lacks permission ReadMessageHistory");
+                            hasPermissions = false;
+                        }
+
+                        if (!DiscordUtil.ChannelHasPermission(channel, Permissions.ManageMessages))
+                        {
+                            Logger.Info("Channel " + linkID + " lacks permission ManageMessages");
+                            hasPermissions = false;
+                        }
+
+                        if(hasPermissions)
+                        {
+                            _verifiedLinks.Add(linkID);
+                            Logger.Info("Channel Link Verified: " + linkID);
+                        }
                     }
                 }
 
