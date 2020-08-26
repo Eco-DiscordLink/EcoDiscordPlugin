@@ -32,7 +32,7 @@ Once you have a bot token, copy the _"BotToken"_ field in the sample config and 
 3. Set the _"DiscordChannel"_ field to the name or ID of the Discord channel you want the status message to be posted in.
 4. **Optional**: Configure the usage flags according to your preferences.  
 
-**Note**: The Eco status message is continiously being rewritten by DiscordLink.
+**Note**: Only one message will be posted and that message will then be kept up to date by DiscordLink through frequent automatic edits.
 
 ## Chat Log
 To enable/disable logging of the chat, set the _"Log Chat"_ option to true/false.  
