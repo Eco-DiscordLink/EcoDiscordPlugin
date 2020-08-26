@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using DSharpPlus.Entities;
+using Eco.Gameplay.Civics.GameValues;
 using Eco.Gameplay.Players;
 using Eco.Plugins.Networking;
 
@@ -14,7 +16,7 @@ namespace Eco.Plugins.DiscordLink
             Name            = 1 << 0,
             Description     = 1 << 1,
             Logo            = 1 << 2,
-            IPAddress       = 1 << 3,
+            ServerAddress   = 1 << 3,
             PlayerCount     = 1 << 4,
             PlayerList      = 1 << 5,
             TimeSinceStart  = 1 << 6,
@@ -52,7 +54,7 @@ namespace Eco.Plugins.DiscordLink
             return message.Trim();
         }
 
-        public static DiscordEmbed GetEcoStatus(EcoStatusComponentFlag flag)
+        public static DiscordEmbed GetEcoStatus(EcoStatusComponentFlag flag, bool isLiveMessage)
         {
             var plugin = DiscordLink.Obj;
             if (plugin == null) { return null; }
@@ -66,11 +68,13 @@ namespace Eco.Plugins.DiscordLink
 
             if (flag.HasFlag(EcoStatusComponentFlag.Name))
             {
-                builder.WithTitle($"**{FirstNonEmptyString(pluginConfig.ServerName, serverInfo.Name)} Server Status**\n" + DateTime.Now.ToShortDateString() + " : " + DateTime.Now.ToShortTimeString());
+                builder.WithTitle($"**{FirstNonEmptyString(pluginConfig.ServerName, serverInfo.Name)} " + (isLiveMessage ? "Live Server Status" : "Server Status") + "**\n" + DateTime.Now.ToShortDateString() + " : " + DateTime.Now.ToShortTimeString());
             }
             else
             {
-                builder.WithTitle("**Server Status**\n" + DateTime.Now.ToShortDateString() + " - " + DateTime.Now.ToShortTimeString());
+                DateTime time = DateTime.Now;
+                int utcOffset = TimeZoneInfo.Local.GetUtcOffset(time).Hours;
+                builder.WithTitle("**" + (isLiveMessage ? "Live Server Status" : "Server Status") + "**\n" + "[" + DateTime.Now.ToString("yyyy-MM-dd : HH:mm", CultureInfo.InvariantCulture) + " UTC " + (utcOffset != 0 ? (utcOffset >= 0 ? "+" : "-") + utcOffset : "") + "]");
             }
 
             if (flag.HasFlag(EcoStatusComponentFlag.Description))
@@ -88,14 +92,18 @@ namespace Eco.Plugins.DiscordLink
                 { }
             }
 
-            if (flag.HasFlag(EcoStatusComponentFlag.IPAddress))
+            if (flag.HasFlag(EcoStatusComponentFlag.ServerAddress))
             {
-                string addr = serverInfo.Address;
-                string serverAddress = String.IsNullOrEmpty(pluginConfig.ServerIP)
-                    ? addr == null ? "No Configured Address"
-                    : addr + ":" + serverInfo.WebPort
-                    : pluginConfig.ServerIP;
-                builder.AddField("Server Address", serverAddress);
+                string fieldText = "-- No address configured --";
+                if (!string.IsNullOrEmpty(pluginConfig.ServerAddress))
+                {
+                    fieldText = pluginConfig.ServerAddress;
+                }
+                else if(!string.IsNullOrEmpty(serverInfo.Address))
+                {
+                    fieldText = serverInfo.Address;
+                }
+                builder.AddField("Server Address", fieldText);
             }
 
             if(flag.HasFlag(EcoStatusComponentFlag.PlayerCount))

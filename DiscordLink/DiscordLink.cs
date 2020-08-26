@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,13 +18,14 @@ using Eco.Core.Utils;
 using Eco.Gameplay.GameActions;
 using Eco.Gameplay.Players;
 using Eco.Gameplay.Systems.Chat;
-using Eco.Shared.Services;
 using Eco.Shared.Utils;
 
 namespace Eco.Plugins.DiscordLink
 {
     public class DiscordLink : IModKitPlugin, IInitializablePlugin, IConfigurablePlugin, IShutdownablePlugin, IGameActionAware
     {
+        public readonly Version PluginVersion = new Version(2, 0);
+
         public const string InviteCommandLinkToken = "[LINK]";
         public const string EchoCommandToken = "[ECHO]";
         public ThreadSafeAction<object, string> ParamChanged { get; set; }
@@ -34,8 +34,12 @@ namespace Eco.Plugins.DiscordLink
         private DiscordConfig _prevConfigOptions; // Used to detect differences when the config is saved
         private DiscordClient _discordClient;
         private CommandsNextExtension _commands;
+        private Timer _ecoStatusStartupTimer = null;
+        private Timer _guildVerificationOutputTimer = null;
+        private Timer _staticVerificationOutputDelayTimer = null;
         private string _currentBotToken;
         private string _status = "No Connection Attempt Made";
+        private ChatLogger _chatLogger = new ChatLogger();
 
         // Finds the tags used by Eco message formatting (color codes, badges, links etc)
         private static readonly Regex EcoNameTagRegex = new Regex("<[^>]*>");
@@ -65,46 +69,27 @@ namespace Eco.Plugins.DiscordLink
 
         public void Initialize(TimedTask timer)
         {
-            if (_discordClient == null) return;
-            ConnectAsync().Wait();
-        }
+            Logger.Info("Plugin version is " + PluginVersion);
 
-        public DiscordLink()
-        {
             SetupConfig();
-            SetUpClient();
-
-            _discordClient.Ready += async args =>
+            if (!SetUpClient())
             {
-                // When Discord is ready, queue up the check for unverified channels
-                _linkVerificationTimeoutTimer = new Timer(async innerArgs =>
-                {
-                    _linkVerificationTimeoutTimer = null;
-                    ReportUnverifiedChannels();
-                    _verifiedLinks.Clear();
-                }, null, LINK_VERIFICATION_TIMEOUT_MS, 0);
+                return;
+            }
 
-                Thread.Sleep(STATIC_VERIFICATION_OUTPUT_DELAY_MS); // Avoid writing async while the server is still outputting initilization info
-                VerifyConfig(VerificationFlags.Static);
-            };
-            _discordClient.GuildAvailable += async args =>
-            {
-                Thread.Sleep(GUILD_VERIFICATION_OUTPUT_DELAY_MS);
-                VerifyConfig(VerificationFlags.ChannelLinks);
-            };
+            ConnectAsync().Wait();
 
             if (_configOptions.Config.LogChat)
             {
-                StartChatlog();
+                _chatLogger.Start();
             }
-            SetupEcoStatusCallback();
         }
 
         public void Shutdown()
         {
             if (_configOptions.Config.LogChat)
             {
-                StopChatlog();
+                _chatLogger.Stop();
             }
         }
 
@@ -119,25 +104,18 @@ namespace Eco.Plugins.DiscordLink
 
         #region DiscordClient Management
 
-        private async Task<object> DisposeOfClient()
-        {
-            if (_discordClient != null)
-            {
-                await DisconnectAsync();
-                _discordClient.Dispose();
-            }
-
-            return null;
-        }
-
         private bool SetUpClient()
         {
-            DisposeOfClient();
             _status = "Setting up client";
-            // Loading the configuration
-            _currentBotToken = String.IsNullOrWhiteSpace(DiscordPluginConfig.BotToken)
-                ? "ThisTokenWillNeverWork" // Whitespace isn't allowed, and it should trigger an obvious authentication error rather than crashing.
-                : DiscordPluginConfig.BotToken;
+
+            bool BotTokenIsNull = String.IsNullOrWhiteSpace(DiscordPluginConfig.BotToken);
+            if (BotTokenIsNull)
+            {
+                VerifyConfig(VerificationFlags.Static); // Make the user aware of the empty bot token
+            }
+            _currentBotToken = DiscordPluginConfig.BotToken;
+
+            if(BotTokenIsNull) return false; // Do not attempt to initialize if the bot token is empty
 
             try
             {
@@ -149,11 +127,42 @@ namespace Eco.Plugins.DiscordLink
                     TokenType = TokenType.Bot
                 });
 
-                _discordClient.Ready += async args => { Logger.Info("Connected and Ready"); };
-                _discordClient.ClientErrored += async args => { Logger.Error(args.EventName + " " + args.Exception.ToString()); };
-                _discordClient.SocketErrored += async args => { Logger.Error(args.Exception.ToString()); };
+                _discordClient.ClientErrored += async args => { Logger.Error("A Discord client error occurred. Error messages was: " + args.EventName + " " + args.Exception.ToString()); };
+                _discordClient.SocketErrored += async args => { Logger.Error("A socket error occurred. Error message was: " + args.Exception.ToString()); };
                 _discordClient.SocketClosed += async args => { Logger.DebugVerbose("Socket Closed: " + args.CloseMessage + " " + args.CloseCode); };
                 _discordClient.Resumed += async args => { Logger.Info("Resumed connection"); };
+                _discordClient.Ready += async args =>
+                {
+                    // Queue up the check for unverified channels
+                    _linkVerificationTimeoutTimer = new Timer(async innerArgs =>
+                    {
+                        _linkVerificationTimeoutTimer = null;
+                        ReportUnverifiedChannels();
+                        _verifiedLinks.Clear();
+                    }, null, LINK_VERIFICATION_TIMEOUT_MS, Timeout.Infinite);
+
+                    // Run EcoStatus once when the server has started
+                    _ecoStatusStartupTimer = new Timer(async innerArgs =>
+                    {
+                        _ecoStatusStartupTimer = null;
+                        UpdateEcoStatus();
+                    }, null, ECO_STATUS_FIRST_UPDATE_DELAY_MS, Timeout.Infinite);
+
+                    // Avoid writing async while the server is still outputting initialization info
+                    _staticVerificationOutputDelayTimer = new Timer(async innerArgs =>
+                    {
+                        _staticVerificationOutputDelayTimer = null;
+                         VerifyConfig(VerificationFlags.Static);
+                    }, null, STATIC_VERIFICATION_OUTPUT_DELAY_MS, Timeout.Infinite);
+                };
+                _discordClient.GuildAvailable += async args =>
+                {
+                    _guildVerificationOutputTimer = new Timer(async innerArgs =>
+                    {
+                        _guildVerificationOutputTimer = null;
+                        VerifyConfig(VerificationFlags.ChannelLinks);
+                    }, null, GUILD_VERIFICATION_OUTPUT_DELAY_MS, Timeout.Infinite);
+                };
 
                 // Set up the client to use CommandsNext
                 _commands = _discordClient.UseCommandsNext(new CommandsNextConfiguration
@@ -162,21 +171,55 @@ namespace Eco.Plugins.DiscordLink
                 });
                 _commands.RegisterCommands<DiscordDiscordCommands>();
 
+                _ecoStatusUpdateTimer = new Timer(this.UpdateEcoStatusOnTimer, null, 0, ECO_STATUS_TIMER_INTERAVAL_MS);
+
                 return true;
             }
             catch (Exception e)
             {
-                Logger.Error("Unable to create the discord client. Error message was: " + e.Message + "\n");
-                Logger.Error("Backtrace: " + e.StackTrace);
+                Logger.Error("Error occurred while creating the Discord client. Error message: " + e );
             }
 
             return false;
         }
 
+        void StopClient()
+        {
+            // Stop various timers that may have been set up so they do not trigger while the reset is ongoing
+            SystemUtil.StopAndDestroyTimer(ref _linkVerificationTimeoutTimer);
+            SystemUtil.StopAndDestroyTimer(ref _ecoStatusStartupTimer);
+            SystemUtil.StopAndDestroyTimer(ref _ecoStatusUpdateTimer);
+            SystemUtil.StopAndDestroyTimer(ref _staticVerificationOutputDelayTimer);
+            SystemUtil.StopAndDestroyTimer(ref _guildVerificationOutputTimer);
+
+            // Clear all the stored message references as they may become invalid if the token has changed
+            _ecoStatusMessages.Clear();
+
+            // If we were waiting to verify channel links, we need to clear this list or risk false positives
+            _verifiedLinks.Clear();
+
+            if (_discordClient != null)
+            {
+                StopRelaying();
+
+                // If DisconnectAsync() is called in the GUI thread, it will cause a deadlock
+                SystemUtil.SynchronousThreadExecute( () =>
+                {
+                    _discordClient.DisconnectAsync().Wait();
+                });
+                _discordClient.Dispose();
+                _discordClient = null;
+            }
+        }
+
         public async Task<bool> RestartClient()
         {
-            var result = SetUpClient();
-            await ConnectAsync();
+            StopClient();
+            bool result = SetUpClient();
+            if (result)
+            {
+                await ConnectAsync();
+            }
             return result;
         }
 
@@ -192,7 +235,7 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (Exception e)
             {
-                Logger.Error("Error connecting to discord: " + e.Message + "\n");
+                Logger.Error("Error occurred when connecting to Discord: Error message: " + e.Message);
                 _status = "Connection failed";
             }
 
@@ -208,7 +251,7 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (Exception e)
             {
-                Logger.Error("Disconnecting from discord: " + e.Message + "\n");
+                Logger.Error("An Error occurred when disconnecting from Discord: Error message: " + e.Message);
                 _status = "Connection failed";
             }
 
@@ -247,16 +290,8 @@ namespace Eco.Plugins.DiscordLink
             if (guild == null) return "No guild of that name found";
 
             var channel = guild.ChannelByNameOrId(channelNameOrId);
-            return await SendDiscordMessage(message, channel);
-        }
-
-        public async Task<string> SendDiscordMessage(string message, DiscordChannel channel)
-        {
-            if (_discordClient == null) return "No discord client";
-            if (channel == null) return "No channel of that name or ID found in that guild";
-
-            await _discordClient.SendMessageAsync(channel, message);
-            return "Message sent successfully!";
+            await DiscordUtil.SendAsync(channel, message);
+            return "Message sent";
         }
 
         public async Task<string> SendDiscordMessageAsUser(string message, User user, string channelNameOrId, string guildNameOrId)
@@ -266,12 +301,14 @@ namespace Eco.Plugins.DiscordLink
 
             var channel = guild.ChannelByNameOrId(channelNameOrId);
             if (channel == null) return "No channel of that name or ID found in that guild";
-            return await SendDiscordMessage(FormatDiscordMessage(message, channel, user.Name), channel);
+            await DiscordUtil.SendAsync(channel, FormatDiscordMessage(message, channel, user.Name));
+            return "Message sent";
         }
 
         public async Task<String> SendDiscordMessageAsUser(string message, User user, DiscordChannel channel)
         {
-            return await SendDiscordMessage(FormatDiscordMessage(message, channel, user.Name), channel);
+            await DiscordUtil.SendAsync(channel, FormatDiscordMessage(message, channel, user.Name));
+            return "Message sent";
         }
 
         #endregion
@@ -281,7 +318,6 @@ namespace Eco.Plugins.DiscordLink
         private string EcoUserSteamId = "DiscordLinkSteam";
         private string EcoUserSlgId = "DiscordLinkSlg";
         private string EcoUserName = "Discord";
-        private bool _relayInitialised = false;
 
         private User _ecoUser;
         public User EcoUser =>
@@ -312,22 +348,14 @@ namespace Eco.Plugins.DiscordLink
 
         private void BeginRelaying()
         {
-            if (!_relayInitialised)
-            {
-                ActionUtil.AddListener(this);
-                _discordClient.MessageCreated += OnDiscordMessageCreateEvent;
-            }
-
-            _relayInitialised = true;
+            ActionUtil.AddListener(this);
+            _discordClient.MessageCreated += OnDiscordMessageCreateEvent;
         }
 
         private void StopRelaying()
         {
-            if (_relayInitialised)
-            {
-                ActionUtil.RemoveListener(this);
-                _discordClient.MessageCreated -= OnDiscordMessageCreateEvent;
-            }
+            ActionUtil.RemoveListener(this);
+            _discordClient.MessageCreated -= OnDiscordMessageCreateEvent;
         }
 
         private ChannelLink GetLinkForEcoChannel(string discordChannelNameOrId)
@@ -407,9 +435,9 @@ namespace Eco.Plugins.DiscordLink
             var text = $"#{channelName} {nametag}: {GetReadableContent(message)}";
             ChatManager.SendChat(text, EcoUser);
 
-            if (_chatlogInitialized)
+            if (_configOptions.Config.LogChat)
             {
-                _chatLogWriter.WriteLine("[Discord] (" + DateTime.Now.ToShortDateString() + ":" + DateTime.Now.ToShortTimeString() + ") " + $"{StripTags(message.Author.Username) + ": " + StripTags(message.Content)}");
+                _chatLogger.Write(message);
             }
         }
 
@@ -429,11 +457,11 @@ namespace Eco.Plugins.DiscordLink
                 return;
             }
 
-            SendDiscordMessage(FormatDiscordMessage(chatMessage.Message, channel, chatMessage.Citizen.Name), channel);
+            DiscordUtil.SendAsync(channel, FormatDiscordMessage(chatMessage.Message, channel, chatMessage.Citizen.Name));
 
-            if (_chatlogInitialized)
+            if (_configOptions.Config.LogChat)
             {
-                _chatLogWriter.WriteLine("[Eco] (" + DateTime.Now.ToShortDateString() + ":" + DateTime.Now.ToShortTimeString() + ") " + $"{StripTags(chatMessage.Citizen.Name) + ": " + StripTags(chatMessage.Message)}");
+                _chatLogger.Write(chatMessage);
             }
         }
 
@@ -473,6 +501,8 @@ namespace Eco.Plugins.DiscordLink
         public string FormatDiscordMessage(string message, DiscordChannel channel, string username = "" )
         {
             string formattedMessage = (username.IsEmpty() ? "" : $"**{username.Replace("@", "")}**:") + StripTags(message); // All @ characters are removed from the name in order to avoid unintended mentions of the sender
+            formattedMessage = formattedMessage.Replace("@here", "@ here");
+            formattedMessage = formattedMessage.Replace("@everyone", "@ everyone");
             return FormatDiscordMentions(formattedMessage, channel);
         }
 
@@ -558,35 +588,10 @@ namespace Eco.Plugins.DiscordLink
         #endregion
 
         #region EcoStatus
-        private Timer EcoStatusUpdateTimer = null;
-        private const int STATUS_TIMER_INTERAVAL_SECONDS = 300000; // 5 minute interval
-
-        private void VerifyEcoStatusMessage(EcoStatusChannel statusChannel, DiscordChannel discordChannel)
-        {
-            IReadOnlyList<DiscordMessage> ecoStatusChannelMessages = discordChannel.GetMessagesAsync().Result;
-            if (ecoStatusChannelMessages.Count != 1
-                || ecoStatusChannelMessages[0].Embeds.Count != 1
-                || !ecoStatusChannelMessages[0].Embeds[0].Title.Contains("Server Status")) // Make sure that it's really our message we're finding
-            {
-                SetupEcoStatusMessages(statusChannel, discordChannel).Wait();
-            }
-        }
-
-        private void SetupEcoStatusCallback()
-        {
-            EcoStatusUpdateTimer = new Timer(this.UpdateEcoStatusOnTimer, null, 0, STATUS_TIMER_INTERAVAL_SECONDS); 
-        }
-
-        private async Task SetupEcoStatusMessages(EcoStatusChannel statusChannel, DiscordChannel discordChannel)
-        {
-            IReadOnlyList<DiscordMessage> ecoStatusChannelMessages = discordChannel.GetMessagesAsync().Result;
-            foreach (DiscordMessage message in ecoStatusChannelMessages)
-            {
-                await message.DeleteAsync();
-            }
-
-            await DiscordUtil.SendAsync(discordChannel, null, MessageBuilder.GetEcoStatus(GetEcoStatusFlagForChannel(statusChannel)));
-        }
+        private Timer _ecoStatusUpdateTimer = null;
+        private const int ECO_STATUS_TIMER_INTERAVAL_MS = 60000;
+        private const int ECO_STATUS_FIRST_UPDATE_DELAY_MS = 20000;
+        private Dictionary<EcoStatusChannel, ulong> _ecoStatusMessages = new Dictionary<EcoStatusChannel, ulong>();
 
         private void UpdateEcoStatusOnTimer(Object stateInfo)
         {
@@ -595,19 +600,68 @@ namespace Eco.Plugins.DiscordLink
 
         private void UpdateEcoStatus()
         {
+            if (_discordClient == null) return;
             foreach (EcoStatusChannel statusChannel in _configOptions.Config.EcoStatusDiscordChannels)
             {
                 DiscordGuild discordGuild = _discordClient.GuildByName(statusChannel.DiscordGuild);
-                if (discordGuild == null) return;
+                if (discordGuild == null) continue;
                 DiscordChannel discordChannel = discordGuild.ChannelByName(statusChannel.DiscordChannel);
-                if (discordChannel == null) return;
+                if (discordChannel == null) continue;
 
-                VerifyEcoStatusMessage(statusChannel, discordChannel);
+                if (!DiscordUtil.ChannelHasPermission(discordChannel, Permissions.ReadMessageHistory)) continue;
+                bool HasEmbedPermission = DiscordUtil.ChannelHasPermission(discordChannel, Permissions.EmbedLinks);
 
-                IReadOnlyList<DiscordMessage> ecoStatusChannelMessages = discordChannel.GetMessagesAsync().Result;
-                if (ecoStatusChannelMessages.Count == 1)
+                DiscordMessage ecoStatusMessage = null;
+                bool created = false;
+                ulong statusMessageID;
+                if (_ecoStatusMessages.TryGetValue(statusChannel, out statusMessageID))
                 {
-                    DiscordUtil.ModifyAsync(ecoStatusChannelMessages[0], "", MessageBuilder.GetEcoStatus(GetEcoStatusFlagForChannel(statusChannel)));
+                    try
+                    {
+                         ecoStatusMessage = discordChannel.GetMessageAsync(statusMessageID).Result;
+                    }
+                    catch(System.AggregateException)
+                    {
+                        _ecoStatusMessages.Remove(statusChannel); // The message has been removed, take it out of the list
+                    }
+                    catch(Exception e)
+                    {
+                        Logger.Error("Error occurred when attempting to read message with ID " + statusMessageID + " from channel \"" + discordChannel.Name + "\". Error message: " + e);
+                        continue;
+                    }
+                }
+                else
+                {
+                    IReadOnlyList<DiscordMessage> ecoStatusChannelMessages = DiscordUtil.GetMessagesAsync(discordChannel).Result;
+                    if (ecoStatusChannelMessages == null) continue;
+
+                    foreach(DiscordMessage message in ecoStatusChannelMessages)
+                    {
+                        // We assume that it's our status message if it has parts of our string in it
+                        if(message.Author == _discordClient.CurrentUser 
+                            && (HasEmbedPermission ? (message.Embeds.Count == 1 && message.Embeds[0].Title.Contains("Live Server Status**")) : message.Content.Contains("Live Server Status**")))
+                        {
+                            ecoStatusMessage = message;
+                            break;
+                        }
+                    }
+
+                    // If we couldn't find a status message, create a new one
+                    if(ecoStatusMessage == null)
+                    {
+                        ecoStatusMessage = DiscordUtil.SendAsync(discordChannel, null, MessageBuilder.GetEcoStatus(GetEcoStatusFlagForChannel(statusChannel), isLiveMessage: true)).Result;
+                        created = true;
+                    }
+
+                    if (ecoStatusMessage != null) // SendAsync may return null in case an exception is raised
+                    {
+                        _ecoStatusMessages.Add(statusChannel, ecoStatusMessage.Id);
+                    }
+                }
+
+                if (ecoStatusMessage != null && !created) // It is pointless to update the message if it was just created
+                {
+                    DiscordUtil.ModifyAsync(ecoStatusMessage, "", MessageBuilder.GetEcoStatus(GetEcoStatusFlagForChannel(statusChannel), isLiveMessage: true));
                 }
             }
         }
@@ -622,7 +676,7 @@ namespace Eco.Plugins.DiscordLink
             if (statusChannel.UseLogo)
                 statusFlag |= MessageBuilder.EcoStatusComponentFlag.Logo;
             if(statusChannel.UseAddress)
-                statusFlag |= MessageBuilder.EcoStatusComponentFlag.IPAddress;
+                statusFlag |= MessageBuilder.EcoStatusComponentFlag.ServerAddress;
             if (statusChannel.UsePlayerCount)
                 statusFlag |= MessageBuilder.EcoStatusComponentFlag.PlayerCount;
             if (statusChannel.UsePlayerList)
@@ -639,43 +693,12 @@ namespace Eco.Plugins.DiscordLink
 
         #endregion
 
-        #region Chatlog
-        private StreamWriter _chatLogWriter;
-        private bool _chatlogInitialized = false;
-
-        private void StartChatlog()
-        {
-            try
-            {
-                _chatLogWriter = new StreamWriter(_configOptions.Config.ChatlogPath, append: true);
-                _chatLogWriter.AutoFlush = true;
-                _chatlogInitialized = true;
-            }
-            catch (Exception)
-            {
-                Logger.Error("Failed to initialize chat logger using path \"" + _configOptions.Config.ChatlogPath + "\"");
-            }
-        }
-
-        private void StopChatlog()
-        {
-            _chatLogWriter = null;
-            _chatlogInitialized = false;
-        }
-
-        private void RestartChatlog()
-        {
-            StopChatlog();
-            StartChatlog();
-        }
-        #endregion
-
         #region Configuration
 
         private List<String> _verifiedLinks = new List<string>();
         private Timer _linkVerificationTimeoutTimer = null;
         private const int LINK_VERIFICATION_TIMEOUT_MS = 15000;
-        private const int STATIC_VERIFICATION_OUTPUT_DELAY_MS = 5000;
+        private const int STATIC_VERIFICATION_OUTPUT_DELAY_MS = 2000;
         private const int GUILD_VERIFICATION_OUTPUT_DELAY_MS = 3000;
 
         enum VerificationFlags
@@ -702,7 +725,19 @@ namespace Eco.Plugins.DiscordLink
 
         public void OnConfigChanged()
         {
-            if (SaveConfig()) // Do not verify if change occurred as this function is going to be called again in that case
+            // Do not verify if change occurred as this function is going to be called again in that case
+            // Do not verify the config in case the bot token has been changed, as the client will be restarted and that will trigger verification
+            bool tokenChanged = DiscordPluginConfig.BotToken != _currentBotToken;
+            bool correctionMade = !SaveConfig();
+
+            if (DiscordPluginConfig.BotToken != _currentBotToken)
+            {
+                // Reinitialise client.
+                Logger.Info("Discord Bot Token changed - Reinitialising client.");
+                RestartClient();
+            }
+
+            if ( !correctionMade && !tokenChanged)
             {
                 VerifyConfig();
             }   
@@ -711,12 +746,6 @@ namespace Eco.Plugins.DiscordLink
         protected bool SaveConfig() // Returns true if no correction was needed
         {
             bool correctionMade = false;
-            if (DiscordPluginConfig.BotToken != _currentBotToken)
-            {
-                //Reinitialise client.
-                Logger.Info("Discord Token changed, reinitialising client.");
-                RestartClient();
-            }
 
             // Discord Command Prefix
             if (_configOptions.Config.DiscordCommandPrefix != _prevConfigOptions.DiscordCommandPrefix)
@@ -726,10 +755,9 @@ namespace Eco.Plugins.DiscordLink
                     _configOptions.Config.DiscordCommandPrefix = DiscordConfig.DefaultValues.DiscordCommandPrefix;
                     correctionMade = true;
 
-                    Logger.Info("Command prefix found empty - Resetting to default");
+                    Logger.Info("Command prefix found empty - Resetting to default.");
                 }
-
-                Logger.Info("Command prefix changed - Restart required to take effect");
+                Logger.Info("Command prefix changed - Restart required to take effect.");
             }
 
             // Chat channel links
@@ -782,12 +810,12 @@ namespace Eco.Plugins.DiscordLink
             if (_configOptions.Config.LogChat && !_prevConfigOptions.LogChat)
             {
                 Logger.Info("Chatlog enabled");
-                StartChatlog();
+                _chatLogger.Start();
             }
             else if(!_configOptions.Config.LogChat && _prevConfigOptions.LogChat)
             {
                 Logger.Info("Chatlog disabled");
-                StopChatlog();
+                _chatLogger.Stop();
             }
 
             // Chatlog path
@@ -800,7 +828,7 @@ namespace Eco.Plugins.DiscordLink
             if( _configOptions.Config.ChatlogPath != _prevConfigOptions.ChatlogPath)
             {
                 Logger.Info("Chatlog path changed. New path: " + _configOptions.Config.ChatlogPath);
-                RestartChatlog();
+                _chatLogger.Restart();
             }
 
             // Eco command channel
@@ -817,6 +845,8 @@ namespace Eco.Plugins.DiscordLink
                 correctionMade = true;
             }
 
+            _ecoStatusMessages.Clear(); // The status channels may have changed so we should find the messages again;
+
             _configOptions.SaveAsync();
             _prevConfigOptions = (DiscordConfig)_configOptions.Config.Clone();
 
@@ -829,21 +859,15 @@ namespace Eco.Plugins.DiscordLink
 
             if(_discordClient == null)
             {
-                errorMessages.Add("[General Verification] No Discord Client available.");
+                errorMessages.Add("[General Verification] No Discord client connected.");
             }
 
             if (verificationFlags.HasFlag(VerificationFlags.Static))
             {
-                // Server IP
-                if (!string.IsNullOrWhiteSpace(_configOptions.Config.ServerIP))
+                // Bot Token
+                if(String.IsNullOrWhiteSpace(_configOptions.Config.BotToken))
                 {
-                    IPAddress address;
-                    if (!IPAddress.TryParse(_configOptions.Config.ServerIP, out address)
-                        || (address.AddressFamily != System.Net.Sockets.AddressFamily.InterNetwork
-                        && address.AddressFamily != System.Net.Sockets.AddressFamily.InterNetworkV6))
-                    {
-                        errorMessages.Add("[ServerIP] Not a valid IPv4 or IPv6 address");
-                    }
+                    errorMessages.Add("[Bot Token] Bot token not configured. See Github page for install instructions.");
                 }
 
                 // Player configs
@@ -889,7 +913,7 @@ namespace Eco.Plugins.DiscordLink
                     {
                         concatenatedMessages += message + "\n";
                     }
-                    Logger.Error("Static configuration errors detected!\n" + concatenatedMessages);
+                    Logger.Error("Static configuration errors detected!\n" + concatenatedMessages.Trim());
                 }
             }
 
@@ -914,8 +938,15 @@ namespace Eco.Plugins.DiscordLink
                     string linkID = chatLink.ToString();
                     if (!_verifiedLinks.Contains(linkID))
                     {
-                        _verifiedLinks.Add(linkID);
-                        Logger.Info("Channel Link Verified: " + linkID);
+                        if(!DiscordUtil.ChannelHasPermission(channel, Permissions.SendMessages))
+                        {
+                            Logger.Info("Channel " + linkID + " lacks permission SendMessages");
+                        }
+                        else
+                        {
+                            _verifiedLinks.Add(linkID);
+                            Logger.Info("Channel Link Verified: " + linkID);
+                        }
                     }
                 }
 
@@ -938,8 +969,30 @@ namespace Eco.Plugins.DiscordLink
                     string linkID = statusLink.ToString();
                     if (!_verifiedLinks.Contains(linkID))
                     {
-                        _verifiedLinks.Add(linkID);
-                        Logger.Info("Channel Link Verified: " + linkID);
+                        bool hasPermissions = true;
+                        if (!DiscordUtil.ChannelHasPermission(channel, Permissions.SendMessages))
+                        {
+                            Logger.Info("Channel " + linkID + " lacks permission SendMessages");
+                            hasPermissions = false;
+                        }
+
+                        if (!DiscordUtil.ChannelHasPermission(channel, Permissions.ReadMessageHistory))
+                        {
+                            Logger.Info("Channel " + linkID + " lacks permission ReadMessageHistory");
+                            hasPermissions = false;
+                        }
+
+                        if (!DiscordUtil.ChannelHasPermission(channel, Permissions.ManageMessages))
+                        {
+                            Logger.Info("Channel " + linkID + " lacks permission ManageMessages");
+                            hasPermissions = false;
+                        }
+
+                        if(hasPermissions)
+                        {
+                            _verifiedLinks.Add(linkID);
+                            Logger.Info("Channel Link Verified: " + linkID);
+                        }
                     }
                 }
 
@@ -1061,7 +1114,7 @@ namespace Eco.Plugins.DiscordLink
                 ServerName = this.ServerName,
                 ServerDescription = this.ServerDescription,
                 ServerLogo = this.ServerLogo,
-                ServerIP = this.ServerIP,
+                ServerAddress = this.ServerAddress,
                 Debug = this.Debug,
                 LogChat = this.LogChat,
                 ChatlogPath = this.ChatlogPath,
@@ -1113,8 +1166,8 @@ namespace Eco.Plugins.DiscordLink
         [Description("The logo of the server as a URL. This setting can be changed while the server is running."), Category("Server Details")]
         public string ServerLogo { get; set; }
 
-        [Description("IP of the server. Overrides the automatically detected IP. This setting can be changed while the server is running."), Category("Server Details")]
-        public string ServerIP { get; set; }
+        [Description("The address (URL or IP) of the server. Overrides the automatically detected IP. This setting can be changed while the server is running."), Category("Server Details")]
+        public string ServerAddress { get; set; }
 
         [Description("A mapping from user to user config parameters. This setting can be changed while the server is running.")]
         public ObservableCollection<DiscordPlayerConfig> PlayerConfigs = new ObservableCollection<DiscordPlayerConfig>();

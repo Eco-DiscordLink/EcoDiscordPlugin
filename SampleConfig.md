@@ -19,10 +19,11 @@
   ],  
   "ServerName": "TheEcoServer",  
   "ServerDescription": "The place to play Eco!",  
-  "ServerIP": "162.158.134.52",  
+  "ServerAddress": "xxx.xxx.xxx.xx",  
+  "ServerLogo": "http://github.com/Spoffy/EcoDiscordPlugin/raw/master/images/DiscordLinkLogo_Nameless.png",  
   "ChatChannelLinks": [  
     {  
-      "DiscordGuild": "Mirage",  
+      "DiscordGuild": "EcoDiscordServer",  
       "DiscordChannel": "general",  
       "EcoChannel": "General",  
       "AllowUserMentions": true,  
