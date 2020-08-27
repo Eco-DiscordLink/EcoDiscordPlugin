@@ -67,6 +67,11 @@ See the [installation guide](Installation.md)
 ### Config file
 [configuration guide](ConfigurationNoGUI.md) for servers hosted by third parties, where you lack access to the server GUI.
 
+## Discord
+Do you have suggestions, questions or maybe a problem you need help with?
+Join the Eco Community Discord server here! https://discord.gg/pCkWfzQ
+DiscordLink has its own corner where you can talk to other users and the developers!
+
 ## I want to contribute!
 
 Pull requests are very welcome!
