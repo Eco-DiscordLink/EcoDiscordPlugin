@@ -19,6 +19,9 @@ namespace Eco.Plugins.DiscordLink.Utilities
         // Discord mention matching regex: Match all characters followed by a mention character(@ or #) character (including that character) until encountering any type of whitespace, end of string or a new mention character
         private static readonly Regex DiscordMentionRegex = new Regex("([@#].+?)(?=\\s|$|@|#)");
 
+        // Discord @everyone and @here matching regex: Match all instances that would trigger a Discord tag to @everyone or @here and capture the tag so the @ can easily removed.
+        private static readonly Regex DiscordGlobalMentionRegex = new Regex("@(everyone|here)");
+
         private const string EcoNametagColor = "7289DAFF";
 
         #region Eco --> Discord
@@ -28,9 +31,18 @@ namespace Eco.Plugins.DiscordLink.Utilities
             return EcoNameTagRegex.Replace(toStrip, String.Empty);
         }
 
-        public static string FormatMessageForDiscord(string message, DiscordChannel channel, string username = "")
+        public static string StripGlobalMentions(string toStrip)
+        {
+            return DiscordGlobalMentionRegex.Replace(toStrip, "$1");
+        }
+
+        public static string FormatMessageForDiscord(string message, DiscordChannel channel, string username = "", bool allowGlobalMentions = false)
         {
             string formattedMessage = (username.IsEmpty() ? "" : $"**{username.Replace("@", "")}**:") + StripEcoTags(message); // All @ characters are removed from the name in order to avoid unintended mentions of the sender
+            if (!allowGlobalMentions)
+            {
+                formattedMessage = StripGlobalMentions(formattedMessage);
+            }
             return FormatDiscordMentions(formattedMessage, channel);
         }
 

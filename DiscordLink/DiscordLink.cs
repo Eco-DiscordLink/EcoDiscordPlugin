@@ -322,20 +322,20 @@ namespace Eco.Plugins.DiscordLink
             return "Message sent";
         }
 
-        public async Task<string> SendDiscordMessageAsUser(string message, User user, string channelNameOrId, string guildNameOrId)
+        public async Task<string> SendDiscordMessageAsUser(string message, User user, string channelNameOrId, string guildNameOrId, bool allowGlobalMentions = false)
         {
             var guild = GuildByNameOrId(guildNameOrId);
             if (guild == null) return "No guild of that name found";
 
             var channel = guild.ChannelByNameOrId(channelNameOrId);
             if (channel == null) return "No channel of that name or ID found in that guild";
-            await DiscordUtil.SendAsync(channel, MessageUtil.FormatMessageForDiscord(message, channel, user.Name));
+            await DiscordUtil.SendAsync(channel, MessageUtil.FormatMessageForDiscord(message, channel, user.Name, allowGlobalMentions));
             return "Message sent";
         }
 
-        public async Task<String> SendDiscordMessageAsUser(string message, User user, DiscordChannel channel)
+        public async Task<String> SendDiscordMessageAsUser(string message, User user, DiscordChannel channel, bool allowGlobalMentions = false)
         {
-            await DiscordUtil.SendAsync(channel, MessageUtil.FormatMessageForDiscord(message, channel, user.Name));
+            await DiscordUtil.SendAsync(channel, MessageUtil.FormatMessageForDiscord(message, channel, user.Name, allowGlobalMentions));
             return "Message sent";
         }
 
@@ -406,7 +406,7 @@ namespace Eco.Plugins.DiscordLink
 
             if (!String.IsNullOrWhiteSpace(channel) && !String.IsNullOrWhiteSpace(guild))
             {
-                ForwardMessageToDiscordChannel(chatMessage, channel, guild);
+                ForwardMessageToDiscordChannel(chatMessage, channel, guild, channelLink.HereAndEveryoneMentionPermission);
             }
         }
 
@@ -440,7 +440,7 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
-        private void ForwardMessageToDiscordChannel(ChatSent chatMessage, string channelNameOrId, string guildNameOrId)
+        private void ForwardMessageToDiscordChannel(ChatSent chatMessage, string channelNameOrId, string guildNameOrId, GlobalMentionPermission globalMentionPermission)
         {
             Logger.DebugVerbose("Sending Eco message to Discord channel " + channelNameOrId + " in guild " + guildNameOrId);
             var guild = GuildByNameOrId(guildNameOrId);
@@ -456,7 +456,10 @@ namespace Eco.Plugins.DiscordLink
                 return;
             }
 
-            _ = DiscordUtil.SendAsync(channel, MessageUtil.FormatMessageForDiscord(chatMessage.Message, channel, chatMessage.Citizen.Name));
+            bool allowGlobalMention = (globalMentionPermission == GlobalMentionPermission.AnyUser
+                || globalMentionPermission == GlobalMentionPermission.Admin && chatMessage.Citizen.IsAdmin);
+
+            _ = DiscordUtil.SendAsync(channel, MessageUtil.FormatMessageForDiscord(chatMessage.Message, channel, chatMessage.Citizen.Name, allowGlobalMention));
 
             if (DLConfig.Data.LogChat)
             {

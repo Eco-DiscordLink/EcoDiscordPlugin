@@ -646,6 +646,13 @@ namespace Eco.Plugins.DiscordLink
         public string DiscordChannel { get; set; }
     }
 
+    public enum GlobalMentionPermission
+    {
+        AnyUser,
+        Admin,
+        Forbidden
+    };
+
     public class ChatChannelLink : ICloneable
     {
         public override string ToString()
@@ -675,6 +682,9 @@ namespace Eco.Plugins.DiscordLink
     
         [Description("Allow mentions of channels to be forwarded from Eco to the Discord channel.")]
         public bool AllowChannelMentions { get; set; } = true;
+
+        [Description("Permissions for who is allowed to forward mentions of @here or @everyone from Eco to the Discord channel.")]
+        public GlobalMentionPermission HereAndEveryoneMentionPermission { get; set; } = GlobalMentionPermission.Forbidden;
     }
     
     public class EcoStatusChannel : ICloneable
