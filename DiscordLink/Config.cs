@@ -1,9 +1,11 @@
 ﻿using Eco.Core.Plugins;
 using Eco.Gameplay.Players;
 using Eco.Plugins.DiscordLink.Utilities;
+using Eco.Shared.Utils;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -68,17 +70,14 @@ namespace Eco.Plugins.DiscordLink
         {
             _config = new PluginConfig<DLConfigData>("DiscordLink");
             _prevConfig = (DLConfigData)Data.Clone();
-            Data.PlayerConfigs.CollectionChanged += (obj, args) => { HandleConfigChanged(); };
-            Data.ChatChannelLinks.CollectionChanged += (obj, args) => { HandleConfigChanged(); };
-            Data.EcoStatusChannels.CollectionChanged += (obj, args) => { HandleConfigChanged(); };
             
-            Data.PlayerConfigs.CollectionChanged += (obj, args) => { HandleConfigChanged(); };
-            Data.ChatChannelLinks.CollectionChanged += (obj, args) => { HandleConfigChanged(); };
-            Data.EcoStatusChannels.CollectionChanged += (obj, args) => { HandleConfigChanged(); };
-            Data.SnippetChannels.CollectionChanged += (obj, args) => { HandleConfigChanged(); };
-            Data.TradeChannels.CollectionChanged += (obj, args) => { HandleConfigChanged(); };
+            Data.PlayerConfigs.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
+            Data.ChatChannelLinks.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
+            Data.EcoStatusChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
+            Data.SnippetChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
+            Data.TradeChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
 
-            BuildChanneLinklList();
+            BuildChanneLinkList();
 
             DiscordLink.Obj.OnClientStopped += (obj, args) =>
             {
@@ -91,6 +90,20 @@ namespace Eco.Plugins.DiscordLink
             _verifiedLinks.Clear(); // If we were waiting to verify channel links, we need to clear this list or risk false positives
         }
 
+        public void HandleCollectionChanged(NotifyCollectionChangedEventArgs args)
+        {
+            if(args.Action == NotifyCollectionChangedAction.Add
+                || args.Action == NotifyCollectionChangedAction.Remove
+                || args.Action == NotifyCollectionChangedAction.Replace)
+            {
+                HandleConfigChanged();
+            }
+            else
+            {
+                Save(); // Remove isn't reported properly so we should save on other events to make sure the changes are saved
+            }
+        }
+
         public void HandleConfigChanged()
         {
             // Do not verify if change occurred as this function is going to be called again in that case
@@ -98,7 +111,7 @@ namespace Eco.Plugins.DiscordLink
             bool tokenChanged = Data.BotToken != _prevConfig.BotToken;
             bool correctionMade = !Save();
 
-            BuildChanneLinklList();
+            BuildChanneLinkList();
 
             if (tokenChanged)
             {
@@ -360,7 +373,7 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
-        private void BuildChanneLinklList()
+        private void BuildChanneLinkList()
         {
             _channelLinks.Clear();
             _channelLinks.AddRange(_config.Config.ChatChannelLinks);
