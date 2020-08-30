@@ -30,6 +30,7 @@ namespace Eco.Plugins.DiscordLink
         public static readonly DLConfig Instance = new DLConfig();
         public static DLConfigData Data { get { return Instance._config.Config; } }
         public PluginConfig<DLConfigData> PluginConfig { get { return Instance._config; } }
+        public List<ChannelLink> ChannelLinks { get { return Instance._channelLinks; } }
 
         public event EventHandler OnConfigChanged;
         public event EventHandler OnConfigSaved;
@@ -44,13 +45,15 @@ namespace Eco.Plugins.DiscordLink
         public const int STATIC_VERIFICATION_OUTPUT_DELAY_MS = 2000;
         public const int GUILD_VERIFICATION_OUTPUT_DELAY_MS = 3000;
 
-        private readonly List<String> _verifiedLinks = new List<string>();
+        private readonly List<string> _verifiedLinks = new List<string>(); // TODO[Monzun] If identical links are used, this is going to give false negatives. Fix plz
         private DLConfigData _prevConfig; // Used to detect differences when the config is saved
         private Timer _linkVerificationTimeoutTimer = null;
         private Timer _guildVerificationOutputTimer = null;
         private Timer _staticVerificationOutputDelayTimer = null;
 
         private PluginConfig<DLConfigData> _config;
+        private readonly List<ChannelLink> _channelLinks = new List<ChannelLink>();
+
 
         // Explicit static constructor to tell C# compiler not to mark type as beforefieldinit
         static DLConfig()
@@ -67,13 +70,15 @@ namespace Eco.Plugins.DiscordLink
             _prevConfig = (DLConfigData)Data.Clone();
             Data.PlayerConfigs.CollectionChanged += (obj, args) => { HandleConfigChanged(); };
             Data.ChatChannelLinks.CollectionChanged += (obj, args) => { HandleConfigChanged(); };
-            Data.EcoStatusDiscordChannels.CollectionChanged += (obj, args) => { HandleConfigChanged(); };
+            Data.EcoStatusChannels.CollectionChanged += (obj, args) => { HandleConfigChanged(); };
             
             Data.PlayerConfigs.CollectionChanged += (obj, args) => { HandleConfigChanged(); };
             Data.ChatChannelLinks.CollectionChanged += (obj, args) => { HandleConfigChanged(); };
-            Data.EcoStatusDiscordChannels.CollectionChanged += (obj, args) => { HandleConfigChanged(); };
+            Data.EcoStatusChannels.CollectionChanged += (obj, args) => { HandleConfigChanged(); };
             Data.SnippetChannels.CollectionChanged += (obj, args) => { HandleConfigChanged(); };
             Data.TradeChannels.CollectionChanged += (obj, args) => { HandleConfigChanged(); };
+
+            BuildChanneLinklList();
 
             DiscordLink.Obj.OnClientStopped += (obj, args) =>
             {
@@ -93,6 +98,8 @@ namespace Eco.Plugins.DiscordLink
             bool tokenChanged = Data.BotToken != _prevConfig.BotToken;
             bool correctionMade = !Save();
 
+            BuildChanneLinklList();
+
             if (tokenChanged)
             {
                 OnTokenChanged?.Invoke(this, EventArgs.Empty);
@@ -110,6 +117,30 @@ namespace Eco.Plugins.DiscordLink
                    OnConfigChanged?.Invoke(this, EventArgs.Empty);
                 });
             }
+        }
+
+        public ChatChannelLink GetChannelLinkFromDiscordChannel(string guild, string channelName)
+        {
+            foreach (ChatChannelLink channelLink in Data.ChatChannelLinks)
+            {
+                if (channelLink.DiscordGuild.ToLower() == guild.ToLower() && channelLink.DiscordChannel.ToLower() == channelName.ToLower())
+                {
+                    return channelLink;
+                }
+            }
+            return null;
+        }
+
+        public ChatChannelLink GetChannelLinkFromEcoChannel(string channelName)
+        {
+            foreach (ChatChannelLink channelLink in Data.ChatChannelLinks)
+            {
+                if (channelLink.EcoChannel.ToLower() == channelName.ToLower())
+                {
+                    return channelLink;
+                }
+            }
+            return null;
         }
 
         public void EnqueueFullVerification()
@@ -163,95 +194,12 @@ namespace Eco.Plugins.DiscordLink
                 Logger.Info("Command prefix changed - Restart required to take effect.");
             }
 
-            // Chat channel links
-            foreach (ChatChannelLink link in Data.ChatChannelLinks)
+            // Channel Links
+            foreach(ChannelLink link in _channelLinks)
             {
-                if (string.IsNullOrWhiteSpace(link.DiscordChannel)) continue;
-
-                string original = link.DiscordChannel;
-                if (link.DiscordChannel != link.DiscordChannel.ToLower()) // Discord channels are always lowercase
-                {
-                    link.DiscordChannel = link.DiscordChannel.ToLower();
-                }
-
-                if (link.DiscordChannel.Contains(" ")) // Discord channels always replace spaces with dashes
-                {
-                    link.DiscordChannel = link.DiscordChannel.Replace(' ', '-');
-                }
-
-                if (link.DiscordChannel != original)
+                if(link.MakeCorrections())
                 {
                     correctionMade = true;
-                    Logger.Info("Corrected Discord channel name in Channel Link with Guild \"" + link.DiscordGuild + "\" from \"" + original + "\" to \"" + link.DiscordChannel + "\"");
-                }
-            }
-
-            // Eco status Discord channels
-            foreach (EcoStatusChannel statusChannel in Data.EcoStatusDiscordChannels) // TODO[MonzUn] Create a reusable way to fix erronous channel links
-            {
-                if (string.IsNullOrWhiteSpace(statusChannel.DiscordChannel)) continue;
-
-                string original = statusChannel.DiscordChannel;
-                if (statusChannel.DiscordChannel != statusChannel.DiscordChannel.ToLower())
-                {
-                    statusChannel.DiscordChannel = statusChannel.DiscordChannel.ToLower();
-                }
-
-                if (statusChannel.DiscordChannel.Contains(" "))
-                {
-                    statusChannel.DiscordChannel = statusChannel.DiscordChannel.Replace(' ', '-');
-                }
-
-                if (statusChannel.DiscordChannel != original)
-                {
-                    correctionMade = true;
-                    Logger.Info("Corrected Discord channel name in Eco Status Channel with Guild name/ID \"" + statusChannel.DiscordGuild + "\" from \"" + original + "\" to \"" + statusChannel.DiscordChannel + "\"");
-                }
-            }
-
-            // Snippet Discord channels
-            foreach (DiscordChannelIdentifier snippetChannel in Data.SnippetChannels) // TODO[MonzUn] Create a reusable way to fix erronous channel links
-            {
-                if (string.IsNullOrWhiteSpace(snippetChannel.DiscordChannel)) continue;
-
-                string original = snippetChannel.DiscordChannel;
-                if (snippetChannel.DiscordChannel != snippetChannel.DiscordChannel.ToLower())
-                {
-                    snippetChannel.DiscordChannel = snippetChannel.DiscordChannel.ToLower();
-                }
-
-                if (snippetChannel.DiscordChannel.Contains(" "))
-                {
-                    snippetChannel.DiscordChannel = snippetChannel.DiscordChannel.Replace(' ', '-');
-                }
-
-                if (snippetChannel.DiscordChannel != original)
-                {
-                    correctionMade = true;
-                    Logger.Info("Corrected Discord channel name in Snippet Channel with Guild name/ID \"" + snippetChannel.DiscordGuild + "\" from \"" + original + "\" to \"" + snippetChannel.DiscordChannel + "\"");
-                }
-            }
-
-            // Trade Discord channels
-            foreach (DiscordChannelIdentifier snippetChannel in Data.TradeChannels) // TODO[MonzUn] Create a reusable way to fix erronous channel links
-            {
-                if (string.IsNullOrWhiteSpace(snippetChannel.DiscordChannel)) continue;
-
-                string original = snippetChannel.DiscordChannel;
-                if (snippetChannel.DiscordChannel != snippetChannel.DiscordChannel.ToLower())
-                {
-                    snippetChannel.DiscordChannel = snippetChannel.DiscordChannel.ToLower();
-                }
-
-                if (snippetChannel.DiscordChannel.Contains(" "))
-                {
-                    snippetChannel.DiscordChannel = snippetChannel.DiscordChannel.Replace(' ', '-');
-                }
-
-                if (snippetChannel.DiscordChannel != original)
-                {
-                    correctionMade = true;
-                    Logger.Info("Corrected Discord channel name in Trade Channel with Guild name/ID \"" + snippetChannel.DiscordGuild + "\" from \"" + original + "\" to \"" + snippetChannel.DiscordChannel + "\"");
                 }
             }
 
@@ -366,103 +314,20 @@ namespace Eco.Plugins.DiscordLink
 
             if (verificationFlags.HasFlag(VerificationFlags.ChannelLinks) && DiscordLink.Obj.DiscordClient != null) // Discord guild and channel information isn't available the first time this function is called
             {
-                // Channel links
-                foreach (ChatChannelLink chatLink in Data.ChatChannelLinks)
+                foreach(ChannelLink link in _channelLinks)
                 {
-                    if (string.IsNullOrWhiteSpace(chatLink.DiscordGuild) || string.IsNullOrWhiteSpace(chatLink.DiscordChannel) || string.IsNullOrWhiteSpace(chatLink.EcoChannel)) continue;
-
-                    var guild = DiscordLink.Obj.GuildByNameOrId(chatLink.DiscordGuild);
-                    if (guild == null)
+                    if(link.Verify())
                     {
-                        continue; // The channel will always fail if the guild fails
-                    }
-                    var channel = guild.ChannelByNameOrId(chatLink.DiscordChannel);
-                    if (channel == null)
-                    {
-                        continue;
-                    }
-
-                    string linkID = chatLink.ToString();
-                    if (!_verifiedLinks.Contains(linkID))
-                    {
-                        _verifiedLinks.Add(linkID);
-                        Logger.Info("Channel Link Verified: " + linkID);
+                        string linkID = link.ToString();
+                        if (!_verifiedLinks.Contains(linkID))
+                        {
+                            _verifiedLinks.Add(linkID);
+                            Logger.Info("Channel Link Verified: " + linkID);
+                        }
                     }
                 }
 
-                // Eco status Discord channels
-                foreach (EcoStatusChannel statusLink in Data.EcoStatusDiscordChannels)
-                {
-                    if (string.IsNullOrWhiteSpace(statusLink.DiscordGuild) || string.IsNullOrWhiteSpace(statusLink.DiscordChannel)) continue;
-
-                    var guild = DiscordLink.Obj.GuildByNameOrId(statusLink.DiscordGuild);
-                    if (guild == null)
-                    {
-                        continue; // The channel will always fail if the guild fails
-                    }
-                    var channel = guild.ChannelByNameOrId(statusLink.DiscordChannel);
-                    if (channel == null)
-                    {
-                        continue;
-                    }
-
-                    string linkID = statusLink.ToString();
-                    if (!_verifiedLinks.Contains(linkID))
-                    {
-                        _verifiedLinks.Add(linkID);
-                        Logger.Info("Channel Link Verified: " + linkID);
-                    }
-                }
-
-                // Snippet Discord channels
-                foreach (DiscordChannelIdentifier snippetChannel in Data.SnippetChannels)
-                {
-                    if (string.IsNullOrWhiteSpace(snippetChannel.DiscordGuild) || string.IsNullOrWhiteSpace(snippetChannel.DiscordChannel)) continue;
-
-                    var guild = DiscordLink.Obj.GuildByNameOrId(snippetChannel.DiscordGuild);
-                    if (guild == null)
-                    {
-                        continue; // The channel will always fail if the guild fails
-                    }
-                    var channel = guild.ChannelByNameOrId(snippetChannel.DiscordChannel);
-                    if (channel == null)
-                    {
-                        continue;
-                    }
-
-                    string channelID = snippetChannel.ToString();
-                    if (!_verifiedLinks.Contains(channelID))
-                    {
-                        _verifiedLinks.Add(channelID);
-                        Logger.Info("Channel Link Verified: " + channelID);
-                    }
-                }
-
-                // Trade Discord channels
-                foreach (DiscordChannelIdentifier snippetChannel in Data.TradeChannels)
-                {
-                    if (string.IsNullOrWhiteSpace(snippetChannel.DiscordGuild) || string.IsNullOrWhiteSpace(snippetChannel.DiscordChannel)) continue;
-
-                    var guild = DiscordLink.Obj.GuildByNameOrId(snippetChannel.DiscordGuild);
-                    if (guild == null)
-                    {
-                        continue; // The channel will always fail if the guild fails
-                    }
-                    var channel = guild.ChannelByNameOrId(snippetChannel.DiscordChannel);
-                    if (channel == null)
-                    {
-                        continue;
-                    }
-
-                    string channelID = snippetChannel.ToString();
-                    if (!_verifiedLinks.Contains(channelID))
-                    {
-                        _verifiedLinks.Add(channelID);
-                        Logger.Info("Channel Link Verified: " + channelID);
-                    }
-                }
-
-                if (_verifiedLinks.Count >= Data.ChatChannelLinks.Count + Data.EcoStatusDiscordChannels.Count)
+                if (_verifiedLinks.Count >= _channelLinks.Count)
                 {
                     Logger.Info("All channel links sucessfully verified");
                 }
@@ -475,50 +340,17 @@ namespace Eco.Plugins.DiscordLink
 
         private void ReportUnverifiedChannels()
         {
-            if (_verifiedLinks.Count >= Data.ChatChannelLinks.Count + Data.EcoStatusDiscordChannels.Count + Data.SnippetChannels.Count) return; // All are verified; nothing to report.
+            if (_verifiedLinks.Count >= _channelLinks.Count ) return; // All are verified; nothing to report.
 
             List<string> unverifiedLinks = new List<string>();
-            foreach (ChatChannelLink chatLink in Data.ChatChannelLinks)
+            foreach (ChannelLink link in _channelLinks)
             {
-                if (string.IsNullOrWhiteSpace(chatLink.DiscordGuild) || string.IsNullOrWhiteSpace(chatLink.DiscordChannel) || string.IsNullOrWhiteSpace(chatLink.EcoChannel)) continue;
+                if (!link.IsValid()) continue;
 
-                string linkID = chatLink.ToString();
+                string linkID = link.ToString();
                 if (!_verifiedLinks.Contains(linkID))
                 {
                     unverifiedLinks.Add(linkID);
-                }
-            }
-
-            foreach (EcoStatusChannel statusChannel in Data.EcoStatusDiscordChannels)
-            {
-                if (string.IsNullOrWhiteSpace(statusChannel.DiscordGuild) || string.IsNullOrWhiteSpace(statusChannel.DiscordChannel)) continue;
-
-                string channelID = statusChannel.ToString();
-                if (!_verifiedLinks.Contains(channelID))
-                {
-                    unverifiedLinks.Add(channelID);
-                }
-            }
-
-            foreach (DiscordChannelIdentifier snippetChannel in Data.SnippetChannels )
-            {
-                if (string.IsNullOrWhiteSpace(snippetChannel.DiscordGuild) || string.IsNullOrWhiteSpace(snippetChannel.DiscordChannel)) continue;
-
-                string channelID = snippetChannel.ToString();
-                if (!_verifiedLinks.Contains(channelID))
-                {
-                    unverifiedLinks.Add(channelID);
-                }
-            }
-
-            foreach (DiscordChannelIdentifier snippetChannel in Data.TradeChannels)
-            {
-                if (string.IsNullOrWhiteSpace(snippetChannel.DiscordGuild) || string.IsNullOrWhiteSpace(snippetChannel.DiscordChannel)) continue;
-
-                string channelID = snippetChannel.ToString();
-                if (!_verifiedLinks.Contains(channelID))
-                {
-                    unverifiedLinks.Add(channelID);
                 }
             }
 
@@ -528,28 +360,13 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
-        public ChatChannelLink GetChannelLinkFromDiscordChannel(string guild, string channelName)
+        private void BuildChanneLinklList()
         {
-            foreach (ChatChannelLink channelLink in Data.ChatChannelLinks)
-            {
-                if (channelLink.DiscordGuild.ToLower() == guild.ToLower() && channelLink.DiscordChannel.ToLower() == channelName.ToLower())
-                {
-                    return channelLink;
-                }
-            }
-            return null;
-        }
-
-        public ChatChannelLink GetChannelLinkFromEcoChannel(string channelName)
-        {
-            foreach (ChatChannelLink channelLink in Data.ChatChannelLinks)
-            {
-                if (channelLink.EcoChannel.ToLower() == channelName.ToLower())
-                {
-                    return channelLink;
-                }
-            }
-            return null;
+            _channelLinks.Clear();
+            _channelLinks.AddRange(_config.Config.ChatChannelLinks);
+            _channelLinks.AddRange(_config.Config.EcoStatusChannels);
+            _channelLinks.AddRange(_config.Config.TradeChannels);
+            _channelLinks.AddRange(_config.Config.SnippetChannels);
         }
     }
 
@@ -572,9 +389,9 @@ namespace Eco.Plugins.DiscordLink
                 InviteMessage = this.InviteMessage,
                 PlayerConfigs = new ObservableCollection<DiscordPlayerConfig>(this.PlayerConfigs.Select(t => t.Clone()).Cast<DiscordPlayerConfig>()),
                 ChatChannelLinks = new ObservableCollection<ChatChannelLink>(this.ChatChannelLinks.Select(t => t.Clone()).Cast<ChatChannelLink>()),
-                EcoStatusDiscordChannels = new ObservableCollection<EcoStatusChannel>(this.EcoStatusDiscordChannels.Select(t => t.Clone()).Cast<EcoStatusChannel>()),
-                TradeChannels = new ObservableCollection<DiscordChannelIdentifier>(this.TradeChannels.Select(t => t.Clone()).Cast<DiscordChannelIdentifier>()),
-                SnippetChannels = new ObservableCollection<DiscordChannelIdentifier>(this.SnippetChannels.Select(t => t.Clone()).Cast<DiscordChannelIdentifier>()),
+                EcoStatusChannels = new ObservableCollection<EcoStatusChannel>(this.EcoStatusChannels.Select(t => t.Clone()).Cast<EcoStatusChannel>()),
+                TradeChannels = new ObservableCollection<ChannelLink>(this.TradeChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
+                SnippetChannels = new ObservableCollection<ChannelLink>(this.SnippetChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
             };
         }
 
@@ -584,8 +401,8 @@ namespace Eco.Plugins.DiscordLink
         [Description("The prefix to put before commands in order for the Discord bot to recognize them as such. This setting requires a restart to take effect."), Category("Command Settings")]
         public string DiscordCommandPrefix { get; set; } = DLConfig.DefaultValues.DiscordCommandPrefix;
 
-        [Description("Discord channels in which to display the Eco status view. WARNING - Any messages in these channels will be deleted. This setting can be changed while the server is running."), Category("Channel Configuration")]
-        public ObservableCollection<EcoStatusChannel> EcoStatusDiscordChannels { get; set; } = new ObservableCollection<EcoStatusChannel>();
+        [Description("Discord channels in which to display the Eco status display. DiscordLink will post one EcoStatus message in this channel and keep it updated trough edits. This setting can be changed while the server is running."), Category("Channel Configuration")]
+        public ObservableCollection<EcoStatusChannel> EcoStatusChannels { get; set; } = new ObservableCollection<EcoStatusChannel>();
 
         [Description("The name of the Eco server, overriding the name configured within Eco. This setting can be changed while the server is running."), Category("Server Details")]
         public string ServerName { get; set; }
@@ -600,10 +417,10 @@ namespace Eco.Plugins.DiscordLink
         public string ServerAddress { get; set; }
 
         [Description("Channels in which trade events will be posted. This setting can be changed while the server is running."), Category("Channel Configuration")]
-        public ObservableCollection<DiscordChannelIdentifier> TradeChannels { get; set; } = new ObservableCollection<DiscordChannelIdentifier>();
+        public ObservableCollection<ChannelLink> TradeChannels { get; set; } = new ObservableCollection<ChannelLink>();
 
         [Description("Channels in which to search for snippets for the Snippet command. This setting can be changed while the server is running."), Category("Channel Configuration")]
-        public ObservableCollection<DiscordChannelIdentifier> SnippetChannels { get; set; } = new ObservableCollection<DiscordChannelIdentifier>();
+        public ObservableCollection<ChannelLink> SnippetChannels { get; set; } = new ObservableCollection<ChannelLink>();
 
         [Description("A mapping from user to user config parameters. This setting can be changed while the server is running.")]
         public ObservableCollection<DiscordPlayerConfig> PlayerConfigs = new ObservableCollection<DiscordPlayerConfig>();
@@ -627,25 +444,6 @@ namespace Eco.Plugins.DiscordLink
         public string InviteMessage { get; set; } = DLConfig.DefaultValues.InviteMessage;
     }
 
-    public class DiscordChannelIdentifier : ICloneable
-    {
-        public override string ToString()
-        {
-            return DiscordGuild + " - " + DiscordChannel;
-        }
-
-        public object Clone()
-        {
-            return MemberwiseClone();
-        }
-
-        [Description("Discord Guild (Server) by name or ID.")]
-        public string DiscordGuild { get; set; }
-
-        [Description("Discord Channel by name or ID.")]
-        public string DiscordChannel { get; set; }
-    }
-
     public enum GlobalMentionPermission
     {
         AnyUser,
@@ -653,27 +451,8 @@ namespace Eco.Plugins.DiscordLink
         Forbidden
     };
 
-    public class ChatChannelLink : ICloneable
+    public class ChatChannelLink : EcoChannelLink
     {
-        public override string ToString()
-        {
-            return DiscordGuild + " - " + DiscordChannel + " <--> " + EcoChannel + " (Chat Link)";
-        }
-
-        public object Clone()
-        {
-            return MemberwiseClone();
-        }
-    
-        [Description("Discord Guild (Server) by name or ID.")]
-        public string DiscordGuild { get; set; }
-    
-        [Description("Discord Channel by name or ID.")]
-        public string DiscordChannel { get; set; }
-    
-        [Description("Eco Channel to use.")]
-        public string EcoChannel { get; set; }
-    
         [Description("Allow mentions of usernames to be forwarded from Eco to the Discord channel.")]
         public bool AllowUserMentions { get; set; } = true;
     
@@ -687,24 +466,8 @@ namespace Eco.Plugins.DiscordLink
         public GlobalMentionPermission HereAndEveryoneMentionPermission { get; set; } = GlobalMentionPermission.Forbidden;
     }
     
-    public class EcoStatusChannel : ICloneable
+    public class EcoStatusChannel : ChannelLink
     {
-        public override string ToString()
-        {
-            return DiscordGuild + " - " + DiscordChannel + " (Eco Status)";
-        }
-
-        public object Clone()
-        {
-            return MemberwiseClone();
-        }
-    
-        [Description("Discord Guild (Server) by name or ID.")]
-        public string DiscordGuild { get; set; }
-    
-        [Description("Discord Channel by name or ID.")]
-        public string DiscordChannel { get; set; }
-    
         [Description("Display the server name in the status message.")]
         public bool UseName { get; set; } = true;
     

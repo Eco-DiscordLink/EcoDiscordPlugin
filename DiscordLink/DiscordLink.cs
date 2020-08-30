@@ -393,7 +393,7 @@ namespace Eco.Plugins.DiscordLink
         {
             LogEcoMessage(chatMessage);
 
-            // Ignore messages sent by our bot
+            // Ignore commands and messages sent by our bot
             if (chatMessage.Citizen.Name == EcoUser.Name && !chatMessage.Message.StartsWith(EchoCommandToken))
             {
                 return;
@@ -483,7 +483,7 @@ namespace Eco.Plugins.DiscordLink
         private void UpdateEcoStatus()
         {
             if (DiscordClient == null) return;
-            foreach (EcoStatusChannel statusChannel in DLConfig.Data.EcoStatusDiscordChannels)
+            foreach (EcoStatusChannel statusChannel in DLConfig.Data.EcoStatusChannels)
             {
                 DiscordGuild discordGuild = DiscordClient.GuildByName(statusChannel.DiscordGuild);
                 if (discordGuild == null) continue;
@@ -580,7 +580,7 @@ namespace Eco.Plugins.DiscordLink
 
         private async Task UpdateSnippets()
         {
-            foreach(DiscordChannelIdentifier snippetChannel in DLConfig.Data.SnippetChannels)
+            foreach(ChannelLink snippetChannel in DLConfig.Data.SnippetChannels)
             {
                 if (DiscordClient == null) return;
                 DiscordGuild discordGuild = DiscordClient.GuildByName(snippetChannel.DiscordGuild);
@@ -672,7 +672,7 @@ namespace Eco.Plugins.DiscordLink
                 char sign = (subTotal > 0.0f ? '+' : '-');
                 builder.AddField("Total", sign + Math.Abs(subTotal).ToString("n2") + " " + firstTrade.Currency.Name);
 
-                foreach (DiscordChannelIdentifier tradeChannel in DLConfig.Data.TradeChannels)
+                foreach (ChannelLink tradeChannel in DLConfig.Data.TradeChannels)
                 {
                     if (DiscordClient == null) return;
                     DiscordGuild discordGuild = DiscordClient.GuildByName(tradeChannel.DiscordGuild);
