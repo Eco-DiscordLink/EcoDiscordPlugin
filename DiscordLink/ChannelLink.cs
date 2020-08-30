@@ -85,6 +85,17 @@ namespace Eco.Plugins.DiscordLink
             return !string.IsNullOrWhiteSpace(DiscordGuild) && !string.IsNullOrWhiteSpace(DiscordChannel) && !string.IsNullOrWhiteSpace(EcoChannel);
         }
 
-        // TODO[Monzun] Override MakeCorrections and ensure that eco channels don't allow # in the name
+        public override bool MakeCorrections()
+        {
+            bool correctionMade = base.MakeCorrections();
+            string original = EcoChannel;
+            EcoChannel = EcoChannel.Trim('#');
+            if (EcoChannel != original)
+            {
+                correctionMade = true;
+                Logger.Info("Corrected Eco channel name with Guild name/ID \"" + DiscordGuild + "\" and Discord Channel name/ID \"" + DiscordChannel + "\" from \"" + original + "\" to \"" + EcoChannel + "\"");
+            }
+            return correctionMade;
+        }
     }
 }
