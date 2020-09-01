@@ -24,7 +24,7 @@ namespace Eco.Plugins.DiscordLink
 {
     public class DiscordLink : IModKitPlugin, IInitializablePlugin, IConfigurablePlugin, IShutdownablePlugin, IGameActionAware
     {
-        public readonly Version PluginVersion = new Version(2, 0);
+        public readonly Version PluginVersion = new Version(2, 0, 1);
 
         public const string InviteCommandLinkToken = "[LINK]";
         public const string EchoCommandToken = "[ECHO]";
@@ -598,70 +598,75 @@ namespace Eco.Plugins.DiscordLink
             UpdateEcoStatus();
         }
 
+        private static object _lock = new object();
         private void UpdateEcoStatus()
         {
-            if (_discordClient == null) return;
-            foreach (EcoStatusChannel statusChannel in _configOptions.Config.EcoStatusDiscordChannels)
+            lock (_lock)
             {
-                DiscordGuild discordGuild = _discordClient.GuildByName(statusChannel.DiscordGuild);
-                if (discordGuild == null) continue;
-                DiscordChannel discordChannel = discordGuild.ChannelByName(statusChannel.DiscordChannel);
-                if (discordChannel == null) continue;
+                if (_discordClient == null) return;
 
-                if (!DiscordUtil.ChannelHasPermission(discordChannel, Permissions.ReadMessageHistory)) continue;
-                bool HasEmbedPermission = DiscordUtil.ChannelHasPermission(discordChannel, Permissions.EmbedLinks);
-
-                DiscordMessage ecoStatusMessage = null;
-                bool created = false;
-                ulong statusMessageID;
-                if (_ecoStatusMessages.TryGetValue(statusChannel, out statusMessageID))
+                foreach (EcoStatusChannel statusChannel in _configOptions.Config.EcoStatusDiscordChannels)
                 {
-                    try
-                    {
-                         ecoStatusMessage = discordChannel.GetMessageAsync(statusMessageID).Result;
-                    }
-                    catch(System.AggregateException)
-                    {
-                        _ecoStatusMessages.Remove(statusChannel); // The message has been removed, take it out of the list
-                    }
-                    catch(Exception e)
-                    {
-                        Logger.Error("Error occurred when attempting to read message with ID " + statusMessageID + " from channel \"" + discordChannel.Name + "\". Error message: " + e);
-                        continue;
-                    }
-                }
-                else
-                {
-                    IReadOnlyList<DiscordMessage> ecoStatusChannelMessages = DiscordUtil.GetMessagesAsync(discordChannel).Result;
-                    if (ecoStatusChannelMessages == null) continue;
+                    DiscordGuild discordGuild = _discordClient.GuildByName(statusChannel.DiscordGuild);
+                    if (discordGuild == null) continue;
+                    DiscordChannel discordChannel = discordGuild.ChannelByName(statusChannel.DiscordChannel);
+                    if (discordChannel == null) continue;
 
-                    foreach(DiscordMessage message in ecoStatusChannelMessages)
+                    if (!DiscordUtil.ChannelHasPermission(discordChannel, Permissions.ReadMessageHistory)) continue;
+                    bool HasEmbedPermission = DiscordUtil.ChannelHasPermission(discordChannel, Permissions.EmbedLinks);
+
+                    DiscordMessage ecoStatusMessage = null;
+                    bool created = false;
+                    ulong statusMessageID;
+                    if (_ecoStatusMessages.TryGetValue(statusChannel, out statusMessageID))
                     {
-                        // We assume that it's our status message if it has parts of our string in it
-                        if(message.Author == _discordClient.CurrentUser 
-                            && (HasEmbedPermission ? (message.Embeds.Count == 1 && message.Embeds[0].Title.Contains("Live Server Status**")) : message.Content.Contains("Live Server Status**")))
+                        try
                         {
-                            ecoStatusMessage = message;
-                            break;
+                             ecoStatusMessage = discordChannel.GetMessageAsync(statusMessageID).Result;
+                        }
+                        catch(System.AggregateException)
+                        {
+                            _ecoStatusMessages.Remove(statusChannel); // The message has been removed, take it out of the list
+                        }
+                        catch(Exception e)
+                        {
+                            Logger.Error("Error occurred when attempting to read message with ID " + statusMessageID + " from channel \"" + discordChannel.Name + "\". Error message: " + e);
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        IReadOnlyList<DiscordMessage> ecoStatusChannelMessages = DiscordUtil.GetMessagesAsync(discordChannel).Result;
+                        if (ecoStatusChannelMessages == null) continue;
+
+                        foreach(DiscordMessage message in ecoStatusChannelMessages)
+                        {
+                            // We assume that it's our status message if it has parts of our string in it
+                            if(message.Author == _discordClient.CurrentUser 
+                                && (HasEmbedPermission ? (message.Embeds.Count == 1 && message.Embeds[0].Title.Contains("Live Server Status**")) : message.Content.Contains("Live Server Status**")))
+                            {
+                                ecoStatusMessage = message;
+                                break;
+                            }
+                        }
+
+                        // If we couldn't find a status message, create a new one
+                        if(ecoStatusMessage == null)
+                        {
+                            ecoStatusMessage = DiscordUtil.SendAsync(discordChannel, null, MessageBuilder.GetEcoStatus(GetEcoStatusFlagForChannel(statusChannel), isLiveMessage: true)).Result;
+                            created = true;
+                        }
+
+                        if (ecoStatusMessage != null) // SendAsync may return null in case an exception is raised
+                        {
+                            _ecoStatusMessages.Add(statusChannel, ecoStatusMessage.Id);
                         }
                     }
 
-                    // If we couldn't find a status message, create a new one
-                    if(ecoStatusMessage == null)
+                    if (ecoStatusMessage != null && !created) // It is pointless to update the message if it was just created
                     {
-                        ecoStatusMessage = DiscordUtil.SendAsync(discordChannel, null, MessageBuilder.GetEcoStatus(GetEcoStatusFlagForChannel(statusChannel), isLiveMessage: true)).Result;
-                        created = true;
+                        DiscordUtil.ModifyAsync(ecoStatusMessage, "", MessageBuilder.GetEcoStatus(GetEcoStatusFlagForChannel(statusChannel), isLiveMessage: true));
                     }
-
-                    if (ecoStatusMessage != null) // SendAsync may return null in case an exception is raised
-                    {
-                        _ecoStatusMessages.Add(statusChannel, ecoStatusMessage.Id);
-                    }
-                }
-
-                if (ecoStatusMessage != null && !created) // It is pointless to update the message if it was just created
-                {
-                    DiscordUtil.ModifyAsync(ecoStatusMessage, "", MessageBuilder.GetEcoStatus(GetEcoStatusFlagForChannel(statusChannel), isLiveMessage: true));
                 }
             }
         }
