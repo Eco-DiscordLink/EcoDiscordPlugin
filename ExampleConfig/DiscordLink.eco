@@ -28,7 +28,8 @@
       "EcoChannel": "General",
       "AllowUserMentions": true,
       "AllowRoleMentions": true,
-      "AllowChannelMentions": true
+      "AllowChannelMentions": true,
+      "HereAndEveryoneMentionPermission": "Forbidden"
     },
   ],
   "Debug": false,

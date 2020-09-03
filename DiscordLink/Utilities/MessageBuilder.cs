@@ -7,7 +7,7 @@ using Eco.Gameplay.Civics.GameValues;
 using Eco.Gameplay.Players;
 using Eco.Plugins.Networking;
 
-namespace Eco.Plugins.DiscordLink
+namespace Eco.Plugins.DiscordLink.Utilities
 {
     static class MessageBuilder
     {
@@ -59,7 +59,7 @@ namespace Eco.Plugins.DiscordLink
             var plugin = DiscordLink.Obj;
             if (plugin == null) { return null; }
 
-            var pluginConfig = plugin.DiscordPluginConfig;
+            var config = DLConfig.Data;
             var serverInfo = NetworkManager.GetServerInfo();
 
             var builder = new DiscordEmbedBuilder();
@@ -68,7 +68,7 @@ namespace Eco.Plugins.DiscordLink
 
             if (flag.HasFlag(EcoStatusComponentFlag.Name))
             {
-                builder.WithTitle($"**{FirstNonEmptyString(pluginConfig.ServerName, serverInfo.Name)} " + (isLiveMessage ? "Live Server Status" : "Server Status") + "**\n" + DateTime.Now.ToShortDateString() + " : " + DateTime.Now.ToShortTimeString());
+                builder.WithTitle($"**{FirstNonEmptyString(config.ServerName, serverInfo.Name)} " + (isLiveMessage ? "Live Server Status" : "Server Status") + "**\n" + DateTime.Now.ToShortDateString() + " : " + DateTime.Now.ToShortTimeString());
             }
             else
             {
@@ -79,14 +79,14 @@ namespace Eco.Plugins.DiscordLink
 
             if (flag.HasFlag(EcoStatusComponentFlag.Description))
             {
-                builder.WithDescription(FirstNonEmptyString(pluginConfig.ServerDescription, serverInfo.Description, "No server description is available."));
+                builder.WithDescription(FirstNonEmptyString(config.ServerDescription, serverInfo.Description, "No server description is available."));
             }
 
-            if (flag.HasFlag(EcoStatusComponentFlag.Logo) && !String.IsNullOrWhiteSpace(pluginConfig.ServerLogo))
+            if (flag.HasFlag(EcoStatusComponentFlag.Logo) && !String.IsNullOrWhiteSpace(config.ServerLogo))
             {
                 try
                 {
-                    builder.WithThumbnail(pluginConfig.ServerLogo);
+                    builder.WithThumbnail(config.ServerLogo);
                 }
                 catch (UriFormatException)
                 { }
@@ -95,9 +95,9 @@ namespace Eco.Plugins.DiscordLink
             if (flag.HasFlag(EcoStatusComponentFlag.ServerAddress))
             {
                 string fieldText = "-- No address configured --";
-                if (!string.IsNullOrEmpty(pluginConfig.ServerAddress))
+                if (!string.IsNullOrEmpty(config.ServerAddress))
                 {
-                    fieldText = pluginConfig.ServerAddress;
+                    fieldText = config.ServerAddress;
                 }
                 else if(!string.IsNullOrEmpty(serverInfo.Address))
                 {

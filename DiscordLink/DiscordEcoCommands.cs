@@ -3,6 +3,7 @@ using Eco.Gameplay.Players;
 using Eco.Gameplay.Systems.Chat;
 using Eco.Shared.Localization;
 using System.Text.RegularExpressions;
+using Eco.Plugins.DiscordLink.Utilities;
 
 namespace Eco.Plugins.DiscordLink
 {
@@ -127,27 +128,65 @@ namespace Eco.Plugins.DiscordLink
                 user);
         }
 
-        [ChatCommand("Displays Discord invite message.", ChatAuthorizationLevel.User)]
-        public static void DiscordInvite(User user)
+        [ChatCommand("Displays Discord invite message.", "dl-invite", ChatAuthorizationLevel.User)]
+        public static void DiscordInvite(User user, string ecoChannel = "")
         {
             CallWithErrorHandling<object>((lUser, args) =>
             {
                 var plugin = DiscordLink.Obj;
                 if (plugin == null) return;
 
-                var config = plugin.DiscordPluginConfig;
+                var config = DLConfig.Data;
                 var serverInfo = Networking.NetworkManager.GetServerInfo();
 
                 string inviteMessage = config.InviteMessage;
-                if (!inviteMessage.Contains(DiscordLink.InviteCommandLinkToken) || string.IsNullOrEmpty(serverInfo.DiscordAddress))
+                if (!inviteMessage.Contains(DLConfig.InviteCommandLinkToken) || string.IsNullOrEmpty(serverInfo.DiscordAddress))
                 {
                     ChatManager.ServerMessageToPlayer( new LocString("This server is not configured for using the /DiscordInvite command."), user);
                     return;
                 }
                 
-                inviteMessage = Regex.Replace(inviteMessage, Regex.Escape(DiscordLink.InviteCommandLinkToken), serverInfo.DiscordAddress);
-                string formattedInviteMessage = $"#{config.EcoCommandChannel} {inviteMessage}";
+                inviteMessage = Regex.Replace(inviteMessage, Regex.Escape(DLConfig.InviteCommandLinkToken), serverInfo.DiscordAddress);
+                string formattedInviteMessage = $"#{(string.IsNullOrEmpty(ecoChannel) ? config.EcoCommandChannel : ecoChannel) } {inviteMessage}";
                 ChatManager.SendChat(formattedInviteMessage, plugin.EcoUser);
+            },
+            user);
+        }
+
+        [ChatCommand("Print a predefined snippet from Discord.", "dl-snippet", ChatAuthorizationLevel.User)]
+        public static void DiscordSnippet(User user, string snippetKey = "", string ecoChannel = "")
+        {
+            CallWithErrorHandling<object>((lUser, args) =>
+            {
+                var plugin = DiscordLink.Obj;
+                if (plugin == null) return;
+
+                var snippets = DiscordLink.Obj.Snippets;
+                string response;
+                if (string.IsNullOrWhiteSpace(snippetKey)) // List all snippets if no key is given
+                {
+                    response = (snippets.Count > 0 ? "Available snippets:\n" : "There are no registered snippets.");
+                    foreach (var snippetKeyVal in snippets)
+                    {
+                        response += snippetKeyVal.Key + "\n";
+                    }
+                    ChatManager.ServerMessageToPlayer(new LocString(response), user);
+                }
+                else
+                {
+                    string snippetKeyLower = snippetKey.ToLower();
+                    if (snippets.TryGetValue(snippetKeyLower, out string sippetText))
+                    {
+                        response = user.Name + " invoked snippet \"" + snippetKey + "\"\n- - -\n" + sippetText + "\n- - -";
+                        string formattedSnippetMessage = $"#{(string.IsNullOrEmpty(ecoChannel) ? DLConfig.Data.EcoCommandChannel : ecoChannel) } {response}";
+                        ChatManager.SendChat(formattedSnippetMessage, plugin.EcoUser);
+                    }
+                    else
+                    {
+                        response = "No snippet with key \"" + snippetKey + "\" could be found.";
+                        ChatManager.ServerMessageToPlayer(new LocString(response), user);
+                    }
+                }
             },
             user);
         }

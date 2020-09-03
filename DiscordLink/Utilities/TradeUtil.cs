@@ -8,7 +8,7 @@ using Eco.Gameplay.Players;
 
 namespace Eco.Plugins.DiscordLink.Utilities
 {
-    public class TradeHelper
+    public class TradeUtil
     {
         private static List<Either<Item, User>> _itemLookup = null;
 
@@ -54,8 +54,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         public static string StoreCurrencyName(StoreComponent store)
         {
-            //TODO Remove unnecessary coupling to DiscordLink
-            return DiscordLink.StripTags(store.Parent.GetComponent<CreditComponent>().CreditData.Currency.Name);
+            return MessageUtil.StripEcoTags(store.Parent.GetComponent<CreditComponent>().CreditData.Currency.Name);
         }
         
         public static IEnumerable<Tuple<StoreComponent, TradeOffer>>
@@ -89,6 +88,5 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 .Skip(start)
                 .Take(count);
         }
- 
     }
 }

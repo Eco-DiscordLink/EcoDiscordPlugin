@@ -1,5 +1,6 @@
 ﻿using DSharpPlus.Entities;
 using Eco.Gameplay.GameActions;
+using Eco.Plugins.DiscordLink.Utilities;
 using System;
 using System.Globalization;
 using System.IO;
@@ -20,7 +21,7 @@ namespace Eco.Plugins.DiscordLink
         {
             if (_initialized) return;
 
-            DiscordConfig config = DiscordLink.Obj.DiscordPluginConfig;
+            DLConfigData config = DLConfig.Data;
             try
             {
                 _writer = new StreamWriter(config.ChatlogPath, append: true);
@@ -33,7 +34,7 @@ namespace Eco.Plugins.DiscordLink
 
             if (_initialized)
             {
-                _flushTimer = new Timer(async innerArgs =>
+                _flushTimer = new Timer(innerArgs =>
                 {
                     Flush();
                 }, null, 0, CHATLOG_FLUSH_TIMER_INTERAVAL_MS);
@@ -71,7 +72,7 @@ namespace Eco.Plugins.DiscordLink
             DateTime time = DateTime.Now;
             int utcOffset = TimeZoneInfo.Local.GetUtcOffset(time).Hours;
             _writer.WriteLine("[Discord] [" + DateTime.Now.ToString("yyyy-MM-dd : HH:mm", CultureInfo.InvariantCulture) + " UTC " + (utcOffset != 0 ? (utcOffset >= 0 ? "+" : "-") + utcOffset : "") + "] "
-                + $"{DiscordLink.StripTags(message.Author.Username) + ": " + DiscordLink.StripTags(message.Content)}");
+                + $"{MessageUtil.StripEcoTags(message.Author.Username) + ": " + MessageUtil.StripEcoTags(message.Content)}");
         }
 
         public void Write(ChatSent message)
@@ -81,7 +82,7 @@ namespace Eco.Plugins.DiscordLink
             DateTime time = DateTime.Now;
             int utcOffset = TimeZoneInfo.Local.GetUtcOffset(time).Hours;
             _writer.WriteLine("[Eco] [" + DateTime.Now.ToString("yyyy-MM-dd : HH:mm", CultureInfo.InvariantCulture) + " UTC " + (utcOffset != 0 ? (utcOffset >= 0 ? "+" : "-") + utcOffset : "") + "] "
-                + $"{DiscordLink.StripTags(message.Citizen.Name) + ": " + DiscordLink.StripTags(message.Message)}");
+                + $"{MessageUtil.StripEcoTags(message.Citizen.Name) + ": " + MessageUtil.StripEcoTags(message.Message)}");
         }
 
         private void Flush()

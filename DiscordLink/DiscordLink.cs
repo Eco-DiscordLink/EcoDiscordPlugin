@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -18,53 +15,54 @@ using Eco.Core.Utils;
 using Eco.Gameplay.GameActions;
 using Eco.Gameplay.Players;
 using Eco.Gameplay.Systems.Chat;
+using Eco.Gameplay.Systems.Tooltip;
+using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Utils;
 
 namespace Eco.Plugins.DiscordLink
 {
-    public class DiscordLink : IModKitPlugin, IInitializablePlugin, IConfigurablePlugin, IShutdownablePlugin, IGameActionAware
+    public class DiscordLink : IModKitPlugin, IInitializablePlugin, IShutdownablePlugin, IConfigurablePlugin, IGameActionAware
     {
         public readonly Version PluginVersion = new Version(2, 0, 1);
 
-        public const string InviteCommandLinkToken = "[LINK]";
-        public const string EchoCommandToken = "[ECHO]";
+        public event EventHandler OnClientStarted;
+        public event EventHandler OnClientStopped;
+        public event EventHandler OnDiscordMaybeReady;
+
+        public static DiscordLink Obj { get { return PluginManager.GetPlugin<DiscordLink>(); } }
         public ThreadSafeAction<object, string> ParamChanged { get; set; }
-        protected string NametagColor = "7289DAFF";
-        private PluginConfig<DiscordConfig> _configOptions;
-        private DiscordConfig _prevConfigOptions; // Used to detect differences when the config is saved
-        private DiscordClient _discordClient;
-        private CommandsNextExtension _commands;
-        private Timer _ecoStatusStartupTimer = null;
-        private Timer _guildVerificationOutputTimer = null;
-        private Timer _staticVerificationOutputDelayTimer = null;
-        private string _currentBotToken;
+        public DiscordClient DiscordClient { get; private set; }
+        public const string EchoCommandToken = "[ECHO]";
+
         private string _status = "No Connection Attempt Made";
-        private ChatLogger _chatLogger = new ChatLogger();
-
-        // Finds the tags used by Eco message formatting (color codes, badges, links etc)
-        private static readonly Regex EcoNameTagRegex = new Regex("<[^>]*>");
-
-        // Discord mention matching regex: Match all characters followed by a mention character(@ or #) character (including that character) until encountering any type of whitespace, end of string or a new mention character
-        private static readonly Regex DiscordMentionRegex = new Regex("([@#].+?)(?=\\s|$|@|#)");
+        private readonly ChatLogger _chatLogger = new ChatLogger();
+        private CommandsNextExtension _commands;
+        private Timer _discordDataMaybeAvailable = null;
+        private Timer _tradePostingTimer = null;
 
         public override string ToString()
         {
             return "DiscordLink";
         }
 
-        public IPluginConfig PluginConfig
-        {
-            get { return _configOptions; }
-        }
-
-        public DiscordConfig DiscordPluginConfig
-        {
-            get { return PluginConfig.GetConfig() as DiscordConfig; }
-        }
-
         public string GetStatus()
         {
             return _status;
+        }
+
+        public IPluginConfig PluginConfig
+        {
+            get { return DLConfig.Instance.PluginConfig; }
+        }
+
+        public object GetEditObject()
+        {
+            return DLConfig.Data;
+        }
+
+        public void OnEditObjectChanged(object o, string param)
+        {
+            DLConfig.Instance.HandleConfigChanged();
         }
 
         public void Initialize(TimedTask timer)
@@ -79,15 +77,28 @@ namespace Eco.Plugins.DiscordLink
 
             ConnectAsync().Wait();
 
-            if (_configOptions.Config.LogChat)
+            if (DLConfig.Data.LogChat)
             {
                 _chatLogger.Start();
             }
+
+            // Triggered on a timer that starts when the Discord client connects.
+            // It is likely that the client object has fetched all the relevant data, but there are not guarantees.
+            OnDiscordMaybeReady += (obj, args) =>
+            {
+                UpdateEcoStatus();
+                _ = UpdateSnippets();
+
+                _tradePostingTimer = new Timer(InnerArgs =>
+                {
+                    _ = PostAccumulatedTrades();
+                }, null, 0, TRADE_POSTING_INTERVAL_MS);
+            };
         }
 
         public void Shutdown()
         {
-            if (_configOptions.Config.LogChat)
+            if (DLConfig.Data.LogChat)
             {
                 _chatLogger.Stop();
             }
@@ -95,11 +106,48 @@ namespace Eco.Plugins.DiscordLink
 
         private void SetupConfig()
         {
-            _configOptions = new PluginConfig<DiscordConfig>("DiscordLink");
-            _prevConfigOptions = (DiscordConfig)_configOptions.Config.Clone();
-            DiscordPluginConfig.PlayerConfigs.CollectionChanged += (obj, args) => { OnConfigChanged(); };
-            DiscordPluginConfig.ChatChannelLinks.CollectionChanged += (obj, args) => { OnConfigChanged(); };
-            DiscordPluginConfig.EcoStatusDiscordChannels.CollectionChanged += (obj, args) => { OnConfigChanged(); };
+            DLConfig config = DLConfig.Instance;
+            config.Initialize();
+            config.OnChatlogEnabled += (obj, args) => { _chatLogger.Start(); };
+            config.OnChatlogDisabled += (obj, args) => { _chatLogger.Stop(); };
+            config.OnChatlogPathChanged += (obj, args) => { _chatLogger.Restart(); };
+            config.OnTokenChanged += (obj, args) =>
+            {
+                Logger.Info("Discord Bot Token changed - Reinitialising client");
+                _ = RestartClient();
+            };
+            config.OnConfigChanged += (obj, args) =>
+            {
+                _ecoStatusMessages.Clear(); // The status channels may have changed so we should find the messages again;
+                UpdateSnippets();
+            };
+        }
+
+        public void ActionPerformed(GameAction action)
+        {
+            switch (action)
+            {
+                case ChatSent chatSent:
+                    OnMessageReceivedFromEco(chatSent);
+                    break;
+
+                case FirstLogin _:
+                case Play _:
+                    UpdateEcoStatus();
+                    break;
+
+                case CurrencyTrade CurrencyTrade:
+                    StoreTradeEvent(CurrencyTrade);
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        public Result ShouldOverrideAuth(GameAction action)
+        {
+            return new Result(ResultType.None);
         }
 
         #region DiscordClient Management
@@ -108,76 +156,60 @@ namespace Eco.Plugins.DiscordLink
         {
             _status = "Setting up client";
 
-            bool BotTokenIsNull = String.IsNullOrWhiteSpace(DiscordPluginConfig.BotToken);
+            bool BotTokenIsNull = String.IsNullOrWhiteSpace(DLConfig.Data.BotToken);
             if (BotTokenIsNull)
             {
-                VerifyConfig(VerificationFlags.Static); // Make the user aware of the empty bot token
+                DLConfig.Instance.VerifyConfig(DLConfig.VerificationFlags.Static); // Make the user aware of the empty bot token
             }
-            _currentBotToken = DiscordPluginConfig.BotToken;
 
-            if(BotTokenIsNull) return false; // Do not attempt to initialize if the bot token is empty
+            if (BotTokenIsNull) return false; // Do not attempt to initialize if the bot token is empty
 
             try
             {
                 // Create the new client
-                _discordClient = new DiscordClient(new DiscordConfiguration
+                DiscordClient = new DiscordClient(new DiscordConfiguration
                 {
                     AutoReconnect = true,
-                    Token = _currentBotToken,
+                    Token = DLConfig.Data.BotToken,
                     TokenType = TokenType.Bot
                 });
 
-                _discordClient.ClientErrored += async args => { Logger.Error("A Discord client error occurred. Error messages was: " + args.EventName + " " + args.Exception.ToString()); };
-                _discordClient.SocketErrored += async args => { Logger.Error("A socket error occurred. Error message was: " + args.Exception.ToString()); };
-                _discordClient.SocketClosed += async args => { Logger.DebugVerbose("Socket Closed: " + args.CloseMessage + " " + args.CloseCode); };
-                _discordClient.Resumed += async args => { Logger.Info("Resumed connection"); };
-                _discordClient.Ready += async args =>
+                DiscordClient.ClientErrored += async args => { Logger.Error("A Discord client error occurred. Error messages was: " + args.EventName + " " + args.Exception.ToString()); };
+                DiscordClient.SocketErrored += async args => { Logger.Error("A socket error occurred. Error message was: " + args.Exception.ToString()); };
+                DiscordClient.SocketClosed += async args => { Logger.DebugVerbose("Socket Closed: " + args.CloseMessage + " " + args.CloseCode); };
+                DiscordClient.Resumed += async args => { Logger.Info("Resumed connection"); };
+                DiscordClient.Ready += async args =>
                 {
-                    // Queue up the check for unverified channels
-                    _linkVerificationTimeoutTimer = new Timer(async innerArgs =>
-                    {
-                        _linkVerificationTimeoutTimer = null;
-                        ReportUnverifiedChannels();
-                        _verifiedLinks.Clear();
-                    }, null, LINK_VERIFICATION_TIMEOUT_MS, Timeout.Infinite);
+                    DLConfig.Instance.EnqueueFullVerification();
 
                     // Run EcoStatus once when the server has started
-                    _ecoStatusStartupTimer = new Timer(async innerArgs =>
+                    _discordDataMaybeAvailable = new Timer(innerArgs =>
                     {
-                        _ecoStatusStartupTimer = null;
-                        UpdateEcoStatus();
+                        OnDiscordMaybeReady?.Invoke(this, EventArgs.Empty);
+                        _discordDataMaybeAvailable = null;
                     }, null, ECO_STATUS_FIRST_UPDATE_DELAY_MS, Timeout.Infinite);
-
-                    // Avoid writing async while the server is still outputting initialization info
-                    _staticVerificationOutputDelayTimer = new Timer(async innerArgs =>
-                    {
-                        _staticVerificationOutputDelayTimer = null;
-                         VerifyConfig(VerificationFlags.Static);
-                    }, null, STATIC_VERIFICATION_OUTPUT_DELAY_MS, Timeout.Infinite);
                 };
-                _discordClient.GuildAvailable += async args =>
+
+                DiscordClient.GuildAvailable += async args =>
                 {
-                    _guildVerificationOutputTimer = new Timer(async innerArgs =>
-                    {
-                        _guildVerificationOutputTimer = null;
-                        VerifyConfig(VerificationFlags.ChannelLinks);
-                    }, null, GUILD_VERIFICATION_OUTPUT_DELAY_MS, Timeout.Infinite);
+                    DLConfig.Instance.EnqueueGuildVerification();
                 };
 
                 // Set up the client to use CommandsNext
-                _commands = _discordClient.UseCommandsNext(new CommandsNextConfiguration
+                _commands = DiscordClient.UseCommandsNext(new CommandsNextConfiguration
                 {
-                    StringPrefixes = _configOptions.Config.DiscordCommandPrefix.SingleItemAsEnumerable()
+                    StringPrefixes = DLConfig.Data.DiscordCommandPrefix.SingleItemAsEnumerable()
                 });
                 _commands.RegisterCommands<DiscordDiscordCommands>();
 
                 _ecoStatusUpdateTimer = new Timer(this.UpdateEcoStatusOnTimer, null, 0, ECO_STATUS_TIMER_INTERAVAL_MS);
 
+                OnClientStarted?.Invoke(this, EventArgs.Empty);
                 return true;
             }
             catch (Exception e)
             {
-                Logger.Error("Error occurred while creating the Discord client. Error message: " + e );
+                Logger.Error("Error occurred while creating the Discord client. Error message: " + e);
             }
 
             return false;
@@ -186,29 +218,27 @@ namespace Eco.Plugins.DiscordLink
         void StopClient()
         {
             // Stop various timers that may have been set up so they do not trigger while the reset is ongoing
-            SystemUtil.StopAndDestroyTimer(ref _linkVerificationTimeoutTimer);
-            SystemUtil.StopAndDestroyTimer(ref _ecoStatusStartupTimer);
+            DLConfig.Instance.DequeueAllVerification();
+            SystemUtil.StopAndDestroyTimer(ref _discordDataMaybeAvailable);
             SystemUtil.StopAndDestroyTimer(ref _ecoStatusUpdateTimer);
-            SystemUtil.StopAndDestroyTimer(ref _staticVerificationOutputDelayTimer);
-            SystemUtil.StopAndDestroyTimer(ref _guildVerificationOutputTimer);
-
+            SystemUtil.StopAndDestroyTimer(ref _tradePostingTimer);
+            
             // Clear all the stored message references as they may become invalid if the token has changed
             _ecoStatusMessages.Clear();
 
-            // If we were waiting to verify channel links, we need to clear this list or risk false positives
-            _verifiedLinks.Clear();
-
-            if (_discordClient != null)
+            if (DiscordClient != null)
             {
                 StopRelaying();
 
                 // If DisconnectAsync() is called in the GUI thread, it will cause a deadlock
-                SystemUtil.SynchronousThreadExecute( () =>
+                SystemUtil.SynchronousThreadExecute(() =>
                 {
-                    _discordClient.DisconnectAsync().Wait();
+                   DiscordClient.DisconnectAsync().Wait();
                 });
-                _discordClient.Dispose();
-                _discordClient = null;
+                DiscordClient.Dispose();
+                DiscordClient = null;
+
+                OnClientStopped?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -228,7 +258,7 @@ namespace Eco.Plugins.DiscordLink
             try
             {
                 _status = "Attempting connection...";
-                await _discordClient.ConnectAsync();
+                await DiscordClient.ConnectAsync();
                 BeginRelaying();
                 Logger.Info("Connected to Discord");
                 _status = "Connection successful";
@@ -247,7 +277,7 @@ namespace Eco.Plugins.DiscordLink
             try
             {
                 StopRelaying();
-                await _discordClient.DisconnectAsync();
+                await DiscordClient.DisconnectAsync();
             }
             catch (Exception e)
             {
@@ -258,24 +288,22 @@ namespace Eco.Plugins.DiscordLink
             return null;
         }
 
-        public DiscordClient DiscordClient => _discordClient;
-
         #endregion
 
         #region Discord Guild Access
 
-        public string[] GuildNames => _discordClient.GuildNames();
-        public DiscordGuild DefaultGuild => _discordClient.DefaultGuild();
-        
+        public string[] GuildNames => DiscordClient.GuildNames();
+        public DiscordGuild DefaultGuild => DiscordClient.DefaultGuild();
+
         public DiscordGuild GuildByName(string name)
         {
-            return _discordClient?.Guilds.Values.FirstOrDefault(guild => guild.Name?.ToLower() == name.ToLower());
+            return DiscordClient?.Guilds.Values.FirstOrDefault(guild => guild.Name?.ToLower() == name.ToLower());
         }
 
         public DiscordGuild GuildByNameOrId(string nameOrId)
         {
             var maybeGuildId = DSharpExtensions.TryParseSnowflakeId(nameOrId);
-            return maybeGuildId != null ? _discordClient.Guilds[maybeGuildId.Value] : GuildByName(nameOrId);
+            return maybeGuildId != null ? DiscordClient.Guilds[maybeGuildId.Value] : GuildByName(nameOrId);
         }
 
         #endregion
@@ -284,7 +312,7 @@ namespace Eco.Plugins.DiscordLink
 
         public async Task<string> SendDiscordMessage(string message, string channelNameOrId, string guildNameOrId)
         {
-            if (_discordClient == null) return "No discord client";
+            if (DiscordClient == null) return "No discord client";
 
             var guild = GuildByNameOrId(guildNameOrId);
             if (guild == null) return "No guild of that name found";
@@ -294,20 +322,20 @@ namespace Eco.Plugins.DiscordLink
             return "Message sent";
         }
 
-        public async Task<string> SendDiscordMessageAsUser(string message, User user, string channelNameOrId, string guildNameOrId)
+        public async Task<string> SendDiscordMessageAsUser(string message, User user, string channelNameOrId, string guildNameOrId, bool allowGlobalMentions = false)
         {
             var guild = GuildByNameOrId(guildNameOrId);
             if (guild == null) return "No guild of that name found";
 
             var channel = guild.ChannelByNameOrId(channelNameOrId);
             if (channel == null) return "No channel of that name or ID found in that guild";
-            await DiscordUtil.SendAsync(channel, FormatDiscordMessage(message, channel, user.Name));
+            await DiscordUtil.SendAsync(channel, MessageUtil.FormatMessageForDiscord(message, channel, user.Name, allowGlobalMentions));
             return "Message sent";
         }
 
-        public async Task<String> SendDiscordMessageAsUser(string message, User user, DiscordChannel channel)
+        public async Task<String> SendDiscordMessageAsUser(string message, User user, DiscordChannel channel, bool allowGlobalMentions = false)
         {
-            await DiscordUtil.SendAsync(channel, FormatDiscordMessage(message, channel, user.Name));
+            await DiscordUtil.SendAsync(channel, MessageUtil.FormatMessageForDiscord(message, channel, user.Name, allowGlobalMentions));
             return "Message sent";
         }
 
@@ -315,58 +343,34 @@ namespace Eco.Plugins.DiscordLink
 
         #region Message Relaying
 
-        private string EcoUserSteamId = "DiscordLinkSteam";
-        private string EcoUserSlgId = "DiscordLinkSlg";
-        private string EcoUserName = "Discord";
+        private const string EcoUserSteamId = "DiscordLinkSteam";
+        private const string EcoUserSlgId = "DiscordLinkSlg";
+        private const string EcoUserName = "Discord";
 
         private User _ecoUser;
-        public User EcoUser =>
-            _ecoUser ?? (_ecoUser = UserManager.GetOrCreateUser(EcoUserSteamId, EcoUserSlgId, EcoUserName));
-
-        public void ActionPerformed(GameAction action)
-        {
-            switch(action)
-            {
-                case ChatSent chatSent:
-                    OnMessageReceivedFromEco(chatSent);
-                break;
-
-                case FirstLogin firstLogin:
-                case Play play:
-                    UpdateEcoStatus();
-                    break;
-
-                default:
-                    break;
-            }
-        }
-
-        public Result ShouldOverrideAuth(GameAction action)
-        {
-            return new Result(ResultType.None);
-        }
+        public User EcoUser => _ecoUser ??= UserManager.GetOrCreateUser(EcoUserSteamId, EcoUserSlgId, EcoUserName);
 
         private void BeginRelaying()
         {
             ActionUtil.AddListener(this);
-            _discordClient.MessageCreated += OnDiscordMessageCreateEvent;
+            DiscordClient.MessageCreated += OnDiscordMessageCreateEvent;
         }
 
         private void StopRelaying()
         {
             ActionUtil.RemoveListener(this);
-            _discordClient.MessageCreated -= OnDiscordMessageCreateEvent;
+            DiscordClient.MessageCreated -= OnDiscordMessageCreateEvent;
         }
 
-        private ChannelLink GetLinkForEcoChannel(string discordChannelNameOrId)
+        private ChatChannelLink GetLinkForEcoChannel(string discordChannelNameOrId)
         {
-            return DiscordPluginConfig.ChatChannelLinks.FirstOrDefault(link => link.DiscordChannel == discordChannelNameOrId);
+            return DLConfig.Data.ChatChannelLinks.FirstOrDefault(link => link.DiscordChannel == discordChannelNameOrId);
         }
 
-        private ChannelLink GetLinkForDiscordChannel(string ecoChannelName)
+        private ChatChannelLink GetLinkForDiscordChannel(string ecoChannelName)
         {
             var lowercaseEcoChannelName = ecoChannelName.ToLower();
-            return DiscordPluginConfig.ChatChannelLinks.FirstOrDefault(link => link.EcoChannel.ToLower() == lowercaseEcoChannelName);
+            return DLConfig.Data.ChatChannelLinks.FirstOrDefault(link => link.EcoChannel.ToLower() == lowercaseEcoChannelName);
         }
 
         public void LogEcoMessage(ChatSent chatMessage)
@@ -389,7 +393,7 @@ namespace Eco.Plugins.DiscordLink
         {
             LogEcoMessage(chatMessage);
 
-            // Ignore messages sent by our bot
+            // Ignore commands and messages sent by our bot
             if (chatMessage.Citizen.Name == EcoUser.Name && !chatMessage.Message.StartsWith(EchoCommandToken))
             {
                 return;
@@ -402,7 +406,7 @@ namespace Eco.Plugins.DiscordLink
 
             if (!String.IsNullOrWhiteSpace(channel) && !String.IsNullOrWhiteSpace(guild))
             {
-                ForwardMessageToDiscordChannel(chatMessage, channel, guild);
+                ForwardMessageToDiscordChannel(chatMessage, channel, guild, channelLink.HereAndEveryoneMentionPermission);
             }
         }
 
@@ -414,9 +418,9 @@ namespace Eco.Plugins.DiscordLink
         public void OnMessageReceivedFromDiscord(DiscordMessage message)
         {
             LogDiscordMessage(message);
-            if (message.Author == _discordClient.CurrentUser) { return; }
-            if (message.Content.StartsWith(_configOptions.Config.DiscordCommandPrefix)) { return; }
-            
+            if (message.Author == DiscordClient.CurrentUser) { return; }
+            if (message.Content.StartsWith( DLConfig.Data.DiscordCommandPrefix)) { return; }
+
             var channelLink = GetLinkForEcoChannel(message.Channel.Name) ?? GetLinkForEcoChannel(message.Channel.Id.ToString());
             var channel = channelLink?.EcoChannel;
             if (!String.IsNullOrWhiteSpace(channel))
@@ -425,164 +429,42 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
-        private async void ForwardMessageToEcoChannel(DiscordMessage message, string channelName)
+        private async void ForwardMessageToEcoChannel(DiscordMessage message, string ecoChannel)
         {
-            Logger.DebugVerbose("Sending Discord message to Eco channel: " + channelName);
-            var author = await message.Channel.Guild.MaybeGetMemberAsync(message.Author.Id);
-            var nametag = author != null
-                ? Text.Bold(Text.Color(NametagColor, author.DisplayName))
-                : message.Author.Username;
-            var text = $"#{channelName} {nametag}: {GetReadableContent(message)}";
-            ChatManager.SendChat(text, EcoUser);
+            Logger.DebugVerbose("Sending Discord message to Eco channel: " + ecoChannel);
+            ChatManager.SendChat(MessageUtil.FormatMessageForEco(message, ecoChannel), EcoUser);
 
-            if (_configOptions.Config.LogChat)
+            if (DLConfig.Data.LogChat)
             {
                 _chatLogger.Write(message);
             }
         }
 
-        private void ForwardMessageToDiscordChannel(ChatSent chatMessage, string channelNameOrId, string guildNameOrId)
+        private void ForwardMessageToDiscordChannel(ChatSent chatMessage, string channelNameOrId, string guildNameOrId, GlobalMentionPermission globalMentionPermission)
         {
             Logger.DebugVerbose("Sending Eco message to Discord channel " + channelNameOrId + " in guild " + guildNameOrId);
             var guild = GuildByNameOrId(guildNameOrId);
             if (guild == null)
             {
-                Logger.Error("Failed to forward Eco message from user " + StripTags(chatMessage.Citizen.Name) + " as no guild with the name or ID " + guildNameOrId + " exists");
+                Logger.Error("Failed to forward Eco message from user " + MessageUtil.StripEcoTags(chatMessage.Citizen.Name) + " as no guild with the name or ID " + guildNameOrId + " exists");
                 return;
             }
             var channel = guild.ChannelByNameOrId(channelNameOrId);
-            if(channel == null)
+            if (channel == null)
             {
-                Logger.Error("Failed to forward Eco message from user " + StripTags(chatMessage.Citizen.Name) + " as no channel with the name or ID " + channelNameOrId + " exists in the guild " + guild.Name);
+                Logger.Error("Failed to forward Eco message from user " + MessageUtil.StripEcoTags(chatMessage.Citizen.Name) + " as no channel with the name or ID " + channelNameOrId + " exists in the guild " + guild.Name);
                 return;
             }
 
-            DiscordUtil.SendAsync(channel, FormatDiscordMessage(chatMessage.Message, channel, chatMessage.Citizen.Name));
+            bool allowGlobalMention = (globalMentionPermission == GlobalMentionPermission.AnyUser
+                || globalMentionPermission == GlobalMentionPermission.Admin && chatMessage.Citizen.IsAdmin);
 
-            if (_configOptions.Config.LogChat)
+            _ = DiscordUtil.SendAsync(channel, MessageUtil.FormatMessageForDiscord(chatMessage.Message, channel, chatMessage.Citizen.Name, allowGlobalMention));
+
+            if (DLConfig.Data.LogChat)
             {
                 _chatLogger.Write(chatMessage);
             }
-        }
-
-        private String GetReadableContent(DiscordMessage message)
-        {
-            var content = message.Content;
-            foreach (var user in message.MentionedUsers)
-            {
-                if (user == null) { continue; }
-                DiscordMember member = message.Channel.Guild.Members.FirstOrDefault(m => m.Value?.Id == user.Id).Value;
-                if (member == null) { continue; }
-                String name = "@" + member.DisplayName;
-                content = content.Replace($"<@{user.Id}>", name).Replace($"<@!{user.Id}>", name);
-            }
-            foreach (var role in message.MentionedRoles)
-            {
-                if (role == null) continue;
-                content = content.Replace($"<@&{role.Id}>", $"@{role.Name}");
-            }
-            foreach (var channel in message.MentionedChannels)
-            {
-                if (channel == null) continue;
-                content = content.Replace($"<#{channel.Id}>", $"#{channel.Name}");
-            }
-            return content;
-        }
-
-        #endregion
-
-        #region Message Formatting
-
-        public static string StripTags(string toStrip)
-        {
-            return EcoNameTagRegex.Replace(toStrip, String.Empty);
-        }
-
-        public string FormatDiscordMessage(string message, DiscordChannel channel, string username = "" )
-        {
-            string formattedMessage = (username.IsEmpty() ? "" : $"**{username.Replace("@", "")}**:") + StripTags(message); // All @ characters are removed from the name in order to avoid unintended mentions of the sender
-            formattedMessage = formattedMessage.Replace("@here", "@ here");
-            formattedMessage = formattedMessage.Replace("@everyone", "@ everyone");
-            return FormatDiscordMentions(formattedMessage, channel);
-        }
-
-        private string FormatDiscordMentions(string message, DiscordChannel channel)
-        {
-            return DiscordMentionRegex.Replace(message, capture =>
-            {
-                string match = capture.ToString().Substring(1).ToLower(); // Strip the mention character from the match
-                Func<string, string, string> FormatMention = (name, mention) =>
-                {
-                    if (match == name)
-                    {
-                        return mention;
-                    }
-
-                    string beforeMatch = "";
-                    int matchStartIndex = match.IndexOf(name);
-                    if (matchStartIndex > 0) // There are characters before @username
-                    {
-                        beforeMatch = match.Substring(0, matchStartIndex);
-                    }
-
-                    string afterMatch = "";
-                    int matchStopIndex = matchStartIndex + name.Length - 1;
-                    int numCharactersAfter = match.Length - 1 - matchStopIndex;
-                    if (numCharactersAfter > 0) // There are characters after @username
-                    {
-                        afterMatch = match.Substring(matchStopIndex + 1, numCharactersAfter);
-                    }
-                    
-                    return beforeMatch + mention + afterMatch; // Add whatever characters came before or after the username when replacing the match in order to avoid changing the message context
-                };
-
-                ChannelLink link = _configOptions.Config.GetChannelLinkFromDiscordChannel(channel.Guild.Name, channel.Name);
-                bool allowRoleMentions = (link == null ? true : link.AllowRoleMentions);
-                bool allowMemberMentions = (link == null ? true : link.AllowUserMentions);
-                bool allowChannelMentions = (link == null ? true : link.AllowChannelMentions);
-
-                if (capture.ToString()[0] == '@')
-                {
-                    if (allowRoleMentions)
-                    {
-                        foreach (var role in channel.Guild.Roles.Values) // Checking roles first in case a user has a name identiacal to that of a role
-                        {
-                            if (!role.IsMentionable) continue;
-
-                            string name = role.Name.ToLower();
-                            if (match.Contains(name))
-                            {
-                                return FormatMention(name, role.Mention);
-                            }
-                        }
-                    }
-
-                    if (allowMemberMentions)
-                    {
-                        foreach (var member in channel.Guild.Members.Values)
-                        {
-                            string name = member.DisplayName.ToLower();
-                            if (match.Contains(name))
-                            {
-                                return FormatMention(name, member.Mention);
-                            }
-                        }
-                    }
-                }
-                else if(capture.ToString()[0] == '#' && allowChannelMentions)
-                {
-                    foreach(var listChannel in channel.Guild.Channels.Values)
-                    {
-                        string name = listChannel.Name.ToLower();
-                        if(match.Contains(name))
-                        {
-                            return FormatMention(name, listChannel.Mention);
-                        }
-                    }
-                }
-
-                return capture.ToString(); // No match found, just return the original string
-            });
         }
 
         #endregion
@@ -591,7 +473,7 @@ namespace Eco.Plugins.DiscordLink
         private Timer _ecoStatusUpdateTimer = null;
         private const int ECO_STATUS_TIMER_INTERAVAL_MS = 60000;
         private const int ECO_STATUS_FIRST_UPDATE_DELAY_MS = 20000;
-        private Dictionary<EcoStatusChannel, ulong> _ecoStatusMessages = new Dictionary<EcoStatusChannel, ulong>();
+        private readonly Dictionary<EcoStatusChannel, ulong> _ecoStatusMessages = new Dictionary<EcoStatusChannel, ulong>();
 
         private void UpdateEcoStatusOnTimer(Object stateInfo)
         {
@@ -601,24 +483,26 @@ namespace Eco.Plugins.DiscordLink
         private static object _lock = new object();
         private void UpdateEcoStatus()
         {
-            lock (_lock)
+            if (DiscordClient == null) return;
+            foreach (EcoStatusChannel statusChannel in DLConfig.Data.EcoStatusChannels)
             {
-                if (_discordClient == null) return;
+                DiscordGuild discordGuild = DiscordClient.GuildByName(statusChannel.DiscordGuild);
+                if (discordGuild == null) continue;
+                DiscordChannel discordChannel = discordGuild.ChannelByName(statusChannel.DiscordChannel);
+                if (discordChannel == null) continue;
 
-                foreach (EcoStatusChannel statusChannel in _configOptions.Config.EcoStatusDiscordChannels)
+                if (!DiscordUtil.ChannelHasPermission(discordChannel, Permissions.ReadMessageHistory)) continue;
+                bool HasEmbedPermission = DiscordUtil.ChannelHasPermission(discordChannel, Permissions.EmbedLinks);
+
+                DiscordMessage ecoStatusMessage = null;
+                bool created = false;
+                if (_ecoStatusMessages.TryGetValue(statusChannel, out ulong statusMessageID))
                 {
-                    DiscordGuild discordGuild = _discordClient.GuildByName(statusChannel.DiscordGuild);
-                    if (discordGuild == null) continue;
-                    DiscordChannel discordChannel = discordGuild.ChannelByName(statusChannel.DiscordChannel);
-                    if (discordChannel == null) continue;
-
-                    if (!DiscordUtil.ChannelHasPermission(discordChannel, Permissions.ReadMessageHistory)) continue;
-                    bool HasEmbedPermission = DiscordUtil.ChannelHasPermission(discordChannel, Permissions.EmbedLinks);
-
-                    DiscordMessage ecoStatusMessage = null;
-                    bool created = false;
-                    ulong statusMessageID;
-                    if (_ecoStatusMessages.TryGetValue(statusChannel, out statusMessageID))
+                    try
+                    {
+                        ecoStatusMessage = discordChannel.GetMessageAsync(statusMessageID).Result;
+                    }
+                    catch (System.AggregateException)
                     {
                         try
                         {
@@ -634,12 +518,16 @@ namespace Eco.Plugins.DiscordLink
                             continue;
                         }
                     }
-                    else
+                    catch (Exception e)
                     {
                         IReadOnlyList<DiscordMessage> ecoStatusChannelMessages = DiscordUtil.GetMessagesAsync(discordChannel).Result;
                         if (ecoStatusChannelMessages == null) continue;
 
-                        foreach(DiscordMessage message in ecoStatusChannelMessages)
+                    foreach (DiscordMessage message in ecoStatusChannelMessages)
+                    {
+                        // We assume that it's our status message if it has parts of our string in it
+                        if (message.Author == DiscordClient.CurrentUser
+                            && (HasEmbedPermission ? (message.Embeds.Count == 1 && message.Embeds[0].Title.Contains("Live Server Status**")) : message.Content.Contains("Live Server Status**")))
                         {
                             // We assume that it's our status message if it has parts of our string in it
                             if(message.Author == _discordClient.CurrentUser 
@@ -650,17 +538,11 @@ namespace Eco.Plugins.DiscordLink
                             }
                         }
 
-                        // If we couldn't find a status message, create a new one
-                        if(ecoStatusMessage == null)
-                        {
-                            ecoStatusMessage = DiscordUtil.SendAsync(discordChannel, null, MessageBuilder.GetEcoStatus(GetEcoStatusFlagForChannel(statusChannel), isLiveMessage: true)).Result;
-                            created = true;
-                        }
-
-                        if (ecoStatusMessage != null) // SendAsync may return null in case an exception is raised
-                        {
-                            _ecoStatusMessages.Add(statusChannel, ecoStatusMessage.Id);
-                        }
+                    // If we couldn't find a status message, create a new one
+                    if (ecoStatusMessage == null)
+                    {
+                        ecoStatusMessage = DiscordUtil.SendAsync(discordChannel, null, MessageBuilder.GetEcoStatus(GetEcoStatusFlagForChannel(statusChannel), isLiveMessage: true)).Result;
+                        created = true;
                     }
 
                     if (ecoStatusMessage != null && !created) // It is pointless to update the message if it was just created
@@ -668,19 +550,24 @@ namespace Eco.Plugins.DiscordLink
                         DiscordUtil.ModifyAsync(ecoStatusMessage, "", MessageBuilder.GetEcoStatus(GetEcoStatusFlagForChannel(statusChannel), isLiveMessage: true));
                     }
                 }
+
+                if (ecoStatusMessage != null && !created) // It is pointless to update the message if it was just created
+                {
+                    _ = DiscordUtil.ModifyAsync(ecoStatusMessage, "", MessageBuilder.GetEcoStatus(GetEcoStatusFlagForChannel(statusChannel), isLiveMessage: true));
+                }
             }
         }
 
         private static MessageBuilder.EcoStatusComponentFlag GetEcoStatusFlagForChannel(EcoStatusChannel statusChannel)
         {
             MessageBuilder.EcoStatusComponentFlag statusFlag = 0;
-            if(statusChannel.UseName)
+            if (statusChannel.UseName)
                 statusFlag |= MessageBuilder.EcoStatusComponentFlag.Name;
             if (statusChannel.UseDescription)
                 statusFlag |= MessageBuilder.EcoStatusComponentFlag.Description;
             if (statusChannel.UseLogo)
                 statusFlag |= MessageBuilder.EcoStatusComponentFlag.Logo;
-            if(statusChannel.UseAddress)
+            if (statusChannel.UseAddress)
                 statusFlag |= MessageBuilder.EcoStatusComponentFlag.ServerAddress;
             if (statusChannel.UsePlayerCount)
                 statusFlag |= MessageBuilder.EcoStatusComponentFlag.PlayerCount;
@@ -698,351 +585,116 @@ namespace Eco.Plugins.DiscordLink
 
         #endregion
 
-        #region Configuration
+        #region Snippets
 
-        private List<String> _verifiedLinks = new List<string>();
-        private Timer _linkVerificationTimeoutTimer = null;
-        private const int LINK_VERIFICATION_TIMEOUT_MS = 15000;
-        private const int STATIC_VERIFICATION_OUTPUT_DELAY_MS = 2000;
-        private const int GUILD_VERIFICATION_OUTPUT_DELAY_MS = 3000;
+        public Dictionary<string, string> Snippets { get; private set; } = new Dictionary<string, string>();
 
-        enum VerificationFlags
+        private async Task UpdateSnippets()
         {
-            Static = 1 << 0,
-            ChannelLinks = 1 << 1,
-            All = ~0
-        }
-
-        public static DiscordLink Obj
-        {
-            get { return PluginManager.GetPlugin<DiscordLink>(); }
-        }
-
-        public object GetEditObject()
-        {
-            return _configOptions.Config;
-        }
-
-        public void OnEditObjectChanged(object o, string param)
-        {
-            OnConfigChanged();
-        }
-
-        public void OnConfigChanged()
-        {
-            // Do not verify if change occurred as this function is going to be called again in that case
-            // Do not verify the config in case the bot token has been changed, as the client will be restarted and that will trigger verification
-            bool tokenChanged = DiscordPluginConfig.BotToken != _currentBotToken;
-            bool correctionMade = !SaveConfig();
-
-            if (DiscordPluginConfig.BotToken != _currentBotToken)
+            foreach(ChannelLink snippetChannel in DLConfig.Data.SnippetChannels)
             {
-                // Reinitialise client.
-                Logger.Info("Discord Bot Token changed - Reinitialising client.");
-                RestartClient();
-            }
+                if (DiscordClient == null) return;
+                DiscordGuild discordGuild = DiscordClient.GuildByName(snippetChannel.DiscordGuild);
+                if (discordGuild == null) continue;
+                DiscordChannel discordChannel = discordGuild.ChannelByName(snippetChannel.DiscordChannel);
+                if (discordChannel == null) continue;
+                if (!DiscordUtil.ChannelHasPermission(discordChannel, Permissions.ReadMessageHistory)) continue;
 
-            if ( !correctionMade && !tokenChanged)
-            {
-                VerifyConfig();
-            }   
-        }
+                IReadOnlyList<DiscordMessage> snippetChannelMessages = DiscordUtil.GetMessagesAsync(discordChannel).Result;
+                if (snippetChannelMessages == null) continue;
 
-        protected bool SaveConfig() // Returns true if no correction was needed
-        {
-            bool correctionMade = false;
-
-            // Discord Command Prefix
-            if (_configOptions.Config.DiscordCommandPrefix != _prevConfigOptions.DiscordCommandPrefix)
-            {
-                if (string.IsNullOrEmpty(_configOptions.Config.DiscordCommandPrefix))
+                Snippets.Clear();
+                foreach (DiscordMessage message in snippetChannelMessages)
                 {
-                    _configOptions.Config.DiscordCommandPrefix = DiscordConfig.DefaultValues.DiscordCommandPrefix;
-                    correctionMade = true;
-
-                    Logger.Info("Command prefix found empty - Resetting to default.");
-                }
-                Logger.Info("Command prefix changed - Restart required to take effect.");
-            }
-
-            // Chat channel links
-            foreach (ChannelLink link in _configOptions.Config.ChatChannelLinks)
-            {
-                if (string.IsNullOrWhiteSpace(link.DiscordChannel)) continue;
-
-                string original = link.DiscordChannel;
-                if (link.DiscordChannel != link.DiscordChannel.ToLower()) // Discord channels are always lowercase
-                {
-                    link.DiscordChannel = link.DiscordChannel.ToLower();
-                }
-
-                if (link.DiscordChannel.Contains(" ")) // Discord channels always replace spaces with dashes
-                {
-                    link.DiscordChannel = link.DiscordChannel.Replace(' ', '-');
-                }
-
-                if (link.DiscordChannel != original)
-                {
-                    correctionMade = true;
-                    Logger.Info("Corrected Discord channel name in Channel Link with Guild \"" + link.DiscordGuild + "\" from \"" + original + "\" to \"" + link.DiscordChannel + "\"");
-                }
-            }
-
-            // Eco status Discord channels
-            foreach (EcoStatusChannel statusChannel in _configOptions.Config.EcoStatusDiscordChannels) // TODO[MonzUn] Create a reusable way to fix erronous channel links
-            {
-                if (string.IsNullOrWhiteSpace(statusChannel.DiscordChannel)) continue;
-
-                string original = statusChannel.DiscordChannel;
-                if (statusChannel.DiscordChannel != statusChannel.DiscordChannel.ToLower())
-                {
-                    statusChannel.DiscordChannel = statusChannel.DiscordChannel.ToLower();
-                }
-
-                if (statusChannel.DiscordChannel.Contains(" "))
-                {
-                    statusChannel.DiscordChannel = statusChannel.DiscordChannel.Replace(' ', '-');
-                }
-
-                if (statusChannel.DiscordChannel != original)
-                {
-                    correctionMade = true;
-                    Logger.Info("Corrected Discord channel name in Eco Status Channel with Guild name/ID \"" + statusChannel.DiscordGuild + "\" from \"" + original + "\" to \"" + statusChannel.DiscordChannel + "\"");
-                }
-            }
-
-            // Chatlog toggle
-            if (_configOptions.Config.LogChat && !_prevConfigOptions.LogChat)
-            {
-                Logger.Info("Chatlog enabled");
-                _chatLogger.Start();
-            }
-            else if(!_configOptions.Config.LogChat && _prevConfigOptions.LogChat)
-            {
-                Logger.Info("Chatlog disabled");
-                _chatLogger.Stop();
-            }
-
-            // Chatlog path
-            if(string.IsNullOrEmpty(_configOptions.Config.ChatlogPath))
-            {
-                _configOptions.Config.ChatlogPath = Directory.GetCurrentDirectory() + "\\Mods\\DiscordLink\\Chatlog.txt";
-                correctionMade = true;
-            }
-
-            if( _configOptions.Config.ChatlogPath != _prevConfigOptions.ChatlogPath)
-            {
-                Logger.Info("Chatlog path changed. New path: " + _configOptions.Config.ChatlogPath);
-                _chatLogger.Restart();
-            }
-
-            // Eco command channel
-            if(string.IsNullOrEmpty(_configOptions.Config.EcoCommandChannel))
-            {
-                _configOptions.Config.EcoCommandChannel = DiscordConfig.DefaultValues.EcoCommandChannel;
-                correctionMade = true;
-            }
-
-            // Invite Message
-            if (string.IsNullOrEmpty(_configOptions.Config.InviteMessage))
-            {
-                _configOptions.Config.InviteMessage = DiscordConfig.DefaultValues.InviteMessage;
-                correctionMade = true;
-            }
-
-            _ecoStatusMessages.Clear(); // The status channels may have changed so we should find the messages again;
-
-            _configOptions.SaveAsync();
-            _prevConfigOptions = (DiscordConfig)_configOptions.Config.Clone();
-
-            return !correctionMade;
-        }
-
-        private void VerifyConfig(VerificationFlags verificationFlags = VerificationFlags.All)
-        {
-            List<string> errorMessages = new List<string>();
-
-            if(_discordClient == null)
-            {
-                errorMessages.Add("[General Verification] No Discord client connected.");
-            }
-
-            if (verificationFlags.HasFlag(VerificationFlags.Static))
-            {
-                // Bot Token
-                if(String.IsNullOrWhiteSpace(_configOptions.Config.BotToken))
-                {
-                    errorMessages.Add("[Bot Token] Bot token not configured. See Github page for install instructions.");
-                }
-
-                // Player configs
-                foreach (DiscordPlayerConfig playerConfig in _configOptions.Config.PlayerConfigs)
-                {
-                    if (string.IsNullOrWhiteSpace(playerConfig.Username)) continue;
-
-                    bool found = false;
-                    foreach (User user in UserManager.Users)
+                    Match match = MessageUtil.SnippetRegex.Match(message.Content);
+                    if (match.Groups.Count == 3)
                     {
-                        if (user.Name == playerConfig.Username)
-                        {
-                            found = true;
-                            break;
-                        }
+                        Snippets.Add(match.Groups[1].Value.ToLower(), match.Groups[2].Value);
                     }
-                    if (!found)
-                    {
-                        errorMessages.Add("[Player Configs] No user with name \"" + playerConfig.Username + "\" was found");
-                    }
-                }
-
-                // Eco command channel
-                if (!string.IsNullOrWhiteSpace(_configOptions.Config.EcoCommandChannel) && _configOptions.Config.EcoCommandChannel.Contains("#"))
-                {
-                    errorMessages.Add("[Eco Command Channel] Channel name contains a channel indicator (#). The channel indicator will be added automatically and adding one manually may cause message sending to fail");
-                }
-
-                if (!string.IsNullOrWhiteSpace(_configOptions.Config.InviteMessage) && !_configOptions.Config.InviteMessage.Contains(InviteCommandLinkToken))
-                {
-                    errorMessages.Add("[Invite Message] Message does not contain the invite link token " + InviteCommandLinkToken + ". If the invite link has been added manually, consider adding it to the network config instead");
-                }
-
-                // Report errors
-                if (errorMessages.Count <= 0)
-                {
-                    Logger.Info("Static configuration verification completed without errors");
-                }
-                else
-                {
-                    string concatenatedMessages = "";
-                    foreach (string message in errorMessages)
-                    {
-                        concatenatedMessages += message + "\n";
-                    }
-                    Logger.Error("Static configuration errors detected!\n" + concatenatedMessages.Trim());
-                }
-            }
-
-            if (verificationFlags.HasFlag(VerificationFlags.ChannelLinks) && _discordClient != null) // Discord guild and channel information isn't available the first time this function is called
-            {
-                // Channel links
-                foreach (ChannelLink chatLink in _configOptions.Config.ChatChannelLinks)
-                {
-                    if (string.IsNullOrWhiteSpace(chatLink.DiscordGuild) || string.IsNullOrWhiteSpace(chatLink.DiscordChannel) || string.IsNullOrWhiteSpace(chatLink.EcoChannel)) continue;
-
-                    var guild = GuildByNameOrId(chatLink.DiscordGuild);
-                    if (guild == null)
-                    {
-                        continue; // The channel will always fail if the guild fails
-                    }
-                    var channel = guild.ChannelByNameOrId(chatLink.DiscordChannel);
-                    if (channel == null)
-                    {
-                        continue;
-                    }
-
-                    string linkID = chatLink.ToString();
-                    if (!_verifiedLinks.Contains(linkID))
-                    {
-                        if(!DiscordUtil.ChannelHasPermission(channel, Permissions.SendMessages))
-                        {
-                            Logger.Info("Channel " + linkID + " lacks permission SendMessages");
-                        }
-                        else
-                        {
-                            _verifiedLinks.Add(linkID);
-                            Logger.Info("Channel Link Verified: " + linkID);
-                        }
-                    }
-                }
-
-                // Eco status Discord channels
-                foreach (EcoStatusChannel statusLink in _configOptions.Config.EcoStatusDiscordChannels)
-                {
-                    if (string.IsNullOrWhiteSpace(statusLink.DiscordGuild) || string.IsNullOrWhiteSpace(statusLink.DiscordChannel)) continue;
-
-                    var guild = GuildByNameOrId(statusLink.DiscordGuild);
-                    if (guild == null)
-                    {
-                        continue; // The channel will always fail if the guild fails
-                    }
-                    var channel = guild.ChannelByNameOrId(statusLink.DiscordChannel);
-                    if (channel == null)
-                    {
-                        continue;
-                    }
-
-                    string linkID = statusLink.ToString();
-                    if (!_verifiedLinks.Contains(linkID))
-                    {
-                        bool hasPermissions = true;
-                        if (!DiscordUtil.ChannelHasPermission(channel, Permissions.SendMessages))
-                        {
-                            Logger.Info("Channel " + linkID + " lacks permission SendMessages");
-                            hasPermissions = false;
-                        }
-
-                        if (!DiscordUtil.ChannelHasPermission(channel, Permissions.ReadMessageHistory))
-                        {
-                            Logger.Info("Channel " + linkID + " lacks permission ReadMessageHistory");
-                            hasPermissions = false;
-                        }
-
-                        if (!DiscordUtil.ChannelHasPermission(channel, Permissions.ManageMessages))
-                        {
-                            Logger.Info("Channel " + linkID + " lacks permission ManageMessages");
-                            hasPermissions = false;
-                        }
-
-                        if(hasPermissions)
-                        {
-                            _verifiedLinks.Add(linkID);
-                            Logger.Info("Channel Link Verified: " + linkID);
-                        }
-                    }
-                }
-
-                if(_verifiedLinks.Count >= _configOptions.Config.ChatChannelLinks.Count + _configOptions.Config.EcoStatusDiscordChannels.Count)
-                {
-                    Logger.Info("All channel links sucessfully verified");
-                }
-                else if(_linkVerificationTimeoutTimer == null) // If no timer is used, then the discord guild info should already be set up
-                {
-                    ReportUnverifiedChannels();
                 }
             }
         }
 
-        private void ReportUnverifiedChannels()
+        #endregion
+
+        #region Trade Channels
+
+        private const int TRADE_POSTING_INTERVAL_MS = 1000;
+        private readonly Dictionary<Tuple<int, int>, List<CurrencyTrade>> _accumulatedTrades = new Dictionary<Tuple<int, int>, List<CurrencyTrade>>();
+
+        private void StoreTradeEvent(CurrencyTrade tradeEvent)
         {
-            if (_verifiedLinks.Count >= _configOptions.Config.ChatChannelLinks.Count + _configOptions.Config.EcoStatusDiscordChannels.Count) return; // All are verified; nothing to report.
-
-            List<string> unverifiedLinks = new List<string>();
-            foreach (ChannelLink chatLink in _configOptions.Config.ChatChannelLinks)
+            bool citizenIsBuyer = (tradeEvent.Citizen.Id == tradeEvent.Buyer.Id);
+            Tuple<int, int> iDTuple = new Tuple<int, int>(tradeEvent.Citizen.Id, citizenIsBuyer ? tradeEvent.Seller.Id : tradeEvent.Buyer.Id);
+            _accumulatedTrades.TryGetValue(iDTuple, out List<CurrencyTrade> trades);
+            if(trades == null)
             {
-                if (string.IsNullOrWhiteSpace(chatLink.DiscordGuild) || string.IsNullOrWhiteSpace(chatLink.DiscordChannel) || string.IsNullOrWhiteSpace(chatLink.EcoChannel)) continue;
+                trades = new List<CurrencyTrade>();
+                _accumulatedTrades.Add(iDTuple, trades);
+            }
 
-                string linkID = chatLink.ToString();
-                if (!_verifiedLinks.Contains(linkID))
+            trades.Add(tradeEvent);
+        }
+
+        private async Task PostAccumulatedTrades()
+        {
+            foreach (List<CurrencyTrade> accumulatedTrades in _accumulatedTrades.Values)
+            {
+                if (accumulatedTrades.Count <= 0) continue;
+
+                CurrencyTrade firstTrade = accumulatedTrades[0];
+
+                DiscordEmbedBuilder builder = new DiscordEmbedBuilder();
+                string leftName = firstTrade.Citizen.Name;
+                string rightName = firstTrade.Citizen.Id == firstTrade.Buyer.Id ? firstTrade.Seller.Name : firstTrade.Buyer.Name;
+                builder.Title = leftName + " traded with " + rightName;
+
+                string boughtItemsDesc = string.Empty;
+                float boughtTotal = 0;
+                string soldItemsDesc = string.Empty;
+                float soldTotal = 0;
+                foreach (CurrencyTrade trade in accumulatedTrades)
                 {
-                    unverifiedLinks.Add(linkID);
+                    if(trade.BoughtOrSold == Shared.Items.BoughtOrSold.Buying)
+                    {
+                        boughtItemsDesc += trade.NumberOfItems + " X " + trade.ItemUsed.DisplayName + " * " + trade.CurrencyAmount / trade.NumberOfItems + " = " + trade.CurrencyAmount + "\n";
+                        boughtTotal += trade.CurrencyAmount;
+                    }
+                    else if(trade.BoughtOrSold == Shared.Items.BoughtOrSold.Selling)
+                    {
+                        soldItemsDesc += trade.NumberOfItems + " X " + trade.ItemUsed.DisplayName + " * " + trade.CurrencyAmount / trade.NumberOfItems + " = " + trade.CurrencyAmount + "\n";
+                        soldTotal += trade.CurrencyAmount;
+                    }
+                }
+
+                if (!boughtItemsDesc.IsEmpty())
+                {
+                    boughtItemsDesc += "\nTotal = " + boughtTotal.ToString("n2");
+                    builder.AddField("Bought", boughtItemsDesc);
+                }
+
+                if (!soldItemsDesc.IsEmpty())
+                {
+                    soldItemsDesc += "\nTotal = " + soldTotal.ToString("n2");
+                    builder.AddField("Sold", soldItemsDesc);
+                }
+
+                float subTotal = soldTotal - boughtTotal;
+                char sign = (subTotal > 0.0f ? '+' : '-');
+                builder.AddField("Total", sign + Math.Abs(subTotal).ToString("n2") + " " + firstTrade.Currency.Name);
+
+                foreach (ChannelLink tradeChannel in DLConfig.Data.TradeChannels)
+                {
+                    if (DiscordClient == null) return;
+                    DiscordGuild discordGuild = DiscordClient.GuildByName(tradeChannel.DiscordGuild);
+                    if (discordGuild == null) continue;
+                    DiscordChannel discordChannel = discordGuild.ChannelByName(tradeChannel.DiscordChannel);
+                    if (discordChannel == null) continue;
+
+                    _ = DiscordUtil.SendAsync(discordChannel, "", builder.Build());
                 }
             }
-           
-            foreach (EcoStatusChannel statusLink in _configOptions.Config.EcoStatusDiscordChannels)
-            {
-                if (string.IsNullOrWhiteSpace(statusLink.DiscordGuild) || string.IsNullOrWhiteSpace(statusLink.DiscordChannel)) continue;
-
-                string linkID = statusLink.ToString();
-                if (!_verifiedLinks.Contains(linkID))
-                {
-                    unverifiedLinks.Add(linkID);
-                }
-            }
-
-            if(unverifiedLinks.Count > 0)
-            {
-                Logger.Info("Unverified channels detected:\n" + String.Join("\n", unverifiedLinks));
-            }
+            _accumulatedTrades.Clear();
         }
 
         #endregion
@@ -1051,7 +703,7 @@ namespace Eco.Plugins.DiscordLink
 
         public DiscordPlayerConfig GetOrCreatePlayerConfig(string identifier)
         {
-            var config = DiscordPluginConfig.PlayerConfigs.FirstOrDefault(user => user.Username == identifier);
+            var config = DLConfig.Data.PlayerConfigs.FirstOrDefault(user => user.Username == identifier);
             if (config == null)
             {
                 config = new DiscordPlayerConfig
@@ -1066,15 +718,11 @@ namespace Eco.Plugins.DiscordLink
 
         public bool AddOrReplacePlayerConfig(DiscordPlayerConfig config)
         {
-            var removed = DiscordPluginConfig.PlayerConfigs.Remove(config);
-            DiscordPluginConfig.PlayerConfigs.Add(config);
-            SavePlayerConfig();
+            var playerConfigs = DLConfig.Data.PlayerConfigs;
+            var removed = playerConfigs.Remove(config);
+            playerConfigs.Add(config);
+            DLConfig.Instance.Save();
             return removed;
-        }
-
-        public void SavePlayerConfig()
-        {
-            _configOptions.SaveAsync();
         }
 
         public DiscordChannel GetDefaultChannelForPlayer(string identifier)
@@ -1095,216 +743,9 @@ namespace Eco.Plugins.DiscordLink
             var playerConfig = GetOrCreatePlayerConfig(identifier);
             playerConfig.DefaultChannel.Guild = guildName;
             playerConfig.DefaultChannel.Channel = channelName;
-            SavePlayerConfig();
+            DLConfig.Instance.Save();
         }
 
         #endregion
-    }
-
-    public class DiscordConfig : ICloneable
-    {
-        public static class DefaultValues
-        {
-            public const string DiscordCommandPrefix = "?";
-            public const string EcoCommandChannel = "General";
-            public const string InviteMessage = "Join us on Discord!\n" + DiscordLink.InviteCommandLinkToken;
-        }
-
-        public object Clone() // Be careful not to change the original object here as that will trigger endless recursion.
-        {
-            return new DiscordConfig
-            {
-                BotToken = this.BotToken,
-                DiscordCommandPrefix = this.DiscordCommandPrefix,
-                ServerName = this.ServerName,
-                ServerDescription = this.ServerDescription,
-                ServerLogo = this.ServerLogo,
-                ServerAddress = this.ServerAddress,
-                Debug = this.Debug,
-                LogChat = this.LogChat,
-                ChatlogPath = this.ChatlogPath,
-                PlayerConfigs = new ObservableCollection<DiscordPlayerConfig>(this.PlayerConfigs.Select(t => t.Clone()).Cast<DiscordPlayerConfig>()),
-                ChatChannelLinks = new ObservableCollection<ChannelLink>(this.ChatChannelLinks.Select(t => t.Clone()).Cast<ChannelLink>()),
-                EcoStatusDiscordChannels = new ObservableCollection<EcoStatusChannel>(this.EcoStatusDiscordChannels.Select(t => t.Clone()).Cast<EcoStatusChannel>())
-            };
-        }
-
-        public ChannelLink GetChannelLinkFromDiscordChannel(string guild, string channelName)
-        {
-            foreach(ChannelLink channelLink in ChatChannelLinks)
-            {
-                if(channelLink.DiscordGuild.ToLower() == guild.ToLower() && channelLink.DiscordChannel.ToLower() == channelName.ToLower())
-                {
-                    return channelLink;
-                }
-            }
-            return null;
-        }
-
-        public ChannelLink GetChannelLinkFromEcoChannel(string channelName)
-        {
-            foreach (ChannelLink channelLink in ChatChannelLinks)
-            {
-                if (channelLink.EcoChannel.ToLower() == channelName.ToLower())
-                {
-                    return channelLink;
-                }
-            }
-            return null;
-        }
-
-        [Description("The token provided by the Discord API to allow access to the bot. This setting can be changed while the server is running and will in that case trigger a reconnection to Discord."), Category("Bot Configuration")]
-        public string BotToken { get; set; }
-
-        [Description("The prefix to put before commands in order for the Discord bot to recognize them as such. This setting requires a restart to take effect."), Category("Command Settings")]
-        public string DiscordCommandPrefix { get; set; } = DefaultValues.DiscordCommandPrefix;
-
-        [Description("Discord channels in which to display the Eco status view. WARNING - Any messages in these channels will be deleted. This setting can be changed while the server is running."), Category("Channel Configuration")]
-        public ObservableCollection<EcoStatusChannel> EcoStatusDiscordChannels { get; set; } = new ObservableCollection<EcoStatusChannel>();
-
-        [Description("The name of the Eco server, overriding the name configured within Eco. This setting can be changed while the server is running."), Category("Server Details")]
-        public string ServerName { get; set; }
-
-        [Description("The description of the Eco server, overriding the description configured within Eco. This setting can be changed while the server is running."), Category("Server Details")]
-        public string ServerDescription { get; set; }
-
-        [Description("The logo of the server as a URL. This setting can be changed while the server is running."), Category("Server Details")]
-        public string ServerLogo { get; set; }
-
-        [Description("The address (URL or IP) of the server. Overrides the automatically detected IP. This setting can be changed while the server is running."), Category("Server Details")]
-        public string ServerAddress { get; set; }
-
-        [Description("A mapping from user to user config parameters. This setting can be changed while the server is running.")]
-        public ObservableCollection<DiscordPlayerConfig> PlayerConfigs = new ObservableCollection<DiscordPlayerConfig>();
-
-        [Description("Channels to connect together. This setting can be changed while the server is running."), Category("Channel Configuration")]
-        public ObservableCollection<ChannelLink> ChatChannelLinks { get; set; } = new ObservableCollection<ChannelLink>();
-
-        [Description("Enables debugging output to the console. This setting can be changed while the server is running."), Category("Debugging")]
-        public bool Debug { get; set; } = false;
-
-        [Description("Enables logging of chat messages into the file at Chatlog Path. This setting can be changed while the server is running."), Category("Chatlog Configuration")]
-        public bool LogChat { get; set; } = false;
-
-        [Description("The path to the chatlog file, including file name and extension. This setting can be changed while the server is running, but the existing chatlog will not transfer."), Category("Chatlog Configuration")]
-        public string ChatlogPath { get; set; } = Directory.GetCurrentDirectory() + "\\Mods\\DiscordLink\\Chatlog.txt";
-
-        [Description("The Eco chat channel to use for commands that outputs public messages, excluding the initial # character. This setting can be changed while the server is running."), Category("Command Settings")]
-        public string EcoCommandChannel { get; set; } = DefaultValues.EcoCommandChannel;
-
-        [Description("The message to use for the /DiscordInvite command. The invite link is fetched from the network config and will replace the token " + DiscordLink.InviteCommandLinkToken + ". This setting can be changed while the server is running."), Category("Command Settings")]
-        public string InviteMessage { get; set; } = DefaultValues.InviteMessage;
-    }
-
-    public class DiscordChannelIdentifier : ICloneable
-    {
-        public object Clone()
-        {
-            return this.MemberwiseClone();
-        }
-
-        public string Guild { get; set; }
-        public string Channel { get; set; }
-    }
-
-    public class DiscordPlayerConfig : ICloneable
-    {
-        public object Clone()
-        {
-            return this.MemberwiseClone();
-        }
-
-        [Description("ID of the user")]
-        public string Username { get; set; }
-
-        private DiscordChannelIdentifier _defaultChannel = new DiscordChannelIdentifier();
-        public DiscordChannelIdentifier DefaultChannel
-        {
-            get { return _defaultChannel; }
-            set { _defaultChannel = value; }
-        }
-
-        public class DiscordChannelIdentifier
-        {
-            public string Guild { get; set; }
-            public string Channel { get; set; }
-        }
-    }
-
-    public class ChannelLink : ICloneable
-    {
-        public object Clone()
-        {
-            return this.MemberwiseClone();
-        }
-
-        public override string ToString()
-        {
-            return DiscordGuild + " - " + DiscordChannel + " <--> " + EcoChannel + " (Chat Link)";
-        }
-
-        [Description("Discord Guild (Server) by name or ID.")]
-        public string DiscordGuild { get; set; }
-
-        [Description("Discord Channel by name or ID.")]
-        public string DiscordChannel { get; set; }
-
-        [Description("Eco Channel to use.")]
-        public string EcoChannel { get; set; }
-
-        [Description("Allow mentions of usernames to be forwarded from Eco to the Discord channel")]
-        public bool AllowUserMentions { get; set; } = true;
-
-        [Description("Allow mentions of roles to be forwarded from Eco to the Discord channel")]
-        public bool AllowRoleMentions { get; set; } = true;
-
-        [Description("Allow mentions of channels to be forwarded from Eco to the Discord channel")]
-        public bool AllowChannelMentions { get; set; } = true;
-    }
-
-    public class EcoStatusChannel : ICloneable
-    {
-        public object Clone()
-        {
-            return this.MemberwiseClone();
-        }
-
-        public override string ToString()
-        {
-            return DiscordGuild + " - " + DiscordChannel + " (Eco Status)";
-        }
-
-        [Description("Discord Guild (Server) by name or ID.")]
-        public string DiscordGuild { get; set; }
-
-        [Description("Discord Channel by name or ID.")]
-        public string DiscordChannel { get; set; }
-
-        [Description("Display the server name in the status message.")]
-        public bool UseName { get; set; } = true;
-
-        [Description("Display the server description in the status message.")]
-        public bool UseDescription { get; set; } = false;
-
-        [Description("Display the server logo in the status message.")]
-        public bool UseLogo { get; set; } = true;
-
-        [Description("Display the server IP address in the status message.")]
-        public bool UseAddress { get; set; } = true;
-
-        [Description("Display the number of online players in the status message.")]
-        public bool UsePlayerCount { get; set; } = true;
-
-        [Description("Display the list of online players in the status message.")]
-        public bool UsePlayerList { get; set; } = true;
-
-        [Description("Display the time since the world was created in the status message.")]
-        public bool UseTimeSinceStart { get; set; } = true;
-
-        [Description("Display the time remaining until meteor impact in the status message.")]
-        public bool UseTimeRemaining { get; set; } = true;
-
-        [Description("Display a boolean for if the metoer has hit yet or not, in the status message.")]
-        public bool UseMeteorHasHit { get; set; } = false;
     }
 }

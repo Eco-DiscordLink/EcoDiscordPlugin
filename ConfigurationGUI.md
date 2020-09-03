@@ -6,6 +6,7 @@ From here, you can manipulate all configuration options available and most of th
 * [Bot Token](#bot-token)
 * [Linking Channels](#linking-channels)
 * [Eco Status](#eco-status)
+* [Discord Snippets](#discord-snippets)
 * [Chat Log](#chat-log)
 * [Command Settings](#command-settings)
 * [Server Details](#server-details)
@@ -46,6 +47,29 @@ See the [installation guide](Installation.md)
 **Note**: Only one message will be posted and that message will then be kept up to date by DiscordLink through frequent automatic edits.
 
 ![Opening Collection Window](images/configuration/ecostatus/3.png)
+
+## Discord Snippets
+
+1. Locate the box called "Snippet Channels". Click on the three dots next to the box saying "(Collection)". This may be hidden until you mouse over it.
+
+![Opening Collection Window](images/configuration/snippets/1.png)
+
+2. In the new window that just appeared, click "Add" in the bottom left. This creates a new entry for an Eco status channel in Discord.
+
+![Opening Collection Window](images/configuration/snippets/2.png)
+
+3. Enter the parameters for the Discord Snippet Channel. _"DiscordChannel"_ should be the Discord channel you want the status message to be posted in. For example, "eco-status". _"DiscordGuild"_ is the name of the Discord Server, for example "Eco" for the official Eco Discord. Both _DiscordChannel_ and _DiscordGuild_ accept names or IDs. Once entered, hit "OK".
+
+![Opening Collection Window](images/configuration/snippets/3.png)
+
+4. In the Discord client, navigate to the channel you used in the previous step. In separate messages, input snippets on the following format:
+
+> [Snippet] [\<SnippetName\>]
+> \<Snippet text>
+
+**Note**: The range for how far in the message history Snippets can be found is limited.
+
+![Snippet Example](images/configuration/snippets/4.png)
 
 ## Chat Log
 To enable/disable logging of the chat, toggle the _"Log Chat"_ option in the _"ChatLog Configuration"_ section of the DiscordLink configuration options.
