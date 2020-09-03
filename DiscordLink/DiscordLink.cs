@@ -23,7 +23,7 @@ namespace Eco.Plugins.DiscordLink
 {
     public class DiscordLink : IModKitPlugin, IInitializablePlugin, IShutdownablePlugin, IConfigurablePlugin, IGameActionAware
     {
-        public readonly Version PluginVersion = new Version(2, 0);
+        public readonly Version PluginVersion = new Version(2, 0, 1);
 
         public event EventHandler OnClientStarted;
         public event EventHandler OnClientStopped;
@@ -480,6 +480,7 @@ namespace Eco.Plugins.DiscordLink
             UpdateEcoStatus();
         }
 
+        private static object _lock = new object();
         private void UpdateEcoStatus()
         {
             if (DiscordClient == null) return;
@@ -503,18 +504,24 @@ namespace Eco.Plugins.DiscordLink
                     }
                     catch (System.AggregateException)
                     {
-                        _ecoStatusMessages.Remove(statusChannel); // The message has been removed, take it out of the list
+                        try
+                        {
+                             ecoStatusMessage = discordChannel.GetMessageAsync(statusMessageID).Result;
+                        }
+                        catch(System.AggregateException)
+                        {
+                            _ecoStatusMessages.Remove(statusChannel); // The message has been removed, take it out of the list
+                        }
+                        catch(Exception e)
+                        {
+                            Logger.Error("Error occurred when attempting to read message with ID " + statusMessageID + " from channel \"" + discordChannel.Name + "\". Error message: " + e);
+                            continue;
+                        }
                     }
                     catch (Exception e)
                     {
-                        Logger.Error("Error occurred when attempting to read message with ID " + statusMessageID + " from channel \"" + discordChannel.Name + "\". Error message: " + e);
-                        continue;
-                    }
-                }
-                else
-                {
-                    IReadOnlyList<DiscordMessage> ecoStatusChannelMessages = DiscordUtil.GetMessagesAsync(discordChannel).Result;
-                    if (ecoStatusChannelMessages == null) continue;
+                        IReadOnlyList<DiscordMessage> ecoStatusChannelMessages = DiscordUtil.GetMessagesAsync(discordChannel).Result;
+                        if (ecoStatusChannelMessages == null) continue;
 
                     foreach (DiscordMessage message in ecoStatusChannelMessages)
                     {
@@ -522,10 +529,14 @@ namespace Eco.Plugins.DiscordLink
                         if (message.Author == DiscordClient.CurrentUser
                             && (HasEmbedPermission ? (message.Embeds.Count == 1 && message.Embeds[0].Title.Contains("Live Server Status**")) : message.Content.Contains("Live Server Status**")))
                         {
-                            ecoStatusMessage = message;
-                            break;
+                            // We assume that it's our status message if it has parts of our string in it
+                            if(message.Author == _discordClient.CurrentUser 
+                                && (HasEmbedPermission ? (message.Embeds.Count == 1 && message.Embeds[0].Title.Contains("Live Server Status**")) : message.Content.Contains("Live Server Status**")))
+                            {
+                                ecoStatusMessage = message;
+                                break;
+                            }
                         }
-                    }
 
                     // If we couldn't find a status message, create a new one
                     if (ecoStatusMessage == null)
@@ -534,9 +545,9 @@ namespace Eco.Plugins.DiscordLink
                         created = true;
                     }
 
-                    if (ecoStatusMessage != null) // SendAsync may return null in case an exception is raised
+                    if (ecoStatusMessage != null && !created) // It is pointless to update the message if it was just created
                     {
-                        _ecoStatusMessages.Add(statusChannel, ecoStatusMessage.Id);
+                        DiscordUtil.ModifyAsync(ecoStatusMessage, "", MessageBuilder.GetEcoStatus(GetEcoStatusFlagForChannel(statusChannel), isLiveMessage: true));
                     }
                 }
 
