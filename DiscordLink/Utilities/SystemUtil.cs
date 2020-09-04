@@ -1,4 +1,6 @@
 ﻿using System.Threading;
+using System.IO;
+using System;
 
 namespace Eco.Plugins.DiscordLink.Utilities
 {
@@ -19,6 +21,19 @@ namespace Eco.Plugins.DiscordLink.Utilities
             Thread thread = new Thread(new ThreadStart(func));
             thread.Start();
             thread.Join();
+        }
+
+        public static void EnsurePathExists(string path)
+        {
+            string directoryPath = Path.GetDirectoryName(path);
+            try
+            {
+               Directory.CreateDirectory(directoryPath);
+            }
+            catch(Exception e)
+            {
+                Logger.Error("Failed to create directory at path \"" + path + "\". Error message: " + e);
+            }
         }
     }
 }

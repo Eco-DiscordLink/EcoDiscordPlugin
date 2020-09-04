@@ -24,6 +24,7 @@ namespace Eco.Plugins.DiscordLink
             DLConfigData config = DLConfig.Data;
             try
             {
+                SystemUtil.EnsurePathExists(config.ChatlogPath);
                 _writer = new StreamWriter(config.ChatlogPath, append: true);
                 _initialized = true;
             }
