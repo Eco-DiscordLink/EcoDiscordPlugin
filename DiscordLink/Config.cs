@@ -324,7 +324,8 @@ namespace Eco.Plugins.DiscordLink
                 }
             }
 
-            if (verificationFlags.HasFlag(VerificationFlags.ChannelLinks) && DiscordLink.Obj.DiscordClient != null) // Discord guild and channel information isn't available the first time this function is called
+            // Discord guild and channel information isn't available the first time this function is called
+            if (verificationFlags.HasFlag(VerificationFlags.ChannelLinks) && DiscordLink.Obj.DiscordClient != null && ChannelLinks.Count > 0)
             {
                 foreach (ChannelLink link in _channelLinks)
                 {
