@@ -15,7 +15,6 @@ using Eco.Core.Utils;
 using Eco.Gameplay.GameActions;
 using Eco.Gameplay.Players;
 using Eco.Gameplay.Systems.Chat;
-using Eco.Gameplay.Systems.Tooltip;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Utils;
 
@@ -222,7 +221,7 @@ namespace Eco.Plugins.DiscordLink
             SystemUtil.StopAndDestroyTimer(ref _discordDataMaybeAvailable);
             SystemUtil.StopAndDestroyTimer(ref _ecoStatusUpdateTimer);
             SystemUtil.StopAndDestroyTimer(ref _tradePostingTimer);
-            
+
             // Clear all the stored message references as they may become invalid if the token has changed
             _ecoStatusMessages.Clear();
 
@@ -233,7 +232,7 @@ namespace Eco.Plugins.DiscordLink
                 // If DisconnectAsync() is called in the GUI thread, it will cause a deadlock
                 SystemUtil.SynchronousThreadExecute(() =>
                 {
-                   DiscordClient.DisconnectAsync().Wait();
+                    DiscordClient.DisconnectAsync().Wait();
                 });
                 DiscordClient.Dispose();
                 DiscordClient = null;
@@ -419,7 +418,7 @@ namespace Eco.Plugins.DiscordLink
         {
             LogDiscordMessage(message);
             if (message.Author == DiscordClient.CurrentUser) { return; }
-            if (message.Content.StartsWith( DLConfig.Data.DiscordCommandPrefix)) { return; }
+            if (message.Content.StartsWith(DLConfig.Data.DiscordCommandPrefix)) { return; }
 
             var channelLink = GetLinkForEcoChannel(message.Channel.Name) ?? GetLinkForEcoChannel(message.Channel.Id.ToString());
             var channel = channelLink?.EcoChannel;
@@ -483,54 +482,47 @@ namespace Eco.Plugins.DiscordLink
         private static object _lock = new object();
         private void UpdateEcoStatus()
         {
-            if (DiscordClient == null) return;
-            foreach (EcoStatusChannel statusChannel in DLConfig.Data.EcoStatusChannels)
+            lock (_lock)
             {
-                DiscordGuild discordGuild = DiscordClient.GuildByName(statusChannel.DiscordGuild);
-                if (discordGuild == null) continue;
-                DiscordChannel discordChannel = discordGuild.ChannelByName(statusChannel.DiscordChannel);
-                if (discordChannel == null) continue;
-
-                if (!DiscordUtil.ChannelHasPermission(discordChannel, Permissions.ReadMessageHistory)) continue;
-                bool HasEmbedPermission = DiscordUtil.ChannelHasPermission(discordChannel, Permissions.EmbedLinks);
-
-                DiscordMessage ecoStatusMessage = null;
-                bool created = false;
-                if (_ecoStatusMessages.TryGetValue(statusChannel, out ulong statusMessageID))
+                if (DiscordClient == null) return;
+                foreach (EcoStatusChannel statusChannel in  DLConfig.Data.EcoStatusChannels)
                 {
-                    try
-                    {
-                        ecoStatusMessage = discordChannel.GetMessageAsync(statusMessageID).Result;
-                    }
-                    catch (System.AggregateException)
+                    DiscordGuild discordGuild = DiscordClient.GuildByName(statusChannel.DiscordGuild);
+                    if (discordGuild == null) continue;
+                    DiscordChannel discordChannel = discordGuild.ChannelByName(statusChannel.DiscordChannel);
+                    if (discordChannel == null) continue;
+
+                    if (!DiscordUtil.ChannelHasPermission(discordChannel, Permissions.ReadMessageHistory)) continue;
+                    bool HasEmbedPermission = DiscordUtil.ChannelHasPermission(discordChannel, Permissions.EmbedLinks);
+
+                    DiscordMessage ecoStatusMessage = null;
+                    bool created = false;
+                    ulong statusMessageID;
+                    if (_ecoStatusMessages.TryGetValue(statusChannel, out statusMessageID))
                     {
                         try
                         {
-                             ecoStatusMessage = discordChannel.GetMessageAsync(statusMessageID).Result;
+                            ecoStatusMessage = discordChannel.GetMessageAsync(statusMessageID).Result;
                         }
-                        catch(System.AggregateException)
+                        catch (System.AggregateException)
                         {
                             _ecoStatusMessages.Remove(statusChannel); // The message has been removed, take it out of the list
                         }
-                        catch(Exception e)
+                        catch (Exception e)
                         {
                             Logger.Error("Error occurred when attempting to read message with ID " + statusMessageID + " from channel \"" + discordChannel.Name + "\". Error message: " + e);
                             continue;
                         }
                     }
-                    catch (Exception e)
+                    else
                     {
                         IReadOnlyList<DiscordMessage> ecoStatusChannelMessages = DiscordUtil.GetMessagesAsync(discordChannel).Result;
                         if (ecoStatusChannelMessages == null) continue;
 
-                    foreach (DiscordMessage message in ecoStatusChannelMessages)
-                    {
-                        // We assume that it's our status message if it has parts of our string in it
-                        if (message.Author == DiscordClient.CurrentUser
-                            && (HasEmbedPermission ? (message.Embeds.Count == 1 && message.Embeds[0].Title.Contains("Live Server Status**")) : message.Content.Contains("Live Server Status**")))
+                        foreach (DiscordMessage message in ecoStatusChannelMessages)
                         {
                             // We assume that it's our status message if it has parts of our string in it
-                            if(message.Author == _discordClient.CurrentUser 
+                            if (message.Author == DiscordClient.CurrentUser
                                 && (HasEmbedPermission ? (message.Embeds.Count == 1 && message.Embeds[0].Title.Contains("Live Server Status**")) : message.Content.Contains("Live Server Status**")))
                             {
                                 ecoStatusMessage = message;
@@ -538,22 +530,23 @@ namespace Eco.Plugins.DiscordLink
                             }
                         }
 
-                    // If we couldn't find a status message, create a new one
-                    if (ecoStatusMessage == null)
-                    {
-                        ecoStatusMessage = DiscordUtil.SendAsync(discordChannel, null, MessageBuilder.GetEcoStatus(GetEcoStatusFlagForChannel(statusChannel), isLiveMessage: true)).Result;
-                        created = true;
+                        // If we couldn't find a status message, create a new one
+                        if (ecoStatusMessage == null)
+                        {
+                            ecoStatusMessage = DiscordUtil.SendAsync(discordChannel, null, MessageBuilder.GetEcoStatus(GetEcoStatusFlagForChannel(statusChannel), isLiveMessage: true)).Result;
+                            created = true;
+                        }
+
+                        if (ecoStatusMessage != null) // SendAsync may return null in case an exception is raised
+                        {
+                            _ecoStatusMessages.Add(statusChannel, ecoStatusMessage.Id);
+                        }
                     }
 
                     if (ecoStatusMessage != null && !created) // It is pointless to update the message if it was just created
                     {
-                        DiscordUtil.ModifyAsync(ecoStatusMessage, "", MessageBuilder.GetEcoStatus(GetEcoStatusFlagForChannel(statusChannel), isLiveMessage: true));
+                        _ = DiscordUtil.ModifyAsync(ecoStatusMessage, "", MessageBuilder.GetEcoStatus(GetEcoStatusFlagForChannel(statusChannel), isLiveMessage: true));
                     }
-                }
-
-                if (ecoStatusMessage != null && !created) // It is pointless to update the message if it was just created
-                {
-                    _ = DiscordUtil.ModifyAsync(ecoStatusMessage, "", MessageBuilder.GetEcoStatus(GetEcoStatusFlagForChannel(statusChannel), isLiveMessage: true));
                 }
             }
         }
@@ -591,7 +584,7 @@ namespace Eco.Plugins.DiscordLink
 
         private async Task UpdateSnippets()
         {
-            foreach(ChannelLink snippetChannel in DLConfig.Data.SnippetChannels)
+            foreach (ChannelLink snippetChannel in DLConfig.Data.SnippetChannels)
             {
                 if (DiscordClient == null) return;
                 DiscordGuild discordGuild = DiscordClient.GuildByName(snippetChannel.DiscordGuild);
@@ -627,7 +620,7 @@ namespace Eco.Plugins.DiscordLink
             bool citizenIsBuyer = (tradeEvent.Citizen.Id == tradeEvent.Buyer.Id);
             Tuple<int, int> iDTuple = new Tuple<int, int>(tradeEvent.Citizen.Id, citizenIsBuyer ? tradeEvent.Seller.Id : tradeEvent.Buyer.Id);
             _accumulatedTrades.TryGetValue(iDTuple, out List<CurrencyTrade> trades);
-            if(trades == null)
+            if (trades == null)
             {
                 trades = new List<CurrencyTrade>();
                 _accumulatedTrades.Add(iDTuple, trades);
@@ -655,12 +648,12 @@ namespace Eco.Plugins.DiscordLink
                 float soldTotal = 0;
                 foreach (CurrencyTrade trade in accumulatedTrades)
                 {
-                    if(trade.BoughtOrSold == Shared.Items.BoughtOrSold.Buying)
+                    if (trade.BoughtOrSold == Shared.Items.BoughtOrSold.Buying)
                     {
                         boughtItemsDesc += trade.NumberOfItems + " X " + trade.ItemUsed.DisplayName + " * " + trade.CurrencyAmount / trade.NumberOfItems + " = " + trade.CurrencyAmount + "\n";
                         boughtTotal += trade.CurrencyAmount;
                     }
-                    else if(trade.BoughtOrSold == Shared.Items.BoughtOrSold.Selling)
+                    else if (trade.BoughtOrSold == Shared.Items.BoughtOrSold.Selling)
                     {
                         soldItemsDesc += trade.NumberOfItems + " X " + trade.ItemUsed.DisplayName + " * " + trade.CurrencyAmount / trade.NumberOfItems + " = " + trade.CurrencyAmount + "\n";
                         soldTotal += trade.CurrencyAmount;

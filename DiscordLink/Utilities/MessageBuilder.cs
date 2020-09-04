@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using DSharpPlus.Entities;
-using Eco.Gameplay.Civics.GameValues;
 using Eco.Gameplay.Players;
 using Eco.Plugins.Networking;
 
@@ -13,16 +12,16 @@ namespace Eco.Plugins.DiscordLink.Utilities
     {
         public enum EcoStatusComponentFlag
         {
-            Name            = 1 << 0,
-            Description     = 1 << 1,
-            Logo            = 1 << 2,
-            ServerAddress   = 1 << 3,
-            PlayerCount     = 1 << 4,
-            PlayerList      = 1 << 5,
-            TimeSinceStart  = 1 << 6,
-            TimeRemaining   = 1 << 7,
-            MeteorHasHit    = 1 << 8,
-            All             = ~0
+            Name = 1 << 0,
+            Description = 1 << 1,
+            Logo = 1 << 2,
+            ServerAddress = 1 << 3,
+            PlayerCount = 1 << 4,
+            PlayerList = 1 << 5,
+            TimeSinceStart = 1 << 6,
+            TimeRemaining = 1 << 7,
+            MeteorHasHit = 1 << 8,
+            All = ~0
         }
 
         public static DiscordColor EmbedColor = DiscordColor.Green;
@@ -46,7 +45,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     message += "**" + field.Name + "**\n" + field.Value + "\n\n";
                 }
 
-                if(!String.IsNullOrEmpty(embedContent.Footer?.Text))
+                if (!String.IsNullOrEmpty(embedContent.Footer?.Text))
                 {
                     message += embedContent.Footer.Text;
                 }
@@ -99,32 +98,32 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 {
                     fieldText = config.ServerAddress;
                 }
-                else if(!string.IsNullOrEmpty(serverInfo.Address))
+                else if (!string.IsNullOrEmpty(serverInfo.Address))
                 {
                     fieldText = serverInfo.Address;
                 }
                 builder.AddField("Server Address", fieldText);
             }
 
-            if(flag.HasFlag(EcoStatusComponentFlag.PlayerCount))
+            if (flag.HasFlag(EcoStatusComponentFlag.PlayerCount))
             {
                 builder.AddField("Online Players", $"{UserManager.OnlineUsers.Where(user => user.Client.Connected).Count()}/{serverInfo.TotalPlayers}");
             }
 
-            if(flag.HasFlag(EcoStatusComponentFlag.PlayerList))
+            if (flag.HasFlag(EcoStatusComponentFlag.PlayerList))
             {
                 IEnumerable<String> onlineUsers = UserManager.OnlineUsers.Where(user => user.Client.Connected).Select(user => user.Name);
                 string playerList = onlineUsers.Count() > 0 ? String.Join("\n", onlineUsers) : "-- No players online --";
                 builder.AddField("Online Players", playerList);
             }
 
-            if(flag.HasFlag(EcoStatusComponentFlag.TimeSinceStart))
+            if (flag.HasFlag(EcoStatusComponentFlag.TimeSinceStart))
             {
                 TimeSpan timeSinceStartSpan = new TimeSpan(0, 0, (int)serverInfo.TimeSinceStart);
                 builder.AddField("Time Since Game Start", $"{timeSinceStartSpan.Days} Days, {timeSinceStartSpan.Hours} hours, {timeSinceStartSpan.Minutes} minutes");
             }
 
-            if(flag.HasFlag(EcoStatusComponentFlag.TimeRemaining))
+            if (flag.HasFlag(EcoStatusComponentFlag.TimeRemaining))
             {
                 TimeSpan timeRemainingSpan = new TimeSpan(0, 0, (int)serverInfo.TimeLeft);
                 bool meteorHasHit = timeRemainingSpan.Seconds < 0;
@@ -132,7 +131,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 builder.AddField("Time Left Until Meteor", $"{timeRemainingSpan.Days} Days, {timeRemainingSpan.Hours} hours, {timeRemainingSpan.Minutes} minutes");
             }
 
-            if(flag.HasFlag(EcoStatusComponentFlag.MeteorHasHit))
+            if (flag.HasFlag(EcoStatusComponentFlag.MeteorHasHit))
             {
                 TimeSpan timeRemainingSpan = new TimeSpan(0, 0, (int)serverInfo.TimeLeft);
                 builder.AddField("Meteor Has Hit", timeRemainingSpan.Seconds < 0 ? "Yes" : "No");

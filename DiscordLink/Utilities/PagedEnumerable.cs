@@ -37,7 +37,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             return GetEnumerator();
         }
     }
-    
+
     public class PagedEnumerator<T> : IEnumerator<T>
     {
         private IEnumerator<T> _wrappedEnumerator;

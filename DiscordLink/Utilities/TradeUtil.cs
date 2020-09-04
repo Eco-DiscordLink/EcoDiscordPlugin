@@ -15,9 +15,9 @@ namespace Eco.Plugins.DiscordLink.Utilities
         public static List<Either<Item, User>> ItemLookup =>
             _itemLookup == null
                 ? Item.AllItems.Select(item => new Either<Item, User>(item)).ToList()
-                : _itemLookup;    
-        
-        public static T BestMatchOrDefault<T>(string rawQuery, IEnumerable<T> lookup, Func<T,string> getKey)
+                : _itemLookup;
+
+        public static T BestMatchOrDefault<T>(string rawQuery, IEnumerable<T> lookup, Func<T, string> getKey)
         {
             var query = rawQuery.ToLower();
             var orderedAndKeyed = lookup.Select(t => Tuple.Create(getKey(t).ToLower(), t)).OrderBy(t => t.Item1);
@@ -31,7 +31,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             foreach (var matcher in matches)
             {
                 var match = orderedAndKeyed.FirstOrDefault(t => matcher(t.Item1));
-                if (match != default(Tuple<string,T>))
+                if (match != default(Tuple<string, T>))
                 {
                     return match.Item2;
                 }
@@ -56,18 +56,18 @@ namespace Eco.Plugins.DiscordLink.Utilities
         {
             return MessageUtil.StripEcoTags(store.Parent.GetComponent<CreditComponent>().CreditData.Currency.Name);
         }
-        
+
         public static IEnumerable<Tuple<StoreComponent, TradeOffer>>
-            SellOffers(Func<StoreComponent, TradeOffer, bool> shouldIncludeFilter, 
-                       int start = 0, 
+            SellOffers(Func<StoreComponent, TradeOffer, bool> shouldIncludeFilter,
+                       int start = 0,
                        int count = Int32.MaxValue)
         {
             return AllStoresToOffers(store => store.StoreData.SellOffers, shouldIncludeFilter, start, count);
         }
-        
+
         public static IEnumerable<Tuple<StoreComponent, TradeOffer>>
-            BuyOffers(Func<StoreComponent, TradeOffer, bool> shouldIncludeFilter, 
-                int start = 0, 
+            BuyOffers(Func<StoreComponent, TradeOffer, bool> shouldIncludeFilter,
+                int start = 0,
                 int count = Int32.MaxValue)
         {
             return AllStoresToOffers(store => store.StoreData.BuyOffers, shouldIncludeFilter, start, count);

@@ -1,6 +1,5 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Entities;
-using Eco.Plugins.DiscordLink.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -39,7 +38,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     }
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Logger.Error("Error occurred while attempting to send Discord message. Error message: " + e);
                 return null;
@@ -70,7 +69,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     }
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Logger.Error("Error occurred while attempting to modify Discord message. Error message: " + e);
                 return null;

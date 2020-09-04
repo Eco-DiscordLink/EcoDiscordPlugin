@@ -1,7 +1,6 @@
 ﻿using Eco.Core.Plugins;
 using Eco.Gameplay.Players;
 using Eco.Plugins.DiscordLink.Utilities;
-using Eco.Shared.Utils;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -70,7 +69,7 @@ namespace Eco.Plugins.DiscordLink
         {
             _config = new PluginConfig<DLConfigData>("DiscordLink");
             _prevConfig = (DLConfigData)Data.Clone();
-            
+
             Data.PlayerConfigs.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.ChatChannelLinks.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.EcoStatusChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
@@ -92,7 +91,7 @@ namespace Eco.Plugins.DiscordLink
 
         public void HandleCollectionChanged(NotifyCollectionChangedEventArgs args)
         {
-            if(args.Action == NotifyCollectionChangedAction.Add
+            if (args.Action == NotifyCollectionChangedAction.Add
                 || args.Action == NotifyCollectionChangedAction.Remove
                 || args.Action == NotifyCollectionChangedAction.Replace)
             {
@@ -127,7 +126,7 @@ namespace Eco.Plugins.DiscordLink
                 // We execute the callbacks on a separate joined thread to avoid these deadlocks.
                 SystemUtil.SynchronousThreadExecute(() =>
                 {
-                   OnConfigChanged?.Invoke(this, EventArgs.Empty);
+                    OnConfigChanged?.Invoke(this, EventArgs.Empty);
                 });
             }
         }
@@ -208,9 +207,9 @@ namespace Eco.Plugins.DiscordLink
             }
 
             // Channel Links
-            foreach(ChannelLink link in _channelLinks)
+            foreach (ChannelLink link in _channelLinks)
             {
-                if(link.MakeCorrections())
+                if (link.MakeCorrections())
                 {
                     correctionMade = true;
                 }
@@ -327,9 +326,9 @@ namespace Eco.Plugins.DiscordLink
 
             if (verificationFlags.HasFlag(VerificationFlags.ChannelLinks) && DiscordLink.Obj.DiscordClient != null) // Discord guild and channel information isn't available the first time this function is called
             {
-                foreach(ChannelLink link in _channelLinks)
+                foreach (ChannelLink link in _channelLinks)
                 {
-                    if(link.Verify())
+                    if (link.Verify())
                     {
                         string linkID = link.ToString();
                         if (!_verifiedLinks.Contains(linkID))
@@ -353,7 +352,7 @@ namespace Eco.Plugins.DiscordLink
 
         private void ReportUnverifiedChannels()
         {
-            if (_verifiedLinks.Count >= _channelLinks.Count ) return; // All are verified; nothing to report.
+            if (_verifiedLinks.Count >= _channelLinks.Count) return; // All are verified; nothing to report.
 
             List<string> unverifiedLinks = new List<string>();
             foreach (ChannelLink link in _channelLinks)
@@ -468,43 +467,43 @@ namespace Eco.Plugins.DiscordLink
     {
         [Description("Allow mentions of usernames to be forwarded from Eco to the Discord channel.")]
         public bool AllowUserMentions { get; set; } = true;
-    
+
         [Description("Allow mentions of roles to be forwarded from Eco to the Discord channel.")]
         public bool AllowRoleMentions { get; set; } = true;
-    
+
         [Description("Allow mentions of channels to be forwarded from Eco to the Discord channel.")]
         public bool AllowChannelMentions { get; set; } = true;
 
         [Description("Permissions for who is allowed to forward mentions of @here or @everyone from Eco to the Discord channel.")]
         public GlobalMentionPermission HereAndEveryoneMentionPermission { get; set; } = GlobalMentionPermission.Forbidden;
     }
-    
+
     public class EcoStatusChannel : ChannelLink
     {
         [Description("Display the server name in the status message.")]
         public bool UseName { get; set; } = true;
-    
+
         [Description("Display the server description in the status message.")]
         public bool UseDescription { get; set; } = false;
-    
+
         [Description("Display the server logo in the status message.")]
         public bool UseLogo { get; set; } = true;
-    
+
         [Description("Display the server IP address in the status message.")]
         public bool UseAddress { get; set; } = true;
-    
+
         [Description("Display the number of online players in the status message.")]
         public bool UsePlayerCount { get; set; } = true;
-    
+
         [Description("Display the list of online players in the status message.")]
         public bool UsePlayerList { get; set; } = true;
-    
+
         [Description("Display the time since the world was created in the status message.")]
         public bool UseTimeSinceStart { get; set; } = true;
-    
+
         [Description("Display the time remaining until meteor impact in the status message.")]
         public bool UseTimeRemaining { get; set; } = true;
-    
+
         [Description("Display a boolean for if the metoer has hit yet or not, in the status message.")]
         public bool UseMeteorHasHit { get; set; } = false;
     }

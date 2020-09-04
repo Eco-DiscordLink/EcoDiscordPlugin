@@ -78,11 +78,11 @@ namespace Eco.Plugins.DiscordLink
         {
             try
             {
-                var iterable = new[] {1, 2, 3, 4, 5, 6, 7, 8, 9};
+                var iterable = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
                 var pagedEnumerable = new PagedEnumerable<int>(iterable, 2, val => 1);
 
                 var output = "";
-                
+
                 var enumerator = pagedEnumerable.GetPagedEnumerator();
                 enumerator.ForEachInPage(item => output += " " + item);
                 output += " |~| ";
@@ -119,7 +119,7 @@ namespace Eco.Plugins.DiscordLink
                 if (message.IsEmpty())
                 {
                     Random rnd = new Random();
-                    switch(rnd.Next(1,5))
+                    switch (rnd.Next(1, 5))
                     {
                         case 1:
                             message = "One thing has suddenly ceased to lead to another.";
@@ -146,7 +146,7 @@ namespace Eco.Plugins.DiscordLink
                 string formattedMessage = $"#{DLConfig.Data.EcoCommandChannel} {DiscordLink.EchoCommandToken + " " + message}";
                 ChatManager.SendChat(formattedMessage, plugin.EcoUser);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 LogCommandException(e);
             }
@@ -211,24 +211,24 @@ namespace Eco.Plugins.DiscordLink
 
         #region Trades
 
-        private readonly Dictionary<string, PagedEnumerator<Tuple<string, string>>> previousQueryEnumerator = 
+        private readonly Dictionary<string, PagedEnumerator<Tuple<string, string>>> previousQueryEnumerator =
             new Dictionary<string, PagedEnumerator<Tuple<string, string>>>();
-        
+
         [Command("nextpage")]
         [Description("Continues onto the next page of a trade listing.")]
         [Aliases("continuetrades")]
         public async Task NextPageOfTrades(CommandContext ctx)
         {
             try
-            {   
+            {
                 var pagedFieldEnumerator = previousQueryEnumerator.GetOrDefault(ctx.User.UniqueUsername());
                 if (pagedFieldEnumerator == null || !pagedFieldEnumerator.HasMorePages)
                 {
                     await RespondToCommand(ctx, "No further trade pages found or no trade command executed");
                     return;
                 }
-                
-                
+
+
                 var embed = new DiscordEmbedBuilder()
                     .WithColor(MessageBuilder.EmbedColor)
                     .WithTitle("Trade Listings");
@@ -250,7 +250,7 @@ namespace Eco.Plugins.DiscordLink
         [Command("trades")]
         [Description("Displays the latest trades by person or by item.")]
         [Aliases("trade")]
-        public async Task Trades(CommandContext ctx,[Description("The player name or item name in question.")] string itemNameOrUserName = "")
+        public async Task Trades(CommandContext ctx, [Description("The player name or item name in question.")] string itemNameOrUserName = "")
         {
             try
             {
@@ -306,10 +306,10 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
-        private IEnumerable<Tuple<string, string>> OffersToFields<T>(T buyOffers, T sellOffers, Func<Tuple<StoreComponent,TradeOffer>,string> context)
+        private IEnumerable<Tuple<string, string>> OffersToFields<T>(T buyOffers, T sellOffers, Func<Tuple<StoreComponent, TradeOffer>, string> context)
             where T : IEnumerable<IGrouping<string, Tuple<StoreComponent, TradeOffer>>>
-        {   
-            foreach(var group in sellOffers)
+        {
+            foreach (var group in sellOffers)
             {
                 var offer_descriptions = TradeOffersToDescriptions(group,
                     t => t.Item2.Price.ToString(),
@@ -327,7 +327,7 @@ namespace Eco.Plugins.DiscordLink
                     yield return Tuple.Create($"**Selling for {group.Key}**", fieldBodyBuilder.ToString());
                 }
             }
-            foreach(var group in buyOffers)
+            foreach (var group in buyOffers)
             {
                 var offer_descriptions = TradeOffersToDescriptions(group,
                     t => t.Item2.Price.ToString(),
@@ -347,24 +347,24 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
-        private PagedEnumerator<Tuple<string, string>> TradeOffersBuySell(DiscordEmbedBuilder embed, Func<StoreComponent,TradeOffer, bool> filter, Func<Tuple<StoreComponent,TradeOffer>,string> context)
+        private PagedEnumerator<Tuple<string, string>> TradeOffersBuySell(DiscordEmbedBuilder embed, Func<StoreComponent, TradeOffer, bool> filter, Func<Tuple<StoreComponent, TradeOffer>, string> context)
         {
             var sellOffers = TradeUtil.SellOffers(filter);
             var groupedSellOffers = sellOffers.GroupBy(t => TradeUtil.StoreCurrencyName(t.Item1)).OrderBy(g => g.Key);
-            
+
             var buyOffers = TradeUtil.BuyOffers(filter);
             var groupedBuyOffers = buyOffers.GroupBy(t => TradeUtil.StoreCurrencyName(t.Item1)).OrderBy(g => g.Key);
 
             var fieldEnumerator = OffersToFields(groupedBuyOffers, groupedSellOffers, context).GetEnumerator();
-            
+
             var pagedFieldEnumerator = new PagedEnumerator<Tuple<string, string>>(fieldEnumerator, DiscordUtil.EMBED_CONTENT_CHARACTER_LIMIT, field => field.Item1.Length + field.Item2.Length);
-            
+
             pagedFieldEnumerator.ForEachInPage(field => { embed.AddField(field.Item1, field.Item2, true); });
 
             return pagedFieldEnumerator;
         }
 
-        private IEnumerable<string> TradeOffersToDescriptions<T>(IEnumerable<T> offers, Func<T, string> getPrice, Func<T,string> getLabel, Func<T,int?> getQuantity)
+        private IEnumerable<string> TradeOffersToDescriptions<T>(IEnumerable<T> offers, Func<T, string> getPrice, Func<T, string> getLabel, Func<T, int?> getQuantity)
         {
             return offers.Select(t =>
             {
