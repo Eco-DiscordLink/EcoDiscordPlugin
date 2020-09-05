@@ -104,10 +104,11 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
                 char sign = (subTotal > 0.0f ? '+' : '-');
                 builder.AddField("Total", sign + Math.Abs(subTotal).ToString("n2") + " " + firstTrade.Currency.Name);
 
+                DiscordLink plugin = DiscordLink.Obj;
+                if (plugin == null) return;
                 foreach (ChannelLink tradeChannel in DLConfig.Data.TradeChannels)
                 {
-                    DiscordLink plugin = DiscordLink.Obj;
-                    if (plugin == null) return;
+                    if (!tradeChannel.IsValid()) continue;
                     DiscordGuild discordGuild = plugin.GuildByName(tradeChannel.DiscordGuild);
                     if (discordGuild == null) continue;
                     DiscordChannel discordChannel = discordGuild.ChannelByName(tradeChannel.DiscordChannel);

@@ -26,8 +26,10 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
 
         protected override void UpdateInternal(DiscordLink plugin, TriggerType trigger, object data)
         {
+            if (plugin == null) return;
             foreach (EcoStatusChannel statusChannel in DLConfig.Data.EcoStatusChannels)
             {
+                if (!statusChannel.IsValid()) continue;
                 DiscordGuild discordGuild = plugin.GuildByName(statusChannel.DiscordGuild);
                 if (discordGuild == null) continue;
                 DiscordChannel discordChannel = discordGuild.ChannelByName(statusChannel.DiscordChannel);
