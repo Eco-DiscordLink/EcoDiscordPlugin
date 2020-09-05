@@ -37,7 +37,6 @@ namespace Eco.Plugins.DiscordLink
         public const string EchoCommandToken = "[ECHO]";
 
         private string _status = "No Connection Attempt Made";
-        private readonly ChatLogger _chatLogger = new ChatLogger();
         private readonly List<DiscordLinkIntegration> _integrations = new List<DiscordLinkIntegration>();
         private CommandsNextExtension _commands;
         private Timer _discordDataMaybeAvailable = null;
@@ -80,11 +79,6 @@ namespace Eco.Plugins.DiscordLink
 
             ConnectAsync().Wait();
 
-            if (DLConfig.Data.LogChat)
-            {
-                _chatLogger.Start();
-            }
-
             // Triggered on a timer that starts when the Discord client connects.
             // It is likely that the client object has fetched all the relevant data, but there are not guarantees.
             OnDiscordMaybeReady += (obj, args) =>
@@ -96,19 +90,13 @@ namespace Eco.Plugins.DiscordLink
 
         public void Shutdown()
         {
-            if (DLConfig.Data.LogChat)
-            {
-                _chatLogger.Stop();
-            }
+            ShutdownIntegrations();
         }
 
         private void SetupConfig()
         {
             DLConfig config = DLConfig.Instance;
             config.Initialize();
-            config.OnChatlogEnabled += (obj, args) => { _chatLogger.Start(); };
-            config.OnChatlogDisabled += (obj, args) => { _chatLogger.Stop(); };
-            config.OnChatlogPathChanged += (obj, args) => { _chatLogger.Restart(); };
             config.OnTokenChanged += (obj, args) =>
             {
                 Logger.Info("Discord Bot Token changed - Reinitialising client");
@@ -152,14 +140,15 @@ namespace Eco.Plugins.DiscordLink
 
         void InitializeIntegrations()
         {
-            _integrations.Add(new DiscordChatFeed());
-            _integrations.Add(new EcoChatFeed());
+            _integrations.Add(new DiscordChatFeed());   // Discord -> Eco
+            _integrations.Add(new EcoChatFeed());       // Eco -> Discord
+            _integrations.Add(new ChatlogFeed());
             _integrations.Add(new EcoStatusDisplay());
             _integrations.Add(new TradeFeed());
             _integrations.Add(new SnippetInput());
         }
 
-        void DestroyIntegrations()
+        void ShutdownIntegrations()
         {
             _integrations.Clear();
         }
@@ -238,7 +227,7 @@ namespace Eco.Plugins.DiscordLink
             SystemUtil.StopAndDestroyTimer(ref _discordDataMaybeAvailable);
             SystemUtil.StopAndDestroyTimer(ref _tradePostingTimer);
 
-            DestroyIntegrations();
+            ShutdownIntegrations();
 
             if (DiscordClient != null)
             {
