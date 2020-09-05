@@ -161,7 +161,7 @@ namespace Eco.Plugins.DiscordLink
                 var plugin = DiscordLink.Obj;
                 if (plugin == null) return;
 
-                var snippets = DiscordLink.Obj.Snippets;
+                var snippets = DLStorage.Instance.Snippets;
                 string response;
                 if (string.IsNullOrWhiteSpace(snippetKey)) // List all snippets if no key is given
                 {

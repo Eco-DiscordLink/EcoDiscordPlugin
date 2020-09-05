@@ -2,14 +2,16 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Eco.Plugins.DiscordLink.IntegrationTypes
+﻿namespace Eco.Plugins.DiscordLink.IntegrationTypes
 {
     public enum TriggerType
     {
-        Timer   = 1 << 0,
-        Startup = 1 << 1,
-        Login   = 1 << 2,
-        Trade   = 1 << 3,
+        Timer           = 1 << 0,
+        Startup         = 1 << 1,
+        EcoMessage      = 1 << 2,
+        DiscordMessage  = 1 << 3,
+        Login           = 1 << 4,
+        Trade           = 1 << 5,
     }
 
     public abstract class DiscordLinkIntegration

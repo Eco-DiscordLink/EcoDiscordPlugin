@@ -91,7 +91,6 @@ namespace Eco.Plugins.DiscordLink
             {
                 InitializeIntegrations();
                 UpdateIntegrations(TriggerType.Startup, null);
-                _ = UpdateSnippets();
             };
         }
 
@@ -118,7 +117,6 @@ namespace Eco.Plugins.DiscordLink
             config.OnConfigChanged += (obj, args) =>
             {
                 _integrations.ForEach(integration => integration.OnConfigChanged());
-                _ = UpdateSnippets();
             };
         }
 
@@ -156,6 +154,7 @@ namespace Eco.Plugins.DiscordLink
         {
             _integrations.Add(new EcoStatusDisplay());
             _integrations.Add(new TradeFeed());
+            _integrations.Add(new SnippetInput());
         }
 
         void DestroyIntegrations()
@@ -434,6 +433,8 @@ namespace Eco.Plugins.DiscordLink
             if (message.Author == DiscordClient.CurrentUser) { return; }
             if (message.Content.StartsWith(DLConfig.Data.DiscordCommandPrefix)) { return; }
 
+            UpdateIntegrations(TriggerType.DiscordMessage, message);
+
             var channelLink = GetLinkForEcoChannel(message.Channel.Name) ?? GetLinkForEcoChannel(message.Channel.Id.ToString());
             var channel = channelLink?.EcoChannel;
             if (!String.IsNullOrWhiteSpace(channel))
@@ -477,38 +478,6 @@ namespace Eco.Plugins.DiscordLink
             if (DLConfig.Data.LogChat)
             {
                 _chatLogger.Write(chatMessage);
-            }
-        }
-
-        #endregion
-
-        #region Snippets
-
-        public Dictionary<string, string> Snippets { get; private set; } = new Dictionary<string, string>();
-
-        private async Task UpdateSnippets()
-        {
-            foreach (ChannelLink snippetChannel in DLConfig.Data.SnippetChannels)
-            {
-                if (DiscordClient == null) return;
-                DiscordGuild discordGuild = DiscordClient.GuildByName(snippetChannel.DiscordGuild);
-                if (discordGuild == null) continue;
-                DiscordChannel discordChannel = discordGuild.ChannelByName(snippetChannel.DiscordChannel);
-                if (discordChannel == null) continue;
-                if (!DiscordUtil.ChannelHasPermission(discordChannel, Permissions.ReadMessageHistory)) continue;
-
-                IReadOnlyList<DiscordMessage> snippetChannelMessages = DiscordUtil.GetMessagesAsync(discordChannel).Result;
-                if (snippetChannelMessages == null) continue;
-
-                Snippets.Clear();
-                foreach (DiscordMessage message in snippetChannelMessages)
-                {
-                    Match match = MessageUtil.SnippetRegex.Match(message.Content);
-                    if (match.Groups.Count == 3)
-                    {
-                        Snippets.Add(match.Groups[1].Value.ToLower(), match.Groups[2].Value);
-                    }
-                }
             }
         }
 
