@@ -152,6 +152,8 @@ namespace Eco.Plugins.DiscordLink
 
         void InitializeIntegrations()
         {
+            _integrations.Add(new DiscordChatFeed());
+            _integrations.Add(new EcoChatFeed());
             _integrations.Add(new EcoStatusDisplay());
             _integrations.Add(new TradeFeed());
             _integrations.Add(new SnippetInput());
@@ -374,12 +376,12 @@ namespace Eco.Plugins.DiscordLink
             DiscordClient.MessageCreated -= OnDiscordMessageCreateEvent;
         }
 
-        private ChatChannelLink GetLinkForEcoChannel(string discordChannelNameOrId)
+        public ChatChannelLink GetLinkForEcoChannel(string discordChannelNameOrId)
         {
             return DLConfig.Data.ChatChannelLinks.FirstOrDefault(link => link.DiscordChannel == discordChannelNameOrId);
         }
 
-        private ChatChannelLink GetLinkForDiscordChannel(string ecoChannelName)
+        public ChatChannelLink GetLinkForDiscordChannel(string ecoChannelName)
         {
             var lowercaseEcoChannelName = ecoChannelName.ToLower();
             return DLConfig.Data.ChatChannelLinks.FirstOrDefault(link => link.EcoChannel.ToLower() == lowercaseEcoChannelName);
@@ -406,20 +408,10 @@ namespace Eco.Plugins.DiscordLink
             LogEcoMessage(chatMessage);
 
             // Ignore commands and messages sent by our bot
-            if (chatMessage.Citizen.Name == EcoUser.Name && !chatMessage.Message.StartsWith(EchoCommandToken))
-            {
-                return;
-            }
+            if (chatMessage.Citizen.Name == EcoUser.Name) return;
+            if (chatMessage.Message.StartsWith(EchoCommandToken)) return;
 
-            // Remove the # character from the start.
-            var channelLink = GetLinkForDiscordChannel(chatMessage.Tag.Substring(1));
-            var channel = channelLink?.DiscordChannel;
-            var guild = channelLink?.DiscordGuild;
-
-            if (!String.IsNullOrWhiteSpace(channel) && !String.IsNullOrWhiteSpace(guild))
-            {
-                ForwardMessageToDiscordChannel(chatMessage, channel, guild, channelLink.HereAndEveryoneMentionPermission);
-            }
+            UpdateIntegrations(TriggerType.EcoMessage, chatMessage);
         }
 
         public async Task OnDiscordMessageCreateEvent(MessageCreateEventArgs messageArgs)
@@ -430,57 +422,13 @@ namespace Eco.Plugins.DiscordLink
         public void OnMessageReceivedFromDiscord(DiscordMessage message)
         {
             LogDiscordMessage(message);
-            if (message.Author == DiscordClient.CurrentUser) { return; }
-            if (message.Content.StartsWith(DLConfig.Data.DiscordCommandPrefix)) { return; }
+
+            // Ignore commands and messages sent by our bot
+            if (message.Author == DiscordClient.CurrentUser) return;
+            if (message.Content.StartsWith(DLConfig.Data.DiscordCommandPrefix)) return;
 
             UpdateIntegrations(TriggerType.DiscordMessage, message);
-
-            var channelLink = GetLinkForEcoChannel(message.Channel.Name) ?? GetLinkForEcoChannel(message.Channel.Id.ToString());
-            var channel = channelLink?.EcoChannel;
-            if (!String.IsNullOrWhiteSpace(channel))
-            {
-                ForwardMessageToEcoChannel(message, channel);
-            }
         }
-
-        private async void ForwardMessageToEcoChannel(DiscordMessage message, string ecoChannel)
-        {
-            Logger.DebugVerbose("Sending Discord message to Eco channel: " + ecoChannel);
-            ChatManager.SendChat(MessageUtil.FormatMessageForEco(message, ecoChannel), EcoUser);
-
-            if (DLConfig.Data.LogChat)
-            {
-                _chatLogger.Write(message);
-            }
-        }
-
-        private void ForwardMessageToDiscordChannel(ChatSent chatMessage, string channelNameOrId, string guildNameOrId, GlobalMentionPermission globalMentionPermission)
-        {
-            Logger.DebugVerbose("Sending Eco message to Discord channel " + channelNameOrId + " in guild " + guildNameOrId);
-            var guild = GuildByNameOrId(guildNameOrId);
-            if (guild == null)
-            {
-                Logger.Error("Failed to forward Eco message from user " + MessageUtil.StripEcoTags(chatMessage.Citizen.Name) + " as no guild with the name or ID " + guildNameOrId + " exists");
-                return;
-            }
-            var channel = guild.ChannelByNameOrId(channelNameOrId);
-            if (channel == null)
-            {
-                Logger.Error("Failed to forward Eco message from user " + MessageUtil.StripEcoTags(chatMessage.Citizen.Name) + " as no channel with the name or ID " + channelNameOrId + " exists in the guild " + guild.Name);
-                return;
-            }
-
-            bool allowGlobalMention = (globalMentionPermission == GlobalMentionPermission.AnyUser
-                || globalMentionPermission == GlobalMentionPermission.Admin && chatMessage.Citizen.IsAdmin);
-
-            _ = DiscordUtil.SendAsync(channel, MessageUtil.FormatMessageForDiscord(chatMessage.Message, channel, chatMessage.Citizen.Name, allowGlobalMention));
-
-            if (DLConfig.Data.LogChat)
-            {
-                _chatLogger.Write(chatMessage);
-            }
-        }
-
         #endregion
 
         #region Player Configs
