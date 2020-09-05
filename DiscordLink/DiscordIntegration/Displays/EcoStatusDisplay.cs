@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Eco.Plugins.DiscordLink
+namespace Eco.Plugins.DiscordLink.IntegrationTypes
 {
     class EcoStatusDisplay : Display
     {
@@ -13,7 +13,7 @@ namespace Eco.Plugins.DiscordLink
 
         public EcoStatusDisplay()
         {
-            _triggerTypeField = DisplayTriggerType.Startup | DisplayTriggerType.Login;
+            _triggerTypeField = TriggerType.Startup | TriggerType.Login;
             _timerStartDelayMS = 0;
             _timerUpdateIntervalMS = 60000;
         }
@@ -24,7 +24,7 @@ namespace Eco.Plugins.DiscordLink
             base.OnConfigChanged();
         }
 
-        protected override void UpdateDisplay(DiscordLink plugin, DisplayTriggerType trigger)
+        protected override void UpdateInternal(DiscordLink plugin, TriggerType trigger, object data)
         {
             foreach (EcoStatusChannel statusChannel in DLConfig.Data.EcoStatusChannels)
             {

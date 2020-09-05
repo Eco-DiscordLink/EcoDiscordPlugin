@@ -15,6 +15,7 @@ using Eco.Core.Utils;
 using Eco.Gameplay.GameActions;
 using Eco.Gameplay.Players;
 using Eco.Gameplay.Systems.Chat;
+using Eco.Plugins.DiscordLink.IntegrationTypes;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Utils;
 
@@ -37,10 +38,10 @@ namespace Eco.Plugins.DiscordLink
 
         private string _status = "No Connection Attempt Made";
         private readonly ChatLogger _chatLogger = new ChatLogger();
+        private readonly List<DiscordLinkIntegration> _integrations = new List<DiscordLinkIntegration>();
         private CommandsNextExtension _commands;
         private Timer _discordDataMaybeAvailable = null;
         private Timer _tradePostingTimer = null;
-        private List<Display> _displays = new List<Display>();
 
         public override string ToString()
         {
@@ -88,14 +89,9 @@ namespace Eco.Plugins.DiscordLink
             // It is likely that the client object has fetched all the relevant data, but there are not guarantees.
             OnDiscordMaybeReady += (obj, args) =>
             {
-                InitializeDisplays();
-                UpdateDisplays(DisplayTriggerType.Startup);
+                InitializeIntegrations();
+                UpdateIntegrations(TriggerType.Startup, null);
                 _ = UpdateSnippets();
-
-                _tradePostingTimer = new Timer(InnerArgs =>
-                {
-                    _ = PostAccumulatedTrades();
-                }, null, 0, TRADE_POSTING_INTERVAL_MS);
             };
         }
 
@@ -121,7 +117,7 @@ namespace Eco.Plugins.DiscordLink
             };
             config.OnConfigChanged += (obj, args) =>
             {
-                _displays.ForEach(display => display.OnConfigChanged());
+                _integrations.ForEach(integration => integration.OnConfigChanged());
                 _ = UpdateSnippets();
             };
         }
@@ -134,13 +130,16 @@ namespace Eco.Plugins.DiscordLink
                     OnMessageReceivedFromEco(chatSent);
                     break;
 
-                case FirstLogin _:
-                case Play _:
-                    UpdateDisplays(DisplayTriggerType.Login);
+                case FirstLogin firstLogin:
+                    UpdateIntegrations(TriggerType.Login, firstLogin);
+                    break;
+
+                case Play play:
+                    UpdateIntegrations(TriggerType.Login, play);
                     break;
 
                 case CurrencyTrade CurrencyTrade:
-                    StoreTradeEvent(CurrencyTrade);
+                    UpdateIntegrations(TriggerType.Trade, CurrencyTrade);
                     break;
 
                 default:
@@ -153,24 +152,21 @@ namespace Eco.Plugins.DiscordLink
             return new Result(ResultType.None);
         }
 
-        void InitializeDisplays()
+        void InitializeIntegrations()
         {
-            _displays.Add(new EcoStatusDisplay());
-
-            _displays.ForEach(display => display.StartTimer());
+            _integrations.Add(new EcoStatusDisplay());
+            _integrations.Add(new TradeFeed());
         }
 
-        void DestroyDisplays()
+        void DestroyIntegrations()
         {
-            _displays.Clear();
+            _integrations.Clear();
         }
         
-        void UpdateDisplays(DisplayTriggerType trigger)
+        void UpdateIntegrations(TriggerType trigger, object data)
         {
-            _displays.ForEach(display => display.Update(this, trigger));
+            _integrations.ForEach(integration => integration.Update(this, trigger, data));
         }
-
-        
 
         #region DiscordClient Management
 
@@ -241,7 +237,7 @@ namespace Eco.Plugins.DiscordLink
             SystemUtil.StopAndDestroyTimer(ref _discordDataMaybeAvailable);
             SystemUtil.StopAndDestroyTimer(ref _tradePostingTimer);
 
-            DestroyDisplays();
+            DestroyIntegrations();
 
             if (DiscordClient != null)
             {
@@ -514,88 +510,6 @@ namespace Eco.Plugins.DiscordLink
                     }
                 }
             }
-        }
-
-        #endregion
-
-        #region Trade Channels
-
-        private const int TRADE_POSTING_INTERVAL_MS = 1000;
-        private readonly Dictionary<Tuple<int, int>, List<CurrencyTrade>> _accumulatedTrades = new Dictionary<Tuple<int, int>, List<CurrencyTrade>>();
-
-        private void StoreTradeEvent(CurrencyTrade tradeEvent)
-        {
-            bool citizenIsBuyer = (tradeEvent.Citizen.Id == tradeEvent.Buyer.Id);
-            Tuple<int, int> iDTuple = new Tuple<int, int>(tradeEvent.Citizen.Id, citizenIsBuyer ? tradeEvent.Seller.Id : tradeEvent.Buyer.Id);
-            _accumulatedTrades.TryGetValue(iDTuple, out List<CurrencyTrade> trades);
-            if (trades == null)
-            {
-                trades = new List<CurrencyTrade>();
-                _accumulatedTrades.Add(iDTuple, trades);
-            }
-
-            trades.Add(tradeEvent);
-        }
-
-        private async Task PostAccumulatedTrades()
-        {
-            foreach (List<CurrencyTrade> accumulatedTrades in _accumulatedTrades.Values)
-            {
-                if (accumulatedTrades.Count <= 0) continue;
-
-                CurrencyTrade firstTrade = accumulatedTrades[0];
-
-                DiscordEmbedBuilder builder = new DiscordEmbedBuilder();
-                string leftName = firstTrade.Citizen.Name;
-                string rightName = firstTrade.Citizen.Id == firstTrade.Buyer.Id ? firstTrade.Seller.Name : firstTrade.Buyer.Name;
-                builder.Title = leftName + " traded with " + rightName;
-
-                string boughtItemsDesc = string.Empty;
-                float boughtTotal = 0;
-                string soldItemsDesc = string.Empty;
-                float soldTotal = 0;
-                foreach (CurrencyTrade trade in accumulatedTrades)
-                {
-                    if (trade.BoughtOrSold == Shared.Items.BoughtOrSold.Buying)
-                    {
-                        boughtItemsDesc += trade.NumberOfItems + " X " + trade.ItemUsed.DisplayName + " * " + trade.CurrencyAmount / trade.NumberOfItems + " = " + trade.CurrencyAmount + "\n";
-                        boughtTotal += trade.CurrencyAmount;
-                    }
-                    else if (trade.BoughtOrSold == Shared.Items.BoughtOrSold.Selling)
-                    {
-                        soldItemsDesc += trade.NumberOfItems + " X " + trade.ItemUsed.DisplayName + " * " + trade.CurrencyAmount / trade.NumberOfItems + " = " + trade.CurrencyAmount + "\n";
-                        soldTotal += trade.CurrencyAmount;
-                    }
-                }
-
-                if (!boughtItemsDesc.IsEmpty())
-                {
-                    boughtItemsDesc += "\nTotal = " + boughtTotal.ToString("n2");
-                    builder.AddField("Bought", boughtItemsDesc);
-                }
-
-                if (!soldItemsDesc.IsEmpty())
-                {
-                    soldItemsDesc += "\nTotal = " + soldTotal.ToString("n2");
-                    builder.AddField("Sold", soldItemsDesc);
-                }
-
-                float subTotal = soldTotal - boughtTotal;
-                char sign = (subTotal > 0.0f ? '+' : '-');
-                builder.AddField("Total", sign + Math.Abs(subTotal).ToString("n2") + " " + firstTrade.Currency.Name);
-
-                foreach (ChannelLink tradeChannel in DLConfig.Data.TradeChannels)
-                {
-                    if (DiscordClient == null) return;
-                    DiscordGuild discordGuild = DiscordClient.GuildByName(tradeChannel.DiscordGuild);
-                    if (discordGuild == null) continue;
-                    DiscordChannel discordChannel = discordGuild.ChannelByName(tradeChannel.DiscordChannel);
-                    if (discordChannel == null) continue;
-
-                    _ = DiscordUtil.SendAsync(discordChannel, "", builder.Build());
-                }
-            }
-            _accumulatedTrades.Clear();
         }
 
         #endregion
