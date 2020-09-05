@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus;
@@ -14,7 +13,6 @@ using Eco.Core.Plugins.Interfaces;
 using Eco.Core.Utils;
 using Eco.Gameplay.GameActions;
 using Eco.Gameplay.Players;
-using Eco.Gameplay.Systems.Chat;
 using Eco.Plugins.DiscordLink.IntegrationTypes;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Utils;

@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-
 namespace Eco.Plugins.DiscordLink.Utilities
 {
     public static class MessageUtil

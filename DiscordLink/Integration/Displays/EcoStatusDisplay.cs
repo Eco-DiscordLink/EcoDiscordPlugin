@@ -3,7 +3,6 @@ using DSharpPlus.Entities;
 using Eco.Plugins.DiscordLink.Utilities;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Eco.Plugins.DiscordLink.IntegrationTypes
 {
