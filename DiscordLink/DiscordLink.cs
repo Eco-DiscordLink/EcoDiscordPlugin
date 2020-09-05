@@ -24,6 +24,8 @@ namespace Eco.Plugins.DiscordLink
     {
         public readonly Version PluginVersion = new Version(2, 0, 1);
 
+        private const int FIRST_DISPLAY_UPDATE_DELAY_MS = 20000;
+
         public event EventHandler OnClientStarted;
         public event EventHandler OnClientStopped;
         public event EventHandler OnDiscordMaybeReady;
@@ -38,6 +40,7 @@ namespace Eco.Plugins.DiscordLink
         private CommandsNextExtension _commands;
         private Timer _discordDataMaybeAvailable = null;
         private Timer _tradePostingTimer = null;
+        private List<Display> _displays = new List<Display>();
 
         public override string ToString()
         {
@@ -85,7 +88,8 @@ namespace Eco.Plugins.DiscordLink
             // It is likely that the client object has fetched all the relevant data, but there are not guarantees.
             OnDiscordMaybeReady += (obj, args) =>
             {
-                UpdateEcoStatus();
+                InitializeDisplays();
+                UpdateDisplays(DisplayTriggerType.Startup);
                 _ = UpdateSnippets();
 
                 _tradePostingTimer = new Timer(InnerArgs =>
@@ -117,8 +121,8 @@ namespace Eco.Plugins.DiscordLink
             };
             config.OnConfigChanged += (obj, args) =>
             {
-                _ecoStatusMessages.Clear(); // The status channels may have changed so we should find the messages again;
-                UpdateSnippets();
+                _displays.ForEach(display => display.OnConfigChanged());
+                _ = UpdateSnippets();
             };
         }
 
@@ -132,7 +136,7 @@ namespace Eco.Plugins.DiscordLink
 
                 case FirstLogin _:
                 case Play _:
-                    UpdateEcoStatus();
+                    UpdateDisplays(DisplayTriggerType.Login);
                     break;
 
                 case CurrencyTrade CurrencyTrade:
@@ -149,13 +153,32 @@ namespace Eco.Plugins.DiscordLink
             return new Result(ResultType.None);
         }
 
+        void InitializeDisplays()
+        {
+            _displays.Add(new EcoStatusDisplay());
+
+            _displays.ForEach(display => display.StartTimer());
+        }
+
+        void DestroyDisplays()
+        {
+            _displays.Clear();
+        }
+        
+        void UpdateDisplays(DisplayTriggerType trigger)
+        {
+            _displays.ForEach(display => display.Update(this, trigger));
+        }
+
+        
+
         #region DiscordClient Management
 
         private bool SetUpClient()
         {
             _status = "Setting up client";
 
-            bool BotTokenIsNull = String.IsNullOrWhiteSpace(DLConfig.Data.BotToken);
+            bool BotTokenIsNull = string.IsNullOrWhiteSpace(DLConfig.Data.BotToken);
             if (BotTokenIsNull)
             {
                 DLConfig.Instance.VerifyConfig(DLConfig.VerificationFlags.Static); // Make the user aware of the empty bot token
@@ -181,12 +204,11 @@ namespace Eco.Plugins.DiscordLink
                 {
                     DLConfig.Instance.EnqueueFullVerification();
 
-                    // Run EcoStatus once when the server has started
                     _discordDataMaybeAvailable = new Timer(innerArgs =>
                     {
                         OnDiscordMaybeReady?.Invoke(this, EventArgs.Empty);
-                        _discordDataMaybeAvailable = null;
-                    }, null, ECO_STATUS_FIRST_UPDATE_DELAY_MS, Timeout.Infinite);
+                        SystemUtil.StopAndDestroyTimer(ref _discordDataMaybeAvailable);
+                    }, null, FIRST_DISPLAY_UPDATE_DELAY_MS, Timeout.Infinite);
                 };
 
                 DiscordClient.GuildAvailable += async args =>
@@ -200,8 +222,6 @@ namespace Eco.Plugins.DiscordLink
                     StringPrefixes = DLConfig.Data.DiscordCommandPrefix.SingleItemAsEnumerable()
                 });
                 _commands.RegisterCommands<DiscordDiscordCommands>();
-
-                _ecoStatusUpdateTimer = new Timer(this.UpdateEcoStatusOnTimer, null, 0, ECO_STATUS_TIMER_INTERAVAL_MS);
 
                 OnClientStarted?.Invoke(this, EventArgs.Empty);
                 return true;
@@ -219,11 +239,9 @@ namespace Eco.Plugins.DiscordLink
             // Stop various timers that may have been set up so they do not trigger while the reset is ongoing
             DLConfig.Instance.DequeueAllVerification();
             SystemUtil.StopAndDestroyTimer(ref _discordDataMaybeAvailable);
-            SystemUtil.StopAndDestroyTimer(ref _ecoStatusUpdateTimer);
             SystemUtil.StopAndDestroyTimer(ref _tradePostingTimer);
 
-            // Clear all the stored message references as they may become invalid if the token has changed
-            _ecoStatusMessages.Clear();
+            DestroyDisplays();
 
             if (DiscordClient != null)
             {
@@ -464,116 +482,6 @@ namespace Eco.Plugins.DiscordLink
             {
                 _chatLogger.Write(chatMessage);
             }
-        }
-
-        #endregion
-
-        #region EcoStatus
-        private Timer _ecoStatusUpdateTimer = null;
-        private const int ECO_STATUS_TIMER_INTERAVAL_MS = 60000;
-        private const int ECO_STATUS_FIRST_UPDATE_DELAY_MS = 20000;
-        private readonly Dictionary<EcoStatusChannel, ulong> _ecoStatusMessages = new Dictionary<EcoStatusChannel, ulong>();
-
-        private void UpdateEcoStatusOnTimer(Object stateInfo)
-        {
-            UpdateEcoStatus();
-        }
-
-        private static object _lock = new object();
-        private void UpdateEcoStatus()
-        {
-            lock (_lock)
-            {
-                if (DiscordClient == null) return;
-                foreach (EcoStatusChannel statusChannel in  DLConfig.Data.EcoStatusChannels)
-                {
-                    DiscordGuild discordGuild = DiscordClient.GuildByName(statusChannel.DiscordGuild);
-                    if (discordGuild == null) continue;
-                    DiscordChannel discordChannel = discordGuild.ChannelByName(statusChannel.DiscordChannel);
-                    if (discordChannel == null) continue;
-
-                    if (!DiscordUtil.ChannelHasPermission(discordChannel, Permissions.ReadMessageHistory)) continue;
-                    bool HasEmbedPermission = DiscordUtil.ChannelHasPermission(discordChannel, Permissions.EmbedLinks);
-
-                    DiscordMessage ecoStatusMessage = null;
-                    bool created = false;
-                    ulong statusMessageID;
-                    if (_ecoStatusMessages.TryGetValue(statusChannel, out statusMessageID))
-                    {
-                        try
-                        {
-                            ecoStatusMessage = discordChannel.GetMessageAsync(statusMessageID).Result;
-                        }
-                        catch (System.AggregateException)
-                        {
-                            _ecoStatusMessages.Remove(statusChannel); // The message has been removed, take it out of the list
-                        }
-                        catch (Exception e)
-                        {
-                            Logger.Error("Error occurred when attempting to read message with ID " + statusMessageID + " from channel \"" + discordChannel.Name + "\". Error message: " + e);
-                            continue;
-                        }
-                    }
-                    else
-                    {
-                        IReadOnlyList<DiscordMessage> ecoStatusChannelMessages = DiscordUtil.GetMessagesAsync(discordChannel).Result;
-                        if (ecoStatusChannelMessages == null) continue;
-
-                        foreach (DiscordMessage message in ecoStatusChannelMessages)
-                        {
-                            // We assume that it's our status message if it has parts of our string in it
-                            if (message.Author == DiscordClient.CurrentUser
-                                && (HasEmbedPermission ? (message.Embeds.Count == 1 && message.Embeds[0].Title.Contains("Live Server Status**")) : message.Content.Contains("Live Server Status**")))
-                            {
-                                ecoStatusMessage = message;
-                                break;
-                            }
-                        }
-
-                        // If we couldn't find a status message, create a new one
-                        if (ecoStatusMessage == null)
-                        {
-                            ecoStatusMessage = DiscordUtil.SendAsync(discordChannel, null, MessageBuilder.GetEcoStatus(GetEcoStatusFlagForChannel(statusChannel), isLiveMessage: true)).Result;
-                            created = true;
-                        }
-
-                        if (ecoStatusMessage != null) // SendAsync may return null in case an exception is raised
-                        {
-                            _ecoStatusMessages.Add(statusChannel, ecoStatusMessage.Id);
-                        }
-                    }
-
-                    if (ecoStatusMessage != null && !created) // It is pointless to update the message if it was just created
-                    {
-                        _ = DiscordUtil.ModifyAsync(ecoStatusMessage, "", MessageBuilder.GetEcoStatus(GetEcoStatusFlagForChannel(statusChannel), isLiveMessage: true));
-                    }
-                }
-            }
-        }
-
-        private static MessageBuilder.EcoStatusComponentFlag GetEcoStatusFlagForChannel(EcoStatusChannel statusChannel)
-        {
-            MessageBuilder.EcoStatusComponentFlag statusFlag = 0;
-            if (statusChannel.UseName)
-                statusFlag |= MessageBuilder.EcoStatusComponentFlag.Name;
-            if (statusChannel.UseDescription)
-                statusFlag |= MessageBuilder.EcoStatusComponentFlag.Description;
-            if (statusChannel.UseLogo)
-                statusFlag |= MessageBuilder.EcoStatusComponentFlag.Logo;
-            if (statusChannel.UseAddress)
-                statusFlag |= MessageBuilder.EcoStatusComponentFlag.ServerAddress;
-            if (statusChannel.UsePlayerCount)
-                statusFlag |= MessageBuilder.EcoStatusComponentFlag.PlayerCount;
-            if (statusChannel.UsePlayerList)
-                statusFlag |= MessageBuilder.EcoStatusComponentFlag.PlayerList;
-            if (statusChannel.UseTimeSinceStart)
-                statusFlag |= MessageBuilder.EcoStatusComponentFlag.TimeSinceStart;
-            if (statusChannel.UseTimeRemaining)
-                statusFlag |= MessageBuilder.EcoStatusComponentFlag.TimeRemaining;
-            if (statusChannel.UseMeteorHasHit)
-                statusFlag |= MessageBuilder.EcoStatusComponentFlag.MeteorHasHit;
-
-            return statusFlag;
         }
 
         #endregion
