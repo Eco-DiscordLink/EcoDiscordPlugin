@@ -65,7 +65,7 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [Command("ecostatus")]
-        [Description("Retrieves the current status of the Eco Server")]
+        [Description("Retrieves the current status of the Eco Server.")]
         public async Task EcoStatus(CommandContext ctx)
         {
             await RespondToCommand(ctx, "", MessageBuilder.GetEcoStatus(MessageBuilder.EcoStatusComponentFlag.All, isLiveMessage: false));
@@ -155,7 +155,7 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [Command("players")]
-        [Description("Lists the players currently online on the server")]
+        [Description("Lists the players currently online on the server.")]
         public async Task PlayerList(CommandContext ctx)
         {
             try
@@ -169,7 +169,7 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [Command("DiscordInvite")]
-        [Description("Posts the Discord invite message to the Eco chat")]
+        [Description("Posts the Discord invite message to the Eco chat.")]
         public async Task DiscordInvite(CommandContext ctx)
         {
             try

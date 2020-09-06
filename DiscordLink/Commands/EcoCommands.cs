@@ -27,37 +27,54 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
-        [ChatCommand("Verifies that the Discord plugin is loaded", ChatAuthorizationLevel.Admin)]
-        public static void VerifyDiscord(User user)
-        {
-            CallWithErrorHandling<object>((lUser, args) =>
-                {
-                    ChatManager.ServerMessageToPlayer(new LocString("Discord Plugin is loaded."), lUser);
-                },
-                user);
-        }
+        [ChatCommand("Commands for the Discord integration plugin.", "DL", ChatAuthorizationLevel.User)]
+        public static void DiscordLink(User user) { }
 
-        [ChatCommand("Lists Discord servers the bot is in.", ChatAuthorizationLevel.Admin)]
-        public static void DiscordGuilds(User user)
+        [ChatSubCommand("DiscordLink", "Lists Discord servers the bot is in.", ChatAuthorizationLevel.Admin)]
+        public static void ListGuilds(User user)
         {
             CallWithErrorHandling<object>((lUser, args) =>
                 {
-                    var plugin = DiscordLink.Obj;
+                    var plugin = Plugins.DiscordLink.DiscordLink.Obj;
                     if (plugin == null) return;
 
-                    var joinedNames = String.Join(", ", plugin.GuildNames);
+                    var joinedNames = string.Join(", ", plugin.GuildNames);
 
                     ChatManager.ServerMessageToPlayer(new LocString("Servers: " + joinedNames), user);
                 },
                 user);
         }
 
-        [ChatCommand("Sends a message to a specific server and channel.", ChatAuthorizationLevel.Admin)]
-        public static void DiscordSendToChannel(User user, string guild, string channel, string outerMessage)
+        [ChatSubCommand("DiscordLink", "Lists channels available to the bot in a specific server.", ChatAuthorizationLevel.Admin)]
+        public static void ListChannels(User user, string guildName)
+        {
+            CallWithErrorHandling<object>((lUser, args) =>
+            {
+                var plugin = Plugins.DiscordLink.DiscordLink.Obj;
+                if (plugin == null) return;
+
+                var guild = string.IsNullOrEmpty(guildName)
+                    ? plugin.DefaultGuild
+                    : plugin.GuildByName(guildName);
+
+                // Can happen if DefaultGuild is not configured.
+                if (guild == null)
+                {
+                    ChatManager.ServerMessageToPlayer(new LocString("Unable to find that guild, perhaps the name was misspelled?"), user);
+                }
+
+                var joinedGames = String.Join(", ", guild.TextChannelNames());
+                ChatManager.ServerMessageToAll(new LocString("Channels: " + joinedGames));
+            },
+                user);
+        }
+
+        [ChatSubCommand("DiscordLink", "Sends a message to a specific server and channel.", ChatAuthorizationLevel.Admin)]
+        public static void SendMessageToChannel(User user, string guild, string channel, string outerMessage)
         {
             CallWithErrorHandling<object>((lUser, args) =>
                 {
-                    var plugin = DiscordLink.Obj;
+                    var plugin = Plugins.DiscordLink.DiscordLink.Obj;
                     if (plugin == null) return;
 
                     var guildName = args[0];
@@ -72,12 +89,12 @@ namespace Eco.Plugins.DiscordLink
                 user, guild, channel, outerMessage);
         }
 
-        [ChatCommand("Sends a message to the default server and channel.", ChatAuthorizationLevel.Admin)]
-        public static void DiscordMessage(User user, string message)
+        [ChatSubCommand("DiscordLink", "Sends a message to the default server and channel.", ChatAuthorizationLevel.Admin)]
+        public static void SendMessage(User user, string message)
         {
             CallWithErrorHandling<object>((lUser, args) =>
                 {
-                    var plugin = DiscordLink.Obj;
+                    var plugin = Plugins.DiscordLink.DiscordLink.Obj;
                     if (plugin == null) return;
 
                     var defaultChannel = plugin.GetDefaultChannelForPlayer(user.Name);
@@ -90,36 +107,12 @@ namespace Eco.Plugins.DiscordLink
                 user, message);
         }
 
-        [ChatCommand("Lists channels available to the bot in a specific server.", ChatAuthorizationLevel.Admin)]
-        public static void DiscordChannels(User user, string guildName)
+        [ChatSubCommand("DiscordLink", "Sets the default Discord channel to use.", ChatAuthorizationLevel.Admin)]
+        public static void SetDefaultChannel(User user, string guildName, string channelName)
         {
             CallWithErrorHandling<object>((lUser, args) =>
                 {
-                    var plugin = DiscordLink.Obj;
-                    if (plugin == null) return;
-
-                    var guild = string.IsNullOrEmpty(guildName)
-                        ? plugin.DefaultGuild
-                        : plugin.GuildByName(guildName);
-
-                    // Can happen if DefaultGuild is not configured.
-                    if (guild == null)
-                    {
-                        ChatManager.ServerMessageToPlayer(new LocString("Unable to find that guild, perhaps the name was misspelled?"), user);
-                    }
-
-                    var joinedGames = String.Join(", ", guild.TextChannelNames());
-                    ChatManager.ServerMessageToAll(new LocString("Channels: " + joinedGames));
-                },
-                user);
-        }
-
-        [ChatCommand("Sets default channel to use.", ChatAuthorizationLevel.Admin)]
-        public static void DiscordDefaultChannel(User user, string guildName, string channelName)
-        {
-            CallWithErrorHandling<object>((lUser, args) =>
-                {
-                    var plugin = DiscordLink.Obj;
+                    var plugin = Plugins.DiscordLink.DiscordLink.Obj;
                     if (plugin == null) return;
 
                     plugin.SetDefaultChannelForPlayer(user.Name, guildName, channelName);
@@ -128,12 +121,12 @@ namespace Eco.Plugins.DiscordLink
                 user);
         }
 
-        [ChatCommand("Displays Discord invite message.", "dl-invite", ChatAuthorizationLevel.User)]
-        public static void DiscordInvite(User user, string ecoChannel = "")
+        [ChatSubCommand("DiscordLink", "Displays Discord invite message.", ChatAuthorizationLevel.User)]
+        public static void Invite(User user, string ecoChannel = "")
         {
             CallWithErrorHandling<object>((lUser, args) =>
             {
-                var plugin = DiscordLink.Obj;
+                var plugin = Plugins.DiscordLink.DiscordLink.Obj;
                 if (plugin == null) return;
 
                 var config = DLConfig.Data;
@@ -153,12 +146,12 @@ namespace Eco.Plugins.DiscordLink
             user);
         }
 
-        [ChatCommand("Print a predefined snippet from Discord.", "dl-snippet", ChatAuthorizationLevel.User)]
-        public static void DiscordSnippet(User user, string snippetKey = "", string ecoChannel = "")
+        [ChatSubCommand("DiscordLink", "Post a predefined snippet from Discord.", "snippet", ChatAuthorizationLevel.User)]
+        public static void PostSnippet(User user, string snippetKey = "", string ecoChannel = "")
         {
             CallWithErrorHandling<object>((lUser, args) =>
             {
-                var plugin = DiscordLink.Obj;
+                var plugin = Plugins.DiscordLink.DiscordLink.Obj;
                 if (plugin == null) return;
 
                 var snippets = DLStorage.Instance.Snippets;
