@@ -10,7 +10,7 @@ namespace Eco.Plugins.DiscordLink
     /**
      * Handles commands coming from the Eco server.
      */
-    public class DiscordEcoCommands : IChatCommandHandler
+    public class EcoCommands : IChatCommandHandler
     {
         private delegate void EcoCommandFunction(User user, params string[] args);
 

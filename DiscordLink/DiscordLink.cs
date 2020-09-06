@@ -205,7 +205,7 @@ namespace Eco.Plugins.DiscordLink
                 {
                     StringPrefixes = DLConfig.Data.DiscordCommandPrefix.SingleItemAsEnumerable()
                 });
-                _commands.RegisterCommands<DiscordDiscordCommands>();
+                _commands.RegisterCommands<DiscordCommands>();
 
                 OnClientStarted?.Invoke(this, EventArgs.Empty);
                 return true;
