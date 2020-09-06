@@ -121,6 +121,21 @@ namespace Eco.Plugins.DiscordLink
                 user);
         }
 
+        [ChatSubCommand("DiscordLink", "Displays information about the DiscordLink plugin.", ChatAuthorizationLevel.User)]
+        public static void About(User user)
+        {
+            CallWithErrorHandling<object>((lUser, args) =>
+            {
+                string message = "DiscordLink is a plugin mod that runs on this server." +
+                "\nIt connects the game server to a Discord bot in order to perform seamless communication between Eco and Discord." + 
+                "\nThis enables you to chat with players who are currently not online in Eco, but are available on Discord." +
+                "\nDiscordLink can also be used to display information about the Eco server in Discord, such as who is online and what items are available on the market." +
+                "\n\nFor more information, visit \"www.github.com/Spoffy/EcoDiscordPlugin\".";
+                ChatManager.ServerMessageToPlayer(new LocString(message), user);
+            },
+            user);
+        }
+
         [ChatSubCommand("DiscordLink", "Displays Discord invite message.", ChatAuthorizationLevel.User)]
         public static void Invite(User user, string ecoChannel = "")
         {
