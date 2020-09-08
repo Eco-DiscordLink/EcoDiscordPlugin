@@ -8,11 +8,6 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
 {
     public class SnippetInput : Input
     {
-        public SnippetInput()
-        {
-            _triggerTypeField = TriggerType.DiscordMessage;
-        }
-
         public override void Initialize()
         {
             ReloadSnippets();
@@ -22,6 +17,11 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
         public override void OnConfigChanged()
         {
             ReloadSnippets();
+        }
+
+        protected override TriggerType GetTriggers()
+        {
+            return TriggerType.DiscordMessage;
         }
 
         protected override void UpdateInternal(DiscordLink plugin, TriggerType trigger, object data)

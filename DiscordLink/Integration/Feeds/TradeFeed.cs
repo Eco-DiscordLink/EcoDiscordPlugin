@@ -15,11 +15,6 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
         private const int TRADE_POSTING_INTERVAL_MS = 1000;
         private readonly Dictionary<Tuple<int, int>, List<CurrencyTrade>> _accumulatedTrades = new Dictionary<Tuple<int, int>, List<CurrencyTrade>>();
 
-        public TradeFeed()
-        {
-            _triggerTypeField = TriggerType.Trade;
-        }
-
         public override void Initialize()
         {
             _tradePostingTimer = new Timer(InnerArgs =>
@@ -39,6 +34,11 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
         {
             SystemUtil.StopAndDestroyTimer(ref _tradePostingTimer);
             base.Shutdown();
+        }
+
+        protected override TriggerType GetTriggers()
+        {
+            return TriggerType.Trade;
         }
 
         protected override void UpdateInternal(DiscordLink plugin, TriggerType trigger, object data)

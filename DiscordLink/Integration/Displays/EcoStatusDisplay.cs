@@ -6,13 +6,12 @@ using System.Collections.Generic;
 
 namespace Eco.Plugins.DiscordLink.IntegrationTypes
 {
-    class EcoStatusDisplay : Display
+    public class EcoStatusDisplay : Display
     {
         private readonly Dictionary<EcoStatusChannel, ulong> _ecoStatusMessages = new Dictionary<EcoStatusChannel, ulong>();
 
         public EcoStatusDisplay()
         {
-            _triggerTypeField = TriggerType.Startup | TriggerType.Login;
             _timerStartDelayMS = 0;
             _timerUpdateIntervalMS = 60000;
         }
@@ -21,6 +20,11 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
         {
             _ecoStatusMessages.Clear(); // The status channels may have changed so we should find the messages again;
             base.OnConfigChanged();
+        }
+
+        protected override TriggerType GetTriggers()
+        {
+            return TriggerType.Startup | TriggerType.Login;
         }
 
         protected override void UpdateInternal(DiscordLink plugin, TriggerType trigger, object data)
@@ -46,7 +50,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
                     {
                         ecoStatusMessage = discordChannel.GetMessageAsync(statusMessageID).Result;
                     }
-                    catch (System.AggregateException)
+                    catch (AggregateException)
                     {
                         _ecoStatusMessages.Remove(statusChannel); // The message has been removed, take it out of the list
                     }

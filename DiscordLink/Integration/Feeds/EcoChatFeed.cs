@@ -5,9 +5,9 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
 {
     public class EcoChatFeed : Feed
     {
-        public EcoChatFeed()
+        protected override TriggerType GetTriggers()
         {
-            _triggerTypeField = TriggerType.EcoMessage;
+            return TriggerType.EcoMessage;
         }
 
         protected override void UpdateInternal(DiscordLink plugin, TriggerType trigger, object data)

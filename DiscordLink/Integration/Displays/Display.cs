@@ -4,7 +4,7 @@ using Eco.Plugins.DiscordLink.Utilities;
 
 namespace Eco.Plugins.DiscordLink.IntegrationTypes
 {
-    abstract class Display : DiscordLinkIntegration
+    abstract public class Display : DiscordLinkIntegration
     {
         protected int _timerUpdateIntervalMS = -1;
         protected int _timerStartDelayMS = 0;

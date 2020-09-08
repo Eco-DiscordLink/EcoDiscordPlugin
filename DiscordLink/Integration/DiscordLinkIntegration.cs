@@ -25,7 +25,9 @@
         }
 
         public virtual void Initialize()
-        { }
+        {
+            _triggerTypeField = GetTriggers();
+        }
 
         public virtual void Shutdown()
         { }
@@ -35,7 +37,7 @@
 
         public virtual void Update(DiscordLink plugin, TriggerType trigger, object data)
         {
-            if ((_triggerTypeField & trigger) == 0) return;
+            if ((GetTriggers() & trigger) == 0) return;
             if (plugin == null) return;
 
             lock (_updateLock) // Make sure that the Update function doesn't get overlapping executions
@@ -43,6 +45,8 @@
                 UpdateInternal(plugin, trigger, data);
             }
         }
+
+        protected abstract TriggerType GetTriggers();
 
         protected abstract void UpdateInternal(DiscordLink plugin, TriggerType trigger, object data);
     }

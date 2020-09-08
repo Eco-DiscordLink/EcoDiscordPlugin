@@ -16,11 +16,6 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
         private StreamWriter _writer;
         private Timer _flushTimer = null;
 
-        public ChatlogFeed()
-        {
-            _triggerTypeField = TriggerType.EcoMessage | TriggerType.DiscordMessage;
-        }
-
         public override void Initialize()
         {
             if(DLConfig.Data.LogChat)
@@ -40,6 +35,11 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
         {
             StopLogging();
             StartLogging();
+        }
+
+        protected override TriggerType GetTriggers()
+        {
+            return TriggerType.EcoMessage | TriggerType.DiscordMessage;
         }
 
         protected override void UpdateInternal(DiscordLink plugin, TriggerType trigger, object data)
