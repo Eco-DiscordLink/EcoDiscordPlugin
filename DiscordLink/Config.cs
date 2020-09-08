@@ -26,6 +26,7 @@ namespace Eco.Plugins.DiscordLink
             public const string DiscordCommandPrefix = "?";
             public const string EcoCommandChannel = "General";
             public const string InviteMessage = "Join us on Discord!\n" + InviteCommandLinkToken;
+            public const string EcoBotName = "DiscordLink";
         }
 
         public static readonly DLConfig Instance = new DLConfig();
@@ -192,6 +193,13 @@ namespace Eco.Plugins.DiscordLink
         public bool Save() // Returns true if no correction was needed
         {
             bool correctionMade = false;
+
+            // Invite Message
+            if (string.IsNullOrEmpty(Data.EcoBotName))
+            {
+                Data.EcoBotName = DefaultValues.EcoBotName;
+                correctionMade = true;
+            }
 
             // Discord Command Prefix
             if (Data.DiscordCommandPrefix != _prevConfig.DiscordCommandPrefix)
@@ -390,6 +398,7 @@ namespace Eco.Plugins.DiscordLink
             return new DLConfigData
             {
                 BotToken = this.BotToken,
+                EcoBotName = this.EcoBotName,
                 DiscordCommandPrefix = this.DiscordCommandPrefix,
                 ServerName = this.ServerName,
                 ServerDescription = this.ServerDescription,
@@ -409,7 +418,10 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [Description("The token provided by the Discord API to allow access to the bot. This setting can be changed while the server is running and will in that case trigger a reconnection to Discord."), Category("Bot Configuration")]
-        public string BotToken { get; set; }
+        public string BotToken { get; set; } = DLConfig.DefaultValues.EcoBotName;
+
+        [Description("The name of the bot user in Eco. This setting can be changed while the server is running, but changes will only take effect after a world reset."), Category("Bot Configuration")]
+        public string EcoBotName { get; set; }
 
         [Description("The prefix to put before commands in order for the Discord bot to recognize them as such. This setting requires a restart to take effect."), Category("Command Settings")]
         public string DiscordCommandPrefix { get; set; } = DLConfig.DefaultValues.DiscordCommandPrefix;

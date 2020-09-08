@@ -1,6 +1,7 @@
 {
   "PlayerConfigs": [],
   "BotToken": "NjggMDg3MjIDOTg2MFg5MDQx.Xlmuqw.ZYhFUjNFZ8IUYQTR7ng2CxFAy4Q",
+  "EcoBotName": "DiscordLink",
   "DiscordCommandPrefix": "?",
   "EcoStatusDiscordChannels": [
     {
