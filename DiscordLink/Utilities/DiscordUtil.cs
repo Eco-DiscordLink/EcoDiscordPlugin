@@ -76,6 +76,20 @@ namespace Eco.Plugins.DiscordLink.Utilities
             }
         }
 
+        public static async Task DeleteAsync(DiscordMessage message)
+        {
+            if (!ChannelHasPermission(message.Channel, Permissions.ManageMessages)) return;
+
+            try
+            {
+                await message.DeleteAsync("Deleted by DiscordLink");
+            }
+            catch(Exception e)
+            {
+                Logger.Error("Error occurred while attempting to delete Discord message. Error message: " + e);
+            }
+        }
+
         public static async Task<DiscordMessage> GetMessageAsync(DiscordChannel channel, ulong messageID)
         {
             try
