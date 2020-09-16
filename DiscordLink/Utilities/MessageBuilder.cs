@@ -56,7 +56,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
         public static DiscordEmbed GetEcoStatus(EcoStatusComponentFlag flag)
         {
             var plugin = DiscordLink.Obj;
-            if (plugin == null) { return null; }
+            if (plugin == null) return null;
 
             var config = DLConfig.Data;
             var serverInfo = NetworkManager.GetServerInfo();

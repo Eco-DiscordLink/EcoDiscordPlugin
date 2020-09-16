@@ -12,7 +12,7 @@
 
     public abstract class DiscordLinkIntegration
     {
-        protected object _updateLock = new object();
+        protected object _overlapLock = new object();
         public DiscordLinkIntegration()
         {
             Initialize();
@@ -37,7 +37,7 @@
             if (plugin == null) return;
             if ((GetTriggers() & trigger) == 0) return;
 
-            lock (_updateLock) // Make sure that the Update function doesn't get overlapping executions
+            lock (_overlapLock) // Make sure that the Update function doesn't get overlapping executions
             {
                 UpdateInternal(plugin, trigger, data);
             }

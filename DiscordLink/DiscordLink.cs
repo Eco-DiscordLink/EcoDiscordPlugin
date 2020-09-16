@@ -122,8 +122,8 @@ namespace Eco.Plugins.DiscordLink
                     UpdateIntegrations(TriggerType.Login, play);
                     break;
 
-                case CurrencyTrade CurrencyTrade:
-                    UpdateIntegrations(TriggerType.Trade, CurrencyTrade);
+                case CurrencyTrade currencyTrade:
+                    UpdateIntegrations(TriggerType.Trade, currencyTrade);
                     break;
 
                 default:

@@ -90,7 +90,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
             {
                 _flushTimer = new Timer(innerArgs =>
                 {
-                    lock (_updateLock)
+                    lock (_overlapLock)
                     {
                         Flush();
                     }

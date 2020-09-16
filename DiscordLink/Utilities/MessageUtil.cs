@@ -27,7 +27,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         public static string StripEcoTags(string toStrip)
         {
-            return EcoNameTagRegex.Replace(toStrip, String.Empty);
+            return EcoNameTagRegex.Replace(toStrip, string.Empty);
         }
 
         public static string StripGlobalMentions(string toStrip)

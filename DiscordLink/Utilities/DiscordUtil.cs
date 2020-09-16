@@ -19,7 +19,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
         {
             try
             {
-                if (!ChannelHasPermission(channel, Permissions.SendMessages)) { return null; }
+                if (!ChannelHasPermission(channel, Permissions.SendMessages)) return null;
 
                 if (embedContent == null)
                 {
@@ -49,7 +49,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
         {
             try
             {
-                if (!ChannelHasPermission(message.Channel, Permissions.ManageMessages)) { return null; }
+                if (!ChannelHasPermission(message.Channel, Permissions.ManageMessages)) return null;
 
                 if (embedContent == null)
                 {
@@ -92,9 +92,10 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         public static async Task<DiscordMessage> GetMessageAsync(DiscordChannel channel, ulong messageID)
         {
+            if (!ChannelHasPermission(channel, Permissions.ReadMessageHistory)) return null;
+
             try
             {
-                if (!ChannelHasPermission(channel, Permissions.ReadMessageHistory)) { return null; }
                 return await channel.GetMessageAsync(messageID);
             }
             catch (Exception e)
@@ -106,7 +107,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         public static async Task<IReadOnlyList<DiscordMessage>> GetMessagesAsync(DiscordChannel channel)
         {
-            if (!ChannelHasPermission(channel, Permissions.ReadMessageHistory)) { return null; }
+            if (!ChannelHasPermission(channel, Permissions.ReadMessageHistory)) return null;
 
             try
             {

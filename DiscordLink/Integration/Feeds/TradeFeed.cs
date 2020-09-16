@@ -19,7 +19,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
         {
             _tradePostingTimer = new Timer(InnerArgs =>
             {
-                lock (_updateLock)
+                lock (_overlapLock)
                 {
                     if (_accumulatedTrades.Count > 0)
                     {
