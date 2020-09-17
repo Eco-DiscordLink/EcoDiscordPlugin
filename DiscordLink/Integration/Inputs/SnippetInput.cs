@@ -3,6 +3,7 @@ using DSharpPlus.Entities;
 using Eco.Plugins.DiscordLink.Utilities;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink.IntegrationTypes
 {
@@ -10,13 +11,13 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
     {
         public override void Initialize()
         {
-            ReloadSnippets();
+            _ = ReloadSnippets();
             base.Initialize();
         }
 
         public override void OnConfigChanged()
         {
-            ReloadSnippets();
+            _ = ReloadSnippets();
         }
 
         protected override TriggerType GetTriggers()
@@ -24,7 +25,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
             return TriggerType.DiscordMessage;
         }
 
-        protected override void UpdateInternal(DiscordLink plugin, TriggerType trigger, object data)
+        protected override async Task UpdateInternal(DiscordLink plugin, TriggerType trigger, object data)
         {
             if (!(data is DiscordMessage message)) return;
 
@@ -40,11 +41,11 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
             }
             if (isSnippetChannel)
             {
-                ReloadSnippets();
+                await ReloadSnippets();
             }
         }
 
-        private void ReloadSnippets()
+        private async Task ReloadSnippets()
         {
             DiscordLink plugin = DiscordLink.Obj;
             if (plugin == null) return;
@@ -57,7 +58,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
                 if (discordChannel == null) continue;
                 if (!DiscordUtil.ChannelHasPermission(discordChannel, Permissions.ReadMessageHistory)) continue;
 
-                IReadOnlyList<DiscordMessage> snippetChannelMessages = DiscordUtil.GetMessagesAsync(discordChannel).Result;
+                IReadOnlyList<DiscordMessage> snippetChannelMessages = await DiscordUtil.GetMessagesAsync(discordChannel);
                 if (snippetChannelMessages == null) continue;
 
                 DLStorage.Instance.Snippets.Clear();

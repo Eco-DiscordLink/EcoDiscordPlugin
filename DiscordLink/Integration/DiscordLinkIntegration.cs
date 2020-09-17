@@ -1,4 +1,6 @@
 ﻿namespace Eco.Plugins.DiscordLink.IntegrationTypes
+using Nito.AsyncEx;
+using System.Threading.Tasks;
 {
     public enum TriggerType
     {
@@ -13,6 +15,7 @@
     public abstract class DiscordLinkIntegration
     {
         protected object _overlapLock = new object();
+        protected readonly AsyncLock _overlapLock = new AsyncLock();
         public DiscordLinkIntegration()
         {
             Initialize();
@@ -32,19 +35,19 @@
         public virtual void OnConfigChanged()
         { }
 
-        public virtual void Update(DiscordLink plugin, TriggerType trigger, object data)
+        public virtual async Task Update(DiscordLink plugin, TriggerType trigger, object data)
         {
             if (plugin == null) return;
             if ((GetTriggers() & trigger) == 0) return;
 
-            lock (_overlapLock) // Make sure that the Update function doesn't get overlapping executions
+            using (await _overlapLock.LockAsync()) // Make sure that the Update function doesn't get overlapping executions
             {
-                UpdateInternal(plugin, trigger, data);
+                await UpdateInternal(plugin, trigger, data);
             }
         }
 
         protected abstract TriggerType GetTriggers();
 
-        protected abstract void UpdateInternal(DiscordLink plugin, TriggerType trigger, object data);
+        protected abstract Task UpdateInternal(DiscordLink plugin, TriggerType trigger, object data);
     }
 }

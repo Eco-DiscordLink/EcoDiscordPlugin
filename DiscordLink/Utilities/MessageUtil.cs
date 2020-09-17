@@ -4,6 +4,7 @@ using Eco.Shared.Utils;
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink.Utilities
 {
@@ -128,9 +129,9 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         #region Discord -> Eco
 
-        public static string FormatMessageForEco(DiscordMessage message, string ecoChannel)
+        public static async Task<string> FormatMessageForEco(DiscordMessage message, string ecoChannel)
         {
-            DiscordMember author = message.Channel.Guild.MaybeGetMemberAsync(message.Author.Id).Result;
+            DiscordMember author = await message.Channel.Guild.MaybeGetMemberAsync(message.Author.Id);
             string nametag = author != null
                 ? Text.Bold(Text.Color(EcoNametagColor, author.DisplayName))
                 : message.Author.Username;

@@ -1,5 +1,6 @@
 ﻿using Eco.Gameplay.GameActions;
 using Eco.Plugins.DiscordLink.Utilities;
+using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink.IntegrationTypes
 {
@@ -10,7 +11,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
             return TriggerType.EcoMessage;
         }
 
-        protected override void UpdateInternal(DiscordLink plugin, TriggerType trigger, object data)
+        protected override async Task UpdateInternal(DiscordLink plugin, TriggerType trigger, object data)
         {
             if (!(data is ChatSent message)) return;
 

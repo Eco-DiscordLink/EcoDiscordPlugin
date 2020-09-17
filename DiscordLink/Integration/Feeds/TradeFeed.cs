@@ -41,7 +41,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
             return TriggerType.Trade;
         }
 
-        protected override void UpdateInternal(DiscordLink plugin, TriggerType trigger, object data)
+        protected override async Task UpdateInternal(DiscordLink plugin, TriggerType trigger, object data)
         {
             if (!(data is CurrencyTrade tradeEvent)) return;
 

@@ -1,6 +1,7 @@
 ﻿using DSharpPlus.Entities;
 using Eco.Gameplay.Systems.Chat;
 using Eco.Plugins.DiscordLink.Utilities;
+using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink.IntegrationTypes
 {
@@ -11,7 +12,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
             return TriggerType.DiscordMessage;
         }
 
-        protected override void UpdateInternal(DiscordLink plugin, TriggerType trigger, object data)
+        protected override async Task UpdateInternal(DiscordLink plugin, TriggerType trigger, object data)
         {
             if (!(data is DiscordMessage message)) return;
 
@@ -19,14 +20,14 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
             var channel = channelLink?.EcoChannel;
             if (!string.IsNullOrWhiteSpace(channel))
             {
-                ForwardMessageToEcoChannel(plugin, message, channel);
+                await ForwardMessageToEcoChannel(plugin, message, channel);
             }
         }
 
-        private async void ForwardMessageToEcoChannel(DiscordLink plugin, DiscordMessage message, string ecoChannel)
+        private async Task ForwardMessageToEcoChannel(DiscordLink plugin, DiscordMessage message, string ecoChannel)
         {
             Logger.DebugVerbose("Sending Discord message to Eco channel: " + ecoChannel);
-            ChatManager.SendChat(MessageUtil.FormatMessageForEco(message, ecoChannel),  plugin.EcoUser);
+            ChatManager.SendChat(await MessageUtil.FormatMessageForEco(message, ecoChannel),  plugin.EcoUser);
         }
     }
 }

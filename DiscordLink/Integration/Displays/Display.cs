@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using Eco.Plugins.DiscordLink.Utilities;
@@ -60,14 +61,14 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
 
         private void TriggerTimedUpdate(Object stateInfo)
         {
-            base.Update(DiscordLink.Obj, TriggerType.Timer, null);
+            _ = base.Update(DiscordLink.Obj, TriggerType.Timer, null);
         }
 
-        protected sealed override void UpdateInternal(DiscordLink plugin, TriggerType trigger, object data)
+        protected sealed override async Task UpdateInternal(DiscordLink plugin, TriggerType trigger, object data)
         {
             if(_channelDisplays.Count <= 0)
             {
-                FindMessages(plugin);
+                await FindMessages(plugin);
             }
 
             bool createdOrDestroyedMessage = false;
@@ -86,7 +87,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
 
                 foreach (ulong messageID in channelDisplayData.MessageIDs)
                 {
-                    DiscordMessage message = DiscordUtil.GetMessageAsync(discordChannel, messageID).Result;
+                    DiscordMessage message = await DiscordUtil.GetMessageAsync(discordChannel, messageID);
                     if (message == null) continue;
 
                     bool found = false;
@@ -129,13 +130,13 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
 
             if(createdOrDestroyedMessage)
             {
-                FindMessages(plugin);
+                await FindMessages(plugin);
             }
         }
 
         protected abstract void GetDisplayContent(ChannelLink link, out List<Tuple<string, DiscordEmbed>> tagAndContent);
 
-        private void FindMessages(DiscordLink plugin)
+        private async Task FindMessages(DiscordLink plugin)
         {
             _channelDisplays.Clear();
 
@@ -150,7 +151,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
                 ChannelDisplayData data = new ChannelDisplayData(channelLink);
                 _channelDisplays.Add(data);
 
-                IReadOnlyList<DiscordMessage> channelMessages = DiscordUtil.GetMessagesAsync(discordChannel).Result;
+                IReadOnlyList<DiscordMessage> channelMessages = await DiscordUtil.GetMessagesAsync(discordChannel);
                 if (channelMessages == null) continue;
 
                 foreach(DiscordMessage message in channelMessages)

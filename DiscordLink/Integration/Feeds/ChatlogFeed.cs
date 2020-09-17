@@ -5,6 +5,7 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink.IntegrationTypes
 {
@@ -42,7 +43,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
             return TriggerType.EcoMessage | TriggerType.DiscordMessage;
         }
 
-        protected override void UpdateInternal(DiscordLink plugin, TriggerType trigger, object data)
+        protected override async Task UpdateInternal(DiscordLink plugin, TriggerType trigger, object data)
         {
             if (!Initialized) return;
             if (!DLConfig.Data.LogChat) return;

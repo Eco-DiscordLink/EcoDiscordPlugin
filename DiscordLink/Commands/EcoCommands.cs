@@ -4,6 +4,7 @@ using Eco.Gameplay.Systems.Chat;
 using Eco.Shared.Localization;
 using System.Text.RegularExpressions;
 using Eco.Plugins.DiscordLink.Utilities;
+using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink
 {
@@ -90,7 +91,7 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [ChatSubCommand("DiscordLink", "Sends a message to the default server and channel.", ChatAuthorizationLevel.Admin)]
-        public static void SendMessage(User user, string message)
+        public static async Task SendMessage(User user, string message)
         {
             CallWithErrorHandling<object>((lUser, args) =>
                 {
@@ -99,9 +100,9 @@ namespace Eco.Plugins.DiscordLink
 
                     var defaultChannel = plugin.GetDefaultChannelForPlayer(user.Name);
 
-                    plugin.SendDiscordMessageAsUser(message, user, defaultChannel).ContinueWith(result =>
+                    plugin.SendDiscordMessageAsUser(message, user, defaultChannel).ContinueWith(async result =>
                     {
-                        ChatManager.ServerMessageToPlayer(new LocString(result.Result), user);
+                        ChatManager.ServerMessageToPlayer(new LocString(await result), user);
                     });
                 },
                 user, message);

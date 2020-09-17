@@ -82,7 +82,7 @@ namespace Eco.Plugins.DiscordLink
             OnDiscordMaybeReady += (obj, args) =>
             {
                 InitializeIntegrations();
-                UpdateIntegrations(TriggerType.Startup, null);
+                _ = UpdateIntegrations(TriggerType.Startup, null);
             };
         }
 
@@ -115,15 +115,15 @@ namespace Eco.Plugins.DiscordLink
                     break;
 
                 case FirstLogin firstLogin:
-                    UpdateIntegrations(TriggerType.Login, firstLogin);
+                    _ = UpdateIntegrations(TriggerType.Login, firstLogin);
                     break;
 
                 case Play play:
-                    UpdateIntegrations(TriggerType.Login, play);
+                    _ = UpdateIntegrations(TriggerType.Login, play);
                     break;
 
                 case CurrencyTrade currencyTrade:
-                    UpdateIntegrations(TriggerType.Trade, currencyTrade);
+                    _ = UpdateIntegrations(TriggerType.Trade, currencyTrade);
                     break;
 
                 default:
@@ -151,9 +151,9 @@ namespace Eco.Plugins.DiscordLink
             _integrations.Clear();
         }
         
-        void UpdateIntegrations(TriggerType trigger, object data)
+        async Task UpdateIntegrations(TriggerType trigger, object data)
         {
-            _integrations.ForEach(integration => integration.Update(this, trigger, data));
+            _integrations.ForEach(async integration => await integration.Update(this, trigger, data));
         }
 
         #region DiscordClient Management
@@ -397,7 +397,7 @@ namespace Eco.Plugins.DiscordLink
             if (chatMessage.Citizen.Name == EcoUser.Name) return;
             if (chatMessage.Message.StartsWith(EchoCommandToken)) return;
 
-            UpdateIntegrations(TriggerType.EcoMessage, chatMessage);
+            _ = UpdateIntegrations(TriggerType.EcoMessage, chatMessage);
         }
 
         public async Task OnDiscordMessageCreateEvent(MessageCreateEventArgs messageArgs)
@@ -413,7 +413,7 @@ namespace Eco.Plugins.DiscordLink
             if (message.Author == DiscordClient.CurrentUser) return;
             if (message.Content.StartsWith(DLConfig.Data.DiscordCommandPrefix)) return;
 
-            UpdateIntegrations(TriggerType.DiscordMessage, message);
+            _ = UpdateIntegrations(TriggerType.DiscordMessage, message);
         }
         #endregion
 
