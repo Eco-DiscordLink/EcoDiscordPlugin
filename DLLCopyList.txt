@@ -1,3 +1,4 @@
 DiscordLink.dll
 DSharpPlus.dll
 DSharpPlus.CommandsNext.dll
+Microsoft.Extensions.Logging.Abstractions.dll
