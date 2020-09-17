@@ -1,6 +1,8 @@
-﻿namespace Eco.Plugins.DiscordLink.IntegrationTypes
+﻿using Eco.Plugins.DiscordLink.Utilities;
 using Nito.AsyncEx;
 using System.Threading.Tasks;
+
+namespace Eco.Plugins.DiscordLink.IntegrationTypes
 {
     public enum TriggerType
     {
@@ -14,7 +16,8 @@ using System.Threading.Tasks;
 
     public abstract class DiscordLinkIntegration
     {
-        protected object _overlapLock = new object();
+        // These events may fire very frequently and may trigger rate limitations and therefore some special handling is done based on this field.
+        public const TriggerType HighFrequencyTriggerFlags = TriggerType.EcoMessage | TriggerType.DiscordMessage | TriggerType.Trade | TriggerType.WorkedWorkParty;
         protected readonly AsyncLock _overlapLock = new AsyncLock();
         public DiscordLinkIntegration()
         {

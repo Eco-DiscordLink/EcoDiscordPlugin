@@ -14,8 +14,10 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
 
         protected virtual int TimerUpdateIntervalMS { get; } = -1;
         protected virtual int TimerStartDelayMS { get; } = 0;
+        protected virtual int HighFrequencyEventDelayMS { get; } = 2000;
 
         private Timer _updateTimer = null;
+        private Timer _HighFrequencyEventTimer = null;
         private readonly List<ChannelDisplayData> _channelDisplays = new List<ChannelDisplayData>();
 
         public override void Initialize()
@@ -62,10 +64,21 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
         private void TriggerTimedUpdate(Object stateInfo)
         {
             _ = base.Update(DiscordLink.Obj, TriggerType.Timer, null);
+            SystemUtil.StopAndDestroyTimer(ref _HighFrequencyEventTimer);
         }
 
         protected sealed override async Task UpdateInternal(DiscordLink plugin, TriggerType trigger, object data)
         {
+            // Avoid hitting the rate limitation by not allowig events that can be fired often to pass straight through.
+            if ((trigger & HighFrequencyTriggerFlags) == trigger)
+            {
+                if (_HighFrequencyEventTimer == null)
+                {
+                    _HighFrequencyEventTimer = new Timer(this.TriggerTimedUpdate, null, HighFrequencyEventDelayMS, Timeout.Infinite);
+                }
+                return;
+            }
+
             if(_channelDisplays.Count <= 0)
             {
                 await FindMessages(plugin);
