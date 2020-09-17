@@ -45,7 +45,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
             if (_updateTimer != null)
                 StopTimer();
 
-            _updateTimer = new Timer(this.TriggerTimedUpdate, null, TimerStartDelayMS, TimerUpdateIntervalMS);
+            _updateTimer = new Timer(this.TriggerTimedUpdate, null, TimerStartDelayMS, TimerUpdateIntervalMS == -1 ? Timeout.Infinite : TimerUpdateIntervalMS);
         }
 
         public void StopTimer()
