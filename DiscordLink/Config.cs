@@ -74,8 +74,9 @@ namespace Eco.Plugins.DiscordLink
             Data.PlayerConfigs.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.ChatChannelLinks.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.EcoStatusChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
-            Data.SnippetChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.TradeChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
+            Data.SnippetChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
+            Data.WorkPartyChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
 
             BuildChanneLinkList();
 
@@ -388,6 +389,7 @@ namespace Eco.Plugins.DiscordLink
             _channelLinks.AddRange(_config.Config.EcoStatusChannels);
             _channelLinks.AddRange(_config.Config.TradeChannels);
             _channelLinks.AddRange(_config.Config.SnippetChannels);
+            _channelLinks.AddRange(_config.Config.WorkPartyChannels);
         }
     }
 
@@ -414,6 +416,7 @@ namespace Eco.Plugins.DiscordLink
                 EcoStatusChannels = new ObservableCollection<EcoStatusChannel>(this.EcoStatusChannels.Select(t => t.Clone()).Cast<EcoStatusChannel>()),
                 TradeChannels = new ObservableCollection<ChannelLink>(this.TradeChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
                 SnippetChannels = new ObservableCollection<ChannelLink>(this.SnippetChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
+                WorkPartyChannels = new ObservableCollection<ChannelLink>(this.WorkPartyChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
             };
         }
 
@@ -446,6 +449,9 @@ namespace Eco.Plugins.DiscordLink
 
         [Description("Channels in which to search for snippets for the Snippet command. This setting can be changed while the server is running."), Category("Channel Configuration")]
         public ObservableCollection<ChannelLink> SnippetChannels { get; set; } = new ObservableCollection<ChannelLink>();
+
+        [Description("Discord channels in which to display ongoing work parties. DiscordLink will post messages in this channel and keep them updated trough edits. This setting can be changed while the server is running."), Category("Channel Configuration")]
+        public ObservableCollection<ChannelLink> WorkPartyChannels { get; set; } = new ObservableCollection<ChannelLink>();
 
         [Description("A mapping from user to user config parameters. This setting can be changed while the server is running.")]
         public ObservableCollection<DiscordPlayerConfig> PlayerConfigs = new ObservableCollection<DiscordPlayerConfig>();

@@ -125,7 +125,27 @@ namespace Eco.Plugins.DiscordLink
                 case CurrencyTrade currencyTrade:
                     _ = UpdateIntegrations(TriggerType.Trade, currencyTrade);
                     break;
-
+            
+                case PostedWorkParty postedWorkParty:
+                    _ = UpdateIntegrations(TriggerType.PostedWorkParty, postedWorkParty);
+                    break;
+            
+                case CompletedWorkParty completedWorkParty:
+                    _ = UpdateIntegrations(TriggerType.CompletedWorkParty, completedWorkParty);
+                    break;
+            
+                case JoinedWorkParty joinedWorkParty:
+                    _ = UpdateIntegrations(TriggerType.JoinedWorkParty, joinedWorkParty);
+                    break;
+            
+                case LeftWorkParty leftWorkParty:
+                    _ = UpdateIntegrations(TriggerType.LeftWorkParty, leftWorkParty);
+                    break;
+            
+                case WorkedForWorkParty workedParty:
+                    _ = UpdateIntegrations(TriggerType.WorkedWorkParty, workedParty);
+                    break;
+                    
                 default:
                     break;
             }
@@ -144,6 +164,7 @@ namespace Eco.Plugins.DiscordLink
             _integrations.Add(new EcoStatusDisplay());
             _integrations.Add(new TradeFeed());
             _integrations.Add(new SnippetInput());
+            _integrations.Add(new WorkPartyDisplay());
         }
 
         void ShutdownIntegrations()

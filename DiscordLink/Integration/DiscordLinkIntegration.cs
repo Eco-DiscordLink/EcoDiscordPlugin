@@ -6,12 +6,17 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
 {
     public enum TriggerType
     {
-        Timer           = 1 << 0,
-        Startup         = 1 << 1,
-        EcoMessage      = 1 << 2,
-        DiscordMessage  = 1 << 3,
-        Login           = 1 << 4,
-        Trade           = 1 << 5,
+        Timer               = 1 << 0,
+        Startup             = 1 << 1,
+        EcoMessage          = 1 << 2,
+        DiscordMessage      = 1 << 3,
+        Login               = 1 << 4,
+        Trade               = 1 << 5,
+        PostedWorkParty     = 1 << 6,
+        CompletedWorkParty  = 1 << 7,
+        JoinedWorkParty     = 1 << 8,
+        LeftWorkParty       = 1 << 9,
+        WorkedWorkParty     = 1 << 10,
     }
 
     public abstract class DiscordLinkIntegration
