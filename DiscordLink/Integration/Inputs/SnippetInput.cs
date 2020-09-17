@@ -52,9 +52,9 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
             foreach (ChannelLink snippetChannel in DLConfig.Data.SnippetChannels)
             {
                 if (!snippetChannel.IsValid()) continue;
-                DiscordGuild discordGuild = plugin.GuildByName(snippetChannel.DiscordGuild);
+                DiscordGuild discordGuild = plugin.GuildByNameOrId(snippetChannel.DiscordGuild);
                 if (discordGuild == null) continue;
-                DiscordChannel discordChannel = discordGuild.ChannelByName(snippetChannel.DiscordChannel);
+                DiscordChannel discordChannel = discordGuild.ChannelByNameOrId(snippetChannel.DiscordChannel);
                 if (discordChannel == null) continue;
                 if (!DiscordUtil.ChannelHasPermission(discordChannel, Permissions.ReadMessageHistory)) continue;
 

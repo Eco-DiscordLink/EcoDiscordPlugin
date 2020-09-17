@@ -109,9 +109,9 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
                 foreach (ChannelLink tradeChannel in DLConfig.Data.TradeChannels)
                 {
                     if (!tradeChannel.IsValid()) continue;
-                    DiscordGuild discordGuild = plugin.GuildByName(tradeChannel.DiscordGuild);
+                    DiscordGuild discordGuild = plugin.GuildByNameOrId(tradeChannel.DiscordGuild);
                     if (discordGuild == null) continue;
-                    DiscordChannel discordChannel = discordGuild.ChannelByName(tradeChannel.DiscordChannel);
+                    DiscordChannel discordChannel = discordGuild.ChannelByNameOrId(tradeChannel.DiscordChannel);
                     if (discordChannel == null) continue;
 
                     _ = DiscordUtil.SendAsync(discordChannel, "", builder.Build());

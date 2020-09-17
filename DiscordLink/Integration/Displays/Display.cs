@@ -90,9 +90,9 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
             foreach(ChannelDisplayData channelDisplayData in _channelDisplays)
             {
                 ChannelLink link = channelDisplayData.Link;
-                DiscordGuild discordGuild = plugin.GuildByName(link.DiscordGuild);
+                DiscordGuild discordGuild = plugin.GuildByNameOrId(link.DiscordGuild);
                 if (discordGuild == null) continue;
-                DiscordChannel discordChannel = discordGuild.ChannelByName(link.DiscordChannel);
+                DiscordChannel discordChannel = discordGuild.ChannelByNameOrId(link.DiscordChannel);
                 if (discordChannel == null) continue;
                 if (!DiscordUtil.ChannelHasPermission(discordChannel, Permissions.ReadMessageHistory)) continue;
 
@@ -155,9 +155,9 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
 
             foreach (ChannelLink channelLink in GetChannelLinks())
             {
-                DiscordGuild discordGuild = plugin.GuildByName(channelLink.DiscordGuild);
+                DiscordGuild discordGuild = plugin.GuildByNameOrId(channelLink.DiscordGuild);
                 if (discordGuild == null) continue;
-                DiscordChannel discordChannel = discordGuild.ChannelByName(channelLink.DiscordChannel);
+                DiscordChannel discordChannel = discordGuild.ChannelByNameOrId(channelLink.DiscordChannel);
                 if (discordChannel == null) continue;
                 if (!DiscordUtil.ChannelHasPermission(discordChannel, Permissions.ReadMessageHistory)) continue;
 
