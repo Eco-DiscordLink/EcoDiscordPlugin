@@ -67,9 +67,9 @@ namespace Eco.Plugins.DiscordLink
 
         public void Initialize(TimedTask timer)
         {
+            SetupConfig();
             Logger.Info("Plugin version is " + PluginVersion);
 
-            SetupConfig();
             if (!SetUpClient())
             {
                 return;
@@ -198,7 +198,8 @@ namespace Eco.Plugins.DiscordLink
                 {
                     AutoReconnect = true,
                     Token = DLConfig.Data.BotToken,
-                    TokenType = TokenType.Bot
+                    TokenType = TokenType.Bot,
+                    MinimumLogLevel = DLConfig.Instance.GetDSharpLogLevel()
                 });
 
                 DiscordClient.ClientErrored += async args => { Logger.Error("A Discord client error occurred. Error messages was: " + args.EventName + " " + args.Exception.ToString()); };

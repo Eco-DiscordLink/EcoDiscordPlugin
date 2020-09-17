@@ -157,6 +157,26 @@ namespace Eco.Plugins.DiscordLink
             return null;
         }
 
+        public Microsoft.Extensions.Logging.LogLevel GetDSharpLogLevel()
+        {
+            switch (_config.Config.LogLevel)
+            {
+                case LogLevel.Silent:
+                    return Microsoft.Extensions.Logging.LogLevel.None;
+                case LogLevel.Error:
+                    return Microsoft.Extensions.Logging.LogLevel.Error;
+                case LogLevel.Information:
+                    return Microsoft.Extensions.Logging.LogLevel.Information;
+                case LogLevel.Warning:
+                    return Microsoft.Extensions.Logging.LogLevel.Warning;
+                case LogLevel.Debug:
+                case LogLevel.DebugVerbose:
+                    return Microsoft.Extensions.Logging.LogLevel.Debug;
+                default:
+                    return Microsoft.Extensions.Logging.LogLevel.Information;
+            }
+        }
+
         public void EnqueueFullVerification()
         {
             // Queue up the check for unverified channels
@@ -393,6 +413,16 @@ namespace Eco.Plugins.DiscordLink
         }
     }
 
+    public enum LogLevel
+    {
+        DebugVerbose,
+        Debug,
+        Warning,
+        Information,
+        Error,
+        Silent,
+    }
+
     public class DLConfigData : ICloneable
     {
         public object Clone() // Be careful not to change the original object here as that will trigger endless recursion.
@@ -406,7 +436,7 @@ namespace Eco.Plugins.DiscordLink
                 ServerDescription = this.ServerDescription,
                 ServerLogo = this.ServerLogo,
                 ServerAddress = this.ServerAddress,
-                Debug = this.Debug,
+                LogLevel = this.LogLevel,
                 LogChat = this.LogChat,
                 ChatlogPath = this.ChatlogPath,
                 EcoCommandChannel = this.EcoCommandChannel,
@@ -459,8 +489,8 @@ namespace Eco.Plugins.DiscordLink
         [Description("Channels to connect together. This setting can be changed while the server is running."), Category("Channel Configuration")]
         public ObservableCollection<ChatChannelLink> ChatChannelLinks { get; set; } = new ObservableCollection<ChatChannelLink>();
 
-        [Description("Enables debugging output to the console. This setting can be changed while the server is running."), Category("Debugging")]
-        public bool Debug { get; set; } = false;
+        [Description("Sets what message types will be printed to the log. This setting requires a restart to take full effect."), Category("Miscellaneous")]
+        public LogLevel LogLevel { get; set; } = LogLevel.Information;
 
         [Description("Enables logging of chat messages into the file at Chatlog Path. This setting can be changed while the server is running."), Category("Chatlog Configuration")]
         public bool LogChat { get; set; } = false;
