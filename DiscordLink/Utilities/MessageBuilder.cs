@@ -87,8 +87,10 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 {
                     builder.WithThumbnail(config.ServerLogo);
                 }
-                catch (UriFormatException)
-                { }
+                catch (UriFormatException e)
+                {
+                    Logger.Debug("Failed to include thumbnail in EcoStatus embed. Error: " + e);
+                }
             }
 
             if (flag.HasFlag(EcoStatusComponentFlag.ServerAddress))
