@@ -32,13 +32,13 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
             var guild = plugin.GuildByNameOrId(guildNameOrId);
             if (guild == null)
             {
-                Logger.Error("Failed to forward Eco message from user " + MessageUtil.StripEcoTags(chatMessage.Citizen.Name) + " as no guild with the name or ID " + guildNameOrId + " exists");
+                Logger.Error("Failed to forward Eco message from user " + MessageUtil.StripTags(chatMessage.Citizen.Name) + " as no guild with the name or ID " + guildNameOrId + " exists");
                 return;
             }
             var channel = guild.ChannelByNameOrId(channelNameOrId);
             if (channel == null)
             {
-                Logger.Error("Failed to forward Eco message from user " + MessageUtil.StripEcoTags(chatMessage.Citizen.Name) + " as no channel with the name or ID " + channelNameOrId + " exists in the guild " + guild.Name);
+                Logger.Error("Failed to forward Eco message from user " + MessageUtil.StripTags(chatMessage.Citizen.Name) + " as no channel with the name or ID " + channelNameOrId + " exists in the guild " + guild.Name);
                 return;
             }
 

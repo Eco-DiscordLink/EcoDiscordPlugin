@@ -71,7 +71,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
             DateTime time = DateTime.Now;
             int utcOffset = TimeZoneInfo.Local.GetUtcOffset(time).Hours;
             _writer.WriteLine("[Discord] [" + DateTime.Now.ToString("yyyy-MM-dd : HH:mm", CultureInfo.InvariantCulture) + " UTC " + (utcOffset != 0 ? (utcOffset >= 0 ? "+" : "-") + utcOffset : "") + "] "
-                + $"{MessageUtil.StripEcoTags(username) + ": " + MessageUtil.StripEcoTags(content)}");
+                + $"{MessageUtil.StripTags(username) + ": " + MessageUtil.StripTags(content)}");
         }
 
         private void StartLogging()

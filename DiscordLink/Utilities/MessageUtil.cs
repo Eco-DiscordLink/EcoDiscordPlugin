@@ -13,8 +13,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
         // Snippet matching regex: Match the (case insensitive) [Snippet] header and capture the the content of the following bracket pair
         public static readonly Regex SnippetRegex = new Regex("(?i)\\[snippet\\]\\s*\\[([^\\]]+)\\].*\\s([^$]*)");
 
-        // Eco tag matching regex: Match all characters that are used to tag data inside the character name in Eco message formatting (color codes, badges, links etc)
-        private static readonly Regex EcoNameTagRegex = new Regex("<[^>]*>");
+        // Eco tag matching regex: Match all characters that are used to create HTML style tags
+        private static readonly Regex HTMLTagRegex = new Regex("<[^>]*>");
 
         // Discord mention matching regex: Match all characters followed by a mention character(@ or #) character (including that character) until encountering any type of whitespace, end of string or a new mention character
         private static readonly Regex DiscordMentionRegex = new Regex("([@#].+?)(?=\\s|$|@|#)");
@@ -26,19 +26,21 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         #region Eco --> Discord
 
-        public static string StripEcoTags(string toStrip)
+        public static string StripTags(string toStrip)
         {
-            return EcoNameTagRegex.Replace(toStrip, string.Empty);
+            if (toStrip == null) return null;
+            return HTMLTagRegex.Replace(toStrip, string.Empty);
         }
 
         public static string StripGlobalMentions(string toStrip)
         {
+            if (toStrip == null) return null;
             return DiscordGlobalMentionRegex.Replace(toStrip, "$1");
         }
 
         public static string FormatMessageForDiscord(string message, DiscordChannel channel, string username = "", bool allowGlobalMentions = false)
         {
-            string formattedMessage = (username.IsEmpty() ? "" : $"**{username.Replace("@", "")}**:") + StripEcoTags(message); // All @ characters are removed from the name in order to avoid unintended mentions of the sender
+            string formattedMessage = (username.IsEmpty() ? "" : $"**{username.Replace("@", "")}**:") + StripTags(message); // All @ characters are removed from the name in order to avoid unintended mentions of the sender
             if (!allowGlobalMentions)
             {
                 formattedMessage = StripGlobalMentions(formattedMessage);

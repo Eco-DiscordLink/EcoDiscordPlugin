@@ -67,7 +67,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
             if (flag.HasFlag(EcoStatusComponentFlag.Name))
             {
-                builder.WithTitle($"**{FirstNonEmptyString(config.ServerName, serverInfo.Name)} " + "Server Status" + "**\n" + DateTime.Now.ToShortDateString() + " : " + DateTime.Now.ToShortTimeString());
+                builder.WithTitle($"**{FirstNonEmptyString(config.ServerName, MessageUtil.StripTags(serverInfo.Description), "[Server Title Missing]")} " + "Server Status" + "**\n" + DateTime.Now.ToShortDateString() + " : " + DateTime.Now.ToShortTimeString());
             }
             else
             {
@@ -78,7 +78,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
             if (flag.HasFlag(EcoStatusComponentFlag.Description))
             {
-                builder.WithDescription(FirstNonEmptyString(config.ServerDescription, serverInfo.Description, "No server description is available."));
+                builder.WithDescription(FirstNonEmptyString(config.ServerDescription, MessageUtil.StripTags(serverInfo.Description), "No server description is available."));
             }
 
             if (flag.HasFlag(EcoStatusComponentFlag.Logo) && !String.IsNullOrWhiteSpace(config.ServerLogo))

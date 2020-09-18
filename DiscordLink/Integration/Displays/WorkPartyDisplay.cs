@@ -66,7 +66,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
                                 if (!string.IsNullOrEmpty(laborWork.ShortDescriptionRemainingWork))
                                 {
                                     workType = "Labor for " + laborWork.Order.Recipe.RecipeName;
-                                    workEntries.Add(MessageUtil.StripEcoTags(laborWork.ShortDescriptionRemainingWork));
+                                    workEntries.Add(MessageUtil.StripTags(laborWork.ShortDescriptionRemainingWork));
                                 }
                                 break;
                             }
@@ -138,7 +138,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
                             {
                                 if (knowledgePayment.Skills.Entries.Count > 0)
                                 {
-                                    desc = "Receive knowledge of `" + MessageUtil.StripEcoTags(knowledgePayment.ShortDescription()) + "` if work contributed is at least " + knowledgePayment.MinContributedPercent + "%";
+                                    desc = "Receive knowledge of `" + MessageUtil.StripTags(knowledgePayment.ShortDescription()) + "` if work contributed is at least " + knowledgePayment.MinContributedPercent + "%";
                                 }
                                 break;
                             }
