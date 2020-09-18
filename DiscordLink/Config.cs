@@ -442,9 +442,6 @@ namespace Eco.Plugins.DiscordLink
         [Description("The prefix to put before commands in order for the Discord bot to recognize them as such. This setting requires a restart to take effect."), Category("Command Settings")]
         public string DiscordCommandPrefix { get; set; } = DLConfig.DefaultValues.DiscordCommandPrefix;
 
-        [Description("Discord channels in which to display the Eco status display. DiscordLink will post one EcoStatus message in this channel and keep it updated trough edits. This setting can be changed while the server is running."), Category("Channel Configuration")]
-        public ObservableCollection<EcoStatusChannel> EcoStatusChannels { get; set; } = new ObservableCollection<EcoStatusChannel>();
-
         [Description("The name of the Eco server, overriding the name configured within Eco. This setting can be changed while the server is running."), Category("Server Details")]
         public string ServerName { get; set; }
 
@@ -457,23 +454,26 @@ namespace Eco.Plugins.DiscordLink
         [Description("The address (URL or IP) of the server. Overrides the automatically detected IP. This setting can be changed while the server is running."), Category("Server Details")]
         public string ServerAddress { get; set; }
 
-        [Description("Channels in which trade events will be posted. This setting can be changed while the server is running."), Category("Channel Configuration")]
+        [Description("Channels to connect together. This setting can be changed while the server is running."), Category("Feeds")]
+        public ObservableCollection<ChatChannelLink> ChatChannelLinks { get; set; } = new ObservableCollection<ChatChannelLink>();
+
+        [Description("Channels in which trade events will be posted. This setting can be changed while the server is running."), Category("Feeds")]
         public ObservableCollection<ChannelLink> TradeChannels { get; set; } = new ObservableCollection<ChannelLink>();
 
-        [Description("Channels in which to search for snippets for the Snippet command. This setting can be changed while the server is running."), Category("Channel Configuration")]
-        public ObservableCollection<ChannelLink> SnippetChannels { get; set; } = new ObservableCollection<ChannelLink>();
+        [Description("Discord channels in which to display the Eco status display. DiscordLink will post one EcoStatus message in this channel and keep it updated trough edits. This setting can be changed while the server is running."), Category("Displays")]
+        public ObservableCollection<EcoStatusChannel> EcoStatusChannels { get; set; } = new ObservableCollection<EcoStatusChannel>();
 
-        [Description("Discord channels in which to display ongoing work parties. DiscordLink will post messages in this channel and keep them updated trough edits. This setting can be changed while the server is running."), Category("Channel Configuration")]
+        [Description("Discord channels in which to display ongoing work parties. DiscordLink will post messages in this channel and keep them updated trough edits. This setting can be changed while the server is running."), Category("Displays")]
         public ObservableCollection<ChannelLink> WorkPartyChannels { get; set; } = new ObservableCollection<ChannelLink>();
 
-        [Description("Discord channels in which to display the Eco status display. DiscordLink will post one EcoStatus message in this channel and keep it updated trough edits. This setting can be changed while the server is running."), Category("Channel Configuration")]
+        [Description("Discord channels in which to display the Eco status display. DiscordLink will post one EcoStatus message in this channel and keep it updated trough edits. This setting can be changed while the server is running."), Category("Displays")]
         public ObservableCollection<PlayerListChannelLink> PlayerListChannels { get; set; } = new ObservableCollection<PlayerListChannelLink>();
+
+        [Description("Channels in which to search for snippets for the Snippet command. This setting can be changed while the server is running."), Category("Inputs")]
+        public ObservableCollection<ChannelLink> SnippetChannels { get; set; } = new ObservableCollection<ChannelLink>();
 
         [Description("A mapping from user to user config parameters. This setting can be changed while the server is running.")]
         public ObservableCollection<DiscordPlayerConfig> PlayerConfigs = new ObservableCollection<DiscordPlayerConfig>();
-
-        [Description("Channels to connect together. This setting can be changed while the server is running."), Category("Channel Configuration")]
-        public ObservableCollection<ChatChannelLink> ChatChannelLinks { get; set; } = new ObservableCollection<ChatChannelLink>();
 
         [Description("Determines what message types will be printed to the server log. All message types below the selected one will be printed as well. This setting can be changed while the server is running."), Category("Miscellaneous")]
         public LogLevel LogLevel { get; set; } = LogLevel.Information;
