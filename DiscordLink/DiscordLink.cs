@@ -165,6 +165,7 @@ namespace Eco.Plugins.DiscordLink
             _integrations.Add(new TradeFeed());
             _integrations.Add(new SnippetInput());
             _integrations.Add(new WorkPartyDisplay());
+            _integrations.Add(new PlayerDisplay());
         }
 
         void ShutdownIntegrations()

@@ -77,6 +77,7 @@ namespace Eco.Plugins.DiscordLink
             Data.TradeChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.SnippetChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.WorkPartyChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
+            Data.PlayerListChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
 
             BuildChanneLinkList();
 
@@ -390,6 +391,7 @@ namespace Eco.Plugins.DiscordLink
             _channelLinks.AddRange(_config.Config.TradeChannels);
             _channelLinks.AddRange(_config.Config.SnippetChannels);
             _channelLinks.AddRange(_config.Config.WorkPartyChannels);
+            _channelLinks.AddRange(_config.Config.PlayerListChannels);
         }
     }
 
@@ -427,6 +429,7 @@ namespace Eco.Plugins.DiscordLink
                 TradeChannels = new ObservableCollection<ChannelLink>(this.TradeChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
                 SnippetChannels = new ObservableCollection<ChannelLink>(this.SnippetChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
                 WorkPartyChannels = new ObservableCollection<ChannelLink>(this.WorkPartyChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
+                PlayerListChannels = new ObservableCollection<PlayerListChannelLink>(this.PlayerListChannels.Select(t => t.Clone()).Cast<PlayerListChannelLink>()),
             };
         }
 
@@ -462,6 +465,9 @@ namespace Eco.Plugins.DiscordLink
 
         [Description("Discord channels in which to display ongoing work parties. DiscordLink will post messages in this channel and keep them updated trough edits. This setting can be changed while the server is running."), Category("Channel Configuration")]
         public ObservableCollection<ChannelLink> WorkPartyChannels { get; set; } = new ObservableCollection<ChannelLink>();
+
+        [Description("Discord channels in which to display the Eco status display. DiscordLink will post one EcoStatus message in this channel and keep it updated trough edits. This setting can be changed while the server is running."), Category("Channel Configuration")]
+        public ObservableCollection<PlayerListChannelLink> PlayerListChannels { get; set; } = new ObservableCollection<PlayerListChannelLink>();
 
         [Description("A mapping from user to user config parameters. This setting can be changed while the server is running.")]
         public ObservableCollection<DiscordPlayerConfig> PlayerConfigs = new ObservableCollection<DiscordPlayerConfig>();
@@ -502,6 +508,12 @@ namespace Eco.Plugins.DiscordLink
         Duplex,
     }
 
+    public class PlayerListChannelLink : ChannelLink
+    {
+        [Description("Display the number of online players in the status message.")]
+        public bool UsePlayerCount { get; set; } = true;
+    }
+
     public class ChatChannelLink : EcoChannelLink
     {
         [Description("Allow mentions of usernames to be forwarded from Eco to the Discord channel.")]
@@ -536,9 +548,6 @@ namespace Eco.Plugins.DiscordLink
 
         [Description("Display the number of online players in the status message.")]
         public bool UsePlayerCount { get; set; } = true;
-
-        [Description("Display the list of online players in the status message.")]
-        public bool UsePlayerList { get; set; } = true;
 
         [Description("Display the time since the world was created in the status message.")]
         public bool UseTimeSinceStart { get; set; } = true;

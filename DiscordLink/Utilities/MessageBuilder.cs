@@ -114,9 +114,9 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
             if (flag.HasFlag(EcoStatusComponentFlag.PlayerList))
             {
-                IEnumerable<String> onlineUsers = UserManager.OnlineUsers.Where(user => user.Client.Connected).Select(user => user.Name);
+                IEnumerable<string> onlineUsers = UserManager.OnlineUsers.Where(user => user.Client.Connected).Select(user => user.Name);
                 string playerList = onlineUsers.Count() > 0 ? string.Join("\n", onlineUsers) : "-- No players online --";
-                builder.AddField("Online Players", playerList);
+                builder.AddField("Online Players", GetPlayerList());
             }
 
             if (flag.HasFlag(EcoStatusComponentFlag.TimeSinceStart))
@@ -142,17 +142,19 @@ namespace Eco.Plugins.DiscordLink.Utilities
             return builder.Build();
         }
 
-        public static DiscordEmbedBuilder GetPlayerList()
+        public static string GetPlayerCount()
         {
             IEnumerable<string> onlineUsers = UserManager.OnlineUsers.Where(user => user.Client.Connected).Select(user => user.Name);
+            int numberTotal = NetworkManager.GetServerInfo().TotalPlayers;
             int numberOnline = onlineUsers.Count();
-            string messageText = $"{numberOnline} Online Players:\n";
-            string playerList = string.Join("\n", onlineUsers);
-            DiscordEmbedBuilder embed = new DiscordEmbedBuilder()
-                .WithColor(EmbedColor)
-                .WithTitle(messageText)
-                .WithDescription(playerList);
-            return embed;
+            return $"{numberOnline}/{numberTotal}";
+        }
+
+        public static string GetPlayerList()
+        {
+            IEnumerable<string> onlineUsers = UserManager.OnlineUsers.Where(user => user.Client.Connected).Select(user => user.Name);
+            string playerList = onlineUsers.Count() > 0 ? string.Join("\n", onlineUsers) : "-- No players online --";
+            return playerList;
         }
 
         public static string GetAboutMessage()

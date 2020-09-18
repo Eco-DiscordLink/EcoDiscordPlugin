@@ -160,7 +160,11 @@ namespace Eco.Plugins.DiscordLink
         {
             try
             {
-                await RespondToCommand(ctx, "Displaying Online Players", MessageBuilder.GetPlayerList());
+                DiscordEmbedBuilder embed = new DiscordEmbedBuilder()
+                .WithColor(MessageBuilder.EmbedColor)
+                .WithTitle("Players")
+                .WithDescription(MessageBuilder.GetPlayerList());
+                await RespondToCommand(ctx, "Displaying Online Players", embed);
             }
             catch (Exception e)
             {
