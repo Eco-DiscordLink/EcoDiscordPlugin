@@ -51,7 +51,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
             if (!(data is DiscordMessage message)) return;
 
             bool isSnippetChannel = false;
-            foreach( ChannelLink link in DLConfig.Data.SnippetChannels)
+            foreach(ChannelLink link in DLConfig.Data.SnippetChannels)
             {
                 if (link.DiscordGuild.ToLower() == message.Channel.Guild.Name.ToLower()
                     && link.DiscordChannel == message.Channel.Name )

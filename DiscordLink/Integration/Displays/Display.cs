@@ -86,7 +86,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
             _channelDisplays.Clear();
         }
 
-        private void TriggerTimedUpdate(Object stateInfo)
+        private void TriggerTimedUpdate(object stateInfo)
         {
             _ = base.Update(DiscordLink.Obj, TriggerType.Timer, null);
             SystemUtil.StopAndDestroyTimer(ref _HighFrequencyEventTimer);

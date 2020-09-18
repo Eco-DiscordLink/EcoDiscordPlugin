@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using DSharpPlus;
+﻿using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
@@ -16,6 +11,11 @@ using Eco.Gameplay.Players;
 using Eco.Plugins.DiscordLink.IntegrationTypes;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Utils;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink
 {
@@ -82,7 +82,7 @@ namespace Eco.Plugins.DiscordLink
             OnDiscordMaybeReady += (obj, args) =>
             {
                 InitializeIntegrations();
-                _ = UpdateIntegrations(TriggerType.Startup, null);
+                UpdateIntegrations(TriggerType.Startup, null);
             };
         }
 
@@ -100,7 +100,7 @@ namespace Eco.Plugins.DiscordLink
                 Logger.Info("Discord Bot Token changed - Reinitialising client");
                 _ = RestartClient();
             };
-            config.OnConfigChanged += async (obj, args) =>
+            config.OnConfigChanged += (obj, args) =>
             {
                 _integrations.ForEach(async integration => await integration.OnConfigChanged());
             };
@@ -113,37 +113,37 @@ namespace Eco.Plugins.DiscordLink
                 case ChatSent chatSent:
                     OnMessageReceivedFromEco(chatSent);
                     break;
-
+            
                 case FirstLogin firstLogin:
-                    _ = UpdateIntegrations(TriggerType.Login, firstLogin);
+                    UpdateIntegrations(TriggerType.Login, firstLogin);
                     break;
-
+            
                 case Play play:
-                    _ = UpdateIntegrations(TriggerType.Login, play);
+                    UpdateIntegrations(TriggerType.Login, play);
                     break;
-
+            
                 case CurrencyTrade currencyTrade:
-                    _ = UpdateIntegrations(TriggerType.Trade, currencyTrade);
+                    UpdateIntegrations(TriggerType.Trade, currencyTrade);
                     break;
             
                 case PostedWorkParty postedWorkParty:
-                    _ = UpdateIntegrations(TriggerType.PostedWorkParty, postedWorkParty);
+                    UpdateIntegrations(TriggerType.PostedWorkParty, postedWorkParty);
                     break;
             
                 case CompletedWorkParty completedWorkParty:
-                    _ = UpdateIntegrations(TriggerType.CompletedWorkParty, completedWorkParty);
+                    UpdateIntegrations(TriggerType.CompletedWorkParty, completedWorkParty);
                     break;
             
                 case JoinedWorkParty joinedWorkParty:
-                    _ = UpdateIntegrations(TriggerType.JoinedWorkParty, joinedWorkParty);
+                    UpdateIntegrations(TriggerType.JoinedWorkParty, joinedWorkParty);
                     break;
             
                 case LeftWorkParty leftWorkParty:
-                    _ = UpdateIntegrations(TriggerType.LeftWorkParty, leftWorkParty);
+                    UpdateIntegrations(TriggerType.LeftWorkParty, leftWorkParty);
                     break;
             
                 case WorkedForWorkParty workedParty:
-                    _ = UpdateIntegrations(TriggerType.WorkedWorkParty, workedParty);
+                    UpdateIntegrations(TriggerType.WorkedWorkParty, workedParty);
                     break;
                     
                 default:
@@ -172,7 +172,7 @@ namespace Eco.Plugins.DiscordLink
             _integrations.Clear();
         }
         
-        async Task UpdateIntegrations(TriggerType trigger, object data)
+        void UpdateIntegrations(TriggerType trigger, object data)
         {
             _integrations.ForEach(async integration => await integration.Update(this, trigger, data));
         }
@@ -424,7 +424,7 @@ namespace Eco.Plugins.DiscordLink
             if (chatMessage.Citizen.Name == EcoUser.Name) return;
             if (chatMessage.Message.StartsWith(EchoCommandToken)) return;
 
-            _ = UpdateIntegrations(TriggerType.EcoMessage, chatMessage);
+            UpdateIntegrations(TriggerType.EcoMessage, chatMessage);
         }
 
         public async Task OnDiscordMessageCreateEvent(MessageCreateEventArgs messageArgs)
@@ -440,7 +440,7 @@ namespace Eco.Plugins.DiscordLink
             if (message.Author == DiscordClient.CurrentUser) return;
             if (message.Content.StartsWith(DLConfig.Data.DiscordCommandPrefix)) return;
 
-            _ = UpdateIntegrations(TriggerType.DiscordMessage, message);
+            UpdateIntegrations(TriggerType.DiscordMessage, message);
         }
         #endregion
 
