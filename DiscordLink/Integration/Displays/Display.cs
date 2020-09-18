@@ -32,10 +32,14 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
             base.Shutdown();
         }
 
-        public override void OnConfigChanged()
+        public override async Task OnConfigChanged()
         {
-            Clear(); // The channel links may have changed so we should find the messages again.
-            base.OnConfigChanged();
+            using (await _overlapLock.LockAsync()) // Avoid crashes caused by data being manipulated and used simultaneously
+            {
+                Clear(); // The channel links may have changed so we should find the messages again.
+            }
+            await base.OnConfigChanged();
+        }
         }
 
         public void StartTimer()

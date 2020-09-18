@@ -15,9 +15,14 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
             base.Initialize();
         }
 
-        public override void OnConfigChanged()
+        public override async Task OnConfigChanged()
         {
-            _ = ReloadSnippets();
+            using (await _overlapLock.LockAsync()) // Avoid crashes caused by data being manipulated and used simultaneously
+            {
+                await ReloadSnippets();
+            }
+            await base.OnConfigChanged();
+        }
         }
 
         protected override TriggerType GetTriggers()

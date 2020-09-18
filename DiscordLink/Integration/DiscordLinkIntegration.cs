@@ -40,7 +40,8 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
         public virtual void Shutdown()
         { }
 
-        public virtual void OnConfigChanged()
+        public virtual async Task OnConfigChanged()
+        { }
         { }
 
         public virtual async Task Update(DiscordLink plugin, TriggerType trigger, object data)

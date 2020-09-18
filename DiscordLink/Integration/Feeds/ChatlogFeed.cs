@@ -32,10 +32,13 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
             base.Shutdown();
         }
 
-        public override void OnConfigChanged()
+        public override async Task OnConfigChanged()
         {
-            StopLogging();
-            StartLogging();
+            using (await _overlapLock.LockAsync()) // Avoid crashes caused by data being manipulated and used simultaneously
+            {
+                StopLogging();
+                StartLogging();
+            }
         }
 
         protected override TriggerType GetTriggers()

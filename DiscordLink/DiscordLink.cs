@@ -100,9 +100,9 @@ namespace Eco.Plugins.DiscordLink
                 Logger.Info("Discord Bot Token changed - Reinitialising client");
                 _ = RestartClient();
             };
-            config.OnConfigChanged += (obj, args) =>
+            config.OnConfigChanged += async (obj, args) =>
             {
-                _integrations.ForEach(integration => integration.OnConfigChanged());
+                _integrations.ForEach(async integration => await integration.OnConfigChanged());
             };
         }
 
