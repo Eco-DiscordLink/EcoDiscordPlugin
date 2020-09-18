@@ -209,6 +209,27 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
+        [Command("DiscordLinkAbout")]
+        [Description("Posts a message describing what the DiscordLink plugin is.")]
+        [Aliases("dl-about")]
+        public async Task About(CommandContext ctx)
+        {
+            try
+            {
+                DiscordEmbedBuilder embed = new DiscordEmbedBuilder()
+                .WithColor(MessageBuilder.EmbedColor)
+                .WithTitle("About DiscordLink")
+                .WithDescription(MessageBuilder.GetAboutMessage());
+
+                await RespondToCommand(ctx, "About DiscordLink", embed);
+            }
+            catch (Exception e)
+            {
+                LogCommandException(e);
+            }
+        }
+
+
         #region Trades
 
         private readonly Dictionary<string, PagedEnumerator<Tuple<string, string>>> previousQueryEnumerator =
