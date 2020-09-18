@@ -131,7 +131,7 @@ namespace Eco.Plugins.DiscordLink
                 "\nIt connects the game server to a Discord bot in order to perform seamless communication between Eco and Discord." + 
                 "\nThis enables you to chat with players who are currently not online in Eco, but are available on Discord." +
                 "\nDiscordLink can also be used to display information about the Eco server in Discord, such as who is online and what items are available on the market." +
-                "\n\nFor more information, visit \"www.github.com/Spoffy/EcoDiscordPlugin\".";
+                "\n\nFor more information, visit \"www.github.com/Eco-DiscordLink/EcoDiscordPlugin\".";
                 ChatManager.ServerMessageToPlayer(new LocString(message), user);
             },
             user);
