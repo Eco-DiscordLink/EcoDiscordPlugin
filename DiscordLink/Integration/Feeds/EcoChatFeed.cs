@@ -19,9 +19,9 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
             var channelLink = plugin.GetLinkForDiscordChannel(message.Tag.Substring(1));
             var channel = channelLink?.DiscordChannel;
             var guild = channelLink?.DiscordGuild;
+            if (string.IsNullOrWhiteSpace(channel) || !string.IsNullOrWhiteSpace(guild)) return;
 
-            if (!string.IsNullOrWhiteSpace(channel) && !string.IsNullOrWhiteSpace(guild)
-                && channelLink.Direction == ChatSyncDirection.EcoToDiscord || channelLink.Direction == ChatSyncDirection.Duplex)
+            if (channelLink.Direction == ChatSyncDirection.EcoToDiscord || channelLink.Direction == ChatSyncDirection.Duplex)
             {
                 ForwardMessageToDiscordChannel(plugin, message, channel, guild, channelLink.HereAndEveryoneMentionPermission);
             }

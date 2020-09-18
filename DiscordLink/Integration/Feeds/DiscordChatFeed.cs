@@ -18,7 +18,9 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
 
             ChatChannelLink channelLink = plugin.GetLinkForEcoChannel(message.Channel.Name) ?? plugin.GetLinkForEcoChannel(message.Channel.Id.ToString());
             string channel = channelLink?.EcoChannel;
-            if (!string.IsNullOrWhiteSpace(channel) && channelLink.Direction == ChatSyncDirection.DiscordToEco || channelLink.Direction == ChatSyncDirection.Duplex)
+            if (string.IsNullOrWhiteSpace(channel)) return;
+
+            if (channelLink.Direction == ChatSyncDirection.DiscordToEco || channelLink.Direction == ChatSyncDirection.Duplex)
             {
                 await ForwardMessageToEcoChannel(plugin, message, channel);
             }
