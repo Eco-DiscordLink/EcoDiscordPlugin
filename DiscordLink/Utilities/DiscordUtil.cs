@@ -74,6 +74,11 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 Logger.Debug(e.ToString());
                 return null;
             }
+            catch (DSharpPlus.Exceptions.NotFoundException e)
+            {
+                Logger.Debug(e.ToString());
+                return null;
+            }
             catch (Exception e)
             {
                 Logger.Error("Error occurred while attempting to modify Discord message. Error message: " + e);
@@ -89,7 +94,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             {
                 await message.DeleteAsync("Deleted by DiscordLink");
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Logger.Error("Error occurred while attempting to delete Discord message. Error message: " + e);
             }
@@ -102,6 +107,11 @@ namespace Eco.Plugins.DiscordLink.Utilities
             try
             {
                 return await channel.GetMessageAsync(messageID);
+            }
+            catch (DSharpPlus.Exceptions.NotFoundException e)
+            {
+                Logger.Debug("NotFoundExcetption raised on GetMessageAsync. Error: " + e);
+                return null;
             }
             catch (Exception e)
             {
