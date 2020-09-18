@@ -26,10 +26,10 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
             base.Initialize();
         }
 
-        public override void Shutdown()
+        public override async Task Shutdown()
         {
             StopTimer();
-            base.Shutdown();
+            await base.Shutdown();
         }
 
         public override async Task OnConfigChanged()

@@ -30,10 +30,10 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
             base.Initialize();
         }
 
-        public override void Shutdown()
+        public override async Task Shutdown()
         {
             SystemUtil.StopAndDestroyTimer(ref _tradePostingTimer);
-            base.Shutdown();
+            await base.Shutdown();
         }
 
         protected override TriggerType GetTriggers()
