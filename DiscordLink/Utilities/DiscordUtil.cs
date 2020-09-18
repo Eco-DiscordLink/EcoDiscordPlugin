@@ -69,6 +69,11 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     }
                 }
             }
+            catch (Newtonsoft.Json.JsonReaderException e)
+            {
+                Logger.Debug(e.ToString());
+                return null;
+            }
             catch (Exception e)
             {
                 Logger.Error("Error occurred while attempting to modify Discord message. Error message: " + e);
