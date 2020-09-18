@@ -23,6 +23,22 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
             }
             await base.OnConfigChanged();
         }
+
+        public override async Task OnMessageDeleted(DiscordMessage message)
+        {
+            using (await _overlapLock.LockAsync()) // Avoid crashes caused by data being manipulated and used simultaneously
+            {
+                for (int i = 0; i < DLConfig.Data.SnippetChannels.Count; ++i)
+                {
+                    string channel = DLConfig.Data.SnippetChannels[i].DiscordChannel;
+                    if(channel == message.Channel.Name || channel == message.ChannelId.ToString())
+                    {
+                        await ReloadSnippets();
+                        break;
+                    }
+                }
+            }
+            await base.OnMessageDeleted(message);
         }
 
         protected override TriggerType GetTriggers()

@@ -1,4 +1,5 @@
-﻿using Eco.Plugins.DiscordLink.Utilities;
+﻿using DSharpPlus.Entities;
+using Eco.Plugins.DiscordLink.Utilities;
 using Nito.AsyncEx;
 using System.Threading.Tasks;
 
@@ -42,6 +43,8 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
 
         public virtual async Task OnConfigChanged()
         { }
+
+        public virtual async Task OnMessageDeleted(DiscordMessage message)
         { }
 
         public virtual async Task Update(DiscordLink plugin, TriggerType trigger, object data)

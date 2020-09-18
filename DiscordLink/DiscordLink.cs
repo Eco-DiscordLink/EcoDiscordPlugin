@@ -222,6 +222,11 @@ namespace Eco.Plugins.DiscordLink
                     DLConfig.Instance.EnqueueGuildVerification();
                 };
 
+                DiscordClient.MessageDeleted += async args =>
+                {
+                    _integrations.ForEach(async integration => await integration.OnMessageDeleted(args.Message));
+                };
+
                 // Set up the client to use CommandsNext
                 _commands = DiscordClient.UseCommandsNext(new CommandsNextConfiguration
                 {

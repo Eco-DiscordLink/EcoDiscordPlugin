@@ -40,6 +40,27 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
             }
             await base.OnConfigChanged();
         }
+
+        public override async Task OnMessageDeleted(DiscordMessage message)
+        {
+            using (await _overlapLock.LockAsync()) // Avoid crashes caused by data being manipulated and used simultaneously
+            {
+                foreach(ChannelDisplayData display in _channelDisplays)
+                {
+                    bool found = false;
+                    for(int i = 0; i < display.MessageIDs.Count; ++i)
+                    {
+                        if(message.Id == display.MessageIDs[i])
+                        {
+                            display.MessageIDs.RemoveAt(i);
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (found) break;
+                }
+            }
+            await base.OnMessageDeleted(message);
         }
 
         public void StartTimer()
