@@ -495,6 +495,13 @@ namespace Eco.Plugins.DiscordLink
         Forbidden
     };
 
+    public enum ChatSyncDirection
+    {
+        DiscordToEco,
+        EcoToDiscord,
+        Duplex,
+    }
+
     public class ChatChannelLink : EcoChannelLink
     {
         [Description("Allow mentions of usernames to be forwarded from Eco to the Discord channel.")]
@@ -505,6 +512,9 @@ namespace Eco.Plugins.DiscordLink
 
         [Description("Allow mentions of channels to be forwarded from Eco to the Discord channel.")]
         public bool AllowChannelMentions { get; set; } = true;
+
+        [Description("Sets which direction chat should synchronize in.")]
+        public ChatSyncDirection Direction { get; set; } = ChatSyncDirection.Duplex;
 
         [Description("Permissions for who is allowed to forward mentions of @here or @everyone from Eco to the Discord channel.")]
         public GlobalMentionPermission HereAndEveryoneMentionPermission { get; set; } = GlobalMentionPermission.Forbidden;
