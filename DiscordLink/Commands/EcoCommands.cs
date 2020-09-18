@@ -122,7 +122,7 @@ namespace Eco.Plugins.DiscordLink
                 user);
         }
 
-        [ChatSubCommand("DiscordLink", "Displays information about the DiscordLink plugin.", ChatAuthorizationLevel.User)]
+        [ChatSubCommand("DiscordLink", "Displays information about the DiscordLink plugin.", "dl-about", ChatAuthorizationLevel.User)]
         public static void About(User user)
         {
             CallWithErrorHandling<object>((lUser, args) =>
@@ -137,7 +137,7 @@ namespace Eco.Plugins.DiscordLink
             user);
         }
 
-        [ChatSubCommand("DiscordLink", "Displays Discord invite message.", ChatAuthorizationLevel.User)]
+        [ChatSubCommand("DiscordLink", "Displays Discord invite message.", "dl-invite", ChatAuthorizationLevel.User)]
         public static void Invite(User user, string ecoChannel = "")
         {
             CallWithErrorHandling<object>((lUser, args) =>
@@ -162,7 +162,7 @@ namespace Eco.Plugins.DiscordLink
             user);
         }
 
-        [ChatSubCommand("DiscordLink", "Post a predefined snippet from Discord.", "snippet", ChatAuthorizationLevel.User)]
+        [ChatSubCommand("DiscordLink", "Post a predefined snippet from Discord.", "dl-snippet", ChatAuthorizationLevel.User)]
         public static void PostSnippet(User user, string snippetKey = "", string ecoChannel = "")
         {
             CallWithErrorHandling<object>((lUser, args) =>
