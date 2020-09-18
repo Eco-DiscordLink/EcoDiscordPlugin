@@ -474,8 +474,8 @@ namespace Eco.Plugins.DiscordLink
         {
             var playerConfig = GetOrCreatePlayerConfig(identifier);
             if (playerConfig.DefaultChannel == null
-                || String.IsNullOrEmpty(playerConfig.DefaultChannel.Guild)
-                || String.IsNullOrEmpty(playerConfig.DefaultChannel.Channel))
+                || string.IsNullOrEmpty(playerConfig.DefaultChannel.Guild)
+                || string.IsNullOrEmpty(playerConfig.DefaultChannel.Channel))
             {
                 return null;
             }

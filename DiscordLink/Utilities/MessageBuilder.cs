@@ -35,7 +35,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             }
             if (embedContent != null)
             {
-                if (!String.IsNullOrEmpty(embedContent.Title))
+                if (!string.IsNullOrEmpty(embedContent.Title))
                 {
                     message += embedContent.Title + "\n\n";
                 }
@@ -45,7 +45,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     message += "**" + field.Name + "**\n" + field.Value + "\n\n";
                 }
 
-                if (!String.IsNullOrEmpty(embedContent.Footer?.Text))
+                if (!string.IsNullOrEmpty(embedContent.Footer?.Text))
                 {
                     message += embedContent.Footer.Text;
                 }
@@ -81,7 +81,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 builder.WithDescription(FirstNonEmptyString(config.ServerDescription, MessageUtil.StripTags(serverInfo.Description), "No server description is available."));
             }
 
-            if (flag.HasFlag(EcoStatusComponentFlag.Logo) && !String.IsNullOrWhiteSpace(config.ServerLogo))
+            if (flag.HasFlag(EcoStatusComponentFlag.Logo) && !string.IsNullOrWhiteSpace(config.ServerLogo))
             {
                 try
                 {
@@ -113,7 +113,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             if (flag.HasFlag(EcoStatusComponentFlag.PlayerList))
             {
                 IEnumerable<String> onlineUsers = UserManager.OnlineUsers.Where(user => user.Client.Connected).Select(user => user.Name);
-                string playerList = onlineUsers.Count() > 0 ? String.Join("\n", onlineUsers) : "-- No players online --";
+                string playerList = onlineUsers.Count() > 0 ? string.Join("\n", onlineUsers) : "-- No players online --";
                 builder.AddField("Online Players", playerList);
             }
 
@@ -142,10 +142,10 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         public static DiscordEmbedBuilder GetPlayerList()
         {
-            IEnumerable<String> onlineUsers = UserManager.OnlineUsers.Where(user => user.Client.Connected).Select(user => user.Name);
+            IEnumerable<string> onlineUsers = UserManager.OnlineUsers.Where(user => user.Client.Connected).Select(user => user.Name);
             int numberOnline = onlineUsers.Count();
             string messageText = $"{numberOnline} Online Players:\n";
-            string playerList = String.Join("\n", onlineUsers);
+            string playerList = string.Join("\n", onlineUsers);
             DiscordEmbedBuilder embed = new DiscordEmbedBuilder()
                 .WithColor(EmbedColor)
                 .WithTitle(messageText)
@@ -155,7 +155,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         private static string FirstNonEmptyString(params string[] strings)
         {
-            return strings.FirstOrDefault(str => !String.IsNullOrEmpty(str)) ?? "";
+            return strings.FirstOrDefault(str => !string.IsNullOrEmpty(str)) ?? "";
         }
     }
 }

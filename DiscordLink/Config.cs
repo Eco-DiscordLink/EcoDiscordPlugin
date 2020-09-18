@@ -281,7 +281,7 @@ namespace Eco.Plugins.DiscordLink
             if (verificationFlags.HasFlag(VerificationFlags.Static))
             {
                 // Bot Token
-                if (String.IsNullOrWhiteSpace(Data.BotToken))
+                if (string.IsNullOrWhiteSpace(Data.BotToken))
                 {
                     errorMessages.Add("[Bot Token] Bot token not configured. See Github page for install instructions.");
                 }
@@ -378,7 +378,7 @@ namespace Eco.Plugins.DiscordLink
 
             if (unverifiedLinks.Count > 0)
             {
-                Logger.Info("Unverified channels detected:\n" + String.Join("\n", unverifiedLinks));
+                Logger.Info("Unverified channels detected:\n" + string.Join("\n", unverifiedLinks));
             }
         }
 
