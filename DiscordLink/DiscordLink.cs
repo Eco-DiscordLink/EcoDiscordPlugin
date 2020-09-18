@@ -199,7 +199,7 @@ namespace Eco.Plugins.DiscordLink
                     AutoReconnect = true,
                     Token = DLConfig.Data.BotToken,
                     TokenType = TokenType.Bot,
-                    MinimumLogLevel = DLConfig.Instance.GetDSharpLogLevel()
+                    MinimumLogLevel = DLConfig.Data.BackendLogLevel
                 });
 
                 DiscordClient.ClientErrored += async args => { Logger.Error("A Discord client error occurred. Error messages was: " + args.EventName + " " + args.Exception.ToString()); };

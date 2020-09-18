@@ -157,26 +157,6 @@ namespace Eco.Plugins.DiscordLink
             return null;
         }
 
-        public Microsoft.Extensions.Logging.LogLevel GetDSharpLogLevel()
-        {
-            switch (_config.Config.LogLevel)
-            {
-                case LogLevel.Silent:
-                    return Microsoft.Extensions.Logging.LogLevel.None;
-                case LogLevel.Error:
-                    return Microsoft.Extensions.Logging.LogLevel.Error;
-                case LogLevel.Information:
-                    return Microsoft.Extensions.Logging.LogLevel.Information;
-                case LogLevel.Warning:
-                    return Microsoft.Extensions.Logging.LogLevel.Warning;
-                case LogLevel.Debug:
-                case LogLevel.DebugVerbose:
-                    return Microsoft.Extensions.Logging.LogLevel.Debug;
-                default:
-                    return Microsoft.Extensions.Logging.LogLevel.Information;
-            }
-        }
-
         public void EnqueueFullVerification()
         {
             // Queue up the check for unverified channels
@@ -489,8 +469,11 @@ namespace Eco.Plugins.DiscordLink
         [Description("Channels to connect together. This setting can be changed while the server is running."), Category("Channel Configuration")]
         public ObservableCollection<ChatChannelLink> ChatChannelLinks { get; set; } = new ObservableCollection<ChatChannelLink>();
 
-        [Description("Sets what message types will be printed to the log. This setting requires a restart to take full effect."), Category("Miscellaneous")]
+        [Description("Determines what message types will be printed to the server log. All message types below the selected one will be printed as well. This setting can be changed while the server is running."), Category("Miscellaneous")]
         public LogLevel LogLevel { get; set; } = LogLevel.Information;
+
+        [Description("Determines what backend message types will be printed to the server log. All message types below the selected one will be printed as well. This setting requires a restart to take effect."), Category("Miscellaneous")]
+        public Microsoft.Extensions.Logging.LogLevel BackendLogLevel { get; set; } = Microsoft.Extensions.Logging.LogLevel.None;
 
         [Description("Enables logging of chat messages into the file at Chatlog Path. This setting can be changed while the server is running."), Category("Chatlog Configuration")]
         public bool LogChat { get; set; } = false;
