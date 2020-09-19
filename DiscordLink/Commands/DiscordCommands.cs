@@ -233,6 +233,19 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
+        [Command("Print")]
+        [Description("Reposts the inputted message. Can be used to create tags for ordering display tags within a channel.")]
+        public async Task Print(CommandContext ctx, [Description("The message to print.")] string message)
+        {
+            try
+            {
+                await RespondToCommand(ctx, message);
+            }
+            catch (Exception e)
+            {
+                LogCommandException(e);
+            }
+        }
 
         #region Trades
 
