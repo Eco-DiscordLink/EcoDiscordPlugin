@@ -8,6 +8,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
 {
     class PlayerDisplay : Display
     {
+        protected override string BaseTag { get { return "[Player List]"; } }
         protected override int TimerUpdateIntervalMS { get { return 60000; } }
 
         protected override TriggerType GetTriggers()
@@ -22,13 +23,13 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
 
         protected override void GetDisplayContent(ChannelLink link, out List<Tuple<string, DiscordEmbed>> tagAndContent)
         {
-            string tag = BaseDisplayTag + " [Player List]";
+            string tag = BaseTag;
             string title = "Players";
             string content = "\n" + MessageBuilder.GetPlayerList();
 
             if ((link as PlayerListChannelLink).UsePlayerCount == true)
             {
-                title = MessageBuilder.GetPlayerCount() + " players online";
+                title = MessageBuilder.GetPlayerCount() + " Players Online";
             }
 
             DiscordEmbedBuilder embed = new DiscordEmbedBuilder()

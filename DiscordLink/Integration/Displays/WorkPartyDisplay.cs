@@ -14,6 +14,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
 {
     public class WorkPartyDisplay : Display
     {
+        protected override string BaseTag { get { return "[Work Party]"; } }
         protected override int TimerUpdateIntervalMS { get { return 60000; } }
 
         protected override TriggerType GetTriggers()
@@ -34,7 +35,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
             List<WorkParty> workParties = Registrars.Get<WorkParty>().All<WorkParty>().NonNull().Where(x => x.State == ProposableState.Active).ToList();
             foreach (WorkParty workParty in workParties)
             {
-                string tag = BaseDisplayTag + " [Work Party - " + workParty.Id + "]";
+                string tag = BaseTag + " [" + workParty.Id + "]";
                 builder.WithColor(MessageBuilder.EmbedColor);
                 builder.WithTitle(workParty.Name);
 

@@ -10,6 +10,8 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
     {
         protected override int TimerUpdateIntervalMS { get { return 60000; } }
 
+        protected override string BaseTag { get { return "[Eco Status]"; } }
+
         protected override TriggerType GetTriggers()
         {
             return TriggerType.Startup | TriggerType.Timer | TriggerType.Login;
@@ -22,11 +24,10 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
 
         protected override void GetDisplayContent(ChannelLink link, out List<Tuple<string, DiscordEmbed>> tagAndContent)
         {
-            string tag = BaseDisplayTag + " [Status]";
             DiscordEmbed content = MessageBuilder.GetEcoStatus(GetEcoStatusFlagForChannel(link as EcoStatusChannel));
 
             tagAndContent = new List<Tuple<string, DiscordEmbed>>();
-            tagAndContent.Add(new Tuple<string, DiscordEmbed>(tag, content));
+            tagAndContent.Add(new Tuple<string, DiscordEmbed>(BaseTag, content));
         }
 
         private static MessageBuilder.EcoStatusComponentFlag GetEcoStatusFlagForChannel(EcoStatusChannel statusChannel)

@@ -10,8 +10,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
 {
     abstract public class Display : DiscordLinkIntegration
     {
-        protected const string BaseDisplayTag = "[Display]";
-
+        protected virtual string BaseTag { get; } = "[Unset Tag]";
         protected virtual int TimerUpdateIntervalMS { get; } = -1;
         protected virtual int TimerStartDelayMS { get; } = 0;
         protected virtual int HighFrequencyEventDelayMS { get; } = 2000;
@@ -127,6 +126,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
                 {
                     DiscordMessage message = await DiscordUtil.GetMessageAsync(discordChannel, messageID);
                     if (message == null) continue;
+                    if (!message.Content.StartsWith(BaseTag)) continue; // The message belongs to a different display
 
                     bool found = false;
                     foreach(var tagAndContent in tagsAndContent)
@@ -194,7 +194,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
 
                 foreach(DiscordMessage message in channelMessages)
                 {
-                    if (!message.Content.StartsWith(BaseDisplayTag)) continue;
+                    if (!message.Content.StartsWith(BaseTag)) continue;
                     data.MessageIDs.Add(message.Id);
                 }
             }
