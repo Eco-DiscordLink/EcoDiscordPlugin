@@ -166,10 +166,13 @@ namespace Eco.Plugins.DiscordLink
             _integrations.Add(new SnippetInput());
             _integrations.Add(new WorkPartyDisplay());
             _integrations.Add(new PlayerDisplay());
+
+            _integrations.ForEach(async integration => await integration.Initialize());
         }
 
         void ShutdownIntegrations()
         {
+            _integrations.ForEach(async integration => await integration.Shutdown());
             _integrations.Clear();
         }
         

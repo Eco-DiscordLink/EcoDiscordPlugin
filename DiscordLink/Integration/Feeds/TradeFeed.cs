@@ -15,7 +15,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
         private const int TRADE_POSTING_INTERVAL_MS = 1000;
         private readonly Dictionary<Tuple<int, int>, List<CurrencyTrade>> _accumulatedTrades = new Dictionary<Tuple<int, int>, List<CurrencyTrade>>();
 
-        public override void Initialize()
+        public override async Task Initialize()
         {
             _tradePostingTimer = new Timer(InnerArgs =>
             {
@@ -27,7 +27,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
                     }
                 }
             }, null, 0, TRADE_POSTING_INTERVAL_MS);
-            base.Initialize();
+            await base.Initialize();
         }
 
         public override async Task Shutdown()

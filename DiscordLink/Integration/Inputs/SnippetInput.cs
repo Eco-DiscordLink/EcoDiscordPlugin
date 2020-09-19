@@ -9,10 +9,10 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
 {
     public class SnippetInput : Input
     {
-        public override void Initialize()
+        public override async Task Initialize()
         {
             _ = ReloadSnippets();
-            base.Initialize();
+            await base.Initialize();
         }
 
         public override async Task OnConfigChanged()

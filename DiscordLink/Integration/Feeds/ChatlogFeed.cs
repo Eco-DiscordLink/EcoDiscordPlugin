@@ -17,13 +17,13 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
         private StreamWriter _writer;
         private Timer _flushTimer = null;
 
-        public override void Initialize()
+        public override async Task Initialize()
         {
             if(DLConfig.Data.LogChat)
             {
                 StartLogging();
             }
-            base.Initialize();
+            await base.Initialize();
         }
 
         public override async Task Shutdown()

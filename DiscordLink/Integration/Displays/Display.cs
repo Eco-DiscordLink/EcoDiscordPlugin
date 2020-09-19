@@ -20,10 +20,10 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
         private Timer _HighFrequencyEventTimer = null;
         private readonly List<ChannelDisplayData> _channelDisplays = new List<ChannelDisplayData>();
 
-        public override void Initialize()
+        public override async Task Initialize()
         {
             StartTimer();
-            base.Initialize();
+            await base.Initialize();
         }
 
         public override async Task Shutdown()

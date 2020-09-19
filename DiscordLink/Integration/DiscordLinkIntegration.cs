@@ -26,17 +26,8 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
         public const TriggerType HighFrequencyTriggerFlags = TriggerType.EcoMessage | TriggerType.DiscordMessage | TriggerType.Trade | TriggerType.WorkedWorkParty;
         protected readonly AsyncLock _overlapLock = new AsyncLock();
         protected bool IsShuttingDown = false;
-        public DiscordLinkIntegration()
-        {
-            Initialize();
-        }
 
-        ~DiscordLinkIntegration()
-        {
-            Shutdown().Wait();
-        }
-
-        public virtual void Initialize()
+        public virtual async Task Initialize()
         { }
 
         public virtual async Task Shutdown()
