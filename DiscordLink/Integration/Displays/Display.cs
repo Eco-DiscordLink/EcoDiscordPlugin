@@ -15,6 +15,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
         protected virtual int TimerStartDelayMS { get; } = 0;
         protected virtual int HighFrequencyEventDelayMS { get; } = 2000;
 
+        private bool _dirty = false;
         private Timer _updateTimer = null;
         private Timer _HighFrequencyEventTimer = null;
         private readonly List<ChannelDisplayData> _channelDisplays = new List<ChannelDisplayData>();
@@ -103,7 +104,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
                 return;
             }
 
-            if(_channelDisplays.Count <= 0)
+            if(_dirty || _channelDisplays.Count <= 0)
             {
                 await FindMessages(plugin);
             }
@@ -125,7 +126,11 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
                 foreach (ulong messageID in channelDisplayData.MessageIDs)
                 {
                     DiscordMessage message = await DiscordUtil.GetMessageAsync(discordChannel, messageID);
-                    if (message == null) continue;
+                    if (message == null)
+                    {
+                        _dirty = true;
+                        return; // We cannot know which messages are wrong and duplicates may be created if we continue.
+                    }
                     if (!message.Content.StartsWith(BaseTag)) continue; // The message belongs to a different display
 
                     bool found = false;
@@ -198,6 +203,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
                     data.MessageIDs.Add(message.Id);
                 }
             }
+            _dirty = false;
         }
 
         private struct ChannelDisplayData
