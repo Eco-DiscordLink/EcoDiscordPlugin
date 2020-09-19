@@ -12,7 +12,14 @@ namespace Eco.Plugins.DiscordLink.Utilities
         public const int EMBED_FIELD_CHARACTER_LIMIT = 900;
         public static bool ChannelHasPermission(DiscordChannel channel, Permissions permission)
         {
-            return channel.PermissionsFor(channel.Guild.CurrentMember).HasPermission(permission);
+            DiscordMember member = channel.Guild.CurrentMember;
+            if (member == null)
+            {
+                Logger.Debug("CurrentMember was false when evaluating channel permissions for channel " + channel.Name);
+                return false;
+            }
+
+            return channel.PermissionsFor(member).HasPermission(permission);
         }
 
         public static async Task<DiscordMessage> SendAsync(DiscordChannel channel, string textContent, DiscordEmbed embedContent = null)
