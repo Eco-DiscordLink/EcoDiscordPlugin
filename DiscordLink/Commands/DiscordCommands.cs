@@ -247,6 +247,26 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
+        [Command("Restart")]
+        [Description("Reposts the inputted message. Can be used to create tags for ordering display tags within a channel.")]
+        [Aliases("dl-restart")]
+        [RequireRoles(RoleCheckMode.Any, "Moderator")]
+        public async Task Restart(CommandContext ctx)
+        {
+            try
+            {
+                var plugin = DiscordLink.Obj;
+                if (plugin == null) return;
+
+                await RespondToCommand(ctx, "Restarting DiscordLink");
+                _ = plugin.RestartClient();
+            }
+            catch (Exception e)
+            {
+                LogCommandException(e);
+            }
+        }
+
         #region Trades
 
         private readonly Dictionary<string, PagedEnumerator<Tuple<string, string>>> previousQueryEnumerator =

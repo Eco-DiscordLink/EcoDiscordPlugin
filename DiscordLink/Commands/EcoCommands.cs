@@ -122,6 +122,19 @@ namespace Eco.Plugins.DiscordLink
                 user);
         }
 
+        [ChatSubCommand("Restart", "Restarts the plugin.", "dl-restart", ChatAuthorizationLevel.Admin)]
+        public static void Restart(User user)
+        {
+            CallWithErrorHandling<object>((lUser, args) =>
+            {
+                DiscordLink plugin = Plugins.DiscordLink.DiscordLink.Obj;
+                if (plugin == null) return;
+
+                _ = plugin.RestartClient();
+            },
+            user);
+        }
+
         [ChatSubCommand("DiscordLink", "Displays information about the DiscordLink plugin.", "dl-about", ChatAuthorizationLevel.User)]
         public static void About(User user)
         {
