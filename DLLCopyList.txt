@@ -2,3 +2,7 @@ DiscordLink.dll
 DSharpPlus.dll
 DSharpPlus.CommandsNext.dll
 Microsoft.Extensions.Logging.Abstractions.dll
+Nito.AsyncEx.Coordination.dll
+Nito.AsyncEx.Tasks.dll
+Nito.Collections.Deque.dll
+Nito.Disposables.dll
