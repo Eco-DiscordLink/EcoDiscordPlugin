@@ -11,6 +11,8 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
         protected override string BaseTag { get { return "[Player List]"; } }
         protected override int TimerUpdateIntervalMS { get { return 60000; } }
 
+        protected override int TimerStartDelayMS { get { return 5000; } }
+
         protected override TriggerType GetTriggers()
         {
             return TriggerType.Startup | TriggerType.Timer | TriggerType.Login;

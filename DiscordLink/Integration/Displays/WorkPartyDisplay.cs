@@ -16,6 +16,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
     {
         protected override string BaseTag { get { return "[Work Party]"; } }
         protected override int TimerUpdateIntervalMS { get { return 60000; } }
+        protected override int TimerStartDelayMS { get { return 10000; } }
 
         protected override TriggerType GetTriggers()
         {
