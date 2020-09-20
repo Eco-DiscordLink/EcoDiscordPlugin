@@ -185,6 +185,8 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
 
             foreach (ChannelLink channelLink in GetChannelLinks())
             {
+                if (!channelLink.IsValid()) continue;
+
                 DiscordGuild discordGuild = plugin.GuildByNameOrId(channelLink.DiscordGuild);
                 if (discordGuild == null) continue;
                 DiscordChannel discordChannel = discordGuild.ChannelByNameOrId(channelLink.DiscordChannel);
