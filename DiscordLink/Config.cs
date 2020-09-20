@@ -460,13 +460,13 @@ namespace Eco.Plugins.DiscordLink
         [Description("Channels in which trade events will be posted. This setting can be changed while the server is running."), Category("Feeds")]
         public ObservableCollection<ChannelLink> TradeChannels { get; set; } = new ObservableCollection<ChannelLink>();
 
-        [Description("Discord channels in which to display the Server Info display. DiscordLink will post one Server Info message in this channel and keep it updated trough edits. This setting can be changed while the server is running."), Category("Displays")]
+        [Description("Discord channels in which to keep the Server Info display. DiscordLink will post one server info message in these channel and keep it updated trough edits. This setting can be changed while the server is running."), Category("Displays")]
         public ObservableCollection<ServerInfoChannel> ServerInfoChannels { get; set; } = new ObservableCollection<ServerInfoChannel>();
 
-        [Description("Discord channels in which to display ongoing work parties. DiscordLink will post messages in this channel and keep them updated trough edits. This setting can be changed while the server is running."), Category("Displays")]
+        [Description("Discord channels in which to keep ongoing work parties. DiscordLink will post messages in these channel and keep them updated trough edits. This setting can be changed while the server is running."), Category("Displays")]
         public ObservableCollection<ChannelLink> WorkPartyChannels { get; set; } = new ObservableCollection<ChannelLink>();
 
-        [Description("Discord channels in which to display the Eco status display. DiscordLink will post one Player List message in this channel and keep it updated trough edits. This setting can be changed while the server is running."), Category("Displays")]
+        [Description("Discord channels in which to keep the Player List display. DiscordLink will post one Player List message in these channel and keep it updated trough edits. This setting can be changed while the server is running."), Category("Displays")]
         public ObservableCollection<PlayerListChannelLink> PlayerListChannels { get; set; } = new ObservableCollection<PlayerListChannelLink>();
 
         [Description("Channels in which to search for snippets for the Snippet command. This setting can be changed while the server is running."), Category("Inputs")]

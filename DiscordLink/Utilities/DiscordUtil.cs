@@ -45,6 +45,11 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     }
                 }
             }
+            catch (Newtonsoft.Json.JsonReaderException e)
+            {
+                Logger.Debug(e.ToString());
+                return null;
+            }
             catch (Exception e)
             {
                 Logger.Error("Error occurred while attempting to send Discord message. Error message: " + e);
@@ -117,7 +122,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             }
             catch (DSharpPlus.Exceptions.NotFoundException e)
             {
-                Logger.Debug("NotFoundExcetption raised on GetMessageAsync. Error: " + e);
+                Logger.Debug(e.ToString());
                 return null;
             }
             catch (Exception e)

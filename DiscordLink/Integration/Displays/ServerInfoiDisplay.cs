@@ -9,8 +9,8 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
     public class ServerInfoDisplay : Display
     {
         protected override int TimerUpdateIntervalMS { get { return 60000; } }
-
         protected override string BaseTag { get { return "[Server Info]"; } }
+        protected override int TimerStartDelayMS { get { return 0; } }
 
         protected override TriggerType GetTriggers()
         {
