@@ -161,7 +161,7 @@ namespace Eco.Plugins.DiscordLink
             _integrations.Add(new DiscordChatFeed());   // Discord -> Eco
             _integrations.Add(new EcoChatFeed());       // Eco -> Discord
             _integrations.Add(new ChatlogFeed());
-            _integrations.Add(new EcoStatusDisplay());
+            _integrations.Add(new ServerInfoDisplay());
             _integrations.Add(new TradeFeed());
             _integrations.Add(new SnippetInput());
             _integrations.Add(new WorkPartyDisplay());

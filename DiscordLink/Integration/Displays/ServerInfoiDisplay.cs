@@ -6,11 +6,11 @@ using System.Linq;
 
 namespace Eco.Plugins.DiscordLink.IntegrationTypes
 {
-    public class EcoStatusDisplay : Display
+    public class ServerInfoDisplay : Display
     {
         protected override int TimerUpdateIntervalMS { get { return 60000; } }
 
-        protected override string BaseTag { get { return "[Eco Status]"; } }
+        protected override string BaseTag { get { return "[Server Info]"; } }
 
         protected override TriggerType GetTriggers()
         {
@@ -19,36 +19,36 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
 
         protected override List<ChannelLink> GetChannelLinks()
         {
-            return DLConfig.Data.EcoStatusChannels.Cast<ChannelLink>().ToList();
+            return DLConfig.Data.ServerInfoChannels.Cast<ChannelLink>().ToList();
         }
 
         protected override void GetDisplayContent(ChannelLink link, out List<Tuple<string, DiscordEmbed>> tagAndContent)
         {
-            DiscordEmbed content = MessageBuilder.GetEcoStatus(GetEcoStatusFlagForChannel(link as EcoStatusChannel));
+            DiscordEmbed content = MessageBuilder.GetServerInfo(GetServerInfoFlagForChannel(link as ServerInfoChannel));
 
             tagAndContent = new List<Tuple<string, DiscordEmbed>>();
             tagAndContent.Add(new Tuple<string, DiscordEmbed>(BaseTag, content));
         }
 
-        private static MessageBuilder.EcoStatusComponentFlag GetEcoStatusFlagForChannel(EcoStatusChannel statusChannel)
+        private static MessageBuilder.ServerInfoComponentFlag GetServerInfoFlagForChannel(ServerInfoChannel statusChannel)
         {
-            MessageBuilder.EcoStatusComponentFlag statusFlag = 0;
+            MessageBuilder.ServerInfoComponentFlag statusFlag = 0;
             if (statusChannel.UseName)
-                statusFlag |= MessageBuilder.EcoStatusComponentFlag.Name;
+                statusFlag |= MessageBuilder.ServerInfoComponentFlag.Name;
             if (statusChannel.UseDescription)
-                statusFlag |= MessageBuilder.EcoStatusComponentFlag.Description;
+                statusFlag |= MessageBuilder.ServerInfoComponentFlag.Description;
             if (statusChannel.UseLogo)
-                statusFlag |= MessageBuilder.EcoStatusComponentFlag.Logo;
+                statusFlag |= MessageBuilder.ServerInfoComponentFlag.Logo;
             if (statusChannel.UseAddress)
-                statusFlag |= MessageBuilder.EcoStatusComponentFlag.ServerAddress;
+                statusFlag |= MessageBuilder.ServerInfoComponentFlag.ServerAddress;
             if (statusChannel.UsePlayerCount)
-                statusFlag |= MessageBuilder.EcoStatusComponentFlag.PlayerCount;
+                statusFlag |= MessageBuilder.ServerInfoComponentFlag.PlayerCount;
             if (statusChannel.UseTimeSinceStart)
-                statusFlag |= MessageBuilder.EcoStatusComponentFlag.TimeSinceStart;
+                statusFlag |= MessageBuilder.ServerInfoComponentFlag.TimeSinceStart;
             if (statusChannel.UseTimeRemaining)
-                statusFlag |= MessageBuilder.EcoStatusComponentFlag.TimeRemaining;
+                statusFlag |= MessageBuilder.ServerInfoComponentFlag.TimeRemaining;
             if (statusChannel.UseMeteorHasHit)
-                statusFlag |= MessageBuilder.EcoStatusComponentFlag.MeteorHasHit;
+                statusFlag |= MessageBuilder.ServerInfoComponentFlag.MeteorHasHit;
 
             return statusFlag;
         }

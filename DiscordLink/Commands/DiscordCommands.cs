@@ -68,7 +68,7 @@ namespace Eco.Plugins.DiscordLink
         [Description("Retrieves the current status of the Eco Server.")]
         public async Task EcoStatus(CommandContext ctx)
         {
-            await RespondToCommand(ctx, "", MessageBuilder.GetEcoStatus(MessageBuilder.EcoStatusComponentFlag.All));
+            await RespondToCommand(ctx, "", MessageBuilder.GetServerInfo(MessageBuilder.ServerInfoComponentFlag.All));
         }
 
 #if DEBUG
