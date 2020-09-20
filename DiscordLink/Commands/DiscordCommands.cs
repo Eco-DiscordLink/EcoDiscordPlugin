@@ -65,7 +65,7 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [Command("ecostatus")]
-        [Description("Retrieves the current status of the Eco Server.")]
+        [Description("Prints the Server Info status.")]
         public async Task EcoStatus(CommandContext ctx)
         {
             await RespondToCommand(ctx, "", MessageBuilder.GetServerInfo(MessageBuilder.ServerInfoComponentFlag.All));
@@ -249,7 +249,7 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [Command("Restart")]
-        [Description("Reposts the inputted message. Can be used to create tags for ordering display tags within a channel.")]
+        [Description("Restarts the plugin.")]
         [Aliases("dl-restart")]
         [RequireRoles(RoleCheckMode.Any, "Moderator")]
         public async Task Restart(CommandContext ctx)
@@ -307,7 +307,7 @@ namespace Eco.Plugins.DiscordLink
 
 
         [Command("trades")]
-        [Description("Displays the latest trades by person or by item.")]
+        [Description("Displays available trades by person or by item.")]
         [Aliases("trade")]
         public async Task Trades(CommandContext ctx, [Description("The player name or item name in question.")] string itemNameOrUserName = "")
         {

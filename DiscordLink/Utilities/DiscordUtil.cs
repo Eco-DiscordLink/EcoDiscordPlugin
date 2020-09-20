@@ -81,6 +81,11 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     }
                 }
             }
+            catch (DSharpPlus.Exceptions.ServerErrorException e)
+            {
+                Logger.Debug(e.ToString());
+                return null;
+            }
             catch (Newtonsoft.Json.JsonReaderException e)
             {
                 Logger.Debug(e.ToString());
