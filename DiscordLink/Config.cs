@@ -78,6 +78,7 @@ namespace Eco.Plugins.DiscordLink
             Data.SnippetChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.WorkPartyChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.PlayerListChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
+            Data.ElectionChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
 
             BuildChanneLinkList();
 
@@ -392,6 +393,7 @@ namespace Eco.Plugins.DiscordLink
             _channelLinks.AddRange(_config.Config.SnippetChannels);
             _channelLinks.AddRange(_config.Config.WorkPartyChannels);
             _channelLinks.AddRange(_config.Config.PlayerListChannels);
+            _channelLinks.AddRange(_config.Config.ElectionChannels);
         }
     }
 
@@ -430,6 +432,7 @@ namespace Eco.Plugins.DiscordLink
                 SnippetChannels = new ObservableCollection<ChannelLink>(this.SnippetChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
                 WorkPartyChannels = new ObservableCollection<ChannelLink>(this.WorkPartyChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
                 PlayerListChannels = new ObservableCollection<PlayerListChannelLink>(this.PlayerListChannels.Select(t => t.Clone()).Cast<PlayerListChannelLink>()),
+                ElectionChannels = new ObservableCollection<ChannelLink>(this.ElectionChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
             };
         }
 
@@ -468,6 +471,9 @@ namespace Eco.Plugins.DiscordLink
 
         [Description("Discord channels in which to keep the Player List display. DiscordLink will post one Player List message in these channel and keep it updated trough edits. This setting can be changed while the server is running."), Category("Displays")]
         public ObservableCollection<PlayerListChannelLink> PlayerListChannels { get; set; } = new ObservableCollection<PlayerListChannelLink>();
+
+        [Description("Discord channels in which to keep the Election display. DiscordLink will post election messages in these channel and keep it updated trough edits. This setting can be changed while the server is running."), Category("Displays")]
+        public ObservableCollection<ChannelLink> ElectionChannels { get; set; } = new ObservableCollection<ChannelLink>();
 
         [Description("Channels in which to search for snippets for the Snippet command. This setting can be changed while the server is running."), Category("Inputs")]
         public ObservableCollection<ChannelLink> SnippetChannels { get; set; } = new ObservableCollection<ChannelLink>();

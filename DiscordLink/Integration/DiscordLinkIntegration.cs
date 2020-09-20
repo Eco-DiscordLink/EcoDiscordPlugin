@@ -17,6 +17,9 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
         JoinedWorkParty     = 1 << 8,
         LeftWorkParty       = 1 << 9,
         WorkedWorkParty     = 1 << 10,
+        Vote                = 1 << 11,
+        StartElection       = 1 << 12,
+        StopElection        = 1 << 13,
     }
 
     public abstract class DiscordLinkIntegration

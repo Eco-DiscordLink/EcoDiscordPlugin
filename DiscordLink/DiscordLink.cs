@@ -145,7 +145,23 @@ namespace Eco.Plugins.DiscordLink
                 case WorkedForWorkParty workedParty:
                     UpdateIntegrations(TriggerType.WorkedWorkParty, workedParty);
                     break;
-                    
+
+                case Vote vote:
+                    UpdateIntegrations(TriggerType.Vote, vote);
+                    break;
+
+                case StartElection startElection:
+                    UpdateIntegrations(TriggerType.StartElection, startElection);
+                    break;
+
+                case LostElection lostElection:
+                    UpdateIntegrations(TriggerType.StopElection, lostElection);
+                    break;
+
+                case WonElection wonElection:
+                    UpdateIntegrations(TriggerType.StopElection, wonElection);
+                    break;
+
                 default:
                     break;
             }
@@ -166,6 +182,7 @@ namespace Eco.Plugins.DiscordLink
             _integrations.Add(new SnippetInput());
             _integrations.Add(new WorkPartyDisplay());
             _integrations.Add(new PlayerDisplay());
+            _integrations.Add(new ElectionDisplay());
 
             _integrations.ForEach(async integration => await integration.Initialize());
         }
