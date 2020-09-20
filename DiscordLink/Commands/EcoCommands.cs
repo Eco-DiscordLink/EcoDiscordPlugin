@@ -171,7 +171,7 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [ChatSubCommand("DiscordLink", "Post a predefined snippet from Discord.", "dl-snippet", ChatAuthorizationLevel.User)]
-        public static void PostSnippet(User user, string snippetKey = "", string ecoChannel = "")
+        public static void Snippet(User user, string snippetKey = "", string ecoChannel = "")
         {
             CallWithErrorHandling<object>((lUser, args) =>
             {
