@@ -56,7 +56,9 @@ Note: If you do _*not*_ have access to the server GUI, copy the config file from
 **Online**
 ![Invite to server](images/installation/13_2.png)
 
-### 14 Run the _"Echo"_ command in a Discord channel where the bot has permissions, to see that it is working properly.
+### 14 Set up a [Chat Channel Link](ConfigurationGUI.md)
+
+### 15 Run the _"Echo"_ command in the Discord channel specified in the Chat Channel Link to see that it is working properly. Make sure that the bot has permissions to send messages.
 
 **Echo command**
 ![Invite to server](images/installation/14_1.png)
@@ -67,4 +69,4 @@ Note: If you do _*not*_ have access to the server GUI, copy the config file from
 **Discord bot crosspost if a [Channel Link](ConfigurationGUI.md) has been set up**
 ![Invite to server](images/installation/14_3.png)
 
-### 15. You're done! [Configure](ConfigurationGUI.md) any other options you want in server GUI, or change the Bot's permissions as if they're any other user in Discord.
+### 16. You're done! [Configure](ConfigurationGUI.md) any other options you want in server GUI, or change the Bot's permissions as if they're any other user in Discord.

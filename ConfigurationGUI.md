@@ -5,8 +5,6 @@ From here, you can manipulate all configuration options available and most of th
 #### Sections
 * [Bot Token](#bot-token)
 * [Linking Channels](#linking-channels)
-* [Eco Status](#eco-status)
-* [Discord Snippets](#discord-snippets)
 * [Chat Log](#chat-log)
 * [Command Settings](#command-settings)
 * [Server Details](#server-details)
@@ -16,7 +14,7 @@ See the [installation guide](Installation.md)
 
 ## Linking Channels
 
-1. The box you're interested in is called "ChatChannelLinks". Click on the three dots next to the box saying "(Collection)". This may be hidden until you mouse over it.
+1. The box you're interested in is called "Chat Channel Links" and it is located in the subcategory "Feeds". Click on the three dots next to the box saying "(Collection)". This may be hidden until you mouse over it.
 
 ![Opening Collection Window](images/configuration/channellinking/1.png)
 
@@ -25,56 +23,26 @@ See the [installation guide](Installation.md)
 ![Add new link](images/configuration/channellinking/2.png)
 
 3. Enter the parameters for the channel link. _"DiscordChannel"_ should be the Discord channel you want to link to Eco. For example, "general". _"DiscordGuild"_ is the name of the Discord Server, for example "Eco" for the official Eco Discord. Both _DiscordChannel_ and _DiscordGuild_ accept names or IDs. _"EcoChannel"_ is the channel in Eco you want to link to Discord, for example "General". Once entered, hit "OK".  
-**Optional**: Configure the three flags for Discord mention tag permissions according to your preference of allowing role, user and Channel mentions to be used from Eco.
 
 ![Configure Link](images/configuration/channellinking/3.png)
 
-4. You're done! All messages sent into the configured Discord channel and Eco chat channel should now be crossposting all player messages.
+4. You're done! All messages sent into the configured Discord channel and Eco chat channel should now be cross posting all player messages.
 
-## Eco Status
-
-1. Locate the box called "Eco Status Discord Channels". Click on the three dots next to the box saying "(Collection)". This may be hidden until you mouse over it.
-
-![Opening Collection Window](images/configuration/ecostatus/1.png)
-
-2. In the new window that just appeared, click "Add" in the bottom left. This creates a new entry for an Eco status channel in Discord.
-
-![Opening Collection Window](images/configuration/ecostatus/2.png)
-
-3. Enter the parameters for the Eco status Discord Channel. _"DiscordChannel"_ should be the Discord channel you want the status message to be posted in. For example, "eco-status". _"DiscordGuild"_ is the name of the Discord Server, for example "Eco" for the official Eco Discord. Both _DiscordChannel_ and _DiscordGuild_ accept names or IDs. Once entered, hit "OK".  
-**Optional**: Configure the usage flags according to your preferences.  
-
-**Note**: Only one message will be posted and that message will then be kept up to date by DiscordLink through frequent automatic edits.
-
-![Opening Collection Window](images/configuration/ecostatus/3.png)
-
-## Discord Snippets
-
-1. Locate the box called "Snippet Channels". Click on the three dots next to the box saying "(Collection)". This may be hidden until you mouse over it.
-
-![Opening Collection Window](images/configuration/snippets/1.png)
-
-2. In the new window that just appeared, click "Add" in the bottom left. This creates a new entry for an Eco status channel in Discord.
-
-![Opening Collection Window](images/configuration/snippets/2.png)
-
-3. Enter the parameters for the Discord Snippet Channel. _"DiscordChannel"_ should be the Discord channel you want the status message to be posted in. For example, "eco-status". _"DiscordGuild"_ is the name of the Discord Server, for example "Eco" for the official Eco Discord. Both _DiscordChannel_ and _DiscordGuild_ accept names or IDs. Once entered, hit "OK".
-
-![Opening Collection Window](images/configuration/snippets/3.png)
-
-4. In the Discord client, navigate to the channel you used in the previous step. In separate messages, input snippets on the following format:
-
-> [Snippet] [\<SnippetName\>]
-> \<Snippet text>
-
-**Note**: The range for how far in the message history Snippets can be found is limited.
-
-![Snippet Example](images/configuration/snippets/4.png)
+## Eco Bot Name
+The name the bot should use when posting in Eco.
+Note that the bot user is created when the server starts for the first time after a world reset and therefore, changing this will only take effect after the next world reset.
 
 ## Chat Log
 To enable/disable logging of the chat, toggle the _"Log Chat"_ option in the _"ChatLog Configuration"_ section of the DiscordLink configuration options.
 **Optional**: Select where the log should be stored.  
 Keeping it in the mod directory is recommended in order to make sure the mod has permissions to write to files at the location and to keep it excluded from actions taken by the Eco server.
+
+## Logging
+The _Log Level_ and _Backend Log Level_ should generally be kept at their defaults unless you are troubleshooting an issue or want to turn off the output in the Eco server log.
+
+**Notes**
+* All message types below the selected one will be printed as well.
+* All non-verbose and non-backend log messages are written to a separate log in "Mods/DiscordLink/Pluginlog.txt", regardless of log settings.
 
 ## Command Settings
 **Discord Command Prefix**  
@@ -91,4 +59,5 @@ The message to use for the /DiscordInvite command. The invite link is fetched fr
 ## Server Details
 All fields here are for display purposes only and will not impact the functionality of DiscordLink.
 The name, IP address and other fields here will be used for example in the Eco Status feature to show the users on Discord what the name and IP of the server is.
+
 Where possible, information from the Eco server configuration will be used here for fields that are not filled.
