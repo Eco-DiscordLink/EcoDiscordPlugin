@@ -174,6 +174,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("DiscordInvite")]
         [Description("Posts the Discord invite message to the Eco chat.")]
+        [Aliases("dl-invite")]
         public async Task DiscordInvite(CommandContext ctx)
         {
             try
