@@ -125,6 +125,11 @@ namespace Eco.Plugins.DiscordLink.Utilities
             {
                 return await channel.GetMessageAsync(messageID);
             }
+            catch (DSharpPlus.Exceptions.ServerErrorException e)
+            {
+                Logger.Debug(e.ToString());
+                return null;
+            }
             catch (DSharpPlus.Exceptions.NotFoundException e)
             {
                 Logger.Debug(e.ToString());
@@ -144,6 +149,11 @@ namespace Eco.Plugins.DiscordLink.Utilities
             try
             {
                 return await channel.GetMessagesAsync();
+            }
+            catch (DSharpPlus.Exceptions.ServerErrorException e)
+            {
+                Logger.Debug(e.ToString());
+                return null;
             }
             catch (Exception e)
             {

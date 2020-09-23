@@ -107,6 +107,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
             if(_dirty || _channelDisplays.Count <= 0)
             {
                 await FindMessages(plugin);
+                if (_dirty || _channelDisplays.Count <= 0) return; // If something went wrong, we should just retry later
             }
 
             bool createdOrDestroyedMessage = false;
@@ -197,7 +198,11 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
                 _channelDisplays.Add(data);
 
                 IReadOnlyList<DiscordMessage> channelMessages = await DiscordUtil.GetMessagesAsync(discordChannel);
-                if (channelMessages == null) continue;
+                if (channelMessages == null)
+                {
+                    _channelDisplays.Clear();
+                    return;
+                } 
 
                 foreach(DiscordMessage message in channelMessages)
                 {
