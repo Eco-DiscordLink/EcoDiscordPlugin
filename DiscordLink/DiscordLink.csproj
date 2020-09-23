@@ -54,6 +54,9 @@
     <Reference Include="Eco.Simulation">
       <HintPath>..\..\DiscordLink Dependencies\Eco.Simulation.dll</HintPath>
     </Reference>
+    <Reference Include="em-framework">
+      <HintPath>..\..\DiscordLink Dependencies\em-framework.dll</HintPath>
+    </Reference>
     <Reference Include="netstandard">
       <HintPath>..\..\DiscordLink Dependencies\netstandard.dll</HintPath>
     </Reference>
