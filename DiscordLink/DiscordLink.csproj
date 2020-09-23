@@ -5,7 +5,7 @@
     <RootNamespace>Eco.Plugins.DiscordLink</RootNamespace>
     <Configurations>Debug;Release;DebugVerbose</Configurations>
     <PackageProjectUrl>https://github.com/Spoffy/EcoDiscordPlugin</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/Spoffy/EcoDiscordPlugin.git</RepositoryUrl>
+    <RepositoryUrl>https://github.com/Eco-DiscordLink/EcoDiscordPlugin</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Eco Discord</PackageTags>
     <PackageLicenseExpression>Gnu Affero</PackageLicenseExpression>
