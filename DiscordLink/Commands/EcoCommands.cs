@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Eco.Gameplay.Players;
 using Eco.Gameplay.Systems.Chat;
 using Eco.Shared.Localization;
@@ -207,5 +208,88 @@ namespace Eco.Plugins.DiscordLink
             },
             user);
         }
+
+        [ChatSubCommand("DiscordLink", "Sends an Eco server message according to parameters", "dl-servermessage", ChatAuthorizationLevel.Admin)]
+        public static void SendServerMessage(User user, string message, string persistanceType = "temporary", string recipientUserName = "")
+        {
+            CallWithErrorHandling<object>((lUser, args) =>
+            {
+                bool permanent;
+                string persistanceTypeLower = persistanceType.ToLower();
+                if (persistanceTypeLower == "temporary")
+                {
+                    permanent = true;
+                }
+                else if (persistanceTypeLower == "permanent")
+                {
+                    permanent = false;
+                }
+                else
+                {
+                    ChatManager.ServerMessageToPlayer(new LocString("Persistance type must either be \"Temporary\" or \"Permanent\"."), user);
+                    return;
+                }
+
+                User recipient = null;
+                if (!string.IsNullOrWhiteSpace(recipientUserName))
+                {
+                    user = UserManager.OnlineUsers.FirstOrDefault(x => x.Name.ToLower() == recipientUserName);
+                    if (user == null)
+                    {
+                        ChatManager.ServerMessageToPlayer(new LocString("No online user with the name \"" + recipientUserName + "\" could be found."), user);
+                        return;
+                    }
+                }
+
+                EcoUtil.SendServerMessage("[" + user.Name + "] " + message, permanent, recipient);
+                ChatManager.ServerMessageToPlayer(new LocString("Message delivered."), user);
+            },
+            user);
+        }
+
+        [ChatSubCommand("DiscordLink", "Sends an Eco popup message", "dl-popup", ChatAuthorizationLevel.Admin)]
+        public static void SendPopup(User user, string message, string recipientUserName = "")
+        {
+            CallWithErrorHandling<object>((lUser, args) =>
+            {
+                User recipient = null;
+                if (!string.IsNullOrWhiteSpace(recipientUserName))
+                {
+                    recipient = UserManager.OnlineUsers.FirstOrDefault(x => x.Name.ToLower() == recipientUserName);
+                    if (recipient == null)
+                    {
+                        ChatManager.ServerMessageToPlayer(new LocString("No online user with the name \"" + recipientUserName + "\" could be found."), user);
+                        return;
+                    }
+                }
+
+                EcoUtil.SendPopupMessage("[" + user.Name + "]\n\n" + message, recipient);
+                ChatManager.ServerMessageToPlayer(new LocString("Message delivered."), user);
+            },
+            user);
+        }
+
+        // Announcements do not pop. May be broken in em-framework.
+        //[ChatSubCommand("DiscordLink", "Sends an Eco announcement message", "dl-announcement", ChatAuthorizationLevel.Admin)]
+        //public static void SendAnnouncement(User user, string title, string message, string recipientUserName = "")
+        //{
+        //    CallWithErrorHandling<object>((lUser, args) =>
+        //    {
+        //        User recipient = null;
+        //        if (!string.IsNullOrWhiteSpace(recipientUserName))
+        //        {
+        //            recipient = UserManager.OnlineUsers.FirstOrDefault(x => x.Name.ToLower() == recipientUserName);
+        //            if (recipient == null)
+        //            {
+        //                ChatManager.ServerMessageToPlayer(new LocString("No online user with the name \"" + recipientUserName + "\" could be found."), user);
+        //                return;
+        //            }
+        //        }
+        //
+        //        EcoUtil.SendAnnouncementMessage(title, message + "\n\n[" + user.Name + "]", recipient);
+        //        ChatManager.ServerMessageToPlayer(new LocString("Message delivered."), user);
+        //    },
+        //    user);
+        //}
     }
 }

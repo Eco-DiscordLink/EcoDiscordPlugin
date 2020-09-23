@@ -268,6 +268,136 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
+        [Command("SendServerMessage")]
+        [Description("Sends an Eco server message")]
+        [Aliases("dl-servermessage")]
+        [RequireRoles(RoleCheckMode.Any, "Moderator")]
+        public async Task SendServerMessage(CommandContext ctx, [Description("The message to send.")] string message,
+            [Description("Persistance type. Possible values are \"Temporary\" and \"Permanent\". Defaults to \"Temporary\".")] string persistanceType = "temporary",
+            [Description("Name of the recipient Eco user. If this is left empty, the message will be sent to all online users.")] string recipientUserName = "")
+        {
+            try
+            {
+                if(string.IsNullOrWhiteSpace(message))
+                {
+                    await RespondToCommand(ctx, "Message cannot be empty.");
+                    return;
+                }
+
+                bool permanent;
+                string persistanceTypeLower = persistanceType.ToLower();
+                if (persistanceTypeLower == "temporary")
+                {
+                    permanent = true;
+                }
+                else if(persistanceTypeLower == "permanent")
+                {
+                    permanent = false;
+                }
+                else
+                {
+                    await RespondToCommand(ctx, "Persistance type must either be \"Temporary\" or \"Permanent\".");
+                    return;
+                }
+
+                User recipient = null;
+                if (!string.IsNullOrWhiteSpace(recipientUserName))
+                {
+                    recipient = UserManager.OnlineUsers.FirstOrDefault(x => x.Name.ToLower() == recipientUserName);
+                    if(recipient == null)
+                    {
+                        await RespondToCommand(ctx, "No online user with the name \"" + recipientUserName + "\" could be found.");
+                        return;
+                    }
+                }
+
+                EcoUtil.SendServerMessage("[" + ctx.Member.DisplayName + "] " + message, permanent, recipient);
+                await RespondToCommand(ctx, "Message delivered.");
+            }
+            catch (Exception e)
+            {
+                LogCommandException(e);
+            }
+        }
+
+        [Command("SendPopup")]
+        [Description("Sends an Eco popup message")]
+        [Aliases("dl-popup")]
+        [RequireRoles(RoleCheckMode.Any, "Moderator")]
+        public async Task SendPopup(CommandContext ctx, [Description("The message to send.")] string message,
+            [Description("Name of the recipient Eco user. If this is left empty, the message will be sent to all online users.")] string recipientUserName = "")
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(message))
+                {
+                    await RespondToCommand(ctx, "Message cannot be empty.");
+                    return;
+                }
+
+                User recipient = null;
+                if (!string.IsNullOrWhiteSpace(recipientUserName))
+                {
+                    recipient = UserManager.OnlineUsers.FirstOrDefault(x => x.Name.ToLower() == recipientUserName);
+                    if (recipient == null)
+                    {
+                        await RespondToCommand(ctx, "No online user with the name \"" + recipientUserName + "\" could be found.");
+                        return;
+                    }
+                }
+
+                EcoUtil.SendPopupMessage("[" + ctx.Member.DisplayName + "]\n\n" + message, recipient);
+                await RespondToCommand(ctx, "Message delivered.");
+            }
+            catch (Exception e)
+            {
+                LogCommandException(e);
+            }
+        }
+
+        // Announcements do not pop. May be broken in em-framework.
+        //[Command("SendAnnouncement")]
+        //[Description("Sends an Eco announcement message")]
+        //[Aliases("dl-announcement")]
+        //[RequireRoles(RoleCheckMode.Any, "Moderator")]
+        //public async Task SendAnnouncement(CommandContext ctx, [Description("The title for the announcement UI.")] string title,
+        //    [Description("The message to display in the announcement UI.")] string message,
+        //    [Description("Name of the recipient Eco user. If this is left empty, the message will be sent to all online users.")] string recipientUserName = "")
+        //{
+        //    try
+        //    {
+        //        if (string.IsNullOrWhiteSpace(title))
+        //        {
+        //            await RespondToCommand(ctx, "Title cannot be empty.");
+        //            return;
+        //        }
+        //
+        //        if (string.IsNullOrWhiteSpace(message))
+        //        {
+        //            await RespondToCommand(ctx, "Message cannot be empty.");
+        //            return;
+        //        }
+        //
+        //        User recipient = null;
+        //        if (!string.IsNullOrWhiteSpace(recipientUserName))
+        //        {
+        //            recipient = UserManager.OnlineUsers.FirstOrDefault(x => x.Name.ToLower() == recipientUserName);
+        //            if (recipient == null)
+        //            {
+        //                await RespondToCommand(ctx, "No online user with the name \"" + recipientUserName + "\" could be found.");
+        //                return;
+        //            }
+        //        }
+        //
+        //        EcoUtil.SendAnnouncementMessage(title, message + "\n\n[" + ctx.Member.DisplayName + "]", recipient);
+        //        await RespondToCommand(ctx, "Message delivered.");
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        LogCommandException(e);
+        //    }
+        //}
+
         #region Trades
 
         private readonly Dictionary<string, PagedEnumerator<Tuple<string, string>>> previousQueryEnumerator =
