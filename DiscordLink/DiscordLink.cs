@@ -13,6 +13,7 @@ using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Utils;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -30,6 +31,7 @@ namespace Eco.Plugins.DiscordLink
         public event EventHandler OnDiscordMaybeReady;
 
         public static DiscordLink Obj { get { return PluginManager.GetPlugin<DiscordLink>(); } }
+        public static string BasePath { get { return Directory.GetCurrentDirectory() + "\\Mods\\DiscordLink\\"; } }
         public ThreadSafeAction<object, string> ParamChanged { get; set; }
         public DiscordClient DiscordClient { get; private set; }
         public const string EchoCommandToken = "[ECHO]";
@@ -68,6 +70,7 @@ namespace Eco.Plugins.DiscordLink
         public void Initialize(TimedTask timer)
         {
             SetupConfig();
+            Logger.Initialize();
             Logger.Info("Plugin version is " + PluginVersion);
 
             if (!SetUpClient())
@@ -89,6 +92,7 @@ namespace Eco.Plugins.DiscordLink
         public void Shutdown()
         {
             ShutdownIntegrations();
+            Logger.Shutdown();
         }
 
         private void SetupConfig()

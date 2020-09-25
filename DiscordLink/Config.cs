@@ -241,7 +241,7 @@ namespace Eco.Plugins.DiscordLink
             // Chatlog path
             if (string.IsNullOrEmpty(Data.ChatlogPath))
             {
-                Data.ChatlogPath = Directory.GetCurrentDirectory() + "\\Mods\\DiscordLink\\Chatlog.txt";
+                Data.ChatlogPath = DiscordLink.BasePath + "Chatlog.txt";
                 correctionMade = true;
             }
 
