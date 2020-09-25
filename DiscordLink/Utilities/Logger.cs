@@ -1,15 +1,44 @@
 using Eco.Shared.Localization;
 using Eco.Shared.Utils;
+using System;
 using System.IO;
 
 namespace Eco.Plugins.DiscordLink.Utilities
 {
     public static class Logger
     {
-        private static StreamWriter _writer = new StreamWriter(Directory.GetCurrentDirectory() + "\\Mods\\DiscordLink\\Pluginlog.txt", append: true)
+        private static readonly string PluginLogPath = DiscordLink.BasePath + "Pluginlog.txt";
+
+        private static StreamWriter _writer = null;
+
+        public static void Initialize()
         {
-            AutoFlush = true,
-        };
+            try
+            {
+                SystemUtil.EnsurePathExists(PluginLogPath);
+                _writer = new StreamWriter(PluginLogPath, append: true)
+                {
+                    AutoFlush = true,
+                };
+            }
+            catch (Exception e)
+            {
+                Error("Error occurred while attempting to initialize the plugin log. Error message: " + e);
+            }
+        }
+
+        public static void Shutdown()
+        {
+            try
+            {
+                _writer.Flush();
+                _writer.Close();
+            }
+            catch (Exception e)
+            {
+                Error("Error occurred while attempting to close the plugin log file writer. Error message: " + e);
+            }
+        }
 
         public static void DebugVerbose(string message)
         {
