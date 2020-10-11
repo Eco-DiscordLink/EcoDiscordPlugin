@@ -400,7 +400,7 @@ namespace Eco.Plugins.DiscordLink
         private const string EcoUserSlgId = "DiscordLinkSlg";
 
         private User _ecoUser;
-        public User EcoUser => _ecoUser ??= UserManager.GetOrCreateUser(EcoUserSteamId, EcoUserSlgId, DLConfig.Data.EcoBotName);
+        public User EcoUser => _ecoUser ??= UserManager.GetOrCreateUser(EcoUserSteamId, EcoUserSlgId, !string.IsNullOrWhiteSpace(DLConfig.Data.EcoBotName) ? DLConfig.Data.EcoBotName : DLConfig.DefaultValues.EcoBotName);
 
         private void BeginRelaying()
         {
