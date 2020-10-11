@@ -30,8 +30,11 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
             {
                 for (int i = 0; i < DLConfig.Data.SnippetChannels.Count; ++i)
                 {
-                    string channel = DLConfig.Data.SnippetChannels[i].DiscordChannel;
-                    if(channel == message.Channel.Name || channel == message.ChannelId.ToString())
+                    ChannelLink link = DLConfig.Data.SnippetChannels[i];
+                    if (!link.IsValid()) continue;
+
+                    string channel = link.DiscordChannel.ToLower();
+                    if(channel == message.Channel.Name.ToLower() || channel == message.ChannelId.ToString())
                     {
                         await ReloadSnippets();
                         break;
@@ -53,6 +56,8 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
             bool isSnippetChannel = false;
             foreach(ChannelLink link in DLConfig.Data.SnippetChannels)
             {
+                if (!link.IsValid()) continue;
+
                 if (link.DiscordGuild.ToLower() == message.Channel.Guild.Name.ToLower()
                     && link.DiscordChannel == message.Channel.Name )
                 {
