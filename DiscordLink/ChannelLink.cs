@@ -7,10 +7,10 @@ namespace Eco.Plugins.DiscordLink
     public class ChannelLink : ICloneable
     {
         [Description("Discord Guild (Server) by name or ID.")]
-        public string DiscordGuild { get; set; }
+        public string DiscordGuild { get; set; } = string.Empty;
 
         [Description("Discord Channel by name or ID.")]
-        public string DiscordChannel { get; set; }
+        public string DiscordChannel { get; set; } = string.Empty;
 
         public override string ToString()
         {
@@ -74,7 +74,7 @@ namespace Eco.Plugins.DiscordLink
     public class EcoChannelLink : ChannelLink
     {
         [Description("Eco Channel (with # omitted) to use.")]
-        public string EcoChannel { get; set; }
+        public string EcoChannel { get; set; } = string.Empty;
         public override string ToString()
         {
             return DiscordGuild + " - " + DiscordChannel + " <--> " + EcoChannel;

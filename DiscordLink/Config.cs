@@ -584,8 +584,8 @@ namespace Eco.Plugins.DiscordLink
 
         public class DiscordChannelIdentifier
         {
-            public string Guild { get; set; }
-            public string Channel { get; set; }
+            public string Guild { get; set; } = string.Empty;
+            public string Channel { get; set; } = string.Empty;
         }
     }
 }
