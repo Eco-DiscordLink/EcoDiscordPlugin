@@ -197,7 +197,7 @@ namespace Eco.Plugins.DiscordLink
         {
             bool correctionMade = false;
 
-            // Invite Message
+            // Eco Bot Name
             if (string.IsNullOrEmpty(Data.EcoBotName))
             {
                 Data.EcoBotName = DefaultValues.EcoBotName;
@@ -437,10 +437,10 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [Description("The token provided by the Discord API to allow access to the bot. This setting can be changed while the server is running and will in that case trigger a reconnection to Discord."), Category("Bot Configuration")]
-        public string BotToken { get; set; } = DLConfig.DefaultValues.EcoBotName;
+        public string BotToken { get; set; }
 
         [Description("The name of the bot user in Eco. This setting can be changed while the server is running, but changes will only take effect after a world reset."), Category("Bot Configuration")]
-        public string EcoBotName { get; set; }
+        public string EcoBotName { get; set; } = DLConfig.DefaultValues.EcoBotName;
 
         [Description("The prefix to put before commands in order for the Discord bot to recognize them as such. This setting requires a restart to take effect."), Category("Command Settings")]
         public string DiscordCommandPrefix { get; set; } = DLConfig.DefaultValues.DiscordCommandPrefix;
