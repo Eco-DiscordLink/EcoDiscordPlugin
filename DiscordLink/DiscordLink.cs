@@ -83,6 +83,8 @@ namespace Eco.Plugins.DiscordLink
                 InitializeIntegrations();
                 UpdateIntegrations(TriggerType.Startup, null);
             };
+
+            _ = EcoUser; // Create the Eco User on startup
         }
 
         public void Shutdown()
