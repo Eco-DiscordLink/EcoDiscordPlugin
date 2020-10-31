@@ -229,10 +229,10 @@ namespace Eco.Plugins.DiscordLink
                     MinimumLogLevel = DLConfig.Data.BackendLogLevel
                 });
 
-                DiscordClient.ClientErrored += async args => { Logger.Error("A Discord client error occurred. Error messages was: " + args.EventName + " " + args.Exception.ToString()); };
-                DiscordClient.SocketErrored += async args => { Logger.Error("A socket error occurred. Error message was: " + args.Exception.ToString()); };
+                DiscordClient.ClientErrored += async args => { Logger.Debug("A Discord client error occurred. Error messages was: " + args.EventName + " " + args.Exception.ToString()); };
+                DiscordClient.SocketErrored += async args => { Logger.Debug("A socket error occurred. Error message was: " + args.Exception.ToString()); };
                 DiscordClient.SocketClosed += async args => { Logger.DebugVerbose("Socket Closed: " + args.CloseMessage + " " + args.CloseCode); };
-                DiscordClient.Resumed += async args => { Logger.Info("Resumed connection"); };
+                DiscordClient.Resumed += async args => { Logger.Debug("Resumed connection"); };
                 DiscordClient.Ready += async args =>
                 {
                     DLConfig.Instance.EnqueueFullVerification();
