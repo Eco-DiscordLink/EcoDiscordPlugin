@@ -24,6 +24,7 @@ namespace Eco.Plugins.DiscordLink
     {
         public readonly Version PluginVersion = new Version(2, 1, 0);
 
+        public const string ECHO_COMMAND_TOKEN = "[ECHO]";
         private const int FIRST_DISPLAY_UPDATE_DELAY_MS = 20000;
 
         public event EventHandler OnClientStarted;
@@ -32,12 +33,12 @@ namespace Eco.Plugins.DiscordLink
 
         public static DiscordLink Obj { get { return PluginManager.GetPlugin<DiscordLink>(); } }
         public static string BasePath { get { return Directory.GetCurrentDirectory() + "\\Mods\\DiscordLink\\"; } }
+        public IPluginConfig PluginConfig { get { return DLConfig.Instance.PluginConfig; } }
         public ThreadSafeAction<object, string> ParamChanged { get; set; }
         public DiscordClient DiscordClient { get; private set; }
-        public const string EchoCommandToken = "[ECHO]";
 
-        private string _status = "No Connection Attempt Made";
         private readonly List<DiscordLinkIntegration> _integrations = new List<DiscordLinkIntegration>();
+        private string _status = "No Connection Attempt Made";
         private CommandsNextExtension _commands;
         private Timer _discordDataMaybeAvailable = null;
         private Timer _tradePostingTimer = null;
@@ -50,11 +51,6 @@ namespace Eco.Plugins.DiscordLink
         public string GetStatus()
         {
             return _status;
-        }
-
-        public IPluginConfig PluginConfig
-        {
-            get { return DLConfig.Instance.PluginConfig; }
         }
 
         public object GetEditObject()
@@ -174,32 +170,6 @@ namespace Eco.Plugins.DiscordLink
         public Result ShouldOverrideAuth(GameAction action)
         {
             return new Result(ResultType.None);
-        }
-
-        void InitializeIntegrations()
-        {
-            _integrations.Add(new DiscordChatFeed());   // Discord -> Eco
-            _integrations.Add(new EcoChatFeed());       // Eco -> Discord
-            _integrations.Add(new ChatlogFeed());
-            _integrations.Add(new ServerInfoDisplay());
-            _integrations.Add(new TradeFeed());
-            _integrations.Add(new SnippetInput());
-            _integrations.Add(new WorkPartyDisplay());
-            _integrations.Add(new PlayerDisplay());
-            _integrations.Add(new ElectionDisplay());
-
-            _integrations.ForEach(async integration => await integration.Initialize());
-        }
-
-        void ShutdownIntegrations()
-        {
-            _integrations.ForEach(async integration => await integration.Shutdown());
-            _integrations.Clear();
-        }
-        
-        void UpdateIntegrations(TriggerType trigger, object data)
-        {
-            _integrations.ForEach(async integration => await integration.Update(this, trigger, data));
         }
 
         #region DiscordClient Management
@@ -343,6 +313,36 @@ namespace Eco.Plugins.DiscordLink
 
         #endregion
 
+        #region Integration Management
+
+        private void InitializeIntegrations()
+        {
+            _integrations.Add(new DiscordChatFeed());   // Discord -> Eco
+            _integrations.Add(new EcoChatFeed());       // Eco -> Discord
+            _integrations.Add(new ChatlogFeed());
+            _integrations.Add(new ServerInfoDisplay());
+            _integrations.Add(new TradeFeed());
+            _integrations.Add(new SnippetInput());
+            _integrations.Add(new WorkPartyDisplay());
+            _integrations.Add(new PlayerDisplay());
+            _integrations.Add(new ElectionDisplay());
+
+            _integrations.ForEach(async integration => await integration.Initialize());
+        }
+
+        private void ShutdownIntegrations()
+        {
+            _integrations.ForEach(async integration => await integration.Shutdown());
+            _integrations.Clear();
+        }
+
+        private void UpdateIntegrations(TriggerType trigger, object data)
+        {
+            _integrations.ForEach(async integration => await integration.Update(this, trigger, data));
+        }
+
+        #endregion
+
         #region Discord Guild Access
 
         public string[] GuildNames => DiscordClient.GuildNames();
@@ -447,7 +447,7 @@ namespace Eco.Plugins.DiscordLink
 
             // Ignore commands and messages sent by our bot
             if (chatMessage.Citizen.Name == EcoUser.Name) return;
-            if (chatMessage.Message.StartsWith(EchoCommandToken)) return;
+            if (chatMessage.Message.StartsWith(ECHO_COMMAND_TOKEN)) return;
 
             UpdateIntegrations(TriggerType.EcoMessage, chatMessage);
         }

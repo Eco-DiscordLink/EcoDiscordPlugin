@@ -143,7 +143,7 @@ namespace Eco.Plugins.DiscordLink
                     }
                 }
 
-                string formattedMessage = $"#{DLConfig.Data.EcoCommandChannel} {DiscordLink.EchoCommandToken + " " + message}";
+                string formattedMessage = $"#{DLConfig.Data.EcoCommandChannel} {DiscordLink.ECHO_COMMAND_TOKEN + " " + message}";
                 ChatManager.SendChat(formattedMessage, plugin.EcoUser);
             }
             catch (Exception e)
@@ -484,7 +484,7 @@ namespace Eco.Plugins.DiscordLink
                 var pagedEnumerator = previousQueryEnumerator[ctx.User.UniqueUsername()];
                 if (pagedEnumerator.HasMorePages)
                 {
-                    embed.WithFooter("More pages available. Use " + DiscordLink.EchoCommandToken + "nextpage to show.");
+                    embed.WithFooter("More pages available. Use " + DiscordLink.ECHO_COMMAND_TOKEN + "nextpage to show.");
                 }
 
                 await RespondToCommand(ctx, null, embed);
