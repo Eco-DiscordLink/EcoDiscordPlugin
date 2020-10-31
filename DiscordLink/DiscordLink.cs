@@ -66,6 +66,7 @@ namespace Eco.Plugins.DiscordLink
         public void Initialize(TimedTask timer)
         {
             SetupConfig();
+            DLStorage.Instance.Read();
             Logger.Initialize();
             Logger.Info("Plugin version is " + PluginVersion);
 
@@ -90,6 +91,7 @@ namespace Eco.Plugins.DiscordLink
         public void Shutdown()
         {
             ShutdownIntegrations();
+            DLStorage.Instance.Write();
             Logger.Shutdown();
         }
 
