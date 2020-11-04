@@ -37,7 +37,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
                 builder.WithTitle(election.Name);
 
                 // Proposer name
-                builder.AddField("Proposer", election.Proposer.Name);
+                builder.AddField("Proposer", election.Creator.Name);
 
                 // Time left
                 builder.AddField("Time Left", TimeFormatter.FormatSpan(election.TimeLeft));
