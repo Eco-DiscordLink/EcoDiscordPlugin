@@ -22,7 +22,7 @@ namespace Eco.Plugins.DiscordLink
 {
     public class DiscordLink : IModKitPlugin, IInitializablePlugin, IShutdownablePlugin, IConfigurablePlugin, IGameActionAware
     {
-        public readonly Version PluginVersion = new Version(2, 1, 0);
+        public readonly Version PluginVersion = new Version(2, 1, 1);
 
         public const string ECHO_COMMAND_TOKEN = "[ECHO]";
         private const int FIRST_DISPLAY_UPDATE_DELAY_MS = 20000;
