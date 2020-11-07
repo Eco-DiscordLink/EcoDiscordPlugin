@@ -1,28 +1,25 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
-VisualStudioVersion = 16.0.30204.135
+VisualStudioVersion = 16.0.30309.148
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscordLink", "DiscordLink\DiscordLink.csproj", "{1BF4AAF9-055C-4A82-8896-BA05E2CB8E1B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscordLink", "DiscordLink\DiscordLink.csproj", "{833232C7-42E4-4BE6-8009-5A185F75DAB1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
-		DebugVerbose|Any CPU = DebugVerbose|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{1BF4AAF9-055C-4A82-8896-BA05E2CB8E1B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1BF4AAF9-055C-4A82-8896-BA05E2CB8E1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1BF4AAF9-055C-4A82-8896-BA05E2CB8E1B}.DebugVerbose|Any CPU.ActiveCfg = DebugVerbose|Any CPU
-		{1BF4AAF9-055C-4A82-8896-BA05E2CB8E1B}.DebugVerbose|Any CPU.Build.0 = DebugVerbose|Any CPU
-		{1BF4AAF9-055C-4A82-8896-BA05E2CB8E1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1BF4AAF9-055C-4A82-8896-BA05E2CB8E1B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{833232C7-42E4-4BE6-8009-5A185F75DAB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{833232C7-42E4-4BE6-8009-5A185F75DAB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{833232C7-42E4-4BE6-8009-5A185F75DAB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{833232C7-42E4-4BE6-8009-5A185F75DAB1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {85D1B81A-3F7A-4452-A2E8-3E9B2ADB2625}
+		SolutionGuid = {D26A5E19-0D17-4421-B29F-F877C0B9AF1B}
 	EndGlobalSection
 EndGlobal
