@@ -1,3 +1,4 @@
 Hello
-I'm just here so that git will create this folder, but while you're here, I might as well tell you that this is where the Eco Dlls should go.
+I'm just here so that git will create this folder, but while you're here, I might as well tell you that this is where the Eco Dlls and other dependencies should go.
+
 Have a nice day!
