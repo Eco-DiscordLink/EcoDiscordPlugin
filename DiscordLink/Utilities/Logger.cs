@@ -8,6 +8,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
     public static class Logger
     {
         private static readonly string PluginLogPath = DiscordLink.BasePath + "Pluginlog.txt";
+        private static readonly object LockObject = new object();
 
         private static StreamWriter _writer = null;
 
@@ -15,11 +16,14 @@ namespace Eco.Plugins.DiscordLink.Utilities
         {
             try
             {
-                SystemUtil.EnsurePathExists(PluginLogPath);
-                _writer = new StreamWriter(PluginLogPath, append: true)
+                lock (LockObject)
                 {
-                    AutoFlush = true,
-                };
+                    SystemUtil.EnsurePathExists(PluginLogPath);
+                    _writer = new StreamWriter(PluginLogPath, append: true)
+                    {
+                        AutoFlush = true,
+                    };
+                }
             }
             catch (Exception e)
             {
@@ -31,8 +35,11 @@ namespace Eco.Plugins.DiscordLink.Utilities
         {
             try
             {
-                _writer.Flush();
-                _writer.Close();
+                lock (LockObject)
+                {
+                    _writer.Flush();
+                    _writer.Close();
+                }
             }
             catch (Exception e)
             {
@@ -51,40 +58,48 @@ namespace Eco.Plugins.DiscordLink.Utilities
         public static void Debug(string message)
         {
             string fullMessage = "[DiscordLink] DEBUG: " + message + "\n";
-            _writer?.Write(fullMessage);
             if (DLConfig.Data.LogLevel <= LogLevel.Debug)
             {
                 Log.Write(new LocString(fullMessage));
             }
+            WriteToPluginLog(fullMessage);
         }
 
         public static void Warning(string message)
         {
             string fullMessage = "[DiscordLink] WARNING: " + message + "\n";
-            _writer?.Write(fullMessage);
             if (DLConfig.Data.LogLevel <= LogLevel.Warning)
             {
                 Log.Write(new LocString(fullMessage));   
             }
+            WriteToPluginLog(fullMessage);
         }
 
         public static void Info(string message)
         {
             string fullMessage = "[DiscordLink] " + message + "\n";
-            _writer?.Write(fullMessage);
             if (DLConfig.Data.LogLevel <= LogLevel.Information)
             {
                 Log.Write(new LocString(fullMessage));   
             }
+            WriteToPluginLog(fullMessage);
         }
 
         public static void Error(string message)
         {
             string fullMessage = "[DiscordLink] ERROR: " + message + "\n";
-            _writer?.Write(fullMessage);
             if (DLConfig.Data.LogLevel <= LogLevel.Error)
             {
                 Log.Write(new LocString(fullMessage));   
+            }
+            WriteToPluginLog(fullMessage);
+        }
+
+        private static void WriteToPluginLog(string message)
+        {
+            lock (LockObject)
+            {
+                _writer?.Write(message);
             }
         }
     }
