@@ -311,7 +311,7 @@ namespace Eco.Plugins.DiscordLink
                     }
                 }
 
-                EcoUtil.SendServerMessage("[" + ctx.Member.DisplayName + "] " + message, permanent, recipient);
+                EcoUtil.SendServerMessage("[" + ctx.GetSenderName() + "] " + message, permanent, recipient);
                 await RespondToCommand(ctx, "Message delivered.");
             }
             catch (Exception e)
@@ -346,7 +346,7 @@ namespace Eco.Plugins.DiscordLink
                     }
                 }
 
-                EcoUtil.SendPopupMessage("[" + ctx.Member.DisplayName + "]\n\n" + message, recipient);
+                EcoUtil.SendPopupMessage("[" + ctx.GetSenderName() + "]\n\n" + message, recipient);
                 await RespondToCommand(ctx, "Message delivered.");
             }
             catch (Exception e)
@@ -389,7 +389,7 @@ namespace Eco.Plugins.DiscordLink
         //            }
         //        }
         //
-        //        EcoUtil.SendAnnouncementMessage(title, message + "\n\n[" + ctx.Member.DisplayName + "]", recipient);
+        //        EcoUtil.SendAnnouncementMessage(title, message + "\n\n[" + ctx.GetSenderName() + "]", recipient);
         //        await RespondToCommand(ctx, "Message delivered.");
         //    }
         //    catch (Exception e)

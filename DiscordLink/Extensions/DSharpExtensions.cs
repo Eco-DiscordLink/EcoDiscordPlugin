@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus;
+using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
 
@@ -13,6 +14,24 @@ namespace Eco.Plugins.DiscordLink
         {
             return ulong.TryParse(nameOrId, out ulong id) && id > 0xFFFFFFFFFFFFFUL ? new ulong?(id) : null;
         }
+
+        #region CommandContext
+
+        public static ulong GetSenderId(this CommandContext ctx)
+        {
+            DiscordUser user = ctx.Member ?? ctx.User;
+            return user.Id;
+        }
+
+        public static string GetSenderName(this CommandContext ctx)
+        {
+            if (ctx.Member != null)
+                return ctx.Member.DisplayName;
+            else
+                return ctx.User.Username;
+        }
+
+        #endregion
 
         #region DiscordGuild
 
