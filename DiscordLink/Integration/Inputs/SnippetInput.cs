@@ -52,6 +52,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
         protected override async Task UpdateInternal(DiscordLink plugin, TriggerType trigger, object data)
         {
             if (!(data is DiscordMessage message)) return;
+            if (message.IsDm()) return;
 
             bool isSnippetChannel = false;
             foreach(ChannelLink link in DLConfig.Data.SnippetChannels)

@@ -95,5 +95,14 @@ namespace Eco.Plugins.DiscordLink
         }
 
         #endregion
+
+        #region DiscordMessage
+
+        public static bool IsDm (this DiscordMessage message)
+        {
+            return message.Channel.Guild == null;
+        }
+
+        #endregion
     }
 }
