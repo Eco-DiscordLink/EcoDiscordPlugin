@@ -25,11 +25,13 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
 
         protected override void GetDisplayContent(ChannelLink link, out List<Tuple<string, DiscordEmbed>> tagAndContent)
         {
+            PlayerListChannelLink playerListLink = link as PlayerListChannelLink;
+
             string tag = BaseTag;
             string title = "Players";
-            string content = "\n" + MessageBuilder.GetPlayerList();
+            string content = "\n" + MessageBuilder.GetPlayerList(playerListLink.UseLoggedInTime);
 
-            if ((link as PlayerListChannelLink).UsePlayerCount == true)
+            if (playerListLink.UsePlayerCount == true)
             {
                 title = MessageBuilder.GetPlayerCount() + " Players Online";
             }

@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using DSharpPlus.Entities;
 using Eco.Gameplay.Players;
 using Eco.Plugins.Networking;
 using Eco.Shared.Networking;
+using Eco.Shared.Utils;
 
 namespace Eco.Plugins.DiscordLink.Utilities
 {
@@ -166,10 +168,21 @@ namespace Eco.Plugins.DiscordLink.Utilities
             return $"{numberOnline}/{numberTotal}";
         }
 
-        public static string GetPlayerList()
+        public static string GetPlayerList(bool useOnlineTime = false)
         {
-            IEnumerable<string> onlineUsers = UserManager.OnlineUsers.Where(user => user.Client.Connected).Select(user => user.Name);
-            string playerList = onlineUsers.Count() > 0 ? string.Join("\n", onlineUsers) : "-- No players online --";
+            string playerList = string.Empty;
+            IEnumerable<User> onlineUsers = UserManager.OnlineUsers.Where(user => user.Client.Connected);
+            foreach(User player in onlineUsers)
+            {
+                if(useOnlineTime)
+                    playerList += $"{player.Name} [{GetTimespan(Simulation.Time.WorldTime.Seconds - player.LoginTime, TimespanStringComponent.Hour | TimespanStringComponent.Minute)}]\n";
+                else
+                    playerList += $"{player.Name}\n";
+            }
+
+            if (string.IsNullOrEmpty(playerList))
+                playerList = "-- No players online --";
+
             return playerList;
         }
 
@@ -180,6 +193,44 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 "\nThis enables you to chat with players who are currently not online in Eco, but are available on Discord." +
                 "\nDiscordLink can also be used to display information about the Eco server in Discord, such as who is online and what items are available on the market." +
                 "\n\nFor more information, visit \"www.github.com/Eco-DiscordLink/EcoDiscordPlugin\".";
+        }
+
+        public enum TimespanStringComponent
+        {
+            Day     = 1 << 0,
+            Hour    = 1 << 1,
+            Minute  = 1 << 2,
+            Second  = 1 << 3,
+        }
+        public static string GetTimespan(double seconds, TimespanStringComponent flag = TimespanStringComponent.Day | TimespanStringComponent.Hour | TimespanStringComponent.Minute | TimespanStringComponent.Second)
+        {
+            StringBuilder builder = new StringBuilder();
+            if ((flag & TimespanStringComponent.Day) != 0)
+            {
+                builder.Append(((int)TimeUtil.SecondsToDays(seconds)).ToString("00"));
+            }
+
+            if ((flag & TimespanStringComponent.Hour) != 0)
+            {
+                if (builder.Length != 0)
+                    builder.Append(":");
+                builder.Append(((int)TimeUtil.SecondsToHours(seconds) % 24).ToString("00"));
+            }
+
+            if ((flag & TimespanStringComponent.Minute) != 0)
+            {
+                if (builder.Length != 0)
+                    builder.Append(":");
+                builder.Append(((int)(TimeUtil.SecondsToMinutes(seconds) % 60)).ToString("00"));
+            }
+
+            if ((flag & TimespanStringComponent.Second) != 0)
+            {
+                if (builder.Length != 0)
+                    builder.Append(":");
+                builder.Append(((int)seconds % 60).ToString("00"));
+            }
+            return builder.ToString();
         }
 
         private static string FirstNonEmptyString(params string[] strings)
