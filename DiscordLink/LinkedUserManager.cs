@@ -16,7 +16,7 @@ namespace Eco.Plugins.DiscordLink
         public static bool RemoveLinkedUser(User user)
         {
             bool deleted = false;
-            LinkedUser linkedUser = LinkedUserByEcoUser(user);
+            LinkedUser linkedUser = LinkedUserByEcoUser(user, requireVerification: false);
             if (linkedUser != null)
             {
                 DLStorage.PersistantData.LinkedUsers.Remove(linkedUser);
@@ -44,10 +44,10 @@ namespace Eco.Plugins.DiscordLink
 
         public static LinkedUser LinkedUserByEcoUser(User user, bool requireVerification = true)
         {
-            if (user.SteamId != null)
-                return DLStorage.PersistantData.LinkedUsers.Find(linkedUser => linkedUser.SteamId == user.SteamId && (linkedUser.Verified || !requireVerification));
-            else if (user.SlgId != null)
+            if (user.SlgId != null)
                 return DLStorage.PersistantData.LinkedUsers.Find(linkedUser => linkedUser.SlgId == user.SlgId && (linkedUser.Verified || !requireVerification));
+            else if (user.SteamId != null)
+                return DLStorage.PersistantData.LinkedUsers.Find(linkedUser => linkedUser.SteamId == user.SteamId && (linkedUser.Verified || !requireVerification));    
             else
                 return null;
         }
