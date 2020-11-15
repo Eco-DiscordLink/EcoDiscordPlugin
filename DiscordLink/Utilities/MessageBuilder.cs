@@ -5,6 +5,7 @@ using System.Linq;
 using DSharpPlus.Entities;
 using Eco.Gameplay.Players;
 using Eco.Plugins.Networking;
+using Eco.Shared.Networking;
 
 namespace Eco.Plugins.DiscordLink.Utilities
 {
@@ -139,6 +140,22 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 builder.AddField("Meteor Has Hit", timeRemainingSpan.Seconds < 0 ? "Yes" : "No");
             }
 
+            return builder.Build();
+        }
+
+        public static DiscordEmbed GetVerificationDM(User ecoUser)
+        {
+            DLConfigData config = DLConfig.Data;
+            ServerInfo serverInfo = NetworkManager.GetServerInfo();
+            string serverName = !string.IsNullOrWhiteSpace(config.ServerName) ? DLConfig.Data.ServerName : serverInfo.Description;
+
+            DiscordEmbedBuilder builder = new DiscordEmbedBuilder();
+            builder.WithColor(EmbedColor);
+            builder.WithTitle("Account Linking Verification");
+            builder.AddField("Initiator", ecoUser.Name);
+            builder.AddField("Description", $"Your Eco account has been linked to your Discord account on the server \"{serverName}\".");
+            builder.AddField("Action Required", $"If you initiated this action, use the command `{config.DiscordCommandPrefix}verifylink` to verify that these accounts should be linked.");
+            builder.WithFooter("If you did not initiate this action, notify a server admin.\nThe account link cannot be used until verified.");
             return builder.Build();
         }
 

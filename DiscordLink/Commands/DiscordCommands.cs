@@ -355,6 +355,31 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
+        [Command("VerifyLink")]
+        [Description("Verifies that an unverified link is correct and should be used")]
+        [Aliases("dl-verifylink")]
+        public async Task VerifyLink(CommandContext ctx)
+        {
+            try
+            {
+                LinkedUser user = LinkedUserManager.LinkedUserByDiscordId(ctx.GetSenderId().ToString(), false);
+                if(user != null)
+                {
+                    user.Verified = true;
+                    DLStorage.Instance.Write();
+                    await RespondToCommand(ctx, $"Link verified");
+                }
+                else
+                {
+                    await RespondToCommand(ctx, $"There is no outstanding link request to verify for your account");
+                }
+            }
+            catch (Exception e)
+            {
+                LogCommandException(e);
+            }
+        }
+
         // Announcements do not pop. May be broken in em-framework.
         //[Command("SendAnnouncement")]
         //[Description("Sends an Eco announcement message")]

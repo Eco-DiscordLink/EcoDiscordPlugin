@@ -1,10 +1,12 @@
-using System;
-using System.Linq;
+using DSharpPlus.Entities;
 using Eco.Gameplay.Players;
 using Eco.Gameplay.Systems.Chat;
 using Eco.Shared.Localization;
-using System.Text.RegularExpressions;
+using Eco.Shared.Networking;
 using Eco.Plugins.DiscordLink.Utilities;
+using System;
+using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink
@@ -154,8 +156,8 @@ namespace Eco.Plugins.DiscordLink
                 var plugin = Plugins.DiscordLink.DiscordLink.Obj;
                 if (plugin == null) return;
 
-                var config = DLConfig.Data;
-                var serverInfo = Networking.NetworkManager.GetServerInfo();
+                DLConfigData config = DLConfig.Data;
+                ServerInfo serverInfo = Networking.NetworkManager.GetServerInfo();
 
                 string inviteMessage = config.InviteMessage;
                 if (!inviteMessage.Contains(DLConfig.InviteCommandLinkToken) || string.IsNullOrEmpty(serverInfo.DiscordAddress))
@@ -267,6 +269,78 @@ namespace Eco.Plugins.DiscordLink
                 ChatManager.ServerMessageToPlayer(new LocString("Message delivered."), user);
             },
             user);
+        }
+
+        [ChatSubCommand("DiscordLink", "Links the calling user account to a Discord account", "dl-link", ChatAuthorizationLevel.User)]
+        public static void LinkDiscordAccount(User user, string DiscordName)
+        {
+            CallWithErrorHandling<object>((lUser, args) =>
+            {
+                var plugin = Plugins.DiscordLink.DiscordLink.Obj;
+                if (plugin == null) return;
+
+                // Find the Discord user
+                DiscordMember matchingMember = null;
+                foreach(DiscordGuild guild in plugin.DiscordClient.Guilds.Values)
+                {
+                    foreach(DiscordMember member in guild.GetAllMembersAsync().Result)
+                    {
+                        if(member.Id.ToString() == DiscordName || member.Username.ToLower() == DiscordName.ToLower())
+                        {
+                            matchingMember = member;
+                            break;
+                        }
+                    }
+                }
+
+                if(matchingMember == null)
+                {
+                    ChatManager.ServerMessageToPlayer(new LocString($"No Discord account with the ID or name \"{DiscordName}\" could be found."), user);
+                    return;
+                }
+
+                // Make sure that the accounts aren't already linked to any account
+                foreach (LinkedUser linkedUser in DLStorage.PersistantData.LinkedUsers)
+                {
+                    
+                    if (user.SlgId == linkedUser.SlgId || user.SteamId == linkedUser.SteamId)
+                    {
+                        if (linkedUser.DiscordId == matchingMember.Id.ToString())
+                            ChatManager.ServerMessageToPlayer(new LocString("Eco account is already linked to this Discord account.\nUse /dl-unlink to remove the existing link."), user);
+                        else
+                            ChatManager.ServerMessageToPlayer(new LocString("Eco account is already linked to a different Discord account.\nUse /dl-unlink to remove the existing link."), user);
+                        return;
+                    }
+                    else if (linkedUser.DiscordId == matchingMember.Id.ToString())
+                    {
+                        ChatManager.ServerMessageToPlayer(new LocString("Discord account is already linked to a different Eco account."), user);
+                        return;
+                    }
+                }
+
+                // Create a linked user from the combined Eco and Discord info
+                LinkedUser DlUser = LinkedUserManager.AddLinkedUser(user, matchingMember.Id.ToString());
+
+                // Notify the Discord account that a link has been made and ask for verification
+                _ = DiscordUtil.SendDmAsync(matchingMember, null, MessageBuilder.GetVerificationDM(user));
+
+                // Notify the Eco user that the link has been created and that verification is required
+                ChatManager.ServerMessageToPlayer(new LocString($"Your account has been linked.\nThe link requires verification before becoming active.\nInstructions have been sent to the linked Discord account."), user);
+            },
+            user);
+        }
+
+        [ChatSubCommand("DiscordLink", "Unlinks the calling user account from a linked Discord account", "dl-unlink", ChatAuthorizationLevel.User)]
+        public static void UnlinkDiscordAccount(User user)
+        {
+            CallWithErrorHandling<object>((lUser, args) =>
+            {
+                bool result = LinkedUserManager.RemoveLinkedUser(user);
+                if(result)
+                    ChatManager.ServerMessageToPlayer(new LocString($"Discord account unlinked."), user);
+                else
+                    ChatManager.ServerMessageToPlayer(new LocString($"No linked Discord account could be found."), user);
+            }, user);
         }
 
         // Announcements do not pop. May be broken in em-framework.

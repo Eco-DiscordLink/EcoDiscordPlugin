@@ -1,21 +1,21 @@
-﻿using Eco.EM;
-using Eco.EM.Framework.FileManager;
+﻿using Eco.EM.Framework.FileManager;
 using System.Collections.Generic;
 
 namespace Eco.Plugins.DiscordLink
 {
     public sealed class DLStorage
     {
-        private readonly string StorageFileName = "DiscordLinkData";
+        private const string STORAGE_FILE_NAME = "DiscordLinkData";
 
         public static readonly DLStorage Instance = new DLStorage();
-        public Dictionary<string, string> Snippets = new Dictionary<string, string>();
+        public static StorageData PersistantData { get; private set; } = new StorageData();
 
-        private StorageData Data = new StorageData();
+        public Dictionary<string, string> Snippets = new Dictionary<string, string>();        
 
         // Explicit static constructor to tell C# compiler not to mark type as beforefieldinit
         static DLStorage()
         {
+            PersistantData = new StorageData();
         }
 
         private DLStorage()
@@ -24,17 +24,17 @@ namespace Eco.Plugins.DiscordLink
 
         public void Write()
         {
-            FileManager<StorageData>.WriteToFile(Data, DiscordLink.BasePath, StorageFileName);
+            FileManager<StorageData>.WriteTypeHandledToFile(PersistantData, DiscordLink.BasePath, STORAGE_FILE_NAME);
         }
 
         public void Read()
         {
-            FileManager<StorageData>.ReadFromFile(DiscordLink.BasePath, StorageFileName);
+            PersistantData = FileManager<StorageData>.ReadTypeHandledFromFile(DiscordLink.BasePath, STORAGE_FILE_NAME);
         }
-    }
 
-    public class StorageData
-    {
-
+        public class StorageData
+        {
+            public List<LinkedUser> LinkedUsers = new List<LinkedUser>();
+        }
     }
 }

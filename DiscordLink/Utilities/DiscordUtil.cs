@@ -53,6 +53,21 @@ namespace Eco.Plugins.DiscordLink.Utilities
             catch (Exception e)
             {
                 Logger.Error("Error occurred while attempting to send Discord message. Error message: " + e);
+
+        public static async Task<DiscordMessage> SendDmAsync(DiscordMember targetMember, string textContent, DiscordEmbed embedContent = null)
+        {
+            try
+            {
+                return await targetMember.SendMessageAsync(textContent, is_tts: false, embedContent);
+            }
+            catch (Newtonsoft.Json.JsonReaderException e)
+            {
+                Logger.Debug(e.ToString());
+                return null;
+            }
+            catch (Exception e)
+            {
+                Logger.Error($"Error occurred while attempting to send Discord message to user \"{targetMember.DisplayName}\". Error message: " + e);
                 return null;
             }
         }
