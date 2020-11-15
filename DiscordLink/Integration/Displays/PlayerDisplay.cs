@@ -15,7 +15,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
 
         protected override TriggerType GetTriggers()
         {
-            return TriggerType.Startup | TriggerType.Timer | TriggerType.Login;
+            return TriggerType.Startup | TriggerType.Timer | TriggerType.Join | TriggerType.Login | TriggerType.Logout;
         }
 
         protected override List<ChannelLink> GetChannelLinks()

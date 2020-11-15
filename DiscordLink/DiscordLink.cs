@@ -85,6 +85,11 @@ namespace Eco.Plugins.DiscordLink
                 UpdateIntegrations(TriggerType.Startup, null);
             };
 
+            // Set up callbacks
+            UserManager.OnNewUserJoined.Add(user => UpdateIntegrations(TriggerType.Join, user));
+            UserManager.OnUserLoggedIn.Add(user => UpdateIntegrations(TriggerType.Login, user));
+            UserManager.OnUserLoggedOut.Add(user => UpdateIntegrations(TriggerType.Logout, user));
+
             _ = EcoUser; // Create the Eco User on startup
         }
 
@@ -116,14 +121,6 @@ namespace Eco.Plugins.DiscordLink
             {
                 case ChatSent chatSent:
                     OnMessageReceivedFromEco(chatSent);
-                    break;
-            
-                case FirstLogin firstLogin:
-                    UpdateIntegrations(TriggerType.Login, firstLogin);
-                    break;
-            
-                case Play play:
-                    UpdateIntegrations(TriggerType.Login, play);
                     break;
             
                 case CurrencyTrade currencyTrade:
