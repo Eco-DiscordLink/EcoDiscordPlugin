@@ -31,6 +31,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
             tagAndContent = new List<Tuple<string, DiscordEmbed>>();
             DiscordEmbedBuilder builder = new DiscordEmbedBuilder();
             builder.WithColor(MessageBuilder.EmbedColor);
+            builder.WithFooter(MessageBuilder.GetStandardEmbedFooter());
             foreach (Election election in ElectionManager.Obj.CurrentElections.Where(x => x.Valid() && x.State == Shared.Items.ProposableState.Active))
             {
                 string tag = BaseTag + " [" + election.Id + "]";

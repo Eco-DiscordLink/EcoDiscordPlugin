@@ -66,6 +66,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
             var builder = new DiscordEmbedBuilder();
             builder.WithColor(EmbedColor);
+            builder.WithFooter(GetStandardEmbedFooter());
 
             if (flag.HasFlag(ServerInfoComponentFlag.Name))
             {
@@ -202,6 +203,15 @@ namespace Eco.Plugins.DiscordLink.Utilities
             Minute  = 1 << 2,
             Second  = 1 << 3,
         }
+
+        public static string GetTimeStamp()
+        {
+            double seconds = Simulation.Time.WorldTime.Seconds;
+            return $"{((int)TimeUtil.SecondsToHours(seconds) % 24).ToString("00") }" +
+                $":{((int)(TimeUtil.SecondsToMinutes(seconds) % 60)).ToString("00")}" +
+                $":{((int)seconds % 60).ToString("00")}";
+        }
+
         public static string GetTimespan(double seconds, TimespanStringComponent flag = TimespanStringComponent.Day | TimespanStringComponent.Hour | TimespanStringComponent.Minute | TimespanStringComponent.Second)
         {
             StringBuilder builder = new StringBuilder();
@@ -231,6 +241,13 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 builder.Append(((int)seconds % 60).ToString("00"));
             }
             return builder.ToString();
+        }
+
+        public static string GetStandardEmbedFooter()
+        {
+            string serverName = FirstNonEmptyString(DLConfig.Data.ServerName, MessageUtil.StripTags(NetworkManager.GetServerInfo().Description), "[Server Title Missing]");
+            string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
+            return $"By DiscordLink @ {serverName} [{timestamp}]";
         }
 
         private static string FirstNonEmptyString(params string[] strings)

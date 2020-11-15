@@ -39,7 +39,8 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
             DiscordEmbedBuilder embed = new DiscordEmbedBuilder()
                 .WithColor(MessageBuilder.EmbedColor)
                 .WithTitle(title)
-                .WithDescription(content);
+                .WithDescription(content)
+                .WithFooter(MessageBuilder.GetStandardEmbedFooter());
 
             tagAndContent = new List<Tuple<string, DiscordEmbed>>();
             tagAndContent.Add(new Tuple<string, DiscordEmbed>(tag, embed));

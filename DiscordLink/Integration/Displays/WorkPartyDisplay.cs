@@ -39,6 +39,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
                 string tag = BaseTag + " [" + workParty.Id + "]";
                 builder.WithColor(MessageBuilder.EmbedColor);
                 builder.WithTitle(workParty.Name);
+                builder.WithFooter(MessageBuilder.GetStandardEmbedFooter());
 
                 // Workers
                 string workersDesc = string.Empty;
