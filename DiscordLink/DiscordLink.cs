@@ -201,11 +201,11 @@ namespace Eco.Plugins.DiscordLink
                     MinimumLogLevel = DLConfig.Data.BackendLogLevel
                 });
 
-                DiscordClient.ClientErrored += async args => { Logger.Debug("A Discord client error occurred. Error messages was: " + args.EventName + " " + args.Exception.ToString()); };
-                DiscordClient.SocketErrored += async args => { Logger.Debug("A socket error occurred. Error message was: " + args.Exception.ToString()); };
-                DiscordClient.SocketClosed += async args => { Logger.DebugVerbose("Socket Closed: " + args.CloseMessage + " " + args.CloseCode); };
-                DiscordClient.Resumed += async args => { Logger.Debug("Resumed connection"); };
-                DiscordClient.Ready += async args =>
+                DiscordClient.ClientErrored += async (client, args) => { Logger.Debug("A Discord client error occurred. Error messages was: " + args.EventName + " " + args.Exception.ToString()); };
+                DiscordClient.SocketErrored += async (client, args) => { Logger.Debug("A socket error occurred. Error message was: " + args.Exception.ToString()); };
+                DiscordClient.SocketClosed += async (client, args) => { Logger.DebugVerbose("Socket Closed: " + args.CloseMessage + " " + args.CloseCode); };
+                DiscordClient.Resumed += async (client, args) => { Logger.Debug("Resumed connection"); };
+                DiscordClient.Ready += async (client, args) =>
                 {
                     DLConfig.Instance.EnqueueFullVerification();
 
@@ -216,12 +216,12 @@ namespace Eco.Plugins.DiscordLink
                     }, null, FIRST_DISPLAY_UPDATE_DELAY_MS, Timeout.Infinite);
                 };
 
-                DiscordClient.GuildAvailable += async args =>
+                DiscordClient.GuildAvailable += async (client, args) =>
                 {
                     DLConfig.Instance.EnqueueGuildVerification();
                 };
 
-                DiscordClient.MessageDeleted += async args =>
+                DiscordClient.MessageDeleted += async (client, args) =>
                 {
                     _integrations.ForEach(async integration => await integration.OnMessageDeleted(args.Message));
                 };
@@ -456,7 +456,7 @@ namespace Eco.Plugins.DiscordLink
             UpdateIntegrations(TriggerType.EcoMessage, chatMessage);
         }
 
-        public async Task OnDiscordMessageCreateEvent(MessageCreateEventArgs messageArgs)
+        public async Task OnDiscordMessageCreateEvent(DiscordClient client, MessageCreateEventArgs messageArgs)
         {
             OnMessageReceivedFromDiscord(messageArgs.Message);
         }
