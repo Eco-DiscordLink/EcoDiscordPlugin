@@ -1,4 +1,5 @@
-﻿using Eco.Core.Plugins;
+﻿using DSharpPlus.CommandsNext.Attributes;
+using Eco.Core.Plugins;
 using Eco.Gameplay.Players;
 using Eco.Plugins.DiscordLink.Utilities;
 using System;
@@ -9,6 +10,8 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading;
+
+using Description = System.ComponentModel.DescriptionAttribute;
 
 namespace Eco.Plugins.DiscordLink
 {
@@ -516,7 +519,7 @@ namespace Eco.Plugins.DiscordLink
 
     public class PlayerListChannelLink : ChannelLink
     {
-        [Description("Display the number of online players in the status message.")]
+        [Description("Display the number of online players in the message.")]
         public bool UsePlayerCount { get; set; } = true;
     }
 
@@ -540,28 +543,28 @@ namespace Eco.Plugins.DiscordLink
 
     public class ServerInfoChannel : ChannelLink
     {
-        [Description("Display the server name in the status message.")]
+        [Description("Display the server name in the message.")]
         public bool UseName { get; set; } = true;
 
-        [Description("Display the server description in the status message.")]
+        [Description("Display the server description in the message.")]
         public bool UseDescription { get; set; } = false;
 
-        [Description("Display the server logo in the status message.")]
+        [Description("Display the server logo in the message.")]
         public bool UseLogo { get; set; } = true;
 
-        [Description("Display the server IP address in the status message.")]
+        [Description("Display the server IP address in the message.")]
         public bool UseAddress { get; set; } = true;
 
-        [Description("Display the number of online players in the status message.")]
+        [Description("Display the number of online players in the message.")]
         public bool UsePlayerCount { get; set; } = true;
 
-        [Description("Display the time since the world was created in the status message.")]
+        [Description("Display the time since the world was created in the message.")]
         public bool UseTimeSinceStart { get; set; } = true;
 
-        [Description("Display the time remaining until meteor impact in the status message.")]
+        [Description("Display the time remaining until meteor impact in the message.")]
         public bool UseTimeRemaining { get; set; } = true;
 
-        [Description("Display a boolean for if the metoer has hit yet or not, in the status message.")]
+        [Description("Display a boolean for if the meteor has hit yet or not, in the message.")]
         public bool UseMeteorHasHit { get; set; } = false;
     }
 

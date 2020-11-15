@@ -52,7 +52,10 @@ namespace Eco.Plugins.DiscordLink.Utilities
             }
             catch (Exception e)
             {
-                Logger.Error("Error occurred while attempting to send Discord message. Error message: " + e);
+                Logger.Error($"Error occurred while attempting to send Discord message to channel \"{channel.Name}\". Error message: " + e);
+                return null;
+            }
+        }
 
         public static async Task<DiscordMessage> SendDmAsync(DiscordMember targetMember, string textContent, DiscordEmbed embedContent = null)
         {

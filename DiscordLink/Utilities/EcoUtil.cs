@@ -1,5 +1,4 @@
-﻿using Eco.EM;
-using Eco.EM.Framework.ChatBase;
+﻿using Eco.EM.Framework.ChatBase;
 using Eco.Gameplay.Players;
 
 namespace Eco.Plugins.DiscordLink.Utilities

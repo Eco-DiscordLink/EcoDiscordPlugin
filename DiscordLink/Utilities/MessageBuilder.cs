@@ -63,7 +63,6 @@ namespace Eco.Plugins.DiscordLink.Utilities
             var serverInfo = NetworkManager.GetServerInfo();
 
             var builder = new DiscordEmbedBuilder();
-
             builder.WithColor(EmbedColor);
 
             if (flag.HasFlag(ServerInfoComponentFlag.Name))
