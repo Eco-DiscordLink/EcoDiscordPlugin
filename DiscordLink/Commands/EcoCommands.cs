@@ -5,6 +5,7 @@ using Eco.Shared.Localization;
 using Eco.Shared.Networking;
 using Eco.Plugins.DiscordLink.Utilities;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -70,7 +71,7 @@ namespace Eco.Plugins.DiscordLink
                 var joinedGames = string.Join(", ", guild.TextChannelNames());
                 ChatManager.ServerMessageToAll(new LocString("Channels: " + joinedGames));
             },
-                user);
+            user);
         }
 
         [ChatSubCommand("DiscordLink", "Sends a message to a specific server and channel.", ChatAuthorizationLevel.Admin)]
@@ -283,7 +284,10 @@ namespace Eco.Plugins.DiscordLink
                 DiscordMember matchingMember = null;
                 foreach(DiscordGuild guild in plugin.DiscordClient.Guilds.Values)
                 {
-                    foreach(DiscordMember member in guild.GetAllMembersAsync().Result)
+                    IReadOnlyCollection<DiscordMember> guildMembers = DiscordUtil.GetGuildMembersAsync(guild).Result;
+                    if (guildMembers == null) continue;
+
+                    foreach (DiscordMember member in guildMembers)
                     {
                         if(member.Id.ToString() == DiscordName || member.Username.ToLower() == DiscordName.ToLower())
                         {

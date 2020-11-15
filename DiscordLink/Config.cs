@@ -186,6 +186,9 @@ namespace Eco.Plugins.DiscordLink
             {
                 _guildVerificationOutputTimer = null;
                 VerifyConfig(VerificationFlags.ChannelLinks);
+                if ((DiscordLink.Obj.DiscordClient.Intents & DSharpPlus.DiscordIntents.GuildMembers) == 0)
+                    Logger.Warning("Bot not configured to allow reading of full guild member list as it lacks the Server Members Intent\nSome features will be unavailable.\nSee install instructions for help with adding intents.");
+
             }, null, GUILD_VERIFICATION_OUTPUT_DELAY_MS, Timeout.Infinite);
         }
 

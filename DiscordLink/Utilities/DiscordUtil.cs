@@ -179,5 +179,24 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 return null;
             }
         }
+
+        public static async Task<IReadOnlyCollection<DiscordMember>> GetGuildMembersAsync(DiscordGuild guild)
+        {
+            if((DiscordLink.Obj.DiscordClient.Intents & DiscordIntents.GuildMembers) == 0)
+            {
+                Logger.Error("Attempted to get full guild member list without the bot having the privileged GuildMembers intent");
+                return null;
+            }
+
+            try
+            {
+                return await guild.GetAllMembersAsync();
+            }
+            catch(Exception e)
+            {
+                Logger.Error("Error occured when attempting to fetch all guild members. Error message: " + e);
+                return null;
+            }
+        }
     }
 }
