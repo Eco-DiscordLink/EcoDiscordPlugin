@@ -355,6 +355,48 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
+        [Command("SendAnnouncement")]
+        [Description("Sends an Eco announcement message")]
+        [Aliases("dl-announcement")]
+        [RequireRoles(RoleCheckMode.Any, "Moderator")]
+        public async Task SendAnnouncement(CommandContext ctx, [Description("The title for the announcement UI.")] string title,
+            [Description("The message to display in the announcement UI.")] string message,
+            [Description("Name of the recipient Eco user. If this is left empty, the message will be sent to all online users.")] string recipientUserName = "")
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(title))
+                {
+                    await RespondToCommand(ctx, "Title cannot be empty.");
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(message))
+                {
+                    await RespondToCommand(ctx, "Message cannot be empty.");
+                    return;
+                }
+
+                User recipient = null;
+                if (!string.IsNullOrWhiteSpace(recipientUserName))
+                {
+                    recipient = UserManager.OnlineUsers.FirstOrDefault(x => x.Name.ToLower() == recipientUserName);
+                    if (recipient == null)
+                    {
+                        await RespondToCommand(ctx, "No online user with the name \"" + recipientUserName + "\" could be found.");
+                        return;
+                    }
+                }
+
+                EcoUtil.SendAnnouncementMessage(title, message + "\n\n[" + ctx.GetSenderName() + "]", recipient);
+                await RespondToCommand(ctx, "Message delivered.");
+            }
+            catch (Exception e)
+            {
+                LogCommandException(e);
+            }
+        }
+
         [Command("VerifyLink")]
         [Description("Verifies that an unverified link is correct and should be used")]
         [Aliases("dl-verifylink")]
@@ -379,49 +421,6 @@ namespace Eco.Plugins.DiscordLink
                 LogCommandException(e);
             }
         }
-
-        // Announcements do not pop. May be broken in em-framework.
-        //[Command("SendAnnouncement")]
-        //[Description("Sends an Eco announcement message")]
-        //[Aliases("dl-announcement")]
-        //[RequireRoles(RoleCheckMode.Any, "Moderator")]
-        //public async Task SendAnnouncement(CommandContext ctx, [Description("The title for the announcement UI.")] string title,
-        //    [Description("The message to display in the announcement UI.")] string message,
-        //    [Description("Name of the recipient Eco user. If this is left empty, the message will be sent to all online users.")] string recipientUserName = "")
-        //{
-        //    try
-        //    {
-        //        if (string.IsNullOrWhiteSpace(title))
-        //        {
-        //            await RespondToCommand(ctx, "Title cannot be empty.");
-        //            return;
-        //        }
-        //
-        //        if (string.IsNullOrWhiteSpace(message))
-        //        {
-        //            await RespondToCommand(ctx, "Message cannot be empty.");
-        //            return;
-        //        }
-        //
-        //        User recipient = null;
-        //        if (!string.IsNullOrWhiteSpace(recipientUserName))
-        //        {
-        //            recipient = UserManager.OnlineUsers.FirstOrDefault(x => x.Name.ToLower() == recipientUserName);
-        //            if (recipient == null)
-        //            {
-        //                await RespondToCommand(ctx, "No online user with the name \"" + recipientUserName + "\" could be found.");
-        //                return;
-        //            }
-        //        }
-        //
-        //        EcoUtil.SendAnnouncementMessage(title, message + "\n\n[" + ctx.GetSenderName() + "]", recipient);
-        //        await RespondToCommand(ctx, "Message delivered.");
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        LogCommandException(e);
-        //    }
-        //}
 
         #region Trades
 
