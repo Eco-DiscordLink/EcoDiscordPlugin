@@ -8,38 +8,17 @@ namespace Eco.Plugins.DiscordLink.Utilities
         public static void SendServerMessage(string message, bool permanent = false, User user = null )
         {
             ChatBase.MessageType messageType = permanent ? ChatBase.MessageType.Permanent : ChatBase.MessageType.Temporary;
-            if (user == null)
-            {
-                SendMessageOfType(null, message, messageType, null);
-            }
-            else
-            {
-                SendMessageOfType(null, message, messageType, user);
-            }
+            SendMessageOfType(null, message, messageType, user);
         }
 
         public static void SendPopupMessage(string message, User user = null)
         {
-            if (user == null)
-            {
-                SendMessageOfType(null, message, ChatBase.MessageType.Popup, null);
-            }
-            else
-            {
-                SendMessageOfType(null, message, ChatBase.MessageType.Popup, user);
-            }
+            SendMessageOfType(null, message, ChatBase.MessageType.Popup, user);
         }
 
         public static void SendAnnouncementMessage(string title, string message, User user = null)
         {
-            if (user == null)
-            {
-                SendMessageOfType(title, message, ChatBase.MessageType.Announcement, null);
-            }
-            else
-            {
-                SendMessageOfType(title, message, ChatBase.MessageType.Announcement, user);
-            }
+            SendMessageOfType(title, message, ChatBase.MessageType.Announcement, user);
         }
 
         private static void SendMessageOfType(string title, string message, ChatBase.MessageType messageType, User user )
