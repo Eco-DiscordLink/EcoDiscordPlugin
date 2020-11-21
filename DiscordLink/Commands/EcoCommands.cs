@@ -134,6 +134,7 @@ namespace Eco.Plugins.DiscordLink
                 DiscordLink plugin = Plugins.DiscordLink.DiscordLink.Obj;
                 if (plugin == null) return;
 
+                Logger.Info("Eco Restart command executed - Restarting client");
                 _ = plugin.RestartClient();
             },
             user);

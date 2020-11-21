@@ -260,6 +260,7 @@ namespace Eco.Plugins.DiscordLink
                 if (plugin == null) return;
 
                 await RespondToCommand(ctx, "Restarting DiscordLink");
+                Logger.Info("Discord Restart command executed - Restarting client");
                 _ = plugin.RestartClient();
             }
             catch (Exception e)
