@@ -44,6 +44,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
         protected override async Task UpdateInternal(DiscordLink plugin, TriggerType trigger, object data)
         {
             if (!(data is CurrencyTrade tradeEvent)) return;
+            if (DLConfig.Data.TradeChannels.Count <= 0) return;
 
             bool citizenIsBuyer = (tradeEvent.Citizen.Id == tradeEvent.Buyer.Id);
             Tuple<int, int> iDTuple = new Tuple<int, int>(tradeEvent.Citizen.Id, citizenIsBuyer ? tradeEvent.Seller.Id : tradeEvent.Buyer.Id);
@@ -59,6 +60,8 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
 
         private async Task PostAccumulatedTrades()
         {
+            if (DLConfig.Data.TradeChannels.Count <= 0) return;
+
             foreach (List<CurrencyTrade> accumulatedTrades in _accumulatedTrades.Values)
             {
                 if (accumulatedTrades.Count <= 0) continue;
