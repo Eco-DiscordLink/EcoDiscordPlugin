@@ -9,10 +9,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 {
     public static class EcoUtil
     {
-        public static IEnumerable<Election> GetActiveElections()
-        {
-            return ElectionManager.Obj.CurrentElections.Where(x => x.Valid() && x.State == Shared.Items.ProposableState.Active);
-        }
+        public static IEnumerable<Election> ActiveElections => ElectionManager.Obj.CurrentElections.Where(x => x.Valid() && x.State == Shared.Items.ProposableState.Active);
 
         public static void SendServerMessage(string message, bool permanent = false, User user = null )
         {

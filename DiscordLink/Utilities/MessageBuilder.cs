@@ -141,13 +141,13 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
             if (flag.HasFlag(ServerInfoComponentFlag.ActiveElectionCount))
             {
-                builder.AddField("Active Elections Count", $"{EcoUtil.GetActiveElections().Count()}");
+                builder.AddField("Active Elections Count", $"{EcoUtil.ActiveElections.Count()}");
             }
 
             if (flag.HasFlag(ServerInfoComponentFlag.ActiveElectionList))
             {
                 string electionList = string.Empty;
-                foreach (Election election in EcoUtil.GetActiveElections())
+                foreach (Election election in EcoUtil.ActiveElections)
                 {
                     electionList += $"{election.Name} **[{election.TotalVotes} Votes]**\n";
                 }

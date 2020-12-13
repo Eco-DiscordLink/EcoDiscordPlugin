@@ -32,7 +32,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
             DiscordEmbedBuilder builder = new DiscordEmbedBuilder();
             builder.WithColor(MessageBuilder.EmbedColor);
             builder.WithFooter(MessageBuilder.GetStandardEmbedFooter());
-            foreach (Election election in EcoUtil.GetActiveElections())
+            foreach (Election election in EcoUtil.ActiveElections)
             {
                 string tag = BaseTag + " [" + election.Id + "]";
                 builder.WithTitle(election.Name);
