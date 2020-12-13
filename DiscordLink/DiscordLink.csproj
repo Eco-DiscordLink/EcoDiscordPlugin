@@ -1,8 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
-    <Version>1.0.0</Version>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <PackageLicenseExpression>Gnu Affero</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/Eco-DiscordLink/EcoDiscordPlugin</PackageProjectUrl>
     <RepositoryUrl>https://github.com/Eco-DiscordLink/EcoDiscordPlugin</RepositoryUrl>
@@ -12,13 +11,13 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <Optimize>false</Optimize>
     <NoWarn>1701;1702;1998</NoWarn>
-    <OutputPath>bin\Debug\</OutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>bin\Release\</OutputPath>
+    <Optimize>false</Optimize>
+    <NoWarn>1701;1702</NoWarn>
   </PropertyGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
@@ -33,8 +32,6 @@
     <PackageReference Include="Nito.AsyncEx.Coordination" Version="5.1.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.9" />
   </ItemGroup>
-  
-  
 
   <ItemGroup>
     <Reference Include="Eco.Core">
