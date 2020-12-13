@@ -1,10 +1,19 @@
 ﻿using Eco.EM.Framework.ChatBase;
+using Eco.Gameplay.Civics;
+using Eco.Gameplay.Civics.Elections;
 using Eco.Gameplay.Players;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Eco.Plugins.DiscordLink.Utilities
 {
     public static class EcoUtil
     {
+        public static IEnumerable<Election> GetActiveElections()
+        {
+            return ElectionManager.Obj.CurrentElections.Where(x => x.Valid() && x.State == Shared.Items.ProposableState.Active);
+        }
+
         public static void SendServerMessage(string message, bool permanent = false, User user = null )
         {
             ChatBase.MessageType messageType = permanent ? ChatBase.MessageType.Permanent : ChatBase.MessageType.Temporary;

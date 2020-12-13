@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using DSharpPlus.Entities;
+using Eco.Gameplay.Civics.Elections;
 using Eco.Gameplay.Players;
 using Eco.Plugins.Networking;
 using Eco.Shared.Networking;
@@ -15,15 +16,17 @@ namespace Eco.Plugins.DiscordLink.Utilities
     {
         public enum ServerInfoComponentFlag
         {
-            Name = 1 << 0,
-            Description = 1 << 1,
-            Logo = 1 << 2,
-            ServerAddress = 1 << 3,
-            PlayerCount = 1 << 4,
-            PlayerList = 1 << 5,
-            TimeSinceStart = 1 << 6,
-            TimeRemaining = 1 << 7,
-            MeteorHasHit = 1 << 8,
+            Name                = 1 << 0,
+            Description         = 1 << 1,
+            Logo                = 1 << 2,
+            ServerAddress       = 1 << 3,
+            PlayerCount         = 1 << 4,
+            PlayerList          = 1 << 5,
+            TimeSinceStart      = 1 << 6,
+            TimeRemaining       = 1 << 7,
+            ActiveElectionCount = 1 << 8,
+            ActiveElectionList  = 1 << 9,
+            MeteorHasHit        = 1 << 10,
             All = ~0
         }
 
@@ -134,6 +137,25 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 bool meteorHasHit = timeRemainingSpan.Seconds < 0;
                 timeRemainingSpan = meteorHasHit ? new TimeSpan(0, 0, 0) : timeRemainingSpan;
                 builder.AddField("Time Left Until Meteor", $"{timeRemainingSpan.Days} Days, {timeRemainingSpan.Hours} hours, {timeRemainingSpan.Minutes} minutes");
+            }
+
+            if (flag.HasFlag(ServerInfoComponentFlag.ActiveElectionCount))
+            {
+                builder.AddField("Active Elections Count", $"{EcoUtil.GetActiveElections().Count()}");
+            }
+
+            if (flag.HasFlag(ServerInfoComponentFlag.ActiveElectionList))
+            {
+                string electionList = string.Empty;
+                foreach (Election election in EcoUtil.GetActiveElections())
+                {
+                    electionList += $"{election.Name} **[{election.TotalVotes} Votes]**\n";
+                }
+
+                if (string.IsNullOrEmpty(electionList))
+                    electionList = "-- No active elections --";
+
+                builder.AddField("Active Elections", electionList);
             }
 
             if (flag.HasFlag(ServerInfoComponentFlag.MeteorHasHit))

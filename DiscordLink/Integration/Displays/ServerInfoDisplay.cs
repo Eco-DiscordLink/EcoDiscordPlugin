@@ -14,7 +14,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
 
         protected override TriggerType GetTriggers()
         {
-            return TriggerType.Startup | TriggerType.Timer | TriggerType.Login;
+            return TriggerType.Startup | TriggerType.Timer | TriggerType.Login | TriggerType.StartElection | TriggerType.StopElection | TriggerType.Vote;
         }
 
         protected override List<ChannelLink> GetChannelLinks()
@@ -49,6 +49,10 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
                 statusFlag |= MessageBuilder.ServerInfoComponentFlag.TimeSinceStart;
             if (statusChannel.UseTimeRemaining)
                 statusFlag |= MessageBuilder.ServerInfoComponentFlag.TimeRemaining;
+            if (statusChannel.UseElectionCount)
+                statusFlag |= MessageBuilder.ServerInfoComponentFlag.ActiveElectionCount;
+            if (statusChannel.UseElectionList)
+                statusFlag |= MessageBuilder.ServerInfoComponentFlag.ActiveElectionList;
             if (statusChannel.UseMeteorHasHit)
                 statusFlag |= MessageBuilder.ServerInfoComponentFlag.MeteorHasHit;
 
