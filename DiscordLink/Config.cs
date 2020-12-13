@@ -564,6 +564,9 @@ namespace Eco.Plugins.DiscordLink
         [Description("Display the number of online players in the message.")]
         public bool UsePlayerCount { get; set; } = true;
 
+        [Description("Display a list of online players in the message.")]
+        public bool UsePlayerList { get; set; } = true;
+
         [Description("Display the time since the world was created in the message.")]
         public bool UseTimeSinceStart { get; set; } = true;
 

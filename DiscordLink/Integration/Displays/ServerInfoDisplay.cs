@@ -43,6 +43,8 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
                 statusFlag |= MessageBuilder.ServerInfoComponentFlag.ServerAddress;
             if (statusChannel.UsePlayerCount)
                 statusFlag |= MessageBuilder.ServerInfoComponentFlag.PlayerCount;
+            if (statusChannel.UsePlayerList)
+                statusFlag |= MessageBuilder.ServerInfoComponentFlag.PlayerList;
             if (statusChannel.UseTimeSinceStart)
                 statusFlag |= MessageBuilder.ServerInfoComponentFlag.TimeSinceStart;
             if (statusChannel.UseTimeRemaining)
