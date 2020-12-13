@@ -1,6 +1,7 @@
 ﻿using Eco.EM.Framework.ChatBase;
 using Eco.Gameplay.Civics;
 using Eco.Gameplay.Civics.Elections;
+using Eco.Gameplay.Civics.Laws;
 using Eco.Gameplay.Players;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
     public static class EcoUtil
     {
         public static IEnumerable<Election> ActiveElections => ElectionManager.Obj.CurrentElections.Where(x => x.Valid() && x.State == Shared.Items.ProposableState.Active);
+        public static IEnumerable<Law> Laws => CivicsData.Obj.Laws.All<Law>();
 
         public static void SendServerMessage(string message, bool permanent = false, User user = null )
         {

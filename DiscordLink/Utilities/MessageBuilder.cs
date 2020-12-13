@@ -4,7 +4,9 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using DSharpPlus.Entities;
+using Eco.Gameplay.Civics;
 using Eco.Gameplay.Civics.Elections;
+using Eco.Gameplay.Civics.Laws;
 using Eco.Gameplay.Players;
 using Eco.Plugins.Networking;
 using Eco.Shared.Networking;
@@ -24,9 +26,11 @@ namespace Eco.Plugins.DiscordLink.Utilities
             PlayerList          = 1 << 5,
             TimeSinceStart      = 1 << 6,
             TimeRemaining       = 1 << 7,
-            ActiveElectionCount = 1 << 8,
-            ActiveElectionList  = 1 << 9,
-            MeteorHasHit        = 1 << 10,
+            MeteorHasHit        = 1 << 8,
+            ActiveElectionCount = 1 << 9,
+            ActiveElectionList  = 1 << 10,
+            LawCount            = 1 << 11,
+            LawList             = 1 << 12,
             All = ~0
         }
 
@@ -139,6 +143,12 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 builder.AddField("Time Left Until Meteor", $"{timeRemainingSpan.Days} Days, {timeRemainingSpan.Hours} hours, {timeRemainingSpan.Minutes} minutes");
             }
 
+            if (flag.HasFlag(ServerInfoComponentFlag.MeteorHasHit))
+            {
+                TimeSpan timeRemainingSpan = new TimeSpan(0, 0, (int)serverInfo.TimeLeft);
+                builder.AddField("Meteor Has Hit", timeRemainingSpan.Seconds < 0 ? "Yes" : "No");
+            }
+
             if (flag.HasFlag(ServerInfoComponentFlag.ActiveElectionCount))
             {
                 builder.AddField("Active Elections Count", $"{EcoUtil.ActiveElections.Count()}");
@@ -158,10 +168,23 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 builder.AddField("Active Elections", electionList);
             }
 
-            if (flag.HasFlag(ServerInfoComponentFlag.MeteorHasHit))
+            if (flag.HasFlag(ServerInfoComponentFlag.LawCount))
             {
-                TimeSpan timeRemainingSpan = new TimeSpan(0, 0, (int)serverInfo.TimeLeft);
-                builder.AddField("Meteor Has Hit", timeRemainingSpan.Seconds < 0 ? "Yes" : "No");
+                builder.AddField("Law Count", $"{EcoUtil.Laws.Count()}");
+            }
+
+            if (flag.HasFlag(ServerInfoComponentFlag.LawList))
+            {
+                string lawList = string.Empty;
+                foreach (Law law in EcoUtil.Laws)
+                {
+                    lawList += $"{law.Name}\n";
+                }
+
+                if (string.IsNullOrEmpty(lawList))
+                    lawList = "-- No active laws --";
+
+                builder.AddField("Laws", lawList);
             }
 
             return builder.Build();

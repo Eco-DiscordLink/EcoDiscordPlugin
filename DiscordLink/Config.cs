@@ -573,14 +573,20 @@ namespace Eco.Plugins.DiscordLink
         [Description("Display the time remaining until meteor impact in the message.")]
         public bool UseTimeRemaining { get; set; } = true;
 
+        [Description("Display a boolean for if the meteor has hit yet or not, in the message.")]
+        public bool UseMeteorHasHit { get; set; } = false;
+
         [Description("Display the number of active elections in the message.")]
         public bool UseElectionCount { get; set; } = false;
 
         [Description("Display a list of all active elections in the message.")]
         public bool UseElectionList { get; set; } = true;
 
-        [Description("Display a boolean for if the meteor has hit yet or not, in the message.")]
-        public bool UseMeteorHasHit { get; set; } = false;
+        [Description("Display the number of active laws in the message.")]
+        public bool UseLawCount { get; set; } = false;
+
+        [Description("Display a list of all active laws in the message.")]
+        public bool UseLawList { get; set; } = true;
     }
 
     public class DiscordPlayerConfig : ICloneable

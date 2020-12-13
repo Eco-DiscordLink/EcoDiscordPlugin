@@ -49,12 +49,16 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
                 statusFlag |= MessageBuilder.ServerInfoComponentFlag.TimeSinceStart;
             if (statusChannel.UseTimeRemaining)
                 statusFlag |= MessageBuilder.ServerInfoComponentFlag.TimeRemaining;
+            if (statusChannel.UseMeteorHasHit)
+                statusFlag |= MessageBuilder.ServerInfoComponentFlag.MeteorHasHit;
             if (statusChannel.UseElectionCount)
                 statusFlag |= MessageBuilder.ServerInfoComponentFlag.ActiveElectionCount;
             if (statusChannel.UseElectionList)
                 statusFlag |= MessageBuilder.ServerInfoComponentFlag.ActiveElectionList;
-            if (statusChannel.UseMeteorHasHit)
-                statusFlag |= MessageBuilder.ServerInfoComponentFlag.MeteorHasHit;
+            if (statusChannel.UseLawCount)
+                statusFlag |= MessageBuilder.ServerInfoComponentFlag.LawCount;
+            if (statusChannel.UseLawList)
+                statusFlag |= MessageBuilder.ServerInfoComponentFlag.LawList;
 
             return statusFlag;
         }
