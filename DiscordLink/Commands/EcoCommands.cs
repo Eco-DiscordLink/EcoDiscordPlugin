@@ -273,6 +273,28 @@ namespace Eco.Plugins.DiscordLink
             user);
         }
 
+        [ChatSubCommand("DiscordLink", "Sends an Eco announcement message", "dl-announcement", ChatAuthorizationLevel.Admin)]
+        public static void SendAnnouncement(User user, string title, string message, string recipientUserName = "")
+        {
+            CallWithErrorHandling<object>((lUser, args) =>
+            {
+                User recipient = null;
+                if (!string.IsNullOrWhiteSpace(recipientUserName))
+                {
+                    recipient = UserManager.OnlineUsers.FirstOrDefault(x => x.Name.ToLower() == recipientUserName);
+                    if (recipient == null)
+                    {
+                        ChatManager.ServerMessageToPlayer(new LocString("No online user with the name \"" + recipientUserName + "\" could be found."), user);
+                        return;
+                    }
+                }
+
+                EcoUtil.SendAnnouncementMessage(title, message + "\n\n[" + user.Name + "]", recipient);
+                ChatManager.ServerMessageToPlayer(new LocString("Message delivered."), user);
+            },
+            user);
+        }
+
         [ChatSubCommand("DiscordLink", "Links the calling user account to a Discord account", "dl-link", ChatAuthorizationLevel.User)]
         public static void LinkDiscordAccount(User user, string DiscordName)
         {
@@ -347,28 +369,5 @@ namespace Eco.Plugins.DiscordLink
                     ChatManager.ServerMessageToPlayer(new LocString($"No linked Discord account could be found."), user);
             }, user);
         }
-
-        // Announcements do not pop. May be broken in em-framework.
-        //[ChatSubCommand("DiscordLink", "Sends an Eco announcement message", "dl-announcement", ChatAuthorizationLevel.Admin)]
-        //public static void SendAnnouncement(User user, string title, string message, string recipientUserName = "")
-        //{
-        //    CallWithErrorHandling<object>((lUser, args) =>
-        //    {
-        //        User recipient = null;
-        //        if (!string.IsNullOrWhiteSpace(recipientUserName))
-        //        {
-        //            recipient = UserManager.OnlineUsers.FirstOrDefault(x => x.Name.ToLower() == recipientUserName);
-        //            if (recipient == null)
-        //            {
-        //                ChatManager.ServerMessageToPlayer(new LocString("No online user with the name \"" + recipientUserName + "\" could be found."), user);
-        //                return;
-        //            }
-        //        }
-        //
-        //        EcoUtil.SendAnnouncementMessage(title, message + "\n\n[" + user.Name + "]", recipient);
-        //        ChatManager.ServerMessageToPlayer(new LocString("Message delivered."), user);
-        //    },
-        //    user);
-        //}
     }
 }
