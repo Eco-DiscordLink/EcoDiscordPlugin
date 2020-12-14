@@ -509,7 +509,7 @@ namespace Eco.Plugins.DiscordLink
                 var pagedEnumerator = previousQueryEnumerator[ctx.User.UniqueUsername()];
                 if (pagedEnumerator.HasMorePages)
                 {
-                    embed.WithFooter("More pages available. Use " + DiscordLink.ECHO_COMMAND_TOKEN + "nextpage to show.");
+                    embed.WithFooter("More pages available. Use " + DLConfig.Data.DiscordCommandPrefix + "nextpage to show.");
                 }
 
                 await RespondToCommand(ctx, null, embed);
