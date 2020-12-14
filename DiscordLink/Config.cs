@@ -27,7 +27,7 @@ namespace Eco.Plugins.DiscordLink
         public static class DefaultValues
         {
             public const string DiscordCommandPrefix = "?";
-            public const string EcoCommandChannel = "General";
+            public const string EcoCommandOutputChannel = "General";
             public const string InviteMessage = "Join us on Discord!\n" + InviteCommandLinkToken;
             public const string EcoBotName = "DiscordLink";
         }
@@ -258,9 +258,9 @@ namespace Eco.Plugins.DiscordLink
             }
 
             // Eco command channel
-            if (string.IsNullOrEmpty(Data.EcoCommandChannel))
+            if (string.IsNullOrEmpty(Data.EcoCommandOutputChannel))
             {
-                Data.EcoCommandChannel = DefaultValues.EcoCommandChannel;
+                Data.EcoCommandOutputChannel = DefaultValues.EcoCommandOutputChannel;
                 correctionMade = true;
             }
 
@@ -315,7 +315,7 @@ namespace Eco.Plugins.DiscordLink
                 }
 
                 // Eco command channel
-                if (!string.IsNullOrWhiteSpace(Data.EcoCommandChannel) && Data.EcoCommandChannel.Contains("#"))
+                if (!string.IsNullOrWhiteSpace(Data.EcoCommandOutputChannel) && Data.EcoCommandOutputChannel.Contains("#"))
                 {
                     errorMessages.Add("[Eco Command Channel] Channel name contains a channel indicator (#). The channel indicator will be added automatically and adding one manually may cause message sending to fail");
                 }
@@ -429,13 +429,14 @@ namespace Eco.Plugins.DiscordLink
                 LogLevel = this.LogLevel,
                 LogChat = this.LogChat,
                 ChatlogPath = this.ChatlogPath,
-                EcoCommandChannel = this.EcoCommandChannel,
+                EcoCommandOutputChannel = this.EcoCommandOutputChannel,
                 InviteMessage = this.InviteMessage,
                 PlayerConfigs = new ObservableCollection<DiscordPlayerConfig>(this.PlayerConfigs.Select(t => t.Clone()).Cast<DiscordPlayerConfig>()),
                 ChatChannelLinks = new ObservableCollection<ChatChannelLink>(this.ChatChannelLinks.Select(t => t.Clone()).Cast<ChatChannelLink>()),
                 ServerInfoChannels = new ObservableCollection<ServerInfoChannel>(this.ServerInfoChannels.Select(t => t.Clone()).Cast<ServerInfoChannel>()),
                 TradeChannels = new ObservableCollection<ChannelLink>(this.TradeChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
                 SnippetChannels = new ObservableCollection<ChannelLink>(this.SnippetChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
+                DiscordCommandChannels = new ObservableCollection<ChannelLink>(this.DiscordCommandChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
                 WorkPartyChannels = new ObservableCollection<ChannelLink>(this.WorkPartyChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
                 PlayerListChannels = new ObservableCollection<PlayerListChannelLink>(this.PlayerListChannels.Select(t => t.Clone()).Cast<PlayerListChannelLink>()),
                 ElectionChannels = new ObservableCollection<ChannelLink>(this.ElectionChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
@@ -500,7 +501,7 @@ namespace Eco.Plugins.DiscordLink
         public string ChatlogPath { get; set; } = Directory.GetCurrentDirectory() + "\\Mods\\DiscordLink\\Chatlog.txt";
 
         [Description("The Eco chat channel to use for commands that outputs public messages, excluding the initial # character. This setting can be changed while the server is running."), Category("Command Settings")]
-        public string EcoCommandChannel { get; set; } = DLConfig.DefaultValues.EcoCommandChannel;
+        public string EcoCommandOutputChannel { get; set; } = DLConfig.DefaultValues.EcoCommandOutputChannel;
 
         [Description("The message to use for the /DiscordInvite command. The invite link is fetched from the network config and will replace the token " + DLConfig.InviteCommandLinkToken + ". This setting can be changed while the server is running."), Category("Command Settings")]
         public string InviteMessage { get; set; } = DLConfig.DefaultValues.InviteMessage;

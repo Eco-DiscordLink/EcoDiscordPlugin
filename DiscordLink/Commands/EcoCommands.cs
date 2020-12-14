@@ -169,7 +169,7 @@ namespace Eco.Plugins.DiscordLink
                 }
 
                 inviteMessage = Regex.Replace(inviteMessage, Regex.Escape(DLConfig.InviteCommandLinkToken), serverInfo.DiscordAddress);
-                string formattedInviteMessage = $"#{(string.IsNullOrEmpty(ecoChannel) ? config.EcoCommandChannel : ecoChannel) } {inviteMessage}";
+                string formattedInviteMessage = $"#{(string.IsNullOrEmpty(ecoChannel) ? config.EcoCommandOutputChannel : ecoChannel) } {inviteMessage}";
                 ChatManager.SendChat(formattedInviteMessage, plugin.EcoUser);
             },
             user);
@@ -200,7 +200,7 @@ namespace Eco.Plugins.DiscordLink
                     if (snippets.TryGetValue(snippetKeyLower, out string sippetText))
                     {
                         response = user.Name + " invoked snippet \"" + snippetKey + "\"\n- - -\n" + sippetText + "\n- - -";
-                        string formattedSnippetMessage = $"#{(string.IsNullOrEmpty(ecoChannel) ? DLConfig.Data.EcoCommandChannel : ecoChannel) } {response}";
+                        string formattedSnippetMessage = $"#{(string.IsNullOrEmpty(ecoChannel) ? DLConfig.Data.EcoCommandOutputChannel : ecoChannel) } {response}";
                         ChatManager.SendChat(formattedSnippetMessage, plugin.EcoUser);
                     }
                     else

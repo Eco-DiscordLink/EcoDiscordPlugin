@@ -125,7 +125,7 @@ namespace Eco.Plugins.DiscordLink
                     }
                 }
 
-                string formattedMessage = $"#{DLConfig.Data.EcoCommandChannel} {DiscordLink.ECHO_COMMAND_TOKEN + " " + message}";
+                string formattedMessage = $"#{DLConfig.Data.EcoCommandOutputChannel} {DiscordLink.ECHO_COMMAND_TOKEN + " " + message}";
                 ChatManager.SendChat(formattedMessage, plugin.EcoUser);
             }, ctx);
         }
@@ -170,7 +170,7 @@ namespace Eco.Plugins.DiscordLink
                 }
 
                 inviteMessage = Regex.Replace(inviteMessage, Regex.Escape(DLConfig.InviteCommandLinkToken), serverInfo.DiscordAddress);
-                string formattedInviteMessage = $"#{config.EcoCommandChannel} {inviteMessage}";
+                string formattedInviteMessage = $"#{config.EcoCommandOutputChannel} {inviteMessage}";
                 ChatManager.SendChat(formattedInviteMessage, plugin.EcoUser);
 
                 // Respond to Discord
@@ -178,7 +178,7 @@ namespace Eco.Plugins.DiscordLink
                     .WithColor(MessageBuilder.EmbedColor)
                     .WithDescription(inviteMessage);
 
-                await RespondToCommand(ctx, "Posted message to Eco channel #" + config.EcoCommandChannel, embed);
+                await RespondToCommand(ctx, "Posted message to Eco channel #" + config.EcoCommandOutputChannel, embed);
             }, ctx);
         }
 
