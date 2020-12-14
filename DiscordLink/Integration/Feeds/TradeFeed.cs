@@ -1,6 +1,7 @@
 ﻿using DSharpPlus.Entities;
 using Eco.Core.Utils;
 using Eco.Gameplay.GameActions;
+using Eco.Gameplay.Objects;
 using Eco.Plugins.DiscordLink.Utilities;
 using System;
 using System.Collections.Generic;
@@ -70,8 +71,8 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
 
                 DiscordEmbedBuilder builder = new DiscordEmbedBuilder();
                 string leftName = firstTrade.Citizen.Name;
-                string rightName = firstTrade.Citizen.Id == firstTrade.Buyer.Id ? firstTrade.Seller.Name : firstTrade.Buyer.Name;
-                builder.Title = leftName + " traded with " + rightName;
+                string rightName = (firstTrade.WorldObject as WorldObject).Name;
+                builder.Title = leftName + " traded at " + rightName;
 
                 string boughtItemsDesc = string.Empty;
                 float boughtTotal = 0;
