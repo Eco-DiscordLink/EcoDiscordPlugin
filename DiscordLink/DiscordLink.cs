@@ -447,8 +447,7 @@ namespace Eco.Plugins.DiscordLink
             LogEcoMessage(chatMessage);
 
             // Ignore commands and messages sent by our bot
-            if (chatMessage.Citizen.Name == EcoUser.Name) return;
-            if (chatMessage.Message.StartsWith(ECHO_COMMAND_TOKEN)) return;
+            if (chatMessage.Citizen.Name == EcoUser.Name && !chatMessage.Message.StartsWith(ECHO_COMMAND_TOKEN)) return;
 
             UpdateIntegrations(TriggerType.EcoMessage, chatMessage);
         }
