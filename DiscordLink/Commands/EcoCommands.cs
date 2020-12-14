@@ -28,7 +28,7 @@ namespace Eco.Plugins.DiscordLink
             catch (Exception e)
             {
                 ChatManager.ServerMessageToPlayer(new LocString("Error occurred while attempting to run that command. Error message: " + e), user);
-                Logger.Error("Error occurred while attempting to run that command. Error message: " + e);
+                Logger.Error("An error occurred while attempting to execute an Eco command. Error message: " + e);
             }
         }
 

@@ -23,14 +23,23 @@ namespace Eco.Plugins.DiscordLink
      */
     public class DiscordCommands : BaseCommandModule
     {
-        public delegate Task DiscordCommand(CommandContext ctx);
+        public delegate Task DiscordCommandFunction(CommandContext ctx, params string[] args);
 
-        private static void LogCommandException(Exception e)
+        private static async Task CallWithErrorHandling<TRet>(DiscordCommandFunction toCall, CommandContext ctx, params string[] args)
         {
-            Logger.Error("Error occurred while attempting to run that command. Error message: " + e);
+            try
+            {
+
+                await toCall(ctx, args);
+            }
+            catch (Exception e)
+            {
+                Logger.Error("An error occurred while attempting to execute a Discord command. Error message: " + e);
+                await RespondToCommand(ctx, "An error occurred while attempting to run that command. Error message: " + e);
+            }
         }
 
-        private async Task RespondToCommand(CommandContext ctx, string textContent, DiscordEmbed embedContent = null)
+        private static async Task RespondToCommand(CommandContext ctx, string textContent, DiscordEmbed embedContent = null)
         {
             try
             {
@@ -53,7 +62,7 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (Exception e)
             {
-                LogCommandException(e);
+                Logger.Error("An error occurred while attempting to respond to command. Error message: " + e);
             }
         }
 
@@ -61,16 +70,16 @@ namespace Eco.Plugins.DiscordLink
         [Description("Checks if the bot is online.")]
         public async Task Ping(CommandContext ctx)
         {
-            await RespondToCommand(ctx, "Pong " + ctx.User.Mention);
+            await CallWithErrorHandling<object>( async (lCtx, args) =>
+            {
+                await RespondToCommand(ctx, "Pong " + ctx.User.Mention);
+            }, ctx);
         }
 
         [Command("ecostatus")]
         [Description("Prints the Server Info status.")]
         public async Task EcoStatus(CommandContext ctx)
         {
-            await RespondToCommand(ctx, "", MessageBuilder.GetServerInfo(MessageBuilder.ServerInfoComponentFlag.All));
-        }
-
             await CallWithErrorHandling<object>(async (lCtx, args) =>
             {
                 await RespondToCommand(ctx, "", MessageBuilder.GetServerInfo(MessageBuilder.ServerInfoComponentFlag.All));
@@ -79,14 +88,14 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("echo")]
         [Description("Sends the provided message to Eco and back to Discord again.")]
-        public Task Echo(CommandContext _, [Description("The message to send and then receive back again. A random message will be sent if this parameter is omitted.")] string message = "")
+        public async Task Echo(CommandContext ctx, [Description("The message to send and then receive back again. A random message will be sent if this parameter is omitted.")] string message = "")
         {
-            try
+            await CallWithErrorHandling<object>(async (lCtx, args) =>
             {
                 var plugin = DiscordLink.Obj;
                 if (plugin == null)
                 {
-                    Task.FromResult(0);
+                    return;
                 }
 
                 if (message.IsEmpty())
@@ -118,31 +127,21 @@ namespace Eco.Plugins.DiscordLink
 
                 string formattedMessage = $"#{DLConfig.Data.EcoCommandChannel} {DiscordLink.ECHO_COMMAND_TOKEN + " " + message}";
                 ChatManager.SendChat(formattedMessage, plugin.EcoUser);
-            }
-            catch (Exception e)
-            {
-                LogCommandException(e);
-            }
-
-            return Task.FromResult(0);
+            }, ctx);
         }
 
         [Command("players")]
         [Description("Lists the players currently online on the server.")]
         public async Task PlayerList(CommandContext ctx)
         {
-            try
+            await CallWithErrorHandling<object>(async (lCtx, args) =>
             {
                 DiscordEmbedBuilder embed = new DiscordEmbedBuilder()
                 .WithColor(MessageBuilder.EmbedColor)
                 .WithTitle("Players")
                 .WithDescription(MessageBuilder.GetPlayerList());
                 await RespondToCommand(ctx, "Displaying Online Players", embed);
-            }
-            catch (Exception e)
-            {
-                LogCommandException(e);
-            }
+            }, ctx);
         }
 
         [Command("DiscordInvite")]
@@ -150,7 +149,7 @@ namespace Eco.Plugins.DiscordLink
         [Aliases("dl-invite")]
         public async Task DiscordInvite(CommandContext ctx)
         {
-            try
+            await CallWithErrorHandling<object>(async (lCtx, args) =>
             {
                 var plugin = DiscordLink.Obj;
                 if (plugin == null)
@@ -180,11 +179,7 @@ namespace Eco.Plugins.DiscordLink
                     .WithDescription(inviteMessage);
 
                 await RespondToCommand(ctx, "Posted message to Eco channel #" + config.EcoCommandChannel, embed);
-            }
-            catch (Exception e)
-            {
-                LogCommandException(e);
-            }
+            }, ctx);
         }
 
         [Command("DiscordLinkAbout")]
@@ -192,7 +187,7 @@ namespace Eco.Plugins.DiscordLink
         [Aliases("dl-about")]
         public async Task About(CommandContext ctx)
         {
-            try
+            await CallWithErrorHandling<object>(async (lCtx, args) =>
             {
                 DiscordEmbedBuilder embed = new DiscordEmbedBuilder()
                 .WithColor(MessageBuilder.EmbedColor)
@@ -200,25 +195,17 @@ namespace Eco.Plugins.DiscordLink
                 .WithDescription(MessageBuilder.GetAboutMessage());
 
                 await RespondToCommand(ctx, "About DiscordLink", embed);
-            }
-            catch (Exception e)
-            {
-                LogCommandException(e);
-            }
+            }, ctx);
         }
 
         [Command("Print")]
         [Description("Reposts the inputted message. Can be used to create tags for ordering display tags within a channel.")]
         public async Task Print(CommandContext ctx, [Description("The message to print.")] string message)
         {
-            try
+            await CallWithErrorHandling<object>(async (lCtx, args) =>
             {
                 await RespondToCommand(ctx, message);
-            }
-            catch (Exception e)
-            {
-                LogCommandException(e);
-            }
+            }, ctx);
         }
 
         [Command("Restart")]
@@ -227,7 +214,7 @@ namespace Eco.Plugins.DiscordLink
         [RequireRoles(RoleCheckMode.Any, "Moderator")]
         public async Task Restart(CommandContext ctx)
         {
-            try
+            await CallWithErrorHandling<object>(async (lCtx, args) =>
             {
                 var plugin = DiscordLink.Obj;
                 if (plugin == null) return;
@@ -235,11 +222,7 @@ namespace Eco.Plugins.DiscordLink
                 await RespondToCommand(ctx, "Restarting DiscordLink");
                 Logger.Info("Discord Restart command executed - Restarting client");
                 _ = plugin.RestartClient();
-            }
-            catch (Exception e)
-            {
-                LogCommandException(e);
-            }
+            }, ctx);
         }
 
         [Command("SendServerMessage")]
@@ -250,9 +233,9 @@ namespace Eco.Plugins.DiscordLink
             [Description("Persistance type. Possible values are \"Temporary\" and \"Permanent\". Defaults to \"Temporary\".")] string persistanceType = "temporary",
             [Description("Name of the recipient Eco user. If this is left empty, the message will be sent to all online users.")] string recipientUserName = "")
         {
-            try
+            await CallWithErrorHandling<object>(async (lCtx, args) =>
             {
-                if(string.IsNullOrWhiteSpace(message))
+                if (string.IsNullOrWhiteSpace(message))
                 {
                     await RespondToCommand(ctx, "Message cannot be empty.");
                     return;
@@ -264,7 +247,7 @@ namespace Eco.Plugins.DiscordLink
                 {
                     permanent = true;
                 }
-                else if(persistanceTypeLower == "permanent")
+                else if (persistanceTypeLower == "permanent")
                 {
                     permanent = false;
                 }
@@ -278,7 +261,7 @@ namespace Eco.Plugins.DiscordLink
                 if (!string.IsNullOrWhiteSpace(recipientUserName))
                 {
                     recipient = UserManager.OnlineUsers.FirstOrDefault(x => x.Name.ToLower() == recipientUserName);
-                    if(recipient == null)
+                    if (recipient == null)
                     {
                         await RespondToCommand(ctx, "No online user with the name \"" + recipientUserName + "\" could be found.");
                         return;
@@ -287,11 +270,7 @@ namespace Eco.Plugins.DiscordLink
 
                 EcoUtil.SendServerMessage("[" + ctx.GetSenderName() + "] " + message, permanent, recipient);
                 await RespondToCommand(ctx, "Message delivered.");
-            }
-            catch (Exception e)
-            {
-                LogCommandException(e);
-            }
+            }, ctx);
         }
 
         [Command("SendPopup")]
@@ -301,7 +280,7 @@ namespace Eco.Plugins.DiscordLink
         public async Task SendPopup(CommandContext ctx, [Description("The message to send.")] string message,
             [Description("Name of the recipient Eco user. If this is left empty, the message will be sent to all online users.")] string recipientUserName = "")
         {
-            try
+            await CallWithErrorHandling<object>(async (lCtx, args) =>
             {
                 if (string.IsNullOrWhiteSpace(message))
                 {
@@ -322,11 +301,7 @@ namespace Eco.Plugins.DiscordLink
 
                 EcoUtil.SendPopupMessage("[" + ctx.GetSenderName() + "]\n\n" + message, recipient);
                 await RespondToCommand(ctx, "Message delivered.");
-            }
-            catch (Exception e)
-            {
-                LogCommandException(e);
-            }
+            }, ctx);
         }
 
         [Command("SendAnnouncement")]
@@ -337,7 +312,7 @@ namespace Eco.Plugins.DiscordLink
             [Description("The message to display in the announcement UI.")] string message,
             [Description("Name of the recipient Eco user. If this is left empty, the message will be sent to all online users.")] string recipientUserName = "")
         {
-            try
+            await CallWithErrorHandling<object>(async (lCtx, args) =>
             {
                 if (string.IsNullOrWhiteSpace(title))
                 {
@@ -364,11 +339,7 @@ namespace Eco.Plugins.DiscordLink
 
                 EcoUtil.SendAnnouncementMessage(title, message + "\n\n[" + ctx.GetSenderName() + "]", recipient);
                 await RespondToCommand(ctx, "Message delivered.");
-            }
-            catch (Exception e)
-            {
-                LogCommandException(e);
-            }
+            }, ctx);
         }
 
         [Command("VerifyLink")]
@@ -376,10 +347,10 @@ namespace Eco.Plugins.DiscordLink
         [Aliases("dl-verifylink")]
         public async Task VerifyLink(CommandContext ctx)
         {
-            try
+            await CallWithErrorHandling<object>(async (lCtx, args) =>
             {
                 LinkedUser user = LinkedUserManager.LinkedUserByDiscordId(ctx.GetSenderId().ToString(), false);
-                if(user != null)
+                if (user != null)
                 {
                     user.Verified = true;
                     DLStorage.Instance.Write();
@@ -389,11 +360,7 @@ namespace Eco.Plugins.DiscordLink
                 {
                     await RespondToCommand(ctx, $"There is no outstanding link request to verify for your account");
                 }
-            }
-            catch (Exception e)
-            {
-                LogCommandException(e);
-            }
+            }, ctx);
         }
 
         #region Trades
@@ -406,7 +373,7 @@ namespace Eco.Plugins.DiscordLink
         [Aliases("continuetrades")]
         public async Task NextPageOfTrades(CommandContext ctx)
         {
-            try
+            await CallWithErrorHandling<object>(async (lCtx, args) =>
             {
                 var pagedFieldEnumerator = previousQueryEnumerator.GetOrDefault(ctx.User.UniqueUsername());
                 if (pagedFieldEnumerator == null || !pagedFieldEnumerator.HasMorePages)
@@ -426,11 +393,7 @@ namespace Eco.Plugins.DiscordLink
                 }
 
                 await RespondToCommand(ctx, null, embed);
-            }
-            catch (Exception e)
-            {
-                LogCommandException(e);
-            }
+            }, ctx);
         }
 
 
@@ -439,7 +402,7 @@ namespace Eco.Plugins.DiscordLink
         [Aliases("trade")]
         public async Task Trades(CommandContext ctx, [Description("The player name or item name in question.")] string itemNameOrUserName = "")
         {
-            try
+            await CallWithErrorHandling<object>(async (lCtx, args) =>
             {
                 var plugin = DiscordLink.Obj;
                 if (plugin == null)
@@ -486,11 +449,7 @@ namespace Eco.Plugins.DiscordLink
                 }
 
                 await RespondToCommand(ctx, null, embed);
-            }
-            catch (Exception e)
-            {
-                LogCommandException(e);
-            }
+            }, ctx);
         }
 
         private IEnumerable<Tuple<string, string>> OffersToFields<T>(T buyOffers, T sellOffers, Func<Tuple<StoreComponent, TradeOffer>, string> context)
