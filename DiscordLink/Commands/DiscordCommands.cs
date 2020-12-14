@@ -71,38 +71,11 @@ namespace Eco.Plugins.DiscordLink
             await RespondToCommand(ctx, "", MessageBuilder.GetServerInfo(MessageBuilder.ServerInfoComponentFlag.All));
         }
 
-#if DEBUG
-        [Command("debug")]
-        [Description("Runs the current debugging command.")]
-        public async Task Debug(CommandContext ctx)
-        {
-            try
+            await CallWithErrorHandling<object>(async (lCtx, args) =>
             {
-                var iterable = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-                var pagedEnumerable = new PagedEnumerable<int>(iterable, 2, val => 1);
-
-                var output = "";
-
-                var enumerator = pagedEnumerable.GetPagedEnumerator();
-                enumerator.ForEachInPage(item => output += " " + item);
-                output += " |~| ";
-                enumerator.ForEachInPage(item => output += " " + item);
-                output += " |~| ";
-                enumerator.ForEachInPage(item => output += " " + item);
-                output += " |~| ";
-                enumerator.ForEachInPage(item => output += " " + item);
-                output += " |~| ";
-                enumerator.ForEachInPage(item => output += " " + item);
-                enumerator.Dispose();
-
-                await RespondToCommand(ctx, output);
-            }
-            catch (Exception e)
-            {
-                LogCommandException(e);
-            }
+                await RespondToCommand(ctx, "", MessageBuilder.GetServerInfo(MessageBuilder.ServerInfoComponentFlag.All));
+            }, ctx);
         }
-#endif
 
         [Command("echo")]
         [Description("Sends the provided message to Eco and back to Discord again.")]
