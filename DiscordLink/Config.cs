@@ -79,6 +79,7 @@ namespace Eco.Plugins.DiscordLink
             Data.ServerInfoChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.TradeChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.SnippetChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
+            Data.DiscordCommandChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.WorkPartyChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.PlayerListChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.ElectionChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
@@ -397,6 +398,7 @@ namespace Eco.Plugins.DiscordLink
             _channelLinks.AddRange(_config.Config.ServerInfoChannels);
             _channelLinks.AddRange(_config.Config.TradeChannels);
             _channelLinks.AddRange(_config.Config.SnippetChannels);
+            _channelLinks.AddRange(_config.Config.DiscordCommandChannels);
             _channelLinks.AddRange(_config.Config.WorkPartyChannels);
             _channelLinks.AddRange(_config.Config.PlayerListChannels);
             _channelLinks.AddRange(_config.Config.ElectionChannels);
@@ -484,6 +486,9 @@ namespace Eco.Plugins.DiscordLink
 
         [Description("Channels in which to search for snippets for the Snippet command. This setting can be changed while the server is running."), Category("Inputs")]
         public ObservableCollection<ChannelLink> SnippetChannels { get; set; } = new ObservableCollection<ChannelLink>();
+
+        [Description("Channels in which to allow commands. If no channels are specified, commands will be allowed in all channels. This setting can be changed while the server is running."), Category("Command Settings")]
+        public ObservableCollection<ChannelLink> DiscordCommandChannels { get; set; } = new ObservableCollection<ChannelLink>();
 
         [Description("A mapping from user to user config parameters. This setting can be changed while the server is running.")]
         public ObservableCollection<DiscordPlayerConfig> PlayerConfigs = new ObservableCollection<DiscordPlayerConfig>();

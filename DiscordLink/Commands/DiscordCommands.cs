@@ -29,6 +29,8 @@ namespace Eco.Plugins.DiscordLink
         {
             try
             {
+                if (!IsCommandAllowedInChannel(ctx))
+                    return;
 
                 await toCall(ctx, args);
             }
@@ -64,6 +66,28 @@ namespace Eco.Plugins.DiscordLink
             {
                 Logger.Error("An error occurred while attempting to respond to command. Error message: " + e);
             }
+        }
+
+        private static bool IsCommandAllowedInChannel(CommandContext ctx)
+        {
+            var commandChannels = DLConfig.Data.DiscordCommandChannels;
+            bool allowed = commandChannels.Count <= 0 // Always allow if there are no command channels
+               || ctx.Member.IsOwner
+               || ctx.Member.Roles.Any(role => role.Name == "Moderator");
+
+            if (!allowed)
+            {
+                string channelNameLower = ctx.Channel.Name.ToLower();
+                foreach (ChannelLink link in commandChannels)
+                {
+                    if (channelNameLower == link.DiscordChannel)
+                    {
+                        allowed = true;
+                        break;
+                    }
+                }
+            }
+            return allowed;
         }
 
         [Command("ping")]
