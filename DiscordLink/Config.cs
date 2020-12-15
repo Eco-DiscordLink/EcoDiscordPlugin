@@ -188,7 +188,7 @@ namespace Eco.Plugins.DiscordLink
                 _guildVerificationOutputTimer = null;
                 VerifyConfig(VerificationFlags.ChannelLinks);
                 if ((DiscordLink.Obj.DiscordClient.Intents & DSharpPlus.DiscordIntents.GuildMembers) == 0)
-                    Logger.Warning("Bot not configured to allow reading of full guild member list as it lacks the Server Members Intent\nSome features will be unavailable.\nSee install instructions for help with adding intents.");
+                    Logger.Warning("Bot not configured to allow reading of full server member list as it lacks the Server Members Intent\nSome features will be unavailable.\nSee install instructions for help with adding intents.");
 
             }, null, GUILD_VERIFICATION_OUTPUT_DELAY_MS, Timeout.Infinite);
         }
@@ -505,7 +505,7 @@ namespace Eco.Plugins.DiscordLink
         [Description("The path to the chatlog file, including file name and extension. This setting can be changed while the server is running, but the existing chatlog will not transfer."), Category("Chatlog Configuration")]
         public string ChatlogPath { get; set; } = Directory.GetCurrentDirectory() + "\\Mods\\DiscordLink\\Chatlog.txt";
 
-        [Description("The Eco chat channel to use for commands that outputs public messages, excluding the initial # character. This setting can be changed while the server is running."), Category("Command Settings")]
+        [Description("The Eco chat channel to use for commands that output public messages, excluding the initial # character. This setting can be changed while the server is running."), Category("Command Settings")]
         public string EcoCommandOutputChannel { get; set; } = DLConfig.DefaultValues.EcoCommandOutputChannel;
 
         [Description("The message to use for the /DiscordInvite command. The invite link is fetched from the network config and will replace the token " + DLConfig.InviteCommandLinkToken + ". This setting can be changed while the server is running."), Category("Command Settings")]
