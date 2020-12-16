@@ -22,8 +22,6 @@ namespace Eco.Plugins.DiscordLink
     public class DiscordLink : IModKitPlugin, IInitializablePlugin, IShutdownablePlugin, IConfigurablePlugin, IGameActionAware
     {
         public readonly Version PluginVersion = new Version(2, 1, 1);
-
-        public const string ECHO_COMMAND_TOKEN = "[ECHO]";
         private const int FIRST_DISPLAY_UPDATE_DELAY_MS = 20000;
 
         private readonly List<DiscordLinkIntegration> _integrations = new List<DiscordLinkIntegration>();
@@ -37,7 +35,6 @@ namespace Eco.Plugins.DiscordLink
         public event EventHandler OnDiscordMaybeReady;
 
         public static DiscordLink Obj { get { return PluginManager.GetPlugin<DiscordLink>(); } }
-        public static string BasePath { get { return Directory.GetCurrentDirectory() + "\\Mods\\DiscordLink\\"; } }
         public DiscordClient DiscordClient { get; private set; }
         public IPluginConfig PluginConfig { get { return DLConfig.Instance.PluginConfig; } }
         public ThreadSafeAction<object, string> ParamChanged { get; set; }
@@ -446,7 +443,8 @@ namespace Eco.Plugins.DiscordLink
             LogEcoMessage(chatMessage);
 
             // Ignore commands and messages sent by our bot
-            if (chatMessage.Citizen.Name == EcoUser.Name && !chatMessage.Message.StartsWith(ECHO_COMMAND_TOKEN)) return;
+            if (chatMessage.Citizen.Name == EcoUser.Name && !chatMessage.Message.StartsWith(DLConstants.ECHO_COMMAND_TOKEN))
+                return;
 
             UpdateIntegrations(TriggerType.EcoMessage, chatMessage);
         }

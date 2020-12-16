@@ -7,7 +7,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 {
     public static class Logger
     {
-        private static readonly string PluginLogPath = DiscordLink.BasePath + "Pluginlog.txt";
+        private static readonly string PluginLogPath = DLConstants.BasePath + "Pluginlog.txt";
         private static readonly object LockObject = new object();
 
         private static StreamWriter _writer = null;

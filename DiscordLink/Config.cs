@@ -248,7 +248,7 @@ namespace Eco.Plugins.DiscordLink
             // Chatlog path
             if (string.IsNullOrEmpty(Data.ChatlogPath))
             {
-                Data.ChatlogPath = DiscordLink.BasePath + "Chatlog.txt";
+                Data.ChatlogPath = DLConstants.BasePath + "Chatlog.txt";
                 correctionMade = true;
             }
 

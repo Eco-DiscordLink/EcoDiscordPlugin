@@ -24,12 +24,12 @@ namespace Eco.Plugins.DiscordLink
 
         public void Write()
         {
-            FileManager<StorageData>.WriteTypeHandledToFile(PersistantData, DiscordLink.BasePath, STORAGE_FILE_NAME);
+            FileManager<StorageData>.WriteTypeHandledToFile(PersistantData, DLConstants.BasePath, STORAGE_FILE_NAME);
         }
 
         public void Read()
         {
-            PersistantData = FileManager<StorageData>.ReadTypeHandledFromFile(DiscordLink.BasePath, STORAGE_FILE_NAME);
+            PersistantData = FileManager<StorageData>.ReadTypeHandledFromFile(DLConstants.BasePath, STORAGE_FILE_NAME);
         }
 
         public class StorageData

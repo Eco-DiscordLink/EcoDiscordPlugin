@@ -151,7 +151,7 @@ namespace Eco.Plugins.DiscordLink
                     }
                 }
 
-                string formattedMessage = $"#{DLConfig.Data.EcoCommandOutputChannel} {DiscordLink.ECHO_COMMAND_TOKEN + " " + message}";
+                string formattedMessage = $"#{DLConfig.Data.EcoCommandOutputChannel} {DLConstants.ECHO_COMMAND_TOKEN + " " + message}";
                 ChatManager.SendChat(formattedMessage, plugin.EcoUser);
             }, ctx);
         }
@@ -488,7 +488,7 @@ namespace Eco.Plugins.DiscordLink
                     t => t.Item2.Price.ToString(),
                     t => context(t),
                     t => t.Item2.Stack.Quantity);
-                var enumerator = new PagedEnumerable<string>(offer_descriptions, DiscordUtil.EMBED_FIELD_CHARACTER_LIMIT, str => str.Length).GetPagedEnumerator();
+                var enumerator = new PagedEnumerable<string>(offer_descriptions, DLConstants.EMBED_FIELD_CHARACTER_LIMIT, str => str.Length).GetPagedEnumerator();
                 while (enumerator.HasMorePages)
                 {
                     var fieldBodyBuilder = new StringBuilder();
@@ -506,7 +506,7 @@ namespace Eco.Plugins.DiscordLink
                     t => t.Item2.Price.ToString(),
                     t => context(t),
                     t => t.Item2.Stack.Quantity);
-                var enumerator = new PagedEnumerable<string>(offer_descriptions, DiscordUtil.EMBED_FIELD_CHARACTER_LIMIT, str => str.Length).GetPagedEnumerator();
+                var enumerator = new PagedEnumerable<string>(offer_descriptions, DLConstants.EMBED_FIELD_CHARACTER_LIMIT, str => str.Length).GetPagedEnumerator();
                 while (enumerator.HasMorePages)
                 {
                     var fieldBodyBuilder = new StringBuilder();
@@ -530,7 +530,7 @@ namespace Eco.Plugins.DiscordLink
 
             var fieldEnumerator = OffersToFields(groupedBuyOffers, groupedSellOffers, context).GetEnumerator();
 
-            var pagedFieldEnumerator = new PagedEnumerator<Tuple<string, string>>(fieldEnumerator, DiscordUtil.EMBED_CONTENT_CHARACTER_LIMIT, field => field.Item1.Length + field.Item2.Length);
+            var pagedFieldEnumerator = new PagedEnumerator<Tuple<string, string>>(fieldEnumerator, DLConstants.EMBED_CONTENT_CHARACTER_LIMIT, field => field.Item1.Length + field.Item2.Length);
 
             pagedFieldEnumerator.ForEachInPage(field => { embed.AddField(field.Item1, field.Item2, true); });
 
