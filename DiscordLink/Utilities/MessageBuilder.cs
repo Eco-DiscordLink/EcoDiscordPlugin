@@ -4,7 +4,6 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using DSharpPlus.Entities;
-using Eco.Gameplay.Civics;
 using Eco.Gameplay.Civics.Elections;
 using Eco.Gameplay.Civics.Laws;
 using Eco.Gameplay.Players;
@@ -31,7 +30,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             ActiveElectionList  = 1 << 10,
             LawCount            = 1 << 11,
             LawList             = 1 << 12,
-            All = ~0
+            All                 = ~0
         }
 
         public static DiscordColor EmbedColor = DiscordColor.Green;

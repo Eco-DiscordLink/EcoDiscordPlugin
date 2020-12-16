@@ -514,16 +514,16 @@ namespace Eco.Plugins.DiscordLink
 
     public enum GlobalMentionPermission
     {
-        AnyUser,
-        Admin,
-        Forbidden
+        AnyUser,        // Any user may use mentions
+        Admin,          // Only admins may use mentions
+        Forbidden       // All use of mentions is forbidden
     };
 
     public enum ChatSyncDirection
     {
-        DiscordToEco,
-        EcoToDiscord,
-        Duplex,
+        DiscordToEco,   // Send Discord messages to Eco
+        EcoToDiscord,   // Send Eco messages to Discord
+        Duplex,         // Send Discord messages to Eco and Eco messages to Discord
     }
 
     public class PlayerListChannelLink : ChannelLink

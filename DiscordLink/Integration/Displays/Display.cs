@@ -115,6 +115,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
             List<DiscordMessage> unmatchedMessages = new List<DiscordMessage>();
             foreach(ChannelDisplayData channelDisplayData in _channelDisplays)
             {
+                // Get the channel and verify permissions
                 ChannelLink link = channelDisplayData.Link;
                 DiscordGuild discordGuild = plugin.GuildByNameOrId(link.DiscordGuild);
                 if (discordGuild == null) continue;
@@ -147,9 +148,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
                     }
 
                     if (!found)
-                    {
                         unmatchedMessages.Add(message);
-                    }
                 }
 
                 // Delete the messages that are no longer relevant
@@ -188,6 +187,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
             {
                 if (!channelLink.IsValid()) continue;
 
+                // Get the channel and verify permissions
                 DiscordGuild discordGuild = plugin.GuildByNameOrId(channelLink.DiscordGuild);
                 if (discordGuild == null) continue;
                 DiscordChannel discordChannel = discordGuild.ChannelByNameOrId(channelLink.DiscordChannel);
@@ -200,10 +200,12 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
                 IReadOnlyList<DiscordMessage> channelMessages = await DiscordUtil.GetMessagesAsync(discordChannel);
                 if (channelMessages == null)
                 {
+                    // There was an error or no messages exist - Clean up and return
                     _channelDisplays.Clear();
                     return;
                 } 
 
+                // Go through the messages and find any our tagged messages
                 foreach(DiscordMessage message in channelMessages)
                 {
                     if (!message.Content.StartsWith(BaseTag)) continue;

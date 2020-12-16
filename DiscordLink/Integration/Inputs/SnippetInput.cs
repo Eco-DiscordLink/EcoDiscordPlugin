@@ -78,6 +78,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
             if (plugin == null) return;
             foreach (ChannelLink snippetChannel in DLConfig.Data.SnippetChannels)
             {
+                // Fetch the channel and validate permissions
                 if (!snippetChannel.IsValid()) continue;
                 DiscordGuild discordGuild = plugin.GuildByNameOrId(snippetChannel.DiscordGuild);
                 if (discordGuild == null) continue;
@@ -88,14 +89,13 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
                 IReadOnlyList<DiscordMessage> snippetChannelMessages = await DiscordUtil.GetMessagesAsync(discordChannel);
                 if (snippetChannelMessages == null) continue;
 
+                // Go though all the found messages and look for snippet messages matching our regex
                 DLStorage.Instance.Snippets.Clear();
                 foreach (DiscordMessage channelMessage in snippetChannelMessages)
                 {
                     Match match = MessageUtil.SnippetRegex.Match(channelMessage.Content);
                     if (match.Groups.Count == 3)
-                    {
                         DLStorage.Instance.Snippets.Add(match.Groups[1].Value.ToLower(), match.Groups[2].Value);
-                    }
                 }
             }
         }

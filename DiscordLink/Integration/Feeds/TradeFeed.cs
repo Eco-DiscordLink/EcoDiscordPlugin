@@ -50,10 +50,11 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
             bool citizenIsBuyer = (tradeEvent.Citizen.Id == tradeEvent.Buyer.Id);
             Tuple<int, int> iDTuple = new Tuple<int, int>(tradeEvent.Citizen.Id, citizenIsBuyer ? tradeEvent.Seller.Id : tradeEvent.Buyer.Id);
             _accumulatedTrades.TryGetValue(iDTuple, out List<CurrencyTrade> trades);
+            // Store the event in a list until we want to post the information. We do this as each item in a trade will fire an individual event and we want to summarize them
             if (trades == null)
             {
                 trades = new List<CurrencyTrade>();
-                _accumulatedTrades.Add(iDTuple, trades);
+                _accumulatedTrades.Add(IDTuple, trades);
             }
 
             trades.Add(tradeEvent);
@@ -63,6 +64,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
         {
             if (DLConfig.Data.TradeChannels.Count <= 0) return;
 
+            // Each entry is the summarized trade events for a player and a store
             foreach (List<CurrencyTrade> accumulatedTrades in _accumulatedTrades.Values)
             {
                 if (accumulatedTrades.Count <= 0) continue;
@@ -74,6 +76,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
                 string rightName = (firstTrade.WorldObject as WorldObject).Name;
                 builder.Title = leftName + " traded at " + rightName;
 
+                // Go through all acumulated trade events and create a summary
                 string boughtItemsDesc = string.Empty;
                 float boughtTotal = 0;
                 string soldItemsDesc = string.Empty;
@@ -108,6 +111,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
                 char sign = (subTotal > 0.0f ? '+' : '-');
                 builder.AddField("Total", sign + Math.Abs(subTotal).ToString("n2") + " " + firstTrade.Currency.Name);
 
+                // Post the trade summary in all trade channels
                 DiscordLink plugin = DiscordLink.Obj;
                 if (plugin == null) return;
                 foreach (ChannelLink tradeChannel in DLConfig.Data.TradeChannels)

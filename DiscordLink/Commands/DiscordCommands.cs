@@ -71,10 +71,11 @@ namespace Eco.Plugins.DiscordLink
         private static bool IsCommandAllowedInChannel(CommandContext ctx)
         {
             var commandChannels = DLConfig.Data.DiscordCommandChannels;
-            bool allowed = commandChannels.Count <= 0 // Always allow if there are no command channels
-               || ctx.Member.IsOwner
-               || ctx.Member.Roles.Any(role => role.Name == "Moderator");
+            bool allowed = commandChannels.Count <= 0                       // Always allow if there are no command channels
+               || ctx.Member.IsOwner                                        // Always allow if the user is the server owner
+               || ctx.Member.Roles.Any(role => role.Name == "Moderator");   // Always allow if the user is a moderator
 
+            // Check if the discord channel used is listed as a command channel
             if (!allowed)
             {
                 string channelNameLower = ctx.Channel.Name.ToLower();
@@ -87,6 +88,7 @@ namespace Eco.Plugins.DiscordLink
                     }
                 }
             }
+
             return allowed;
         }
 
@@ -373,6 +375,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await CallWithErrorHandling<object>(async (lCtx, args) =>
             {
+                // Find the linked user for the sender and mark them as verified
                 LinkedUser user = LinkedUserManager.LinkedUserByDiscordId(ctx.GetSenderId().ToString(), false);
                 if (user != null)
                 {

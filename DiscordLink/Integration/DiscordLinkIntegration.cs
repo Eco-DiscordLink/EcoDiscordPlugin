@@ -50,7 +50,9 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
         public virtual async Task Update(DiscordLink plugin, TriggerType trigger, object data)
         {
             if (plugin == null) return;
-            if ((GetTriggers() & trigger) == 0) return;
+
+            // Check if this integration should execute on the supplied trigger
+            if ((GetTriggers() & trigger) == 0) return; 
 
             using (await _overlapLock.LockAsync()) // Make sure that the Update function doesn't get overlapping executions
             {

@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 namespace Eco.Plugins.DiscordLink
 {
     /**
-     * Handles commands coming from the Eco server.
+     * Handles commands coming from Eco.
      */
     public class EcoCommands : IChatCommandHandler
     {
@@ -196,6 +196,7 @@ namespace Eco.Plugins.DiscordLink
                 }
                 else
                 {
+                    // Find and post the snippet requested by the user
                     string snippetKeyLower = snippetKey.ToLower();
                     if (snippets.TryGetValue(snippetKeyLower, out string sippetText))
                     {

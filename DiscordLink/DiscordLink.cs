@@ -13,7 +13,6 @@ using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Utils;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,21 +26,21 @@ namespace Eco.Plugins.DiscordLink
         public const string ECHO_COMMAND_TOKEN = "[ECHO]";
         private const int FIRST_DISPLAY_UPDATE_DELAY_MS = 20000;
 
+        private readonly List<DiscordLinkIntegration> _integrations = new List<DiscordLinkIntegration>();
+        private string _status = "No Connection Attempt Made";
+        private CommandsNextExtension _commands;
+        private Timer _discordDataMaybeAvailable = null;
+        private Timer _tradePostingTimer = null;
+
         public event EventHandler OnClientStarted;
         public event EventHandler OnClientStopped;
         public event EventHandler OnDiscordMaybeReady;
 
         public static DiscordLink Obj { get { return PluginManager.GetPlugin<DiscordLink>(); } }
         public static string BasePath { get { return Directory.GetCurrentDirectory() + "\\Mods\\DiscordLink\\"; } }
+        public DiscordClient DiscordClient { get; private set; }
         public IPluginConfig PluginConfig { get { return DLConfig.Instance.PluginConfig; } }
         public ThreadSafeAction<object, string> ParamChanged { get; set; }
-        public DiscordClient DiscordClient { get; private set; }
-
-        private readonly List<DiscordLinkIntegration> _integrations = new List<DiscordLinkIntegration>();
-        private string _status = "No Connection Attempt Made";
-        private CommandsNextExtension _commands;
-        private Timer _discordDataMaybeAvailable = null;
-        private Timer _tradePostingTimer = null;
 
         public override string ToString()
         {

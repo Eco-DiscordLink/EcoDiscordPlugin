@@ -73,6 +73,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
                     }
                     voteDesc += vote.Voter.Name + ": " + topChoiceName + "\n";
                 }
+
                 if(string.IsNullOrEmpty(voteDesc))
                 {
                     voteDesc = "--- No Votes Recorded ---";
