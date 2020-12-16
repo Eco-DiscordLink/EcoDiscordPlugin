@@ -47,10 +47,9 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
             if (!(data is CurrencyTrade tradeEvent)) return;
             if (DLConfig.Data.TradeChannels.Count <= 0) return;
 
-            bool citizenIsBuyer = (tradeEvent.Citizen.Id == tradeEvent.Buyer.Id);
-            Tuple<int, int> iDTuple = new Tuple<int, int>(tradeEvent.Citizen.Id, citizenIsBuyer ? tradeEvent.Seller.Id : tradeEvent.Buyer.Id);
-            _accumulatedTrades.TryGetValue(iDTuple, out List<CurrencyTrade> trades);
             // Store the event in a list until we want to post the information. We do this as each item in a trade will fire an individual event and we want to summarize them
+            Tuple<int, int> IDTuple = new Tuple<int, int>(tradeEvent.Citizen.Id, (tradeEvent.WorldObject as WorldObject).ID);
+            _accumulatedTrades.TryGetValue(IDTuple, out List<CurrencyTrade> trades);
             if (trades == null)
             {
                 trades = new List<CurrencyTrade>();
