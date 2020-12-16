@@ -12,9 +12,9 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
 {
     public class TradeFeed : Feed
     {
-        private Timer _tradePostingTimer = null;
         private const int TRADE_POSTING_INTERVAL_MS = 1000;
         private readonly Dictionary<Tuple<int, int>, List<CurrencyTrade>> _accumulatedTrades = new Dictionary<Tuple<int, int>, List<CurrencyTrade>>();
+        private Timer _tradePostingTimer = null;
 
         public override async Task Initialize()
         {

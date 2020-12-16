@@ -29,14 +29,14 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
         // These events may fire very frequently and may trigger rate limitations and therefore some special handling is done based on this field.
         public const TriggerType HighFrequencyTriggerFlags = TriggerType.EcoMessage | TriggerType.DiscordMessage | TriggerType.Trade | TriggerType.WorkedWorkParty;
         protected readonly AsyncLock _overlapLock = new AsyncLock();
-        protected bool IsShuttingDown = false;
+        protected bool _isShuttingDown = false;
 
         public virtual async Task Initialize()
         { }
 
         public virtual async Task Shutdown()
         {
-            IsShuttingDown = true;
+            _isShuttingDown = true;
             using (await _overlapLock.LockAsync()) // Make sure that anything queued completes before we shut down
             { }
         }
@@ -56,7 +56,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
 
             using (await _overlapLock.LockAsync()) // Make sure that the Update function doesn't get overlapping executions
             {
-                if (IsShuttingDown) return;
+                if (_isShuttingDown) return;
                 await UpdateInternal(plugin, trigger, data);
             }
         }
