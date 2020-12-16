@@ -5,7 +5,7 @@ namespace Eco.Plugins.DiscordLink
 {
     public sealed class DLStorage
     {
-        private const string STORAGE_FILE_NAME = "DiscordLinkData";
+        private const string STORAGE_FILE_NAME = "DLData";
 
         public static readonly DLStorage Instance = new DLStorage();
         public static StorageData PersistantData { get; private set; } = new StorageData();
