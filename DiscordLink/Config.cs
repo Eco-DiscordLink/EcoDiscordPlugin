@@ -42,7 +42,6 @@ namespace Eco.Plugins.DiscordLink
         public event EventHandler OnChatlogEnabled;
         public event EventHandler OnChatlogDisabled;
         public event EventHandler OnChatlogPathChanged;
-        public event EventHandler OnTokenChanged;
 
         public const string InviteCommandLinkToken = "[LINK]";
 
@@ -122,7 +121,8 @@ namespace Eco.Plugins.DiscordLink
 
             if (tokenChanged)
             {
-                OnTokenChanged?.Invoke(this, EventArgs.Empty);
+                Logger.Info("Discord Bot Token changed - Reinitialising client");
+                _ = DiscordLink.Obj.RestartClient();
                 return; // The token changing will trigger a reset
             }
 

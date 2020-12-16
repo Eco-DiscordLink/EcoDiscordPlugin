@@ -100,11 +100,6 @@ namespace Eco.Plugins.DiscordLink
         {
             DLConfig config = DLConfig.Instance;
             config.Initialize();
-            config.OnTokenChanged += (obj, args) =>
-            {
-                Logger.Info("Discord Bot Token changed - Reinitialising client");
-                _ = RestartClient();
-            };
             config.OnConfigChanged += (obj, args) =>
             {
                 _integrations.ForEach(async integration => await integration.OnConfigChanged());
