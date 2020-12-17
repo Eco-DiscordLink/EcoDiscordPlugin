@@ -20,19 +20,19 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
         private Timer _HighFrequencyEventTimer = null;
         private readonly List<ChannelDisplayData> _channelDisplays = new List<ChannelDisplayData>();
 
-        public override async Task Initialize()
+        protected override async Task Initialize()
         {
             StartTimer();
             await base.Initialize();
         }
 
-        public override async Task Shutdown()
+        protected override async Task Shutdown()
         {
             StopTimer();
             await base.Shutdown();
         }
 
-        public override async Task OnConfigChanged()
+        protected override async Task OnConfigChanged()
         {
             using (await _overlapLock.LockAsync()) // Avoid crashes caused by data being manipulated and used simultaneously
             {
@@ -61,6 +61,17 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
                 }
             }
             await base.OnMessageDeleted(message);
+        }
+
+        protected override bool ShouldRun()
+        {
+            foreach(ChannelLink link in GetChannelLinks())
+            {
+                // If there is at least one valid channel link, we should run the display
+                if (link.IsValid())
+                    return true;
+            }
+            return false;
         }
 
         public void StartTimer()

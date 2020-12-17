@@ -61,7 +61,7 @@ namespace Eco.Plugins.DiscordLink
 
         public void Initialize(TimedTask timer)
         {
-            SetupConfig();
+            DLConfig.Instance.Initialize();
             DLStorage.Instance.Read();
             Logger.Initialize();
             Logger.Info("Plugin version is " + PluginVersion);
@@ -94,16 +94,6 @@ namespace Eco.Plugins.DiscordLink
             ShutdownIntegrations();
             DLStorage.Instance.Write();
             Logger.Shutdown();
-        }
-
-        private void SetupConfig()
-        {
-            DLConfig config = DLConfig.Instance;
-            config.Initialize();
-            config.OnConfigChanged += (obj, args) =>
-            {
-                _integrations.ForEach(async integration => await integration.OnConfigChanged());
-            };
         }
 
         public void ActionPerformed(GameAction action)
@@ -319,12 +309,12 @@ namespace Eco.Plugins.DiscordLink
             _integrations.Add(new PlayerDisplay());
             _integrations.Add(new ElectionDisplay());
 
-            _integrations.ForEach(async integration => await integration.Initialize());
+            _integrations.ForEach(async integration => await integration.StartIfRelevant());
         }
 
         private void ShutdownIntegrations()
         {
-            _integrations.ForEach(async integration => await integration.Shutdown());
+            _integrations.ForEach(async integration => await integration.Stop());
             _integrations.Clear();
         }
 

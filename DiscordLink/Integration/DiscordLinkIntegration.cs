@@ -26,23 +26,52 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
 
     public abstract class DiscordLinkIntegration
     {
+        public bool IsEnabled { get; private set; } = false;
+
         // These events may fire very frequently and may trigger rate limitations and therefore some special handling is done based on this field.
         public const TriggerType HighFrequencyTriggerFlags = TriggerType.EcoMessage | TriggerType.DiscordMessage | TriggerType.Trade | TriggerType.WorkedWorkParty;
         protected readonly AsyncLock _overlapLock = new AsyncLock();
         protected bool _isShuttingDown = false;
 
-        public virtual async Task Initialize()
+        public async Task StartIfRelevant()
+        {
+            IsEnabled = ShouldRun();
+            if (IsEnabled)
+                await Initialize();
+
+            // Always listen for config changes as those may enable/disable
+            DLConfig.Instance.OnConfigChanged += (obj, args) =>
+            {
+                _ = OnConfigChanged();
+            };
+        }
+
+        public async Task Stop()
+        {
+            await Shutdown();
+        }
+
+        protected virtual async Task Initialize()
         { }
 
-        public virtual async Task Shutdown()
+        protected virtual async Task Shutdown()
         {
             _isShuttingDown = true;
+            IsEnabled = false;
             using (await _overlapLock.LockAsync()) // Make sure that anything queued completes before we shut down
             { }
         }
 
-        public virtual async Task OnConfigChanged()
-        { }
+        protected virtual async Task OnConfigChanged()
+        {
+            bool shouldRun = ShouldRun();
+            if (!IsEnabled && shouldRun)
+                await Initialize();
+            else if (IsEnabled && !shouldRun)
+                await Shutdown();
+
+            IsEnabled = shouldRun;
+        }
 
         public virtual async Task OnMessageDeleted(DiscordMessage message)
         { }
@@ -62,6 +91,8 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
         }
 
         protected abstract TriggerType GetTriggers();
+
+        protected abstract bool ShouldRun();
 
         protected abstract Task UpdateInternal(DiscordLink plugin, TriggerType trigger, object data);
     }

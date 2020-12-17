@@ -12,6 +12,16 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
             return TriggerType.DiscordMessage;
         }
 
+        protected override bool ShouldRun()
+        {
+            foreach(ChatChannelLink link in DLConfig.Data.ChatChannelLinks)
+            {
+                if (link.IsValid() && (link.Direction == ChatSyncDirection.DiscordToEco || link.Direction == ChatSyncDirection.Duplex))
+                    return true;
+            }
+            return false;
+        }
+
         protected override async Task UpdateInternal(DiscordLink plugin, TriggerType trigger, object data)
         {
             if (!(data is DiscordMessage message)) return;
