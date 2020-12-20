@@ -10,3 +10,4 @@ Nito.AsyncEx.Tasks.dll
 Nito.Collections.Deque.dll
 Nito.Disposables.dll
 System.Threading.Timer.dll
+System.Threading.Tasks.Extensions.dll

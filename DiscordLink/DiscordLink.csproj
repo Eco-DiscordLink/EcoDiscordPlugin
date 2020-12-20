@@ -21,16 +21,17 @@
   </PropertyGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy /Y &quot;$(SolutionDir)Dependencies\System.Threading.Timer.dll&quot; &quot;$(OutDir)&quot;&#xD;&#xA;&#xD;&#xA;set server_dir=$(SolutionDir)..\EcoServer\&#xD;&#xA;set server_mod_dir=$(SolutionDir)..\EcoServer\Mods\DiscordLink\&#xD;&#xA;for /f &quot;tokens=*&quot; %25%25i in ($(SolutionDir)DLLCopyList.txt) DO (&#xD;&#xA;    xcopy /Y &quot;$(OutDir)%25%25i&quot; &quot;%25server_mod_dir%25&quot;&#xD;&#xA;)&#xD;&#xA;xcopy /Y &quot;$(OutDir)em-framework.dll&quot; &quot;%25server_dir%25/Mods&quot;&#xD;&#xA;xcopy /Y &quot;$(OutDir)DiscordLink.pdb&quot; &quot;%25server_dir%25&quot;" />
+    <Exec Command="xcopy /Y &quot;$(SolutionDir)Dependencies\System.Threading.Timer.dll&quot; &quot;$(OutDir)&quot;&#xD;&#xA;xcopy /Y &quot;$(SolutionDir)Dependencies\System.Threading.Tasks.Extensions.dll&quot; &quot;$(OutDir)&quot;&#xD;&#xA;&#xD;&#xA;set server_dir=$(SolutionDir)..\EcoServer\&#xD;&#xA;set server_mod_dir=$(SolutionDir)..\EcoServer\Mods\DiscordLink\&#xD;&#xA;for /f &quot;tokens=*&quot; %25%25i in ($(SolutionDir)DLLCopyList.txt) DO (&#xD;&#xA;    xcopy /Y &quot;$(OutDir)%25%25i&quot; &quot;%25server_mod_dir%25&quot;&#xD;&#xA;)&#xD;&#xA;&#xD;&#xA;xcopy /Y &quot;$(OutDir)em-framework.dll&quot; &quot;%25server_dir%25/Mods&quot;&#xD;&#xA;xcopy /Y &quot;$(OutDir)DiscordLink.pdb&quot; &quot;%25server_dir%25&quot;" />
   </Target>
 
   <ItemGroup>
-    <PackageReference Include="DSharpPlus" Version="4.0.0-nightly-00746" />
-    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.0-nightly-00746" />
+    <PackageReference Include="DSharpPlus" Version="4.0.0-rc1" />
+    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.0-rc1" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.0-rc.2.20475.5" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0-rc.2.20475.5" />
     <PackageReference Include="Nito.AsyncEx.Coordination" Version="5.1.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.9" />
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.0" />
   </ItemGroup>
 
   <ItemGroup>
