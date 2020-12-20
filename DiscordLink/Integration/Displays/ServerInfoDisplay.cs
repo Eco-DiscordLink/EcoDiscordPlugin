@@ -40,7 +40,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
             if (statusChannel.UseLogo)
                 statusFlag |= MessageBuilder.ServerInfoComponentFlag.Logo;
             if (statusChannel.UseAddress)
-                statusFlag |= MessageBuilder.ServerInfoComponentFlag.ServerAddress;
+                statusFlag |= MessageBuilder.ServerInfoComponentFlag.ConnectionInfo;
             if (statusChannel.UsePlayerCount)
                 statusFlag |= MessageBuilder.ServerInfoComponentFlag.PlayerCount;
             if (statusChannel.UsePlayerList)

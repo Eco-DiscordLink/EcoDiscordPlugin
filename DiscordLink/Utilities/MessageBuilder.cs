@@ -20,7 +20,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             Name                = 1 << 0,
             Description         = 1 << 1,
             Logo                = 1 << 2,
-            ServerAddress       = 1 << 3,
+            ConnectionInfo      = 1 << 3,
             PlayerCount         = 1 << 4,
             PlayerList          = 1 << 5,
             TimeSinceStart      = 1 << 6,
@@ -102,18 +102,27 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 }
             }
 
-            if (flag.HasFlag(ServerInfoComponentFlag.ServerAddress))
+            if (flag.HasFlag(ServerInfoComponentFlag.ConnectionInfo))
             {
-                string fieldText = "-- No address configured --";
+                string fieldText = "-- Connection info not configured --";
+                string address = string.Empty;
+                string port = string.Empty;
                 if (!string.IsNullOrEmpty(config.ServerAddress))
                 {
-                    fieldText = config.ServerAddress;
+                    address = config.ServerAddress;
                 }
                 else if (!string.IsNullOrEmpty(serverInfo.Address))
                 {
-                    fieldText = serverInfo.Address;
+                    address = serverInfo.Address;
                 }
-                builder.AddField("Server Address", fieldText);
+
+                if (!string.IsNullOrEmpty(address))
+                {
+                    port = serverInfo.GamePort.ToString();
+                    fieldText = $"{address}:{port}";
+                }
+
+                builder.AddField("Connection Info", fieldText);
             }
 
             if (flag.HasFlag(ServerInfoComponentFlag.PlayerCount))
