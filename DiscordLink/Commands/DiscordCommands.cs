@@ -71,9 +71,13 @@ namespace Eco.Plugins.DiscordLink
         private static bool IsCommandAllowedInChannel(CommandContext ctx)
         {
             var commandChannels = DLConfig.Data.DiscordCommandChannels;
-            bool allowed = commandChannels.Count <= 0                       // Always allow if there are no command channels
+            bool allowed = ctx.Channel.IsPrivate;
+            if (!allowed)
+            {
+                allowed = commandChannels.Count <= 0                        // Always allow if there are no command channels
                || ctx.Member.IsOwner                                        // Always allow if the user is the server owner
                || ctx.Member.Roles.Any(role => role.Name == "Moderator");   // Always allow if the user is a moderator
+            }
 
             // Check if the discord channel used is listed as a command channel
             if (!allowed)
