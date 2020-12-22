@@ -35,29 +35,29 @@ namespace Eco.Plugins.DiscordLink
 
         #region DiscordGuild
 
-        public static string[] TextChannelNames(this DiscordGuild guild)
+        public static string[] ChannelNames(this DiscordGuild guild, ChannelType type = ChannelType.Text)
         {
-            return guild != null ? guild.TextChannels().Select(channel => channel.Value.Name).ToArray() : new string[0];
+            return guild != null ? guild.ChannelsOfType(type).Select(channel => channel.Value.Name).ToArray() : new string[0];
         }
         
-        public static IReadOnlyList<KeyValuePair<ulong, DiscordChannel>> TextChannels(this DiscordGuild guild)
+        public static IReadOnlyList<KeyValuePair<ulong, DiscordChannel>> ChannelsOfType(this DiscordGuild guild, ChannelType type)
         {
             return guild != null
-                ? guild.Channels.Where(channel => channel.Value.Type == ChannelType.Text).ToList()
+                ? guild.Channels.Where(channel => channel.Value.Type == type).ToList()
                 : new List<KeyValuePair<ulong, DiscordChannel>>();
         }
         
-        public static DiscordChannel ChannelByName(this DiscordGuild guild, string channelName)
+        public static DiscordChannel ChannelByName(this DiscordGuild guild, string channelName, ChannelType type = ChannelType.Text)
         {
-            return guild?.TextChannels().FirstOrDefault(channel => channel.Value.Name == channelName).Value;
+            return guild?.ChannelsOfType(type).FirstOrDefault(channel => channel.Value.Name == channelName).Value;
         }
 
-        public static DiscordChannel ChannelByNameOrId(this DiscordGuild guild, string channelNameOrId)
+        public static DiscordChannel ChannelByNameOrId(this DiscordGuild guild, string channelNameOrId, ChannelType type = ChannelType.Text)
         {
             if (guild == null) { return null; }
 
             var maybeChannelId = TryParseSnowflakeId(channelNameOrId);
-            return maybeChannelId != null ? guild.GetChannel(maybeChannelId.Value) : guild.ChannelByName(channelNameOrId);
+            return maybeChannelId != null ? guild.GetChannel(maybeChannelId.Value) : guild.ChannelByName(channelNameOrId, type);
         }
 
         public async static Task<DiscordMember> MaybeGetMemberAsync(this DiscordGuild guild, ulong userId)

@@ -1,6 +1,7 @@
 DiscordLink.dll
 DSharpPlus.dll
 DSharpPlus.CommandsNext.dll
+DSharpPlus.VoiceNext.dll
 Emzi0767.Common.dll
 Microsoft.Extensions.DependencyInjection.dll
 Microsoft.Extensions.DependencyInjection.Abstractions.dll

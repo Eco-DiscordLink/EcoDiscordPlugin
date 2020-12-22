@@ -8,6 +8,7 @@
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Eco Discord</PackageTags>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <Platforms>AnyCPU;x64;x86</Platforms>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -15,7 +16,27 @@
     <NoWarn>1701;1702;1998</NoWarn>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Optimize>false</Optimize>
+    <NoWarn>1701;1702;1998</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+    <Optimize>false</Optimize>
+    <NoWarn>1701;1702;1998</NoWarn>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <Optimize>false</Optimize>
+    <NoWarn>1701;1702</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Optimize>false</Optimize>
+    <NoWarn>1701;1702</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
     <Optimize>false</Optimize>
     <NoWarn>1701;1702</NoWarn>
   </PropertyGroup>
@@ -27,6 +48,8 @@
   <ItemGroup>
     <PackageReference Include="DSharpPlus" Version="4.0.0-rc1" />
     <PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.0-rc1" />
+    <PackageReference Include="DSharpPlus.VoiceNext" Version="4.0.0-rc1" />
+    <PackageReference Include="DSharpPlus.VoiceNext.Natives" Version="1.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.0-rc.2.20475.5" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0-rc.2.20475.5" />
     <PackageReference Include="Nito.AsyncEx.Coordination" Version="5.1.0" />

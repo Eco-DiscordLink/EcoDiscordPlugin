@@ -2,6 +2,7 @@
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using DSharpPlus.VoiceNext;
 using Eco.Core;
 using Eco.Core.Plugins;
 using Eco.Core.Plugins.Interfaces;
@@ -14,6 +15,7 @@ using Eco.Shared.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -26,7 +28,8 @@ namespace Eco.Plugins.DiscordLink
 
         private readonly List<DiscordLinkIntegration> _integrations = new List<DiscordLinkIntegration>();
         private string _status = "No Connection Attempt Made";
-        private CommandsNextExtension _commands;
+        private CommandsNextExtension _commands = null;
+
         private Timer _discordDataMaybeAvailable = null;
         private Timer _tradePostingTimer = null;
 
@@ -36,6 +39,7 @@ namespace Eco.Plugins.DiscordLink
 
         public static DiscordLink Obj { get { return PluginManager.GetPlugin<DiscordLink>(); } }
         public DiscordClient DiscordClient { get; private set; }
+        public VoiceNextExtension VoiceClient { get; private set; }
         public IPluginConfig PluginConfig { get { return DLConfig.Instance.PluginConfig; } }
         public ThreadSafeAction<object, string> ParamChanged { get; set; }
 
@@ -211,6 +215,8 @@ namespace Eco.Plugins.DiscordLink
                 });
                 _commands.RegisterCommands<DiscordCommands>();
 
+                VoiceClient = DiscordClient.UseVoiceNext();
+
                 OnClientStarted?.Invoke(this, EventArgs.Empty);
                 return true;
             }
@@ -308,6 +314,7 @@ namespace Eco.Plugins.DiscordLink
             _integrations.Add(new WorkPartyDisplay());
             _integrations.Add(new PlayerDisplay());
             _integrations.Add(new ElectionDisplay());
+            _integrations.Add(new DiscordVoicePresenceFeed());
 
             _integrations.ForEach(async integration => await integration.StartIfRelevant());
         }

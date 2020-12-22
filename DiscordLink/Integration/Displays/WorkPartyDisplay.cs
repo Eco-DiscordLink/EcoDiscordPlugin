@@ -26,7 +26,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
 
         protected override List<ChannelLink> GetChannelLinks()
         {
-            return DLConfig.Data.WorkPartyChannels.ToList();
+            return DLConfig.Data.WorkPartyChannels.ToList<ChannelLink>();
         }
 
         protected override void GetDisplayContent(ChannelLink link, out List<Tuple<string, DiscordEmbed>> tagAndContent)

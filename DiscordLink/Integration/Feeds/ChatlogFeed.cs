@@ -17,6 +17,16 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
         private StreamWriter _writer;
         private Timer _flushTimer = null;
 
+        protected override TriggerType GetTriggers()
+        {
+            return TriggerType.EcoMessage | TriggerType.DiscordMessage;
+        }
+
+        protected override bool ShouldRun()
+        {
+            return DLConfig.Data.LogChat;
+        }
+
         protected override async Task Initialize()
         {
             StartLogging();
@@ -36,16 +46,6 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
                 StopLogging();
                 StartLogging();
             }
-        }
-
-        protected override TriggerType GetTriggers()
-        {
-            return TriggerType.EcoMessage | TriggerType.DiscordMessage;
-        }
-
-        protected override bool ShouldRun()
-        {
-            return DLConfig.Data.LogChat;
         }
 
         protected override async Task UpdateInternal(DiscordLink plugin, TriggerType trigger, object data)

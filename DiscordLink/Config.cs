@@ -10,7 +10,6 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading;
-
 using Description = System.ComponentModel.DescriptionAttribute;
 
 namespace Eco.Plugins.DiscordLink
@@ -58,7 +57,6 @@ namespace Eco.Plugins.DiscordLink
         private PluginConfig<DLConfigData> _config;
         private readonly List<ChannelLink> _channelLinks = new List<ChannelLink>();
 
-
         // Explicit static constructor to tell C# compiler not to mark type as beforefieldinit
         static DLConfig()
         {
@@ -82,6 +80,7 @@ namespace Eco.Plugins.DiscordLink
             Data.WorkPartyChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.PlayerListChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.ElectionChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
+            Data.VoiceFeedChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
 
             BuildChanneLinkList();
 
@@ -402,6 +401,7 @@ namespace Eco.Plugins.DiscordLink
             _channelLinks.AddRange(_config.Config.WorkPartyChannels);
             _channelLinks.AddRange(_config.Config.PlayerListChannels);
             _channelLinks.AddRange(_config.Config.ElectionChannels);
+            _channelLinks.AddRange(_config.Config.VoiceFeedChannels);
         }
     }
 
@@ -433,15 +433,16 @@ namespace Eco.Plugins.DiscordLink
                 ChatlogPath = this.ChatlogPath,
                 EcoCommandOutputChannel = this.EcoCommandOutputChannel,
                 InviteMessage = this.InviteMessage,
-                PlayerConfigs = new ObservableCollection<DiscordPlayerConfig>(this.PlayerConfigs.Select(t => t.Clone()).Cast<DiscordPlayerConfig>()),
-                ChatChannelLinks = new ObservableCollection<ChatChannelLink>(this.ChatChannelLinks.Select(t => t.Clone()).Cast<ChatChannelLink>()),
-                ServerInfoChannels = new ObservableCollection<ServerInfoChannel>(this.ServerInfoChannels.Select(t => t.Clone()).Cast<ServerInfoChannel>()),
-                TradeChannels = new ObservableCollection<ChannelLink>(this.TradeChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
-                SnippetChannels = new ObservableCollection<ChannelLink>(this.SnippetChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
-                DiscordCommandChannels = new ObservableCollection<ChannelLink>(this.DiscordCommandChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
-                WorkPartyChannels = new ObservableCollection<ChannelLink>(this.WorkPartyChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
-                PlayerListChannels = new ObservableCollection<PlayerListChannelLink>(this.PlayerListChannels.Select(t => t.Clone()).Cast<PlayerListChannelLink>()),
-                ElectionChannels = new ObservableCollection<ChannelLink>(this.ElectionChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
+                //PlayerConfigs = new ObservableCollection<DiscordPlayerConfig>(this.PlayerConfigs.Select(t => t.Clone()).Cast<DiscordPlayerConfig>()),
+                //ChatChannelLinks = new ObservableCollection<ChatChannelLink>(this.ChatChannelLinks.Select(t => t.Clone()).Cast<ChatChannelLink>()),
+                //ServerInfoChannels = new ObservableCollection<ServerInfoChannel>(this.ServerInfoChannels.Select(t => t.Clone()).Cast<ServerInfoChannel>()),
+                //TradeChannels = new ObservableCollection<TextChannelLink>(this.TradeChannels.Select(t => t.Clone()).Cast<TextChannelLink>()),
+                //SnippetChannels = new ObservableCollection<TextChannelLink>(this.SnippetChannels.Select(t => t.Clone()).Cast<TextChannelLink>()),
+                //DiscordCommandChannels = new ObservableCollection<TextChannelLink>(this.DiscordCommandChannels.Select(t => t.Clone()).Cast<TextChannelLink>()),
+                //WorkPartyChannels = new ObservableCollection<TextChannelLink>(this.WorkPartyChannels.Select(t => t.Clone()).Cast<TextChannelLink>()),
+                //PlayerListChannels = new ObservableCollection<PlayerListChannelLink>(this.PlayerListChannels.Select(t => t.Clone()).Cast<PlayerListChannelLink>()),
+                //ElectionChannels = new ObservableCollection<TextChannelLink>(this.ElectionChannels.Select(t => t.Clone()).Cast<TextChannelLink>()),
+                //VoiceFeedChannels = new ObservableCollection<VoiceChannelLink>(this.ElectionChannels.Select(t => t.Clone()).Cast<VoiceChannelLink>()),
             };
         }
 
@@ -470,25 +471,28 @@ namespace Eco.Plugins.DiscordLink
         public ObservableCollection<ChatChannelLink> ChatChannelLinks { get; set; } = new ObservableCollection<ChatChannelLink>();
 
         [Description("Channels in which trade events will be posted. This setting can be changed while the server is running."), Category("Feeds")]
-        public ObservableCollection<ChannelLink> TradeChannels { get; set; } = new ObservableCollection<ChannelLink>();
+        public ObservableCollection<TextChannelLink> TradeChannels { get; set; } = new ObservableCollection<TextChannelLink>();
 
         [Description("Discord channels in which to keep the Server Info display. DiscordLink will post one server info message in these channel and keep it updated trough edits. This setting can be changed while the server is running."), Category("Displays")]
         public ObservableCollection<ServerInfoChannel> ServerInfoChannels { get; set; } = new ObservableCollection<ServerInfoChannel>();
 
         [Description("Discord channels in which to keep ongoing work parties. DiscordLink will post messages in these channel and keep them updated trough edits. This setting can be changed while the server is running."), Category("Displays")]
-        public ObservableCollection<ChannelLink> WorkPartyChannels { get; set; } = new ObservableCollection<ChannelLink>();
+        public ObservableCollection<TextChannelLink> WorkPartyChannels { get; set; } = new ObservableCollection<TextChannelLink>();
 
         [Description("Discord channels in which to keep the Player List display. DiscordLink will post one Player List message in these channel and keep it updated trough edits. This setting can be changed while the server is running."), Category("Displays")]
         public ObservableCollection<PlayerListChannelLink> PlayerListChannels { get; set; } = new ObservableCollection<PlayerListChannelLink>();
 
         [Description("Discord channels in which to keep the Election display. DiscordLink will post election messages in these channel and keep it updated trough edits. This setting can be changed while the server is running."), Category("Displays")]
-        public ObservableCollection<ChannelLink> ElectionChannels { get; set; } = new ObservableCollection<ChannelLink>();
+        public ObservableCollection<TextChannelLink> ElectionChannels { get; set; } = new ObservableCollection<TextChannelLink>();
 
         [Description("Channels in which to search for snippets for the Snippet command. This setting can be changed while the server is running."), Category("Inputs")]
-        public ObservableCollection<ChannelLink> SnippetChannels { get; set; } = new ObservableCollection<ChannelLink>();
+        public ObservableCollection<TextChannelLink> SnippetChannels { get; set; } = new ObservableCollection<TextChannelLink>();
 
         [Description("Channels in which to allow commands. If no channels are specified, commands will be allowed in all channels. This setting can be changed while the server is running."), Category("Command Settings")]
-        public ObservableCollection<ChannelLink> DiscordCommandChannels { get; set; } = new ObservableCollection<ChannelLink>();
+        public ObservableCollection<TextChannelLink> DiscordCommandChannels { get; set; } = new ObservableCollection<TextChannelLink>();
+
+        [Description("Channels in which to track users joining and leaving voice chat. This setting can be changed while the server is running."), Category("Feeds")]
+        public ObservableCollection<VoiceChannelLink> VoiceFeedChannels { get; set; } = new ObservableCollection<VoiceChannelLink>();
 
         [Description("A mapping from user to user config parameters. This setting can be changed while the server is running.")]
         public ObservableCollection<DiscordPlayerConfig> PlayerConfigs = new ObservableCollection<DiscordPlayerConfig>();
@@ -510,89 +514,6 @@ namespace Eco.Plugins.DiscordLink
 
         [Description("The message to use for the /DiscordInvite command. The invite link is fetched from the network config and will replace the token " + DLConfig.InviteCommandLinkToken + ". This setting can be changed while the server is running."), Category("Command Settings")]
         public string InviteMessage { get; set; } = DLConfig.DefaultValues.InviteMessage;
-    }
-
-    public enum GlobalMentionPermission
-    {
-        AnyUser,        // Any user may use mentions
-        Admin,          // Only admins may use mentions
-        Forbidden       // All use of mentions is forbidden
-    };
-
-    public enum ChatSyncDirection
-    {
-        DiscordToEco,   // Send Discord messages to Eco
-        EcoToDiscord,   // Send Eco messages to Discord
-        Duplex,         // Send Discord messages to Eco and Eco messages to Discord
-    }
-
-    public class PlayerListChannelLink : ChannelLink
-    {
-        [Description("Display the number of online players in the message.")]
-        public bool UsePlayerCount { get; set; } = true;
-
-        [Description("Display how long the player has been logged in for.")]
-        public bool UseLoggedInTime { get; set; } = false;
-    }
-
-    public class ChatChannelLink : EcoChannelLink
-    {
-        [Description("Allow mentions of usernames to be forwarded from Eco to the Discord channel.")]
-        public bool AllowUserMentions { get; set; } = true;
-
-        [Description("Allow mentions of roles to be forwarded from Eco to the Discord channel.")]
-        public bool AllowRoleMentions { get; set; } = true;
-
-        [Description("Allow mentions of channels to be forwarded from Eco to the Discord channel.")]
-        public bool AllowChannelMentions { get; set; } = true;
-
-        [Description("Sets which direction chat should synchronize in.")]
-        public ChatSyncDirection Direction { get; set; } = ChatSyncDirection.Duplex;
-
-        [Description("Permissions for who is allowed to forward mentions of @here or @everyone from Eco to the Discord channel.")]
-        public GlobalMentionPermission HereAndEveryoneMentionPermission { get; set; } = GlobalMentionPermission.Forbidden;
-    }
-
-    public class ServerInfoChannel : ChannelLink
-    {
-        [Description("Display the server name in the message.")]
-        public bool UseName { get; set; } = true;
-
-        [Description("Display the server description in the message.")]
-        public bool UseDescription { get; set; } = false;
-
-        [Description("Display the server logo in the message.")]
-        public bool UseLogo { get; set; } = true;
-
-        [Description("Display the server IP address in the message.")]
-        public bool UseAddress { get; set; } = true;
-
-        [Description("Display the number of online players in the message.")]
-        public bool UsePlayerCount { get; set; } = true;
-
-        [Description("Display a list of online players in the message.")]
-        public bool UsePlayerList { get; set; } = true;
-
-        [Description("Display the time since the world was created in the message.")]
-        public bool UseTimeSinceStart { get; set; } = true;
-
-        [Description("Display the time remaining until meteor impact in the message.")]
-        public bool UseTimeRemaining { get; set; } = true;
-
-        [Description("Display a boolean for if the meteor has hit yet or not, in the message.")]
-        public bool UseMeteorHasHit { get; set; } = false;
-
-        [Description("Display the number of active elections in the message.")]
-        public bool UseElectionCount { get; set; } = false;
-
-        [Description("Display a list of all active elections in the message.")]
-        public bool UseElectionList { get; set; } = true;
-
-        [Description("Display the number of active laws in the message.")]
-        public bool UseLawCount { get; set; } = false;
-
-        [Description("Display a list of all active laws in the message.")]
-        public bool UseLawList { get; set; } = true;
     }
 
     public class DiscordPlayerConfig : ICloneable

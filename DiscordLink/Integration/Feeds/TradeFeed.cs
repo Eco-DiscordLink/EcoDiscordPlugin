@@ -16,6 +16,21 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
         private readonly Dictionary<Tuple<int, int>, List<CurrencyTrade>> _accumulatedTrades = new Dictionary<Tuple<int, int>, List<CurrencyTrade>>();
         private Timer _tradePostingTimer = null;
 
+        protected override TriggerType GetTriggers()
+        {
+            return TriggerType.Trade;
+        }
+
+        protected override bool ShouldRun()
+        {
+            foreach (ChannelLink link in DLConfig.Data.TradeChannels)
+            {
+                if (link.IsValid())
+                    return true;
+            }
+            return false;
+        }
+
         protected override async Task Initialize()
         {
             _tradePostingTimer = new Timer(InnerArgs =>
@@ -35,21 +50,6 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
         {
             SystemUtil.StopAndDestroyTimer(ref _tradePostingTimer);
             await base.Shutdown();
-        }
-
-        protected override TriggerType GetTriggers()
-        {
-            return TriggerType.Trade;
-        }
-
-        protected override bool ShouldRun()
-        {
-            foreach( ChannelLink link in DLConfig.Data.TradeChannels)
-            {
-                if (link.IsValid())
-                    return true;
-            }
-            return false;
         }
 
         protected override async Task UpdateInternal(DiscordLink plugin, TriggerType trigger, object data)

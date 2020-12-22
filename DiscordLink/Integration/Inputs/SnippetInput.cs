@@ -9,6 +9,21 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
 {
     public class SnippetInput : Input
     {
+        protected override TriggerType GetTriggers()
+        {
+            return TriggerType.DiscordMessage;
+        }
+
+        protected override bool ShouldRun()
+        {
+            foreach (ChannelLink link in DLConfig.Data.SnippetChannels)
+            {
+                if (link.IsValid())
+                    return true;
+            }
+            return false;
+        }
+
         protected override async Task Initialize()
         {
             _ = ReloadSnippets();
@@ -42,21 +57,6 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
                 }
             }
             await base.OnMessageDeleted(message);
-        }
-
-        protected override TriggerType GetTriggers()
-        {
-            return TriggerType.DiscordMessage;
-        }
-
-        protected override bool ShouldRun()
-        {
-            foreach (ChannelLink link in DLConfig.Data.SnippetChannels)
-            {
-                if (link.IsValid())
-                    return true;
-            }
-            return false;
         }
 
         protected override async Task UpdateInternal(DiscordLink plugin, TriggerType trigger, object data)
