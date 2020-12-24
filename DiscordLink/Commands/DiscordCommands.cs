@@ -256,81 +256,54 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [Command("SendServerMessage")]
-        [Description("Sends an Eco server message")]
+        [Description("Sends an Eco server message to a specified user")]
         [Aliases("dl-servermessage")]
         [RequireRoles(RoleCheckMode.Any, "Moderator")]
         public async Task SendServerMessage(CommandContext ctx, [Description("The message to send.")] string message,
-            [Description("Persistance type. Possible values are \"Temporary\" and \"Permanent\". Defaults to \"Temporary\".")] string persistanceType = "temporary",
-            [Description("Name of the recipient Eco user. If this is left empty, the message will be sent to all online users.")] string recipientUserName = "")
+            [Description("Name of the recipient Eco user.")] string recipientUserName,
+            [Description("Persistance type. Possible values are \"Temporary\" and \"Permanent\". Defaults to \"Temporary\".")] string persistanceType = "temporary")
         {
             await CallWithErrorHandling<object>(async (lCtx, args) =>
             {
-                if (string.IsNullOrWhiteSpace(message))
-                {
-                    await RespondToCommand(ctx, "Message cannot be empty.");
-                    return;
-                }
+                await RespondToCommand(ctx, SharedCommands.SendServerMessage(message, ctx.GetSenderName(), recipientUserName, persistanceType));
+            }, ctx);
+        }
 
-                bool permanent;
-                string persistanceTypeLower = persistanceType.ToLower();
-                if (persistanceTypeLower == "temporary")
-                {
-                    permanent = true;
-                }
-                else if (persistanceTypeLower == "permanent")
-                {
-                    permanent = false;
-                }
-                else
-                {
-                    await RespondToCommand(ctx, "Persistance type must either be \"Temporary\" or \"Permanent\".");
-                    return;
-                }
-
-                User recipient = null;
-                if (!string.IsNullOrWhiteSpace(recipientUserName))
-                {
-                    recipient = UserManager.OnlineUsers.FirstOrDefault(x => x.Name.ToLower() == recipientUserName);
-                    if (recipient == null)
-                    {
-                        await RespondToCommand(ctx, "No online user with the name \"" + recipientUserName + "\" could be found.");
-                        return;
-                    }
-                }
-
-                EcoUtil.SendServerMessage("[" + ctx.GetSenderName() + "] " + message, permanent, recipient);
-                await RespondToCommand(ctx, "Message delivered.");
+        [Command("BroadcastServerMessage")]
+        [Description("Sends an Eco server message to all online users")]
+        [Aliases("dl-servermessageall")]
+        [RequireRoles(RoleCheckMode.Any, "Moderator")]
+        public async Task BroadcastServerMessage(CommandContext ctx, [Description("The message to send.")] string message,
+            [Description("Persistance type. Possible values are \"Temporary\" and \"Permanent\". Defaults to \"Temporary\".")] string persistanceType = "temporary")
+        {
+            await CallWithErrorHandling<object>(async (lCtx, args) =>
+            {
+                await RespondToCommand(ctx, SharedCommands.SendServerMessage(message, ctx.GetSenderName(), string.Empty, persistanceType));
             }, ctx);
         }
 
         [Command("SendPopup")]
-        [Description("Sends an Eco popup message")]
+        [Description("Sends an Eco popup message to a specified user")]
         [Aliases("dl-popup")]
         [RequireRoles(RoleCheckMode.Any, "Moderator")]
         public async Task SendPopup(CommandContext ctx, [Description("The message to send.")] string message,
-            [Description("Name of the recipient Eco user. If this is left empty, the message will be sent to all online users.")] string recipientUserName = "")
+            [Description("Name of the recipient Eco user.")] string recipientUserName)
         {
             await CallWithErrorHandling<object>(async (lCtx, args) =>
             {
-                if (string.IsNullOrWhiteSpace(message))
-                {
-                    await RespondToCommand(ctx, "Message cannot be empty.");
-                    return;
-                }
+                await RespondToCommand(ctx, SharedCommands.SendPopup(message, ctx.GetSenderName(), recipientUserName));
+            }, ctx);
+        }
 
-                User recipient = null;
-                if (!string.IsNullOrWhiteSpace(recipientUserName))
-                {
-                    recipient = UserManager.OnlineUsers.FirstOrDefault(x => x.Name.ToLower() == recipientUserName);
-                    if (recipient == null)
-                    {
-                        await RespondToCommand(ctx, "No online user with the name \"" + recipientUserName + "\" could be found.");
-                        return;
-                    }
-                }
-
-                EcoUtil.SendPopupMessage("[" + ctx.GetSenderName() + "]\n\n" + message, recipient);
-                await RespondToCommand(ctx, "Message delivered.");
+        [Command("BroadcastPopup")]
+        [Description("Sends an Eco popup message to all online users")]
+        [Aliases("dl-popupall")]
+        [RequireRoles(RoleCheckMode.Any, "Moderator")]
+        public async Task BroadcastPopup(CommandContext ctx, [Description("The message to send.")] string message)
+        {
+            await CallWithErrorHandling<object>(async (lCtx, args) =>
+            {
+                await RespondToCommand(ctx, SharedCommands.SendPopup(message, ctx.GetSenderName(), string.Empty));
             }, ctx);
         }
 
@@ -340,35 +313,24 @@ namespace Eco.Plugins.DiscordLink
         [RequireRoles(RoleCheckMode.Any, "Moderator")]
         public async Task SendAnnouncement(CommandContext ctx, [Description("The title for the announcement UI.")] string title,
             [Description("The message to display in the announcement UI.")] string message,
-            [Description("Name of the recipient Eco user. If this is left empty, the message will be sent to all online users.")] string recipientUserName = "")
+            [Description("Name of the recipient Eco user.")] string recipientUserName)
         {
             await CallWithErrorHandling<object>(async (lCtx, args) =>
             {
-                if (string.IsNullOrWhiteSpace(title))
-                {
-                    await RespondToCommand(ctx, "Title cannot be empty.");
-                    return;
-                }
+                await RespondToCommand(ctx, SharedCommands.SendAnnouncement(title, message, ctx.GetSenderName(), recipientUserName));
+            }, ctx);
+        }
 
-                if (string.IsNullOrWhiteSpace(message))
-                {
-                    await RespondToCommand(ctx, "Message cannot be empty.");
-                    return;
-                }
-
-                User recipient = null;
-                if (!string.IsNullOrWhiteSpace(recipientUserName))
-                {
-                    recipient = UserManager.OnlineUsers.FirstOrDefault(x => x.Name.ToLower() == recipientUserName);
-                    if (recipient == null)
-                    {
-                        await RespondToCommand(ctx, "No online user with the name \"" + recipientUserName + "\" could be found.");
-                        return;
-                    }
-                }
-
-                EcoUtil.SendAnnouncementMessage(title, message + "\n\n[" + ctx.GetSenderName() + "]", recipient);
-                await RespondToCommand(ctx, "Message delivered.");
+        [Command("BroadcastAnnouncement")]
+        [Description("Sends an Eco announcement message to all online users")]
+        [Aliases("dl-announcementall")]
+        [RequireRoles(RoleCheckMode.Any, "Moderator")]
+        public async Task SendAnnouncement(CommandContext ctx, [Description("The title for the announcement UI.")] string title,
+            [Description("The message to display in the announcement UI.")] string message)
+        {
+            await CallWithErrorHandling<object>(async (lCtx, args) =>
+            {
+                await RespondToCommand(ctx, SharedCommands.SendAnnouncement(title, message, ctx.GetSenderName(), string.Empty));
             }, ctx);
         }
 

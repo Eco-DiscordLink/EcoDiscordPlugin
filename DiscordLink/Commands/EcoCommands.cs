@@ -214,84 +214,69 @@ namespace Eco.Plugins.DiscordLink
             user);
         }
 
-        [ChatSubCommand("DiscordLink", "Sends an Eco server message according to parameters", "dl-servermessage", ChatAuthorizationLevel.Admin)]
-        public static void SendServerMessage(User user, string message, string persistanceType = "temporary", string recipientUserName = "")
+        [ChatSubCommand("DiscordLink", "Sends an Eco server message to a specified user", "dl-servermessage", ChatAuthorizationLevel.Admin)]
+        public static void SendServerMessage(User user, string message, string recipientUserName, string persistanceType = "temporary")
         {
             CallWithErrorHandling<object>((lUser, args) =>
             {
-                bool permanent;
-                string persistanceTypeLower = persistanceType.ToLower();
-                if (persistanceTypeLower == "temporary")
-                {
-                    permanent = true;
-                }
-                else if (persistanceTypeLower == "permanent")
-                {
-                    permanent = false;
-                }
-                else
-                {
-                    ChatManager.ServerMessageToPlayer(new LocString("Persistance type must either be \"Temporary\" or \"Permanent\"."), user);
-                    return;
-                }
-
-                User recipient = null;
-                if (!string.IsNullOrWhiteSpace(recipientUserName))
-                {
-                    user = UserManager.OnlineUsers.FirstOrDefault(x => x.Name.ToLower() == recipientUserName);
-                    if (user == null)
-                    {
-                        ChatManager.ServerMessageToPlayer(new LocString("No online user with the name \"" + recipientUserName + "\" could be found."), user);
-                        return;
-                    }
-                }
-
-                EcoUtil.SendServerMessage("[" + user.Name + "] " + message, permanent, recipient);
-                ChatManager.ServerMessageToPlayer(new LocString("Message delivered."), user);
+                string result = SharedCommands.SendServerMessage(message, user.Name, recipientUserName, persistanceType);
+                ChatManager.ServerMessageToPlayer(new LocString(result), user);
             },
             user);
         }
 
-        [ChatSubCommand("DiscordLink", "Sends an Eco popup message", "dl-popup", ChatAuthorizationLevel.Admin)]
-        public static void SendPopup(User user, string message, string recipientUserName = "")
+        [ChatSubCommand("DiscordLink", "Sends an Eco server message to all online users", "dl-servermessageall", ChatAuthorizationLevel.Admin)]
+        public static void BroadcastServerMessage(User user, string message, string persistanceType = "temporary")
         {
             CallWithErrorHandling<object>((lUser, args) =>
             {
-                User recipient = null;
-                if (!string.IsNullOrWhiteSpace(recipientUserName))
-                {
-                    recipient = UserManager.OnlineUsers.FirstOrDefault(x => x.Name.ToLower() == recipientUserName);
-                    if (recipient == null)
-                    {
-                        ChatManager.ServerMessageToPlayer(new LocString("No online user with the name \"" + recipientUserName + "\" could be found."), user);
-                        return;
-                    }
-                }
-
-                EcoUtil.SendPopupMessage("[" + user.Name + "]\n\n" + message, recipient);
-                ChatManager.ServerMessageToPlayer(new LocString("Message delivered."), user);
+                string result = SharedCommands.SendServerMessage(message, user.Name, string.Empty, persistanceType);
+                ChatManager.ServerMessageToPlayer(new LocString(result), user);
             },
             user);
         }
 
-        [ChatSubCommand("DiscordLink", "Sends an Eco announcement message", "dl-announcement", ChatAuthorizationLevel.Admin)]
-        public static void SendAnnouncement(User user, string title, string message, string recipientUserName = "")
+        
+        [ChatSubCommand("DiscordLink", "Sends an Eco popup message to a specified user", "dl-popup", ChatAuthorizationLevel.Admin)]
+        public static void SendPopup(User user, string message, string recipientUserName)
         {
             CallWithErrorHandling<object>((lUser, args) =>
             {
-                User recipient = null;
-                if (!string.IsNullOrWhiteSpace(recipientUserName))
-                {
-                    recipient = UserManager.OnlineUsers.FirstOrDefault(x => x.Name.ToLower() == recipientUserName);
-                    if (recipient == null)
-                    {
-                        ChatManager.ServerMessageToPlayer(new LocString("No online user with the name \"" + recipientUserName + "\" could be found."), user);
-                        return;
-                    }
-                }
+                string result = SharedCommands.SendPopup(message, user.Name, recipientUserName);
+                ChatManager.ServerMessageToPlayer(new LocString(result), user);
+            },
+            user);
+        }
 
-                EcoUtil.SendAnnouncementMessage(title, message + "\n\n[" + user.Name + "]", recipient);
-                ChatManager.ServerMessageToPlayer(new LocString("Message delivered."), user);
+        [ChatSubCommand("DiscordLink", "Sends an Eco popup message to all online users", "dl-popupall", ChatAuthorizationLevel.Admin)]
+        public static void BroadcastPopup(User user, string message)
+        {
+            CallWithErrorHandling<object>((lUser, args) =>
+            {
+                string result = SharedCommands.SendPopup(message, user.Name, string.Empty);
+                ChatManager.ServerMessageToPlayer(new LocString(result), user);
+            },
+            user);
+        }
+
+        [ChatSubCommand("DiscordLink", "Sends an Eco announcement message to a specified user", "dl-announcement", ChatAuthorizationLevel.Admin)]
+        public static void SendAnnouncement(User user, string title, string message, string recipientUserName)
+        {
+            CallWithErrorHandling<object>((lUser, args) =>
+            {
+                string result = SharedCommands.SendAnnouncement(title, message, user.Name, recipientUserName);
+                ChatManager.ServerMessageToPlayer(new LocString(result), user);
+            },
+            user);
+        }
+
+        [ChatSubCommand("DiscordLink", "Sends an Eco announcement message to a specified user", "dl-announcementall", ChatAuthorizationLevel.Admin)]
+        public static void BroadcastAnnouncement(User user, string title, string message)
+        {
+            CallWithErrorHandling<object>((lUser, args) =>
+            {
+                string result = SharedCommands.SendAnnouncement(title, message, user.Name, string.Empty);
+                ChatManager.ServerMessageToPlayer(new LocString(result), user);
             },
             user);
         }
