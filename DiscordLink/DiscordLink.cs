@@ -26,7 +26,8 @@ namespace Eco.Plugins.DiscordLink
 
         private readonly List<DiscordLinkIntegration> _integrations = new List<DiscordLinkIntegration>();
         private string _status = "No Connection Attempt Made";
-        private CommandsNextExtension _commands;
+        private CommandsNextExtension _commands = null;
+
         private Timer _discordDataMaybeAvailable = null;
         private Timer _tradePostingTimer = null;
 

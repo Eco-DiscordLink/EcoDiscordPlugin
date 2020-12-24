@@ -51,6 +51,10 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
             await Shutdown();
         }
 
+        protected abstract TriggerType GetTriggers();
+
+        protected abstract bool ShouldRun();
+
         protected virtual async Task Initialize()
         { }
 
@@ -73,6 +77,8 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
             IsEnabled = shouldRun;
         }
 
+        protected abstract Task UpdateInternal(DiscordLink plugin, TriggerType trigger, object data);
+
         public virtual async Task OnMessageDeleted(DiscordMessage message)
         { }
 
@@ -89,11 +95,5 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
                 await UpdateInternal(plugin, trigger, data);
             }
         }
-
-        protected abstract TriggerType GetTriggers();
-
-        protected abstract bool ShouldRun();
-
-        protected abstract Task UpdateInternal(DiscordLink plugin, TriggerType trigger, object data);
     }
 }

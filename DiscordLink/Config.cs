@@ -10,7 +10,6 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading;
-
 using Description = System.ComponentModel.DescriptionAttribute;
 
 namespace Eco.Plugins.DiscordLink
@@ -57,7 +56,6 @@ namespace Eco.Plugins.DiscordLink
 
         private PluginConfig<DLConfigData> _config;
         private readonly List<ChannelLink> _channelLinks = new List<ChannelLink>();
-
 
         // Explicit static constructor to tell C# compiler not to mark type as beforefieldinit
         static DLConfig()
@@ -510,89 +508,6 @@ namespace Eco.Plugins.DiscordLink
 
         [Description("The message to use for the /DiscordInvite command. The invite link is fetched from the network config and will replace the token " + DLConfig.InviteCommandLinkToken + ". This setting can be changed while the server is running."), Category("Command Settings")]
         public string InviteMessage { get; set; } = DLConfig.DefaultValues.InviteMessage;
-    }
-
-    public enum GlobalMentionPermission
-    {
-        AnyUser,        // Any user may use mentions
-        Admin,          // Only admins may use mentions
-        Forbidden       // All use of mentions is forbidden
-    };
-
-    public enum ChatSyncDirection
-    {
-        DiscordToEco,   // Send Discord messages to Eco
-        EcoToDiscord,   // Send Eco messages to Discord
-        Duplex,         // Send Discord messages to Eco and Eco messages to Discord
-    }
-
-    public class PlayerListChannelLink : ChannelLink
-    {
-        [Description("Display the number of online players in the message.")]
-        public bool UsePlayerCount { get; set; } = true;
-
-        [Description("Display how long the player has been logged in for.")]
-        public bool UseLoggedInTime { get; set; } = false;
-    }
-
-    public class ChatChannelLink : EcoChannelLink
-    {
-        [Description("Allow mentions of usernames to be forwarded from Eco to the Discord channel.")]
-        public bool AllowUserMentions { get; set; } = true;
-
-        [Description("Allow mentions of roles to be forwarded from Eco to the Discord channel.")]
-        public bool AllowRoleMentions { get; set; } = true;
-
-        [Description("Allow mentions of channels to be forwarded from Eco to the Discord channel.")]
-        public bool AllowChannelMentions { get; set; } = true;
-
-        [Description("Sets which direction chat should synchronize in.")]
-        public ChatSyncDirection Direction { get; set; } = ChatSyncDirection.Duplex;
-
-        [Description("Permissions for who is allowed to forward mentions of @here or @everyone from Eco to the Discord channel.")]
-        public GlobalMentionPermission HereAndEveryoneMentionPermission { get; set; } = GlobalMentionPermission.Forbidden;
-    }
-
-    public class ServerInfoChannel : ChannelLink
-    {
-        [Description("Display the server name in the message.")]
-        public bool UseName { get; set; } = true;
-
-        [Description("Display the server description in the message.")]
-        public bool UseDescription { get; set; } = false;
-
-        [Description("Display the server logo in the message.")]
-        public bool UseLogo { get; set; } = true;
-
-        [Description("Display the server IP address in the message.")]
-        public bool UseAddress { get; set; } = true;
-
-        [Description("Display the number of online players in the message.")]
-        public bool UsePlayerCount { get; set; } = true;
-
-        [Description("Display a list of online players in the message.")]
-        public bool UsePlayerList { get; set; } = true;
-
-        [Description("Display the time since the world was created in the message.")]
-        public bool UseTimeSinceStart { get; set; } = true;
-
-        [Description("Display the time remaining until meteor impact in the message.")]
-        public bool UseTimeRemaining { get; set; } = true;
-
-        [Description("Display a boolean for if the meteor has hit yet or not, in the message.")]
-        public bool UseMeteorHasHit { get; set; } = false;
-
-        [Description("Display the number of active elections in the message.")]
-        public bool UseElectionCount { get; set; } = false;
-
-        [Description("Display a list of all active elections in the message.")]
-        public bool UseElectionList { get; set; } = true;
-
-        [Description("Display the number of active laws in the message.")]
-        public bool UseLawCount { get; set; } = false;
-
-        [Description("Display a list of all active laws in the message.")]
-        public bool UseLawList { get; set; } = true;
     }
 
     public class DiscordPlayerConfig : ICloneable
