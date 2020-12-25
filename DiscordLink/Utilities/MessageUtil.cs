@@ -24,6 +24,25 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         private const string EcoNametagColor = "7289DAFF";
 
+        #region EcoFormatting
+
+        public static string MakeBold(string text)
+        {
+            return $"<b>{text}</b>";
+        }
+
+        public static string MakeItalic(string text)
+        {
+            return $"<i>{text}</i>";
+        }
+
+        public static string MakeColored(string text, string color)
+        {
+            return $"<color=\"{color}\">{text}</color>";
+        }
+
+        #endregion
+
         #region Eco --> Discord
 
         public static string StripTags(string toStrip)
