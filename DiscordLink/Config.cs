@@ -71,7 +71,6 @@ namespace Eco.Plugins.DiscordLink
             _config = new PluginConfig<DLConfigData>("DiscordLink");
             _prevConfig = (DLConfigData)Data.Clone();
 
-            Data.PlayerConfigs.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.ChatChannelLinks.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.ServerInfoChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.TradeChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
@@ -293,26 +292,6 @@ namespace Eco.Plugins.DiscordLink
                     errorMessages.Add("[Bot Token] Bot token not configured. See Github page for install instructions.");
                 }
 
-                // Player configs
-                foreach (DiscordPlayerConfig playerConfig in Data.PlayerConfigs)
-                {
-                    if (string.IsNullOrWhiteSpace(playerConfig.Username)) continue;
-
-                    bool found = false;
-                    foreach (User user in UserManager.Users)
-                    {
-                        if (user.Name == playerConfig.Username)
-                        {
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found)
-                    {
-                        errorMessages.Add("[Player Configs] No user with name \"" + playerConfig.Username + "\" was found");
-                    }
-                }
-
                 // Eco command channel
                 if (!string.IsNullOrWhiteSpace(Data.EcoCommandOutputChannel) && Data.EcoCommandOutputChannel.Contains("#"))
                 {
@@ -431,7 +410,6 @@ namespace Eco.Plugins.DiscordLink
                 ChatlogPath = this.ChatlogPath,
                 EcoCommandOutputChannel = this.EcoCommandOutputChannel,
                 InviteMessage = this.InviteMessage,
-                PlayerConfigs = new ObservableCollection<DiscordPlayerConfig>(this.PlayerConfigs.Select(t => t.Clone()).Cast<DiscordPlayerConfig>()),
                 ChatChannelLinks = new ObservableCollection<ChatChannelLink>(this.ChatChannelLinks.Select(t => t.Clone()).Cast<ChatChannelLink>()),
                 ServerInfoChannels = new ObservableCollection<ServerInfoChannel>(this.ServerInfoChannels.Select(t => t.Clone()).Cast<ServerInfoChannel>()),
                 TradeChannels = new ObservableCollection<ChannelLink>(this.TradeChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
@@ -487,9 +465,6 @@ namespace Eco.Plugins.DiscordLink
 
         [Description("Channels in which to allow commands. If no channels are specified, commands will be allowed in all channels. This setting can be changed while the server is running."), Category("Command Settings")]
         public ObservableCollection<ChannelLink> DiscordCommandChannels { get; set; } = new ObservableCollection<ChannelLink>();
-
-        [Description("A mapping from user to user config parameters. This setting can be changed while the server is running.")]
-        public ObservableCollection<DiscordPlayerConfig> PlayerConfigs = new ObservableCollection<DiscordPlayerConfig>();
 
         [Description("Determines what message types will be printed to the server log. All message types below the selected one will be printed as well. This setting can be changed while the server is running."), Category("Miscellaneous")]
         public LogLevel LogLevel { get; set; } = LogLevel.Information;

@@ -94,38 +94,6 @@ namespace Eco.Plugins.DiscordLink
                 user, guild, channel, outerMessage);
         }
 
-        [ChatSubCommand("DiscordLink", "Sends a message to the default server and channel.", ChatAuthorizationLevel.Admin)]
-        public static async Task SendMessage(User user, string message)
-        {
-            CallWithErrorHandling<object>((lUser, args) =>
-                {
-                    var plugin = Plugins.DiscordLink.DiscordLink.Obj;
-                    if (plugin == null) return;
-
-                    var defaultChannel = plugin.GetDefaultChannelForPlayer(user.Name);
-
-                    plugin.SendDiscordMessageAsUser(message, user, defaultChannel).ContinueWith(async result =>
-                    {
-                        ChatManager.ServerMessageToPlayer(new LocString(await result), user);
-                    });
-                },
-                user, message);
-        }
-
-        [ChatSubCommand("DiscordLink", "Sets the default Discord channel to use.", ChatAuthorizationLevel.Admin)]
-        public static void SetDefaultChannel(User user, string guildName, string channelName)
-        {
-            CallWithErrorHandling<object>((lUser, args) =>
-                {
-                    var plugin = Plugins.DiscordLink.DiscordLink.Obj;
-                    if (plugin == null) return;
-
-                    plugin.SetDefaultChannelForPlayer(user.Name, guildName, channelName);
-                    ChatManager.ServerMessageToPlayer(new LocString("Default channel set to " + channelName), user);
-                },
-                user);
-        }
-
         [ChatSubCommand("Restart", "Restarts the plugin.", "dl-restart", ChatAuthorizationLevel.Admin)]
         public static void Restart(User user)
         {

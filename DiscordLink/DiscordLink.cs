@@ -451,54 +451,5 @@ namespace Eco.Plugins.DiscordLink
             UpdateIntegrations(TriggerType.DiscordMessage, message);
         }
         #endregion
-
-        #region Player Configs
-
-        public DiscordPlayerConfig GetOrCreatePlayerConfig(string identifier)
-        {
-            var config = DLConfig.Data.PlayerConfigs.FirstOrDefault(user => user.Username == identifier);
-            if (config == null)
-            {
-                config = new DiscordPlayerConfig
-                {
-                    Username = identifier
-                };
-                AddOrReplacePlayerConfig(config);
-            }
-
-            return config;
-        }
-
-        public bool AddOrReplacePlayerConfig(DiscordPlayerConfig config)
-        {
-            var playerConfigs = DLConfig.Data.PlayerConfigs;
-            var removed = playerConfigs.Remove(config);
-            playerConfigs.Add(config);
-            DLConfig.Instance.Save();
-            return removed;
-        }
-
-        public DiscordChannel GetDefaultChannelForPlayer(string identifier)
-        {
-            var playerConfig = GetOrCreatePlayerConfig(identifier);
-            if (playerConfig.DefaultChannel == null
-                || string.IsNullOrEmpty(playerConfig.DefaultChannel.Guild)
-                || string.IsNullOrEmpty(playerConfig.DefaultChannel.Channel))
-            {
-                return null;
-            }
-
-            return GuildByName(playerConfig.DefaultChannel.Guild).ChannelByName(playerConfig.DefaultChannel.Channel);
-        }
-
-        public void SetDefaultChannelForPlayer(string identifier, string guildName, string channelName)
-        {
-            var playerConfig = GetOrCreatePlayerConfig(identifier);
-            playerConfig.DefaultChannel.Guild = guildName;
-            playerConfig.DefaultChannel.Channel = channelName;
-            DLConfig.Instance.Save();
-        }
-
-        #endregion
     }
 }
