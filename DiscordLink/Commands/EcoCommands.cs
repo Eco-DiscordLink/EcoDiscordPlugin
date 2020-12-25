@@ -99,11 +99,8 @@ namespace Eco.Plugins.DiscordLink
         {
             CallWithErrorHandling<object>((lUser, args) =>
             {
-                DiscordLink plugin = Plugins.DiscordLink.DiscordLink.Obj;
-                if (plugin == null) return;
-
-                Logger.Info("Eco Restart command executed - Restarting client");
-                _ = plugin.RestartClient();
+                string result = SharedCommands.Restart();
+                ChatManager.ServerMessageToPlayer(new LocString(result), user);
             },
             user);
         }
@@ -123,22 +120,7 @@ namespace Eco.Plugins.DiscordLink
         {
             CallWithErrorHandling<object>((lUser, args) =>
             {
-                var plugin = Plugins.DiscordLink.DiscordLink.Obj;
-                if (plugin == null) return;
-
-                DLConfigData config = DLConfig.Data;
-                ServerInfo serverInfo = Networking.NetworkManager.GetServerInfo();
-
-                string inviteMessage = config.InviteMessage;
-                if (!inviteMessage.Contains(DLConfig.InviteCommandLinkToken) || string.IsNullOrEmpty(serverInfo.DiscordAddress))
-                {
-                    ChatManager.ServerMessageToPlayer(new LocString("This server is not configured for using the /DiscordInvite command."), user);
-                    return;
-                }
-
-                inviteMessage = Regex.Replace(inviteMessage, Regex.Escape(DLConfig.InviteCommandLinkToken), serverInfo.DiscordAddress);
-                string formattedInviteMessage = $"#{(string.IsNullOrEmpty(ecoChannel) ? config.EcoCommandOutputChannel : ecoChannel) } {inviteMessage}";
-                ChatManager.SendChat(formattedInviteMessage, plugin.EcoUser);
+                SharedCommands.Invite(ecoChannel);
             },
             user);
         }

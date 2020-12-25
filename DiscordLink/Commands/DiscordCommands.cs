@@ -177,38 +177,12 @@ namespace Eco.Plugins.DiscordLink
         [Command("DiscordInvite")]
         [Description("Posts the Discord invite message to the Eco chat.")]
         [Aliases("dl-invite")]
-        public async Task DiscordInvite(CommandContext ctx)
+        public async Task DiscordInvite(CommandContext ctx, [Description("The Eco channel in which to post the invite message")] string ecoChannel = "")
         {
             await CallWithErrorHandling<object>(async (lCtx, args) =>
             {
-                var plugin = DiscordLink.Obj;
-                if (plugin == null)
-                {
-                    return;
-                }
-
-                var config = DLConfig.Data;
-                var serverInfo = Networking.NetworkManager.GetServerInfo();
-
-                // Send to Eco
-                string inviteMessage = config.InviteMessage;
-                if (!inviteMessage.Contains(DLConfig.InviteCommandLinkToken) || string.IsNullOrEmpty(serverInfo.DiscordAddress))
-                {
-
-                    await RespondToCommand(ctx, "This server is not configured for using the " + config.DiscordCommandPrefix + "DiscordInvite command.");
-                    return;
-                }
-
-                inviteMessage = Regex.Replace(inviteMessage, Regex.Escape(DLConfig.InviteCommandLinkToken), serverInfo.DiscordAddress);
-                string formattedInviteMessage = $"#{config.EcoCommandOutputChannel} {inviteMessage}";
-                ChatManager.SendChat(formattedInviteMessage, plugin.EcoUser);
-
-                // Respond to Discord
-                var embed = new DiscordEmbedBuilder()
-                    .WithColor(MessageBuilder.EmbedColor)
-                    .WithDescription(inviteMessage);
-
-                await RespondToCommand(ctx, "Posted message to Eco channel #" + config.EcoCommandOutputChannel, embed);
+                string result = SharedCommands.Invite(ecoChannel);
+                await RespondToCommand(ctx,result);
             }, ctx);
         }
 
@@ -246,12 +220,8 @@ namespace Eco.Plugins.DiscordLink
         {
             await CallWithErrorHandling<object>(async (lCtx, args) =>
             {
-                var plugin = DiscordLink.Obj;
-                if (plugin == null) return;
-
-                await RespondToCommand(ctx, "Restarting DiscordLink");
-                Logger.Info("Discord Restart command executed - Restarting client");
-                _ = plugin.RestartClient();
+                string result = SharedCommands.Restart();
+                await RespondToCommand(ctx, result);
             }, ctx);
         }
 

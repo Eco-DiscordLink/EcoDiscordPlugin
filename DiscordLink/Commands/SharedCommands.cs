@@ -1,7 +1,11 @@
 ﻿using Eco.Gameplay.Players;
+using Eco.Gameplay.Systems.Chat;
 using Eco.Plugins.DiscordLink.Utilities;
+using Eco.Shared.Localization;
+using Eco.Shared.Networking;
 using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink
@@ -11,6 +15,14 @@ namespace Eco.Plugins.DiscordLink
      */
     public static class SharedCommands
     {
+        public static string Restart()
+        {
+            DiscordLink plugin = DiscordLink.Obj;
+            Logger.Info("Eco Restart command executed - Restarting client");
+            _ = plugin.RestartClient();
+            return "DiscordLink restarted";
+        }
+
         public static string SendServerMessage(string message, string senderName, string recipientUserName, string persistanceType)
         {
             if (string.IsNullOrWhiteSpace(message))
@@ -72,6 +84,22 @@ namespace Eco.Plugins.DiscordLink
 
             EcoUtil.SendAnnouncementMessage(title, message + "\n\n[" + senderName + "]", recipient);
             return "Message delivered.";
+        }
+
+        public static string Invite(string ecoChannel)
+        {
+            var plugin = DiscordLink.Obj;
+            DLConfigData config = DLConfig.Data;
+            ServerInfo serverInfo = Networking.NetworkManager.GetServerInfo();
+
+            string inviteMessage = config.InviteMessage;
+            if (!inviteMessage.Contains(DLConfig.InviteCommandLinkToken) || string.IsNullOrEmpty(serverInfo.DiscordAddress))
+                return "This server is not configured for using the /DiscordInvite command.";
+
+            inviteMessage = Regex.Replace(inviteMessage, Regex.Escape(DLConfig.InviteCommandLinkToken), serverInfo.DiscordAddress);
+            string formattedInviteMessage = $"#{(string.IsNullOrEmpty(ecoChannel) ? config.EcoCommandOutputChannel : ecoChannel) } {inviteMessage}";
+            ChatManager.SendChat(formattedInviteMessage, plugin.EcoUser);
+            return "Invite sent";
         }
     }
 }
