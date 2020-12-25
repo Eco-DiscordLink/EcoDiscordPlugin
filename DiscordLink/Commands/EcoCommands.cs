@@ -2,13 +2,14 @@ using DSharpPlus.Entities;
 using Eco.Gameplay.Players;
 using Eco.Gameplay.Systems.Chat;
 using Eco.Shared.Localization;
-using Eco.Shared.Networking;
 using Eco.Plugins.DiscordLink.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using Eco.Gameplay.Components;
+
+using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
 
 namespace Eco.Plugins.DiscordLink
 {
@@ -164,7 +165,7 @@ namespace Eco.Plugins.DiscordLink
             user);
         }
 
-        [ChatSubCommand("DiscordLink", "Sends an Eco server message to a specified user", "dl-servermessage", ChatAuthorizationLevel.Admin)]
+        [ChatSubCommand("DiscordLink", "Sends an Eco server message to a specified user.", "dl-servermessage", ChatAuthorizationLevel.Admin)]
         public static void SendServerMessage(User user, string message, string recipientUserName, string persistanceType = "temporary")
         {
             CallWithErrorHandling<object>((lUser, args) =>
@@ -175,7 +176,7 @@ namespace Eco.Plugins.DiscordLink
             user);
         }
 
-        [ChatSubCommand("DiscordLink", "Sends an Eco server message to all online users", "dl-servermessageall", ChatAuthorizationLevel.Admin)]
+        [ChatSubCommand("DiscordLink", "Sends an Eco server message to all online users.", "dl-servermessageall", ChatAuthorizationLevel.Admin)]
         public static void BroadcastServerMessage(User user, string message, string persistanceType = "temporary")
         {
             CallWithErrorHandling<object>((lUser, args) =>
@@ -186,8 +187,8 @@ namespace Eco.Plugins.DiscordLink
             user);
         }
 
-        
-        [ChatSubCommand("DiscordLink", "Sends an Eco popup message to a specified user", "dl-popup", ChatAuthorizationLevel.Admin)]
+
+        [ChatSubCommand("DiscordLink", "Sends an Eco popup message to a specified user.", "dl-popup", ChatAuthorizationLevel.Admin)]
         public static void SendPopup(User user, string message, string recipientUserName)
         {
             CallWithErrorHandling<object>((lUser, args) =>
@@ -198,7 +199,7 @@ namespace Eco.Plugins.DiscordLink
             user);
         }
 
-        [ChatSubCommand("DiscordLink", "Sends an Eco popup message to all online users", "dl-popupall", ChatAuthorizationLevel.Admin)]
+        [ChatSubCommand("DiscordLink", "Sends an Eco popup message to all online users.", "dl-popupall", ChatAuthorizationLevel.Admin)]
         public static void BroadcastPopup(User user, string message)
         {
             CallWithErrorHandling<object>((lUser, args) =>
@@ -209,7 +210,7 @@ namespace Eco.Plugins.DiscordLink
             user);
         }
 
-        [ChatSubCommand("DiscordLink", "Sends an Eco announcement message to a specified user", "dl-announcement", ChatAuthorizationLevel.Admin)]
+        [ChatSubCommand("DiscordLink", "Sends an Eco announcement message to a specified user.", "dl-announcement", ChatAuthorizationLevel.Admin)]
         public static void SendAnnouncement(User user, string title, string message, string recipientUserName)
         {
             CallWithErrorHandling<object>((lUser, args) =>
@@ -220,7 +221,7 @@ namespace Eco.Plugins.DiscordLink
             user);
         }
 
-        [ChatSubCommand("DiscordLink", "Sends an Eco announcement message to a specified user", "dl-announcementall", ChatAuthorizationLevel.Admin)]
+        [ChatSubCommand("DiscordLink", "Sends an Eco announcement message to a specified user.", "dl-announcementall", ChatAuthorizationLevel.Admin)]
         public static void BroadcastAnnouncement(User user, string title, string message)
         {
             CallWithErrorHandling<object>((lUser, args) =>
@@ -231,7 +232,7 @@ namespace Eco.Plugins.DiscordLink
             user);
         }
 
-        [ChatSubCommand("DiscordLink", "Links the calling user account to a Discord account", "dl-link", ChatAuthorizationLevel.User)]
+        [ChatSubCommand("DiscordLink", "Links the calling user account to a Discord account.", "dl-link", ChatAuthorizationLevel.User)]
         public static void LinkDiscordAccount(User user, string DiscordName)
         {
             CallWithErrorHandling<object>((lUser, args) =>
@@ -241,14 +242,14 @@ namespace Eco.Plugins.DiscordLink
 
                 // Find the Discord user
                 DiscordMember matchingMember = null;
-                foreach(DiscordGuild guild in plugin.DiscordClient.Guilds.Values)
+                foreach (DiscordGuild guild in plugin.DiscordClient.Guilds.Values)
                 {
                     IReadOnlyCollection<DiscordMember> guildMembers = DiscordUtil.GetGuildMembersAsync(guild).Result;
                     if (guildMembers == null) continue;
 
                     foreach (DiscordMember member in guildMembers)
                     {
-                        if(member.Id.ToString() == DiscordName || member.Username.ToLower() == DiscordName.ToLower())
+                        if (member.Id.ToString() == DiscordName || member.Username.ToLower() == DiscordName.ToLower())
                         {
                             matchingMember = member;
                             break;
@@ -256,7 +257,7 @@ namespace Eco.Plugins.DiscordLink
                     }
                 }
 
-                if(matchingMember == null)
+                if (matchingMember == null)
                 {
                     ChatManager.ServerMessageToPlayer(new LocString($"No Discord account with the ID or name \"{DiscordName}\" could be found."), user);
                     return;
@@ -265,7 +266,7 @@ namespace Eco.Plugins.DiscordLink
                 // Make sure that the accounts aren't already linked to any account
                 foreach (LinkedUser linkedUser in DLStorage.PersistantData.LinkedUsers)
                 {
-                    
+
                     if (user.SlgId == linkedUser.SlgId || user.SteamId == linkedUser.SteamId)
                     {
                         if (linkedUser.DiscordId == matchingMember.Id.ToString())
@@ -293,17 +294,94 @@ namespace Eco.Plugins.DiscordLink
             user);
         }
 
-        [ChatSubCommand("DiscordLink", "Unlinks the calling user account from a linked Discord account", "dl-unlink", ChatAuthorizationLevel.User)]
+        [ChatSubCommand("DiscordLink", "Unlinks the calling user account from a linked Discord account.", "dl-unlink", ChatAuthorizationLevel.User)]
         public static void UnlinkDiscordAccount(User user)
         {
             CallWithErrorHandling<object>((lUser, args) =>
             {
                 bool result = LinkedUserManager.RemoveLinkedUser(user);
-                if(result)
+                if (result)
                     ChatManager.ServerMessageToPlayer(new LocString($"Discord account unlinked."), user);
                 else
                     ChatManager.ServerMessageToPlayer(new LocString($"No linked Discord account could be found."), user);
             }, user);
+        }
+
+        [ChatSubCommand("DiscordLink", "Displays available trades by player or by item.", "dl-trades", ChatAuthorizationLevel.User)]
+        public static void Trades(User user, string userOrItemName)
+        {
+            CallWithErrorHandling<object>((lUser, args) =>
+            {
+                // Fetch trade data
+                string result = SharedCommands.Trades(userOrItemName, out string title, out bool isItem, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
+                if (!string.IsNullOrEmpty(result))
+                {
+                    // Report commmand error
+                    ChatManager.ServerMessageToPlayer(new LocString(result), user);
+                    return;
+                }
+
+                Func<Tuple<StoreComponent, TradeOffer>, string> getLabel;
+                if (isItem)
+                    getLabel = t => t.Item1.Parent.MarkedUpName;
+                else
+                    getLabel = t => t.Item2.Stack.Item.MarkedUpName;
+
+                // Format message
+                StringBuilder builder = new StringBuilder();
+
+                if (groupedSellOffers.Count() > 0 && groupedBuyOffers.Count() > 0)
+                {
+                    foreach (var group in groupedBuyOffers)
+                    {
+                        var offerDescriptions = TradeOffersToDescriptions(group,
+                            t => t.Item2.Price.ToString(),
+                            t => getLabel(t),
+                            t => t.Item2.Stack.Quantity);
+
+                        builder.AppendLine(MessageUtil.MakeBold(MessageUtil.MakeColored($"<--- Buying for {group.First().Item1.Parent.GetComponent<CreditComponent>().CreditData.Currency.MarkedUpName} --->", "green")));
+                        foreach (string description in offerDescriptions)
+                        {
+                            builder.AppendLine(description);
+                        }
+                        builder.AppendLine();
+                    }
+
+                    foreach (var group in groupedSellOffers)
+                    {
+                        var offerDescriptions = TradeOffersToDescriptions(group,
+                            t => t.Item2.Price.ToString(),
+                            t => getLabel(t),
+                            t => t.Item2.Stack.Quantity);
+
+                        builder.AppendLine(MessageUtil.MakeBold(MessageUtil.MakeColored($"<--- Selling for {group.First().Item1.Parent.GetComponent<CreditComponent>().CreditData.Currency.MarkedUpName} --->", "red")));
+                        foreach (string description in offerDescriptions)
+                        {
+                            builder.AppendLine(description);
+                        }
+                        builder.AppendLine();
+                    }
+                }
+                else
+                {
+                    builder.AppendLine("--- No trade offers available ---");
+                }
+
+                EcoUtil.SendAnnouncementMessage(title, builder.ToString(), user);
+            }, user);
+        }
+
+        private static IEnumerable<string> TradeOffersToDescriptions<T>(IEnumerable<T> offers, Func<T, string> getPrice, Func<T, string> getLabel, Func<T, int?> getQuantity)
+        {
+            return offers.Select(t =>
+            {
+                var price = getPrice(t);
+                var quantity = getQuantity(t);
+                var quantityString = quantity.HasValue ? $"{quantity.Value} - " : "";
+                var line = $"{quantityString}${price} at {getLabel(t)}";
+                if (quantity == 0) line = MessageUtil.MakeColored(line, "yellow");
+                return line;
+            });
         }
     }
 }

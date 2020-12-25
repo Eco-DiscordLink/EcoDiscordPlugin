@@ -1,12 +1,15 @@
-﻿using Eco.Gameplay.Players;
+﻿using Eco.Gameplay.Components;
+using Eco.Gameplay.Items;
+using Eco.Gameplay.Players;
 using Eco.Gameplay.Systems.Chat;
 using Eco.Plugins.DiscordLink.Utilities;
-using Eco.Shared.Localization;
 using Eco.Shared.Networking;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+
+using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
 
 namespace Eco.Plugins.DiscordLink
 {
@@ -100,6 +103,51 @@ namespace Eco.Plugins.DiscordLink
             string formattedInviteMessage = $"#{(string.IsNullOrEmpty(ecoChannel) ? config.EcoCommandOutputChannel : ecoChannel) } {inviteMessage}";
             ChatManager.SendChat(formattedInviteMessage, plugin.EcoUser);
             return "Invite sent";
+        }
+
+        public static string Trades(string userOrItemName, out string title, out bool isItem, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers)
+        {
+            var plugin = DiscordLink.Obj;
+            title = string.Empty;
+            groupedBuyOffers = null;
+            groupedSellOffers = null;
+            isItem = false;
+
+            if (string.IsNullOrEmpty(userOrItemName))
+                return "Please provide the name of an item or player to search for.";
+
+            List<string> entries = new List<string>();
+            var match = TradeUtil.MatchItemOrUser(userOrItemName);
+            if (match.Is<Item>())
+            {
+                var matchItem = match.Get<Item>();
+                title = "Trades for " + matchItem.DisplayName;
+
+                Func<StoreComponent, TradeOffer, bool> filter = (store, offer) => offer.Stack.Item == matchItem;
+                var sellOffers = TradeUtil.SellOffers(filter);
+                groupedSellOffers = sellOffers.GroupBy(t => TradeUtil.StoreCurrencyName(t.Item1)).OrderBy(g => g.Key);
+                var buyOffers = TradeUtil.BuyOffers(filter);
+                groupedBuyOffers = buyOffers.GroupBy(t => TradeUtil.StoreCurrencyName(t.Item1)).OrderBy(g => g.Key);
+
+                isItem = true;
+            }
+            else if (match.Is<User>())
+            {
+                var matchUser = match.Get<User>();
+                title = matchUser.Name;
+
+                Func<StoreComponent, TradeOffer, bool> filter = (store, offer) => store.Parent.Owners == matchUser;
+                var sellOffers = TradeUtil.SellOffers(filter);
+                groupedSellOffers = sellOffers.GroupBy(t => TradeUtil.StoreCurrencyName(t.Item1)).OrderBy(g => g.Key);
+                var buyOffers = TradeUtil.BuyOffers(filter);
+                groupedBuyOffers = buyOffers.GroupBy(t => TradeUtil.StoreCurrencyName(t.Item1)).OrderBy(g => g.Key);
+            }
+            else
+            {
+                return $"No player or item with the name \"{userOrItemName}\" could be found.";
+            }
+
+            return string.Empty;
         }
     }
 }
