@@ -8,7 +8,7 @@ using Eco.Core.Plugins.Interfaces;
 using Eco.Core.Utils;
 using Eco.Gameplay.GameActions;
 using Eco.Gameplay.Players;
-using Eco.Plugins.DiscordLink.IntegrationTypes;
+using Eco.Plugins.DiscordLink.Modules;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Utils;
 using System;
@@ -24,7 +24,7 @@ namespace Eco.Plugins.DiscordLink
         public readonly Version PluginVersion = new Version(2, 1, 1);
         private const int FIRST_DISPLAY_UPDATE_DELAY_MS = 20000;
 
-        private readonly List<DiscordLinkIntegration> _integrations = new List<DiscordLinkIntegration>();
+        private readonly List<Module> _modules = new List<Module>();
         private string _status = "No Connection Attempt Made";
         private CommandsNextExtension _commands = null;
 
@@ -78,14 +78,14 @@ namespace Eco.Plugins.DiscordLink
             // It is likely that the client object has fetched all the relevant data, but there are not guarantees.
             OnDiscordMaybeReady += (obj, args) =>
             {
-                InitializeIntegrations();
-                UpdateIntegrations(DLEventType.Startup, null);
+                InitializeModules();
+                UpdateModules(DLEventType.Startup, null);
             };
 
             // Set up callbacks
-            UserManager.OnNewUserJoined.Add(user => UpdateIntegrations(DLEventType.Join, user));
-            UserManager.OnUserLoggedIn.Add(user => UpdateIntegrations(DLEventType.Login, user));
-            UserManager.OnUserLoggedOut.Add(user => UpdateIntegrations(DLEventType.Logout, user));
+            UserManager.OnNewUserJoined.Add(user => UpdateModules(DLEventType.Join, user));
+            UserManager.OnUserLoggedIn.Add(user => UpdateModules(DLEventType.Login, user));
+            UserManager.OnUserLoggedOut.Add(user => UpdateModules(DLEventType.Logout, user));
 
             _ = EcoUser; // Create the Eco User on startup
         }
@@ -106,47 +106,47 @@ namespace Eco.Plugins.DiscordLink
                     break;
             
                 case CurrencyTrade currencyTrade:
-                    UpdateIntegrations(DLEventType.Trade, currencyTrade);
+                    UpdateModules(DLEventType.Trade, currencyTrade);
                     break;
 
                 case WorkOrderAction workOrderAction:
-                    UpdateIntegrations(DLEventType.WorkOrderCreated, workOrderAction);
+                    UpdateModules(DLEventType.WorkOrderCreated, workOrderAction);
                     break;
             
                 case PostedWorkParty postedWorkParty:
-                    UpdateIntegrations(DLEventType.PostedWorkParty, postedWorkParty);
+                    UpdateModules(DLEventType.PostedWorkParty, postedWorkParty);
                     break;
             
                 case CompletedWorkParty completedWorkParty:
-                    UpdateIntegrations(DLEventType.CompletedWorkParty, completedWorkParty);
+                    UpdateModules(DLEventType.CompletedWorkParty, completedWorkParty);
                     break;
             
                 case JoinedWorkParty joinedWorkParty:
-                    UpdateIntegrations(DLEventType.JoinedWorkParty, joinedWorkParty);
+                    UpdateModules(DLEventType.JoinedWorkParty, joinedWorkParty);
                     break;
             
                 case LeftWorkParty leftWorkParty:
-                    UpdateIntegrations(DLEventType.LeftWorkParty, leftWorkParty);
+                    UpdateModules(DLEventType.LeftWorkParty, leftWorkParty);
                     break;
             
                 case WorkedForWorkParty workedParty:
-                    UpdateIntegrations(DLEventType.WorkedWorkParty, workedParty);
+                    UpdateModules(DLEventType.WorkedWorkParty, workedParty);
                     break;
 
                 case Vote vote:
-                    UpdateIntegrations(DLEventType.Vote, vote);
+                    UpdateModules(DLEventType.Vote, vote);
                     break;
 
                 case StartElection startElection:
-                    UpdateIntegrations(DLEventType.StartElection, startElection);
+                    UpdateModules(DLEventType.StartElection, startElection);
                     break;
 
                 case LostElection lostElection:
-                    UpdateIntegrations(DLEventType.StopElection, lostElection);
+                    UpdateModules(DLEventType.StopElection, lostElection);
                     break;
 
                 case WonElection wonElection:
-                    UpdateIntegrations(DLEventType.StopElection, wonElection);
+                    UpdateModules(DLEventType.StopElection, wonElection);
                     break;
                     break;
 
@@ -207,7 +207,7 @@ namespace Eco.Plugins.DiscordLink
 
                 DiscordClient.MessageDeleted += async (client, args) =>
                 {
-                    _integrations.ForEach(async integration => await integration.OnMessageDeleted(args.Message));
+                    _modules.ForEach(async integration => await integration.OnMessageDeleted(args.Message));
                 };
 
                 // Set up the client to use CommandsNext
@@ -303,31 +303,31 @@ namespace Eco.Plugins.DiscordLink
 
         #region Integration Management
 
-        private void InitializeIntegrations()
+        private void InitializeModules()
         {
-            _integrations.Add(new DiscordChatFeed());   // Discord -> Eco
-            _integrations.Add(new EcoChatFeed());       // Eco -> Discord
-            _integrations.Add(new ChatlogFeed());
-            _integrations.Add(new ServerInfoDisplay());
-            _integrations.Add(new TradeFeed());
-            _integrations.Add(new CraftingFeed());
-            _integrations.Add(new SnippetInput());
-            _integrations.Add(new WorkPartyDisplay());
-            _integrations.Add(new PlayerDisplay());
-            _integrations.Add(new ElectionDisplay());
+            _modules.Add(new DiscordChatFeed());   // Discord -> Eco
+            _modules.Add(new EcoChatFeed());       // Eco -> Discord
+            _modules.Add(new ChatlogFeed());
+            _modules.Add(new ServerInfoDisplay());
+            _modules.Add(new TradeFeed());
+            _modules.Add(new CraftingFeed());
+            _modules.Add(new SnippetInput());
+            _modules.Add(new WorkPartyDisplay());
+            _modules.Add(new PlayerDisplay());
+            _modules.Add(new ElectionDisplay());
 
-            _integrations.ForEach(async integration => await integration.StartIfRelevant());
+            _modules.ForEach(async integration => await integration.StartIfRelevant());
         }
 
         private void ShutdownIntegrations()
         {
-            _integrations.ForEach(async integration => await integration.Stop());
-            _integrations.Clear();
+            _modules.ForEach(async integration => await integration.Stop());
+            _modules.Clear();
         }
 
-        private void UpdateIntegrations(DLEventType trigger, object data)
+        private void UpdateModules(DLEventType trigger, object data)
         {
-            _integrations.ForEach(async integration => await integration.Update(this, trigger, data));
+            _modules.ForEach(async integration => await integration.Update(this, trigger, data));
         }
 
         #endregion
@@ -438,7 +438,7 @@ namespace Eco.Plugins.DiscordLink
             if (chatMessage.Citizen.Name == EcoUser.Name && !chatMessage.Message.StartsWith(DLConstants.ECHO_COMMAND_TOKEN))
                 return;
 
-            UpdateIntegrations(DLEventType.EcoMessage, chatMessage);
+            UpdateModules(DLEventType.EcoMessage, chatMessage);
         }
 
         public async Task OnDiscordMessageCreateEvent(DiscordClient client, MessageCreateEventArgs messageArgs)
@@ -454,7 +454,7 @@ namespace Eco.Plugins.DiscordLink
             if (message.Author == DiscordClient.CurrentUser) return;
             if (message.Content.StartsWith(DLConfig.Data.DiscordCommandPrefix)) return;
 
-            UpdateIntegrations(DLEventType.DiscordMessage, message);
+            UpdateModules(DLEventType.DiscordMessage, message);
         }
         #endregion
     }

@@ -1,5 +1,5 @@
-﻿namespace Eco.Plugins.DiscordLink.IntegrationTypes
+﻿namespace Eco.Plugins.DiscordLink.Modules
 {
-    public abstract class Feed : DiscordLinkIntegration
+    public abstract class Feed : Module
     { }
 }

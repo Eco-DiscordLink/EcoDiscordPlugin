@@ -4,7 +4,7 @@ using Eco.Gameplay.Objects;
 using Eco.Plugins.DiscordLink.Utilities;
 using System.Threading.Tasks;
 
-namespace Eco.Plugins.DiscordLink.IntegrationTypes
+namespace Eco.Plugins.DiscordLink.Modules
 {
     public class CraftingFeed : Feed
     {

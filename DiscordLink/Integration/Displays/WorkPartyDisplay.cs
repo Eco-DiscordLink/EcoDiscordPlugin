@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 
-namespace Eco.Plugins.DiscordLink.IntegrationTypes
+namespace Eco.Plugins.DiscordLink.Modules
 {
     public class WorkPartyDisplay : Display
     {

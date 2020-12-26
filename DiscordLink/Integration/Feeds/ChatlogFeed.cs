@@ -7,7 +7,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Eco.Plugins.DiscordLink.IntegrationTypes
+namespace Eco.Plugins.DiscordLink.Modules
 {
     public class ChatlogFeed : Feed
     {

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace Eco.Plugins.DiscordLink.IntegrationTypes
+namespace Eco.Plugins.DiscordLink.Modules
 {
     public class SnippetInput : Input
     {

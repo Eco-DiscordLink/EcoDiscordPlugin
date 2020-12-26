@@ -3,7 +3,7 @@ using Eco.Gameplay.Systems.Chat;
 using Eco.Plugins.DiscordLink.Utilities;
 using System.Threading.Tasks;
 
-namespace Eco.Plugins.DiscordLink.IntegrationTypes
+namespace Eco.Plugins.DiscordLink.Modules
 {
     public class DiscordChatFeed : Feed
     {

@@ -6,9 +6,9 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using Eco.Plugins.DiscordLink.Utilities;
 
-namespace Eco.Plugins.DiscordLink.IntegrationTypes
+namespace Eco.Plugins.DiscordLink.Modules
 {
-    abstract public class Display : DiscordLinkIntegration
+    abstract public class Display : Module
     {
         protected virtual string BaseTag { get; } = "[Unset Tag]";
         protected virtual int TimerUpdateIntervalMS { get; } = -1;

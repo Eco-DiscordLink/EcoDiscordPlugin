@@ -1,5 +1,5 @@
-﻿namespace Eco.Plugins.DiscordLink.IntegrationTypes
+﻿namespace Eco.Plugins.DiscordLink.Modules
 {
-    public abstract class Input : DiscordLinkIntegration
+    public abstract class Input : Module
     { }
 }

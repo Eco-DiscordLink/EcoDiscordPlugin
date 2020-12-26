@@ -1,10 +1,11 @@
 ﻿using DSharpPlus.Entities;
+using Eco.Plugins.DiscordLink.Utilities;
 using Nito.AsyncEx;
 using System.Threading.Tasks;
 
-namespace Eco.Plugins.DiscordLink.IntegrationTypes
+namespace Eco.Plugins.DiscordLink.Modules
 {
-    public abstract class DiscordLinkIntegration
+    public abstract class Module
     {
         public bool IsEnabled { get; private set; } = false;
 
@@ -66,8 +67,8 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
         {
             if (plugin == null) return;
 
-            // Check if this integration should execute on the supplied trigger
-            if ((GetTriggers() & trigger) == 0) return; 
+            // Check if this module should execute on the supplied trigger
+            if ((GetTriggers() & trigger) == 0) return;
 
             using (await _overlapLock.LockAsync()) // Make sure that the Update function doesn't get overlapping executions
             {
