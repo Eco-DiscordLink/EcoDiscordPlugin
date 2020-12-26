@@ -23,13 +23,14 @@ namespace Eco.Plugins.DiscordLink.Utilities
             ConnectionInfo      = 1 << 3,
             PlayerCount         = 1 << 4,
             PlayerList          = 1 << 5,
-            TimeSinceStart      = 1 << 6,
-            TimeRemaining       = 1 << 7,
-            MeteorHasHit        = 1 << 8,
-            ActiveElectionCount = 1 << 9,
-            ActiveElectionList  = 1 << 10,
-            LawCount            = 1 << 11,
-            LawList             = 1 << 12,
+            PlayerListLoginTime = 1 << 6,
+            TimeSinceStart      = 1 << 7,
+            TimeRemaining       = 1 << 8,
+            MeteorHasHit        = 1 << 9,
+            ActiveElectionCount = 1 << 10,
+            ActiveElectionList  = 1 << 11,
+            LawCount            = 1 << 12,
+            LawList             = 1 << 13,
             All                 = ~0
         }
 
@@ -134,7 +135,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
             {
                 IEnumerable<string> onlineUsers = UserManager.OnlineUsers.Where(user => user.Client.Connected).Select(user => user.Name);
                 string playerList = onlineUsers.Count() > 0 ? string.Join("\n", onlineUsers) : "-- No players online --";
-                builder.AddField("Online Players", GetPlayerList());
+                bool useOnlineTime = flag.HasFlag(ServerInfoComponentFlag.PlayerListLoginTime);
+                builder.AddField("Online Players", GetPlayerList(useOnlineTime));
             }
 
             if (flag.HasFlag(ServerInfoComponentFlag.TimeSinceStart))

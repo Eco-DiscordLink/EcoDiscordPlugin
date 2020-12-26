@@ -160,6 +160,9 @@ namespace Eco.Plugins.DiscordLink
         [Description("Display a list of online players in the message.")]
         public bool UsePlayerList { get; set; } = true;
 
+        [Description("Display how long the players in the playerlist has been logged in for.")]
+        public bool UsePlayerListLoggedInTime { get; set; } = false;
+
         [Description("Display the time since the world was created in the message.")]
         public bool UseTimeSinceStart { get; set; } = true;
 
