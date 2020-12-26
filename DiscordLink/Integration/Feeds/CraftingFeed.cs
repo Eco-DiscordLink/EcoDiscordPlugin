@@ -8,9 +8,9 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
 {
     public class CraftingFeed : Feed
     {
-        protected override TriggerType GetTriggers()
+        protected override DLEventType GetTriggers()
         {
-            return TriggerType.WorkOrderCreated;
+            return DLEventType.WorkOrderCreated;
         }
 
         protected override bool ShouldRun()
@@ -23,7 +23,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
             return false;
         }
 
-        protected override async Task UpdateInternal(DiscordLink plugin, TriggerType trigger, object data)
+        protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, object data)
         {
             if (!(data is WorkOrderAction craftingEvent)) return;
             if (craftingEvent.Citizen == null) return; // Happens when a crafting table contiues crafting after finishing an item

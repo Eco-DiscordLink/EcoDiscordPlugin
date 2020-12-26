@@ -6,9 +6,9 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
 {
     public class EcoChatFeed : Feed
     {
-        protected override TriggerType GetTriggers()
+        protected override DLEventType GetTriggers()
         {
-            return TriggerType.EcoMessage;
+            return DLEventType.EcoMessage;
         }
 
         protected override bool ShouldRun()
@@ -21,7 +21,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
             return false;
         }
 
-        protected override async Task UpdateInternal(DiscordLink plugin, TriggerType trigger, object data)
+        protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, object data)
         {
             if (!(data is ChatSent message)) return;
 

@@ -79,13 +79,13 @@ namespace Eco.Plugins.DiscordLink
             OnDiscordMaybeReady += (obj, args) =>
             {
                 InitializeIntegrations();
-                UpdateIntegrations(TriggerType.Startup, null);
+                UpdateIntegrations(DLEventType.Startup, null);
             };
 
             // Set up callbacks
-            UserManager.OnNewUserJoined.Add(user => UpdateIntegrations(TriggerType.Join, user));
-            UserManager.OnUserLoggedIn.Add(user => UpdateIntegrations(TriggerType.Login, user));
-            UserManager.OnUserLoggedOut.Add(user => UpdateIntegrations(TriggerType.Logout, user));
+            UserManager.OnNewUserJoined.Add(user => UpdateIntegrations(DLEventType.Join, user));
+            UserManager.OnUserLoggedIn.Add(user => UpdateIntegrations(DLEventType.Login, user));
+            UserManager.OnUserLoggedOut.Add(user => UpdateIntegrations(DLEventType.Logout, user));
 
             _ = EcoUser; // Create the Eco User on startup
         }
@@ -106,47 +106,48 @@ namespace Eco.Plugins.DiscordLink
                     break;
             
                 case CurrencyTrade currencyTrade:
-                    UpdateIntegrations(TriggerType.Trade, currencyTrade);
+                    UpdateIntegrations(DLEventType.Trade, currencyTrade);
                     break;
 
                 case WorkOrderAction workOrderAction:
-                    UpdateIntegrations(TriggerType.WorkOrderCreated, workOrderAction);
+                    UpdateIntegrations(DLEventType.WorkOrderCreated, workOrderAction);
                     break;
             
                 case PostedWorkParty postedWorkParty:
-                    UpdateIntegrations(TriggerType.PostedWorkParty, postedWorkParty);
+                    UpdateIntegrations(DLEventType.PostedWorkParty, postedWorkParty);
                     break;
             
                 case CompletedWorkParty completedWorkParty:
-                    UpdateIntegrations(TriggerType.CompletedWorkParty, completedWorkParty);
+                    UpdateIntegrations(DLEventType.CompletedWorkParty, completedWorkParty);
                     break;
             
                 case JoinedWorkParty joinedWorkParty:
-                    UpdateIntegrations(TriggerType.JoinedWorkParty, joinedWorkParty);
+                    UpdateIntegrations(DLEventType.JoinedWorkParty, joinedWorkParty);
                     break;
             
                 case LeftWorkParty leftWorkParty:
-                    UpdateIntegrations(TriggerType.LeftWorkParty, leftWorkParty);
+                    UpdateIntegrations(DLEventType.LeftWorkParty, leftWorkParty);
                     break;
             
                 case WorkedForWorkParty workedParty:
-                    UpdateIntegrations(TriggerType.WorkedWorkParty, workedParty);
+                    UpdateIntegrations(DLEventType.WorkedWorkParty, workedParty);
                     break;
 
                 case Vote vote:
-                    UpdateIntegrations(TriggerType.Vote, vote);
+                    UpdateIntegrations(DLEventType.Vote, vote);
                     break;
 
                 case StartElection startElection:
-                    UpdateIntegrations(TriggerType.StartElection, startElection);
+                    UpdateIntegrations(DLEventType.StartElection, startElection);
                     break;
 
                 case LostElection lostElection:
-                    UpdateIntegrations(TriggerType.StopElection, lostElection);
+                    UpdateIntegrations(DLEventType.StopElection, lostElection);
                     break;
 
                 case WonElection wonElection:
-                    UpdateIntegrations(TriggerType.StopElection, wonElection);
+                    UpdateIntegrations(DLEventType.StopElection, wonElection);
+                    break;
                     break;
 
                 default:
@@ -324,7 +325,7 @@ namespace Eco.Plugins.DiscordLink
             _integrations.Clear();
         }
 
-        private void UpdateIntegrations(TriggerType trigger, object data)
+        private void UpdateIntegrations(DLEventType trigger, object data)
         {
             _integrations.ForEach(async integration => await integration.Update(this, trigger, data));
         }
@@ -437,7 +438,7 @@ namespace Eco.Plugins.DiscordLink
             if (chatMessage.Citizen.Name == EcoUser.Name && !chatMessage.Message.StartsWith(DLConstants.ECHO_COMMAND_TOKEN))
                 return;
 
-            UpdateIntegrations(TriggerType.EcoMessage, chatMessage);
+            UpdateIntegrations(DLEventType.EcoMessage, chatMessage);
         }
 
         public async Task OnDiscordMessageCreateEvent(DiscordClient client, MessageCreateEventArgs messageArgs)
@@ -453,7 +454,7 @@ namespace Eco.Plugins.DiscordLink
             if (message.Author == DiscordClient.CurrentUser) return;
             if (message.Content.StartsWith(DLConfig.Data.DiscordCommandPrefix)) return;
 
-            UpdateIntegrations(TriggerType.DiscordMessage, message);
+            UpdateIntegrations(DLEventType.DiscordMessage, message);
         }
         #endregion
     }

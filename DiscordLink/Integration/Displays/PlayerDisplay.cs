@@ -6,16 +6,15 @@ using System.Linq;
 
 namespace Eco.Plugins.DiscordLink.IntegrationTypes
 {
-    class PlayerDisplay : Display
+    public class PlayerDisplay : Display
     {
         protected override string BaseTag { get { return "[Player List]"; } }
         protected override int TimerUpdateIntervalMS { get { return 60000; } }
-
         protected override int TimerStartDelayMS { get { return 5000; } }
 
-        protected override TriggerType GetTriggers()
+        protected override DLEventType GetTriggers()
         {
-            return TriggerType.Startup | TriggerType.Timer | TriggerType.Join | TriggerType.Login | TriggerType.Logout;
+            return DLEventType.Startup | DLEventType.Timer | DLEventType.Join | DLEventType.Login | DLEventType.Logout;
         }
 
         protected override List<ChannelLink> GetChannelLinks()

@@ -15,10 +15,10 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
         protected override string BaseTag { get { return "[Election]"; } }
         protected override int TimerStartDelayMS { get { return 15000; } }
 
-        protected override TriggerType GetTriggers()
+        protected override DLEventType GetTriggers()
         {
-            return TriggerType.Startup | TriggerType.Timer | TriggerType.Login
-                | TriggerType.Vote | TriggerType.StartElection | TriggerType.StopElection;
+            return DLEventType.Startup | DLEventType.Timer | DLEventType.Login
+                | DLEventType.Vote | DLEventType.StartElection | DLEventType.StopElection;
         }
 
         protected override List<ChannelLink> GetChannelLinks()

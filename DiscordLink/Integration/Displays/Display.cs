@@ -76,7 +76,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
 
         public void StartTimer()
         {
-            if ((GetTriggers() & TriggerType.Timer) == 0) return;
+            if ((GetTriggers() & DLEventType.Timer) == 0) return;
 
             if (_updateTimer != null)
                 StopTimer();
@@ -86,7 +86,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
 
         public void StopTimer()
         {
-            if ((GetTriggers() & TriggerType.Timer) == 0) return;
+            if ((GetTriggers() & DLEventType.Timer) == 0) return;
             SystemUtil.StopAndDestroyTimer(ref _updateTimer);
         }
 
@@ -99,11 +99,11 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
 
         private void TriggerTimedUpdate(object stateInfo)
         {
-            _ = base.Update(DiscordLink.Obj, TriggerType.Timer, null);
+            _ = base.Update(DiscordLink.Obj, DLEventType.Timer, null);
             SystemUtil.StopAndDestroyTimer(ref _HighFrequencyEventTimer);
         }
 
-        protected sealed override async Task UpdateInternal(DiscordLink plugin, TriggerType trigger, object data)
+        protected sealed override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, object data)
         {
             // Avoid hitting the rate limitation by not allowig events that can be fired often to pass straight through.
             if ((trigger & HighFrequencyTriggerFlags) == trigger)

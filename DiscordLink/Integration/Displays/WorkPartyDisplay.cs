@@ -18,10 +18,10 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
         protected override int TimerUpdateIntervalMS { get { return 60000; } }
         protected override int TimerStartDelayMS { get { return 10000; } }
 
-        protected override TriggerType GetTriggers()
+        protected override DLEventType GetTriggers()
         {
-            return TriggerType.Startup | TriggerType.Timer | TriggerType.PostedWorkParty | TriggerType.CompletedWorkParty
-                | TriggerType.JoinedWorkParty | TriggerType.LeftWorkParty | TriggerType.WorkedWorkParty;
+            return DLEventType.Startup | DLEventType.Timer | DLEventType.PostedWorkParty | DLEventType.CompletedWorkParty
+                | DLEventType.JoinedWorkParty | DLEventType.LeftWorkParty | DLEventType.WorkedWorkParty;
         }
 
         protected override List<ChannelLink> GetChannelLinks()

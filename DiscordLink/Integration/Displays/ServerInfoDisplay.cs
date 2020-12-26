@@ -12,9 +12,9 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
         protected override string BaseTag { get { return "[Server Info]"; } }
         protected override int TimerStartDelayMS { get { return 0; } }
 
-        protected override TriggerType GetTriggers()
+        protected override DLEventType GetTriggers()
         {
-            return TriggerType.Startup | TriggerType.Timer | TriggerType.Login | TriggerType.StartElection | TriggerType.StopElection | TriggerType.Vote;
+            return DLEventType.Startup | DLEventType.Timer | DLEventType.Login | DLEventType.StartElection | DLEventType.StopElection | DLEventType.Vote;
         }
 
         protected override List<ChannelLink> GetChannelLinks()

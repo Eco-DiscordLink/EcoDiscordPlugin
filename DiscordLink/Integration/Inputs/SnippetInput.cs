@@ -9,9 +9,9 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
 {
     public class SnippetInput : Input
     {
-        protected override TriggerType GetTriggers()
+        protected override DLEventType GetTriggers()
         {
-            return TriggerType.DiscordMessage;
+            return DLEventType.DiscordMessage;
         }
 
         protected override bool ShouldRun()
@@ -59,7 +59,7 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
             await base.OnMessageDeleted(message);
         }
 
-        protected override async Task UpdateInternal(DiscordLink plugin, TriggerType trigger, object data)
+        protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, object data)
         {
             if (!(data is DiscordMessage message)) return;
             if (message.IsDm()) return;
