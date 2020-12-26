@@ -74,6 +74,7 @@ namespace Eco.Plugins.DiscordLink
             Data.ChatChannelLinks.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.ServerInfoChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.TradeChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
+            Data.CraftingChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.SnippetChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.DiscordCommandChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.WorkPartyChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
@@ -374,6 +375,7 @@ namespace Eco.Plugins.DiscordLink
             _channelLinks.AddRange(_config.Config.ChatChannelLinks);
             _channelLinks.AddRange(_config.Config.ServerInfoChannels);
             _channelLinks.AddRange(_config.Config.TradeChannels);
+            _channelLinks.AddRange(_config.Config.CraftingChannels);
             _channelLinks.AddRange(_config.Config.SnippetChannels);
             _channelLinks.AddRange(_config.Config.DiscordCommandChannels);
             _channelLinks.AddRange(_config.Config.WorkPartyChannels);
@@ -413,6 +415,7 @@ namespace Eco.Plugins.DiscordLink
                 ChatChannelLinks = new ObservableCollection<ChatChannelLink>(this.ChatChannelLinks.Select(t => t.Clone()).Cast<ChatChannelLink>()),
                 ServerInfoChannels = new ObservableCollection<ServerInfoChannel>(this.ServerInfoChannels.Select(t => t.Clone()).Cast<ServerInfoChannel>()),
                 TradeChannels = new ObservableCollection<ChannelLink>(this.TradeChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
+                CraftingChannels = new ObservableCollection<ChannelLink>(this.CraftingChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
                 SnippetChannels = new ObservableCollection<ChannelLink>(this.SnippetChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
                 DiscordCommandChannels = new ObservableCollection<ChannelLink>(this.DiscordCommandChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
                 WorkPartyChannels = new ObservableCollection<ChannelLink>(this.WorkPartyChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
@@ -448,6 +451,9 @@ namespace Eco.Plugins.DiscordLink
         [Description("Channels in which trade events will be posted. This setting can be changed while the server is running."), Category("Feeds")]
         public ObservableCollection<ChannelLink> TradeChannels { get; set; } = new ObservableCollection<ChannelLink>();
 
+        [Description("Discord channels in which crafting events will be posted. This setting can be changed while the server is running."), Category("Feeds")]
+        public ObservableCollection<ChannelLink> CraftingChannels { get; set; } = new ObservableCollection<ChannelLink>();
+
         [Description("Discord channels in which to keep the Server Info display. DiscordLink will post one server info message in these channel and keep it updated trough edits. This setting can be changed while the server is running."), Category("Displays")]
         public ObservableCollection<ServerInfoChannel> ServerInfoChannels { get; set; } = new ObservableCollection<ServerInfoChannel>();
 
@@ -460,10 +466,10 @@ namespace Eco.Plugins.DiscordLink
         [Description("Discord channels in which to keep the Election display. DiscordLink will post election messages in these channel and keep it updated trough edits. This setting can be changed while the server is running."), Category("Displays")]
         public ObservableCollection<ChannelLink> ElectionChannels { get; set; } = new ObservableCollection<ChannelLink>();
 
-        [Description("Channels in which to search for snippets for the Snippet command. This setting can be changed while the server is running."), Category("Inputs")]
+        [Description("Discord channels in which to search for snippets for the Snippet command. This setting can be changed while the server is running."), Category("Inputs")]
         public ObservableCollection<ChannelLink> SnippetChannels { get; set; } = new ObservableCollection<ChannelLink>();
 
-        [Description("Channels in which to allow commands. If no channels are specified, commands will be allowed in all channels. This setting can be changed while the server is running."), Category("Command Settings")]
+        [Description("Discord channels in which to allow commands. If no channels are specified, commands will be allowed in all channels. This setting can be changed while the server is running."), Category("Command Settings")]
         public ObservableCollection<ChannelLink> DiscordCommandChannels { get; set; } = new ObservableCollection<ChannelLink>();
 
         [Description("Determines what message types will be printed to the server log. All message types below the selected one will be printed as well. This setting can be changed while the server is running."), Category("Miscellaneous")]

@@ -108,6 +108,10 @@ namespace Eco.Plugins.DiscordLink
                 case CurrencyTrade currencyTrade:
                     UpdateIntegrations(TriggerType.Trade, currencyTrade);
                     break;
+
+                case WorkOrderAction workOrderAction:
+                    UpdateIntegrations(TriggerType.WorkOrderCreated, workOrderAction);
+                    break;
             
                 case PostedWorkParty postedWorkParty:
                     UpdateIntegrations(TriggerType.PostedWorkParty, postedWorkParty);
@@ -305,6 +309,7 @@ namespace Eco.Plugins.DiscordLink
             _integrations.Add(new ChatlogFeed());
             _integrations.Add(new ServerInfoDisplay());
             _integrations.Add(new TradeFeed());
+            _integrations.Add(new CraftingFeed());
             _integrations.Add(new SnippetInput());
             _integrations.Add(new WorkPartyDisplay());
             _integrations.Add(new PlayerDisplay());

@@ -14,14 +14,15 @@ namespace Eco.Plugins.DiscordLink.IntegrationTypes
         Login               = 1 << 5,
         Logout              = 1 << 6,
         Trade               = 1 << 7,
-        PostedWorkParty     = 1 << 8,
-        CompletedWorkParty  = 1 << 9,
-        JoinedWorkParty     = 1 << 10,
-        LeftWorkParty       = 1 << 11,
-        WorkedWorkParty     = 1 << 12,
-        Vote                = 1 << 13,
-        StartElection       = 1 << 14,
-        StopElection        = 1 << 15,
+        WorkOrderCreated    = 1 << 8,
+        PostedWorkParty     = 1 << 9,
+        CompletedWorkParty  = 1 << 10,
+        JoinedWorkParty     = 1 << 11,
+        LeftWorkParty       = 1 << 12,
+        WorkedWorkParty     = 1 << 13,
+        Vote                = 1 << 14,
+        StartElection       = 1 << 15,
+        StopElection        = 1 << 16,
     }
 
     public abstract class DiscordLinkIntegration
