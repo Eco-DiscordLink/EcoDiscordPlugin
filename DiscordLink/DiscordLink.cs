@@ -92,7 +92,7 @@ namespace Eco.Plugins.DiscordLink
 
         public void Shutdown()
         {
-            ShutdownIntegrations();
+            ShutdownModules();
             DLStorage.Instance.Write();
             Logger.Shutdown();
         }
@@ -207,7 +207,7 @@ namespace Eco.Plugins.DiscordLink
 
                 DiscordClient.MessageDeleted += async (client, args) =>
                 {
-                    _modules.ForEach(async integration => await integration.OnMessageDeleted(args.Message));
+                    _modules.ForEach(async module => await module.OnMessageDeleted(args.Message));
                 };
 
                 // Set up the client to use CommandsNext
@@ -235,7 +235,7 @@ namespace Eco.Plugins.DiscordLink
             SystemUtil.StopAndDestroyTimer(ref _discordDataMaybeAvailable);
             SystemUtil.StopAndDestroyTimer(ref _tradePostingTimer);
 
-            ShutdownIntegrations();
+            ShutdownModules();
 
             if (DiscordClient != null)
             {
@@ -301,7 +301,7 @@ namespace Eco.Plugins.DiscordLink
 
         #endregion
 
-        #region Integration Management
+        #region Module Management
 
         private void InitializeModules()
         {
@@ -315,19 +315,20 @@ namespace Eco.Plugins.DiscordLink
             _modules.Add(new WorkPartyDisplay());
             _modules.Add(new PlayerDisplay());
             _modules.Add(new ElectionDisplay());
+            _modules.Add(new CurrencyDisplay());
 
-            _modules.ForEach(async integration => await integration.StartIfRelevant());
+            _modules.ForEach(async module => await module.StartIfRelevant());
         }
 
-        private void ShutdownIntegrations()
+        private void ShutdownModules()
         {
-            _modules.ForEach(async integration => await integration.Stop());
+            _modules.ForEach(async module => await module.Stop());
             _modules.Clear();
         }
 
         private void UpdateModules(DLEventType trigger, object data)
         {
-            _modules.ForEach(async integration => await integration.Update(this, trigger, data));
+            _modules.ForEach(async module => await module.Update(this, trigger, data));
         }
 
         #endregion
