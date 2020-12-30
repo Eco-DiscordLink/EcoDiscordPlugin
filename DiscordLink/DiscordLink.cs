@@ -155,6 +155,9 @@ namespace Eco.Plugins.DiscordLink
                 case WonElection wonElection:
                     HandleEvent(DLEventType.StopElection, wonElection);
                     break;
+
+                case CreateCurrency createCurrency:
+                    HandleEvent(DLEventType.CurrencyCreated, createCurrency);
                     break;
 
                 default:

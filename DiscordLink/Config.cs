@@ -28,6 +28,9 @@ namespace Eco.Plugins.DiscordLink
             public const string EcoCommandOutputChannel = "General";
             public const string InviteMessage = "Join us on Discord!\n" + InviteCommandLinkToken;
             public const string EcoBotName = "DiscordLink";
+            public const int    MaxMintedCurrencies = 1;
+            public const int    MaxPersonalCurrencies = 3;
+            public const int    MaxTopCurrencyHolderCount = 3;
         }
 
         public static readonly DLConfig Instance = new DLConfig();
@@ -79,6 +82,7 @@ namespace Eco.Plugins.DiscordLink
             Data.WorkPartyChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.PlayerListChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.ElectionChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
+            Data.CurrencyChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
 
             BuildChanneLinkList();
 
@@ -269,6 +273,28 @@ namespace Eco.Plugins.DiscordLink
                 correctionMade = true;
             }
 
+            // Currency channels
+            foreach(CurrencyChannelLink link in Data.CurrencyChannels)
+            {
+                if (link.MaxMintedCount < 0)
+                {
+                    link.MaxMintedCount = DefaultValues.MaxMintedCurrencies;
+                    correctionMade = true;
+                }
+
+                if (link.MaxPersonalCount < 0)
+                {
+                    link.MaxPersonalCount = DefaultValues.MaxPersonalCurrencies;
+                    correctionMade = true;
+                }
+
+                if(link.MaxTopCurrencyHolderCount < 0 || link.MaxTopCurrencyHolderCount > DLConstants.MAX_TOP_CURRENCY_HOLDER_DISPLAY_LIMIT)
+                {
+                    link.MaxTopCurrencyHolderCount = DefaultValues.MaxTopCurrencyHolderCount;
+                    correctionMade = true;
+                }
+            }
+
             _config.SaveAsync();
             OnConfigSaved?.Invoke(this, EventArgs.Empty);
             _prevConfig = (DLConfigData)Data.Clone();
@@ -380,6 +406,7 @@ namespace Eco.Plugins.DiscordLink
             _channelLinks.AddRange(_config.Config.WorkPartyChannels);
             _channelLinks.AddRange(_config.Config.PlayerListChannels);
             _channelLinks.AddRange(_config.Config.ElectionChannels);
+            _channelLinks.AddRange(_config.Config.CurrencyChannels);
         }
     }
 
@@ -420,6 +447,7 @@ namespace Eco.Plugins.DiscordLink
                 WorkPartyChannels = new ObservableCollection<ChannelLink>(this.WorkPartyChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
                 PlayerListChannels = new ObservableCollection<PlayerListChannelLink>(this.PlayerListChannels.Select(t => t.Clone()).Cast<PlayerListChannelLink>()),
                 ElectionChannels = new ObservableCollection<ChannelLink>(this.ElectionChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
+                CurrencyChannels = new ObservableCollection<CurrencyChannelLink>(this.CurrencyChannels.Select(t => t.Clone()).Cast<CurrencyChannelLink>()),
             };
         }
 
@@ -464,6 +492,9 @@ namespace Eco.Plugins.DiscordLink
 
         [Description("Discord channels in which to keep the Election display. DiscordLink will post election messages in these channel and keep it updated trough edits. This setting can be changed while the server is running."), Category("Displays")]
         public ObservableCollection<ChannelLink> ElectionChannels { get; set; } = new ObservableCollection<ChannelLink>();
+
+        [Description("Discord channels in which to keep the currency display. DiscordLink will post election messages in these channel and keep it updated trough edits. This setting can be changed while the server is running."), Category("Displays")]
+        public ObservableCollection<CurrencyChannelLink> CurrencyChannels { get; set; } = new ObservableCollection<CurrencyChannelLink>();
 
         [Description("Discord channels in which to search for snippets for the Snippet command. This setting can be changed while the server is running."), Category("Inputs")]
         public ObservableCollection<ChannelLink> SnippetChannels { get; set; } = new ObservableCollection<ChannelLink>();
