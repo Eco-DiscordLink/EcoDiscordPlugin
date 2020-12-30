@@ -1,6 +1,6 @@
 ﻿using DSharpPlus.Entities;
-using Eco.Gameplay.Civics;
 using Eco.Gameplay.Civics.Elections;
+using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Utils;
 using System;

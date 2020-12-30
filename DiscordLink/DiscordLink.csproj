@@ -65,6 +65,10 @@
       <HintPath Condition="Exists('..\..\Eco\Server\Eco.Simulation\bin\Release\netcoreapp3.1\ref\Eco.Simulation.dll')">..\..\Eco\Server\Eco.Simulation\bin\Release\netcoreapp3.1\ref\Eco.Simulation.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="Eco.WorldGenerator">
+      <HintPath Condition="Exists('..\Dependencies\Eco.WorldGenerator.dll')">..\Dependencies\Eco.WorldGenerator.dll</HintPath>
+      <HintPath Condition="Exists('..\..\Eco\Server\Eco.WorldGenerator\bin\Release\netcoreapp3.1\ref\Eco.WorldGenerator.dll')">..\..\Eco\Server\Eco.WorldGenerator\bin\Release\netcoreapp3.1\ref\Eco.WorldGenerator.dll</HintPath>
+    </Reference>
     <Reference Include="em-framework">
       <HintPath>..\Dependencies\em-framework.dll</HintPath>
     </Reference>

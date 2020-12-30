@@ -1,4 +1,5 @@
 ﻿using DSharpPlus.Entities;
+using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Utilities;
 using System;
 using System.Collections.Generic;

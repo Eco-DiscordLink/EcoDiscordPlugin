@@ -8,9 +8,11 @@ using Eco.Core.Plugins.Interfaces;
 using Eco.Core.Utils;
 using Eco.Gameplay.GameActions;
 using Eco.Gameplay.Players;
+using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Modules;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Utils;
+using Eco.WorldGenerator;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -63,9 +65,12 @@ namespace Eco.Plugins.DiscordLink
         public void Initialize(TimedTask timer)
         {
             DLConfig.Instance.Initialize();
+            EventConverter.Instance.Initialize();
             DLStorage.Instance.Read();
             Logger.Initialize();
             Logger.Info("Plugin version is " + PluginVersion);
+
+            WorldGeneratorPlugin.OnCompleted.Add(() => HandleWorldReset());
 
             if (!SetUpClient())
             {
@@ -79,13 +84,14 @@ namespace Eco.Plugins.DiscordLink
             OnDiscordMaybeReady += (obj, args) =>
             {
                 InitializeModules();
-                UpdateModules(DLEventType.Startup, null);
+                HandleEvent(DLEventType.Startup, null);
             };
 
             // Set up callbacks
-            UserManager.OnNewUserJoined.Add(user => UpdateModules(DLEventType.Join, user));
-            UserManager.OnUserLoggedIn.Add(user => UpdateModules(DLEventType.Login, user));
-            UserManager.OnUserLoggedOut.Add(user => UpdateModules(DLEventType.Logout, user));
+            UserManager.OnNewUserJoined.Add(user => HandleEvent(DLEventType.Join, user));
+            UserManager.OnUserLoggedIn.Add(user => HandleEvent(DLEventType.Login, user));
+            UserManager.OnUserLoggedOut.Add(user => HandleEvent(DLEventType.Logout, user));
+            EventConverter.OnEventFired += (sender, args) => HandleEvent(args.EventType, args.Data);
 
             _ = EcoUser; // Create the Eco User on startup
         }
@@ -93,6 +99,7 @@ namespace Eco.Plugins.DiscordLink
         public void Shutdown()
         {
             ShutdownModules();
+            EventConverter.Instance.Shutdown();
             DLStorage.Instance.Write();
             Logger.Shutdown();
         }
@@ -106,47 +113,47 @@ namespace Eco.Plugins.DiscordLink
                     break;
             
                 case CurrencyTrade currencyTrade:
-                    UpdateModules(DLEventType.Trade, currencyTrade);
+                    HandleEvent(DLEventType.Trade, currencyTrade);
                     break;
 
                 case WorkOrderAction workOrderAction:
-                    UpdateModules(DLEventType.WorkOrderCreated, workOrderAction);
+                    HandleEvent(DLEventType.WorkOrderCreated, workOrderAction);
                     break;
             
                 case PostedWorkParty postedWorkParty:
-                    UpdateModules(DLEventType.PostedWorkParty, postedWorkParty);
+                    HandleEvent(DLEventType.PostedWorkParty, postedWorkParty);
                     break;
             
                 case CompletedWorkParty completedWorkParty:
-                    UpdateModules(DLEventType.CompletedWorkParty, completedWorkParty);
+                    HandleEvent(DLEventType.CompletedWorkParty, completedWorkParty);
                     break;
             
                 case JoinedWorkParty joinedWorkParty:
-                    UpdateModules(DLEventType.JoinedWorkParty, joinedWorkParty);
+                    HandleEvent(DLEventType.JoinedWorkParty, joinedWorkParty);
                     break;
             
                 case LeftWorkParty leftWorkParty:
-                    UpdateModules(DLEventType.LeftWorkParty, leftWorkParty);
+                    HandleEvent(DLEventType.LeftWorkParty, leftWorkParty);
                     break;
             
                 case WorkedForWorkParty workedParty:
-                    UpdateModules(DLEventType.WorkedWorkParty, workedParty);
+                    HandleEvent(DLEventType.WorkedWorkParty, workedParty);
                     break;
 
                 case Vote vote:
-                    UpdateModules(DLEventType.Vote, vote);
+                    HandleEvent(DLEventType.Vote, vote);
                     break;
 
                 case StartElection startElection:
-                    UpdateModules(DLEventType.StartElection, startElection);
+                    HandleEvent(DLEventType.StartElection, startElection);
                     break;
 
                 case LostElection lostElection:
-                    UpdateModules(DLEventType.StopElection, lostElection);
+                    HandleEvent(DLEventType.StopElection, lostElection);
                     break;
 
                 case WonElection wonElection:
-                    UpdateModules(DLEventType.StopElection, wonElection);
+                    HandleEvent(DLEventType.StopElection, wonElection);
                     break;
                     break;
 
@@ -158,6 +165,19 @@ namespace Eco.Plugins.DiscordLink
         public Result ShouldOverrideAuth(GameAction action)
         {
             return new Result(ResultType.None);
+        }
+
+        public void HandleEvent(DLEventType eventType, object data)
+        {
+            EventConverter.Instance.HandleEvent(eventType, data);
+            DLStorage.Instance.HandleEvent(eventType, data);
+            UpdateModules(eventType, data);
+        }
+
+        private void HandleWorldReset()
+        {
+            Logger.Info("New world generated - Removing storage data for previous world");
+            DLStorage.Instance.Reset();
         }
 
         #region DiscordClient Management
@@ -439,7 +459,7 @@ namespace Eco.Plugins.DiscordLink
             if (chatMessage.Citizen.Name == EcoUser.Name && !chatMessage.Message.StartsWith(DLConstants.ECHO_COMMAND_TOKEN))
                 return;
 
-            UpdateModules(DLEventType.EcoMessage, chatMessage);
+            HandleEvent(DLEventType.EcoMessage, chatMessage);
         }
 
         public async Task OnDiscordMessageCreateEvent(DiscordClient client, MessageCreateEventArgs messageArgs)

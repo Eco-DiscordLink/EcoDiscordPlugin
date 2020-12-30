@@ -1,7 +1,6 @@
 ﻿using DSharpPlus.Entities;
 using Eco.Core.Utils;
 using Eco.Shared.Utils;
-using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;

@@ -2,23 +2,19 @@
 using Eco.Core.Utils;
 using Eco.Gameplay.GameActions;
 using Eco.Gameplay.Objects;
+using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Utilities;
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
     public class TradeFeed : Feed
     {
-        private const int TRADE_POSTING_INTERVAL_MS = 1000;
-        private readonly Dictionary<Tuple<int, int>, List<CurrencyTrade>> _accumulatedTrades = new Dictionary<Tuple<int, int>, List<CurrencyTrade>>();
-        private Timer _tradePostingTimer = null;
-
         protected override DLEventType GetTriggers()
         {
-            return DLEventType.Trade;
+            return DLEventType.AccumulatedTrade;
         }
 
         protected override bool ShouldRun()
@@ -31,54 +27,18 @@ namespace Eco.Plugins.DiscordLink.Modules
             return false;
         }
 
-        protected override async Task Initialize()
-        {
-            _tradePostingTimer = new Timer(InnerArgs =>
-            {
-                lock (_overlapLock)
-                {
-                    if (_accumulatedTrades.Count > 0)
-                    {
-                        _ = PostAccumulatedTrades();
-                    }
-                }
-            }, null, 0, TRADE_POSTING_INTERVAL_MS);
-            await base.Initialize();
-        }
-
-        protected override async Task Shutdown()
-        {
-            SystemUtil.StopAndDestroyTimer(ref _tradePostingTimer);
-            await base.Shutdown();
-        }
-
         protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, object data)
         {
-            if (!(data is CurrencyTrade tradeEvent)) return;
             if (DLConfig.Data.TradeChannels.Count <= 0) return;
+            if (!(data is IEnumerable<List<CurrencyTrade>> accumulatedTrades)) return;
 
-            // Store the event in a list until we want to post the information. We do this as each item in a trade will fire an individual event and we want to summarize them
-            Tuple<int, int> IDTuple = new Tuple<int, int>(tradeEvent.Citizen.Id, (tradeEvent.WorldObject as WorldObject).ID);
-            _accumulatedTrades.TryGetValue(IDTuple, out List<CurrencyTrade> trades);
-            if (trades == null)
-            {
-                trades = new List<CurrencyTrade>();
-                _accumulatedTrades.Add(IDTuple, trades);
-            }
-
-            trades.Add(tradeEvent);
-        }
-
-        private async Task PostAccumulatedTrades()
-        {
-            if (DLConfig.Data.TradeChannels.Count <= 0) return;
 
             // Each entry is the summarized trade events for a player and a store
-            foreach (List<CurrencyTrade> accumulatedTrades in _accumulatedTrades.Values)
+            foreach (List<CurrencyTrade> accumulatedTradeList in accumulatedTrades)
             {
-                if (accumulatedTrades.Count <= 0) continue;
-
-                CurrencyTrade firstTrade = accumulatedTrades[0];
+                if (accumulatedTradeList.Count <= 0) continue;
+                
+                CurrencyTrade firstTrade = accumulatedTradeList[0];
 
                 DiscordEmbedBuilder builder = new DiscordEmbedBuilder();
                 string leftName = firstTrade.Citizen.Name;
@@ -90,7 +50,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 float boughtTotal = 0;
                 string soldItemsDesc = string.Empty;
                 float soldTotal = 0;
-                foreach (CurrencyTrade trade in accumulatedTrades)
+                foreach (CurrencyTrade trade in accumulatedTradeList)
                 {
                     if (trade.BoughtOrSold == Shared.Items.BoughtOrSold.Buying)
                     {
@@ -120,9 +80,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 char sign = (subTotal > 0.0f ? '+' : '-');
                 builder.AddField("Total", sign + Math.Abs(subTotal).ToString("n2") + " " + firstTrade.Currency.Name);
 
-                // Post the trade summary in all trade channels
-                DiscordLink plugin = DiscordLink.Obj;
-                if (plugin == null) return;
+                // Post the trade summary in all trade 
                 foreach (ChannelLink tradeChannel in DLConfig.Data.TradeChannels)
                 {
                     if (!tradeChannel.IsValid()) continue;
@@ -134,7 +92,6 @@ namespace Eco.Plugins.DiscordLink.Modules
                     _ = DiscordUtil.SendAsync(discordChannel, "", builder.Build());
                 }
             }
-            _accumulatedTrades.Clear();
         }
     }
 }
