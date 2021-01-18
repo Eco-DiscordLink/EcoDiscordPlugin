@@ -43,7 +43,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 DiscordEmbedBuilder builder = new DiscordEmbedBuilder();
                 string leftName = firstTrade.Citizen.Name;
                 string rightName = (firstTrade.WorldObject as WorldObject).Name;
-                builder.Title = leftName + " traded at " + rightName;
+                builder.Title = leftName + " traded at " + MessageUtil.StripTags(rightName);
 
                 // Go through all acumulated trade events and create a summary
                 string boughtItemsDesc = string.Empty;

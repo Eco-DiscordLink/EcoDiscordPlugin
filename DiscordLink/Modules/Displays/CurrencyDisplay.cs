@@ -51,7 +51,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                         --i;
                         continue;
                     }
-                    topAccounts += $"**{currencyEnumerator.Current.GetCurrencyHoldingVal(currency):n0}** - {currencyEnumerator.Current.Name} *({currencyEnumerator.Current.Creator.Name})*\n";
+                    topAccounts += $"**{currencyEnumerator.Current.GetCurrencyHoldingVal(currency):n0}** - {MessageUtil.StripTags(currencyEnumerator.Current.Name)} *({currencyEnumerator.Current.Creator.Name})*\n";
                 }
 
                 // Fetch data
