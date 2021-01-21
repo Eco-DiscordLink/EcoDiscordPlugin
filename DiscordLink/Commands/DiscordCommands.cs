@@ -405,7 +405,7 @@ namespace Eco.Plugins.DiscordLink
                 else
                     getLabel = t => t.Item2.Stack.Item.DisplayName;
                 var fieldEnumerator = OffersToFields(groupedBuyOffers, groupedSellOffers, getLabel).GetEnumerator();
-                var pagedFieldEnumerator = new PagedEnumerator<Tuple<string, string>>(fieldEnumerator, DLConstants.EMBED_CONTENT_CHARACTER_LIMIT, field => field.Item1.Length + field.Item2.Length);
+                var pagedFieldEnumerator = new PagedEnumerator<Tuple<string, string>>(fieldEnumerator, DLConstants.DISCORD_EMBED_CONTENT_CHARACTER_LIMIT, field => field.Item1.Length + field.Item2.Length);
                 previousQueryEnumerator[ctx.User.UniqueUsername()] = pagedFieldEnumerator;
 
                 // Format message
@@ -440,7 +440,7 @@ namespace Eco.Plugins.DiscordLink
                     t => t.Item2.Price.ToString(),
                     t => getLabel(t),
                     t => t.Item2.Stack.Quantity);
-                var enumerator = new PagedEnumerable<string>(offerDescriptions, DLConstants.EMBED_FIELD_CHARACTER_LIMIT, str => str.Length).GetPagedEnumerator();
+                var enumerator = new PagedEnumerable<string>(offerDescriptions, DLConstants.DISCORD_EMBED_FIELD_CHARACTER_LIMIT, str => str.Length).GetPagedEnumerator();
                 while (enumerator.HasMorePages)
                 {
                     var fieldBodyBuilder = new StringBuilder();
@@ -459,7 +459,7 @@ namespace Eco.Plugins.DiscordLink
                     t => t.Item2.Price.ToString(),
                     t => getLabel(t),
                     t => t.Item2.Stack.Quantity);
-                var enumerator = new PagedEnumerable<string>(offerDescriptions, DLConstants.EMBED_FIELD_CHARACTER_LIMIT, str => str.Length).GetPagedEnumerator();
+                var enumerator = new PagedEnumerable<string>(offerDescriptions, DLConstants.DISCORD_EMBED_FIELD_CHARACTER_LIMIT, str => str.Length).GetPagedEnumerator();
                 while (enumerator.HasMorePages)
                 {
                     var fieldBodyBuilder = new StringBuilder();
