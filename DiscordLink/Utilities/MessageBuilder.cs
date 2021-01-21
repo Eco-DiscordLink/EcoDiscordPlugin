@@ -77,7 +77,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
             if (flag.HasFlag(ServerInfoComponentFlag.Name))
             {
-                builder.WithTitle($"**{FirstNonEmptyString(config.ServerName, MessageUtil.StripTags(serverInfo.Description), "[Server Title Missing]")} " + "Server Status" + "**\n" + DateTime.Now.ToShortDateString() + " : " + DateTime.Now.ToShortTimeString());
+                builder.WithTitle($"**{MessageUtil.FirstNonEmptyString(config.ServerName, MessageUtil.StripTags(serverInfo.Description), "[Server Title Missing]")} " + "Server Status" + "**\n" + DateTime.Now.ToShortDateString() + " : " + DateTime.Now.ToShortTimeString());
             }
             else
             {
@@ -88,7 +88,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
             if (flag.HasFlag(ServerInfoComponentFlag.Description))
             {
-                builder.WithDescription(FirstNonEmptyString(config.ServerDescription, MessageUtil.StripTags(serverInfo.Description), "No server description is available."));
+                builder.WithDescription(MessageUtil.FirstNonEmptyString(config.ServerDescription, MessageUtil.StripTags(serverInfo.Description), "No server description is available."));
             }
 
             if (flag.HasFlag(ServerInfoComponentFlag.Logo) && !string.IsNullOrWhiteSpace(config.ServerLogo))
@@ -300,14 +300,9 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         public static string GetStandardEmbedFooter()
         {
-            string serverName = FirstNonEmptyString(DLConfig.Data.ServerName, MessageUtil.StripTags(NetworkManager.GetServerInfo().Description), "[Server Title Missing]");
+            string serverName = MessageUtil.FirstNonEmptyString(DLConfig.Data.ServerName, MessageUtil.StripTags(NetworkManager.GetServerInfo().Description), "[Server Title Missing]");
             string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
             return $"By DiscordLink @ {serverName} [{timestamp}]";
-        }
-
-        private static string FirstNonEmptyString(params string[] strings)
-        {
-            return strings.FirstOrDefault(str => !string.IsNullOrEmpty(str)) ?? "";
         }
     }
 }

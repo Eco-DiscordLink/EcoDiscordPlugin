@@ -40,24 +40,48 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
-        private static async Task RespondToCommand(CommandContext ctx, string textContent, DiscordEmbed embedContent = null)
+        private static async Task RespondToCommand(CommandContext ctx, string fullTextContent, DiscordEmbed embedContent = null)
         {
+            async Task Respond(CommandContext ctx, string textContent, DiscordEmbed embedContent)
+            {
+                // If needed; split the message into multiple parts
+                ICollection<string> stringParts = MessageUtil.SplitStringBySize(fullTextContent, DLConstants.DISCORD_MESSAGE_CHARACTER_LIMIT);
+                ICollection<DiscordEmbed> embedParts = MessageUtil.SplitEmbed(embedContent);
+
+                if (stringParts.Count <= 1 && embedParts.Count <= 1)
+                {
+                    await ctx.RespondAsync(fullTextContent, isTTS: false, embedContent);
+                }
+                else
+                {
+                    // Either make sure we have permission to use embeds or convert the embed to text
+                    foreach (string textMessagePart in stringParts)
+                    {
+                        await ctx.RespondAsync(textMessagePart, isTTS: false, null);
+                    }
+                    foreach (DiscordEmbed embedPart in embedParts)
+                    {
+                        await ctx.RespondAsync(null, isTTS: false, embedPart);
+                    }
+                }
+            }
+
             try
             {
                 if (embedContent == null)
                 {
-                    await ctx.RespondAsync(textContent, false);
+                    await Respond(ctx, fullTextContent, embedContent);
                 }
                 else
                 {
                     // Either make sure we have permission to use embeds or convert the embed to text
                     if (DiscordUtil.ChannelHasPermission(ctx.Channel, Permissions.EmbedLinks))
                     {
-                        await ctx.RespondAsync(textContent, false, embedContent);
+                        await Respond(ctx, fullTextContent, embedContent);
                     }
                     else
                     {
-                        await ctx.RespondAsync(MessageBuilder.EmbedToText(textContent, embedContent), false);
+                        await Respond(ctx, MessageBuilder.EmbedToText(fullTextContent, embedContent), embedContent);
                     }
                 }
             }
@@ -66,6 +90,7 @@ namespace Eco.Plugins.DiscordLink
                 Logger.Error("An error occurred while attempting to respond to command. Error message: " + e);
             }
         }
+
 
         private static bool IsCommandAllowedInChannel(CommandContext ctx)
         {

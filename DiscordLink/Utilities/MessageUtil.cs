@@ -1,6 +1,7 @@
 ﻿using DSharpPlus.Entities;
 using Eco.Core.Utils;
 using Eco.Shared.Utils;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -22,6 +23,100 @@ namespace Eco.Plugins.DiscordLink.Utilities
         private static readonly Regex DiscordGlobalMentionRegex = new Regex("@(everyone|here)");
 
         private const string EcoNametagColor = "7289DAFF";
+
+        #region General
+
+        public static string FirstNonEmptyString(params string[] strings)
+        {
+            return strings.FirstOrDefault(str => !string.IsNullOrEmpty(str)) ?? "";
+        }
+
+        public static List<string> SplitStringBySize(string str, int chunkSize)
+        {
+            return Enumerable.Range(0, str.Length / chunkSize).Select(i => str.Substring(i * chunkSize, chunkSize)).ToList();
+        }
+
+        public static List<DiscordEmbed> SplitEmbed(DiscordEmbed fullEmbed)
+        {
+            List<DiscordEmbed> resultEmbeds = new List<DiscordEmbed>();
+
+            if (fullEmbed == null)
+                return resultEmbeds;
+
+            // Count chars needed for title and footer
+            int titleFooterCharCount = 0;
+            if (fullEmbed.Title != null)
+                titleFooterCharCount += fullEmbed.Title.Length;
+            if (fullEmbed.Footer != null)
+                titleFooterCharCount += fullEmbed.Footer.Text.Length;
+
+            int totalCharsCount = titleFooterCharCount;
+            int maxEmbedCharCount = DLConstants.DISCORD_EMBED_CONTENT_CHARACTER_LIMIT + titleFooterCharCount;
+
+            // Count chars needed for fields and track fields that are too long
+            List<bool> needsSplitFields = Enumerable.Repeat(false, fullEmbed.Fields.Count).ToList();
+            for(int i = 0; i < fullEmbed.Fields.Count; ++i)
+            {
+                DiscordEmbedField field = fullEmbed.Fields[i];
+                int length = field.Name.Length + field.Value.Length;
+                if ( length > DLConstants.DISCORD_EMBED_FIELD_CHARACTER_LIMIT)
+                    needsSplitFields[i] = true;
+
+                totalCharsCount += length;
+            }
+
+            // Early escape if no splitting is needed
+            if (totalCharsCount <= maxEmbedCharCount && needsSplitFields.Count <= 0)
+            {
+                resultEmbeds.Add(fullEmbed);
+                return resultEmbeds;
+            }
+
+            // Create a dummy embed and split too long fields
+            DiscordEmbedBuilder splitFieldsCollector = new DiscordEmbedBuilder();
+            for (int i = 0; i < fullEmbed.Fields.Count; ++i)
+            {
+                DiscordEmbedField field = fullEmbed.Fields[i];
+                if (needsSplitFields[i] == true)
+                {
+                    IEnumerable<string> splits = SplitStringBySize(field.Value, DLConstants.DISCORD_EMBED_FIELD_CHARACTER_LIMIT);
+                    int partCount = 1;
+                    foreach(string fieldSplit in splits)
+                    {
+                        splitFieldsCollector.AddField($"{field.Name} ({partCount})", fieldSplit);
+                        ++partCount;
+                    }
+                }
+                else
+                {
+                    splitFieldsCollector.AddField(fullEmbed.Fields[i].Name, fullEmbed.Fields[i].Value);
+                }
+            }
+
+            // Create new embeds that fit within the char limits
+            List<DiscordEmbed> splitEmbeds = new List<DiscordEmbed>();
+            DiscordEmbedBuilder SplitEmbedBuilder = new DiscordEmbedBuilder()
+            .WithTitle(fullEmbed.Title)
+            .WithFooter(fullEmbed.Footer.Text);
+            int characterCount = 0;
+            foreach (DiscordEmbedField field in splitFieldsCollector.Fields)
+            {
+                if(characterCount + field.Value.Length > maxEmbedCharCount)
+                {
+                    splitEmbeds.Add(SplitEmbedBuilder.Build());
+                    SplitEmbedBuilder.ClearFields();
+                    characterCount = 0;
+                }
+
+                SplitEmbedBuilder.AddField(field.Name, field.Value);
+                characterCount += field.Value.Length;
+            }
+            splitEmbeds.Add(SplitEmbedBuilder.Build());
+
+            return splitEmbeds;
+        }
+
+        #endregion
 
         #region EcoFormatting
 
