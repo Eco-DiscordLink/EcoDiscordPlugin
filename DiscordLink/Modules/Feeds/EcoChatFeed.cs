@@ -7,6 +7,11 @@ namespace Eco.Plugins.DiscordLink.Modules
 {
     public class EcoChatFeed : Feed
     {
+        public override string ToString()
+        {
+            return "Eco Chat Feed";
+        }
+
         protected override DLEventType GetTriggers()
         {
             return DLEventType.EcoMessage;

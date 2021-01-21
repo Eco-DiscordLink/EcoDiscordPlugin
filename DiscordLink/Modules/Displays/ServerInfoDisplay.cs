@@ -13,6 +13,11 @@ namespace Eco.Plugins.DiscordLink.Modules
         protected override string BaseTag { get { return "[Server Info]"; } }
         protected override int TimerStartDelayMS { get { return 0; } }
 
+        public override string ToString()
+        {
+            return "Server Info Display";
+        }
+
         protected override DLEventType GetTriggers()
         {
             return DLEventType.Startup | DLEventType.Timer | DLEventType.Login | DLEventType.StartElection | DLEventType.StopElection | DLEventType.Vote;

@@ -12,6 +12,11 @@ namespace Eco.Plugins.DiscordLink.Modules
 {
     public class TradeFeed : Feed
     {
+        public override string ToString()
+        {
+            return "Trade Feed";
+        }
+
         protected override DLEventType GetTriggers()
         {
             return DLEventType.AccumulatedTrade;

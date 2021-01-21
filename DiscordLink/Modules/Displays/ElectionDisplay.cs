@@ -15,6 +15,11 @@ namespace Eco.Plugins.DiscordLink.Modules
         protected override string BaseTag { get { return "[Election]"; } }
         protected override int TimerStartDelayMS { get { return 15000; } }
 
+        public override string ToString()
+        {
+            return "Election Display";
+        }
+
         protected override DLEventType GetTriggers()
         {
             return DLEventType.Startup | DLEventType.Timer | DLEventType.Login

@@ -7,6 +7,8 @@ namespace Eco.Plugins.DiscordLink.Modules
 {
     public abstract class Module
     {
+        public abstract override string ToString();
+
         public bool IsEnabled { get; private set; } = false;
 
         // These events may fire very frequently and may trigger rate limitations and therefore some special handling is done based on this field.

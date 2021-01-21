@@ -11,11 +11,13 @@ using Eco.Gameplay.Players;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Modules;
 using Eco.Plugins.DiscordLink.Utilities;
+using Eco.Plugins.Networking;
 using Eco.Shared.Utils;
 using Eco.WorldGenerator;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -32,6 +34,9 @@ namespace Eco.Plugins.DiscordLink
 
         private Timer _discordDataMaybeAvailable = null;
         private Timer _tradePostingTimer = null;
+
+        private DateTime _initTime = DateTime.MinValue;
+        private DateTime _lastConnectionTime = DateTime.MinValue;
 
         public event EventHandler OnClientStarted;
         public event EventHandler OnClientStopped;
@@ -69,6 +74,7 @@ namespace Eco.Plugins.DiscordLink
             DLStorage.Instance.Read();
             Logger.Initialize();
             Logger.Info("Plugin version is " + PluginVersion);
+            _initTime = DateTime.Now;
 
             WorldGeneratorPlugin.OnCompleted.Add(() => HandleWorldReset());
 
@@ -296,6 +302,7 @@ namespace Eco.Plugins.DiscordLink
                 BeginRelaying();
                 Logger.Info("Connected to Discord");
                 _status = "Connection successful";
+                _lastConnectionTime = DateTime.Now;
             }
             catch (Exception e)
             {
@@ -480,6 +487,61 @@ namespace Eco.Plugins.DiscordLink
 
             UpdateModules(DLEventType.DiscordMessage, message);
         }
+        #endregion
+
+        #region Debugging
+
+        public string GetDebugInfo()
+        {
+            StringBuilder info = new StringBuilder();
+
+            info.AppendLine("--- Environment ---");
+            info.AppendLine($"Server Name: {MessageUtil.FirstNonEmptyString(DLConfig.Data.ServerName, MessageUtil.StripTags(NetworkManager.GetServerInfo().Description), "[Server Title Missing]")}");
+            info.AppendLine($"Server Version: {Shared.EcoVersion.VersionNumber}");
+            info.AppendLine($"DiscordLink Version: {DiscordClient.VersionString}");
+            info.AppendLine($"D# Version: {DiscordClient.VersionString}");
+
+            info.AppendLine("--- Bot User Config ---");
+            info.AppendLine($"Name: {DiscordClient.CurrentUser.Username}");
+            bool hasGuildMembersIntent = (DiscordClient.Intents & DiscordIntents.GuildMembers) == DiscordIntents.GuildMembers;
+            info.AppendLine($"Has GuildMembers Intent: {hasGuildMembersIntent}");
+
+            info.AppendLine("--- Status ---");
+            info.AppendLine($"Status Message: {_status}");
+            info.AppendLine($"Start Time: {_initTime:yyyy-MM-dd HH:mm}");
+            info.AppendLine($"Connection Time: {_lastConnectionTime:yyyy-MM-dd HH:mm}");
+            TimeSpan elapssedTime = DateTime.Now.Subtract(_initTime);
+            info.AppendLine($"Running Time: {(int)elapssedTime.TotalDays}:{elapssedTime.Hours}:{elapssedTime.Minutes}");
+
+            info.AppendLine("Cached Guilds:");
+            foreach (DiscordGuild guild in DiscordClient.Guilds.Values)
+            {
+                info.AppendLine($"- {guild.Name} ({guild.Id})");
+                info.AppendLine("   Cached Channels");
+                foreach (DiscordChannel channel in guild.Channels.Values)
+                {
+                    info.AppendLine($"  - { channel.Name} ({channel.Id})");
+                    info.AppendLine($"      Permissions:");
+                    info.AppendLine($"          Read Messages:          {DiscordUtil.ChannelHasPermission(channel, Permissions.ReadMessageHistory)}");
+                    info.AppendLine($"          Send Messages:          {DiscordUtil.ChannelHasPermission(channel, Permissions.SendMessages)}");
+                    info.AppendLine($"          Manage Messages:        {DiscordUtil.ChannelHasPermission(channel, Permissions.ManageMessages)}");
+                    info.AppendLine($"          Embed Links:            {DiscordUtil.ChannelHasPermission(channel, Permissions.EmbedLinks)}");
+                    info.AppendLine($"          Mention Everyone/Here:  {DiscordUtil.ChannelHasPermission(channel, Permissions.MentionEveryone)}");
+                }
+            }
+
+            info.AppendLine("Active Modules:");
+            foreach(Module module in _modules)
+            {
+                string onOrOff = module.IsEnabled ? "On" : "Off";
+                info.AppendLine($"  - {module}: {onOrOff}");
+            }
+
+            info.AppendLine($"Linked Users Count: {DLStorage.PersistantData.LinkedUsers.Count}");
+
+            return info.ToString();
+        }
+
         #endregion
     }
 }

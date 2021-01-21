@@ -307,6 +307,8 @@ namespace Eco.Plugins.DiscordLink
             }, user);
         }
 
+        #region Trades
+
         [ChatSubCommand("DiscordLink", "Displays available trades by player or by item.", "dl-trades", ChatAuthorizationLevel.User)]
         public static void Trades(User user, string userOrItemName)
         {
@@ -383,5 +385,20 @@ namespace Eco.Plugins.DiscordLink
                 return line;
             });
         }
+
+        #endregion
+
+        #region Debug
+
+        [ChatSubCommand("DiscordLink", "Prints debug information.", "dl-debugdata", ChatAuthorizationLevel.Admin)]
+        public static void PrintDebugData(User user)
+        {
+            CallWithErrorHandling<object>((lUser, args) =>
+            {
+                EcoUtil.SendAnnouncementMessage("Debug Information", Plugins.DiscordLink.DiscordLink.Obj.GetDebugInfo(), user);
+            }, user);
+        }
+
+        #endregion
     }
 }

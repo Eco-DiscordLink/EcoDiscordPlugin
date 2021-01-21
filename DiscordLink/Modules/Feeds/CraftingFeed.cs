@@ -9,6 +9,11 @@ namespace Eco.Plugins.DiscordLink.Modules
 {
     public class CraftingFeed : Feed
     {
+        public override string ToString()
+        {
+            return "Crafting Feed";
+        }
+
         protected override DLEventType GetTriggers()
         {
             return DLEventType.WorkOrderCreated;

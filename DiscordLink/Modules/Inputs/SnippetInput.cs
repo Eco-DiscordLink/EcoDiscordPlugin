@@ -10,6 +10,11 @@ namespace Eco.Plugins.DiscordLink.Modules
 {
     public class SnippetInput : Input
     {
+        public override string ToString()
+        {
+            return "Snippet Input";
+        }
+
         protected override DLEventType GetTriggers()
         {
             return DLEventType.DiscordMessage;

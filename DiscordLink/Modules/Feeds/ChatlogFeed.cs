@@ -18,6 +18,11 @@ namespace Eco.Plugins.DiscordLink.Modules
         private StreamWriter _writer;
         private Timer _flushTimer = null;
 
+        public override string ToString()
+        {
+            return "Chat Log Feed";
+        }
+
         protected override DLEventType GetTriggers()
         {
             return DLEventType.EcoMessage | DLEventType.DiscordMessage;

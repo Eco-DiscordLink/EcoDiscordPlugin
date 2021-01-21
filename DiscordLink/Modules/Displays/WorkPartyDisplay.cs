@@ -19,6 +19,11 @@ namespace Eco.Plugins.DiscordLink.Modules
         protected override int TimerUpdateIntervalMS { get { return 60000; } }
         protected override int TimerStartDelayMS { get { return 10000; } }
 
+        public override string ToString()
+        {
+            return "Work Party Display";
+        }
+
         protected override DLEventType GetTriggers()
         {
             return DLEventType.Startup | DLEventType.Timer | DLEventType.PostedWorkParty | DLEventType.CompletedWorkParty

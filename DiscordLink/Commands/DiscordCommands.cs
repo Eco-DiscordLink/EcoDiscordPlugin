@@ -487,5 +487,20 @@ namespace Eco.Plugins.DiscordLink
         }
 
         #endregion Trades
+
+        #region Debug
+
+        [Command("PrintDebugData")]
+        [Description("Outputs debug information.")]
+        [Aliases("dl-debugdata")]
+        public async Task DebugData(CommandContext ctx)
+        {
+            await CallWithErrorHandling<object>(async (lCtx, args) =>
+            {
+                await RespondToCommand(ctx, DiscordLink.Obj.GetDebugInfo());
+            }, ctx);
+        }
+
+        #endregion
     }
 }
