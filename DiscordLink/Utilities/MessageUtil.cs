@@ -274,6 +274,16 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 if (channel == null) continue;
                 content = content.Replace($"<#{channel.Id}>", $"#{channel.Name}");
             }
+
+            if(message.Attachments.Count > 0)
+            {
+                content += "\nAttachments:";
+                foreach(DiscordAttachment attachment in message.Attachments)
+                {
+                    content += $"\n{attachment.FileName}";
+                }
+            }
+
             return content;
         }
 
