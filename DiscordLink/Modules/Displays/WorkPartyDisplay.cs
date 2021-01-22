@@ -130,7 +130,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                                 float currencyAmountLeft = currencyPayment.Amount - currencyPayment.AmountPaid;
                                 if (currencyAmountLeft > 0.0f)
                                 {
-                                    desc = "Receive " + currencyAmountLeft + " " + currencyPayment.Currency.Name
+                                    desc = "Receive " + currencyAmountLeft.ToString("F1") + " " + currencyPayment.Currency.Name
                                         + (currencyPayment.PayType == PayType.SplitByWorkPercent ? ", split based on work performed" : ", split evenly")
                                         + (currencyPayment.PayAsYouGo ? ", paid as work is performed" : ", paid when the project finishes");
                                 }
@@ -155,7 +155,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                         case ReputationPayment reputationPayment:
                             {
                                 float reputationAmountLeft = reputationPayment.Amount - reputationPayment.AmountPaid;
-                                desc = "Receive " + reputationAmountLeft + " reputation from " + reputationPayment.WorkParty.Creator.Name
+                                desc = "Receive " + reputationAmountLeft.ToString("F1") + " reputation from " + reputationPayment.WorkParty.Creator.Name
                                     + (reputationPayment.PayType == PayType.SplitByWorkPercent ? ", split based on work performed" : ", split evenly")
                                         + (reputationPayment.PayAsYouGo ? ", paid as work is performed" : ", paid when the project finishes");
                                 break;
