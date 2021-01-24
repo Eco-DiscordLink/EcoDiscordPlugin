@@ -3,14 +3,12 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using Eco.Core.Utils;
-using Eco.Gameplay.Components;
 using Eco.Gameplay.Systems.Chat;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
@@ -350,39 +348,6 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
-        #region Trades
-
-        private readonly Dictionary<string, PagedEnumerator<Tuple<string, string>>> previousQueryEnumerator =
-            new Dictionary<string, PagedEnumerator<Tuple<string, string>>>();
-
-        [Command("continuetrades")]
-        [Description("Continues onto the next page of a trade listing.")]
-        [Aliases("nextpage")]
-        public async Task NextPageOfTrades(CommandContext ctx)
-        {
-            await CallWithErrorHandling<object>(async (lCtx, args) =>
-            {
-                var pagedFieldEnumerator = previousQueryEnumerator.GetOrDefault(ctx.User.UniqueUsername());
-                if (pagedFieldEnumerator == null || !pagedFieldEnumerator.HasMorePages)
-                {
-                    await RespondToCommand(ctx, $"No further trade pages found or no `{DLConfig.Data.DiscordCommandPrefix}trades` command has been executed by {ctx.User.Username}");
-                    return;
-                }
-
-
-                var embed = new DiscordEmbedBuilder()
-                    .WithColor(MessageBuilder.EmbedColor)
-                    .WithTitle("Trade Listings");
-
-                while (pagedFieldEnumerator.MoveNext())
-                {
-                    embed.AddField(pagedFieldEnumerator.Current.Item1, pagedFieldEnumerator.Current.Item2, true);
-                }
-
-                await RespondToCommand(ctx, null, embed);
-            }, ctx);
-        }
-
         [Command("trades")]
         [Description("Displays available trades by player or by item.")]
         [Aliases("dl-trades")]
@@ -399,94 +364,12 @@ namespace Eco.Plugins.DiscordLink
                     return;
                 }
 
-                Func<Tuple<StoreComponent, TradeOffer>, string> getLabel;
-                if (isItem)
-                    getLabel = t => t.Item1.Parent.Owners.Name;
-                else
-                    getLabel = t => t.Item2.Stack.Item.DisplayName;
-                var fieldEnumerator = OffersToFields(groupedBuyOffers, groupedSellOffers, getLabel).GetEnumerator();
-                var pagedFieldEnumerator = new PagedEnumerator<Tuple<string, string>>(fieldEnumerator, DLConstants.DISCORD_EMBED_CONTENT_CHARACTER_LIMIT, field => field.Item1.Length + field.Item2.Length);
-                previousQueryEnumerator[ctx.User.UniqueUsername()] = pagedFieldEnumerator;
-
-                // Format message
-                if (groupedSellOffers.Count() > 0 && groupedBuyOffers.Count() > 0)
-                {
-                    var embed = new DiscordEmbedBuilder()
-                        .WithColor(MessageBuilder.EmbedColor)
-                        .WithTitle(title);
-                    pagedFieldEnumerator.ForEachInPage(field => { embed.AddField(field.Item1, field.Item2, true); });
-
-                    var pagedEnumerator = previousQueryEnumerator[ctx.User.UniqueUsername()];
-                    if (pagedEnumerator.HasMorePages)
-                    {
-                        embed.WithFooter("More pages available. Use `" + DLConfig.Data.DiscordCommandPrefix + "continuetrades` to show.");
-                    }
-                    await RespondToCommand(ctx, null, embed);
-                }
-                else
-                {
-                    await RespondToCommand(ctx, "No trade offers available.");
-                }
-                
+                string textContent;
+                DiscordEmbed embedContent;
+                MessageBuilder.Discord.FormatTrades(title, isItem, groupedBuyOffers, groupedSellOffers, out textContent, out embedContent);
+                await RespondToCommand(ctx, textContent, embedContent); 
             }, ctx);
         }
-
-        private IEnumerable<Tuple<string, string>> OffersToFields<T>(T buyOffers, T sellOffers, Func<Tuple<StoreComponent, TradeOffer>, string> getLabel)
-            where T : StoreOfferList
-        {
-            foreach (var group in sellOffers)
-            {
-                var offerDescriptions = TradeOffersToDescriptions(group,
-                    t => t.Item2.Price.ToString(),
-                    t => getLabel(t),
-                    t => t.Item2.Stack.Quantity);
-                var enumerator = new PagedEnumerable<string>(offerDescriptions, DLConstants.DISCORD_EMBED_FIELD_CHARACTER_LIMIT, str => str.Length).GetPagedEnumerator();
-                while (enumerator.HasMorePages)
-                {
-                    var fieldBodyBuilder = new StringBuilder();
-                    while (enumerator.MoveNext())
-                    {
-                        fieldBodyBuilder.Append(enumerator.Current);
-                        fieldBodyBuilder.Append("\n");
-                    }
-                    yield return Tuple.Create($"**Selling for {group.Key}**", fieldBodyBuilder.ToString());
-                }
-            }
-
-            foreach (var group in buyOffers)
-            {
-                var offerDescriptions = TradeOffersToDescriptions(group,
-                    t => t.Item2.Price.ToString(),
-                    t => getLabel(t),
-                    t => t.Item2.Stack.Quantity);
-                var enumerator = new PagedEnumerable<string>(offerDescriptions, DLConstants.DISCORD_EMBED_FIELD_CHARACTER_LIMIT, str => str.Length).GetPagedEnumerator();
-                while (enumerator.HasMorePages)
-                {
-                    var fieldBodyBuilder = new StringBuilder();
-                    while (enumerator.MoveNext())
-                    {
-                        fieldBodyBuilder.Append(enumerator.Current);
-                        fieldBodyBuilder.Append("\n");
-                    }
-                    yield return Tuple.Create($"**Buying for {group.Key}**", fieldBodyBuilder.ToString());
-                }
-            }
-        }
-
-        private IEnumerable<string> TradeOffersToDescriptions<T>(IEnumerable<T> offers, Func<T, string> getPrice, Func<T, string> getLabel, Func<T, int?> getQuantity)
-        {
-            return offers.Select(t =>
-            {
-                var price = getPrice(t);
-                var quantity = getQuantity(t);
-                var quantityString = quantity.HasValue ? $"{quantity.Value} - " : "";
-                var line = $"{quantityString}${price} {getLabel(t)}";
-                if (quantity == 0) line = $"~~{line}~~";
-                return line;
-            });
-        }
-
-        #endregion Trades
 
         #region Debug
 

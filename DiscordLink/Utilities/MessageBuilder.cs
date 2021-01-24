@@ -6,10 +6,13 @@ using System.Text;
 using DSharpPlus.Entities;
 using Eco.Gameplay.Civics.Elections;
 using Eco.Gameplay.Civics.Laws;
+using Eco.Gameplay.Components;
 using Eco.Gameplay.Players;
 using Eco.Plugins.Networking;
 using Eco.Shared.Networking;
 using Eco.Shared.Utils;
+
+using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
 
 namespace Eco.Plugins.DiscordLink.Utilities
 {
@@ -308,6 +311,148 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 string serverName = MessageUtil.FirstNonEmptyString(DLConfig.Data.ServerName, MessageUtil.StripTags(NetworkManager.GetServerInfo().Description), "[Server Title Missing]");
                 string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
                 return $"By DiscordLink @ {serverName} [{timestamp}]";
+            }
+
+            public static void FormatTrades(string title, bool isItem, StoreOfferList groupedBuyOffers, StoreOfferList groupedSellOffers, out string textContent, out DiscordEmbed embedContent)
+            {
+                Func<Tuple<StoreComponent, TradeOffer>, string> getLabel;
+                if (isItem)
+                    getLabel = t => t.Item1.Parent.Owners.Name;
+                else
+                    getLabel = t => t.Item2.Stack.Item.DisplayName;
+                var fieldEnumerator = TradeOffersToFields(groupedBuyOffers, groupedSellOffers, getLabel);
+
+                // Format message
+                if (groupedSellOffers.Count() > 0 || groupedBuyOffers.Count() > 0)
+                {
+                    textContent = string.Empty;
+                    DiscordEmbedBuilder embedBuilder = new DiscordEmbedBuilder()
+                        .WithColor(EmbedColor)
+                        .WithTitle(title);
+                    foreach(var stringTuple in fieldEnumerator)
+                    {
+                        embedBuilder.AddField(stringTuple.Item1, stringTuple.Item2);
+                    }
+                    embedContent = embedBuilder.Build();
+                }
+                else
+                {
+                    textContent = "No trade offers available.";
+                    embedContent = null;
+                }
+            }
+
+            private static IEnumerable<Tuple<string, string>> TradeOffersToFields<T>(T buyOffers, T sellOffers, Func<Tuple<StoreComponent, TradeOffer>, string> getLabel)
+                where T : StoreOfferList
+            {
+                foreach (var group in sellOffers)
+                {
+                    var offerDescriptions = TradeOffersToDescriptions(group,
+                        t => t.Item2.Price.ToString(),
+                        t => getLabel(t),
+                        t => t.Item2.Stack.Quantity);
+
+                    var fieldBodyBuilder = new StringBuilder();
+                    foreach (string offer in offerDescriptions)
+                    {
+                        fieldBodyBuilder.Append($"{offer}\n");
+                    }
+                    yield return Tuple.Create($"**Selling for {group.Key}**", fieldBodyBuilder.ToString());
+                }
+
+                foreach (var group in buyOffers)
+                {
+                    var offerDescriptions = TradeOffersToDescriptions(group,
+                        t => t.Item2.Price.ToString(),
+                        t => getLabel(t),
+                        t => t.Item2.Stack.Quantity);
+
+                    var fieldBodyBuilder = new StringBuilder();
+                    foreach(string offer in offerDescriptions)
+                    {
+                        fieldBodyBuilder.Append($"{offer}\n");
+                    }                    
+                    yield return Tuple.Create($"**Buying for {group.Key}**", fieldBodyBuilder.ToString());
+                }
+            }
+
+            private static IEnumerable<string> TradeOffersToDescriptions<T>(IEnumerable<T> offers, Func<T, string> getPrice, Func<T, string> getLabel, Func<T, int?> getQuantity)
+            {
+                return offers.Select(t =>
+                {
+                    var price = getPrice(t);
+                    var quantity = getQuantity(t);
+                    var quantityString = quantity.HasValue ? $"{quantity.Value} - " : "";
+                    var line = $"{quantityString}${price} {getLabel(t)}";
+                    if (quantity == 0) line = $"~~{line}~~";
+                    return line;
+                });
+            }
+        }
+
+        public static class Eco
+        {
+            public static void FormatTrades(bool isItem, StoreOfferList groupedBuyOffers, StoreOfferList groupedSellOffers, out string message)
+            {
+                Func<Tuple<StoreComponent, TradeOffer>, string> getLabel;
+                if (isItem)
+                    getLabel = t => t.Item1.Parent.MarkedUpName;
+                else
+                    getLabel = t => t.Item2.Stack.Item.MarkedUpName;
+
+                // Format message
+                StringBuilder builder = new StringBuilder();
+
+                if (groupedSellOffers.Count() > 0 || groupedBuyOffers.Count() > 0)
+                {
+                    foreach (var group in groupedBuyOffers)
+                    {
+                        var offerDescriptions = TradeOffersToDescriptions(group,
+                            t => t.Item2.Price.ToString(),
+                            t => getLabel(t),
+                            t => t.Item2.Stack.Quantity);
+
+                        builder.AppendLine(MessageUtil.MakeBold(MessageUtil.MakeColored($"<--- Buying for {group.First().Item1.Parent.GetComponent<CreditComponent>().CreditData.Currency.MarkedUpName} --->", "green")));
+                        foreach (string description in offerDescriptions)
+                        {
+                            builder.AppendLine(description);
+                        }
+                        builder.AppendLine();
+                    }
+
+                    foreach (var group in groupedSellOffers)
+                    {
+                        var offerDescriptions = TradeOffersToDescriptions(group,
+                            t => t.Item2.Price.ToString(),
+                            t => getLabel(t),
+                            t => t.Item2.Stack.Quantity);
+
+                        builder.AppendLine(MessageUtil.MakeBold(MessageUtil.MakeColored($"<--- Selling for {group.First().Item1.Parent.GetComponent<CreditComponent>().CreditData.Currency.MarkedUpName} --->", "red")));
+                        foreach (string description in offerDescriptions)
+                        {
+                            builder.AppendLine(description);
+                        }
+                        builder.AppendLine();
+                    }
+                }
+                else
+                {
+                    builder.AppendLine("--- No trade offers available ---");
+                }
+                message = builder.ToString();
+            }
+
+            private static IEnumerable<string> TradeOffersToDescriptions<T>(IEnumerable<T> offers, Func<T, string> getPrice, Func<T, string> getLabel, Func<T, int?> getQuantity)
+            {
+                return offers.Select(t =>
+                {
+                    var price = getPrice(t);
+                    var quantity = getQuantity(t);
+                    var quantityString = quantity.HasValue ? $"{quantity.Value} - " : "";
+                    var line = $"{quantityString}${price} at {getLabel(t)}";
+                    if (quantity == 0) line = MessageUtil.MakeColored(line, "yellow");
+                    return line;
+                });
             }
         }
     }

@@ -5,9 +5,6 @@ using Eco.Shared.Localization;
 using Eco.Plugins.DiscordLink.Utilities;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Linq;
-using Eco.Gameplay.Components;
 
 using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
 
@@ -307,8 +304,6 @@ namespace Eco.Plugins.DiscordLink
             }, user);
         }
 
-        #region Trades
-
         [ChatSubCommand("DiscordLink", "Displays available trades by player or by item.", "dl-trades", ChatAuthorizationLevel.User)]
         public static void Trades(User user, string userOrItemName)
         {
@@ -323,70 +318,10 @@ namespace Eco.Plugins.DiscordLink
                     return;
                 }
 
-                Func<Tuple<StoreComponent, TradeOffer>, string> getLabel;
-                if (isItem)
-                    getLabel = t => t.Item1.Parent.MarkedUpName;
-                else
-                    getLabel = t => t.Item2.Stack.Item.MarkedUpName;
-
-                // Format message
-                StringBuilder builder = new StringBuilder();
-
-                if (groupedSellOffers.Count() > 0 && groupedBuyOffers.Count() > 0)
-                {
-                    foreach (var group in groupedBuyOffers)
-                    {
-                        var offerDescriptions = TradeOffersToDescriptions(group,
-                            t => t.Item2.Price.ToString(),
-                            t => getLabel(t),
-                            t => t.Item2.Stack.Quantity);
-
-                        builder.AppendLine(MessageUtil.MakeBold(MessageUtil.MakeColored($"<--- Buying for {group.First().Item1.Parent.GetComponent<CreditComponent>().CreditData.Currency.MarkedUpName} --->", "green")));
-                        foreach (string description in offerDescriptions)
-                        {
-                            builder.AppendLine(description);
-                        }
-                        builder.AppendLine();
-                    }
-
-                    foreach (var group in groupedSellOffers)
-                    {
-                        var offerDescriptions = TradeOffersToDescriptions(group,
-                            t => t.Item2.Price.ToString(),
-                            t => getLabel(t),
-                            t => t.Item2.Stack.Quantity);
-
-                        builder.AppendLine(MessageUtil.MakeBold(MessageUtil.MakeColored($"<--- Selling for {group.First().Item1.Parent.GetComponent<CreditComponent>().CreditData.Currency.MarkedUpName} --->", "red")));
-                        foreach (string description in offerDescriptions)
-                        {
-                            builder.AppendLine(description);
-                        }
-                        builder.AppendLine();
-                    }
-                }
-                else
-                {
-                    builder.AppendLine("--- No trade offers available ---");
-                }
-
-                EcoUtil.SendAnnouncementMessage(title, builder.ToString(), user);
+                MessageBuilder.Eco.FormatTrades(isItem, groupedBuyOffers, groupedSellOffers, out string message);
+                EcoUtil.SendAnnouncementMessage(title, message, user);
             }, user);
         }
-
-        private static IEnumerable<string> TradeOffersToDescriptions<T>(IEnumerable<T> offers, Func<T, string> getPrice, Func<T, string> getLabel, Func<T, int?> getQuantity)
-        {
-            return offers.Select(t =>
-            {
-                var price = getPrice(t);
-                var quantity = getQuantity(t);
-                var quantityString = quantity.HasValue ? $"{quantity.Value} - " : "";
-                var line = $"{quantityString}${price} at {getLabel(t)}";
-                if (quantity == 0) line = MessageUtil.MakeColored(line, "yellow");
-                return line;
-            });
-        }
-
-        #endregion
 
         #region Debug
 
