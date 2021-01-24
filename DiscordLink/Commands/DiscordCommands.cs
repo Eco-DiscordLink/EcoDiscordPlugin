@@ -81,7 +81,7 @@ namespace Eco.Plugins.DiscordLink
                     }
                     else
                     {
-                        await Respond(ctx, MessageBuilder.EmbedToText(fullTextContent, embedContent), embedContent);
+                        await Respond(ctx, MessageBuilder.Discord.EmbedToText(fullTextContent, embedContent), embedContent);
                     }
                 }
             }
@@ -136,7 +136,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await CallWithErrorHandling<object>(async (lCtx, args) =>
             {
-                await RespondToCommand(ctx, "", MessageBuilder.GetServerInfo(MessageBuilder.ServerInfoComponentFlag.All));
+                await RespondToCommand(ctx, "", MessageBuilder.Discord.GetServerInfo(MessageBuilder.ServerInfoComponentFlag.All));
             }, ctx);
         }
 
@@ -191,9 +191,9 @@ namespace Eco.Plugins.DiscordLink
             await CallWithErrorHandling<object>(async (lCtx, args) =>
             {
                 DiscordEmbedBuilder embed = new DiscordEmbedBuilder()
-                .WithColor(MessageBuilder.EmbedColor)
+                .WithColor(MessageBuilder.Discord.EmbedColor)
                 .WithTitle("Players")
-                .WithDescription(MessageBuilder.GetPlayerList());
+                .WithDescription(MessageBuilder.Shared.GetPlayerList());
                 await RespondToCommand(ctx, "Displaying Online Players", embed);
             }, ctx);
         }
@@ -218,9 +218,9 @@ namespace Eco.Plugins.DiscordLink
             await CallWithErrorHandling<object>(async (lCtx, args) =>
             {
                 DiscordEmbedBuilder embed = new DiscordEmbedBuilder()
-                .WithColor(MessageBuilder.EmbedColor)
+                .WithColor(MessageBuilder.Discord.EmbedColor)
                 .WithTitle("About DiscordLink")
-                .WithDescription(MessageBuilder.GetAboutMessage());
+                .WithDescription(MessageBuilder.Shared.GetAboutMessage());
 
                 await RespondToCommand(ctx, "About DiscordLink", embed);
             }, ctx);

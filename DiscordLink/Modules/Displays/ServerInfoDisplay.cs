@@ -30,7 +30,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected override void GetDisplayContent(ChannelLink link, out List<Tuple<string, DiscordEmbed>> tagAndContent)
         {
-            DiscordEmbed content = MessageBuilder.GetServerInfo(GetServerInfoFlagForChannel(link as ServerInfoChannel));
+            DiscordEmbed content = MessageBuilder.Discord.GetServerInfo(GetServerInfoFlagForChannel(link as ServerInfoChannel));
 
             tagAndContent = new List<Tuple<string, DiscordEmbed>>();
             tagAndContent.Add(new Tuple<string, DiscordEmbed>(BaseTag, content));

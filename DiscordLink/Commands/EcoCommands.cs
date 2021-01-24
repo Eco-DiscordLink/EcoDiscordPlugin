@@ -111,7 +111,7 @@ namespace Eco.Plugins.DiscordLink
         {
             CallWithErrorHandling<object>((lUser, args) =>
             {
-                ChatManager.ServerMessageToPlayer(new LocString(MessageBuilder.GetAboutMessage()), user);
+                ChatManager.ServerMessageToPlayer(new LocString(MessageBuilder.Shared.GetAboutMessage()), user);
             },
             user);
         }
@@ -286,7 +286,7 @@ namespace Eco.Plugins.DiscordLink
                 LinkedUser DlUser = LinkedUserManager.AddLinkedUser(user, matchingMember.Id.ToString());
 
                 // Notify the Discord account that a link has been made and ask for verification
-                _ = DiscordUtil.SendDmAsync(matchingMember, null, MessageBuilder.GetVerificationDM(user));
+                _ = DiscordUtil.SendDmAsync(matchingMember, null, MessageBuilder.Discord.GetVerificationDM(user));
 
                 // Notify the Eco user that the link has been created and that verification is required
                 ChatManager.ServerMessageToPlayer(new LocString($"Your account has been linked.\nThe link requires verification before becoming active.\nInstructions have been sent to the linked Discord account."), user);

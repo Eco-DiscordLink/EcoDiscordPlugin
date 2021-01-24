@@ -35,8 +35,8 @@ namespace Eco.Plugins.DiscordLink.Modules
         {
             tagAndContent = new List<Tuple<string, DiscordEmbed>>();
             DiscordEmbedBuilder builder = new DiscordEmbedBuilder();
-            builder.WithColor(MessageBuilder.EmbedColor);
-            builder.WithFooter(MessageBuilder.GetStandardEmbedFooter());
+            builder.WithColor(MessageBuilder.Discord.EmbedColor);
+            builder.WithFooter(MessageBuilder.Discord.GetStandardEmbedFooter());
             foreach (Election election in EcoUtil.ActiveElections)
             {
                 string tag = BaseTag + " [" + election.Id + "]";

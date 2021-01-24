@@ -34,18 +34,18 @@ namespace Eco.Plugins.DiscordLink.Modules
 
             string tag = BaseTag;
             string title = "Players";
-            string content = "\n" + MessageBuilder.GetPlayerList(playerListLink.UseLoggedInTime);
+            string content = "\n" + MessageBuilder.Shared.GetPlayerList(playerListLink.UseLoggedInTime);
 
             if (playerListLink.UsePlayerCount == true)
             {
-                title = MessageBuilder.GetPlayerCount() + " Players Online";
+                title = MessageBuilder.Shared.GetPlayerCount() + " Players Online";
             }
 
             DiscordEmbedBuilder embed = new DiscordEmbedBuilder()
-                .WithColor(MessageBuilder.EmbedColor)
+                .WithColor(MessageBuilder.Discord.EmbedColor)
                 .WithTitle(title)
                 .WithDescription(content)
-                .WithFooter(MessageBuilder.GetStandardEmbedFooter());
+                .WithFooter(MessageBuilder.Discord.GetStandardEmbedFooter());
 
             tagAndContent = new List<Tuple<string, DiscordEmbed>>();
             tagAndContent.Add(new Tuple<string, DiscordEmbed>(tag, embed));

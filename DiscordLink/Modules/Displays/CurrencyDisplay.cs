@@ -39,8 +39,8 @@ namespace Eco.Plugins.DiscordLink.Modules
             void AddCurrencyEntry(Currency currency, List<Tuple<string, DiscordEmbed>> tagAndContent)
             {
                 DiscordEmbedBuilder embed = new DiscordEmbedBuilder()
-                    .WithColor(MessageBuilder.EmbedColor)
-                    .WithFooter(MessageBuilder.GetStandardEmbedFooter());
+                    .WithColor(MessageBuilder.Discord.EmbedColor)
+                    .WithFooter(MessageBuilder.Discord.GetStandardEmbedFooter());
 
                 // Find and sort relevant accounts
                 IEnumerable<BankAccount> accounts = BankAccountManager.Obj.Accounts.Where(acc => acc.GetCurrencyHoldingVal(currency) >= 1).OrderByDescending(acc => acc.GetCurrencyHoldingVal(currency));

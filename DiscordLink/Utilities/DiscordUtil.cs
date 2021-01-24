@@ -27,7 +27,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 if (!ChannelHasPermission(channel, Permissions.SendMessages)) return;
 
                 // Either make sure we have permission to use embeds or convert the embed to text
-                string fullTextContent = ChannelHasPermission(channel, Permissions.EmbedLinks) ? textContent : MessageBuilder.EmbedToText(textContent, embedContent);
+                string fullTextContent = ChannelHasPermission(channel, Permissions.EmbedLinks) ? textContent : MessageBuilder.Discord.EmbedToText(textContent, embedContent);
 
                 // If needed; split the message into multiple parts
                 ICollection<string> stringParts = MessageUtil.SplitStringBySize(fullTextContent, DLConstants.DISCORD_EMBED_CONTENT_CHARACTER_LIMIT);
@@ -113,7 +113,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     else
                     {
                         await message.ModifyEmbedSuppressionAsync(true); // Remove existing embeds
-                        await message.ModifyAsync(MessageBuilder.EmbedToText(textContent, embedContent));
+                        await message.ModifyAsync(MessageBuilder.Discord.EmbedToText(textContent, embedContent));
                     }
                 }
             }

@@ -43,9 +43,9 @@ namespace Eco.Plugins.DiscordLink.Modules
             foreach (WorkParty workParty in workParties)
             {
                 string tag = BaseTag + " [" + workParty.Id + "]";
-                builder.WithColor(MessageBuilder.EmbedColor);
+                builder.WithColor(MessageBuilder.Discord.EmbedColor);
                 builder.WithTitle(workParty.Name);
-                builder.WithFooter(MessageBuilder.GetStandardEmbedFooter());
+                builder.WithFooter(MessageBuilder.Discord.GetStandardEmbedFooter());
 
                 // Workers
                 string workersDesc = string.Empty;
