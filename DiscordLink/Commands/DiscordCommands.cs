@@ -42,15 +42,15 @@ namespace Eco.Plugins.DiscordLink
 
         private static async Task RespondToCommand(CommandContext ctx, string fullTextContent, DiscordEmbed embedContent = null)
         {
-            async Task Respond(CommandContext ctx, string textContent, DiscordEmbed embedContent)
+            async static Task Respond(CommandContext ctx, string textContent, DiscordEmbed embedContent)
             {
                 // If needed; split the message into multiple parts
-                ICollection<string> stringParts = MessageUtil.SplitStringBySize(fullTextContent, DLConstants.DISCORD_MESSAGE_CHARACTER_LIMIT);
+                ICollection<string> stringParts = MessageUtil.SplitStringBySize(textContent, DLConstants.DISCORD_MESSAGE_CHARACTER_LIMIT);
                 ICollection<DiscordEmbed> embedParts = MessageUtil.SplitEmbed(embedContent);
 
                 if (stringParts.Count <= 1 && embedParts.Count <= 1)
                 {
-                    await ctx.RespondAsync(fullTextContent, isTTS: false, embedContent);
+                    await ctx.RespondAsync(textContent, isTTS: false, embedContent);
                 }
                 else
                 {
