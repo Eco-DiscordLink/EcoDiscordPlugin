@@ -95,23 +95,26 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
             // Create new embeds that fit within the char limits
             List<DiscordEmbed> splitEmbeds = new List<DiscordEmbed>();
-            DiscordEmbedBuilder SplitEmbedBuilder = new DiscordEmbedBuilder()
-            .WithTitle(fullEmbed.Title)
-            .WithFooter(fullEmbed.Footer.Text);
+            DiscordEmbedBuilder splitEmbedBuilder = new DiscordEmbedBuilder();
+            if (!string.IsNullOrWhiteSpace(fullEmbed.Title))
+                splitEmbedBuilder.WithTitle(fullEmbed.Title);
+            if (!string.IsNullOrWhiteSpace(fullEmbed.Footer?.Text))
+                splitEmbedBuilder.WithFooter(fullEmbed.Footer.Text);
+
             int characterCount = 0;
             foreach (DiscordEmbedField field in splitFieldsCollector.Fields)
             {
                 if(characterCount + field.Value.Length > maxEmbedCharCount)
                 {
-                    splitEmbeds.Add(SplitEmbedBuilder.Build());
-                    SplitEmbedBuilder.ClearFields();
+                    splitEmbeds.Add(splitEmbedBuilder.Build());
+                    splitEmbedBuilder.ClearFields();
                     characterCount = 0;
                 }
 
-                SplitEmbedBuilder.AddField(field.Name, field.Value);
+                splitEmbedBuilder.AddField(field.Name, field.Value);
                 characterCount += field.Value.Length;
             }
-            splitEmbeds.Add(SplitEmbedBuilder.Build());
+            splitEmbeds.Add(splitEmbedBuilder.Build());
 
             return splitEmbeds;
         }
