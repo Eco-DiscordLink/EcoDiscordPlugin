@@ -37,15 +37,15 @@ namespace Eco.Plugins.DiscordLink
         public static void ListGuilds(User user)
         {
             CallWithErrorHandling<object>((lUser, args) =>
-                {
-                    var plugin = Plugins.DiscordLink.DiscordLink.Obj;
-                    if (plugin == null) return;
+            {
+                var plugin = Plugins.DiscordLink.DiscordLink.Obj;
+                if (plugin == null) return;
 
-                    var joinedNames = string.Join(", ", plugin.GuildNames);
+                var joinedNames = string.Join(", ", plugin.GuildNames);
 
-                    ChatManager.ServerMessageToPlayer(new LocString("Servers: " + joinedNames), user);
-                },
-                user);
+                ChatManager.ServerMessageToPlayer(new LocString("Servers: " + joinedNames), user);
+            },
+            user);
         }
 
         [ChatSubCommand("DiscordLink", "Lists channels available to the bot in a specific server.", ChatAuthorizationLevel.Admin)]
