@@ -53,8 +53,8 @@ namespace Eco.Plugins.DiscordLink.Modules
                 statusFlag |= MessageBuilder.ServerInfoComponentFlag.PlayerList;
             if (statusChannel.UsePlayerListLoggedInTime)
                 statusFlag |= MessageBuilder.ServerInfoComponentFlag.PlayerListLoginTime;
-            if (statusChannel.UseTimeSinceStart)
-                statusFlag |= MessageBuilder.ServerInfoComponentFlag.TimeSinceStart;
+            if (statusChannel.UseCurrentTime)
+                statusFlag |= MessageBuilder.ServerInfoComponentFlag.CurrentTime;
             if (statusChannel.UseTimeRemaining)
                 statusFlag |= MessageBuilder.ServerInfoComponentFlag.TimeRemaining;
             if (statusChannel.UseMeteorHasHit)

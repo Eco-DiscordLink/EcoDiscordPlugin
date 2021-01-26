@@ -195,8 +195,8 @@ namespace Eco.Plugins.DiscordLink
         [Description("Display how long the players in the playerlist has been logged in for.")]
         public bool UsePlayerListLoggedInTime { get; set; } = false;
 
-        [Description("Display the time since the world was created in the message.")]
-        public bool UseTimeSinceStart { get; set; } = true;
+        [Description("Display the current server time.")]
+        public bool UseCurrentTime { get; set; } = true;
 
         [Description("Display the time remaining until meteor impact in the message.")]
         public bool UseTimeRemaining { get; set; } = true;

@@ -27,7 +27,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             PlayerCount         = 1 << 4,
             PlayerList          = 1 << 5,
             PlayerListLoginTime = 1 << 6,
-            TimeSinceStart      = 1 << 7,
+            CurrentTime         = 1 << 7,
             TimeRemaining       = 1 << 8,
             MeteorHasHit        = 1 << 9,
             ActiveElectionCount = 1 << 10,
@@ -229,10 +229,10 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     builder.AddField("Online Players", Shared.GetPlayerList(useOnlineTime));
                 }
 
-                if (flag.HasFlag(ServerInfoComponentFlag.TimeSinceStart))
+                if (flag.HasFlag(ServerInfoComponentFlag.CurrentTime))
                 {
                     TimeSpan timeSinceStartSpan = new TimeSpan(0, 0, (int)serverInfo.TimeSinceStart);
-                    builder.AddField("Time Since Game Start", $"{timeSinceStartSpan.Days} Days, {timeSinceStartSpan.Hours} hours, {timeSinceStartSpan.Minutes} minutes");
+                    builder.AddField("Current Time", $"Day {timeSinceStartSpan.Days + 1}\t{timeSinceStartSpan.Hours.ToString("00")}:{timeSinceStartSpan.Minutes.ToString("00")}"); // +1 days to get start at day 1 just like ingame
                 }
 
                 if (flag.HasFlag(ServerInfoComponentFlag.TimeRemaining))
