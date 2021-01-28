@@ -323,6 +323,15 @@ namespace Eco.Plugins.DiscordLink
             }, user);
         }
 
+        [ChatSubCommand("DiscordLink", "Resets world data as if a new world had been created.", "dl-resetdata", ChatAuthorizationLevel.Admin)]
+        public static void ResetWorldData(User user, string userOrItemName)
+        {
+            CallWithErrorHandling<object>((lUser, args) =>
+            {
+                ChatManager.ServerMessageToPlayer(new LocString(SharedCommands.ResetWorldData()), user);
+            }, user);
+        }
+
         #region Debug
 
         [ChatSubCommand("DiscordLink", "Prints debug information.", "dl-debugdata", ChatAuthorizationLevel.Admin)]

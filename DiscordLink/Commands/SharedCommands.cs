@@ -149,5 +149,12 @@ namespace Eco.Plugins.DiscordLink
 
             return string.Empty;
         }
+
+        public static string ResetWorldData()
+        {
+            Logger.Info("ResetWorldData command invoked - Resetting world storage data");
+            DLStorage.Instance.Reset();
+            return "World storage data has been reset.";
+        }
     }
 }

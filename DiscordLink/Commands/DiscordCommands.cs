@@ -371,6 +371,17 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
+        [Command("ResetWorldData")]
+        [Description("Resets world data as if a new world had been created.")]
+        [Aliases("dl-resetdata")]
+        [RequireRoles(RoleCheckMode.Any, "Moderator")]
+        public async Task ResetData(CommandContext ctx)
+        {
+            await CallWithErrorHandling<object>(async (lCtx, args) =>
+            {
+                await RespondToCommand(ctx, SharedCommands.ResetWorldData());
+            }, ctx);
+        }
         #region Debug
 
         [Command("PrintDebugData")]
