@@ -333,18 +333,10 @@ namespace Eco.Plugins.DiscordLink
         {
             await CallWithErrorHandling<object>(async (lCtx, args) =>
             {
-                // Find the linked user for the sender and mark them as verified
-                LinkedUser user = LinkedUserManager.LinkedUserByDiscordId(ctx.GetSenderId().ToString(), false);
-                if (user != null)
-                {
-                    user.Verified = true;
-                    DLStorage.Instance.Write();
+                if(LinkedUserManager.VerifyLinkedUser(ctx.GetSenderId()))
                     await RespondToCommand(ctx, $"Link verified");
-                }
                 else
-                {
                     await RespondToCommand(ctx, $"There is no outstanding link request to verify for your account");
-                }
             }, ctx);
         }
 

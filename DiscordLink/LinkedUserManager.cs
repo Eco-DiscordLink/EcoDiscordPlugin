@@ -1,16 +1,35 @@
 ﻿using Eco.Gameplay.Players;
 using Newtonsoft.Json;
+using System;
 
 namespace Eco.Plugins.DiscordLink
 {
     public sealed class LinkedUserManager
     {
-        public static LinkedUser AddLinkedUser(User user, string discordId)
+        public static event EventHandler<LinkedUser> OnLinkedUserVerified;
+        public static event EventHandler<LinkedUser> OnLinkedUserRemoved;
+
+        public static LinkedUser AddLinkedUser(User user, string discordId, string guildId)
         {
-            LinkedUser linkedUser = new LinkedUser(user.SlgId, user.SteamId, discordId);
+            LinkedUser linkedUser = new LinkedUser(user.SlgId, user.SteamId, discordId, guildId);
             DLStorage.PersistantData.LinkedUsers.Add(linkedUser);
             DLStorage.Instance.Write();
             return linkedUser;
+        }
+
+        public static bool VerifyLinkedUser(ulong discordUserId)
+        {
+            // Find the linked user for the sender and mark them as verified
+            LinkedUser user = LinkedUserByDiscordId(discordUserId, false);
+            bool result = user != null;
+            if (result)
+            {
+                user.Verified = true;
+                DLStorage.Instance.Write();
+
+                OnLinkedUserVerified?.Invoke(null, user);
+            }
+            return result;
         }
 
         public static bool RemoveLinkedUser(User user)
@@ -19,6 +38,9 @@ namespace Eco.Plugins.DiscordLink
             LinkedUser linkedUser = LinkedUserByEcoUser(user, requireVerification: false);
             if (linkedUser != null)
             {
+                if(linkedUser.Verified)
+                    OnLinkedUserRemoved?.Invoke(null, linkedUser);
+
                 DLStorage.PersistantData.LinkedUsers.Remove(linkedUser);
                 deleted = true;
                 DLStorage.Instance.Write();
@@ -26,12 +48,10 @@ namespace Eco.Plugins.DiscordLink
             return deleted;
         }
 
-        public static LinkedUser LinkedUserByDiscordId(string DiscordId, bool requireVerification = true)
+        public static LinkedUser LinkedUserByDiscordId(ulong DiscordId, bool requireVerification = true)
         {
-            if (string.IsNullOrEmpty(DiscordId))
-                return null;
-
-            return DLStorage.PersistantData.LinkedUsers.Find(linkedUser => (linkedUser.DiscordId == DiscordId) && linkedUser.Verified || !requireVerification);
+            string DiscordIdStr = DiscordId.ToString();
+            return DLStorage.PersistantData.LinkedUsers.Find(linkedUser => (linkedUser.DiscordId == DiscordIdStr) && linkedUser.Verified || !requireVerification);
         }
 
         public static LinkedUser LinkedUserByEcoID(string SlgOrSteamId, bool requireVerification = true)
@@ -61,13 +81,15 @@ namespace Eco.Plugins.DiscordLink
         public readonly string SlgId = string.Empty;
         public readonly string SteamId = string.Empty;
         public readonly string DiscordId = string.Empty;
+        public readonly string GuildId = string.Empty;
         public bool Verified = false;
 
-        public LinkedUser(string SlgID, string Steam64Id, string DiscordId)
+        public LinkedUser(string slgID, string steam64Id, string discordId, string guildId)
         {
-            this.SlgId = SlgID;
-            this.SteamId = Steam64Id;
-            this.DiscordId = DiscordId;
+            this.SlgId = slgID;
+            this.SteamId = steam64Id;
+            this.DiscordId = discordId;
+            this.GuildId = guildId;
         }
     }
 }
