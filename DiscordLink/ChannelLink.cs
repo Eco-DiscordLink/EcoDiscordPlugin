@@ -1,4 +1,5 @@
-﻿using Eco.Plugins.DiscordLink.Utilities;
+﻿using DSharpPlus.Entities;
+using Eco.Plugins.DiscordLink.Utilities;
 using System;
 using System.ComponentModel;
 
@@ -26,7 +27,27 @@ namespace Eco.Plugins.DiscordLink
         Always,         // Always show the curreny type
     }
 
-    public class ChannelLink : ICloneable
+    public abstract class DiscordTarget
+    {
+        public abstract bool IsValid();
+    }
+
+    public class UserLink : DiscordTarget
+    {
+        public UserLink(DiscordMember member)
+        {
+            this.Member = member;
+        }
+
+        public override bool IsValid()
+        {
+            return Member != null;
+        }
+
+        public DiscordMember Member { get; set; }
+    }
+
+    public class ChannelLink : DiscordTarget, ICloneable
     {
         [Description("Discord Guild (Server) by name or ID.")]
         public string DiscordGuild { get; set; } = string.Empty;

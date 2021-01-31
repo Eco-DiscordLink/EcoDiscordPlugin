@@ -23,16 +23,19 @@ namespace Eco.Plugins.DiscordLink.Modules
             return DLEventType.Startup | DLEventType.Timer | DLEventType.Login | DLEventType.StartElection | DLEventType.StopElection | DLEventType.Vote;
         }
 
-        protected override List<ChannelLink> GetChannelLinks()
+        protected override List<DiscordTarget> GetDiscordTargets()
         {
-            return DLConfig.Data.ServerInfoChannels.Cast<ChannelLink>().ToList();
+            return DLConfig.Data.ServerInfoChannels.Cast<DiscordTarget>().ToList();
         }
 
-        protected override void GetDisplayContent(ChannelLink link, out List<Tuple<string, DiscordEmbed>> tagAndContent)
+        protected override void GetDisplayContent(DiscordTarget target, out List<Tuple<string, DiscordEmbed>> tagAndContent)
         {
-            DiscordEmbed content = MessageBuilder.Discord.GetServerInfo(GetServerInfoFlagForChannel(link as ServerInfoChannel));
-
             tagAndContent = new List<Tuple<string, DiscordEmbed>>();
+            ServerInfoChannel serverInfoChannel = target as ServerInfoChannel;
+            if (serverInfoChannel == null)
+                return;
+
+            DiscordEmbed content = MessageBuilder.Discord.GetServerInfo(GetServerInfoFlagForChannel(serverInfoChannel));
             tagAndContent.Add(new Tuple<string, DiscordEmbed>(BaseTag, content));
         }
 

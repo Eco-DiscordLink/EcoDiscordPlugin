@@ -24,17 +24,19 @@ namespace Eco.Plugins.DiscordLink.Modules
             return DLEventType.Startup | DLEventType.Timer | DLEventType.CurrencyCreated;
         }
 
-        protected override List<ChannelLink> GetChannelLinks()
+        protected override List<DiscordTarget> GetDiscordTargets()
         {
-            return DLConfig.Data.CurrencyChannels.Cast<ChannelLink>().ToList();
+            return DLConfig.Data.CurrencyChannels.Cast<DiscordTarget>().ToList();
         }
 
-        protected override void GetDisplayContent(ChannelLink link, out List<Tuple<string, DiscordEmbed>> tagAndContent)
+        protected override void GetDisplayContent(DiscordTarget target, out List<Tuple<string, DiscordEmbed>> tagAndContent)
         {
             tagAndContent = new List<Tuple<string, DiscordEmbed>>();
             IEnumerable<Currency> currencies = CurrencyManager.Currencies;
             var currencyTradesMap = DLStorage.WorldData.CurrencyToTradeCountMap;
-            CurrencyChannelLink currencyLink = link as CurrencyChannelLink;
+            CurrencyChannelLink currencyLink = target as CurrencyChannelLink;
+            if (currencyLink == null)
+                return;
 
             void AddCurrencyEntry(Currency currency, List<Tuple<string, DiscordEmbed>> tagAndContent)
             {

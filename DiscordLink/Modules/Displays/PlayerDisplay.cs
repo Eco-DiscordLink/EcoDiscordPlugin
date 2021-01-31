@@ -23,14 +23,18 @@ namespace Eco.Plugins.DiscordLink.Modules
             return DLEventType.Startup | DLEventType.Timer | DLEventType.Join | DLEventType.Login | DLEventType.Logout;
         }
 
-        protected override List<ChannelLink> GetChannelLinks()
+        protected override List<DiscordTarget> GetDiscordTargets()
         {
-            return DLConfig.Data.PlayerListChannels.Cast<ChannelLink>().ToList();
+            return DLConfig.Data.PlayerListChannels.Cast<DiscordTarget>().ToList();
         }
 
-        protected override void GetDisplayContent(ChannelLink link, out List<Tuple<string, DiscordEmbed>> tagAndContent)
+        protected override void GetDisplayContent(DiscordTarget target, out List<Tuple<string, DiscordEmbed>> tagAndContent)
         {
-            PlayerListChannelLink playerListLink = link as PlayerListChannelLink;
+            tagAndContent = new List<Tuple<string, DiscordEmbed>>();
+
+            PlayerListChannelLink playerListLink = target as PlayerListChannelLink;
+            if (playerListLink == null)
+                return;
 
             string tag = BaseTag;
             string title = "Players";
@@ -47,7 +51,6 @@ namespace Eco.Plugins.DiscordLink.Modules
                 .WithDescription(content)
                 .WithFooter(MessageBuilder.Discord.GetStandardEmbedFooter());
 
-            tagAndContent = new List<Tuple<string, DiscordEmbed>>();
             tagAndContent.Add(new Tuple<string, DiscordEmbed>(tag, embed));
         }
     }

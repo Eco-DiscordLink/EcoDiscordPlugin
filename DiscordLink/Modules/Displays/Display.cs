@@ -19,7 +19,7 @@ namespace Eco.Plugins.DiscordLink.Modules
         private bool _dirty = false;
         private Timer _updateTimer = null;
         private Timer _HighFrequencyEventTimer = null;
-        private readonly List<ChannelDisplayData> _channelDisplays = new List<ChannelDisplayData>();
+        private readonly List<TargetDisplayData> _targetDisplays = new List<TargetDisplayData>();
 
         protected override async Task Initialize()
         {
@@ -46,7 +46,7 @@ namespace Eco.Plugins.DiscordLink.Modules
         {
             using (await _overlapLock.LockAsync()) // Avoid crashes caused by data being manipulated and used simultaneously
             {
-                foreach(ChannelDisplayData display in _channelDisplays)
+                foreach(TargetDisplayData display in _targetDisplays)
                 {
                     bool found = false;
                     for(int i = 0; i < display.MessageIDs.Count; ++i)
@@ -66,10 +66,10 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected override bool ShouldRun()
         {
-            foreach(ChannelLink link in GetChannelLinks())
+            foreach(DiscordTarget target in GetDiscordTargets())
             {
-                // If there is at least one valid channel link, we should run the display
-                if (link.IsValid())
+                // If there is at least one valid target, we should run the display
+                if (target.IsValid())
                     return true;
             }
             return false;
@@ -91,11 +91,11 @@ namespace Eco.Plugins.DiscordLink.Modules
             SystemUtil.StopAndDestroyTimer(ref _updateTimer);
         }
 
-        protected abstract List<ChannelLink> GetChannelLinks();
+        protected abstract List<DiscordTarget> GetDiscordTargets();
 
         protected void Clear()
         {
-            _channelDisplays.Clear();
+            _targetDisplays.Clear();
         }
 
         private void TriggerTimedUpdate(object stateInfo)
@@ -116,30 +116,43 @@ namespace Eco.Plugins.DiscordLink.Modules
                 return;
             }
 
-            if(_dirty || _channelDisplays.Count <= 0)
+            if(_dirty || _targetDisplays.Count <= 0)
             {
                 await FindMessages(plugin);
-                if (_dirty || _channelDisplays.Count <= 0) return; // If something went wrong, we should just retry later
+                if (_dirty || _targetDisplays.Count <= 0) return; // If something went wrong, we should just retry later
             }
 
             bool createdOrDestroyedMessage = false;
             List<string> matchedTags = new List<string>();
             List<DiscordMessage> unmatchedMessages = new List<DiscordMessage>();
-            foreach(ChannelDisplayData channelDisplayData in _channelDisplays)
+            foreach(TargetDisplayData channelDisplayData in _targetDisplays)
             {
-                // Get the channel and verify permissions
-                ChannelLink link = channelDisplayData.Link;
-                DiscordGuild discordGuild = plugin.GuildByNameOrId(link.DiscordGuild);
-                if (discordGuild == null) continue;
-                DiscordChannel discordChannel = discordGuild.ChannelByNameOrId(link.DiscordChannel);
-                if (discordChannel == null) continue;
-                if (!DiscordUtil.ChannelHasPermission(discordChannel, Permissions.ReadMessageHistory)) continue;
+                DiscordTarget target = channelDisplayData.Target;
+                ChannelLink channelLink = target as ChannelLink;
+                UserLink userLink = target as UserLink;
+                if (channelLink == null && userLink == null)
+                    continue;
 
-                GetDisplayContent(link, out List<Tuple<string, DiscordEmbed>> tagsAndContent);
+                DiscordChannel targetChannel = null;
+                if (channelLink != null)
+                {
+                    // Get the channel and verify permissions
+                    DiscordGuild discordGuild = plugin.GuildByNameOrId(channelLink.DiscordGuild);
+                    if (discordGuild == null) continue;
+                    targetChannel = discordGuild.ChannelByNameOrId(channelLink.DiscordChannel);
+                    if (targetChannel == null) continue;
+                    if (!DiscordUtil.ChannelHasPermission(targetChannel, Permissions.ReadMessageHistory)) continue;
+                }
+                else if(userLink != null)
+                {
+                    targetChannel = await userLink.Member.CreateDmChannelAsync();
+                }
+
+                GetDisplayContent(target, out List<Tuple<string, DiscordEmbed>> tagsAndContent);
 
                 foreach (ulong messageID in channelDisplayData.MessageIDs)
                 {
-                    DiscordMessage message = await DiscordUtil.GetMessageAsync(discordChannel, messageID);
+                    DiscordMessage message = await DiscordUtil.GetMessageAsync(targetChannel, messageID);
                     if (message == null)
                     {
                         _dirty = true;
@@ -176,7 +189,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 {
                     if(!matchedTags.Contains(tagAndContent.Item1))
                     {
-                        DiscordUtil.SendAsync(discordChannel, tagAndContent.Item1, tagAndContent.Item2).Wait();
+                        DiscordUtil.SendAsync(targetChannel, tagAndContent.Item1, tagAndContent.Item2).Wait();
                         createdOrDestroyedMessage = true;
                     }
                 }
@@ -189,36 +202,50 @@ namespace Eco.Plugins.DiscordLink.Modules
             }
         }
 
-        protected abstract void GetDisplayContent(ChannelLink link, out List<Tuple<string, DiscordEmbed>> tagAndContent);
+        protected abstract void GetDisplayContent(DiscordTarget target, out List<Tuple<string, DiscordEmbed>> tagAndContent);
 
         private async Task FindMessages(DiscordLink plugin)
         {
-            _channelDisplays.Clear();
+            _targetDisplays.Clear();
 
-            foreach (ChannelLink channelLink in GetChannelLinks())
+            foreach (DiscordTarget target in GetDiscordTargets())
             {
-                if (!channelLink.IsValid()) continue;
+                IReadOnlyList<DiscordMessage> targetMessages = null;
 
-                // Get the channel and verify permissions
-                DiscordGuild discordGuild = plugin.GuildByNameOrId(channelLink.DiscordGuild);
-                if (discordGuild == null) continue;
-                DiscordChannel discordChannel = discordGuild.ChannelByNameOrId(channelLink.DiscordChannel);
-                if (discordChannel == null) continue;
-                if (!DiscordUtil.ChannelHasPermission(discordChannel, Permissions.ReadMessageHistory)) continue;
+                ChannelLink channelLink = target as ChannelLink;
+                UserLink userLink = target as UserLink;
+                if (channelLink == null && userLink == null)
+                    continue;
 
-                ChannelDisplayData data = new ChannelDisplayData(channelLink);
-                _channelDisplays.Add(data);
+                TargetDisplayData data = new TargetDisplayData(target);
+                _targetDisplays.Add(data);
+                if (channelLink != null)
+                {
+                    if (!channelLink.IsValid()) continue;
 
-                IReadOnlyList<DiscordMessage> channelMessages = await DiscordUtil.GetMessagesAsync(discordChannel);
-                if (channelMessages == null)
+                    // Get the channel and verify permissions
+                    DiscordGuild discordGuild = plugin.GuildByNameOrId(channelLink.DiscordGuild);
+                    if (discordGuild == null) continue;
+                    DiscordChannel discordChannel = discordGuild.ChannelByNameOrId(channelLink.DiscordChannel);
+                    if (discordChannel == null) continue;
+                    if (!DiscordUtil.ChannelHasPermission(discordChannel, Permissions.ReadMessageHistory)) continue;
+                    targetMessages = await DiscordUtil.GetMessagesAsync(discordChannel);
+                }
+                else if(userLink != null)
+                {
+                    DiscordDmChannel dmChannel = await userLink.Member.CreateDmChannelAsync();
+                    targetMessages = await dmChannel.GetMessagesAsync();
+                }
+                
+                if (targetMessages == null)
                 {
                     // There was an error or no messages exist - Clean up and return
-                    _channelDisplays.Clear();
+                    _targetDisplays.Clear();
                     return;
                 } 
 
                 // Go through the messages and find any our tagged messages
-                foreach(DiscordMessage message in channelMessages)
+                foreach(DiscordMessage message in targetMessages)
                 {
                     if (!message.Content.StartsWith(BaseTag)) continue;
                     data.MessageIDs.Add(message.Id);
@@ -227,15 +254,15 @@ namespace Eco.Plugins.DiscordLink.Modules
             _dirty = false;
         }
 
-        private struct ChannelDisplayData
+        private struct TargetDisplayData
         {
-            public ChannelDisplayData(ChannelLink link)
+            public TargetDisplayData(DiscordTarget target)
             {
-                Link = link;
-                MessageIDs = new List<ulong>();
+                this.Target = target;
+                this.MessageIDs = new List<ulong>();
             }
 
-            public ChannelLink Link;
+            public DiscordTarget Target;
             public List<ulong> MessageIDs;
         }
     }

@@ -30,12 +30,12 @@ namespace Eco.Plugins.DiscordLink.Modules
                 | DLEventType.JoinedWorkParty | DLEventType.LeftWorkParty | DLEventType.WorkedWorkParty;
         }
 
-        protected override List<ChannelLink> GetChannelLinks()
+        protected override List<DiscordTarget> GetDiscordTargets()
         {
-            return DLConfig.Data.WorkPartyChannels.ToList();
+            return DLConfig.Data.WorkPartyChannels.Cast<DiscordTarget>().ToList();
         }
 
-        protected override void GetDisplayContent(ChannelLink link, out List<Tuple<string, DiscordEmbed>> tagAndContent)
+        protected override void GetDisplayContent(DiscordTarget target, out List<Tuple<string, DiscordEmbed>> tagAndContent)
         {
             tagAndContent = new List<Tuple<string, DiscordEmbed>>();
             DiscordEmbedBuilder builder = new DiscordEmbedBuilder();

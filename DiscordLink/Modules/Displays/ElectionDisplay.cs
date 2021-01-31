@@ -26,12 +26,12 @@ namespace Eco.Plugins.DiscordLink.Modules
                 | DLEventType.Vote | DLEventType.StartElection | DLEventType.StopElection;
         }
 
-        protected override List<ChannelLink> GetChannelLinks()
+        protected override List<DiscordTarget> GetDiscordTargets()
         {
-            return DLConfig.Data.ElectionChannels.Cast<ChannelLink>().ToList();
+            return DLConfig.Data.ElectionChannels.Cast<DiscordTarget>().ToList();
         }
 
-        protected override void GetDisplayContent(ChannelLink link, out List<Tuple<string, DiscordEmbed>> tagAndContent)
+        protected override void GetDisplayContent(DiscordTarget target, out List<Tuple<string, DiscordEmbed>> tagAndContent)
         {
             tagAndContent = new List<Tuple<string, DiscordEmbed>>();
             DiscordEmbedBuilder builder = new DiscordEmbedBuilder();
