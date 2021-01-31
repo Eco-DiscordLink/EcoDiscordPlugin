@@ -10,10 +10,12 @@ namespace Eco.Plugins.DiscordLink.Utilities
     {
         public static bool ChannelHasPermission(DiscordChannel channel, Permissions permission)
         {
+            if (channel as DiscordDmChannel != null) return true; // Assume permission is given for DMs
+
             DiscordMember member = channel.Guild.CurrentMember;
             if (member == null)
             {
-                Logger.Debug("CurrentMember was false when evaluating channel permissions for channel " + channel.Name);
+                Logger.Debug("CurrentMember was null when evaluating channel permissions for channel " + channel.Name);
                 return false;
             }
 
