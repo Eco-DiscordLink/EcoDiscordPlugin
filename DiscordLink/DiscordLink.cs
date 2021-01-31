@@ -498,7 +498,7 @@ namespace Eco.Plugins.DiscordLink
             info.AppendLine("--- Environment ---");
             info.AppendLine($"Server Name: {MessageUtil.FirstNonEmptyString(DLConfig.Data.ServerName, MessageUtil.StripTags(NetworkManager.GetServerInfo().Description), "[Server Title Missing]")}");
             info.AppendLine($"Server Version: {Shared.EcoVersion.VersionNumber}");
-            info.AppendLine($"DiscordLink Version: {DiscordClient.VersionString}");
+            info.AppendLine($"DiscordLink Version: {PluginVersion.ToString()}");
             info.AppendLine($"D# Version: {DiscordClient.VersionString}");
 
             info.AppendLine("--- Bot User Config ---");
