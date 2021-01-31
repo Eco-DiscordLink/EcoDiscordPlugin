@@ -47,6 +47,8 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         public override async Task OnMessageDeleted(DiscordMessage message)
         {
+            if (message.IsDm()) return;
+
             using (await _overlapLock.LockAsync()) // Avoid crashes caused by data being manipulated and used simultaneously
             {
                 for (int i = 0; i < DLConfig.Data.SnippetChannels.Count; ++i)
