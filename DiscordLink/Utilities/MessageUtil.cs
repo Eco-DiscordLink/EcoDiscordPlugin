@@ -33,6 +33,9 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         public static List<string> SplitStringBySize(string str, int chunkSize)
         {
+            if (str == null)
+                return new List<string>();
+
             return Enumerable.Range(0, str.Length / chunkSize).Select(i => str.Substring(i * chunkSize, chunkSize)).ToList();
         }
 
