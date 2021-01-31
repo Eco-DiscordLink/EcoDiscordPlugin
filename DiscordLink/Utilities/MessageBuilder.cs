@@ -313,7 +313,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 return $"By DiscordLink @ {serverName} [{timestamp}]";
             }
 
-            public static void FormatTrades(string title, bool isItem, StoreOfferList groupedBuyOffers, StoreOfferList groupedSellOffers, out string textContent, out DiscordEmbed embedContent)
+            public static void FormatTrades(string matchedName, bool isItem, StoreOfferList groupedBuyOffers, StoreOfferList groupedSellOffers, out DiscordEmbed embedContent)
             {
                 Func<Tuple<StoreComponent, TradeOffer>, string> getLabel;
                 if (isItem)
@@ -323,23 +323,22 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 var fieldEnumerator = TradeOffersToFields(groupedBuyOffers, groupedSellOffers, getLabel);
 
                 // Format message
+                DiscordEmbedBuilder embedBuilder = new DiscordEmbedBuilder()
+                    .WithColor(EmbedColor)
+                    .WithTitle($"Trades for {matchedName}");
                 if (groupedSellOffers.Count() > 0 || groupedBuyOffers.Count() > 0)
                 {
-                    textContent = string.Empty;
-                    DiscordEmbedBuilder embedBuilder = new DiscordEmbedBuilder()
-                        .WithColor(EmbedColor)
-                        .WithTitle(title);
                     foreach(var stringTuple in fieldEnumerator)
                     {
                         embedBuilder.AddField(stringTuple.Item1, stringTuple.Item2);
                     }
-                    embedContent = embedBuilder.Build();
+                    embedBuilder.WithFooter(GetStandardEmbedFooter());
                 }
                 else
                 {
-                    textContent = "No trade offers available.";
-                    embedContent = null;
+                    embedBuilder.AddField($"No trade offers found for {matchedName}", null);
                 }
+                embedContent = embedBuilder.Build();
             }
 
             private static IEnumerable<Tuple<string, string>> TradeOffersToFields<T>(T buyOffers, T sellOffers, Func<Tuple<StoreComponent, TradeOffer>, string> getLabel)

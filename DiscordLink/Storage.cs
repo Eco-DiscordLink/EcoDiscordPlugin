@@ -60,9 +60,7 @@ namespace Eco.Plugins.DiscordLink
                         // Make sure an entry exists for the currency
                         int currencyID = accumulatedTrade.First()[0].Currency.Id;
                         if (!WorldData.CurrencyToTradeCountMap.ContainsKey(currencyID))
-                        {
                             WorldData.CurrencyToTradeCountMap.Add(currencyID, 0);
-                        }
 
                         WorldData.CurrencyToTradeCountMap.TryGetValue(currencyID, out int tradeCount);
                         WorldData.CurrencyToTradeCountMap[currencyID] = tradeCount + 1;

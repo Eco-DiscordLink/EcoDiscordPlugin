@@ -65,12 +65,12 @@ namespace Eco.Plugins.DiscordLink
             return MemberwiseClone();
         }
 
-        virtual public bool IsValid()
+        public override bool IsValid()
         {
             return !string.IsNullOrWhiteSpace(DiscordGuild) && !string.IsNullOrWhiteSpace(DiscordChannel);
         }
 
-        virtual public bool Verify()
+        public virtual bool Verify()
         {
             if (string.IsNullOrWhiteSpace(DiscordGuild) || string.IsNullOrWhiteSpace(DiscordChannel)) return false;
 
@@ -88,7 +88,7 @@ namespace Eco.Plugins.DiscordLink
             return true;
         }
 
-        virtual public bool MakeCorrections()
+        public virtual bool MakeCorrections()
         {
             if (string.IsNullOrWhiteSpace(DiscordChannel)) return false;
 

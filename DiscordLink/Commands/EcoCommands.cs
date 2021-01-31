@@ -230,7 +230,7 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [ChatSubCommand("DiscordLink", "Links the calling user account to a Discord account.", "dl-link", ChatAuthorizationLevel.User)]
-        public static void LinkDiscordAccount(User user, string DiscordName)
+        public static void LinkDiscordAccount(User user, string discordName)
         {
             CallWithErrorHandling<object>((lUser, args) =>
             {
@@ -246,7 +246,7 @@ namespace Eco.Plugins.DiscordLink
 
                     foreach (DiscordMember member in guildMembers)
                     {
-                        if (member.Id.ToString() == DiscordName || member.Username.ToLower() == DiscordName.ToLower())
+                        if (member.Id.ToString() == discordName || member.Username.ToLower() == discordName.ToLower())
                         {
                             matchingMember = member;
                             break;
@@ -256,7 +256,7 @@ namespace Eco.Plugins.DiscordLink
 
                 if (matchingMember == null)
                 {
-                    ChatManager.ServerMessageToPlayer(new LocString($"No Discord account with the ID or name \"{DiscordName}\" could be found."), user);
+                    ChatManager.ServerMessageToPlayer(new LocString($"No Discord account with the ID or name \"{discordName}\" could be found."), user);
                     return;
                 }
 
@@ -280,7 +280,7 @@ namespace Eco.Plugins.DiscordLink
                 }
 
                 // Create a linked user from the combined Eco and Discord info
-                LinkedUser DlUser = LinkedUserManager.AddLinkedUser(user, matchingMember.Id.ToString());
+                LinkedUserManager.AddLinkedUser(user, matchingMember.Id.ToString(), matchingMember.Guild.Id.ToString());
 
                 // Notify the Discord account that a link has been made and ask for verification
                 _ = DiscordUtil.SendDmAsync(matchingMember, null, MessageBuilder.Discord.GetVerificationDM(user));

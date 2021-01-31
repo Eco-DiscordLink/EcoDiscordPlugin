@@ -105,10 +105,10 @@ namespace Eco.Plugins.DiscordLink
             return "Invite sent";
         }
 
-        public static string Trades(string userOrItemName, out string title, out bool isItem, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers)
+        public static string Trades(string userOrItemName, out string matchedName, out bool isItem, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers)
         {
             var plugin = DiscordLink.Obj;
-            title = string.Empty;
+            matchedName = string.Empty;
             groupedBuyOffers = null;
             groupedSellOffers = null;
             isItem = false;
@@ -117,11 +117,11 @@ namespace Eco.Plugins.DiscordLink
                 return "Please provide the name of an item or player to search for.";
 
             List<string> entries = new List<string>();
-            var match = TradeUtil.MatchItemOrUser(userOrItemName);
+           var match = TradeUtil.MatchItemOrUser(userOrItemName);
             if (match.Is<Item>())
             {
                 var matchItem = match.Get<Item>();
-                title = "Trades for " + matchItem.DisplayName;
+                matchedName = matchItem.DisplayName;
 
                 Func<StoreComponent, TradeOffer, bool> filter = (store, offer) => offer.Stack.Item == matchItem;
                 var sellOffers = TradeUtil.SellOffers(filter);
@@ -134,7 +134,7 @@ namespace Eco.Plugins.DiscordLink
             else if (match.Is<User>())
             {
                 var matchUser = match.Get<User>();
-                title = matchUser.Name;
+                matchedName = matchUser.Name;
 
                 Func<StoreComponent, TradeOffer, bool> filter = (store, offer) => store.Parent.Owners == matchUser;
                 var sellOffers = TradeUtil.SellOffers(filter);

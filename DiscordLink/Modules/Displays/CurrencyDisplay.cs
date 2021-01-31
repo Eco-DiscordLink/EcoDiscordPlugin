@@ -72,7 +72,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 string coinsPerItemDesc = (currencyLink.UseBackingInfo && currency.Backed) ? $"**Coins per item**: {currency.CoinsPerItem}\n" : string.Empty;
                 string topAccountsDesc = $"**Top accounts**\n{topAccounts}";
                 embed.AddField(currency.Name, $"{circulationDesc}{tradesCountDesc}{backedItemDesc}{coinsPerItemDesc}\n{topAccountsDesc}");
-                tagAndContent.Add(new Tuple<string, DiscordEmbed>(BaseTag + " [" + currency.Id + "]", embed.Build()));
+                tagAndContent.Add(new Tuple<string, DiscordEmbed>($"{BaseTag} [{currency.Id}]", embed.Build()));
             }
 
             // Figure out which displays to enable based on config

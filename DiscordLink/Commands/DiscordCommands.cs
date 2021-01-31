@@ -341,14 +341,14 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [Command("trades")]
-        [Description("Displays available trades by player or by item.")]
+        [Description("Displays available trades by player or item.")]
         [Aliases("dl-trades")]
         public async Task Trades(CommandContext ctx, [Description("The player name or item name for which to display trades.")] string userOrItemName = "")
         {
             await CallWithErrorHandling<object>(async (lCtx, args) =>
             {
                 // Fetch trade data
-                string result = SharedCommands.Trades(userOrItemName, out string title, out bool isItem, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
+                string result = SharedCommands.Trades(userOrItemName, out string matchedName, out bool isItem, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
                 if (!string.IsNullOrEmpty(result))
                 {
                     // Report commmand error
@@ -374,6 +374,7 @@ namespace Eco.Plugins.DiscordLink
                 await RespondToCommand(ctx, SharedCommands.ResetWorldData());
             }, ctx);
         }
+
         #region Debug
 
         [Command("PrintDebugData")]
