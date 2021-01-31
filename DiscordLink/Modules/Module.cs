@@ -1,6 +1,7 @@
 ﻿using DSharpPlus.Entities;
 using Eco.Plugins.DiscordLink.Events;
 using Nito.AsyncEx;
+using System;
 using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink.Modules
@@ -16,17 +17,20 @@ namespace Eco.Plugins.DiscordLink.Modules
         protected readonly AsyncLock _overlapLock = new AsyncLock();
         protected bool _isShuttingDown = false;
 
-        public async Task StartIfRelevant()
+        public async Task<bool> HandleStartOrStop()
         {
-            IsEnabled = ShouldRun();
-            if (IsEnabled)
-                await Initialize();
-
-            // Always listen for config changes as those may enable/disable
-            DLConfig.Instance.OnConfigChanged += (obj, args) =>
+            bool shouldRun = ShouldRun();
+            if (!IsEnabled && shouldRun)
             {
-                _ = OnConfigChanged();
-            };
+                await Initialize();
+                return true;
+            }
+            else if (IsEnabled && !shouldRun)
+            {
+                await Shutdown();
+                return true;
+            }
+            return false;
         }
 
         public async Task Stop()
@@ -39,25 +43,23 @@ namespace Eco.Plugins.DiscordLink.Modules
         protected abstract bool ShouldRun();
 
         protected virtual async Task Initialize()
-        { }
+        {
+            DLConfig.Instance.OnConfigChanged += OnConfigChanged; // Always listen for config changes as those may enable/disable the module
+            IsEnabled = true;
+        }
 
         protected virtual async Task Shutdown()
         {
             _isShuttingDown = true;
+            DLConfig.Instance.OnConfigChanged -= OnConfigChanged;
             IsEnabled = false;
             using (await _overlapLock.LockAsync()) // Make sure that anything queued completes before we shut down
             { }
         }
 
-        protected virtual async Task OnConfigChanged()
+        protected virtual async Task OnConfigChanged(object sender, EventArgs e)
         {
-            bool shouldRun = ShouldRun();
-            if (!IsEnabled && shouldRun)
-                await Initialize();
-            else if (IsEnabled && !shouldRun)
-                await Shutdown();
-
-            IsEnabled = shouldRun;
+            await HandleStartOrStop();
         }
 
         protected abstract Task UpdateInternal(DiscordLink plugin, DLEventType trigger, object data);

@@ -346,8 +346,9 @@ namespace Eco.Plugins.DiscordLink
             _modules.Add(new PlayerDisplay());
             _modules.Add(new ElectionDisplay());
             _modules.Add(new CurrencyDisplay());
+            _modules.Add(new TradeTrackerDisplay());
 
-            _modules.ForEach(async module => await module.StartIfRelevant());
+            _modules.ForEach(async module => await module.HandleStartOrStop());
         }
 
         private void ShutdownModules()

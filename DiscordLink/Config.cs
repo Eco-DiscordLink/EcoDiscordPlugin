@@ -9,6 +9,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Description = System.ComponentModel.DescriptionAttribute;
 
 namespace Eco.Plugins.DiscordLink
@@ -38,7 +39,8 @@ namespace Eco.Plugins.DiscordLink
         public PluginConfig<DLConfigData> PluginConfig { get { return Instance._config; } }
         public List<ChannelLink> ChannelLinks { get { return Instance._channelLinks; } }
 
-        public event EventHandler OnConfigChanged;
+        public delegate Task OnConfigChangedDelegate(object sender, EventArgs e);
+        public event OnConfigChangedDelegate OnConfigChanged;
         public event EventHandler OnConfigSaved;
         public event EventHandler OnChatlogEnabled;
         public event EventHandler OnChatlogDisabled;

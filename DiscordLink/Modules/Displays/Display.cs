@@ -33,13 +33,13 @@ namespace Eco.Plugins.DiscordLink.Modules
             await base.Shutdown();
         }
 
-        protected override async Task OnConfigChanged()
+        protected override async Task OnConfigChanged(object sender, EventArgs e)
         {
             using (await _overlapLock.LockAsync()) // Avoid crashes caused by data being manipulated and used simultaneously
             {
                 Clear(); // The channel links may have changed so we should find the messages again.
             }
-            await base.OnConfigChanged();
+            await base.OnConfigChanged(sender, e);
         }
 
         public override async Task OnMessageDeleted(DiscordMessage message)

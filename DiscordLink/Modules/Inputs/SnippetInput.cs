@@ -2,6 +2,7 @@
 using DSharpPlus.Entities;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -36,13 +37,13 @@ namespace Eco.Plugins.DiscordLink.Modules
             await base.Initialize();
         }
 
-        protected override async Task OnConfigChanged()
+        protected override async Task OnConfigChanged(object sender, EventArgs e)
         {
             using (await _overlapLock.LockAsync()) // Avoid crashes caused by data being manipulated and used simultaneously
             {
                 await ReloadSnippets();
             }
-            await base.OnConfigChanged();
+            await base.OnConfigChanged(sender, e);
         }
 
         public override async Task OnMessageDeleted(DiscordMessage message)
