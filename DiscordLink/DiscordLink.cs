@@ -506,12 +506,22 @@ namespace Eco.Plugins.DiscordLink
             bool hasGuildMembersIntent = (DiscordClient.Intents & DiscordIntents.GuildMembers) == DiscordIntents.GuildMembers;
             info.AppendLine($"Has GuildMembers Intent: {hasGuildMembersIntent}");
 
+            info.AppendLine("--- Storage ---");
+            info.AppendLine($"Linked Users Count: {DLStorage.PersistantData.LinkedUsers.Count}");
+
             info.AppendLine("--- Status ---");
             info.AppendLine($"Status Message: {_status}");
             info.AppendLine($"Start Time: {_initTime:yyyy-MM-dd HH:mm}");
             info.AppendLine($"Connection Time: {_lastConnectionTime:yyyy-MM-dd HH:mm}");
             TimeSpan elapssedTime = DateTime.Now.Subtract(_initTime);
             info.AppendLine($"Running Time: {(int)elapssedTime.TotalDays}:{elapssedTime.Hours}:{elapssedTime.Minutes}");
+
+            info.AppendLine("Active Modules:");
+            foreach (Module module in _modules)
+            {
+                string onOrOff = module.IsEnabled ? "On" : "Off";
+                info.AppendLine($"  - {module}: {onOrOff}");
+            }
 
             info.AppendLine("Cached Guilds:");
             foreach (DiscordGuild guild in DiscordClient.Guilds.Values)
@@ -529,15 +539,6 @@ namespace Eco.Plugins.DiscordLink
                     info.AppendLine($"          Mention Everyone/Here:  {DiscordUtil.ChannelHasPermission(channel, Permissions.MentionEveryone)}");
                 }
             }
-
-            info.AppendLine("Active Modules:");
-            foreach(Module module in _modules)
-            {
-                string onOrOff = module.IsEnabled ? "On" : "Off";
-                info.AppendLine($"  - {module}: {onOrOff}");
-            }
-
-            info.AppendLine($"Linked Users Count: {DLStorage.PersistantData.LinkedUsers.Count}");
 
             return info.ToString();
         }
