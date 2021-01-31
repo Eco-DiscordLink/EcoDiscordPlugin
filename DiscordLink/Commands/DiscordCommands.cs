@@ -356,10 +356,76 @@ namespace Eco.Plugins.DiscordLink
                     return;
                 }
 
-                string textContent;
                 DiscordEmbed embedContent;
-                MessageBuilder.Discord.FormatTrades(title, isItem, groupedBuyOffers, groupedSellOffers, out textContent, out embedContent);
-                await RespondToCommand(ctx, textContent, embedContent); 
+                MessageBuilder.Discord.FormatTrades(matchedName, isItem, groupedBuyOffers, groupedSellOffers, out embedContent);
+                await RespondToCommand(ctx, null, embedContent); 
+            }, ctx);
+        }
+
+        [Command("TrackTrades")]
+        [Description("Creates a live updated display of available trades by player or item.")]
+        [Aliases("dl-tracktrades")]
+        public async Task TrackTrades(CommandContext ctx, [Description("The player name or item name for which to display trades.")] string userOrItemName = "")
+        {
+            await CallWithErrorHandling<object>(async (lCtx, args) =>
+            {
+                // Ensure that the calling user is linked
+                if (LinkedUserManager.LinkedUserByDiscordId(ctx.GetSenderId()) == null)
+                {
+                    await RespondToCommand(ctx, $"You have not linked your Discord Account to DiscordLink on this Eco Server.\nLog into the game and use the `{DLConfig.Data.DiscordCommandPrefix}dl-link` command to initialize account linking.");
+                    return;
+                }
+
+                // Fetch trade data using the trades command once to see that the command parameters are valid
+                string result = SharedCommands.Trades(userOrItemName, out string matchedName, out bool isItem, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
+                if (!string.IsNullOrEmpty(result))
+                {
+                    await RespondToCommand(ctx, result);
+                    return;
+                }
+
+                bool added = await DLStorage.WorldData.AddTrackedTradeItem(ctx.GetSenderId(), matchedName);
+                result = added ? $"Tracking all trades for {matchedName}." : $"Failed to start tracking trades for {matchedName}";
+
+                await RespondToCommand(ctx, result);
+            }, ctx);
+        }
+
+        [Command("StopTrackTrades")]
+        [Description("Removes the live updated display of available trades for the player or item.")]
+        [Aliases("dl-stoptracktrades")]
+        public async Task StopTrackTrades(CommandContext ctx, [Description("The player name or item name for which to display trades.")] string userOrItemName = "")
+        {
+            await CallWithErrorHandling<object>(async (lCtx, args) =>
+            {
+                // Ensure that the calling user is linked
+                if (LinkedUserManager.LinkedUserByDiscordId(ctx.GetSenderId()) == null)
+                {
+                    await RespondToCommand(ctx, $"You have not linked your Discord Account to DiscordLink on this Eco Server.\nLog into the game and use the `{DLConfig.Data.DiscordCommandPrefix}dl-link` command to initialize account linking.");
+                    return;
+                }
+
+                bool removed = await DLStorage.WorldData.RemoveTrackedTradeItem(ctx.GetSenderId(), userOrItemName);
+                string result = removed ? $"Stopped tracking trades for {userOrItemName}." : $"Failed to stop tracking trades for {userOrItemName}.\nUse `{DLConfig.Data.DiscordCommandPrefix}dl-ListTrackedStores` to see what is currently being tracked.";
+
+                await RespondToCommand(ctx, result);
+            }, ctx);
+        }
+
+        [Command("ListTrackedTrades")]
+        [Description("Lists all tracked trades for the calling user.")]
+        [Aliases("dl-listtrackedtrades")]
+        public async Task ListTrackedTrades(CommandContext ctx)
+        {
+            await CallWithErrorHandling<object>(async (lCtx, args) =>
+            {
+                if (LinkedUserManager.LinkedUserByDiscordId(ctx.GetSenderId()) == null)
+                {
+                    await RespondToCommand(ctx, $"You have not linked your Discord Account to DiscordLink on this Eco Server.\nLog into the game and use the `{DLConfig.Data.DiscordCommandPrefix}dl-link` command to initialize account linking.");
+                    return;
+                }
+
+                await RespondToCommand(ctx, DLStorage.WorldData.ListTrackedTrades(ctx.GetSenderId()));
             }, ctx);
         }
 

@@ -323,8 +323,61 @@ namespace Eco.Plugins.DiscordLink
             }, user);
         }
 
+        [ChatSubCommand("DiscordLink", "Creates a live updated display of available trades by player or item.", "dl-tracktrades", ChatAuthorizationLevel.User)]
+        public static void TrackTrades(User user, string userOrItemName)
+        {
+            LinkedUser linkedUser = LinkedUserManager.LinkedUserByEcoUser(user);
+            if ( linkedUser == null)
+            {
+                ChatManager.ServerMessageToPlayer(new LocString($"You have not linked your Discord Account to DiscordLink on this Eco Server.\nLog into the game and use the `\\dl-link` command to initialize account linking."), user);
+                return;
+            }
+
+            // Fetch trade data using the trades command once to see that the command parameters are valid
+            string result = SharedCommands.Trades(userOrItemName, out string matchedName, out bool isItem, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
+            if (!string.IsNullOrEmpty(result))
+            {
+                ChatManager.ServerMessageToPlayer(new LocString(result), user);
+                return;
+            }
+
+            bool added = DLStorage.WorldData.AddTrackedTradeItem(ulong.Parse(linkedUser.DiscordId), matchedName).Result;
+            result = added ? $"Tracking all trades for {matchedName}." : $"Failed to start tracking trades for {matchedName}";
+
+            ChatManager.ServerMessageToPlayer(new LocString(result), user);
+        }
+
+        [ChatSubCommand("DiscordLink", "Removes the live updated display of available trades for the player or item.", "dl-stoptracktrades", ChatAuthorizationLevel.User)]
+        public static void StopTrackTrades(User user, string userOrItemName)
+        {
+            LinkedUser linkedUser = LinkedUserManager.LinkedUserByEcoUser(user);
+            if (linkedUser == null)
+            {
+                ChatManager.ServerMessageToPlayer(new LocString($"You have not linked your Discord Account to DiscordLink on this Eco Server.\nLog into the game and use the `\\dl-link` command to initialize account linking."), user);
+                return;
+            }
+
+            bool removed = DLStorage.WorldData.RemoveTrackedTradeItem(ulong.Parse(linkedUser.DiscordId), userOrItemName).Result;
+            string result = removed ? $"Stopped tracking trades for {userOrItemName}." : $"Failed to stop tracking trades for {userOrItemName}.\nUse `\\dl-ListTrackedStores` to see what is currently being tracked.";
+
+            ChatManager.ServerMessageToPlayer(new LocString(result), user);
+        }
+
+        [ChatSubCommand("DiscordLink", "Lists all tracked trades for the calling user.", "dl-listtrackedtrades", ChatAuthorizationLevel.User)]
+        public static void ListTrackedTrades(User user)
+        {
+            LinkedUser linkedUser = LinkedUserManager.LinkedUserByEcoUser(user);
+            if (linkedUser == null)
+            {
+                ChatManager.ServerMessageToPlayer(new LocString($"You have not linked your Discord Account to DiscordLink on this Eco Server.\nLog into the game and use the `\\dl-link` command to initialize account linking."), user);
+                return;
+            }
+
+            EcoUtil.SendAnnouncementMessage("Tracked Trades", DLStorage.WorldData.ListTrackedTrades(ulong.Parse(linkedUser.DiscordId)), user);
+        }
+
         [ChatSubCommand("DiscordLink", "Resets world data as if a new world had been created.", "dl-resetdata", ChatAuthorizationLevel.Admin)]
-        public static void ResetWorldData(User user, string userOrItemName)
+        public static void ResetWorldData(User user)
         {
             CallWithErrorHandling<object>((lUser, args) =>
             {

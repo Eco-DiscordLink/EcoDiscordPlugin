@@ -71,7 +71,7 @@ namespace Eco.Plugins.DiscordLink
         {
             DLConfig.Instance.Initialize();
             EventConverter.Instance.Initialize();
-            DLStorage.Instance.Read();
+            DLStorage.Instance.Initialize();
             Logger.Initialize();
             Logger.Info("Plugin version is " + PluginVersion);
             _initTime = DateTime.Now;
@@ -106,7 +106,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ShutdownModules();
             EventConverter.Instance.Shutdown();
-            DLStorage.Instance.Write();
+            DLStorage.Instance.Shutdown();
             Logger.Shutdown();
         }
 

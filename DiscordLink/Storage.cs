@@ -1,8 +1,11 @@
 ﻿using Eco.EM.Framework.FileManager;
 using Eco.Gameplay.GameActions;
 using Eco.Plugins.DiscordLink.Events;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink
 {
@@ -15,7 +18,11 @@ namespace Eco.Plugins.DiscordLink
         public static PersistantStorageData PersistantData { get; private set; } = new PersistantStorageData();
         public static WorldStorageData WorldData { get; private set; } = new WorldStorageData();
 
-        public Dictionary<string, string> Snippets = new Dictionary<string, string>();        
+        public Dictionary<string, string> Snippets = new Dictionary<string, string>();
+
+        public delegate Task OnTrackedTradeChangedDelegate(object sender, EventArgs e, string tradeItem);
+        public static event OnTrackedTradeChangedDelegate TrackedTradeAdded;
+        public static event OnTrackedTradeChangedDelegate TrackedTradeRemoved;
 
         // Explicit static constructor to tell C# compiler not to mark type as beforefieldinit
         static DLStorage()
@@ -25,6 +32,18 @@ namespace Eco.Plugins.DiscordLink
 
         private DLStorage()
         {
+        }
+
+        public void Initialize()
+        {
+            Read();
+            LinkedUserManager.OnLinkedUserRemoved += HandleLinkedUserRemoved;
+        }
+
+        public void Shutdown()
+        {
+            LinkedUserManager.OnLinkedUserRemoved -= HandleLinkedUserRemoved;
+            Write();
         }
 
         public void Write()
@@ -72,6 +91,11 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
+        private void HandleLinkedUserRemoved(object sender, LinkedUser user)
+        {
+            WorldData.PlayerTrackedTrades.Remove(ulong.Parse(user.DiscordId));
+        }
+
         public class PersistantStorageData
         {
             public List<LinkedUser> LinkedUsers = new List<LinkedUser>();
@@ -80,6 +104,58 @@ namespace Eco.Plugins.DiscordLink
         public class WorldStorageData
         {
             public Dictionary<int, int> CurrencyToTradeCountMap = new Dictionary<int, int>();
+            public Dictionary<ulong, List<string>> PlayerTrackedTrades = new Dictionary<ulong, List<string>>();
+
+            public async Task<bool> AddTrackedTradeItem(ulong discordUserId, string tradeItem)
+            {
+                if(!PlayerTrackedTrades.ContainsKey(discordUserId))
+                    PlayerTrackedTrades.Add(discordUserId, new List<string>());
+
+                if (PlayerTrackedTrades[discordUserId].Contains(tradeItem))
+                    return false;
+
+                PlayerTrackedTrades[discordUserId].Add(tradeItem);
+                await TrackedTradeAdded?.Invoke(this, EventArgs.Empty, tradeItem);
+                return true;
+            }
+
+            public async Task<bool> RemoveTrackedTradeItem(ulong discordUserId, string tradeItem)
+            {
+                if (!PlayerTrackedTrades.ContainsKey(discordUserId))
+                    return false;
+
+                bool removed = PlayerTrackedTrades[discordUserId].Remove(tradeItem);
+                if (removed)
+                    await TrackedTradeRemoved?.Invoke(this, EventArgs.Empty, tradeItem);
+
+                // Remove the user entry if the last tracked trade was remvoed
+                if (PlayerTrackedTrades[discordUserId].Count <= 0)
+                    PlayerTrackedTrades.Remove(discordUserId);
+
+                return removed;
+            }
+
+            public void RemoveAllTrackedTradesForUser(ulong discordUserId)
+            {
+                if (!PlayerTrackedTrades.ContainsKey(discordUserId))
+                    return;
+
+                PlayerTrackedTrades.Remove(discordUserId);
+            }
+
+            public string ListTrackedTrades(ulong discordUserId)
+            {
+                if (!PlayerTrackedTrades.ContainsKey(discordUserId) || PlayerTrackedTrades[discordUserId].Count <= 0)
+                    return "No tracked trades exist for this user";
+
+                StringBuilder builder = new StringBuilder();
+                builder.Append("Your tracked trades are:\n");
+                foreach(string trackedTrade in PlayerTrackedTrades[discordUserId])
+                {
+                    builder.AppendLine(trackedTrade);
+                }
+                return builder.ToString();
+            }
         }
     }
 }
