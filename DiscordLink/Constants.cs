@@ -11,6 +11,6 @@ namespace Eco.Plugins.DiscordLink
         public const int DISCORD_EMBED_FIELD_CHARACTER_LIMIT = 900;
         public const int MAX_TOP_CURRENCY_HOLDER_DISPLAY_LIMIT = 15;
 
-        public static string BasePath { get { return Directory.GetCurrentDirectory() + "/Mods/DiscordLink/"; } }
+        public static string BasePath { get { return Directory.GetCurrentDirectory() + "/Configs/Mods/DiscordLink/"; } }
     }
 }
