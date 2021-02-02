@@ -411,7 +411,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                             t => getLabel(t),
                             t => t.Item2.Stack.Quantity);
 
-                        builder.AppendLine(MessageUtil.MakeBold(MessageUtil.MakeColored($"<--- Buying for {group.First().Item1.Parent.GetComponent<CreditComponent>().CreditData.Currency.MarkedUpName} --->", "green")));
+                        builder.AppendLine(MessageUtil.MakeBold(MessageUtil.MakeColored($"<--- Buying for {group.First().Item1.CurrencyName} --->", "green")));
                         foreach (string description in offerDescriptions)
                         {
                             builder.AppendLine(description);
@@ -426,7 +426,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                             t => getLabel(t),
                             t => t.Item2.Stack.Quantity);
 
-                        builder.AppendLine(MessageUtil.MakeBold(MessageUtil.MakeColored($"<--- Selling for {group.First().Item1.Parent.GetComponent<CreditComponent>().CreditData.Currency.MarkedUpName} --->", "red")));
+                        builder.AppendLine(MessageUtil.MakeBold(MessageUtil.MakeColored($"<--- Selling for {group.First().Item1.CurrencyName} --->", "red")));
                         foreach (string description in offerDescriptions)
                         {
                             builder.AppendLine(description);

@@ -54,7 +54,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         public static string StoreCurrencyName(StoreComponent store)
         {
-            return MessageUtil.StripTags(store.Parent.GetComponent<CreditComponent>().CreditData.Currency.Name);
+            return MessageUtil.StripTags(store.CurrencyName);
         }
 
         public static IEnumerable<Tuple<StoreComponent, TradeOffer>>
