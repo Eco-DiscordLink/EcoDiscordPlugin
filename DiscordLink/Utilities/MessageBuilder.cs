@@ -344,6 +344,21 @@ namespace Eco.Plugins.DiscordLink.Utilities
             private static IEnumerable<Tuple<string, string>> TradeOffersToFields<T>(T buyOffers, T sellOffers, Func<Tuple<StoreComponent, TradeOffer>, string> getLabel)
                 where T : StoreOfferList
             {
+                foreach (var group in buyOffers)
+                {
+                    var offerDescriptions = TradeOffersToDescriptions(group,
+                        t => t.Item2.Price.ToString(),
+                        t => getLabel(t),
+                        t => t.Item2.Stack.Quantity);
+
+                    var fieldBodyBuilder = new StringBuilder();
+                    foreach (string offer in offerDescriptions)
+                    {
+                        fieldBodyBuilder.Append($"{offer}\n");
+                    }
+                    yield return Tuple.Create($"**Buying for {group.Key}**", fieldBodyBuilder.ToString());
+                }
+
                 foreach (var group in sellOffers)
                 {
                     var offerDescriptions = TradeOffersToDescriptions(group,
@@ -357,21 +372,6 @@ namespace Eco.Plugins.DiscordLink.Utilities
                         fieldBodyBuilder.Append($"{offer}\n");
                     }
                     yield return Tuple.Create($"**Selling for {group.Key}**", fieldBodyBuilder.ToString());
-                }
-
-                foreach (var group in buyOffers)
-                {
-                    var offerDescriptions = TradeOffersToDescriptions(group,
-                        t => t.Item2.Price.ToString(),
-                        t => getLabel(t),
-                        t => t.Item2.Stack.Quantity);
-
-                    var fieldBodyBuilder = new StringBuilder();
-                    foreach(string offer in offerDescriptions)
-                    {
-                        fieldBodyBuilder.Append($"{offer}\n");
-                    }                    
-                    yield return Tuple.Create($"**Buying for {group.Key}**", fieldBodyBuilder.ToString());
                 }
             }
 
