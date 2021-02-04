@@ -67,7 +67,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
             public static string GetAboutMessage()
             {
-                return "DiscordLink is a plugin mod that runs on this server." +
+                return $"This server is running the DiscordLink plugin version {DiscordLink.Obj.PluginVersion}." +
                     "\nIt connects the game server to a Discord bot in order to perform seamless communication between Eco and Discord." +
                     "\nThis enables you to chat with players who are currently not online in Eco, but are available on Discord." +
                     "\nDiscordLink can also be used to display information about the Eco server in Discord, such as who is online and what items are available on the market." +
