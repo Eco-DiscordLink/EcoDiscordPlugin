@@ -270,13 +270,13 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
                 if (flag.HasFlag(ServerInfoComponentFlag.LawCount))
                 {
-                    builder.AddField("Law Count", $"{EcoUtil.Laws.Count()}");
+                    builder.AddField("Law Count", $"{EcoUtil.ActiveLaws.Count()}");
                 }
 
                 if (flag.HasFlag(ServerInfoComponentFlag.LawList))
                 {
                     string lawList = string.Empty;
-                    foreach (Law law in EcoUtil.Laws)
+                    foreach (Law law in EcoUtil.ActiveLaws)
                     {
                         lawList += $"{law.Name}\n";
                     }

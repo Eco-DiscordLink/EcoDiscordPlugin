@@ -12,7 +12,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
     {
         // Getters
         public static IEnumerable<Election> ActiveElections => ElectionManager.Obj.CurrentElections.Where(x => x.Valid() && x.State == Shared.Items.ProposableState.Active);
-        public static IEnumerable<Law> Laws => CivicsData.Obj.Laws.All<Law>();
+        public static IEnumerable<Law> ActiveLaws => CivicsData.Obj.Laws.All<Law>().Where(x => x.State == Shared.Items.ProposableState.Active);
 
         public static void SendServerMessage(string message, bool permanent = false, User user = null )
         {
