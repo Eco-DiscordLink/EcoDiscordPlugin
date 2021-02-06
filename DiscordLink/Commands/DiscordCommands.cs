@@ -128,6 +128,17 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
+        [Command("Print")]
+        [Description("Reposts the inputted message. Can be used to create tags for ordering display tags within a channel.")]
+        [RequireRoles(RoleCheckMode.Any, "Moderator")]
+        public async Task Print(CommandContext ctx, [Description("The message to print.")] string message)
+        {
+            await CallWithErrorHandling<object>(async (lCtx, args) =>
+            {
+                await RespondToCommand(ctx, message);
+            }, ctx);
+        }
+
         [Command("serverstatus")]
         [Description("Prints the Server Info status.")]
         [Aliases("dl-status", "dl-serverinfo", "ecostatus")]
@@ -224,16 +235,6 @@ namespace Eco.Plugins.DiscordLink
                 .WithDescription(MessageBuilder.Shared.GetAboutMessage());
 
                 await RespondToCommand(ctx, "About DiscordLink", embed);
-            }, ctx);
-        }
-
-        [Command("Print")]
-        [Description("Reposts the inputted message. Can be used to create tags for ordering display tags within a channel.")]
-        public async Task Print(CommandContext ctx, [Description("The message to print.")] string message)
-        {
-            await CallWithErrorHandling<object>(async (lCtx, args) =>
-            {
-                await RespondToCommand(ctx, message);
             }, ctx);
         }
 

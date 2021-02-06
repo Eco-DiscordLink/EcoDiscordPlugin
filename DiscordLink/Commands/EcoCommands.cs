@@ -263,7 +263,6 @@ namespace Eco.Plugins.DiscordLink
                 // Make sure that the accounts aren't already linked to any account
                 foreach (LinkedUser linkedUser in DLStorage.PersistantData.LinkedUsers)
                 {
-
                     if (user.SlgId == linkedUser.SlgId || user.SteamId == linkedUser.SteamId)
                     {
                         if (linkedUser.DiscordId == matchingMember.Id.ToString())
