@@ -18,15 +18,15 @@ Typing only /DiscordLink or the alias /DL will invoke the help message and provi
 * <b>ListChannels</b> - Lists channels available to the bot in a specific server.
 * <b>SendServerMessage [DL-ServerMessage] (message, Target Username, optional:temporary/permanent)</b> - Sends a server message to the target user.
 * <b>BroadcastServerMessage [DL-BroadcastServerMessage] (message, optional:temporary/permanent)</b> - Sends a server message to all online users.  
-[Example](images/commands/servermessage.png)
+[Example](https://github.com/Eco-DiscordLink/EcoDiscordPlugin/blob/develop/images/features/commands/servermessage.png?raw=true)
 
 * <b>SendPopup [DL-Popup] (message, Target Username)</b> - Sends a popup to the target user.  
 * <b>BroadcastPopup [DL-BroadcastPopup] (message)</b> - Sends a popup to all online users.  
-[Example](images/commands/popupmessage.png)
+[Example](https://github.com/Eco-DiscordLink/EcoDiscordPlugin/blob/develop/images/features/commands/popupmessage.png)
 
 * <b>SendAnnouncement [DL-Announcement] (title, message, Target Username)</b> - Sends an announcement message box to the target user.
 * <b>BroadcastAnnouncement [DL-BroadcastAnnouncement] (title, message)</b> - Sends an announcement message box to all online users.  
-[Example](images/commands/announcementmessage.png)
+[Example](https://github.com/Eco-DiscordLink/EcoDiscordPlugin/blob/develop/images/features/commands/announcementmessage.png?raw=true)
 
 #### User Commands
 * <b>About [DL-About]</b> - Displays information about the DiscordLink plugin.
@@ -37,15 +37,15 @@ Typing only /DiscordLink or the alias /DL will invoke the help message and provi
   <summary>Account Linking Process</summary>
   1. Run _dl-Link_ command from Eco and receive the verification message from the bot.  
   2. Run _dl-VerifyLink_ command as a response to the verification message.  
-  ![Account Linking Verification](images/features/commands/accountverification.png)
+  ![Account Linking Verification](https://github.com/Eco-DiscordLink/EcoDiscordPlugin/blob/develop/images/features/commands/accountverification.png?raw=true)
   
 </details>
 * <b>UnlinkDiscordAccount [DL-Unlink]</b> - Removes any existing link between the calling Eco account and Discord. Can be used to abort an unfinished linking process.
 * <b>Trades [DL-Trades] (Item Name or Username)</b> - Displays available trades by person or by item.  
-[Example](images/commands/ecotrades.png)
+[Example](https://github.com/Eco-DiscordLink/EcoDiscordPlugin/blob/develop/images/features/commands/ecotrades.png?raw=true)
 
 * <b>TrackTrades [DL-TrackTrades] (Item name or Username)</b> - Configures a Trade Tracker Display showing up to date information on the requested item in a Discord DM with the calling user. Requires the calling user having linked their Eco account to Discord using _/dl-link_.  
-[Example](images/commands/discordtrades.png)
+[Example](https://github.com/Eco-DiscordLink/EcoDiscordPlugin/blob/develop/images/features/commands/discordtrades.png?raw=true)
 
 * <b>StopTrackTrades [DL-StopTrackTrades] (Item Name or Username)</b> - Removes the Trade Tracker Display for the requested item for the calling user.
 * <b>ListTrackedTrades [DL-ListTrackedTrades]</b> - Lists all Trade Tracker Displays registered for the calling user.
@@ -61,15 +61,15 @@ Command Parameters that contain spaces need to be enclosed in quotes (Example: "
 * <b>Echo (Optional: Message )</b> - Tests message forwarding by sending a message to Eco to be picked up by the Chat Links.
 * <b>SendServerMessage [DL-ServerMessage] (message, Target Username, optional:temporary/permanent)</b> - Sends a server message to the target user.
 * <b>BroadcastServerMessage [DL-BroadcastServerMessage] (message, optional:temporary/permanent)</b> - Sends a server message to all online users.  
-[Example](images/commands/servermessage.png)
+[Example](https://github.com/Eco-DiscordLink/EcoDiscordPlugin/blob/develop/images/features/commands/servermessage.png?raw=true)
 
 * <b>SendPopup [DL-Popup] (message, Target Username)</b> - Sends a popup to the target user.
 * <b>BroadcastPopup [DL-BroadcastPopup] (message)</b> - Sends a popup to all online users.  
-[Example](images/commands/popupmessage.png)
+[Example](https://github.com/Eco-DiscordLink/EcoDiscordPlugin/blob/develop/images/features/commands/popupmessage.png)
 
 * <b>SendAnnouncement [DL-Announcement] (title, message, Target Username)</b> - Sends an announcement message box to the target user.
 * <b>BroadcastAnnouncement [DL-BroadcastAnnouncement] (title, message)</b> - Sends an announcement message box to all online users.  
-[Example](images/commands/announcementmessage.png)
+[Example](https://github.com/Eco-DiscordLink/EcoDiscordPlugin/blob/develop/images/features/commands/announcementmessage.png?raw=true)
 
 #### User Commands
 * <b>Ping</b> - Checks if the bot is online.
@@ -80,7 +80,7 @@ Command Parameters that contain spaces need to be enclosed in quotes (Example: "
 * <b>VerifyLink [DL-VerifyLink]</b> - Accepts an account linking request sent via /DL-Link.
 * <b>Trades [Trade] (Item name or Username)</b> - Displays available trades by person or by item.
 * <b>TrackTrades [DL-TrackTrades] (Item name or Username)</b> - Configures a Trade Tracker Display showing up to date information on the requested item in a Discord DM with the calling user. Requires the calling user having linked their Eco account to Discord using _/dl-link_ from inside the game.  
-[Example](images/commands/discordtrades.png)
+[Example](https://github.com/Eco-DiscordLink/EcoDiscordPlugin/blob/develop/images/features/commands/discordtrades.png?raw=true)
 
 * <b>StopTrackTrades [DL-StopTrackTrades] (Item name or Username)</b> - Removes the Trade Tracker Display for the requested item for the calling user.
 * <b>ListTrackedTrades [DL-ListTrackedTrades]</b> - Lists all Trade Tracker Displays registered for the calling user.
