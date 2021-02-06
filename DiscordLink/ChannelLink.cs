@@ -204,8 +204,8 @@ namespace Eco.Plugins.DiscordLink
         [Description("Display the server logo in the message.")]
         public bool UseLogo { get; set; } = true;
 
-        [Description("Display the server IP address in the message.")]
-        public bool UseAddress { get; set; } = true;
+        [Description("Display the server IP address and port in the message.")]
+        public bool UseConnectionInfo { get; set; } = true;
 
         [Description("Display the number of online players in the message.")]
         public bool UsePlayerCount { get; set; } = true;
