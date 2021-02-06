@@ -140,6 +140,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("echo")]
         [Description("Sends the provided message to Eco and back to Discord again.")]
+        [RequireRoles(RoleCheckMode.Any, "Moderator")]
         public async Task Echo(CommandContext ctx, [Description("The message to send and then receive back again. A random message will be sent if this parameter is omitted.")] string message = "")
         {
             await CallWithErrorHandling<object>(async (lCtx, args) =>
