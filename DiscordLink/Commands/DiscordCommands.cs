@@ -263,7 +263,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("BroadcastServerMessage")]
         [Description("Sends an Eco server message to all online users")]
-        [Aliases("dl-servermessageall")]
+        [Aliases("dl-broadcastservermessage")]
         [RequireRoles(RoleCheckMode.Any, "Moderator")]
         public async Task BroadcastServerMessage(CommandContext ctx, [Description("The message to send.")] string message,
             [Description("Persistance type. Possible values are \"Temporary\" and \"Permanent\". Defaults to \"Temporary\".")] string persistanceType = "temporary")
@@ -289,7 +289,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("BroadcastPopup")]
         [Description("Sends an Eco popup message to all online users")]
-        [Aliases("dl-popupall")]
+        [Aliases("dl-broadcastpopup")]
         [RequireRoles(RoleCheckMode.Any, "Moderator")]
         public async Task BroadcastPopup(CommandContext ctx, [Description("The message to send.")] string message)
         {
@@ -315,7 +315,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("BroadcastAnnouncement")]
         [Description("Sends an Eco announcement message to all online users")]
-        [Aliases("dl-announcementall")]
+        [Aliases("dl-broadcastannouncement")]
         [RequireRoles(RoleCheckMode.Any, "Moderator")]
         public async Task SendAnnouncement(CommandContext ctx, [Description("The title for the announcement UI.")] string title,
             [Description("The message to display in the announcement UI.")] string message)

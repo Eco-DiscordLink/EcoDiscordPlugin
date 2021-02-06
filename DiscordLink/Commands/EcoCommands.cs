@@ -173,7 +173,7 @@ namespace Eco.Plugins.DiscordLink
             user);
         }
 
-        [ChatSubCommand("DiscordLink", "Sends an Eco server message to all online users.", "dl-servermessageall", ChatAuthorizationLevel.Admin)]
+        [ChatSubCommand("DiscordLink", "Sends an Eco server message to all online users.", "dl-broadcastservermessage", ChatAuthorizationLevel.Admin)]
         public static void BroadcastServerMessage(User user, string message, string persistanceType = "temporary")
         {
             CallWithErrorHandling<object>((lUser, args) =>
@@ -196,7 +196,7 @@ namespace Eco.Plugins.DiscordLink
             user);
         }
 
-        [ChatSubCommand("DiscordLink", "Sends an Eco popup message to all online users.", "dl-popupall", ChatAuthorizationLevel.Admin)]
+        [ChatSubCommand("DiscordLink", "Sends an Eco popup message to all online users.", "dl-broadcastpopup", ChatAuthorizationLevel.Admin)]
         public static void BroadcastPopup(User user, string message)
         {
             CallWithErrorHandling<object>((lUser, args) =>
@@ -218,7 +218,7 @@ namespace Eco.Plugins.DiscordLink
             user);
         }
 
-        [ChatSubCommand("DiscordLink", "Sends an Eco announcement message to a specified user.", "dl-announcementall", ChatAuthorizationLevel.Admin)]
+        [ChatSubCommand("DiscordLink", "Sends an Eco announcement message to a specified user.", "dl-broadcastannouncement", ChatAuthorizationLevel.Admin)]
         public static void BroadcastAnnouncement(User user, string title, string message)
         {
             CallWithErrorHandling<object>((lUser, args) =>
