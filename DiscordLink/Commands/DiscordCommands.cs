@@ -183,8 +183,9 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
-        [Command("players")]
+        [Command("playerlist")]
         [Description("Lists the players currently online on the server.")]
+        [Aliases("players", "dl-players")]
         public async Task PlayerList(CommandContext ctx)
         {
             await CallWithErrorHandling<object>(async (lCtx, args) =>
