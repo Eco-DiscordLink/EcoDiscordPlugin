@@ -28,6 +28,10 @@ See the [installation guide](Installation.md)
 
 4. You're done! All messages sent into the configured Discord channel and Eco chat channel should now be cross posting all player messages.
 
+## Displays, Feeds and Inputs
+All displays, feeds and inputs require a [Channel Link](#linking-channels) and will be considered turned off until a valid one exists.
+For more information, see the [Modules Page](Modules.md).
+
 ## Eco Bot Name
 The name the bot should use when posting in Eco.
 Note that the bot user is created when the server starts for the first time after a world reset and therefore, changing this will only take effect after the next world reset.
@@ -42,7 +46,8 @@ The _Log Level_ and _Backend Log Level_ should generally be kept at their defaul
 
 **Notes**
 * All message types below the selected one will be printed as well.
-* All non-verbose and non-backend log messages are written to a separate log in "Mods/DiscordLink/Pluginlog.txt", regardless of log settings.
+* All non-verbose and non-backend log messages are written to a separate log in "Configs/Mods/DiscordLink/Pluginlog.txt", regardless of log settings.
+* If the backend log level is raised, it is normal to see warnings like "Pre-emptive ratelimit triggered". This simply means that the underlying communications library delayed a message in order to make sure that we do not hit Discord's rate limit.
 
 ## Command Settings
 **Discord Command Prefix**  

@@ -9,11 +9,11 @@ This Eco Global Survival plugin connects Discord servers to the game server.
 ### Features
 * `Seamless communication`  
 Connect your Eco chat to one or multiple Discord servers and channels for seamless and automated communication between Eco and Discord.
-* `Discord Displays`  
-See live updated information on Server Status, Elections and Work parties in Discord.  
-* `Discord Feeds` 
-See feeds of ingame events in Discord.  
-* `Discord Inputs` 
+* `[Discord Displays](Modules.md#displays)`  
+See live updated information on Server Status, Elections, Work parties and Store Contents in Discord.  
+* `[Discord Feeds](Modules.md#feeds)` 
+See feeds of ingame events such as Trades and Crafts in Discord.  
+* `[Discord Inputs](Modules.md#inputs)` 
 Add predefined messages in Discord and invoke them ingame using the /Snippet command.
 * `Chat logging`  
 Record the combined Discord and Eco chat in a chat log that persists between server restarts.
@@ -29,8 +29,9 @@ _/DiscordLink Invite_ will help you invite players ingame to your Discord server
 In order to synchronize the ingame chat with a Discord channel, you will need to set up a Discord bot and connect it to your Eco server via the DiscordLink config.
 See [installation guide](Installation.md) for information on how to do this.
 
-### Integration Features
-See [Integration Feature List](IntegrationTypes.md) for more information.
+### Modules
+DiscordLink offers a variety of modules that can show various types of information such as player lists, elections, laws and currencies in Discord.
+See [Modules Feature List](Modules.md) for more information.
 
 ### Commands
 See [command list](Commands.md) for available commands and how to use them.
@@ -47,7 +48,7 @@ Eco will consider them ingame mentions of players or channels and your message w
 
 ## Installation
 
-See the [installation guide](Installation.md)
+See the [installation guide](Installation.md).
 
 ## Configuration
 
@@ -58,6 +59,7 @@ See this [configuration guide](ConfigurationGUI.md) for self hosted servers with
 See this [configuration guide](ConfigurationNoGUI.md) for servers hosted by third parties, where you lack access to the server GUI.
 
 ## Discord
+
 Do you have suggestions, questions or maybe a problem you need help with?
 Join the Eco Community Discord server here! https://discord.gg/pCkWfzQ
 DiscordLink has its own corner where you can talk to other users and the developers!
@@ -65,7 +67,7 @@ DiscordLink has its own corner where you can talk to other users and the develop
 ## I want to contribute!
 
 Pull requests are very welcome!
-For information on how to set up the development environment, see the [project setup guide](ProjectSetup.md)
+For information on how to set up the development environment, see the [project setup guide](ProjectSetup.md).
 
 \
 \

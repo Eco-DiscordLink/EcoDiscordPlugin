@@ -24,6 +24,15 @@ Once you have a bot token, copy the _"BotToken"_ field in the sample config and 
 3. Set the _"DiscordChannel"_ field to the name or ID of the Discord channel you wish to synchronize with a channel in Eco.
 4. Set the _"EcoChannel"_ field to the name of the Eco channel you wish to synchronize with the Discord channel in the previous step.
 5. **Optional**: Configure the three flags for Discord mention tag permissions according to your preference of allowing role, user and Channel mentions to be used from Eco.
+5. **Optional** Configure the _"Direction"_ field to only allow messages to be forwarded in one direction.
+
+## Displays, Feeds and Inputs
+All displays, feeds and inputs require a [Channel Link](#linking-channels) and will be considered turned off until a valid one exists.
+For more information, see the [Modules Page](Modules.md).
+
+## Eco Bot Name
+The name the bot should use when posting in Eco.
+Note that the bot user is created when the server starts for the first time after a world reset and therefore, changing this will only take effect after the next world reset.
 
 ## Chat Log
 To enable/disable logging of the chat, set the _"Log Chat"_ option to true/false.  
