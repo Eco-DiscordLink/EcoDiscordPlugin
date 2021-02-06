@@ -73,23 +73,23 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [ChatSubCommand("DiscordLink", "Sends a message to a specific server and channel.", ChatAuthorizationLevel.Admin)]
-        public static void SendMessageToChannel(User user, string guild, string channel, string outerMessage)
+        public static void SendMessageToDiscordChannel(User user, string guild, string channel, string outerMessage)
         {
             CallWithErrorHandling<object>((lUser, args) =>
+            {
+                var plugin = Plugins.DiscordLink.DiscordLink.Obj;
+                if (plugin == null) return;
+
+                var guildName = args[0];
+                var channelName = args[1];
+                var message = args[2];
+
+                plugin.SendDiscordMessageAsUser(message, user, channelName, guildName).ContinueWith(result =>
                 {
-                    var plugin = Plugins.DiscordLink.DiscordLink.Obj;
-                    if (plugin == null) return;
-
-                    var guildName = args[0];
-                    var channelName = args[1];
-                    var message = args[2];
-
-                    plugin.SendDiscordMessageAsUser(message, user, channelName, guildName).ContinueWith(result =>
-                    {
-                        ChatManager.ServerMessageToPlayer(new LocString(result.Result), user);
-                    });
-                },
-                user, guild, channel, outerMessage);
+                    ChatManager.ServerMessageToPlayer(new LocString(result.Result), user);
+                });
+            },
+            user, guild, channel, outerMessage);
         }
 
         [ChatSubCommand("Restart", "Restarts the plugin.", "dl-restart", ChatAuthorizationLevel.Admin)]
