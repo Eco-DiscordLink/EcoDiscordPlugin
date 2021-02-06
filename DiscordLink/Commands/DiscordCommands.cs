@@ -128,9 +128,10 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
-        [Command("ecostatus")]
+        [Command("serverstatus")]
         [Description("Prints the Server Info status.")]
-        public async Task EcoStatus(CommandContext ctx)
+        [Aliases("dl-status", "dl-serverinfo", "ecostatus")]
+        public async Task ServerStatus(CommandContext ctx)
         {
             await CallWithErrorHandling<object>(async (lCtx, args) =>
             {
