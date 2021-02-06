@@ -17,23 +17,16 @@ Typing only /DiscordLink or the alias /DL will invoke the help message and provi
 * <b>ListGuilds</b> - Lists Discord servers the bot is in.
 * <b>ListChannels</b> - Lists channels available to the bot in a specific server.
 * <b>SendServerMessage [DL-ServerMessage] (message, Target Username, optional:temporary/permanent)</b> - Sends a server message to the target user.
-* <b>BroadcastServerMessage [DL-BroadcastServerMessage] (message, optional:temporary/permanent)</b> - Sends a server message to all online users.
-<details>
-  <summary>Server Message Example</summary>
-  ![Server Message](images/commands/servermessage.png)
-</details>
-* <b>SendPopup [DL-Popup] (message, Target Username)</b> - Sends a popup to the target user.
-* <b>BroadcastPopup [DL-BroadcastPopup] (message)</b> - Sends a popup to all online users.
-<details>
-  <summary>Popup Message Example</summary>
-  ![Popup Message](images/commands/popupmessage.png)
-</details>
+* <b>BroadcastServerMessage [DL-BroadcastServerMessage] (message, optional:temporary/permanent)</b> - Sends a server message to all online users.  
+[Example](images/commands/servermessage.png)
+
+* <b>SendPopup [DL-Popup] (message, Target Username)</b> - Sends a popup to the target user.  
+* <b>BroadcastPopup [DL-BroadcastPopup] (message)</b> - Sends a popup to all online users.  
+[Example](images/commands/popupmessage.png)
+
 * <b>SendAnnouncement [DL-Announcement] (title, message, Target Username)</b> - Sends an announcement message box to the target user.
-* <b>BroadcastAnnouncement [DL-BroadcastAnnouncement] (title, message)</b> - Sends an announcement message box to all online users.
-<details>
-  <summary>Announcement Message Example</summary>
-  ![Announcement Message](images/commands/announcementmessage.png)
-</details>
+* <b>BroadcastAnnouncement [DL-BroadcastAnnouncement] (title, message)</b> - Sends an announcement message box to all online users.  
+[Example](images/commands/announcementmessage.png)
 
 #### User Commands
 * <b>About [DL-About]</b> - Displays information about the DiscordLink plugin.
@@ -45,18 +38,15 @@ Typing only /DiscordLink or the alias /DL will invoke the help message and provi
   1. Run _dl-Link_ command from Eco and receive the verification message from the bot.  
   2. Run _dl-VerifyLink_ command as a response to the verification message.  
   ![Account Linking Verification](images/features/commands/accountverification.png)
+  
 </details>
 * <b>UnlinkDiscordAccount [DL-Unlink]</b> - Removes any existing link between the calling Eco account and Discord. Can be used to abort an unfinished linking process.
-* <b>Trades [DL-Trades] (Item Name or Username)</b> - Displays available trades by person or by item.
-<details>
-  <summary>Trades</summary>
-  ![Trades Example](images/commands/ecotrades.png)
-</details>
-* <b>TrackTrades [DL-TrackTrades] (ItemName or Username)</b> - Configures a Trade Tracker Display showing up to date information on the requested item in a Discord DM with the calling user. Requires the calling user having linked their Eco account to Discord using _/dl-link_.
-<details>
-  <summary>Tracked Trade Example</summary>
-  ![Tracked Trades Example](images/commands/discordtrades.png)
-</details>
+* <b>Trades [DL-Trades] (Item Name or Username)</b> - Displays available trades by person or by item.  
+[Example](images/commands/ecotrades.png)
+
+* <b>TrackTrades [DL-TrackTrades] (Item name or Username)</b> - Configures a Trade Tracker Display showing up to date information on the requested item in a Discord DM with the calling user. Requires the calling user having linked their Eco account to Discord using _/dl-link_.  
+[Example](images/commands/discordtrades.png)
+
 * <b>StopTrackTrades [DL-StopTrackTrades] (Item Name or Username)</b> - Removes the Trade Tracker Display for the requested item for the calling user.
 * <b>ListTrackedTrades [DL-ListTrackedTrades]</b> - Lists all Trade Tracker Displays registered for the calling user.
 
@@ -70,36 +60,27 @@ Command Parameters that contain spaces need to be enclosed in quotes (Example: "
 * <b>Print (Message)</b> - Reposts the inputted message. Can be used to create tags for ordering display tags within a channel.
 * <b>Echo (Optional: Message )</b> - Tests message forwarding by sending a message to Eco to be picked up by the Chat Links.
 * <b>SendServerMessage [DL-ServerMessage] (message, Target Username, optional:temporary/permanent)</b> - Sends a server message to the target user.
-* <b>BroadcastServerMessage [DL-BroadcastServerMessage] (message, optional:temporary/permanent)</b> - Sends a server message to all online users.
-<details>
-  <summary>Server Message Example</summary>
-  ![Server Message](images/commands/servermessage.png)
-</details>
+* <b>BroadcastServerMessage [DL-BroadcastServerMessage] (message, optional:temporary/permanent)</b> - Sends a server message to all online users.  
+[Example](images/commands/servermessage.png)
+
 * <b>SendPopup [DL-Popup] (message, Target Username)</b> - Sends a popup to the target user.
-* <b>BroadcastPopup [DL-BroadcastPopup] (message)</b> - Sends a popup to all online users.
-<details>
-  <summary>Popup Message Example</summary>
-  ![Popup Message](images/commands/popupmessage.png)
-</details>
+* <b>BroadcastPopup [DL-BroadcastPopup] (message)</b> - Sends a popup to all online users.  
+[Example](images/commands/popupmessage.png)
+
 * <b>SendAnnouncement [DL-Announcement] (title, message, Target Username)</b> - Sends an announcement message box to the target user.
-* <b>BroadcastAnnouncement [DL-BroadcastAnnouncement] (title, message)</b> - Sends an announcement message box to all online users.
-<details>
-  <summary>Announcement Message Example</summary>
-  ![Announcement Message](images/commands/announcementmessage.png)
-</details>
+* <b>BroadcastAnnouncement [DL-BroadcastAnnouncement] (title, message)</b> - Sends an announcement message box to all online users.  
+[Example](images/commands/announcementmessage.png)
 
 #### User Commands
 * <b>Ping</b> - Checks if the bot is online.
-* <b>ServerStatus [DL-Status, DL-ServerInfo, EcoStatus]</b> - Prints the Server Info status.
-* <b>PlayerList [Players, DL-Players]</b> - Prints the list of online players.
+* <b>ServerStatus [DL-Status] [DL-ServerInfo] [EcoStatus]</b> - Prints the Server Info status.
+* <b>PlayerList [players] [DL-Players]</b> - Prints the list of online players.
 * <b>DiscordInvite [DL-Invite]</b> - Posts the Discord invite message to the Eco chat.
 * <b>DiscordLinkAbout [DL-About]</b> - Posts a message describing what the DiscordLink plugin is.
 * <b>VerifyLink [DL-VerifyLink]</b> - Accepts an account linking request sent via /DL-Link.
-* <b>Trades [Trade] (ItemName or Username)</b> - Displays available trades by person or by item.
-* <b>TrackTrades [DL-TrackTrades] (ItemName or Username)</b> - Configures a Trade Tracker Display showing up to date information on the requested item in a Discord DM with the calling user. Requires the calling user having linked their Eco account to Discord using _/dl-link_ from inside the game.
-<details>
-  <summary>Tracked Trade Example</summary>
-  ![Tracked Trades Example](images/commands/discordtrades.png)
-</details>
-* <b>StopTrackTrades [DL-StopTrackTrades] (ItemName or Username)</b> - Removes the Trade Tracker Display for the requested item for the calling user.
+* <b>Trades [Trade] (Item name or Username)</b> - Displays available trades by person or by item.
+* <b>TrackTrades [DL-TrackTrades] (Item name or Username)</b> - Configures a Trade Tracker Display showing up to date information on the requested item in a Discord DM with the calling user. Requires the calling user having linked their Eco account to Discord using _/dl-link_ from inside the game.  
+[Example](images/commands/discordtrades.png)
+
+* <b>StopTrackTrades [DL-StopTrackTrades] (Item name or Username)</b> - Removes the Trade Tracker Display for the requested item for the calling user.
 * <b>ListTrackedTrades [DL-ListTrackedTrades]</b> - Lists all Trade Tracker Displays registered for the calling user.
