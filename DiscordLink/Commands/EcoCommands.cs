@@ -119,7 +119,8 @@ namespace Eco.Plugins.DiscordLink
         {
             CallWithErrorHandling<object>((lUser, args) =>
             {
-                SharedCommands.Invite(ecoChannel);
+                string result = SharedCommands.Invite(ecoChannel);
+                ChatManager.ServerMessageToPlayer(new LocString(result), user);
             },
             user);
         }
