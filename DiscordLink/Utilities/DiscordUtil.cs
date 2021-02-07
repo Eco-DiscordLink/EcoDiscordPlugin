@@ -24,7 +24,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         public static bool BotHasIntent(DiscordIntents intent)
         {
-            return (DiscordLink.Obj.DiscordClient.Intents & intent) == 0;
+            return (DiscordLink.Obj.DiscordClient.Intents & intent) != 0;
         }
 
         public static async Task SendAsync(DiscordChannel channel, string textContent, DiscordEmbed embedContent = null)
@@ -203,7 +203,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         public static async Task<IReadOnlyCollection<DiscordMember>> GetGuildMembersAsync(DiscordGuild guild)
         {
-            if(BotHasIntent(DiscordIntents.GuildMembers))
+            if(!BotHasIntent(DiscordIntents.GuildMembers))
             {
                 Logger.Error("Attempted to get full guild member list without the bot having the privileged GuildMembers intent");
                 return null;
