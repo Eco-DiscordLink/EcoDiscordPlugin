@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 
 using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
+using DSharpPlus;
 
 namespace Eco.Plugins.DiscordLink
 {
@@ -236,6 +237,12 @@ namespace Eco.Plugins.DiscordLink
             {
                 var plugin = Plugins.DiscordLink.DiscordLink.Obj;
                 if (plugin == null) return;
+
+                if(!DiscordUtil.BotHasIntent(DiscordIntents.GuildMembers))
+                {
+                    ChatManager.ServerMessageToPlayer(new LocString($"This server is not configured to use account linking as the bot lacks the elevated Guild Members Intent."), user);
+                    return;
+                }
 
                 // Find the Discord user
                 DiscordMember matchingMember = null;
