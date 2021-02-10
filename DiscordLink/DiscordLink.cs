@@ -504,8 +504,7 @@ namespace Eco.Plugins.DiscordLink
 
             info.AppendLine("--- Bot User Config ---");
             info.AppendLine($"Name: {DiscordClient.CurrentUser.Username}");
-            bool hasGuildMembersIntent = (DiscordClient.Intents & DiscordIntents.GuildMembers) == DiscordIntents.GuildMembers;
-            info.AppendLine($"Has GuildMembers Intent: {hasGuildMembersIntent}");
+            info.AppendLine($"Has GuildMembers Intent: {DiscordUtil.BotHasIntent(DiscordIntents.GuildMembers)}");
 
             info.AppendLine("--- Storage ---");
             info.AppendLine($"Linked Users Count: {DLStorage.PersistantData.LinkedUsers.Count}");
