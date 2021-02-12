@@ -97,8 +97,10 @@ namespace Eco.Plugins.DiscordLink
             if (!allowed)
             {
                 allowed = commandChannels.Count <= 0                        // Always allow if there are no command channels
-               || ctx.Member.IsOwner                                        // Always allow if the user is the server owner
-               || ctx.Member.Roles.Any(role => role.Name == "Moderator");   // Always allow if the user is a moderator
+                 || ctx.Member.IsOwner                                                   // Always allow if the user is the server owner
+                 || ctx.Member.Roles.Any(role => role.Name.ToLower() == "moderator")     // Always allow if the user has an elevated role 
+                 || ctx.Member.Roles.Any(role => role.Name.ToLower() == "administrator")
+                 || ctx.Member.Roles.Any(role => role.Name.ToLower() == "admin");
             }
 
             // Check if the discord channel used is listed as a command channel
