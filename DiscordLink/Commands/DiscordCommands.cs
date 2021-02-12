@@ -96,7 +96,7 @@ namespace Eco.Plugins.DiscordLink
             bool allowed = ctx.Channel.IsPrivate;
             if (!allowed)
             {
-                allowed = commandChannels.Count <= 0                        // Always allow if there are no command channels
+                allowed = !(commandChannels.Any(link => link.IsValid()))                 // Always allow if there are no valid command channels
                  || ctx.Member.IsOwner                                                   // Always allow if the user is the server owner
                  || ctx.Member.Roles.Any(role => role.Name.ToLower() == "moderator")     // Always allow if the user has an elevated role 
                  || ctx.Member.Roles.Any(role => role.Name.ToLower() == "administrator")
