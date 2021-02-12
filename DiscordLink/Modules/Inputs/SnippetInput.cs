@@ -79,7 +79,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 if (!link.IsValid()) continue;
 
                 if (link.DiscordGuild.ToLower() == message.Channel.Guild.Name.ToLower()
-                    && link.DiscordChannel == message.Channel.Name )
+                    && link.DiscordChannel == message.Channel.Name)
                 {
                     isSnippetChannel = true;
                     break;

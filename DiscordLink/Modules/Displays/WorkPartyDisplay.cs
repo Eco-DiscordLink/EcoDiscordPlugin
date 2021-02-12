@@ -44,7 +44,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             {
                 string tag = BaseTag + " [" + workParty.Id + "]";
                 builder.WithColor(MessageBuilder.Discord.EmbedColor);
-                builder.WithTitle(workParty.Name);
+                builder.WithTitle(MessageUtil.StripTags(workParty.Name));
                 builder.WithFooter(MessageBuilder.Discord.GetStandardEmbedFooter());
 
                 // Workers
@@ -87,13 +87,9 @@ namespace Eco.Plugins.DiscordLink.Modules
                                 {
                                     string itemName = string.Empty;
                                     if (stack.Item != null)
-                                    {
                                         itemName = stack.Item.DisplayName;
-                                    }
                                     else if (stack.StackObject != null)
-                                    {
                                         itemName = stack.StackObject.DisplayName;
-                                    }
                                     workEntries.Add(itemName + " (" + stack.Quantity + ")");
                                 }
                                 break;
@@ -139,7 +135,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
                         case GrantTitlePayment titlePayment:
                             {
-                                desc = "Receive title `" + titlePayment.Title.Name + "` if work contributed is at least " + titlePayment.MinContributedPercent + "%";
+                                desc = "Receive title `" + MessageUtil.StripTags(titlePayment.Title.Name) + "` if work contributed is at least " + titlePayment.MinContributedPercent + "%";
                                 break;
                             }
 

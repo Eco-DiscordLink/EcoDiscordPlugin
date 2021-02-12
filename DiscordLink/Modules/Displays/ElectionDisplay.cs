@@ -40,7 +40,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             foreach (Election election in EcoUtil.ActiveElections)
             {
                 string tag = BaseTag + " [" + election.Id + "]";
-                builder.WithTitle(election.Name);
+                builder.WithTitle(MessageUtil.StripTags(election.Name));
 
                 // Proposer name
                 builder.AddField("Proposer", election.Creator.Name);
@@ -49,7 +49,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 builder.AddField("Time Left", TimeFormatter.FormatSpan(election.TimeLeft));
 
                 // Process
-                builder.AddField("Process", election.Process.Name);
+                builder.AddField("Process", MessageUtil.StripTags(election.Process.Name));
 
                 // Choices
                 if (!election.BooleanElection && election.Choices.Count > 0)

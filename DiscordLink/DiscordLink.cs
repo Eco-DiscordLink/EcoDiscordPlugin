@@ -530,7 +530,7 @@ namespace Eco.Plugins.DiscordLink
                 info.AppendLine("   Cached Channels");
                 foreach (DiscordChannel channel in guild.Channels.Values)
                 {
-                    info.AppendLine($"  - { channel.Name} ({channel.Id})");
+                    info.AppendLine($"  - {channel.Name} ({channel.Id})");
                     info.AppendLine($"      Permissions:");
                     info.AppendLine($"          Read Messages:          {DiscordUtil.ChannelHasPermission(channel, Permissions.ReadMessageHistory)}");
                     info.AppendLine($"          Send Messages:          {DiscordUtil.ChannelHasPermission(channel, Permissions.SendMessages)}");

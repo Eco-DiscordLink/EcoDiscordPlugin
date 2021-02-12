@@ -148,7 +148,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         public static string StripTags(string toStrip)
         {
-            if (toStrip == null) return null;
+            if (toStrip == null) return string.Empty;
             return HTMLTagRegex.Replace(toStrip, string.Empty);
         }
 

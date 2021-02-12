@@ -71,7 +71,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 string backedItemDesc = currencyLink.UseBackingInfo ? $"**Backing**: {backededItemName}\n" : string.Empty;
                 string coinsPerItemDesc = (currencyLink.UseBackingInfo && currency.Backed) ? $"**Coins per item**: {currency.CoinsPerItem}\n" : string.Empty;
                 string topAccountsDesc = $"**Top accounts**\n{topAccounts}";
-                embed.AddField(currency.Name, $"{circulationDesc}{tradesCountDesc}{backedItemDesc}{coinsPerItemDesc}\n{topAccountsDesc}");
+                embed.AddField(MessageUtil.StripTags(currency.Name), $"{circulationDesc}{tradesCountDesc}{backedItemDesc}{coinsPerItemDesc}\n{topAccountsDesc}");
                 tagAndContent.Add(new Tuple<string, DiscordEmbed>($"{BaseTag} [{currency.Id}]", embed.Build()));
             }
 

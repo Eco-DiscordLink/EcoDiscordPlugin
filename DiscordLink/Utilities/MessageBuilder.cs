@@ -259,7 +259,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     string electionList = string.Empty;
                     foreach (Election election in EcoUtil.ActiveElections)
                     {
-                        electionList += $"{election.Name} **[{election.TotalVotes} Votes]**\n";
+                        electionList += $"{MessageUtil.StripTags(election.Name)} **[{election.TotalVotes} Votes]**\n";
                     }
 
                     if (string.IsNullOrEmpty(electionList))
@@ -278,7 +278,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     string lawList = string.Empty;
                     foreach (Law law in EcoUtil.ActiveLaws)
                     {
-                        lawList += $"{law.Name}\n";
+                        lawList += $"{MessageUtil.StripTags(law.Name)}\n";
                     }
 
                     if (string.IsNullOrEmpty(lawList))
@@ -294,7 +294,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             {
                 DLConfigData config = DLConfig.Data;
                 ServerInfo serverInfo = NetworkManager.GetServerInfo();
-                string serverName = MessageUtil.StripTags(!string.IsNullOrWhiteSpace(config.ServerName) ? DLConfig.Data.ServerName : serverInfo.Description);
+                string serverName = MessageUtil.StripTags(!string.IsNullOrWhiteSpace(config.ServerName) ? DLConfig.Data.ServerName : MessageUtil.StripTags(serverInfo.Description));
 
                 DiscordEmbedBuilder builder = new DiscordEmbedBuilder();
                 builder.WithColor(EmbedColor);
@@ -426,7 +426,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                             t => getLabel(t),
                             t => t.Item2.Stack.Quantity);
 
-                        builder.AppendLine(MessageUtil.MakeBold(MessageUtil.MakeColored($"<--- Selling for {group.First().Item1.CurrencyName} --->", "red")));
+                        builder.AppendLine(MessageUtil.MakeBold(MessageUtil.MakeColored($"<--- Selling for {MessageUtil.StripTags(group.First().Item1.CurrencyName)} --->", "red")));
                         foreach (string description in offerDescriptions)
                         {
                             builder.AppendLine(description);

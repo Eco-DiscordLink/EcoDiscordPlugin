@@ -83,7 +83,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
                 float subTotal = soldTotal - boughtTotal;
                 char sign = (subTotal > 0.0f ? '+' : '-');
-                builder.AddField("Total", sign + Math.Abs(subTotal).ToString("n2") + " " + firstTrade.Currency.Name);
+                builder.AddField("Total", sign + Math.Abs(subTotal).ToString("n2") + " " + MessageUtil.StripTags(firstTrade.Currency.Name));
 
                 // Post the trade summary in all trade 
                 foreach (ChannelLink tradeChannel in DLConfig.Data.TradeChannels)
