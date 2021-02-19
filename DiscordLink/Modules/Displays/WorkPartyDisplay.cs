@@ -151,7 +151,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                         case ReputationPayment reputationPayment:
                             {
                                 float reputationAmountLeft = reputationPayment.Amount - reputationPayment.AmountPaid;
-                                desc = "Receive " + reputationAmountLeft.ToString("F1") + " reputation from " + reputationPayment.WorkParty.Creator.Name
+                                desc = "Receive " + reputationAmountLeft.ToString("F1") + " reputation from " + workParty.Creator.Name
                                     + (reputationPayment.PayType == PayType.SplitByWorkPercent ? ", split based on work performed" : ", split evenly")
                                         + (reputationPayment.PayAsYouGo ? ", paid as work is performed" : ", paid when the project finishes");
                                 break;
