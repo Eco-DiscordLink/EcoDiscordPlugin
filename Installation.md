@@ -69,12 +69,12 @@ If you are not using the server GUI, you instead need to fill out this field in 
 ### 16 Run the _"Echo"_ command in the Discord channel specified in the Chat Channel Link to see that it is working properly. Make sure that the bot has permissions to read and send messages.
 
 **Echo command**
-![Invite to server](images/installation/15_1.png)
+![Invite to server](images/installation/16_1.png)
 
 **Discord server GUI chat display showing that the message reached the Eco server**
-![Invite to server](images/installation/15_2.png)
+![Invite to server](images/installation/16_2.png)
 
 **Discord bot crosspost if a [Channel Link](ConfigurationGUI.md) has been set up**
-![Invite to server](images/installation/15_3.png)
+![Invite to server](images/installation/16_3.png)
 
 ### 17. You're done! [Configure](ConfigurationGUI.md) any other options you want in server GUI, or change the Bot's permissions as if they're any other user in Discord.
