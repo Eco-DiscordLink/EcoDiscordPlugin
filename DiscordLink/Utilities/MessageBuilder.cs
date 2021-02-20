@@ -411,7 +411,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                             t => getLabel(t),
                             t => t.Item2.Stack.Quantity);
 
-                        builder.AppendLine(MessageUtil.MakeBold(MessageUtil.MakeColored($"<--- Buying for {group.First().Item1.CurrencyName} --->", "green")));
+                        builder.AppendLine(Text.Bold(Text.Color(Color.Green, $"<--- Buying for {group.First().Item1.CurrencyName} --->")));
                         foreach (string description in offerDescriptions)
                         {
                             builder.AppendLine(description);
@@ -426,7 +426,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                             t => getLabel(t),
                             t => t.Item2.Stack.Quantity);
 
-                        builder.AppendLine(MessageUtil.MakeBold(MessageUtil.MakeColored($"<--- Selling for {MessageUtil.StripTags(group.First().Item1.CurrencyName)} --->", "red")));
+                        builder.AppendLine(Text.Bold(Text.Color(Color.Red, $"<--- Selling for {MessageUtil.StripTags(group.First().Item1.CurrencyName)} --->")));
                         foreach (string description in offerDescriptions)
                         {
                             builder.AppendLine(description);
@@ -449,7 +449,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     var quantity = getQuantity(t);
                     var quantityString = quantity.HasValue ? $"{quantity.Value} - " : "";
                     var line = $"{quantityString}${price} at {getLabel(t)}";
-                    if (quantity == 0) line = MessageUtil.MakeColored(line, "yellow");
+                    if (quantity == 0) line = Text.Color(Color.Yellow, line);
                     return line;
                 });
             }
