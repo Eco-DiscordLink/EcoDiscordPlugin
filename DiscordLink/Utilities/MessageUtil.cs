@@ -141,7 +141,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         public static string FormatMessageForDiscord(string message, DiscordChannel channel, string username = "", bool allowGlobalMentions = false)
         {
-            string formattedMessage = (username.IsEmpty() ? "" : $"**{username.Replace("@", "")}**:") + StripTags(message); // All @ characters are removed from the name in order to avoid unintended mentions of the sender
+            string formattedMessage = (username.IsEmpty() ? "" : $"**{username.Replace("@", "")}**: ") + StripTags(message); // All @ characters are removed from the name in order to avoid unintended mentions of the sender
             if (!allowGlobalMentions)
             {
                 formattedMessage = StripGlobalMentions(formattedMessage);
