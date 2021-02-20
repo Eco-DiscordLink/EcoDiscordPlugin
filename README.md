@@ -24,7 +24,8 @@ Record the combined Discord and Eco chat in a chat log that persists between ser
 DiscordLink will run verification passes on your configuration upon startup and configuration changes and output the result in the server log, helping you diagnose configuration errors.
 * `Helpful Commands`  
 DiscordLink features a number of helpful commands both from within the game and from Discord.
-_/DiscordLink Invite_ will help you invite players ingame to your Discord server, while _?Trade_ will help you figure out who has the best deal on those yummy huckleberry muffins!
+_/DiscordLink Invite_ will help you invite players ingame to your Discord server, while _?Trade_ will help you figure out who has the best deal on those yummy huckleberry muffins!  
+For a full list of commands, see the [command list](Commands.md).
 
 ## Usage
 
