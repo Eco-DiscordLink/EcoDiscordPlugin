@@ -54,7 +54,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 foreach (User player in onlineUsers)
                 {
                     if (useOnlineTime)
-                        playerList += $"{player.Name} [{GetTimespan(Simulation.Time.WorldTime.Seconds - player.LoginTime, TimespanStringComponent.Hour | TimespanStringComponent.Minute)}]\n";
+                        playerList += $"{player.Name} --- [{GetTimespan(Simulation.Time.WorldTime.Seconds - player.LoginTime, TimespanStringComponent.Hour | TimespanStringComponent.Minute)}]\n";
                     else
                         playerList += $"{player.Name}\n";
                 }
