@@ -33,7 +33,6 @@ namespace Eco.Plugins.DiscordLink
         private CommandsNextExtension _commands = null;
 
         private Timer _discordDataMaybeAvailable = null;
-        private Timer _tradePostingTimer = null;
 
         private DateTime _initTime = DateTime.MinValue;
         private DateTime _lastConnectionTime = DateTime.MinValue;
@@ -262,7 +261,6 @@ namespace Eco.Plugins.DiscordLink
             // Stop various timers that may have been set up so they do not trigger while the reset is ongoing
             DLConfig.Instance.DequeueAllVerification();
             SystemUtil.StopAndDestroyTimer(ref _discordDataMaybeAvailable);
-            SystemUtil.StopAndDestroyTimer(ref _tradePostingTimer);
 
             ShutdownModules();
 

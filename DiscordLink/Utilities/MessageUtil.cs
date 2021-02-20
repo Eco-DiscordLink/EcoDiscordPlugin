@@ -143,9 +143,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
         {
             string formattedMessage = (username.IsEmpty() ? "" : $"**{username.Replace("@", "")}**: ") + StripTags(message); // All @ characters are removed from the name in order to avoid unintended mentions of the sender
             if (!allowGlobalMentions)
-            {
                 formattedMessage = StripGlobalMentions(formattedMessage);
-            }
+
             return FormatDiscordMentions(formattedMessage, channel);
         }
 
@@ -157,24 +156,18 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 string FormatMention(string name, string mention)
                 {
                     if (match == name)
-                    {
                         return mention;
-                    }
 
                     string beforeMatch = "";
                     int matchStartIndex = match.IndexOf(name);
                     if (matchStartIndex > 0) // There are characters before @username
-                    {
                         beforeMatch = match.Substring(0, matchStartIndex);
-                    }
 
                     string afterMatch = "";
                     int matchStopIndex = matchStartIndex + name.Length - 1;
                     int numCharactersAfter = match.Length - 1 - matchStopIndex;
                     if (numCharactersAfter > 0) // There are characters after @username
-                    {
                         afterMatch = match.Substring(matchStopIndex + 1, numCharactersAfter);
-                    }
 
                     return beforeMatch + mention + afterMatch; // Add whatever characters came before or after the username when replacing the match in order to avoid changing the message context
                 }

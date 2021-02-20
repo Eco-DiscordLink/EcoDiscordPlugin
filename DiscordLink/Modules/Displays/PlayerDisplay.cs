@@ -33,8 +33,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             tagAndContent = new List<Tuple<string, DiscordEmbed>>();
 
             PlayerListChannelLink playerListLink = target as PlayerListChannelLink;
-            if (playerListLink == null)
-                return;
+            if (playerListLink == null) return;
 
             string tag = BaseTag;
             string title = "Players";

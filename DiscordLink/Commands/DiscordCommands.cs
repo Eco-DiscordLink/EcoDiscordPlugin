@@ -89,7 +89,6 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
-
         private static bool IsCommandAllowedInChannel(CommandContext ctx)
         {
             var commandChannels = DLConfig.Data.DiscordCommandChannels;

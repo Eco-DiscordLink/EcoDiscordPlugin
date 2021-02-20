@@ -79,17 +79,14 @@ namespace Eco.Plugins.DiscordLink.Modules
                     voteDesc += $"{vote.Voter.Name} : {topChoiceName}\n";
                 }
 
-                if(string.IsNullOrEmpty(voteDesc))
-                {
+                if (string.IsNullOrEmpty(voteDesc))
                     voteDesc = "--- No Votes Recorded ---";
-                }
 
                 builder.AddField($"Votes ({election.TotalVotes})", voteDesc);
 
                 if (builder.Fields.Count > 0)
-                {
                     tagAndContent.Add(new Tuple<string, DiscordEmbed>(tag, builder.Build()));
-                }
+
                 builder.ClearFields();
             }
         }

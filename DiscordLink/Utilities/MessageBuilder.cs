@@ -41,7 +41,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
         {
             public static string GetPlayerCount()
             {
-                IEnumerable<string> onlineUsers = UserManager.OnlineUsers.Where(user => user.Client.Connected).Select(user => user.Name);
+                IEnumerable<User> onlineUsers = UserManager.OnlineUsers.Where(user => user.Client.Connected);
                 int numberTotal = NetworkManager.GetServerInfo().TotalPlayers;
                 int numberOnline = onlineUsers.Count();
                 return $"{numberOnline}/{numberTotal}";

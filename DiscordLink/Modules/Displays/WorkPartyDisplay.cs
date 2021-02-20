@@ -166,14 +166,11 @@ namespace Eco.Plugins.DiscordLink.Modules
                 }
 
                 if (!string.IsNullOrWhiteSpace(paymentDesc))
-                {
                     builder.AddField("Payment", paymentDesc);
-                }
 
                 if (builder.Fields.Count > 0)
-                {
                     tagAndContent.Add(new Tuple<string, DiscordEmbed>(tag, builder.Build()));
-                }
+
                 builder.ClearFields();
             }
         }
