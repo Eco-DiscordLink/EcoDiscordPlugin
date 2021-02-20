@@ -50,7 +50,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             public static string GetPlayerList(bool useOnlineTime = false)
             {
                 string playerList = string.Empty;
-                IEnumerable<User> onlineUsers = UserManager.OnlineUsers.Where(user => user.Client.Connected);
+                IEnumerable<User> onlineUsers = UserManager.OnlineUsers.Where(user => user.Client.Connected).OrderBy(user => user.Name);
                 foreach (User player in onlineUsers)
                 {
                     if (useOnlineTime)
