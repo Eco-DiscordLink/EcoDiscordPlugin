@@ -508,6 +508,18 @@ namespace Eco.Plugins.DiscordLink
 
             info.AppendLine("--- Storage ---");
             info.AppendLine($"Linked Users Count: {DLStorage.PersistantData.LinkedUsers.Count}");
+            info.AppendLine("Linked User Data:");
+            foreach(LinkedUser linkedUser in DLStorage.PersistantData.LinkedUsers)
+            {
+                User ecoUser = UserManager.FindUserById(linkedUser.SteamId, linkedUser.SlgId);
+                string ecoUserName = (ecoUser != null) ? MessageUtil.StripTags(ecoUser.Name) : "[Uknown Eco User]";
+
+                DiscordUser discordUser = DiscordClient.GetUserAsync(ulong.Parse(linkedUser.DiscordId)).Result;
+                string discordUserName = (discordUser != null) ? discordUser.Username : "[Unknown Discord User]";
+
+                string verified = (linkedUser.Verified) ? "Verified" : "Unverified";
+                info.AppendLine($"{ecoUserName} <--> {discordUserName} - {verified}");
+            }
 
             info.AppendLine("--- Status ---");
             info.AppendLine($"Status Message: {_status}");
