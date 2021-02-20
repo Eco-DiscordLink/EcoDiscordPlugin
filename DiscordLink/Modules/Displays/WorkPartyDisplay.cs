@@ -42,7 +42,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             List<WorkParty> workParties = Registrars.Get<WorkParty>().All<WorkParty>().NonNull().Where(x => x.State == ProposableState.Active).ToList();
             foreach (WorkParty workParty in workParties)
             {
-                string tag = BaseTag + " [" + workParty.Id + "]";
+                string tag = $"{BaseTag} [{workParty.Id}]";
                 builder.WithColor(MessageBuilder.Discord.EmbedColor);
                 builder.WithTitle(MessageUtil.StripTags(workParty.Name));
                 builder.WithFooter(MessageBuilder.Discord.GetStandardEmbedFooter());
@@ -52,8 +52,8 @@ namespace Eco.Plugins.DiscordLink.Modules
                 foreach(Laborer laborer in workParty.Laborers)
                 {
                     if (laborer.Citizen == null) continue;
-                    bool isCreator = laborer.Citizen == workParty.Creator;
-                    workersDesc += laborer.Citizen.Name + (isCreator ? " (Creator)" : string.Empty) + "\n";
+                    string creator = (laborer.Citizen == workParty.Creator) ? "Creator" : string.Empty;
+                    workersDesc += $"{laborer.Citizen.Name} ({creator})\n";
                 }
 
                 if (string.IsNullOrWhiteSpace(workersDesc))
@@ -74,7 +74,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                             {
                                 if (!string.IsNullOrEmpty(laborWork.ShortDescriptionRemainingWork))
                                 {
-                                    workType = "Labor for " + laborWork.Order.Recipe.RecipeName;
+                                    workType = $"Labor for {laborWork.Order.Recipe.RecipeName}";
                                     workEntries.Add(MessageUtil.StripTags(laborWork.ShortDescriptionRemainingWork));
                                 }
                                 break;
@@ -82,7 +82,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
                         case WorkOrderWork orderWork:
                             {
-                                workType = "Materials for " + orderWork.Order.Recipe.RecipeName;
+                                workType = $"Materials for {orderWork.Order.Recipe.RecipeName}";
                                 foreach (TagStack stack in orderWork.Order.MissingIngredients)
                                 {
                                     string itemName = string.Empty;
@@ -90,7 +90,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                                         itemName = stack.Item.DisplayName;
                                     else if (stack.StackObject != null)
                                         itemName = stack.StackObject.DisplayName;
-                                    workEntries.Add(itemName + " (" + stack.Quantity + ")");
+                                    workEntries.Add($"{itemName} ({stack.Quantity})");
                                 }
                                 break;
                             }
@@ -103,13 +103,13 @@ namespace Eco.Plugins.DiscordLink.Modules
                     {
                         foreach (string material in workEntries)
                         {
-                            workDesc += "- " + material + "\n";
+                            workDesc += $"- {material}\n";
                         }
 
                         if (!string.IsNullOrWhiteSpace(workDesc))
                         {
                             string percentDone = (work.PercentDone * 100.0f).ToString("N1", CultureInfo.InvariantCulture).Replace(".0", "");
-                            builder.AddField("\n" + workType + " (Weight " + work.Weight + ") (" + percentDone + "% completed) \n", workDesc);
+                            builder.AddField($"\n {workType} (Weight: {work.Weight.ToString("F1")}) ({percentDone}% completed) \n", workDesc);
                         }
                     }
                 }
@@ -126,16 +126,16 @@ namespace Eco.Plugins.DiscordLink.Modules
                                 float currencyAmountLeft = currencyPayment.Amount - currencyPayment.AmountPaid;
                                 if (currencyAmountLeft > 0.0f)
                                 {
-                                    desc = "Receive " + currencyAmountLeft.ToString("F1") + " " + currencyPayment.Currency.Name
+                                    desc = $"Receive **{currencyAmountLeft.ToString("F1")} {currencyPayment.Currency.Name}**"
                                         + (currencyPayment.PayType == PayType.SplitByWorkPercent ? ", split based on work performed" : ", split evenly")
-                                        + (currencyPayment.PayAsYouGo ? ", paid as work is performed" : ", paid when the project finishes");
+                                        + (currencyPayment.PayAsYouGo ? ", paid as work is performed." : ", paid when the project finishes.");
                                 }
                                 break;
                             }
 
                         case GrantTitlePayment titlePayment:
                             {
-                                desc = "Receive title `" + MessageUtil.StripTags(titlePayment.Title.Name) + "` if work contributed is at least " + titlePayment.MinContributedPercent + "%";
+                                desc = $"Receive title `{MessageUtil.StripTags(titlePayment.Title.Name)}` if work contributed is at least *{titlePayment.MinContributedPercent.ToString("F1")}%*.";
                                 break;
                             }
 
@@ -143,7 +143,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                             {
                                 if (knowledgePayment.Skills.Entries.Count > 0)
                                 {
-                                    desc = "Receive knowledge of `" + MessageUtil.StripTags(knowledgePayment.ShortDescription()) + "` if work contributed is at least " + knowledgePayment.MinContributedPercent + "%";
+                                    desc = $"Receive knowledge of `{MessageUtil.StripTags(knowledgePayment.ShortDescription())}` if work contributed is at least *{knowledgePayment.MinContributedPercent.ToString("F1")}%*.";
                                 }
                                 break;
                             }
@@ -151,9 +151,9 @@ namespace Eco.Plugins.DiscordLink.Modules
                         case ReputationPayment reputationPayment:
                             {
                                 float reputationAmountLeft = reputationPayment.Amount - reputationPayment.AmountPaid;
-                                desc = "Receive " + reputationAmountLeft.ToString("F1") + " reputation from " + workParty.Creator.Name
+                                desc = $"Receive **{reputationAmountLeft.ToString("F1")} reputation** from *{workParty.Creator.Name}*"
                                     + (reputationPayment.PayType == PayType.SplitByWorkPercent ? ", split based on work performed" : ", split evenly")
-                                        + (reputationPayment.PayAsYouGo ? ", paid as work is performed" : ", paid when the project finishes");
+                                    + (reputationPayment.PayAsYouGo ? ", paid as work is performed." : ", paid when the project finishes.");
                                 break;
                             }
 
@@ -162,9 +162,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                     }
 
                     if (!string.IsNullOrEmpty(desc))
-                    {
-                        paymentDesc += "- " + desc + "\n";
-                    }
+                        paymentDesc += $"- {desc}\n";
                 }
 
                 if (!string.IsNullOrWhiteSpace(paymentDesc))

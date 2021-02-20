@@ -38,7 +38,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
             string tag = BaseTag;
             string title = "Players";
-            string content = "\n" + MessageBuilder.Shared.GetPlayerList(playerListLink.UseLoggedInTime);
+            string content = $"\n{MessageBuilder.Shared.GetPlayerList(playerListLink.UseLoggedInTime)}";
 
             if (playerListLink.UsePlayerCount == true)
             {

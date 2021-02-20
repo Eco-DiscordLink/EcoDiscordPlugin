@@ -39,7 +39,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             builder.WithFooter(MessageBuilder.Discord.GetStandardEmbedFooter());
             foreach (Election election in EcoUtil.ActiveElections)
             {
-                string tag = BaseTag + " [" + election.Id + "]";
+                string tag = $"{BaseTag} [{election.Id}]";
                 builder.WithTitle(MessageUtil.StripTags(election.Name));
 
                 // Proposer name
@@ -57,7 +57,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                     string choiceDesc = string.Empty;
                     foreach (ElectionChoice choice in election.Choices)
                     {
-                        choiceDesc += choice.Name + "\n";
+                        choiceDesc += $"{choice.Name}\n";
                     }
                     builder.AddField("Choices", choiceDesc);
                 }
@@ -76,14 +76,15 @@ namespace Eco.Plugins.DiscordLink.Modules
                             break;
                         }
                     }
-                    voteDesc += vote.Voter.Name + ": " + topChoiceName + "\n";
+                    voteDesc += $"{vote.Voter.Name} : {topChoiceName}\n";
                 }
 
                 if(string.IsNullOrEmpty(voteDesc))
                 {
                     voteDesc = "--- No Votes Recorded ---";
                 }
-                builder.AddField("Votes (" + election.TotalVotes + ")", voteDesc);
+
+                builder.AddField($"Votes ({election.TotalVotes})", voteDesc);
 
                 if (builder.Fields.Count > 0)
                 {
