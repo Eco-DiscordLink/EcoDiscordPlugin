@@ -336,7 +336,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 }
                 else
                 {
-                    embedBuilder.AddField($"No trade offers found for {matchedName}", null);
+                    embedBuilder.WithTitle($"No trade offers found for {matchedName}");
                 }
                 embedContent = embedBuilder.Build();
             }
