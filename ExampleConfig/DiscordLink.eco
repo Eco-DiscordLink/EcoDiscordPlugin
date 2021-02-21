@@ -1,41 +1,108 @@
+This is an example of what a filled out config could look like.
+
+YOU CANNOT COPY THIS ONE AND EXPECT IT TO WORK - The config data needs to match your Eco server, Discord server and Discord bot.
+
 {
-  "PlayerConfigs": [],
-  "BotToken": "NjggMDg3MjIDOTg2MFg5MDQx.Xlmuqw.ZYhFUjNFZ8IUYQTR7ng2CxFAy4Q",
-  "EcoBotName": "DiscordLink",
-  "DiscordCommandPrefix": "?",
-  "EcoStatusDiscordChannels": [
+  "BotToken": "xxXXxxxXxXXxxxxxxXxxxxXXXXxxx.XxxXxx.xXXXxxxxXXxxxxXxxxXXXXXXXxxxxxxxX",  
+  "EcoBotName": "DiscordLink",  
+  "DiscordCommandPrefix": "?",  
+  "ServerName": "TheEcoServer",  
+  "ServerDescription": "The place to play Eco!",  
+  "ServerAddress": "xxx.xxx.xxx.xx",  
+  "ServerLogo": "https://github.com/Eco-DiscordLink/EcoDiscordPlugin/blob/develop/images/DiscordLinkLogo_Nameless.png",  
+  "ChatChannelLinks": [  
+    {  
+      "AllowUserMentions": true,  
+      "AllowRoleMentions": true,  
+      "AllowChannelMentions": true,  
+      "Direction": "Duplex",  
+      "HereAndEveryoneMentionPermission": "Forbidden",  
+      "DiscordGuild": "EcoDiscordServer",  
+      "DiscordChannel": "general",  
+      "EcoChannel": "General",  
+    }  
+  ],  
+  "TradeChannels": [  
+    {  
+      "DiscordGuild": "EcoDiscordServer",  
+      "DiscordChannel": "trades"  
+    }  
+  ],  
+  "CraftingChannels": [  
+    {  
+      "DiscordGuild": "EcoDiscordServer",  
+      "DiscordChannel": "crafting"  
+    }  
+  ],  
+  "ServerInfoChannels": [
     {
-      "DiscordGuild": "EcoDiscordServer",
-      "DiscordChannel": "eco-status",
       "UseName": true,
       "UseDescription": false,
       "UseLogo": true,
-      "UseAddress": false,
+      "UseConnectionInfo": true,
       "UsePlayerCount": true,
       "UsePlayerList": true,
-      "UseTimeSinceStart": true,
+      "UsePlayerListLoggedInTime": true,
+      "UseCurrentTime": true,
       "UseTimeRemaining": true,
-      "UseMeteorHasHit": false
+      "UseMeteorHasHit": false,
+      "UseElectionCount": false,
+      "UseElectionList": true,
+      "UseLawCount": false,
+      "UseLawList": true,
+      "DiscordGuild": "EcoWorld",
+      "DiscordChannel": "server-status"
     }
   ],
-  "ServerName": "TheEcoServer",
-  "ServerDescription": "The place to play Eco!",
-  "ServerIP": "192.168.0.5",
-  "ServerLogo": "http://github.com/Spoffy/EcoDiscordPlugin/raw/master/images/DiscordLinkLogo_Nameless.png",
-  "ChatChannelLinks": [
+  "WorkPartyChannels": [  
+    {  
+      "DiscordGuild": "EcoDiscordServer",  
+      "DiscordChannel": "work-parties"  
+    }  
+  ],  
+  "PlayerListChannels": [  
+    {  
+      "UsePlayerCount": true,  
+      "DiscordGuild": "EcoDiscordServer",  
+      "DiscordChannel": "server-info"  
+    }  
+  ],  
+  "ElectionChannels": [  
+    {  
+      "DiscordGuild": "EcoDiscordServer",  
+      "DiscordChannel": "elections"  
+    }  
+  ],  
+  "CurrencyChannels": [  
+    {  
+      "UseMintedCurrency": "MintedExists",  
+      "UsePersonalCurrency": "NoMintedExists",  
+      "MaxMintedCount": 1,  
+      "MaxPersonalCount": 3,  
+      "MaxTopCurrencyHolderCount": 6,  
+      "UseTradeCount": true,  
+      "UseBackingInfo": false,  
+      "DiscordGuild": "EcoDiscordServer",  
+      "DiscordChannel": "currency"  
+    }  
+  ],  
+  "SnippetChannels": [  
+    {  
+      "DiscordGuild": "EcoDiscordServer",  
+      "DiscordChannel": "snippets"  
+    }  
+  ],  
+  "DiscordCommandChannels": [
     {
-      "DiscordGuild": "EcoDiscordServer",
-      "DiscordChannel": "general",
-      "EcoChannel": "General",
-      "AllowUserMentions": true,
-      "AllowRoleMentions": true,
-      "AllowChannelMentions": true,
-      "HereAndEveryoneMentionPermission": "Forbidden"
-    },
+      "DiscordGuild": "",
+      "DiscordChannel": ""
+    }
   ],
-  "Debug": false,
-  "LogChat": false,
-  "ChatlogPath": "E:\\EcoServer\\Mods\\DiscordLink\\Chatlog.txt",
-  "EcoCommandChannel": "general",
-  "InviteMessage": "Join us on Discord!\n[LINK]"
-}
+  "MaxTrackedTradesPerUser": 5,
+  "LogLevel": "Information",  
+  "BackendLogLevel": "Error",  
+  "LogChat": false,  
+  "ChatlogPath": "E:\\EcoServer\\Configs\\Mods\\DiscordLink\\Chatlog.txt",  
+  "EcoCommandChannel": "General",  
+  "InviteMessage": "Join us on Discord!\n[LINK]"  
+}  
