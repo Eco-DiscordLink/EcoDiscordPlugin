@@ -17,6 +17,12 @@ namespace Eco.Plugins.DiscordLink.Modules
         protected readonly AsyncLock _overlapLock = new AsyncLock();
         protected bool _isShuttingDown = false;
 
+        public virtual void Setup()
+        { }
+
+        public virtual void Destroy()
+        { }
+
         public async Task<bool> HandleStartOrStop()
         {
             bool shouldRun = ShouldRun();

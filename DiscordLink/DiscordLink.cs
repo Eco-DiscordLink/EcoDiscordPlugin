@@ -346,12 +346,14 @@ namespace Eco.Plugins.DiscordLink
             _modules.Add(new CurrencyDisplay());
             _modules.Add(new TradeTrackerDisplay());
 
+            _modules.ForEach(module => module.Setup());
             _modules.ForEach(async module => await module.HandleStartOrStop());
         }
 
         private void ShutdownModules()
         {
             _modules.ForEach(async module => await module.Stop());
+            _modules.ForEach(module => module.Destroy());
             _modules.Clear();
         }
 

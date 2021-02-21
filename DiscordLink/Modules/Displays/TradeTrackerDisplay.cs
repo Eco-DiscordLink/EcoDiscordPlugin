@@ -19,22 +19,28 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         private List<DiscordTarget> UserLinks = new List<DiscordTarget>();
 
-        protected override async Task Initialize()
+        public override void Setup()
         {
             LinkedUserManager.OnLinkedUserRemoved += HandleLinkedUserRemoved;
             DLStorage.TrackedTradeAdded += OnTrackedTradeAdded;
             DLStorage.TrackedTradeRemoved += OnTrackedTradeRemoved;
 
-            await BuildeUserLinkList();
-            await base.Initialize();
+            base.Setup();
         }
 
-        protected override async Task Shutdown()
+        public override void Destroy()
         {
             LinkedUserManager.OnLinkedUserRemoved -= HandleLinkedUserRemoved;
             DLStorage.TrackedTradeAdded -= OnTrackedTradeAdded;
             DLStorage.TrackedTradeRemoved -= OnTrackedTradeRemoved;
-            await base.Shutdown();
+
+            base.Destroy();
+        }
+
+        protected override async Task Initialize()
+        {
+            await BuildeUserLinkList();
+            await base.Initialize();
         }
 
         public override string ToString()
