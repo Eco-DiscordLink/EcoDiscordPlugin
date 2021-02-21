@@ -36,10 +36,27 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         public static List<string> SplitStringBySize(string str, int chunkSize)
         {
-            if (str == null)
-                return new List<string>();
+            List<string> result = new List<string>();
+            if (string.IsNullOrEmpty(str))
+                return result;
 
-            return Enumerable.Range(0, str.Length / chunkSize).Select(i => str.Substring(i * chunkSize, chunkSize)).ToList();
+            string[] lines = str.Split('\n');
+            string builder = lines.First();
+            foreach (string line in lines.Skip(1))
+            {
+                string test = $"{builder}\n{line}";
+                if (test.Length > chunkSize)
+                {
+                    result.Add(builder);
+                    builder = line;
+                }
+                else
+                {
+                    builder = test;
+                }
+            }
+            result.Add(builder);
+            return result;
         }
 
         public static List<DiscordEmbed> BuildDiscordEmbeds(DiscordLinkEmbed fullEmbed)
