@@ -1,4 +1,5 @@
-﻿using DSharpPlus;
+﻿using DiscordLink.Extensions;
+using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
@@ -38,17 +39,17 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
-        private static async Task RespondToCommand(CommandContext ctx, string fullTextContent, DiscordEmbed embedContent = null)
+        private static async Task RespondToCommand(CommandContext ctx, string fullTextContent, DiscordLinkEmbed embedContent = null)
         {
-            async static Task Respond(CommandContext ctx, string textContent, DiscordEmbed embedContent)
+            async static Task Respond(CommandContext ctx, string textContent, DiscordLinkEmbed embedContent)
             {
                 // If needed; split the message into multiple parts
                 ICollection<string> stringParts = MessageUtil.SplitStringBySize(textContent, DLConstants.DISCORD_MESSAGE_CHARACTER_LIMIT);
-                ICollection<DiscordEmbed> embedParts = MessageUtil.SplitEmbed(embedContent);
+                ICollection<DiscordEmbed> embedParts = MessageUtil.BuildDiscordEmbeds(embedContent);
 
                 if (stringParts.Count <= 1 && embedParts.Count <= 1)
                 {
-                    await ctx.RespondAsync(textContent, isTTS: false, embedContent);
+                    await ctx.RespondAsync(textContent, isTTS: false, embedParts.ElementAt(0));
                 }
                 else
                 {
@@ -203,8 +204,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await CallWithErrorHandling<object>(async (lCtx, args) =>
             {
-                DiscordEmbedBuilder embed = new DiscordEmbedBuilder()
-                .WithColor(MessageBuilder.Discord.EmbedColor)
+                DiscordLinkEmbed embed = new DiscordLinkEmbed()
                 .WithTitle("Players")
                 .WithDescription(MessageBuilder.Shared.GetPlayerList());
                 await RespondToCommand(ctx, "Displaying Online Players", embed);
@@ -230,8 +230,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await CallWithErrorHandling<object>(async (lCtx, args) =>
             {
-                DiscordEmbedBuilder embed = new DiscordEmbedBuilder()
-                .WithColor(MessageBuilder.Discord.EmbedColor)
+                DiscordLinkEmbed embed = new DiscordLinkEmbed()
                 .WithTitle("About DiscordLink")
                 .WithDescription(MessageBuilder.Shared.GetAboutMessage());
 
@@ -361,7 +360,7 @@ namespace Eco.Plugins.DiscordLink
                     return;
                 }
 
-                DiscordEmbed embedContent;
+                DiscordLinkEmbed embedContent;
                 MessageBuilder.Discord.FormatTrades(matchedName, isItem, groupedBuyOffers, groupedSellOffers, out embedContent);
                 await RespondToCommand(ctx, null, embedContent); 
             }, ctx);

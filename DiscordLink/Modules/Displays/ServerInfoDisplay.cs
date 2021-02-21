@@ -1,4 +1,5 @@
-﻿using DSharpPlus.Entities;
+﻿using DiscordLink.Extensions;
+using DSharpPlus.Entities;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Utilities;
 using System;
@@ -28,15 +29,15 @@ namespace Eco.Plugins.DiscordLink.Modules
             return DLConfig.Data.ServerInfoChannels.Cast<DiscordTarget>().ToList();
         }
 
-        protected override void GetDisplayContent(DiscordTarget target, out List<Tuple<string, DiscordEmbed>> tagAndContent)
+        protected override void GetDisplayContent(DiscordTarget target, out List<Tuple<string, DiscordLinkEmbed>> tagAndContent)
         {
-            tagAndContent = new List<Tuple<string, DiscordEmbed>>();
+            tagAndContent = new List<Tuple<string, DiscordLinkEmbed>>();
             ServerInfoChannel serverInfoChannel = target as ServerInfoChannel;
             if (serverInfoChannel == null)
                 return;
 
-            DiscordEmbed content = MessageBuilder.Discord.GetServerInfo(GetServerInfoFlagForChannel(serverInfoChannel));
-            tagAndContent.Add(new Tuple<string, DiscordEmbed>(BaseTag, content));
+            DiscordLinkEmbed content = MessageBuilder.Discord.GetServerInfo(GetServerInfoFlagForChannel(serverInfoChannel));
+            tagAndContent.Add(new Tuple<string, DiscordLinkEmbed>(BaseTag, content));
         }
 
         private static MessageBuilder.ServerInfoComponentFlag GetServerInfoFlagForChannel(ServerInfoChannel statusChannel)

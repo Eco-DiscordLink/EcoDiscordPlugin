@@ -1,7 +1,9 @@
-﻿using DSharpPlus;
+﻿using DiscordLink.Extensions;
+using DSharpPlus;
 using DSharpPlus.Entities;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink.Utilities
@@ -27,7 +29,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             return (DiscordLink.Obj.DiscordClient.Intents & intent) != 0;
         }
 
-        public static async Task SendAsync(DiscordChannel channel, string textContent, DiscordEmbed embedContent = null)
+        public static async Task SendAsync(DiscordChannel channel, string textContent, DiscordLinkEmbed embedContent = null)
         {
             try
             {
@@ -38,11 +40,11 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
                 // If needed; split the message into multiple parts
                 ICollection<string> stringParts = MessageUtil.SplitStringBySize(fullTextContent, DLConstants.DISCORD_EMBED_CONTENT_CHARACTER_LIMIT);
-                ICollection<DiscordEmbed> embedParts = MessageUtil.SplitEmbed(embedContent);
+                ICollection<DiscordEmbed> embedParts = MessageUtil.BuildDiscordEmbeds(embedContent);
 
                 if(stringParts.Count <= 1 && embedParts.Count <= 1)
                 {
-                    await channel.SendMessageAsync(fullTextContent, tts: false, embedContent);
+                    await channel.SendMessageAsync(fullTextContent, tts: false, embedParts.First());
                 }
                 else
                 {
@@ -72,11 +74,11 @@ namespace Eco.Plugins.DiscordLink.Utilities
             {
                 // If needed; split the message into multiple parts
                 ICollection<string> stringParts = MessageUtil.SplitStringBySize(textContent, DLConstants.DISCORD_EMBED_CONTENT_CHARACTER_LIMIT);
-                ICollection<DiscordEmbed> embedParts = MessageUtil.SplitEmbed(embedContent);
+                ICollection<DiscordEmbed> embedParts = MessageUtil.BuildDiscordEmbeds(embedContent);
 
                 if (stringParts.Count <= 1 && embedParts.Count <= 1)
                 {
-                    await targetMember.SendMessageAsync(textContent, is_tts: false, embedContent);
+                    await targetMember.SendMessageAsync(textContent, is_tts: false, embedParts.First());
                 }
                 else
                 {
@@ -100,7 +102,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             }
         }
 
-        public static async Task ModifyAsync(DiscordMessage message, string textContent, DiscordEmbed embedContent = null)
+        public static async Task ModifyAsync(DiscordMessage message, string textContent, DiscordLinkEmbed embedContent = null)
         {
             try
             {
@@ -112,15 +114,22 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 }
                 else
                 {
-                    // Either make sure we have permission to use embeds or convert the embed to text
-                    if (ChannelHasPermission(message.Channel, Permissions.EmbedLinks))
+                    try
                     {
-                        await message.ModifyAsync(textContent, embedContent);
+                        // Either make sure we have permission to use embeds or convert the embed to text
+                        if (ChannelHasPermission(message.Channel, Permissions.EmbedLinks))
+                        {
+                            await message.ModifyAsync(textContent, MessageUtil.BuildDiscordEmbed(embedContent)); // TODO: Not safe! May require splitting!
+                        }
+                        else
+                        {
+                            await message.ModifyEmbedSuppressionAsync(true); // Remove existing embeds
+                            await message.ModifyAsync(MessageBuilder.Discord.EmbedToText(textContent, embedContent));
+                        }
                     }
-                    else
+                    catch(Exception e)
                     {
-                        await message.ModifyEmbedSuppressionAsync(true); // Remove existing embeds
-                        await message.ModifyAsync(MessageBuilder.Discord.EmbedToText(textContent, embedContent));
+                        Logger.Warning("Failed to modify message. The message may be too long. Error message: " + e);
                     }
                 }
             }

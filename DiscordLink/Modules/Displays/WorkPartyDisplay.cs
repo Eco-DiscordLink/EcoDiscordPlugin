@@ -1,4 +1,5 @@
-﻿using DSharpPlus.Entities;
+﻿using DiscordLink.Extensions;
+using DSharpPlus.Entities;
 using Eco.Core.Systems;
 using Eco.Gameplay.Economy.WorkParties;
 using Eco.Gameplay.Items;
@@ -35,17 +36,16 @@ namespace Eco.Plugins.DiscordLink.Modules
             return DLConfig.Data.WorkPartyChannels.Cast<DiscordTarget>().ToList();
         }
 
-        protected override void GetDisplayContent(DiscordTarget target, out List<Tuple<string, DiscordEmbed>> tagAndContent)
+        protected override void GetDisplayContent(DiscordTarget target, out List<Tuple<string, DiscordLinkEmbed>> tagAndContent)
         {
-            tagAndContent = new List<Tuple<string, DiscordEmbed>>();
-            DiscordEmbedBuilder builder = new DiscordEmbedBuilder();
+            tagAndContent = new List<Tuple<string, DiscordLinkEmbed>>();
+            DiscordLinkEmbed embed = new DiscordLinkEmbed();
             List<WorkParty> workParties = Registrars.Get<WorkParty>().All<WorkParty>().NonNull().Where(x => x.State == ProposableState.Active).ToList();
             foreach (WorkParty workParty in workParties)
             {
                 string tag = $"{BaseTag} [{workParty.Id}]";
-                builder.WithColor(MessageBuilder.Discord.EmbedColor);
-                builder.WithTitle(MessageUtil.StripTags(workParty.Name));
-                builder.WithFooter(MessageBuilder.Discord.GetStandardEmbedFooter());
+                embed.WithTitle(MessageUtil.StripTags(workParty.Name));
+                embed.WithFooter(MessageBuilder.Discord.GetStandardEmbedFooter());
 
                 // Workers
                 string workersDesc = string.Empty;
@@ -60,7 +60,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 {
                     workersDesc += "--- No Workers Registered ---";
                 }
-                builder.AddField("Workers", workersDesc);
+                embed.AddField("Workers", workersDesc);
 
                 // Work
                 foreach (Work work in workParty.Work)
@@ -109,7 +109,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                         if (!string.IsNullOrWhiteSpace(workDesc))
                         {
                             string percentDone = (work.PercentDone * 100.0f).ToString("N1", CultureInfo.InvariantCulture).Replace(".0", "");
-                            builder.AddField($"\n {workType} (Weight: {work.Weight.ToString("F1")}) ({percentDone}% completed) \n", workDesc);
+                            embed.AddField($"\n {workType} (Weight: {work.Weight.ToString("F1")}) ({percentDone}% completed) \n", workDesc);
                         }
                     }
                 }
@@ -166,12 +166,12 @@ namespace Eco.Plugins.DiscordLink.Modules
                 }
 
                 if (!string.IsNullOrWhiteSpace(paymentDesc))
-                    builder.AddField("Payment", paymentDesc);
+                    embed.AddField("Payment", paymentDesc);
 
-                if (builder.Fields.Count > 0)
-                    tagAndContent.Add(new Tuple<string, DiscordEmbed>(tag, builder.Build()));
+                if (embed.Fields.Count > 0)
+                    tagAndContent.Add(new Tuple<string, DiscordLinkEmbed>(tag, new DiscordLinkEmbed(embed)));
 
-                builder.ClearFields();
+                embed.ClearFields();
             }
         }
     }

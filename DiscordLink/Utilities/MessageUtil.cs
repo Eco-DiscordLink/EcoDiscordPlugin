@@ -1,4 +1,5 @@
-﻿using DSharpPlus.Entities;
+﻿using DiscordLink.Extensions;
+using DSharpPlus.Entities;
 using Eco.Core.Utils;
 using Eco.Shared.Utils;
 using System;
@@ -24,6 +25,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
         private static readonly Regex DiscordGlobalMentionRegex = new Regex("@(everyone|here)");
 
         private const string EcoNametagColor = "7289DAFF";
+        public static DiscordColor EmbedColor = DiscordColor.Green;
 
         #region General
 
@@ -40,7 +42,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             return Enumerable.Range(0, str.Length / chunkSize).Select(i => str.Substring(i * chunkSize, chunkSize)).ToList();
         }
 
-        public static List<DiscordEmbed> SplitEmbed(DiscordEmbed fullEmbed)
+        public static List<DiscordEmbed> BuildDiscordEmbeds(DiscordLinkEmbed fullEmbed)
         {
             List<DiscordEmbed> resultEmbeds = new List<DiscordEmbed>();
 
@@ -52,7 +54,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             if (fullEmbed.Title != null)
                 titleFooterCharCount += fullEmbed.Title.Length;
             if (fullEmbed.Footer != null)
-                titleFooterCharCount += fullEmbed.Footer.Text.Length;
+                titleFooterCharCount += fullEmbed.Footer.Length;
 
             int totalCharsCount = titleFooterCharCount;
             int maxEmbedCharCount = DLConstants.DISCORD_EMBED_CONTENT_CHARACTER_LIMIT + titleFooterCharCount;
@@ -61,8 +63,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
             List<bool> needsSplitFields = Enumerable.Repeat(false, fullEmbed.Fields.Count).ToList();
             for(int i = 0; i < fullEmbed.Fields.Count; ++i)
             {
-                DiscordEmbedField field = fullEmbed.Fields[i];
-                int length = field.Name.Length + field.Value.Length;
+                DiscordLinkEmbedField field = fullEmbed.Fields[i];
+                int length = field.Title.Length + field.Text.Length;
                 if ( length > DLConstants.DISCORD_EMBED_FIELD_CHARACTER_LIMIT)
                     needsSplitFields[i] = true;
 
@@ -72,55 +74,89 @@ namespace Eco.Plugins.DiscordLink.Utilities
             // Early escape if no splitting is needed
             if (totalCharsCount <= maxEmbedCharCount && needsSplitFields.Count <= 0)
             {
-                resultEmbeds.Add(fullEmbed);
+                resultEmbeds.Add(BuildDiscordEmbed(fullEmbed));
                 return resultEmbeds;
             }
 
-            // Create a dummy embed and split too long fields
-            DiscordEmbedBuilder splitFieldsCollector = new DiscordEmbedBuilder();
+            // Split too long fields
+            List<DiscordLinkEmbedField> splitFields = new List<DiscordLinkEmbedField>();
             for (int i = 0; i < fullEmbed.Fields.Count; ++i)
             {
-                DiscordEmbedField field = fullEmbed.Fields[i];
+                DiscordLinkEmbedField field = fullEmbed.Fields[i];
                 if (needsSplitFields[i] == true)
                 {
-                    IEnumerable<string> splits = SplitStringBySize(field.Value, DLConstants.DISCORD_EMBED_FIELD_CHARACTER_LIMIT);
+                    IEnumerable<string> splits = SplitStringBySize(field.Text, DLConstants.DISCORD_EMBED_FIELD_CHARACTER_LIMIT);
                     int partCount = 1;
                     foreach(string fieldSplit in splits)
                     {
-                        splitFieldsCollector.AddField($"{field.Name} ({partCount})", fieldSplit);
+                        splitFields.Add(new DiscordLinkEmbedField($"{field.Title} ({partCount})", fieldSplit));
                         ++partCount;
                     }
                 }
                 else
                 {
-                    splitFieldsCollector.AddField(fullEmbed.Fields[i].Name, fullEmbed.Fields[i].Value);
+                    splitFields.Add(new DiscordLinkEmbedField(fullEmbed.Fields[i].Title, fullEmbed.Fields[i].Text));
                 }
             }
 
             // Create new embeds that fit within the char limits
-            List<DiscordEmbed> splitEmbeds = new List<DiscordEmbed>();
-            DiscordEmbedBuilder splitEmbedBuilder = new DiscordEmbedBuilder();
-            if (!string.IsNullOrWhiteSpace(fullEmbed.Title))
-                splitEmbedBuilder.WithTitle(fullEmbed.Title);
-            if (!string.IsNullOrWhiteSpace(fullEmbed.Footer?.Text))
-                splitEmbedBuilder.WithFooter(fullEmbed.Footer.Text);
-
+            List<DiscordLinkEmbed> splitEmbeds = new List<DiscordLinkEmbed>();
+            DiscordLinkEmbed splitEmbedBuilder = new DiscordLinkEmbed();
             int characterCount = 0;
-            foreach (DiscordEmbedField field in splitFieldsCollector.Fields)
+            int fieldCount = 0;
+            foreach (DiscordLinkEmbedField field in splitFields)
             {
-                if(characterCount + field.Value.Length > maxEmbedCharCount)
+                // If adding the next field would bring us over a limit, split into new embeds
+                if(characterCount + field.Text.Length > DLConstants.DISCORD_EMBED_TOTAL_CHARACTER_LIMIT || fieldCount + 1 > DLConstants.DISCORD_EMBED_FIELD_COUNT_LIMIT)
                 {
-                    splitEmbeds.Add(splitEmbedBuilder.Build());
+                    splitEmbeds.Add(new DiscordLinkEmbed(splitEmbedBuilder));
                     splitEmbedBuilder.ClearFields();
                     characterCount = 0;
+                    fieldCount = 0;
                 }
 
-                splitEmbedBuilder.AddField(field.Name, field.Value);
-                characterCount += field.Value.Length;
+                splitEmbedBuilder.AddField(field.Title, field.Text);
+                characterCount += field.Text.Length;
+                ++fieldCount;
             }
-            splitEmbeds.Add(splitEmbedBuilder.Build());
+            splitEmbeds.Add(splitEmbedBuilder);
 
-            return splitEmbeds;
+            // Convert embeds to actual DSharp Discord embeds
+            foreach(DiscordLinkEmbed embedData in splitEmbeds)
+            {
+                resultEmbeds.Add(BuildDiscordEmbed(embedData));
+            }
+
+            return resultEmbeds;
+        }
+
+        // Creates an actual Discord embed with the assumption that all fields in the input are within the character constraints
+        public static DiscordEmbed BuildDiscordEmbed(DiscordLinkEmbed embedData)
+        {
+            DiscordEmbedBuilder builder = new DiscordEmbedBuilder();
+            builder.WithTitle(embedData.Title);
+            builder.WithDescription(embedData.Description);
+            builder.WithFooter(embedData.Footer);
+            builder.WithColor(EmbedColor);
+
+            if (!string.IsNullOrEmpty(embedData.Thumbnail))
+            {
+                try
+                {
+                    builder.WithThumbnail(embedData.Thumbnail);
+                }
+                catch (UriFormatException e)
+                {
+                    Logger.Debug("Failed to include thumbnail in Server Info embed. Error: " + e);
+                }
+            }
+
+            foreach (DiscordLinkEmbedField field in embedData.Fields)
+            {
+                builder.AddField(field.Title, field.Text);
+            }
+
+            return builder.Build();
         }
 
         #endregion

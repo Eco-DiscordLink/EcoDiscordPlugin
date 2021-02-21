@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using DiscordLink.Extensions;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using Eco.Plugins.DiscordLink.Events;
@@ -148,7 +149,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                     targetChannel = await userLink.Member.CreateDmChannelAsync();
                 }
 
-                GetDisplayContent(target, out List<Tuple<string, DiscordEmbed>> tagsAndContent);
+                GetDisplayContent(target, out List<Tuple<string, DiscordLinkEmbed>> tagsAndContent);
 
                 foreach (ulong messageID in channelDisplayData.MessageIDs)
                 {
@@ -202,7 +203,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             }
         }
 
-        protected abstract void GetDisplayContent(DiscordTarget target, out List<Tuple<string, DiscordEmbed>> tagAndContent);
+        protected abstract void GetDisplayContent(DiscordTarget target, out List<Tuple<string, DiscordLinkEmbed>> tagAndContent);
 
         private async Task FindMessages(DiscordLink plugin)
         {

@@ -1,4 +1,5 @@
-﻿using DSharpPlus.Entities;
+﻿using DiscordLink.Extensions;
+using DSharpPlus.Entities;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Utilities;
 using System;
@@ -28,9 +29,9 @@ namespace Eco.Plugins.DiscordLink.Modules
             return DLConfig.Data.PlayerListChannels.Cast<DiscordTarget>().ToList();
         }
 
-        protected override void GetDisplayContent(DiscordTarget target, out List<Tuple<string, DiscordEmbed>> tagAndContent)
+        protected override void GetDisplayContent(DiscordTarget target, out List<Tuple<string, DiscordLinkEmbed>> tagAndContent)
         {
-            tagAndContent = new List<Tuple<string, DiscordEmbed>>();
+            tagAndContent = new List<Tuple<string, DiscordLinkEmbed>>();
 
             PlayerListChannelLink playerListLink = target as PlayerListChannelLink;
             if (playerListLink == null) return;
@@ -44,13 +45,12 @@ namespace Eco.Plugins.DiscordLink.Modules
                 title = MessageBuilder.Shared.GetPlayerCount() + " Players Online";
             }
 
-            DiscordEmbedBuilder embed = new DiscordEmbedBuilder()
-                .WithColor(MessageBuilder.Discord.EmbedColor)
+            DiscordLinkEmbed embed = new DiscordLinkEmbed()
                 .WithTitle(title)
                 .WithDescription(content)
                 .WithFooter(MessageBuilder.Discord.GetStandardEmbedFooter());
 
-            tagAndContent.Add(new Tuple<string, DiscordEmbed>(tag, embed));
+            tagAndContent.Add(new Tuple<string, DiscordLinkEmbed>(tag, embed));
         }
     }
 }

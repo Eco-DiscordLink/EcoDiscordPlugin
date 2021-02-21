@@ -1,4 +1,5 @@
-﻿using DSharpPlus.Entities;
+﻿using DiscordLink.Extensions;
+using DSharpPlus.Entities;
 using Eco.Gameplay.Civics.Elections;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Utilities;
@@ -31,25 +32,24 @@ namespace Eco.Plugins.DiscordLink.Modules
             return DLConfig.Data.ElectionChannels.Cast<DiscordTarget>().ToList();
         }
 
-        protected override void GetDisplayContent(DiscordTarget target, out List<Tuple<string, DiscordEmbed>> tagAndContent)
+        protected override void GetDisplayContent(DiscordTarget target, out List<Tuple<string, DiscordLinkEmbed>> tagAndContent)
         {
-            tagAndContent = new List<Tuple<string, DiscordEmbed>>();
-            DiscordEmbedBuilder builder = new DiscordEmbedBuilder();
-            builder.WithColor(MessageBuilder.Discord.EmbedColor);
-            builder.WithFooter(MessageBuilder.Discord.GetStandardEmbedFooter());
+            tagAndContent = new List<Tuple<string, DiscordLinkEmbed>>();
+            DiscordLinkEmbed embed = new DiscordLinkEmbed();
+            embed.WithFooter(MessageBuilder.Discord.GetStandardEmbedFooter());
             foreach (Election election in EcoUtil.ActiveElections)
             {
                 string tag = $"{BaseTag} [{election.Id}]";
-                builder.WithTitle(MessageUtil.StripTags(election.Name));
+                embed.WithTitle(MessageUtil.StripTags(election.Name));
 
                 // Proposer name
-                builder.AddField("Proposer", election.Creator.Name);
+                embed.AddField("Proposer", election.Creator.Name);
 
                 // Time left
-                builder.AddField("Time Left", TimeFormatter.FormatSpan(election.TimeLeft));
+                embed.AddField("Time Left", TimeFormatter.FormatSpan(election.TimeLeft));
 
                 // Process
-                builder.AddField("Process", MessageUtil.StripTags(election.Process.Name));
+                embed.AddField("Process", MessageUtil.StripTags(election.Process.Name));
 
                 // Choices
                 if (!election.BooleanElection && election.Choices.Count > 0)
@@ -59,7 +59,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                     {
                         choiceDesc += $"{choice.Name}\n";
                     }
-                    builder.AddField("Choices", choiceDesc);
+                    embed.AddField("Choices", choiceDesc);
                 }
 
                 // Votes
@@ -82,12 +82,12 @@ namespace Eco.Plugins.DiscordLink.Modules
                 if (string.IsNullOrEmpty(voteDesc))
                     voteDesc = "--- No Votes Recorded ---";
 
-                builder.AddField($"Votes ({election.TotalVotes})", voteDesc);
+                embed.AddField($"Votes ({election.TotalVotes})", voteDesc);
 
-                if (builder.Fields.Count > 0)
-                    tagAndContent.Add(new Tuple<string, DiscordEmbed>(tag, builder.Build()));
+                if (embed.Fields.Count > 0)
+                    tagAndContent.Add(new Tuple<string, DiscordLinkEmbed>(tag, new DiscordLinkEmbed(embed)));
 
-                builder.ClearFields();
+                embed.ClearFields();
             }
         }
     }

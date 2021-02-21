@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using DiscordLink.Extensions;
 using DSharpPlus.Entities;
 using Eco.Gameplay.Civics.Elections;
 using Eco.Gameplay.Civics.Laws;
@@ -124,9 +125,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         public static class Discord
         {
-            public static DiscordColor EmbedColor = DiscordColor.Green;
-
-            public static string EmbedToText(string textContent, DiscordEmbed embedContent)
+            public static string EmbedToText(string textContent, DiscordLinkEmbed embedContent)
             {
                 string message = "";
                 if (!string.IsNullOrEmpty(textContent))
@@ -140,20 +139,20 @@ namespace Eco.Plugins.DiscordLink.Utilities
                         message += embedContent.Title + "\n\n";
                     }
 
-                    foreach (DiscordEmbedField field in embedContent.Fields)
+                    foreach (DiscordLinkEmbedField field in embedContent.Fields)
                     {
-                        message += "**" + field.Name + "**\n" + field.Value + "\n\n";
+                        message += "**" + field.Title + "**\n" + field.Text + "\n\n";
                     }
 
-                    if (!string.IsNullOrEmpty(embedContent.Footer?.Text))
+                    if (!string.IsNullOrEmpty(embedContent.Footer))
                     {
-                        message += embedContent.Footer.Text;
+                        message += embedContent.Footer;
                     }
                 }
                 return message.Trim();
             }
 
-            public static DiscordEmbed GetServerInfo(ServerInfoComponentFlag flag)
+            public static DiscordLinkEmbed GetServerInfo(ServerInfoComponentFlag flag)
             {
                 var plugin = DiscordLink.Obj;
                 if (plugin == null) return null;
@@ -161,36 +160,28 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 var config = DLConfig.Data;
                 var serverInfo = NetworkManager.GetServerInfo();
 
-                var builder = new DiscordEmbedBuilder();
-                builder.WithColor(EmbedColor);
-                builder.WithFooter(GetStandardEmbedFooter());
+                DiscordLinkEmbed embed = new DiscordLinkEmbed();
+                embed.WithFooter(GetStandardEmbedFooter());
 
                 if (flag.HasFlag(ServerInfoComponentFlag.Name))
                 {
-                    builder.WithTitle($"**{MessageUtil.FirstNonEmptyString(config.ServerName, MessageUtil.StripTags(serverInfo.Description), "[Server Title Missing]")} " + "Server Status" + "**\n" + DateTime.Now.ToShortDateString() + " : " + DateTime.Now.ToShortTimeString());
+                    embed.WithTitle($"**{MessageUtil.FirstNonEmptyString(config.ServerName, MessageUtil.StripTags(serverInfo.Description), "[Server Title Missing]")} " + "Server Status" + "**\n" + DateTime.Now.ToShortDateString() + " : " + DateTime.Now.ToShortTimeString());
                 }
                 else
                 {
                     DateTime time = DateTime.Now;
                     int utcOffset = TimeZoneInfo.Local.GetUtcOffset(time).Hours;
-                    builder.WithTitle("**" + "Server Status" + "**\n" + "[" + DateTime.Now.ToString("yyyy-MM-dd : HH:mm", CultureInfo.InvariantCulture) + " UTC " + (utcOffset != 0 ? (utcOffset >= 0 ? "+" : "-") + utcOffset : "") + "]");
+                    embed.WithTitle("**" + "Server Status" + "**\n" + "[" + DateTime.Now.ToString("yyyy-MM-dd : HH:mm", CultureInfo.InvariantCulture) + " UTC " + (utcOffset != 0 ? (utcOffset >= 0 ? "+" : "-") + utcOffset : "") + "]");
                 }
 
                 if (flag.HasFlag(ServerInfoComponentFlag.Description))
                 {
-                    builder.WithDescription(MessageUtil.FirstNonEmptyString(config.ServerDescription, MessageUtil.StripTags(serverInfo.Description), "No server description is available."));
+                    embed.WithDescription(MessageUtil.FirstNonEmptyString(config.ServerDescription, MessageUtil.StripTags(serverInfo.Description), "No server description is available."));
                 }
 
                 if (flag.HasFlag(ServerInfoComponentFlag.Logo) && !string.IsNullOrWhiteSpace(config.ServerLogo))
                 {
-                    try
-                    {
-                        builder.WithThumbnail(config.ServerLogo);
-                    }
-                    catch (UriFormatException e)
-                    {
-                        Logger.Debug("Failed to include thumbnail in Server Info embed. Error: " + e);
-                    }
+                    embed.WithThumbnail(config.ServerLogo);
                 }
 
                 if (flag.HasFlag(ServerInfoComponentFlag.ConnectionInfo))
@@ -213,12 +204,12 @@ namespace Eco.Plugins.DiscordLink.Utilities
                         fieldText = $"{address}:{port}";
                     }
 
-                    builder.AddField("Connection Info", fieldText);
+                    embed.AddField("Connection Info", fieldText);
                 }
 
                 if (flag.HasFlag(ServerInfoComponentFlag.PlayerCount))
                 {
-                    builder.AddField("Online Players Count", $"{UserManager.OnlineUsers.Where(user => user.Client.Connected).Count()}/{serverInfo.TotalPlayers}");
+                    embed.AddField("Online Players Count", $"{UserManager.OnlineUsers.Where(user => user.Client.Connected).Count()}/{serverInfo.TotalPlayers}");
                 }
 
                 if (flag.HasFlag(ServerInfoComponentFlag.PlayerList))
@@ -226,13 +217,13 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     IEnumerable<string> onlineUsers = UserManager.OnlineUsers.Where(user => user.Client.Connected).Select(user => user.Name);
                     string playerList = onlineUsers.Count() > 0 ? string.Join("\n", onlineUsers) : "-- No players online --";
                     bool useOnlineTime = flag.HasFlag(ServerInfoComponentFlag.PlayerListLoginTime);
-                    builder.AddField("Online Players", Shared.GetPlayerList(useOnlineTime));
+                    embed.AddField("Online Players", Shared.GetPlayerList(useOnlineTime));
                 }
 
                 if (flag.HasFlag(ServerInfoComponentFlag.CurrentTime))
                 {
                     TimeSpan timeSinceStartSpan = new TimeSpan(0, 0, (int)serverInfo.TimeSinceStart);
-                    builder.AddField("Current Time", $"Day {timeSinceStartSpan.Days + 1}\t{timeSinceStartSpan.Hours.ToString("00")}:{timeSinceStartSpan.Minutes.ToString("00")}"); // +1 days to get start at day 1 just like ingame
+                    embed.AddField("Current Time", $"Day {timeSinceStartSpan.Days + 1}\t{timeSinceStartSpan.Hours.ToString("00")}:{timeSinceStartSpan.Minutes.ToString("00")}"); // +1 days to get start at day 1 just like ingame
                 }
 
                 if (flag.HasFlag(ServerInfoComponentFlag.TimeRemaining))
@@ -240,18 +231,18 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     TimeSpan timeRemainingSpan = new TimeSpan(0, 0, (int)serverInfo.TimeLeft);
                     bool meteorHasHit = timeRemainingSpan.Seconds < 0;
                     timeRemainingSpan = meteorHasHit ? new TimeSpan(0, 0, 0) : timeRemainingSpan;
-                    builder.AddField("Time Left Until Meteor", $"{timeRemainingSpan.Days} Days, {timeRemainingSpan.Hours} hours, {timeRemainingSpan.Minutes} minutes");
+                    embed.AddField("Time Left Until Meteor", $"{timeRemainingSpan.Days} Days, {timeRemainingSpan.Hours} hours, {timeRemainingSpan.Minutes} minutes");
                 }
 
                 if (flag.HasFlag(ServerInfoComponentFlag.MeteorHasHit))
                 {
                     TimeSpan timeRemainingSpan = new TimeSpan(0, 0, (int)serverInfo.TimeLeft);
-                    builder.AddField("Meteor Has Hit", timeRemainingSpan.Seconds < 0 ? "Yes" : "No");
+                    embed.AddField("Meteor Has Hit", timeRemainingSpan.Seconds < 0 ? "Yes" : "No");
                 }
 
                 if (flag.HasFlag(ServerInfoComponentFlag.ActiveElectionCount))
                 {
-                    builder.AddField("Active Elections Count", $"{EcoUtil.ActiveElections.Count()}");
+                    embed.AddField("Active Elections Count", $"{EcoUtil.ActiveElections.Count()}");
                 }
 
                 if (flag.HasFlag(ServerInfoComponentFlag.ActiveElectionList))
@@ -265,12 +256,12 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     if (string.IsNullOrEmpty(electionList))
                         electionList = "-- No active elections --";
 
-                    builder.AddField("Active Elections", electionList);
+                    embed.AddField("Active Elections", electionList);
                 }
 
                 if (flag.HasFlag(ServerInfoComponentFlag.LawCount))
                 {
-                    builder.AddField("Law Count", $"{EcoUtil.ActiveLaws.Count()}");
+                    embed.AddField("Law Count", $"{EcoUtil.ActiveLaws.Count()}");
                 }
 
                 if (flag.HasFlag(ServerInfoComponentFlag.LawList))
@@ -284,26 +275,25 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     if (string.IsNullOrEmpty(lawList))
                         lawList = "-- No active laws --";
 
-                    builder.AddField("Laws", lawList);
+                    embed.AddField("Laws", lawList);
                 }
 
-                return builder.Build();
+                return embed;
             }
 
-            public static DiscordEmbed GetVerificationDM(User ecoUser)
+            public static DiscordLinkEmbed GetVerificationDM(User ecoUser)
             {
                 DLConfigData config = DLConfig.Data;
                 ServerInfo serverInfo = NetworkManager.GetServerInfo();
                 string serverName = MessageUtil.StripTags(!string.IsNullOrWhiteSpace(config.ServerName) ? DLConfig.Data.ServerName : MessageUtil.StripTags(serverInfo.Description));
 
-                DiscordEmbedBuilder builder = new DiscordEmbedBuilder();
-                builder.WithColor(EmbedColor);
-                builder.WithTitle("Account Linking Verification");
-                builder.AddField("Initiator", MessageUtil.StripTags(ecoUser.Name));
-                builder.AddField("Description", $"Your Eco account has been linked to your Discord account on the server \"{serverName}\".");
-                builder.AddField("Action Required", $"If you initiated this action, use the command `{config.DiscordCommandPrefix}verifylink` to verify that these accounts should be linked.");
-                builder.WithFooter("If you did not initiate this action, notify a server admin.\nThe account link cannot be used until verified.");
-                return builder.Build();
+                DiscordLinkEmbed embed = new DiscordLinkEmbed();
+                embed.WithTitle("Account Linking Verification");
+                embed.AddField("Initiator", MessageUtil.StripTags(ecoUser.Name));
+                embed.AddField("Description", $"Your Eco account has been linked to your Discord account on the server \"{serverName}\".");
+                embed.AddField("Action Required", $"If you initiated this action, use the command `{config.DiscordCommandPrefix}verifylink` to verify that these accounts should be linked.");
+                embed.WithFooter("If you did not initiate this action, notify a server admin.\nThe account link cannot be used until verified.");
+                return embed;
             }
 
             public static string GetStandardEmbedFooter()
@@ -313,7 +303,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 return $"By DiscordLink @ {serverName} [{timestamp}]";
             }
 
-            public static void FormatTrades(string matchedName, bool isItem, StoreOfferList groupedBuyOffers, StoreOfferList groupedSellOffers, out DiscordEmbed embedContent)
+            public static void FormatTrades(string matchedName, bool isItem, StoreOfferList groupedBuyOffers, StoreOfferList groupedSellOffers, out DiscordLinkEmbed embedContent)
             {
                 Func<Tuple<StoreComponent, TradeOffer>, string> getLabel;
                 if (isItem)
@@ -323,22 +313,21 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 var fieldEnumerator = TradeOffersToFields(groupedBuyOffers, groupedSellOffers, getLabel);
 
                 // Format message
-                DiscordEmbedBuilder embedBuilder = new DiscordEmbedBuilder()
-                    .WithColor(EmbedColor)
+                DiscordLinkEmbed embed = new DiscordLinkEmbed()
                     .WithTitle($"Trades for {matchedName}");
                 if (groupedSellOffers.Count() > 0 || groupedBuyOffers.Count() > 0)
                 {
                     foreach(var stringTuple in fieldEnumerator)
                     {
-                        embedBuilder.AddField(stringTuple.Item1, stringTuple.Item2);
+                        embed.AddField(stringTuple.Item1, stringTuple.Item2);
                     }
-                    embedBuilder.WithFooter(GetStandardEmbedFooter());
+                    embed.WithFooter(GetStandardEmbedFooter());
                 }
                 else
                 {
-                    embedBuilder.WithTitle($"No trade offers found for {matchedName}");
+                    embed.WithTitle($"No trade offers found for {matchedName}");
                 }
-                embedContent = embedBuilder.Build();
+                embedContent = embed;
             }
 
             private static IEnumerable<Tuple<string, string>> TradeOffersToFields<T>(T buyOffers, T sellOffers, Func<Tuple<StoreComponent, TradeOffer>, string> getLabel)

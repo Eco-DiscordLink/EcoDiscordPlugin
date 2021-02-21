@@ -5,6 +5,7 @@ using System.Linq;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Gameplay.Economy;
 using Eco.Plugins.DiscordLink.Utilities;
+using DiscordLink.Extensions;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
@@ -29,20 +30,19 @@ namespace Eco.Plugins.DiscordLink.Modules
             return DLConfig.Data.CurrencyChannels.Cast<DiscordTarget>().ToList();
         }
 
-        protected override void GetDisplayContent(DiscordTarget target, out List<Tuple<string, DiscordEmbed>> tagAndContent)
+        protected override void GetDisplayContent(DiscordTarget target, out List<Tuple<string, DiscordLinkEmbed>> tagAndContent)
         {
-            tagAndContent = new List<Tuple<string, DiscordEmbed>>();
+            tagAndContent = new List<Tuple<string, DiscordLinkEmbed>>();
             IEnumerable<Currency> currencies = CurrencyManager.Currencies;
             var currencyTradesMap = DLStorage.WorldData.CurrencyToTradeCountMap;
             CurrencyChannelLink currencyLink = target as CurrencyChannelLink;
             if (currencyLink == null)
                 return;
 
-            void AddCurrencyEntry(Currency currency, List<Tuple<string, DiscordEmbed>> tagAndContent)
+            void AddCurrencyEntry(Currency currency, List<Tuple<string, DiscordLinkEmbed>> tagAndContent)
             {
-                DiscordEmbedBuilder embed = new DiscordEmbedBuilder()
-                    .WithColor(MessageBuilder.Discord.EmbedColor)
-                    .WithFooter(MessageBuilder.Discord.GetStandardEmbedFooter());
+                DiscordLinkEmbed embed = new DiscordLinkEmbed();
+                embed.WithFooter(MessageBuilder.Discord.GetStandardEmbedFooter());
 
                 // Find and sort relevant accounts
                 IEnumerable<BankAccount> accounts = BankAccountManager.Obj.Accounts.Where(acc => acc.GetCurrencyHoldingVal(currency) >= 1).OrderByDescending(acc => acc.GetCurrencyHoldingVal(currency));
@@ -72,7 +72,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 string coinsPerItemDesc = (currencyLink.UseBackingInfo && currency.Backed) ? $"**Coins per item**: {currency.CoinsPerItem}\n" : string.Empty;
                 string topAccountsDesc = $"**Top accounts**\n{topAccounts}";
                 embed.AddField(MessageUtil.StripTags(currency.Name), $"{circulationDesc}{tradesCountDesc}{backedItemDesc}{coinsPerItemDesc}\n{topAccountsDesc}");
-                tagAndContent.Add(new Tuple<string, DiscordEmbed>($"{BaseTag} [{currency.Id}]", embed.Build()));
+                tagAndContent.Add(new Tuple<string, DiscordLinkEmbed>($"{BaseTag} [{currency.Id}]", embed));
             }
 
             // Figure out which displays to enable based on config

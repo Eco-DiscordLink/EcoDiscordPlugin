@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
 using Eco.Plugins.DiscordLink.Utilities;
+using DiscordLink.Extensions;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
@@ -54,9 +55,9 @@ namespace Eco.Plugins.DiscordLink.Modules
             return UserLinks;
         }
 
-        protected override void GetDisplayContent(DiscordTarget target, out List<Tuple<string, DiscordEmbed>> tagAndContent)
+        protected override void GetDisplayContent(DiscordTarget target, out List<Tuple<string, DiscordLinkEmbed>> tagAndContent)
         {
-            tagAndContent = new List<Tuple<string, DiscordEmbed>>();
+            tagAndContent = new List<Tuple<string, DiscordLinkEmbed>>();
             List<string> trackedTrades = DLStorage.WorldData.PlayerTrackedTrades[(target as UserLink).Member.Id];
             foreach(string trade in trackedTrades)
             {
@@ -64,9 +65,9 @@ namespace Eco.Plugins.DiscordLink.Modules
                 if (!string.IsNullOrEmpty(result))
                     continue; // There was an error
 
-                DiscordEmbed embedContent;
+                DiscordLinkEmbed embedContent;
                 MessageBuilder.Discord.FormatTrades(matchedName, isItem, groupedBuyOffers, groupedSellOffers, out embedContent);
-                tagAndContent.Add(new Tuple<string, DiscordEmbed>($"{BaseTag} [{matchedName}]", embedContent));
+                tagAndContent.Add(new Tuple<string, DiscordLinkEmbed>($"{BaseTag} [{matchedName}]", embedContent));
             }
         }
 

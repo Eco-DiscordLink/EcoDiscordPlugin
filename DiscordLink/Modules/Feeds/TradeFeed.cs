@@ -1,4 +1,5 @@
-﻿using DSharpPlus.Entities;
+﻿using DiscordLink.Extensions;
+using DSharpPlus.Entities;
 using Eco.Core.Utils;
 using Eco.Gameplay.GameActions;
 using Eco.Gameplay.Objects;
@@ -45,10 +46,10 @@ namespace Eco.Plugins.DiscordLink.Modules
                 
                 CurrencyTrade firstTrade = accumulatedTradeList[0];
 
-                DiscordEmbedBuilder builder = new DiscordEmbedBuilder();
+                DiscordLinkEmbed embed = new DiscordLinkEmbed();
                 string leftName = firstTrade.Citizen.Name;
                 string rightName = (firstTrade.WorldObject as WorldObject).Name;
-                builder.Title = leftName + " traded at " + MessageUtil.StripTags(rightName);
+                embed.WithTitle($"{leftName} traded at {MessageUtil.StripTags(rightName)}");
 
                 // Go through all acumulated trade events and create a summary
                 string boughtItemsDesc = string.Empty;
@@ -72,18 +73,18 @@ namespace Eco.Plugins.DiscordLink.Modules
                 if (!boughtItemsDesc.IsEmpty())
                 {
                     boughtItemsDesc += "\nTotal = " + boughtTotal.ToString("n2");
-                    builder.AddField("Bought", boughtItemsDesc);
+                    embed.AddField("Bought", boughtItemsDesc);
                 }
 
                 if (!soldItemsDesc.IsEmpty())
                 {
                     soldItemsDesc += "\nTotal = " + soldTotal.ToString("n2");
-                    builder.AddField("Sold", soldItemsDesc);
+                    embed.AddField("Sold", soldItemsDesc);
                 }
 
                 float subTotal = soldTotal - boughtTotal;
                 char sign = (subTotal > 0.0f ? '+' : '-');
-                builder.AddField("Total", sign + Math.Abs(subTotal).ToString("n2") + " " + MessageUtil.StripTags(firstTrade.Currency.Name));
+                embed.AddField("Total", sign + Math.Abs(subTotal).ToString("n2") + " " + MessageUtil.StripTags(firstTrade.Currency.Name));
 
                 // Post the trade summary in all trade 
                 foreach (ChannelLink tradeChannel in DLConfig.Data.TradeChannels)
@@ -94,7 +95,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                     DiscordChannel discordChannel = discordGuild.ChannelByNameOrId(tradeChannel.DiscordChannel);
                     if (discordChannel == null) continue;
 
-                    _ = DiscordUtil.SendAsync(discordChannel, "", builder.Build());
+                    _ = DiscordUtil.SendAsync(discordChannel, string.Empty, embed);
                 }
             }
         }
