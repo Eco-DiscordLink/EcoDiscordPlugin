@@ -145,6 +145,14 @@ namespace Eco.Plugins.DiscordLink
                 PlayerTrackedTrades.Remove(discordUserId);
             }
 
+            public int GetTrackedTradesCountForUser(ulong discordUserId)
+            {
+                if (!PlayerTrackedTrades.ContainsKey(discordUserId))
+                    return 0;
+
+                return PlayerTrackedTrades[discordUserId].Count;
+            }
+
             public string ListTrackedTrades(ulong discordUserId)
             {
                 if (!PlayerTrackedTrades.ContainsKey(discordUserId) || PlayerTrackedTrades[discordUserId].Count <= 0)

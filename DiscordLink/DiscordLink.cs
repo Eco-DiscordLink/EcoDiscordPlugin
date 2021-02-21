@@ -506,7 +506,7 @@ namespace Eco.Plugins.DiscordLink
             info.AppendLine($"Name: {DiscordClient.CurrentUser.Username}");
             info.AppendLine($"Has GuildMembers Intent: {DiscordUtil.BotHasIntent(DiscordIntents.GuildMembers)}");
 
-            info.AppendLine("--- Storage ---");
+            info.AppendLine("--- Storage - Persistent ---");
             info.AppendLine($"Linked Users Count: {DLStorage.PersistentData.LinkedUsers.Count}");
             info.AppendLine("Linked User Data:");
             foreach(LinkedUser linkedUser in DLStorage.PersistentData.LinkedUsers)
@@ -519,6 +519,20 @@ namespace Eco.Plugins.DiscordLink
 
                 string verified = (linkedUser.Verified) ? "Verified" : "Unverified";
                 info.AppendLine($"{ecoUserName} <--> {discordUserName} - {verified}");
+            }
+
+            info.AppendLine("--- Storage - World ---");
+            info.AppendLine("Tracked Trades:");
+            foreach(var trackedUserTrades in  DLStorage.WorldData.PlayerTrackedTrades)
+            {
+                DiscordUser discordUser = DiscordClient.GetUserAsync(trackedUserTrades.Key).Result;
+                if (discordUser == null) continue;
+
+                info.AppendLine($"[{discordUser.Username}]");
+                foreach(string trade in trackedUserTrades.Value)
+                {
+                    info.AppendLine($"- {trade}");
+                }
             }
 
             info.AppendLine("--- Status ---");
