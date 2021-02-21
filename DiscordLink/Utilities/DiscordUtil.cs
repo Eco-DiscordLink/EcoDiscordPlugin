@@ -39,7 +39,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 string fullTextContent = ChannelHasPermission(channel, Permissions.EmbedLinks) ? textContent : MessageBuilder.Discord.EmbedToText(textContent, embedContent);
 
                 // If needed; split the message into multiple parts
-                ICollection<string> stringParts = MessageUtil.SplitStringBySize(fullTextContent, DLConstants.DISCORD_EMBED_CONTENT_CHARACTER_LIMIT);
+                ICollection<string> stringParts = MessageUtil.SplitStringBySize(fullTextContent, DLConstants.DISCORD_MESSAGE_CHARACTER_LIMIT);
                 ICollection<DiscordEmbed> embedParts = MessageUtil.BuildDiscordEmbeds(embedContent);
 
                 if(stringParts.Count <= 1 && embedParts.Count <= 1)
@@ -73,7 +73,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             try
             {
                 // If needed; split the message into multiple parts
-                ICollection<string> stringParts = MessageUtil.SplitStringBySize(textContent, DLConstants.DISCORD_EMBED_CONTENT_CHARACTER_LIMIT);
+                ICollection<string> stringParts = MessageUtil.SplitStringBySize(textContent, DLConstants.DISCORD_MESSAGE_CHARACTER_LIMIT);
                 ICollection<DiscordEmbed> embedParts = MessageUtil.BuildDiscordEmbeds(embedContent);
 
                 if (stringParts.Count <= 1 && embedParts.Count <= 1)

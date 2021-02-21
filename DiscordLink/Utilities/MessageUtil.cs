@@ -57,7 +57,6 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 titleFooterCharCount += fullEmbed.Footer.Length;
 
             int totalCharsCount = titleFooterCharCount;
-            int maxEmbedCharCount = DLConstants.DISCORD_EMBED_CONTENT_CHARACTER_LIMIT + titleFooterCharCount;
 
             // Count chars needed for fields and track fields that are too long
             List<bool> needsSplitFields = Enumerable.Repeat(false, fullEmbed.Fields.Count).ToList();
@@ -72,7 +71,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             }
 
             // Early escape if no splitting is needed
-            if (totalCharsCount <= maxEmbedCharCount && needsSplitFields.Count <= 0)
+            if (totalCharsCount <= DLConstants.DISCORD_EMBED_TOTAL_CHARACTER_LIMIT && needsSplitFields.Count <= 0)
             {
                 resultEmbeds.Add(BuildDiscordEmbed(fullEmbed));
                 return resultEmbeds;
