@@ -346,7 +346,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("trades")]
         [Description("Displays available trades by player or item.")]
-        [Aliases("dl-trades")]
+        [Aliases("dl-trades", "dl-trade", "trade", "dlt")]
         public async Task Trades(CommandContext ctx, [Description("The player name or item name for which to display trades.")] string userOrItemName = "")
         {
             await CallWithErrorHandling<object>(async (lCtx, args) =>

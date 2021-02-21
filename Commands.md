@@ -41,7 +41,7 @@ Typing only /DiscordLink or the alias /DL will invoke the help message and provi
   
 </details>
 * <b>UnlinkDiscordAccount [DL-Unlink]</b> - Removes any existing link between the calling Eco account and Discord. Can be used to abort an unfinished linking process.
-* <b>Trades [DL-Trades] (Item Name or Username)</b> - Displays available trades by person or by item.  
+* <b>Trades [DL-Trades] [Trade] [dlt] (Item Name or Username)</b> - Displays available trades by person or by item.  
 [Example](https://github.com/Eco-DiscordLink/EcoDiscordPlugin/blob/develop/images/features/commands/ecotrades.png?raw=true)
 
 * <b>TrackTrades [DL-TrackTrades] (Item name or Username)</b> - Configures a Trade Tracker Display showing up to date information on the requested item in a Discord DM with the calling user. Requires the calling user having linked their Eco account to Discord using _/dl-link_.  
@@ -78,7 +78,7 @@ Command Parameters that contain spaces need to be enclosed in quotes (Example: "
 * <b>DiscordInvite [DL-Invite]</b> - Posts the Discord invite message to the Eco chat.
 * <b>DiscordLinkAbout [DL-About]</b> - Posts a message describing what the DiscordLink plugin is.
 * <b>VerifyLink [DL-VerifyLink]</b> - Accepts an account linking request sent via /DL-Link.
-* <b>Trades [Trade] (Item name or Username)</b> - Displays available trades by person or by item.
+* <b>Trades [Trade] [DL-Trades] [DL-Trade] [dlt] (Item name or Username)</b> - Displays available trades by person or by item.
 * <b>TrackTrades [DL-TrackTrades] (Item name or Username)</b> - Configures a Trade Tracker Display showing up to date information on the requested item in a Discord DM with the calling user. Requires the calling user having linked their Eco account to Discord using _/dl-link_ from inside the game.  
 [Example](https://github.com/Eco-DiscordLink/EcoDiscordPlugin/blob/develop/images/features/commands/discordtrades.png?raw=true)
 

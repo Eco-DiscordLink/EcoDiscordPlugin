@@ -330,6 +330,13 @@ namespace Eco.Plugins.DiscordLink
             }, user);
         }
 
+        // Wrapper for the Trades command in order to facilitate more command aliases
+        [ChatSubCommand("DiscordLink", "Displays available trades by player or by item.", "dlt", ChatAuthorizationLevel.User)]
+        public static void Trade(User user, string userOrItemName)
+        {
+            Trades(user, userOrItemName);
+        }
+
         [ChatSubCommand("DiscordLink", "Creates a live updated display of available trades by player or item.", "dl-tracktrades", ChatAuthorizationLevel.User)]
         public static void TrackTrades(User user, string userOrItemName)
         {
