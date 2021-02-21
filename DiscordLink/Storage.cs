@@ -154,7 +154,7 @@ namespace Eco.Plugins.DiscordLink
                 builder.Append("Your tracked trades are:\n");
                 foreach(string trackedTrade in PlayerTrackedTrades[discordUserId])
                 {
-                    builder.AppendLine(trackedTrade);
+                    builder.AppendLine($"- {trackedTrade}");
                 }
                 return builder.ToString();
             }
