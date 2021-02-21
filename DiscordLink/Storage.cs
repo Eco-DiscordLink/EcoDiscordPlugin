@@ -15,7 +15,7 @@ namespace Eco.Plugins.DiscordLink
         private const string WORLD_STORAGE_FILE_NAME = "DLWorldData";
 
         public static readonly DLStorage Instance = new DLStorage();
-        public static PersistantStorageData PersistantData { get; private set; } = new PersistantStorageData();
+        public static PersistantStorageData PersistentData { get; private set; } = new PersistantStorageData();
         public static WorldStorageData WorldData { get; private set; } = new WorldStorageData();
 
         public Dictionary<string, string> Snippets = new Dictionary<string, string>();
@@ -27,7 +27,7 @@ namespace Eco.Plugins.DiscordLink
         // Explicit static constructor to tell C# compiler not to mark type as beforefieldinit
         static DLStorage()
         {
-            PersistantData = new PersistantStorageData();
+            PersistentData = new PersistantStorageData();
         }
 
         private DLStorage()
@@ -48,13 +48,13 @@ namespace Eco.Plugins.DiscordLink
 
         public void Write()
         {
-            FileManager<PersistantStorageData>.WriteTypeHandledToFile(PersistantData, DLConstants.BasePath, PERSISANT_STORAGE_FILE_NAME);
+            FileManager<PersistantStorageData>.WriteTypeHandledToFile(PersistentData, DLConstants.BasePath, PERSISANT_STORAGE_FILE_NAME);
             FileManager<WorldStorageData>.WriteTypeHandledToFile(WorldData, DLConstants.BasePath, WORLD_STORAGE_FILE_NAME);
         }
 
         public void Read()
         {
-            PersistantData = FileManager<PersistantStorageData>.ReadTypeHandledFromFile(DLConstants.BasePath, PERSISANT_STORAGE_FILE_NAME);
+            PersistentData = FileManager<PersistantStorageData>.ReadTypeHandledFromFile(DLConstants.BasePath, PERSISANT_STORAGE_FILE_NAME);
             WorldData = FileManager<WorldStorageData>.ReadTypeHandledFromFile(DLConstants.BasePath, WORLD_STORAGE_FILE_NAME);
         }
 

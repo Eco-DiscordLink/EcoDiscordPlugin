@@ -507,9 +507,9 @@ namespace Eco.Plugins.DiscordLink
             info.AppendLine($"Has GuildMembers Intent: {DiscordUtil.BotHasIntent(DiscordIntents.GuildMembers)}");
 
             info.AppendLine("--- Storage ---");
-            info.AppendLine($"Linked Users Count: {DLStorage.PersistantData.LinkedUsers.Count}");
+            info.AppendLine($"Linked Users Count: {DLStorage.PersistentData.LinkedUsers.Count}");
             info.AppendLine("Linked User Data:");
-            foreach(LinkedUser linkedUser in DLStorage.PersistantData.LinkedUsers)
+            foreach(LinkedUser linkedUser in DLStorage.PersistentData.LinkedUsers)
             {
                 User ecoUser = UserManager.FindUserById(linkedUser.SteamId, linkedUser.SlgId);
                 string ecoUserName = (ecoUser != null) ? MessageUtil.StripTags(ecoUser.Name) : "[Uknown Eco User]";

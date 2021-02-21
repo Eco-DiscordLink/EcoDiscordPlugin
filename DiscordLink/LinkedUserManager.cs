@@ -12,7 +12,7 @@ namespace Eco.Plugins.DiscordLink
         public static LinkedUser AddLinkedUser(User user, string discordId, string guildId)
         {
             LinkedUser linkedUser = new LinkedUser(user.SlgId, user.SteamId, discordId, guildId);
-            DLStorage.PersistantData.LinkedUsers.Add(linkedUser);
+            DLStorage.PersistentData.LinkedUsers.Add(linkedUser);
             DLStorage.Instance.Write();
             return linkedUser;
         }
@@ -41,7 +41,7 @@ namespace Eco.Plugins.DiscordLink
                 if(linkedUser.Verified)
                     OnLinkedUserRemoved?.Invoke(null, linkedUser);
 
-                DLStorage.PersistantData.LinkedUsers.Remove(linkedUser);
+                DLStorage.PersistentData.LinkedUsers.Remove(linkedUser);
                 deleted = true;
                 DLStorage.Instance.Write();
             }
@@ -51,7 +51,7 @@ namespace Eco.Plugins.DiscordLink
         public static LinkedUser LinkedUserByDiscordId(ulong DiscordId, bool requireVerification = true)
         {
             string DiscordIdStr = DiscordId.ToString();
-            return DLStorage.PersistantData.LinkedUsers.Find(linkedUser => (linkedUser.DiscordId == DiscordIdStr) && linkedUser.Verified || !requireVerification);
+            return DLStorage.PersistentData.LinkedUsers.Find(linkedUser => (linkedUser.DiscordId == DiscordIdStr) && linkedUser.Verified || !requireVerification);
         }
 
         public static LinkedUser LinkedUserByEcoID(string SlgOrSteamId, bool requireVerification = true)
@@ -59,15 +59,15 @@ namespace Eco.Plugins.DiscordLink
             if (string.IsNullOrEmpty(SlgOrSteamId))
                 return null;
 
-            return DLStorage.PersistantData.LinkedUsers.Find(linkedUser => (linkedUser.SlgId == SlgOrSteamId || linkedUser.SteamId == SlgOrSteamId) && (linkedUser.Verified || !requireVerification));
+            return DLStorage.PersistentData.LinkedUsers.Find(linkedUser => (linkedUser.SlgId == SlgOrSteamId || linkedUser.SteamId == SlgOrSteamId) && (linkedUser.Verified || !requireVerification));
         }
 
         public static LinkedUser LinkedUserByEcoUser(User user, bool requireVerification = true)
         {
             if (user.SlgId != null)
-                return DLStorage.PersistantData.LinkedUsers.Find(linkedUser => linkedUser.SlgId == user.SlgId && (linkedUser.Verified || !requireVerification));
+                return DLStorage.PersistentData.LinkedUsers.Find(linkedUser => linkedUser.SlgId == user.SlgId && (linkedUser.Verified || !requireVerification));
             else if (user.SteamId != null)
-                return DLStorage.PersistantData.LinkedUsers.Find(linkedUser => linkedUser.SteamId == user.SteamId && (linkedUser.Verified || !requireVerification));    
+                return DLStorage.PersistentData.LinkedUsers.Find(linkedUser => linkedUser.SteamId == user.SteamId && (linkedUser.Verified || !requireVerification));    
             else
                 return null;
         }
