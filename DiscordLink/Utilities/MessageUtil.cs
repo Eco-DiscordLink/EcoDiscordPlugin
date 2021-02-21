@@ -117,7 +117,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
             // Create new embeds that fit within the char limits
             List<DiscordLinkEmbed> splitEmbeds = new List<DiscordLinkEmbed>();
-            DiscordLinkEmbed splitEmbedBuilder = new DiscordLinkEmbed();
+            DiscordLinkEmbed splitEmbedBuilder = new DiscordLinkEmbed(fullEmbed);
+            splitEmbedBuilder.ClearFields();
             int characterCount = 0;
             int fieldCount = 0;
             foreach (DiscordLinkEmbedField field in splitFields)
