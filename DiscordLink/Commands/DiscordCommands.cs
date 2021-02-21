@@ -449,7 +449,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("PrintDebugData")]
         [Description("Outputs debug information.")]
-        [Aliases("dl-debugdata")]
+        [Aliases("dl-debugdata", "debugdata", "printdebug")]
         public async Task DebugData(CommandContext ctx)
         {
             await CallWithErrorHandling<object>(async (lCtx, args) =>
