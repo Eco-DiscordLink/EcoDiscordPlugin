@@ -64,19 +64,26 @@ namespace Eco.Plugins.DiscordLink.Modules
 
                 // Votes
                 string voteDesc = string.Empty;
-                foreach (RunoffVote vote in election.Votes)
+                if (!election.Process.AnonymousVoting)
                 {
-                    string topChoiceName = null;
-                    int topChoiceID = vote.RankedVotes.FirstOrDefault();
-                    foreach (ElectionChoice choice in election.Choices)
+                    foreach (RunoffVote vote in election.Votes)
                     {
-                        if(choice.ID == topChoiceID)
+                        string topChoiceName = null;
+                        int topChoiceID = vote.RankedVotes.FirstOrDefault();
+                        foreach (ElectionChoice choice in election.Choices)
                         {
-                            topChoiceName = choice.Name;
-                            break;
+                            if (choice.ID == topChoiceID)
+                            {
+                                topChoiceName = choice.Name;
+                                break;
+                            }
                         }
+                        voteDesc += $"{vote.Voter.Name} : {topChoiceName}\n";
                     }
-                    voteDesc += $"{vote.Voter.Name} : {topChoiceName}\n";
+                }
+                else
+                {
+                    voteDesc = "--- Anonymous Voting ---";
                 }
 
                 if (string.IsNullOrEmpty(voteDesc))
