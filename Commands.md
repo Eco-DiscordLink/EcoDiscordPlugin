@@ -40,6 +40,7 @@ Typing only /DiscordLink or the alias /DL will invoke the help message and provi
   ![Account Linking Verification](https://github.com/Eco-DiscordLink/EcoDiscordPlugin/blob/develop/images/features/commands/accountverification.png?raw=true)
   
 </details>
+
 * <b>UnlinkDiscordAccount [DL-Unlink]</b> - Removes any existing link between the calling Eco account and Discord. Can be used to abort an unfinished linking process.
 * <b>Trades [DL-Trades] [Trade] [dlt] (Item Name or Username)</b> - Displays available trades by person or by item.  
 [Example](https://github.com/Eco-DiscordLink/EcoDiscordPlugin/blob/develop/images/features/commands/ecotrades.png?raw=true)
