@@ -115,7 +115,9 @@ namespace Eco.Plugins.DiscordLink
                     return false;
 
                 PlayerTrackedTrades[discordUserId].Add(tradeItem);
-                await TrackedTradeAdded?.Invoke(this, EventArgs.Empty, tradeItem);
+                if(TrackedTradeAdded != null)
+                    await TrackedTradeAdded.Invoke(this, EventArgs.Empty, tradeItem);
+
                 return true;
             }
 
@@ -125,7 +127,7 @@ namespace Eco.Plugins.DiscordLink
                     return false;
 
                 bool removed = PlayerTrackedTrades[discordUserId].Remove(tradeItem);
-                if (removed)
+                if (removed && TrackedTradeRemoved != null)
                     await TrackedTradeRemoved?.Invoke(this, EventArgs.Empty, tradeItem);
 
                 // Remove the user entry if the last tracked trade was remvoed
