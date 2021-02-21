@@ -44,7 +44,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
                 if(stringParts.Count <= 1 && embedParts.Count <= 1)
                 {
-                    await channel.SendMessageAsync(fullTextContent, tts: false, embedParts.First());
+                    DiscordEmbed embed = (embedParts.Count >= 1) ? embedParts.First() : null;
+                    await channel.SendMessageAsync(fullTextContent, tts: false, embed);
                 }
                 else
                 {
@@ -78,7 +79,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
                 if (stringParts.Count <= 1 && embedParts.Count <= 1)
                 {
-                    await targetMember.SendMessageAsync(textContent, is_tts: false, embedParts.First());
+                    DiscordEmbed embed = (embedParts.Count >= 1) ? embedParts.First() : null;
+                    await targetMember.SendMessageAsync(textContent, is_tts: false, embed);
                 }
                 else
                 {

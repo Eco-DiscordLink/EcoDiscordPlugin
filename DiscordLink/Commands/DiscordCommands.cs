@@ -49,7 +49,8 @@ namespace Eco.Plugins.DiscordLink
 
                 if (stringParts.Count <= 1 && embedParts.Count <= 1)
                 {
-                    await ctx.RespondAsync(textContent, isTTS: false, embedParts.ElementAt(0));
+                    DiscordEmbed embed = (embedParts.Count >= 1) ? embedParts.First() : null;
+                    await ctx.RespondAsync(textContent, isTTS: false, embed);
                 }
                 else
                 {
