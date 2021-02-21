@@ -157,8 +157,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 var plugin = DiscordLink.Obj;
                 if (plugin == null) return null;
 
-                var config = DLConfig.Data;
-                var serverInfo = NetworkManager.GetServerInfo();
+                DLConfigData config = DLConfig.Data;
+                ServerInfo serverInfo = NetworkManager.GetServerInfo();
 
                 DiscordLinkEmbed embed = new DiscordLinkEmbed();
                 embed.WithFooter(GetStandardEmbedFooter());

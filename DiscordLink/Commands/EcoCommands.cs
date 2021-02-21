@@ -290,7 +290,7 @@ namespace Eco.Plugins.DiscordLink
                 LinkedUserManager.AddLinkedUser(user, matchingMember.Id.ToString(), matchingMember.Guild.Id.ToString());
 
                 // Notify the Discord account that a link has been made and ask for verification
-                _ = DiscordUtil.SendDmAsync(matchingMember, null, MessageBuilder.Discord.GetVerificationDM(user));
+                _ = DiscordUtil.SendDMAsync(matchingMember, null, MessageBuilder.Discord.GetVerificationDM(user));
 
                 // Notify the Eco user that the link has been created and that verification is required
                 ChatManager.ServerMessageToPlayer(new LocString($"Your account has been linked.\nThe link requires verification before becoming active.\nInstructions have been sent to the linked Discord account."), user);

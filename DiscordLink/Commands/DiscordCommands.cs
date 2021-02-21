@@ -192,7 +192,7 @@ namespace Eco.Plugins.DiscordLink
                     }
                 }
 
-                string formattedMessage = $"#{DLConfig.Data.EcoCommandOutputChannel} {DLConstants.ECHO_COMMAND_TOKEN + " " + message}";
+                string formattedMessage = $"#{DLConfig.Data.EcoCommandOutputChannel} {DLConstants.ECHO_COMMAND_TOKEN} {message}";
                 ChatManager.SendChat(formattedMessage, plugin.EcoUser);
             }, ctx);
         }

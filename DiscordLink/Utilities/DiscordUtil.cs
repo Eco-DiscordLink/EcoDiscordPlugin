@@ -68,7 +68,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             }
         }
 
-        public static async Task SendDmAsync(DiscordMember targetMember, string textContent, DiscordEmbed embedContent = null)
+        public static async Task SendDMAsync(DiscordMember targetMember, string textContent, DiscordLinkEmbed embedContent = null)
         {
             try
             {
