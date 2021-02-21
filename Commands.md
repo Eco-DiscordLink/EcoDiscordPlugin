@@ -45,7 +45,7 @@ Typing only /DiscordLink or the alias /DL will invoke the help message and provi
 * <b>Trades [DL-Trades] [Trade] [dlt] (Item Name or Username)</b> - Displays available trades by person or by item.  
 [Example](https://github.com/Eco-DiscordLink/EcoDiscordPlugin/blob/develop/images/features/commands/ecotrades.png?raw=true)
 
-* <b>TrackTrades [DL-TrackTrades] (Item name or Username)</b> - Configures a Trade Tracker Display showing up to date information on the requested item in a Discord DM with the calling user. Requires the calling user having linked their Eco account to Discord using _/dl-link_.  
+* <b>TrackTrades [DL-TrackTrades] (Item name or Username)</b> - Configures a Trade Tracker Display showing up to date information on the requested item in a Discord DM with the calling user. Requires the calling user having linked their Eco account to Discord using _/dl-link_. Note that there may be a limit to how many tracked trades each user is allowed to have.  
 [Example](https://github.com/Eco-DiscordLink/EcoDiscordPlugin/blob/develop/images/features/commands/discordtrades.png?raw=true)
 
 * <b>StopTrackTrades [DL-StopTrackTrades] (Item Name or Username)</b> - Removes the Trade Tracker Display for the requested item for the calling user.

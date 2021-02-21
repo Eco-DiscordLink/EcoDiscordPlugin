@@ -58,6 +58,10 @@ Eco commands always use `/` as command prexis as this is hard coded into the gam
 **Eco Command Channel**  
 The Eco chat channel to use for commands that outputs public messages, excluding the initial # character.
 
+**Max Tracked Trades Per User**
+The maximum amount of tracked trades allowed for each user.
+Note that lowering this whill not remove any existing tracked trades.
+
 **Invite Message**  
 The message to use for the /DiscordInvite command. The invite link is fetched from the Network configuration (the _Discord Address_ field) and will replace the [LINK] token. The message needs to include at least one [LINK] token in order to function and the _Network_ configuration needs to have the _Discord Address_ field filled out.
 

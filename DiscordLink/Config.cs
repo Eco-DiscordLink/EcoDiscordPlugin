@@ -32,6 +32,7 @@ namespace Eco.Plugins.DiscordLink
             public const int    MaxMintedCurrencies = 1;
             public const int    MaxPersonalCurrencies = 3;
             public const int    MaxTopCurrencyHolderCount = 3;
+            public const int    MaxTrackedTradesPerUser = 5;
         }
 
         public static readonly DLConfig Instance = new DLConfig();
@@ -268,6 +269,12 @@ namespace Eco.Plugins.DiscordLink
                 correctionMade = true;
             }
 
+            // Max tracked trades per user
+            if(Data.MaxTrackedTradesPerUser < 0)
+            {
+                Data.MaxTrackedTradesPerUser = DLConfig.DefaultValues.MaxTrackedTradesPerUser;
+            }
+
             // Invite Message
             if (string.IsNullOrEmpty(Data.InviteMessage))
             {
@@ -439,6 +446,7 @@ namespace Eco.Plugins.DiscordLink
                 LogChat = this.LogChat,
                 ChatlogPath = this.ChatlogPath,
                 EcoCommandOutputChannel = this.EcoCommandOutputChannel,
+                MaxTrackedTradesPerUser = this.MaxTrackedTradesPerUser,
                 InviteMessage = this.InviteMessage,
                 ChatChannelLinks = new ObservableCollection<ChatChannelLink>(this.ChatChannelLinks.Select(t => t.Clone()).Cast<ChatChannelLink>()),
                 ServerInfoChannels = new ObservableCollection<ServerInfoChannel>(this.ServerInfoChannels.Select(t => t.Clone()).Cast<ServerInfoChannel>()),
@@ -503,6 +511,9 @@ namespace Eco.Plugins.DiscordLink
 
         [Description("Discord channels in which to allow commands. If no channels are specified, commands will be allowed in all channels. This setting can be changed while the server is running."), Category("Command Settings")]
         public ObservableCollection<ChannelLink> DiscordCommandChannels { get; set; } = new ObservableCollection<ChannelLink>();
+
+        [Description("Max amount of tracked trades allowed per user. This setting can be changed while the server is running, but does not apply retroactively."), Category("Command Settings")]
+        public int MaxTrackedTradesPerUser { get; set; } = DLConfig.DefaultValues.MaxTrackedTradesPerUser;
 
         [Description("Determines what message types will be printed to the server log. All message types below the selected one will be printed as well. This setting can be changed while the server is running."), Category("Miscellaneous")]
         public LogLevel LogLevel { get; set; } = LogLevel.Information;

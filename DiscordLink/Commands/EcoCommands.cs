@@ -347,6 +347,13 @@ namespace Eco.Plugins.DiscordLink
                 return;
             }
 
+            int trackedTradesCount = DLStorage.WorldData.GetTrackedTradesCountForUser(ulong.Parse(linkedUser.DiscordId));
+            if (trackedTradesCount >= DLConfig.Data.MaxTrackedTradesPerUser)
+            {
+                ChatManager.ServerMessageToPlayer(new LocString($"You are already tracking {trackedTradesCount} trades and the limit is {DLConfig.Data.MaxTrackedTradesPerUser} tracked trades per user.\nUse the `\\dl-StopTrackTrades` command to remove a tracked trade to make space if you wish to add a new one."), user);
+                return;
+            }
+
             // Fetch trade data using the trades command once to see that the command parameters are valid
             string result = SharedCommands.Trades(userOrItemName, out string matchedName, out bool isItem, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
             if (!string.IsNullOrEmpty(result))
