@@ -225,7 +225,7 @@ namespace Eco.Plugins.DiscordLink
                 DiscordClient.SocketErrored += async (client, args) => { Logger.Debug("A socket error occurred. Error message was: " + args.Exception.ToString()); };
                 DiscordClient.SocketClosed += async (client, args) => { Logger.DebugVerbose("Socket Closed: " + args.CloseMessage + " " + args.CloseCode); };
                 DiscordClient.Resumed += async (client, args) => { Logger.Debug("Resumed connection"); };
-                DiscordClient. Ready += async (client, args) =>
+                DiscordClient.Ready += async (client, args) =>
                 {
                     _status = "Awaiting Discord Caching...";
                     DLConfig.Instance.EnqueueFullVerification();

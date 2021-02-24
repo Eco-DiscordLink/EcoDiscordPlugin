@@ -469,7 +469,7 @@ namespace Eco.Plugins.DiscordLink
         [Description("The name of the bot user in Eco. This setting can be changed while the server is running, but changes will only take effect after a world reset."), Category("Bot Configuration")]
         public string EcoBotName { get; set; } = DLConfig.DefaultValues.EcoBotName;
 
-        [Description("The prefix to put before commands in order for the Discord bot to recognize them as such. This setting requires a restart to take effect."), Category("Command Settings")]
+        [Description("The prefix to put before commands in order for the Discord bot to recognize them as such. This setting requires a plugin restart to take effect."), Category("Command Settings")]
         public string DiscordCommandPrefix { get; set; } = DLConfig.DefaultValues.DiscordCommandPrefix;
 
         [Description("The roles recognized as having admin permissions on Discord. This setting requires a plugin restart to take effect."), Category("Command Settings")]
@@ -523,7 +523,7 @@ namespace Eco.Plugins.DiscordLink
         [Description("Determines what message types will be printed to the server log. All message types below the selected one will be printed as well. This setting can be changed while the server is running."), Category("Miscellaneous")]
         public LogLevel LogLevel { get; set; } = LogLevel.Information;
 
-        [Description("Determines what backend message types will be printed to the server log. All message types below the selected one will be printed as well. This setting requires a restart to take effect."), Category("Miscellaneous")]
+        [Description("Determines what backend message types will be printed to the server log. All message types below the selected one will be printed as well. This setting requires a plugin restart to take effect."), Category("Miscellaneous")]
         public Microsoft.Extensions.Logging.LogLevel BackendLogLevel { get; set; } = Microsoft.Extensions.Logging.LogLevel.None;
 
         [Description("Enables logging of chat messages into the file at Chatlog Path. This setting can be changed while the server is running."), Category("Chatlog Configuration")]
