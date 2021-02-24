@@ -27,7 +27,11 @@ namespace Eco.Plugins.DiscordLink.Modules
             {
                 if (verbose)
                 {
-                    int operationsPerMinute = (_opsCount / (int)(DateTime.Now - _startTime).TotalMinutes);
+                    int operationsPerMinute = 0;
+                    int elapsedMinutes = (int)(DateTime.Now - _startTime).TotalMinutes;
+                    if (elapsedMinutes > 0)
+                        operationsPerMinute = (_opsCount / elapsedMinutes);
+
                     info += $"\r\nStart Time: {_startTime:yyyy-MM-dd HH:mm}";
                     info += $"\r\nOperations Per Minute: {operationsPerMinute}";
                 }
