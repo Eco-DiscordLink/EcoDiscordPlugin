@@ -9,13 +9,13 @@ This Eco Global Survival plugin connects Discord servers to the game server.
 ### Features
 * `Seamless communication`  
 Connect your Eco chat to one or multiple Discord servers and channels for seamless and automated communication between Eco and Discord.
-* `[Discord Displays]`  
-See live updated information on Server Status, Elections, Work parties and Store Contents in Discord.  
+* `Discord Displays`  
+See live updated information on Server Status, Elections, Work parties, Store Contents and more in Discord.  
 For a full list of all supported display modules, see the [display module list](Modules.md#displays).  
-* `[Discord Feeds]`  
+* `Discord Feeds`  
 See feeds of ingame events such as Trades and Crafts in Discord.  
 For a full list of all supported feed modules, see the [feed module list](Modules.md#feeds).  
-* `[Discord Inputs]`  
+* `Discord Inputs`  
 Add predefined messages in Discord and invoke them ingame using the /Snippet command.  
 For a full list of all supported input modules, see the [input module list](Modules.md#inputs).  
 * `Chat logging`  
