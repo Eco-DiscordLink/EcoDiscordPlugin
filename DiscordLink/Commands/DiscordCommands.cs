@@ -144,7 +144,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("serverstatus")]
         [Description("Prints the Server Info status.")]
-        [Aliases("dl-status", "dl-serverinfo", "ecostatus")]
+        [Aliases("dl-ecostatus", "dl-serverinfo", "ecostatus")]
         public async Task ServerStatus(CommandContext ctx)
         {
             await CallWithErrorHandling<object>(async (lCtx, args) =>

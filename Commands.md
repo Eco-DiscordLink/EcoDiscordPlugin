@@ -74,7 +74,7 @@ Command Parameters that contain spaces need to be enclosed in quotes (Example: "
 
 #### User Commands
 * <b>Ping</b> - Checks if the bot is online.
-* <b>ServerStatus [DL-Status] [DL-ServerInfo] [EcoStatus]</b> - Prints the Server Info status.
+* <b>ServerStatus [DL-EcoStatus] [DL-ServerInfo] [EcoStatus]</b> - Prints the Server Info status.
 * <b>PlayerList [players] [DL-Players]</b> - Prints the list of online players.
 * <b>DiscordInvite [DL-Invite]</b> - Posts the Discord invite message to the Eco chat.
 * <b>DiscordLinkAbout [DL-About]</b> - Posts a message describing what the DiscordLink plugin is.
