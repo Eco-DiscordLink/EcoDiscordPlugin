@@ -35,8 +35,9 @@ namespace Eco.Plugins.DiscordLink.Modules
                     info += $"\r\nStart Time: {_startTime:yyyy-MM-dd HH:mm}";
                     info += $"\r\nOperations Per Minute: {operationsPerMinute}";
                 }
+                info += $"\r\n{childInfo}";
             }
-            return $"[{ToString()}]{info}\r\n{childInfo}\r\n";
+            return $"[{ToString()}]{info}\r\n";
         }
 
         public virtual void Setup()
