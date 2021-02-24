@@ -25,6 +25,7 @@ namespace Eco.Plugins.DiscordLink
 
         public static class DefaultValues
         {
+            public static readonly string[] AdminRoles = { "admin", "administrator", "moderator" };
             public const string DiscordCommandPrefix = "?";
             public const string EcoCommandOutputChannel = "General";
             public const string InviteMessage = "Join us on Discord!\n" + InviteCommandLinkToken;
@@ -448,6 +449,7 @@ namespace Eco.Plugins.DiscordLink
                 EcoCommandOutputChannel = this.EcoCommandOutputChannel,
                 MaxTrackedTradesPerUser = this.MaxTrackedTradesPerUser,
                 InviteMessage = this.InviteMessage,
+                AdminRoles = new ObservableCollection<string>(this.AdminRoles.Select(t => t.Clone()).Cast<string>()),
                 ChatChannelLinks = new ObservableCollection<ChatChannelLink>(this.ChatChannelLinks.Select(t => t.Clone()).Cast<ChatChannelLink>()),
                 ServerInfoChannels = new ObservableCollection<ServerInfoChannel>(this.ServerInfoChannels.Select(t => t.Clone()).Cast<ServerInfoChannel>()),
                 TradeChannels = new ObservableCollection<ChannelLink>(this.TradeChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
@@ -469,6 +471,9 @@ namespace Eco.Plugins.DiscordLink
 
         [Description("The prefix to put before commands in order for the Discord bot to recognize them as such. This setting requires a restart to take effect."), Category("Command Settings")]
         public string DiscordCommandPrefix { get; set; } = DLConfig.DefaultValues.DiscordCommandPrefix;
+
+        [Description("The roles recognized as having admin permissions on Discord. This setting requires a plugin restart to take effect."), Category("Command Settings")]
+        public ObservableCollection<string> AdminRoles { get; set; } = new ObservableCollection<string>(DLConfig.DefaultValues.AdminRoles);
 
         [Description("The name of the Eco server, overriding the name configured within Eco. This setting can be changed while the server is running."), Category("Server Details")]
         public string ServerName { get; set; }

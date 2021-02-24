@@ -6,6 +6,11 @@ YOU CANNOT COPY THIS ONE AND EXPECT IT TO WORK - The config data needs to match 
   "BotToken": "xxXXxxxXxXXxxxxxxXxxxxXXXXxxx.XxxXxx.xXXXxxxxXXxxxxXxxxXXXXXXXxxxxxxxX",  
   "EcoBotName": "DiscordLink",  
   "DiscordCommandPrefix": "?",  
+    "AdminRoles": [  
+    "admin",  
+    "administrator",  
+    "moderator"  
+  ],  
   "ServerName": "TheEcoServer",  
   "ServerDescription": "The place to play Eco!",  
   "ServerAddress": "xxx.xxx.xxx.xx",  

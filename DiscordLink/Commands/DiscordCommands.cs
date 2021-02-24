@@ -21,14 +21,31 @@ namespace Eco.Plugins.DiscordLink
      */
     public class DiscordCommands : BaseCommandModule
     {
+        public enum PermissionType
+        {
+            User,
+            Admin
+        }
+
         public delegate Task DiscordCommandFunction(CommandContext ctx, params string[] args);
 
-        private static async Task CallWithErrorHandling<TRet>(DiscordCommandFunction toCall, CommandContext ctx, params string[] args)
+        private static async Task CallWithErrorHandling<TRet>(PermissionType requiredPermission, DiscordCommandFunction toCall, CommandContext ctx, params string[] args)
         {
             try
             {
-                if (!IsCommandAllowedInChannel(ctx))
+                if(!IsCommandAllowedForUser(ctx, requiredPermission))
+                {
+                    string permittedRolesDesc = (DLConfig.Data.AdminRoles.Count > 0) ? string.Join("\n- ", DLConfig.Data.AdminRoles.ToArray()) : "No admin roles configured";
+                    await RespondToCommand(ctx, $"You lack the `{requiredPermission}` level permission required to execute this command.\nThe permitted roles are:\n```- {permittedRolesDesc}```");
                     return;
+                }
+
+                if (!IsCommandAllowedInChannel(ctx))
+                {
+                    string commandChannels = string.Join("\n- ", DLConfig.Data.DiscordCommandChannels.Where(channel => channel.IsValid()).Select(channel => channel.DiscordChannel));
+                    await RespondToCommand(ctx, $"You aren't allowed to post commands in this channel.\nCommands are allowed in the following channels:\n```- {commandChannels}```");
+                    return;
+                }
 
                 await toCall(ctx, args);
             }
@@ -91,17 +108,38 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
+        private static bool IsCommandAllowedForUser(CommandContext ctx, PermissionType requiredPermission)
+        {
+            switch(requiredPermission)
+            {
+                case PermissionType.User:
+                    return true;
+
+                case PermissionType.Admin:
+                    foreach(string adminRole in DLConfig.Data.AdminRoles)
+                    {
+                        if (ctx.Member.Roles.Any(role => role.Name.ToLower() == adminRole.ToLower()))
+                            return true;
+                    }
+                break;
+            }
+            return false;
+        }
+
         private static bool IsCommandAllowedInChannel(CommandContext ctx)
         {
             var commandChannels = DLConfig.Data.DiscordCommandChannels;
-            bool allowed = ctx.Channel.IsPrivate;
-            if (!allowed)
+            bool allowed = ctx.Channel.IsPrivate || !(commandChannels.Any(link => link.IsValid())); // Always allow if there are no valid command channels or the command is sent via DM
+            if(!allowed)
             {
-                allowed = !(commandChannels.Any(link => link.IsValid()))                 // Always allow if there are no valid command channels
-                 || ctx.Member.IsOwner                                                   // Always allow if the user is the server owner
-                 || ctx.Member.Roles.Any(role => role.Name.ToLower() == "moderator")     // Always allow if the user has an elevated role 
-                 || ctx.Member.Roles.Any(role => role.Name.ToLower() == "administrator")
-                 || ctx.Member.Roles.Any(role => role.Name.ToLower() == "admin");
+                foreach(string adminRole in DLConfig.Data.AdminRoles)
+                {
+                    if (ctx.Member.Roles.Any(role => role.Name.ToLower() == adminRole.ToLower()))
+                    {
+                        allowed = true;
+                        break;
+                    }
+                }
             }
 
             // Check if the discord channel used is listed as a command channel
@@ -121,44 +159,23 @@ namespace Eco.Plugins.DiscordLink
             return allowed;
         }
 
-        [Command("ping")]
-        [Description("Checks if the bot is online.")]
-        public async Task Ping(CommandContext ctx)
-        {
-            await CallWithErrorHandling<object>( async (lCtx, args) =>
-            {
-                await RespondToCommand(ctx, "Pong " + ctx.User.Mention);
-            }, ctx);
-        }
+        // Admin commands
 
         [Command("Print")]
         [Description("Reposts the inputted message. Can be used to create tags for ordering display tags within a channel.")]
-        [RequireRoles(RoleCheckMode.Any, "Moderator")]
         public async Task Print(CommandContext ctx, [Description("The message to print.")] string message)
         {
-            await CallWithErrorHandling<object>(async (lCtx, args) =>
+            await CallWithErrorHandling<object>(PermissionType.Admin, async (lCtx, args) =>
             {
                 await RespondToCommand(ctx, message);
             }, ctx);
         }
 
-        [Command("serverstatus")]
-        [Description("Prints the Server Info status.")]
-        [Aliases("dl-ecostatus", "dl-serverinfo", "ecostatus")]
-        public async Task ServerStatus(CommandContext ctx)
-        {
-            await CallWithErrorHandling<object>(async (lCtx, args) =>
-            {
-                await RespondToCommand(ctx, "", MessageBuilder.Discord.GetServerInfo(MessageBuilder.ServerInfoComponentFlag.All));
-            }, ctx);
-        }
-
         [Command("echo")]
         [Description("Sends the provided message to Eco and back to Discord again.")]
-        [RequireRoles(RoleCheckMode.Any, "Moderator")]
         public async Task Echo(CommandContext ctx, [Description("The message to send and then receive back again. A random message will be sent if this parameter is omitted.")] string message = "")
         {
-            await CallWithErrorHandling<object>(async (lCtx, args) =>
+            await CallWithErrorHandling<object>(PermissionType.Admin, async (lCtx, args) =>
             {
                 var plugin = DiscordLink.Obj;
                 if (plugin == null)
@@ -198,12 +215,133 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
+        [Command("Restart")]
+        [Description("Restarts the plugin.")]
+        [Aliases("dl-restart")]
+        public async Task Restart(CommandContext ctx)
+        {
+            await CallWithErrorHandling<object>(PermissionType.Admin, async (lCtx, args) =>
+            {
+                string result = SharedCommands.Restart();
+                await RespondToCommand(ctx, result);
+            }, ctx);
+        }
+
+        [Command("SendServerMessage")]
+        [Description("Sends an Eco server message to a specified user")]
+        [Aliases("dl-servermessage")]
+        public async Task SendServerMessage(CommandContext ctx, [Description("The message to send.")] string message,
+            [Description("Name of the recipient Eco user.")] string recipientUserName,
+            [Description("Persistance type. Possible values are \"Temporary\" and \"Permanent\". Defaults to \"Temporary\".")] string persistanceType = "temporary")
+        {
+            await CallWithErrorHandling<object>(PermissionType.Admin, async (lCtx, args) =>
+            {
+                await RespondToCommand(ctx, SharedCommands.SendServerMessage(message, ctx.GetSenderName(), recipientUserName, persistanceType));
+            }, ctx);
+        }
+
+        [Command("BroadcastServerMessage")]
+        [Description("Sends an Eco server message to all online users")]
+        [Aliases("dl-broadcastservermessage")]
+        public async Task BroadcastServerMessage(CommandContext ctx, [Description("The message to send.")] string message,
+            [Description("Persistance type. Possible values are \"Temporary\" and \"Permanent\". Defaults to \"Temporary\".")] string persistanceType = "temporary")
+        {
+            await CallWithErrorHandling<object>(PermissionType.Admin, async (lCtx, args) =>
+            {
+                await RespondToCommand(ctx, SharedCommands.SendServerMessage(message, ctx.GetSenderName(), string.Empty, persistanceType));
+            }, ctx);
+        }
+
+        [Command("SendPopup")]
+        [Description("Sends an Eco popup message to a specified user")]
+        [Aliases("dl-popup")]
+        public async Task SendPopup(CommandContext ctx, [Description("The message to send.")] string message,
+            [Description("Name of the recipient Eco user.")] string recipientUserName)
+        {
+            await CallWithErrorHandling<object>(PermissionType.Admin, async (lCtx, args) =>
+            {
+                await RespondToCommand(ctx, SharedCommands.SendPopup(message, ctx.GetSenderName(), recipientUserName));
+            }, ctx);
+        }
+
+        [Command("BroadcastPopup")]
+        [Description("Sends an Eco popup message to all online users")]
+        [Aliases("dl-broadcastpopup")]
+        public async Task BroadcastPopup(CommandContext ctx, [Description("The message to send.")] string message)
+        {
+            await CallWithErrorHandling<object>(PermissionType.Admin, async (lCtx, args) =>
+            {
+                await RespondToCommand(ctx, SharedCommands.SendPopup(message, ctx.GetSenderName(), string.Empty));
+            }, ctx);
+        }
+
+        [Command("SendAnnouncement")]
+        [Description("Sends an Eco announcement message")]
+        [Aliases("dl-announcement")]
+        public async Task SendAnnouncement(CommandContext ctx, [Description("The title for the announcement UI.")] string title,
+            [Description("The message to display in the announcement UI.")] string message,
+            [Description("Name of the recipient Eco user.")] string recipientUserName)
+        {
+            await CallWithErrorHandling<object>(PermissionType.Admin, async (lCtx, args) =>
+            {
+                await RespondToCommand(ctx, SharedCommands.SendAnnouncement(title, message, ctx.GetSenderName(), recipientUserName));
+            }, ctx);
+        }
+
+        [Command("BroadcastAnnouncement")]
+        [Description("Sends an Eco announcement message to all online users")]
+        [Aliases("dl-broadcastannouncement")]
+        public async Task SendAnnouncement(CommandContext ctx, [Description("The title for the announcement UI.")] string title,
+            [Description("The message to display in the announcement UI.")] string message)
+        {
+            await CallWithErrorHandling<object>(PermissionType.Admin, async (lCtx, args) =>
+            {
+                await RespondToCommand(ctx, SharedCommands.SendAnnouncement(title, message, ctx.GetSenderName(), string.Empty));
+            }, ctx);
+        }
+
+        [Command("ResetWorldData")]
+        [Description("Resets world data as if a new world had been created.")]
+        [Aliases("dl-resetdata")]
+        public async Task ResetData(CommandContext ctx)
+        {
+            await CallWithErrorHandling<object>(PermissionType.Admin, async (lCtx, args) =>
+            {
+                await RespondToCommand(ctx, SharedCommands.ResetWorldData());
+            }, ctx);
+        }
+
+        [Command("pluginstatus")]
+        [Description("Shows the plugin status.")]
+        [Aliases("dl-status", "status")]
+        public async Task PluginStatus(CommandContext ctx)
+        {
+            PermissionType a = PermissionType.Admin;
+            await CallWithErrorHandling<object>(PermissionType.Admin, async (lCtx, args) =>
+            {
+                await RespondToCommand(ctx, MessageBuilder.Shared.GetDisplayString(verbose: false));
+            }, ctx);
+        }
+
+        [Command("pluginstatusverbose")]
+        [Description("Shows the plugin status including verbose debug level information.")]
+        [Aliases("dl-statusverbose", "statusverbose")]
+        public async Task PluginStatusVerbose(CommandContext ctx)
+        {
+            await CallWithErrorHandling<object>(PermissionType.Admin, async (lCtx, args) =>
+            {
+                await RespondToCommand(ctx, MessageBuilder.Shared.GetDisplayString(verbose: true));
+            }, ctx);
+        }
+
+        // User commands
+
         [Command("playerlist")]
         [Description("Lists the players currently online on the server.")]
         [Aliases("players", "dl-players")]
         public async Task PlayerList(CommandContext ctx)
         {
-            await CallWithErrorHandling<object>(async (lCtx, args) =>
+            await CallWithErrorHandling<object>(PermissionType.User, async (lCtx, args) =>
             {
                 DiscordLinkEmbed embed = new DiscordLinkEmbed()
                 .WithTitle("Players")
@@ -217,10 +355,10 @@ namespace Eco.Plugins.DiscordLink
         [Aliases("dl-invite")]
         public async Task DiscordInvite(CommandContext ctx, [Description("The Eco channel in which to post the invite message")] string ecoChannel = "")
         {
-            await CallWithErrorHandling<object>(async (lCtx, args) =>
+            await CallWithErrorHandling<object>(PermissionType.User, async (lCtx, args) =>
             {
                 string result = SharedCommands.Invite(ecoChannel);
-                await RespondToCommand(ctx,result);
+                await RespondToCommand(ctx, result);
             }, ctx);
         }
 
@@ -229,7 +367,7 @@ namespace Eco.Plugins.DiscordLink
         [Aliases("dl-about")]
         public async Task About(CommandContext ctx)
         {
-            await CallWithErrorHandling<object>(async (lCtx, args) =>
+            await CallWithErrorHandling<object>(PermissionType.User, async (lCtx, args) =>
             {
                 DiscordLinkEmbed embed = new DiscordLinkEmbed()
                 .WithTitle("About DiscordLink")
@@ -239,95 +377,24 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
-        [Command("Restart")]
-        [Description("Restarts the plugin.")]
-        [Aliases("dl-restart")]
-        [RequireRoles(RoleCheckMode.Any, "Moderator")]
-        public async Task Restart(CommandContext ctx)
+        [Command("ping")]
+        [Description("Checks if the bot is online.")]
+        public async Task Ping(CommandContext ctx)
         {
-            await CallWithErrorHandling<object>(async (lCtx, args) =>
+            await CallWithErrorHandling<object>(PermissionType.User, async (lCtx, args) =>
             {
-                string result = SharedCommands.Restart();
-                await RespondToCommand(ctx, result);
+                await RespondToCommand(ctx, "Pong " + ctx.User.Mention);
             }, ctx);
         }
 
-        [Command("SendServerMessage")]
-        [Description("Sends an Eco server message to a specified user")]
-        [Aliases("dl-servermessage")]
-        [RequireRoles(RoleCheckMode.Any, "Moderator")]
-        public async Task SendServerMessage(CommandContext ctx, [Description("The message to send.")] string message,
-            [Description("Name of the recipient Eco user.")] string recipientUserName,
-            [Description("Persistance type. Possible values are \"Temporary\" and \"Permanent\". Defaults to \"Temporary\".")] string persistanceType = "temporary")
+        [Command("serverstatus")]
+        [Description("Prints the Server Info status.")]
+        [Aliases("dl-ecostatus", "dl-serverinfo", "ecostatus")]
+        public async Task ServerStatus(CommandContext ctx)
         {
-            await CallWithErrorHandling<object>(async (lCtx, args) =>
+            await CallWithErrorHandling<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await RespondToCommand(ctx, SharedCommands.SendServerMessage(message, ctx.GetSenderName(), recipientUserName, persistanceType));
-            }, ctx);
-        }
-
-        [Command("BroadcastServerMessage")]
-        [Description("Sends an Eco server message to all online users")]
-        [Aliases("dl-broadcastservermessage")]
-        [RequireRoles(RoleCheckMode.Any, "Moderator")]
-        public async Task BroadcastServerMessage(CommandContext ctx, [Description("The message to send.")] string message,
-            [Description("Persistance type. Possible values are \"Temporary\" and \"Permanent\". Defaults to \"Temporary\".")] string persistanceType = "temporary")
-        {
-            await CallWithErrorHandling<object>(async (lCtx, args) =>
-            {
-                await RespondToCommand(ctx, SharedCommands.SendServerMessage(message, ctx.GetSenderName(), string.Empty, persistanceType));
-            }, ctx);
-        }
-
-        [Command("SendPopup")]
-        [Description("Sends an Eco popup message to a specified user")]
-        [Aliases("dl-popup")]
-        [RequireRoles(RoleCheckMode.Any, "Moderator")]
-        public async Task SendPopup(CommandContext ctx, [Description("The message to send.")] string message,
-            [Description("Name of the recipient Eco user.")] string recipientUserName)
-        {
-            await CallWithErrorHandling<object>(async (lCtx, args) =>
-            {
-                await RespondToCommand(ctx, SharedCommands.SendPopup(message, ctx.GetSenderName(), recipientUserName));
-            }, ctx);
-        }
-
-        [Command("BroadcastPopup")]
-        [Description("Sends an Eco popup message to all online users")]
-        [Aliases("dl-broadcastpopup")]
-        [RequireRoles(RoleCheckMode.Any, "Moderator")]
-        public async Task BroadcastPopup(CommandContext ctx, [Description("The message to send.")] string message)
-        {
-            await CallWithErrorHandling<object>(async (lCtx, args) =>
-            {
-                await RespondToCommand(ctx, SharedCommands.SendPopup(message, ctx.GetSenderName(), string.Empty));
-            }, ctx);
-        }
-
-        [Command("SendAnnouncement")]
-        [Description("Sends an Eco announcement message")]
-        [Aliases("dl-announcement")]
-        [RequireRoles(RoleCheckMode.Any, "Moderator")]
-        public async Task SendAnnouncement(CommandContext ctx, [Description("The title for the announcement UI.")] string title,
-            [Description("The message to display in the announcement UI.")] string message,
-            [Description("Name of the recipient Eco user.")] string recipientUserName)
-        {
-            await CallWithErrorHandling<object>(async (lCtx, args) =>
-            {
-                await RespondToCommand(ctx, SharedCommands.SendAnnouncement(title, message, ctx.GetSenderName(), recipientUserName));
-            }, ctx);
-        }
-
-        [Command("BroadcastAnnouncement")]
-        [Description("Sends an Eco announcement message to all online users")]
-        [Aliases("dl-broadcastannouncement")]
-        [RequireRoles(RoleCheckMode.Any, "Moderator")]
-        public async Task SendAnnouncement(CommandContext ctx, [Description("The title for the announcement UI.")] string title,
-            [Description("The message to display in the announcement UI.")] string message)
-        {
-            await CallWithErrorHandling<object>(async (lCtx, args) =>
-            {
-                await RespondToCommand(ctx, SharedCommands.SendAnnouncement(title, message, ctx.GetSenderName(), string.Empty));
+                await RespondToCommand(ctx, "", MessageBuilder.Discord.GetServerInfo(MessageBuilder.ServerInfoComponentFlag.All));
             }, ctx);
         }
 
@@ -336,9 +403,9 @@ namespace Eco.Plugins.DiscordLink
         [Aliases("dl-verifylink")]
         public async Task VerifyLink(CommandContext ctx)
         {
-            await CallWithErrorHandling<object>(async (lCtx, args) =>
+            await CallWithErrorHandling<object>(PermissionType.User, async (lCtx, args) =>
             {
-                if(LinkedUserManager.VerifyLinkedUser(ctx.GetSenderId()))
+                if (LinkedUserManager.VerifyLinkedUser(ctx.GetSenderId()))
                     await RespondToCommand(ctx, $"Link verified");
                 else
                     await RespondToCommand(ctx, $"There is no outstanding link request to verify for your account");
@@ -350,7 +417,7 @@ namespace Eco.Plugins.DiscordLink
         [Aliases("dl-trades", "dl-trade", "trade", "dlt")]
         public async Task Trades(CommandContext ctx, [Description("The player name or item name for which to display trades.")] string userOrItemName = "")
         {
-            await CallWithErrorHandling<object>(async (lCtx, args) =>
+            await CallWithErrorHandling<object>(PermissionType.User, async (lCtx, args) =>
             {
                 // Fetch trade data
                 string result = SharedCommands.Trades(userOrItemName, out string matchedName, out bool isItem, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
@@ -363,7 +430,7 @@ namespace Eco.Plugins.DiscordLink
 
                 DiscordLinkEmbed embedContent;
                 MessageBuilder.Discord.FormatTrades(matchedName, isItem, groupedBuyOffers, groupedSellOffers, out embedContent);
-                await RespondToCommand(ctx, null, embedContent); 
+                await RespondToCommand(ctx, null, embedContent);
             }, ctx);
         }
 
@@ -372,7 +439,7 @@ namespace Eco.Plugins.DiscordLink
         [Aliases("dl-tracktrades")]
         public async Task TrackTrades(CommandContext ctx, [Description("The player name or item name for which to display trades.")] string userOrItemName = "")
         {
-            await CallWithErrorHandling<object>(async (lCtx, args) =>
+            await CallWithErrorHandling<object>(PermissionType.User, async (lCtx, args) =>
             {
                 // Ensure that the calling user is linked
                 if (LinkedUserManager.LinkedUserByDiscordId(ctx.GetSenderId()) == null)
@@ -408,7 +475,7 @@ namespace Eco.Plugins.DiscordLink
         [Aliases("dl-stoptracktrades")]
         public async Task StopTrackTrades(CommandContext ctx, [Description("The player name or item name for which to display trades.")] string userOrItemName = "")
         {
-            await CallWithErrorHandling<object>(async (lCtx, args) =>
+            await CallWithErrorHandling<object>(PermissionType.User, async (lCtx, args) =>
             {
                 // Ensure that the calling user is linked
                 if (LinkedUserManager.LinkedUserByDiscordId(ctx.GetSenderId()) == null)
@@ -429,7 +496,7 @@ namespace Eco.Plugins.DiscordLink
         [Aliases("dl-listtrackedtrades")]
         public async Task ListTrackedTrades(CommandContext ctx)
         {
-            await CallWithErrorHandling<object>(async (lCtx, args) =>
+            await CallWithErrorHandling<object>(PermissionType.User, async (lCtx, args) =>
             {
                 if (LinkedUserManager.LinkedUserByDiscordId(ctx.GetSenderId()) == null)
                 {
@@ -438,40 +505,6 @@ namespace Eco.Plugins.DiscordLink
                 }
 
                 await RespondToCommand(ctx, DLStorage.WorldData.ListTrackedTrades(ctx.GetSenderId()));
-            }, ctx);
-        }
-
-        [Command("ResetWorldData")]
-        [Description("Resets world data as if a new world had been created.")]
-        [Aliases("dl-resetdata")]
-        [RequireRoles(RoleCheckMode.Any, "Moderator")]
-        public async Task ResetData(CommandContext ctx)
-        {
-            await CallWithErrorHandling<object>(async (lCtx, args) =>
-            {
-                await RespondToCommand(ctx, SharedCommands.ResetWorldData());
-            }, ctx);
-        }
-
-        [Command("pluginstatus")]
-        [Description("Shows the plugin status.")]
-        [Aliases("dl-status", "status")]
-        public async Task PluginStatus(CommandContext ctx)
-        {
-            await CallWithErrorHandling<object>(async (lCtx, args) =>
-            {
-                await RespondToCommand(ctx, MessageBuilder.Shared.GetDisplayString(verbose: false));
-            }, ctx);
-        }
-
-        [Command("pluginstatusverbose")]
-        [Description("Shows the plugin status including verbose debug level information.")]
-        [Aliases("dl-statusverbose", "statusverbose")]
-        public async Task PluginStatusVerbose(CommandContext ctx)
-        {
-            await CallWithErrorHandling<object>(async (lCtx, args) =>
-            {
-                await RespondToCommand(ctx, MessageBuilder.Shared.GetDisplayString(verbose: true));
             }, ctx);
         }
     }
