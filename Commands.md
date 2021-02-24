@@ -28,6 +28,9 @@ Typing only /DiscordLink or the alias /DL will invoke the help message and provi
 * <b>BroadcastAnnouncement [DL-BroadcastAnnouncement] (title, message)</b> - Sends an announcement message box to all online users.  
 [Example](https://github.com/Eco-DiscordLink/EcoDiscordPlugin/blob/develop/images/features/commands/announcementmessage.png?raw=true)
 
+* <b>PluginStatus [DL-Status]</b> - Shows the plugin status.
+* <b>PluginStatusVerbose [DL-StatusVerbose]</b> - Shows the plugin status including verbose debug level information.
+
 #### User Commands
 * <b>About [DL-About]</b> - Displays information about the DiscordLink plugin.
 * <b>Invite [DL-Invite]</b> - Displays the Discord invite message.
@@ -71,6 +74,9 @@ Command Parameters that contain spaces need to be enclosed in quotes (Example: "
 * <b>SendAnnouncement [DL-Announcement] (title, message, Target Username)</b> - Sends an announcement message box to the target user.
 * <b>BroadcastAnnouncement [DL-BroadcastAnnouncement] (title, message)</b> - Sends an announcement message box to all online users.  
 [Example](https://github.com/Eco-DiscordLink/EcoDiscordPlugin/blob/develop/images/features/commands/announcementmessage.png?raw=true)
+
+* <b>PluginStatus [DL-Status] [Status]</b> - Shows the plugin status.
+* <b>PluginStatusVerbose [DL-StatusVerbose] [StatusVerbose]</b> - Shows the plugin status including verbose debug level information.
 
 #### User Commands
 * <b>Ping</b> - Checks if the bot is online.

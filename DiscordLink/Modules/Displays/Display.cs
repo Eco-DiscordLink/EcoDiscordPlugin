@@ -12,6 +12,8 @@ namespace Eco.Plugins.DiscordLink.Modules
 {
     abstract public class Display : Module
     {
+        public DateTime LastUpdateTime { get; protected set; } = DateTime.MinValue;
+
         protected virtual string BaseTag { get; } = "[Unset Tag]";
         protected virtual int TimerUpdateIntervalMS { get; } = -1;
         protected virtual int TimerStartDelayMS { get; } = 0;
@@ -21,6 +23,21 @@ namespace Eco.Plugins.DiscordLink.Modules
         private Timer _updateTimer = null;
         private Timer _HighFrequencyEventTimer = null;
         private readonly List<TargetDisplayData> _targetDisplays = new List<TargetDisplayData>();
+
+        public override string GetDisplayText(string childInfo, bool verbose)
+        {
+            string lastUpdateTime = (LastUpdateTime == DateTime.MinValue) ? "Never" : LastUpdateTime.ToString("yyyy-MM-dd HH:mm");
+            int trackedMessageCount = 0;
+            foreach(TargetDisplayData target in _targetDisplays)
+            {
+                trackedMessageCount += target.MessageIDs.Count;
+            }
+            string info = $"Last update time: {lastUpdateTime}";
+                info += $"\r\nTracked Display Messages: {trackedMessageCount}";
+                info += $"\r\n{childInfo}";
+
+            return base.GetDisplayText(info, verbose);
+        }
 
         protected override async Task Initialize()
         {
@@ -169,6 +186,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                             _ = DiscordUtil.ModifyAsync(message, tagAndContent.Item1, tagAndContent.Item2);
                             matchedTags.Add(tagAndContent.Item1);
                             found = true;
+                            ++_opsCount;
                             break;
                         }
                     }
@@ -182,6 +200,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 {
                     DiscordUtil.DeleteAsync(message).Wait();
                     createdOrDestroyedMessage = true;
+                    ++_opsCount;
                 }
                 unmatchedMessages.Clear();
 
@@ -192,6 +211,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                     {
                         DiscordUtil.SendAsync(targetChannel, tagAndContent.Item1, tagAndContent.Item2).Wait();
                         createdOrDestroyedMessage = true;
+                        ++_opsCount;
                     }
                 }
                 matchedTags.Clear();
@@ -201,6 +221,8 @@ namespace Eco.Plugins.DiscordLink.Modules
             {
                 await FindMessages(plugin);
             }
+
+            LastUpdateTime = DateTime.Now;
         }
 
         protected abstract void GetDisplayContent(DiscordTarget target, out List<Tuple<string, DiscordLinkEmbed>> tagAndContent);

@@ -23,19 +23,14 @@ using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink
 {
-    public class DiscordLink : IModKitPlugin, IInitializablePlugin, IShutdownablePlugin, IConfigurablePlugin, IGameActionAware
+    public class DiscordLink : IModKitPlugin, IInitializablePlugin, IShutdownablePlugin, IConfigurablePlugin, IDisplayablePlugin, IGameActionAware
     {
         public readonly Version PluginVersion = new Version(2, 2, 0);
         private const int FIRST_DISPLAY_UPDATE_DELAY_MS = 20000;
 
-        private readonly List<Module> _modules = new List<Module>();
-        private string _status = "No Connection Attempt Made";
+        private string _status = "Not yet started";
         private CommandsNextExtension _commands = null;
-
         private Timer _discordDataMaybeAvailable = null;
-
-        private DateTime _initTime = DateTime.MinValue;
-        private DateTime _lastConnectionTime = DateTime.MinValue;
 
         public event EventHandler OnClientStarted;
         public event EventHandler OnClientStopped;
@@ -43,8 +38,11 @@ namespace Eco.Plugins.DiscordLink
 
         public static DiscordLink Obj { get { return PluginManager.GetPlugin<DiscordLink>(); } }
         public DiscordClient DiscordClient { get; private set; }
+        public List<Module> Modules { get; private set; } = new List<Module>();
         public IPluginConfig PluginConfig { get { return DLConfig.Instance.PluginConfig; } }
         public ThreadSafeAction<object, string> ParamChanged { get; set; }
+        public DateTime InitTime { get; private set; } = DateTime.MinValue;
+        public DateTime LastConnectionTime { get; private set; } = DateTime.MinValue;
 
         public override string ToString()
         {
@@ -66,6 +64,16 @@ namespace Eco.Plugins.DiscordLink
             DLConfig.Instance.HandleConfigChanged();
         }
 
+        public string GetDisplayText()
+        {
+#if DEBUG
+            bool debug = true;
+#else
+            bool debug = false;
+#endif
+            return MessageBuilder.Shared.GetDisplayString(verbose: debug);
+        }
+
         public void Initialize(TimedTask timer)
         {
             DLConfig.Instance.Initialize();
@@ -73,7 +81,7 @@ namespace Eco.Plugins.DiscordLink
             DLStorage.Instance.Initialize();
             Logger.Initialize();
             Logger.Info("Plugin version is " + PluginVersion);
-            _initTime = DateTime.Now;
+            InitTime = DateTime.Now;
 
             WorldGeneratorPlugin.OnCompleted.Add(() => HandleWorldReset());
 
@@ -217,14 +225,16 @@ namespace Eco.Plugins.DiscordLink
                 DiscordClient.SocketErrored += async (client, args) => { Logger.Debug("A socket error occurred. Error message was: " + args.Exception.ToString()); };
                 DiscordClient.SocketClosed += async (client, args) => { Logger.DebugVerbose("Socket Closed: " + args.CloseMessage + " " + args.CloseCode); };
                 DiscordClient.Resumed += async (client, args) => { Logger.Debug("Resumed connection"); };
-                DiscordClient.Ready += async (client, args) =>
+                DiscordClient. Ready += async (client, args) =>
                 {
+                    _status = "Awaiting Discord Caching...";
                     DLConfig.Instance.EnqueueFullVerification();
 
                     _discordDataMaybeAvailable = new Timer(innerArgs =>
                     {
                         OnDiscordMaybeReady?.Invoke(this, EventArgs.Empty);
                         SystemUtil.StopAndDestroyTimer(ref _discordDataMaybeAvailable);
+                        _status = "Connected and running";
                     }, null, FIRST_DISPLAY_UPDATE_DELAY_MS, Timeout.Infinite);
                 };
 
@@ -235,7 +245,7 @@ namespace Eco.Plugins.DiscordLink
 
                 DiscordClient.MessageDeleted += async (client, args) =>
                 {
-                    _modules.ForEach(async module => await module.OnMessageDeleted(args.Message));
+                    Modules.ForEach(async module => await module.OnMessageDeleted(args.Message));
                 };
 
                 // Set up the client to use CommandsNext
@@ -258,6 +268,8 @@ namespace Eco.Plugins.DiscordLink
 
         void StopClient()
         {
+            _status = "Shutting down";
+
             // Stop various timers that may have been set up so they do not trigger while the reset is ongoing
             DLConfig.Instance.DequeueAllVerification();
             SystemUtil.StopAndDestroyTimer(ref _discordDataMaybeAvailable);
@@ -299,13 +311,13 @@ namespace Eco.Plugins.DiscordLink
                 await DiscordClient.ConnectAsync();
                 BeginRelaying();
                 Logger.Info("Connected to Discord");
-                _status = "Connection successful";
-                _lastConnectionTime = DateTime.Now;
+                _status = "Discord connection successful";
+                LastConnectionTime = DateTime.Now;
             }
             catch (Exception e)
             {
                 Logger.Error("Error occurred when connecting to Discord: Error message: " + e.Message);
-                _status = "Connection failed";
+                _status = "Discord connection failed";
             }
 
             return null;
@@ -317,11 +329,12 @@ namespace Eco.Plugins.DiscordLink
             {
                 StopRelaying();
                 await DiscordClient.DisconnectAsync();
+                _status = "Disconnected from Discord";
             }
             catch (Exception e)
             {
                 Logger.Error("An Error occurred when disconnecting from Discord: Error message: " + e.Message);
-                _status = "Connection failed";
+                _status = "Discord connection failed";
             }
 
             return null;
@@ -333,33 +346,33 @@ namespace Eco.Plugins.DiscordLink
 
         private void InitializeModules()
         {
-            _modules.Add(new DiscordChatFeed());   // Discord -> Eco
-            _modules.Add(new EcoChatFeed());       // Eco -> Discord
-            _modules.Add(new ChatlogFeed());
-            _modules.Add(new ServerInfoDisplay());
-            _modules.Add(new TradeFeed());
-            _modules.Add(new CraftingFeed());
-            _modules.Add(new SnippetInput());
-            _modules.Add(new WorkPartyDisplay());
-            _modules.Add(new PlayerDisplay());
-            _modules.Add(new ElectionDisplay());
-            _modules.Add(new CurrencyDisplay());
-            _modules.Add(new TradeTrackerDisplay());
+            Modules.Add(new DiscordChatFeed());   // Discord -> Eco
+            Modules.Add(new EcoChatFeed());       // Eco -> Discord
+            Modules.Add(new ChatlogFeed());
+            Modules.Add(new TradeFeed());
+            Modules.Add(new CraftingFeed());
+            Modules.Add(new ServerInfoDisplay());
+            Modules.Add(new WorkPartyDisplay());
+            Modules.Add(new PlayerDisplay());
+            Modules.Add(new ElectionDisplay());
+            Modules.Add(new CurrencyDisplay());
+            Modules.Add(new TradeTrackerDisplay());
+            Modules.Add(new SnippetInput());
 
-            _modules.ForEach(module => module.Setup());
-            _modules.ForEach(async module => await module.HandleStartOrStop());
+            Modules.ForEach(module => module.Setup());
+            Modules.ForEach(async module => await module.HandleStartOrStop());
         }
 
         private void ShutdownModules()
         {
-            _modules.ForEach(async module => await module.Stop());
-            _modules.ForEach(module => module.Destroy());
-            _modules.Clear();
+            Modules.ForEach(async module => await module.Stop());
+            Modules.ForEach(module => module.Destroy());
+            Modules.Clear();
         }
 
         private void UpdateModules(DLEventType trigger, object data)
         {
-            _modules.ForEach(async module => await module.Update(this, trigger, data));
+            Modules.ForEach(async module => await module.Update(this, trigger, data));
         }
 
         #endregion
@@ -488,87 +501,6 @@ namespace Eco.Plugins.DiscordLink
 
             UpdateModules(DLEventType.DiscordMessage, message);
         }
-        #endregion
-
-        #region Debugging
-
-        public string GetDebugInfo()
-        {
-            StringBuilder info = new StringBuilder();
-
-            info.AppendLine("--- Environment ---");
-            info.AppendLine($"Server Name: {MessageUtil.FirstNonEmptyString(DLConfig.Data.ServerName, MessageUtil.StripTags(NetworkManager.GetServerInfo().Description), "[Server Title Missing]")}");
-            info.AppendLine($"Server Version: {Shared.EcoVersion.VersionNumber}");
-            info.AppendLine($"DiscordLink Version: {PluginVersion.ToString()}");
-            info.AppendLine($"D# Version: {DiscordClient.VersionString}");
-
-            info.AppendLine("--- Bot User Config ---");
-            info.AppendLine($"Name: {DiscordClient.CurrentUser.Username}");
-            info.AppendLine($"Has GuildMembers Intent: {DiscordUtil.BotHasIntent(DiscordIntents.GuildMembers)}");
-
-            info.AppendLine("--- Storage - Persistent ---");
-            info.AppendLine($"Linked Users Count: {DLStorage.PersistentData.LinkedUsers.Count}");
-            info.AppendLine("Linked User Data:");
-            foreach(LinkedUser linkedUser in DLStorage.PersistentData.LinkedUsers)
-            {
-                User ecoUser = UserManager.FindUserById(linkedUser.SteamId, linkedUser.SlgId);
-                string ecoUserName = (ecoUser != null) ? MessageUtil.StripTags(ecoUser.Name) : "[Uknown Eco User]";
-
-                DiscordUser discordUser = DiscordClient.GetUserAsync(ulong.Parse(linkedUser.DiscordId)).Result;
-                string discordUserName = (discordUser != null) ? discordUser.Username : "[Unknown Discord User]";
-
-                string verified = (linkedUser.Verified) ? "Verified" : "Unverified";
-                info.AppendLine($"{ecoUserName} <--> {discordUserName} - {verified}");
-            }
-
-            info.AppendLine("--- Storage - World ---");
-            info.AppendLine("Tracked Trades:");
-            foreach(var trackedUserTrades in  DLStorage.WorldData.PlayerTrackedTrades)
-            {
-                DiscordUser discordUser = DiscordClient.GetUserAsync(trackedUserTrades.Key).Result;
-                if (discordUser == null) continue;
-
-                info.AppendLine($"[{discordUser.Username}]");
-                foreach(string trade in trackedUserTrades.Value)
-                {
-                    info.AppendLine($"- {trade}");
-                }
-            }
-
-            info.AppendLine("--- Status ---");
-            info.AppendLine($"Status Message: {_status}");
-            info.AppendLine($"Start Time: {_initTime:yyyy-MM-dd HH:mm}");
-            info.AppendLine($"Connection Time: {_lastConnectionTime:yyyy-MM-dd HH:mm}");
-            TimeSpan elapssedTime = DateTime.Now.Subtract(_initTime);
-            info.AppendLine($"Running Time: {(int)elapssedTime.TotalDays}:{elapssedTime.Hours}:{elapssedTime.Minutes}");
-
-            info.AppendLine("Active Modules:");
-            foreach (Module module in _modules)
-            {
-                string onOrOff = module.IsEnabled ? "On" : "Off";
-                info.AppendLine($"  - {module}: {onOrOff}");
-            }
-
-            info.AppendLine("Cached Guilds:");
-            foreach (DiscordGuild guild in DiscordClient.Guilds.Values)
-            {
-                info.AppendLine($"- {guild.Name} ({guild.Id})");
-                info.AppendLine("   Cached Channels");
-                foreach (DiscordChannel channel in guild.Channels.Values)
-                {
-                    info.AppendLine($"  - {channel.Name} ({channel.Id})");
-                    info.AppendLine($"      Permissions:");
-                    info.AppendLine($"          Read Messages:          {DiscordUtil.ChannelHasPermission(channel, Permissions.ReadMessageHistory)}");
-                    info.AppendLine($"          Send Messages:          {DiscordUtil.ChannelHasPermission(channel, Permissions.SendMessages)}");
-                    info.AppendLine($"          Manage Messages:        {DiscordUtil.ChannelHasPermission(channel, Permissions.ManageMessages)}");
-                    info.AppendLine($"          Embed Links:            {DiscordUtil.ChannelHasPermission(channel, Permissions.EmbedLinks)}");
-                    info.AppendLine($"          Mention Everyone/Here:  {DiscordUtil.ChannelHasPermission(channel, Permissions.MentionEveryone)}");
-                }
-            }
-
-            return info.ToString();
-        }
-
         #endregion
     }
 }

@@ -19,6 +19,12 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         private List<DiscordTarget> UserLinks = new List<DiscordTarget>();
 
+        public override string GetDisplayText(string childInfo, bool verbose)
+        {
+            string info = $"Tracked Trades: {DLStorage.WorldData.GetTrackedTradesCountTotal()}";
+            return base.GetDisplayText($"{childInfo}{info}\r\n", verbose);
+        }
+
         public override void Setup()
         {
             LinkedUserManager.OnLinkedUserRemoved += HandleLinkedUserRemoved;

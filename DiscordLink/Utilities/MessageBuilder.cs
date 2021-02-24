@@ -9,11 +9,14 @@ using Eco.Gameplay.Civics.Elections;
 using Eco.Gameplay.Civics.Laws;
 using Eco.Gameplay.Components;
 using Eco.Gameplay.Players;
+using Eco.Plugins.DiscordLink.Modules;
 using Eco.Plugins.Networking;
 using Eco.Shared.Networking;
 using Eco.Shared.Utils;
 
 using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
+using Eco.Shared;
+using DSharpPlus;
 
 namespace Eco.Plugins.DiscordLink.Utilities
 {
@@ -40,6 +43,107 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         public static class Shared
         {
+            public static string GetAboutMessage()
+            {
+                return $"This server is running the DiscordLink plugin version {DiscordLink.Obj.PluginVersion}." +
+                    "\nIt connects the game server to a Discord bot in order to perform seamless communication between Eco and Discord." +
+                    "\nThis enables you to chat with players who are currently not online in Eco, but are available on Discord." +
+                    "\nDiscordLink can also be used to display information about the Eco server in Discord, such as who is online and what items are available on the market." +
+                    "\n\nFor more information, visit \"www.github.com/Eco-DiscordLink/EcoDiscordPlugin\".";
+            }
+
+            public static string GetDisplayString(bool verbose)
+            {
+                Plugins.DiscordLink.DiscordLink plugin = Plugins.DiscordLink.DiscordLink.Obj;
+                StringBuilder builder = new StringBuilder();
+                builder.AppendLine($"DiscordLink {plugin.PluginVersion}");
+                if (verbose)
+                {
+                    builder.AppendLine($"Server Name: {MessageUtil.FirstNonEmptyString(DLConfig.Data.ServerName, MessageUtil.StripTags(NetworkManager.GetServerInfo().Description), "[Server Title Missing]")}");
+                    builder.AppendLine($"Server Version: {EcoVersion.VersionNumber}");
+                    builder.AppendLine($"D# Version: {plugin.DiscordClient.VersionString}");
+                }
+                builder.AppendLine($"Status: {plugin.GetStatus()}");
+                TimeSpan elapssedTime = DateTime.Now.Subtract(plugin.InitTime);
+                builder.AppendLine($"Running Time: {(int)elapssedTime.TotalDays}:{elapssedTime.Hours}:{elapssedTime.Minutes}");
+                if (verbose)
+                {
+                    builder.AppendLine($"Start Time: {plugin.InitTime:yyyy-MM-dd HH:mm}");
+                    builder.AppendLine($"Connection Time: {plugin.LastConnectionTime:yyyy-MM-dd HH:mm}");
+                }
+                builder.AppendLine();
+                builder.AppendLine("--- User Data ---");
+                builder.AppendLine($"Linked users: {DLStorage.PersistentData.LinkedUsers.Count}");
+                builder.AppendLine();
+                builder.AppendLine("--- Modules ---");
+                foreach (Module module in plugin.Modules)
+                {
+                    builder.Append(module.GetDisplayText(string.Empty, verbose));
+                }
+
+                if (verbose)
+                {
+                    builder.AppendLine("--- Status ---");
+                    builder.AppendLine($"Start Time: {plugin.InitTime:yyyy-MM-dd HH:mm}");
+                    builder.AppendLine($"Connection Time: {plugin.LastConnectionTime:yyyy-MM-dd HH:mm}");
+
+                    builder.AppendLine();
+                    builder.AppendLine("--- Config ---");
+                    builder.AppendLine($"Name: {plugin.DiscordClient.CurrentUser.Username}");
+                    builder.AppendLine($"Has GuildMembers Intent: {DiscordUtil.BotHasIntent(DiscordIntents.GuildMembers)}");
+
+                    builder.AppendLine();
+                    builder.AppendLine("--- Storage - Persistent ---");
+                    builder.AppendLine("Linked User Data:");
+                    foreach (LinkedUser linkedUser in DLStorage.PersistentData.LinkedUsers)
+                    {
+                        User ecoUser = UserManager.FindUserById(linkedUser.SteamId, linkedUser.SlgId);
+                        string ecoUserName = (ecoUser != null) ? MessageUtil.StripTags(ecoUser.Name) : "[Uknown Eco User]";
+
+                        DiscordUser discordUser = plugin.DiscordClient.GetUserAsync(ulong.Parse(linkedUser.DiscordId)).Result;
+                        string discordUserName = (discordUser != null) ? discordUser.Username : "[Unknown Discord User]";
+
+                        string verified = (linkedUser.Verified) ? "Verified" : "Unverified";
+                        builder.AppendLine($"{ecoUserName} <--> {discordUserName} - {verified}");
+                    }
+
+                    builder.AppendLine();
+                    builder.AppendLine("--- Storage - World ---");
+                    builder.AppendLine("Tracked Trades:");
+                    foreach (var trackedUserTrades in DLStorage.WorldData.PlayerTrackedTrades)
+                    {
+                        DiscordUser discordUser = plugin.DiscordClient.GetUserAsync(trackedUserTrades.Key).Result;
+                        if (discordUser == null) continue;
+
+                        builder.AppendLine($"[{discordUser.Username}]");
+                        foreach (string trade in trackedUserTrades.Value)
+                        {
+                            builder.AppendLine($"- {trade}");
+                        }
+                    }
+
+                    builder.AppendLine();
+                    builder.AppendLine("Cached Guilds:");
+                    foreach (DiscordGuild guild in plugin.DiscordClient.Guilds.Values)
+                    {
+                        builder.AppendLine($"- {guild.Name} ({guild.Id})");
+                        builder.AppendLine("   Cached Channels");
+                        foreach (DiscordChannel channel in guild.Channels.Values)
+                        {
+                            builder.AppendLine($"  - {channel.Name} ({channel.Id})");
+                            builder.AppendLine($"      Permissions:");
+                            builder.AppendLine($"          Read Messages:          {DiscordUtil.ChannelHasPermission(channel, Permissions.ReadMessageHistory)}");
+                            builder.AppendLine($"          Send Messages:          {DiscordUtil.ChannelHasPermission(channel, Permissions.SendMessages)}");
+                            builder.AppendLine($"          Manage Messages:        {DiscordUtil.ChannelHasPermission(channel, Permissions.ManageMessages)}");
+                            builder.AppendLine($"          Embed Links:            {DiscordUtil.ChannelHasPermission(channel, Permissions.EmbedLinks)}");
+                            builder.AppendLine($"          Mention Everyone/Here:  {DiscordUtil.ChannelHasPermission(channel, Permissions.MentionEveryone)}");
+                        }
+                    }
+                }
+
+                return builder.ToString();
+            }
+
             public static string GetPlayerCount()
             {
                 IEnumerable<User> onlineUsers = UserManager.OnlineUsers.Where(user => user.Client.Connected);
@@ -64,15 +168,6 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     playerList = "-- No players online --";
 
                 return playerList;
-            }
-
-            public static string GetAboutMessage()
-            {
-                return $"This server is running the DiscordLink plugin version {DiscordLink.Obj.PluginVersion}." +
-                    "\nIt connects the game server to a Discord bot in order to perform seamless communication between Eco and Discord." +
-                    "\nThis enables you to chat with players who are currently not online in Eco, but are available on Discord." +
-                    "\nDiscordLink can also be used to display information about the Eco server in Discord, such as who is online and what items are available on the market." +
-                    "\n\nFor more information, visit \"www.github.com/Eco-DiscordLink/EcoDiscordPlugin\".";
             }
 
             public enum TimespanStringComponent

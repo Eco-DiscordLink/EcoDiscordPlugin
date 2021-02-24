@@ -39,6 +39,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             if (channelLink.Direction == ChatSyncDirection.DiscordToEco || channelLink.Direction == ChatSyncDirection.Duplex)
             {
                 await ForwardMessageToEcoChannel(plugin, message, channel);
+                
             }
         }
 
@@ -46,6 +47,7 @@ namespace Eco.Plugins.DiscordLink.Modules
         {
             Logger.DebugVerbose("Sending Discord message to Eco channel: " + ecoChannel);
             ChatManager.SendChat(await MessageUtil.FormatMessageForEco(message, ecoChannel),  plugin.EcoUser);
+            ++_opsCount;
         }
     }
 }

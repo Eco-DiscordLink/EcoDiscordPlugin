@@ -16,6 +16,13 @@ namespace Eco.Plugins.DiscordLink.Modules
             return "Snippet Input";
         }
 
+        public override string GetDisplayText(string childInfo, bool verbose)
+        {
+            string info = $"Registered Snippets: {DLStorage.Instance.Snippets.Count}";
+            info += $"\r\n{childInfo}";
+            return base.GetDisplayText(info, verbose);
+        }
+
         protected override DLEventType GetTriggers()
         {
             return DLEventType.DiscordMessage;

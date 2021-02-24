@@ -453,19 +453,26 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
-        #region Debug
-
-        [Command("PrintDebugData")]
-        [Description("Outputs debug information.")]
-        [Aliases("dl-debugdata", "debugdata", "printdebug")]
-        public async Task DebugData(CommandContext ctx)
+        [Command("pluginstatus")]
+        [Description("Shows the plugin status.")]
+        [Aliases("dl-status", "status")]
+        public async Task PluginStatus(CommandContext ctx)
         {
             await CallWithErrorHandling<object>(async (lCtx, args) =>
             {
-                await RespondToCommand(ctx, DiscordLink.Obj.GetDebugInfo());
+                await RespondToCommand(ctx, MessageBuilder.Shared.GetDisplayString(verbose: false));
             }, ctx);
         }
 
-        #endregion
+        [Command("pluginstatusverbose")]
+        [Description("Shows the plugin status including verbose debug level information.")]
+        [Aliases("dl-statusverbose", "statusverbose")]
+        public async Task PluginStatusVerbose(CommandContext ctx)
+        {
+            await CallWithErrorHandling<object>(async (lCtx, args) =>
+            {
+                await RespondToCommand(ctx, MessageBuilder.Shared.GetDisplayString(verbose: true));
+            }, ctx);
+        }
     }
 }

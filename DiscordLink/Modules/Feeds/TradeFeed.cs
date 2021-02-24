@@ -86,7 +86,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 char sign = (subTotal > 0.0f ? '+' : '-');
                 embed.AddField("Total", sign + Math.Abs(subTotal).ToString("n2") + " " + MessageUtil.StripTags(firstTrade.Currency.Name));
 
-                // Post the trade summary in all trade 
+                // Post the trade summary in all trade channels
                 foreach (ChannelLink tradeChannel in DLConfig.Data.TradeChannels)
                 {
                     if (!tradeChannel.IsValid()) continue;
@@ -96,6 +96,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                     if (discordChannel == null) continue;
 
                     _ = DiscordUtil.SendAsync(discordChannel, string.Empty, embed);
+                    ++_opsCount;
                 }
             }
         }

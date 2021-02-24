@@ -13,15 +13,37 @@ namespace Eco.Plugins.DiscordLink.Modules
         public bool IsEnabled { get; private set; } = false;
 
         // These events may fire very frequently and may trigger rate limitations and therefore some special handling is done based on this field.
-        public const DLEventType HighFrequencyTriggerFlags = DLEventType.EcoMessage | DLEventType.DiscordMessage | DLEventType.Trade | DLEventType.WorkedWorkParty;
+        public const DLEventType HighFrequencyTriggerFlags = DLEventType.EcoMessage | DLEventType.DiscordMessage | DLEventType.Trade | DLEventType.WorkedWorkParty | DLEventType.WorkOrderCreated;
         protected readonly AsyncLock _overlapLock = new AsyncLock();
         protected bool _isShuttingDown = false;
+        protected string _status = "Off";
+        protected DateTime _startTime = DateTime.MinValue;
+        protected int _opsCount = 0;
+
+        public virtual string GetDisplayText(string childInfo, bool verbose)
+        {
+            string info = $"\r\nStatus: {_status}";
+            if (IsEnabled)
+            {
+                if (verbose)
+                {
+                    int operationsPerMinute = (_opsCount / (int)(DateTime.Now - _startTime).TotalMinutes);
+                    info += $"\r\nStart Time: {_startTime:yyyy-MM-dd HH:mm}";
+                    info += $"\r\nOperations Per Minute: {operationsPerMinute}";
+                }
+            }
+            return $"[{ToString()}]{info}\r\n{childInfo}\r\n";
+        }
 
         public virtual void Setup()
-        { }
+        {
+            DLConfig.Instance.OnConfigChanged += OnConfigChanged; // Always listen for config changes as those may enable/disable the module
+        }
 
         public virtual void Destroy()
-        { }
+        {
+            DLConfig.Instance.OnConfigChanged -= OnConfigChanged;
+        }
 
         public async Task<bool> HandleStartOrStop()
         {
@@ -50,15 +72,17 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected virtual async Task Initialize()
         {
-            DLConfig.Instance.OnConfigChanged += OnConfigChanged; // Always listen for config changes as those may enable/disable the module
             IsEnabled = true;
+            _status = "Running";
+            _startTime = DateTime.Now;
         }
 
         protected virtual async Task Shutdown()
         {
             _isShuttingDown = true;
-            DLConfig.Instance.OnConfigChanged -= OnConfigChanged;
             IsEnabled = false;
+            _status = "Off";
+            _startTime = DateTime.MinValue;
             using (await _overlapLock.LockAsync()) // Make sure that anything queued completes before we shut down
             { }
         }

@@ -46,6 +46,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 DiscordChannel discordChannel = discordGuild.ChannelByNameOrId(craftingChannel.DiscordChannel);
                 if (discordChannel == null) continue;
                 await DiscordUtil.SendAsync(discordChannel, message);
+                ++_opsCount;
             }
         }
     }

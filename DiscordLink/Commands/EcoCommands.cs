@@ -406,17 +406,22 @@ namespace Eco.Plugins.DiscordLink
             }, user);
         }
 
-        #region Debug
-
-        [ChatSubCommand("DiscordLink", "Prints debug information.", "dl-debugdata", ChatAuthorizationLevel.Admin)]
-        public static void PrintDebugData(User user)
+        [ChatSubCommand("DiscordLink", "Shows the plugin status.", "dl-status", ChatAuthorizationLevel.Admin)]
+        public static void PluginStatus(User user)
         {
             CallWithErrorHandling<object>((lUser, args) =>
             {
-                EcoUtil.SendAnnouncementMessage("Debug Information", Plugins.DiscordLink.DiscordLink.Obj.GetDebugInfo(), user);
+                EcoUtil.SendAnnouncementMessage("DiscordLink Status", MessageBuilder.Shared.GetDisplayString(verbose: false));
             }, user);
         }
 
-        #endregion
+        [ChatSubCommand("DiscordLink", "Shows the plugin status including verbose debug level information.", "dl-statusverbose", ChatAuthorizationLevel.Admin)]
+        public static void PluginStatusVerbose(User user)
+        {
+            CallWithErrorHandling<object>((lUser, args) =>
+            {
+                EcoUtil.SendAnnouncementMessage("DiscordLink Status Verbose", MessageBuilder.Shared.GetDisplayString(verbose: true));
+            }, user);
+        }
     }
 }
