@@ -318,7 +318,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 if (flag.HasFlag(ServerInfoComponentFlag.CurrentTime))
                 {
                     TimeSpan timeSinceStartSpan = new TimeSpan(0, 0, (int)serverInfo.TimeSinceStart);
-                    embed.AddField("Current Time", $"Day {timeSinceStartSpan.Days + 1}\t{timeSinceStartSpan.Hours.ToString("00")}:{timeSinceStartSpan.Minutes.ToString("00")}"); // +1 days to get start at day 1 just like ingame
+                    embed.AddField("Current Time", $"Day {timeSinceStartSpan.Days + 1} {timeSinceStartSpan.Hours.ToString("00")}:{timeSinceStartSpan.Minutes.ToString("00")}"); // +1 days to get start at day 1 just like ingame
                 }
 
                 if (flag.HasFlag(ServerInfoComponentFlag.TimeRemaining))
