@@ -21,9 +21,11 @@ namespace Eco.Plugins.DiscordLink
         public static string Restart()
         {
             DiscordLink plugin = DiscordLink.Obj;
-            Logger.Info("Eco Restart command executed - Restarting client");
-            _ = plugin.RestartClient();
-            return "DiscordLink restarted";
+            Logger.Info("Restart command executed - Restarting");
+            bool restarted = plugin.RestartClient().Result;
+            string result = restarted ? "Restart Successful" : "Restart failed or a restart was already in progress";
+            Logger.Info(result);
+            return result;
         }
 
         public static string SendServerMessage(string message, string senderName, string recipientUserName, string persistanceType)

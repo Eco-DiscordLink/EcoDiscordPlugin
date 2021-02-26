@@ -126,8 +126,11 @@ namespace Eco.Plugins.DiscordLink
 
             if (tokenChanged)
             {
-                Logger.Info("Discord Bot Token changed - Reinitialising client");
-                _ = DiscordLink.Obj.RestartClient();
+                Logger.Info("Discord Bot Token changed - Restarting");
+                bool restarted = DiscordLink.Obj.RestartClient().Result;
+                if (!restarted)
+                    Logger.Info("Restart failed or a restart was already in progress");
+
                 return; // The token changing will trigger a reset
             }
 

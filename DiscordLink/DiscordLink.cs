@@ -31,6 +31,7 @@ namespace Eco.Plugins.DiscordLink
         private string _status = "Not yet started";
         private CommandsNextExtension _commands = null;
         private Timer _discordDataMaybeAvailable = null;
+        private bool _isRestarting = true; // We consider the first startup as well
 
         public event EventHandler OnClientStarted;
         public event EventHandler OnClientStopped;
@@ -294,11 +295,15 @@ namespace Eco.Plugins.DiscordLink
 
         public async Task<bool> RestartClient()
         {
-            StopClient();
-            bool result = SetUpClient();
-            if (result)
+            bool result = false;
+            if (!_isRestarting)
             {
-                await ConnectAsync();
+                StopClient();
+                result = SetUpClient();
+                if (result)
+                {
+                    await ConnectAsync();
+                }
             }
             return result;
         }
