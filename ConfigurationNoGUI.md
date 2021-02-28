@@ -71,7 +71,7 @@ The prefix to put before commands in order for the Discord bot to recognize them
 In all command examples `?` is used as Discord command prefix as this is the default prefix.  
 Eco commands always use `/` as command prefix as this is hard coded into the game client.
 
-**Admin Roles**
+**Admin Roles**  
 The Discord roles for which to allow the use of admin commands. Role names are case insensitive.
 
 **Eco Command Channel**  
