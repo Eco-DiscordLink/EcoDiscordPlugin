@@ -1,7 +1,9 @@
-﻿using DSharpPlus.Entities;
+﻿using DiscordLink.Extensions;
+using DSharpPlus.Entities;
 using Eco.Core.Utils;
 using Eco.Shared.Utils;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -23,12 +25,164 @@ namespace Eco.Plugins.DiscordLink.Utilities
         private static readonly Regex DiscordGlobalMentionRegex = new Regex("@(everyone|here)");
 
         private const string EcoNametagColor = "7289DAFF";
+        public static DiscordColor EmbedColor = DiscordColor.Green;
+
+        #region General
+
+        public static string FirstNonEmptyString(params string[] strings)
+        {
+            return strings.FirstOrDefault(str => !string.IsNullOrEmpty(str)) ?? "";
+        }
+
+        public static List<string> SplitStringBySize(string str, int chunkSize)
+        {
+            List<string> result = new List<string>();
+            if (string.IsNullOrEmpty(str))
+                return result;
+
+            string[] lines = str.Split('\n');
+            string builder = lines.First();
+            foreach (string line in lines.Skip(1))
+            {
+                string test = $"{builder}\n{line}";
+                if (test.Length > chunkSize)
+                {
+                    result.Add(builder);
+                    builder = line;
+                }
+                else
+                {
+                    builder = test;
+                }
+            }
+            result.Add(builder);
+            return result;
+        }
+
+        public static List<DiscordEmbed> BuildDiscordEmbeds(DiscordLinkEmbed fullEmbed)
+        {
+            List<DiscordEmbed> resultEmbeds = new List<DiscordEmbed>();
+
+            if (fullEmbed == null)
+                return resultEmbeds;
+
+            // Count chars needed for title and footer
+            int titleFooterCharCount = 0;
+            if (fullEmbed.Title != null)
+                titleFooterCharCount += fullEmbed.Title.Length;
+            if (fullEmbed.Footer != null)
+                titleFooterCharCount += fullEmbed.Footer.Length;
+
+            int totalCharsCount = titleFooterCharCount;
+
+            // Count chars needed for fields and track fields that are too long
+            List<bool> needsSplitFields = Enumerable.Repeat(false, fullEmbed.Fields.Count).ToList();
+            for(int i = 0; i < fullEmbed.Fields.Count; ++i)
+            {
+                DiscordLinkEmbedField field = fullEmbed.Fields[i];
+                int length = field.Title.Length + field.Text.Length;
+                if ( length > DLConstants.DISCORD_EMBED_FIELD_CHARACTER_LIMIT)
+                    needsSplitFields[i] = true;
+
+                totalCharsCount += length;
+            }
+
+            // Early escape if no splitting is needed
+            if (totalCharsCount <= DLConstants.DISCORD_EMBED_TOTAL_CHARACTER_LIMIT && needsSplitFields.Count <= 0)
+            {
+                resultEmbeds.Add(BuildDiscordEmbed(fullEmbed));
+                return resultEmbeds;
+            }
+
+            // Split too long fields
+            List<DiscordLinkEmbedField> splitFields = new List<DiscordLinkEmbedField>();
+            for (int i = 0; i < fullEmbed.Fields.Count; ++i)
+            {
+                DiscordLinkEmbedField field = fullEmbed.Fields[i];
+                if (needsSplitFields[i] == true)
+                {
+                    IEnumerable<string> splits = SplitStringBySize(field.Text, DLConstants.DISCORD_EMBED_FIELD_CHARACTER_LIMIT);
+                    int partCount = 1;
+                    foreach(string fieldSplit in splits)
+                    {
+                        splitFields.Add(new DiscordLinkEmbedField($"{field.Title} ({partCount})", fieldSplit));
+                        ++partCount;
+                    }
+                }
+                else
+                {
+                    splitFields.Add(new DiscordLinkEmbedField(fullEmbed.Fields[i].Title, fullEmbed.Fields[i].Text));
+                }
+            }
+
+            // Create new embeds that fit within the char limits
+            List<DiscordLinkEmbed> splitEmbeds = new List<DiscordLinkEmbed>();
+            DiscordLinkEmbed splitEmbedBuilder = new DiscordLinkEmbed(fullEmbed);
+            splitEmbedBuilder.ClearFields();
+            int characterCount = 0;
+            int fieldCount = 0;
+            foreach (DiscordLinkEmbedField field in splitFields)
+            {
+                // If adding the next field would bring us over a limit, split into new embeds
+                if(characterCount + field.Text.Length > DLConstants.DISCORD_EMBED_TOTAL_CHARACTER_LIMIT || fieldCount + 1 > DLConstants.DISCORD_EMBED_FIELD_COUNT_LIMIT)
+                {
+                    splitEmbeds.Add(new DiscordLinkEmbed(splitEmbedBuilder));
+                    splitEmbedBuilder.ClearFields();
+                    characterCount = 0;
+                    fieldCount = 0;
+                }
+
+                splitEmbedBuilder.AddField(field.Title, field.Text);
+                characterCount += field.Text.Length;
+                ++fieldCount;
+            }
+            splitEmbeds.Add(splitEmbedBuilder);
+
+            // Convert embeds to actual DSharp Discord embeds
+            foreach(DiscordLinkEmbed embedData in splitEmbeds)
+            {
+                resultEmbeds.Add(BuildDiscordEmbed(embedData));
+            }
+
+            return resultEmbeds;
+        }
+
+        // Creates an actual Discord embed with the assumption that all fields in the input are within the character constraints
+        public static DiscordEmbed BuildDiscordEmbed(DiscordLinkEmbed embedData)
+        {
+            DiscordEmbedBuilder builder = new DiscordEmbedBuilder();
+            builder.WithTitle(embedData.Title);
+            builder.WithDescription(embedData.Description);
+            builder.WithFooter(embedData.Footer);
+            builder.WithColor(EmbedColor);
+
+            if (!string.IsNullOrEmpty(embedData.Thumbnail))
+            {
+                try
+                {
+                    builder.WithThumbnail(embedData.Thumbnail);
+                }
+                catch (UriFormatException e)
+                {
+                    Logger.Debug("Failed to include thumbnail in Server Info embed. Error: " + e);
+                }
+            }
+
+            foreach (DiscordLinkEmbedField field in embedData.Fields)
+            {
+                builder.AddField(field.Title, field.Text);
+            }
+
+            return builder.Build();
+        }
+
+        #endregion
 
         #region Eco --> Discord
 
         public static string StripTags(string toStrip)
         {
-            if (toStrip == null) return null;
+            if (toStrip == null) return string.Empty;
             return HTMLTagRegex.Replace(toStrip, string.Empty);
         }
 
@@ -40,11 +194,10 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         public static string FormatMessageForDiscord(string message, DiscordChannel channel, string username = "", bool allowGlobalMentions = false)
         {
-            string formattedMessage = (username.IsEmpty() ? "" : $"**{username.Replace("@", "")}**:") + StripTags(message); // All @ characters are removed from the name in order to avoid unintended mentions of the sender
+            string formattedMessage = (username.IsEmpty() ? "" : $"**{username.Replace("@", "")}**: ") + StripTags(message); // All @ characters are removed from the name in order to avoid unintended mentions of the sender
             if (!allowGlobalMentions)
-            {
                 formattedMessage = StripGlobalMentions(formattedMessage);
-            }
+
             return FormatDiscordMentions(formattedMessage, channel);
         }
 
@@ -56,24 +209,18 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 string FormatMention(string name, string mention)
                 {
                     if (match == name)
-                    {
                         return mention;
-                    }
 
                     string beforeMatch = "";
                     int matchStartIndex = match.IndexOf(name);
                     if (matchStartIndex > 0) // There are characters before @username
-                    {
                         beforeMatch = match.Substring(0, matchStartIndex);
-                    }
 
                     string afterMatch = "";
                     int matchStopIndex = matchStartIndex + name.Length - 1;
                     int numCharactersAfter = match.Length - 1 - matchStopIndex;
                     if (numCharactersAfter > 0) // There are characters after @username
-                    {
                         afterMatch = match.Substring(matchStopIndex + 1, numCharactersAfter);
-                    }
 
                     return beforeMatch + mention + afterMatch; // Add whatever characters came before or after the username when replacing the match in order to avoid changing the message context
                 }
@@ -161,6 +308,16 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 if (channel == null) continue;
                 content = content.Replace($"<#{channel.Id}>", $"#{channel.Name}");
             }
+
+            if(message.Attachments.Count > 0)
+            {
+                content += "\nAttachments:";
+                foreach(DiscordAttachment attachment in message.Attachments)
+                {
+                    content += $"\n{attachment.FileName}";
+                }
+            }
+
             return content;
         }
 

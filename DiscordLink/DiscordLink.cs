@@ -8,39 +8,42 @@ using Eco.Core.Plugins.Interfaces;
 using Eco.Core.Utils;
 using Eco.Gameplay.GameActions;
 using Eco.Gameplay.Players;
-using Eco.Plugins.DiscordLink.IntegrationTypes;
+using Eco.Plugins.DiscordLink.Events;
+using Eco.Plugins.DiscordLink.Modules;
 using Eco.Plugins.DiscordLink.Utilities;
+using Eco.Plugins.Networking;
 using Eco.Shared.Utils;
+using Eco.WorldGenerator;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink
 {
-    public class DiscordLink : IModKitPlugin, IInitializablePlugin, IShutdownablePlugin, IConfigurablePlugin, IGameActionAware
+    public class DiscordLink : IModKitPlugin, IInitializablePlugin, IShutdownablePlugin, IConfigurablePlugin, IDisplayablePlugin, IGameActionAware
     {
-        public readonly Version PluginVersion = new Version(2, 1, 1);
-
+        public readonly Version PluginVersion = new Version(2, 2, 0);
         private const int FIRST_DISPLAY_UPDATE_DELAY_MS = 20000;
+
+        private string _status = "Not yet started";
+        private CommandsNextExtension _commands = null;
+        private Timer _discordDataMaybeAvailable = null;
+        private bool _isRestarting = true; // We consider the first startup as well
 
         public event EventHandler OnClientStarted;
         public event EventHandler OnClientStopped;
         public event EventHandler OnDiscordMaybeReady;
 
         public static DiscordLink Obj { get { return PluginManager.GetPlugin<DiscordLink>(); } }
-        public static string BasePath { get { return Directory.GetCurrentDirectory() + "\\Mods\\DiscordLink\\"; } }
-        public ThreadSafeAction<object, string> ParamChanged { get; set; }
         public DiscordClient DiscordClient { get; private set; }
-        public const string EchoCommandToken = "[ECHO]";
-
-        private string _status = "No Connection Attempt Made";
-        private readonly List<DiscordLinkIntegration> _integrations = new List<DiscordLinkIntegration>();
-        private CommandsNextExtension _commands;
-        private Timer _discordDataMaybeAvailable = null;
-        private Timer _tradePostingTimer = null;
+        public List<Module> Modules { get; private set; } = new List<Module>();
+        public IPluginConfig PluginConfig { get { return DLConfig.Instance.PluginConfig; } }
+        public ThreadSafeAction<object, string> ParamChanged { get; set; }
+        public DateTime InitTime { get; private set; } = DateTime.MinValue;
+        public DateTime LastConnectionTime { get; private set; } = DateTime.MinValue;
 
         public override string ToString()
         {
@@ -50,11 +53,6 @@ namespace Eco.Plugins.DiscordLink
         public string GetStatus()
         {
             return _status;
-        }
-
-        public IPluginConfig PluginConfig
-        {
-            get { return DLConfig.Instance.PluginConfig; }
         }
 
         public object GetEditObject()
@@ -67,11 +65,26 @@ namespace Eco.Plugins.DiscordLink
             DLConfig.Instance.HandleConfigChanged();
         }
 
+        public string GetDisplayText()
+        {
+#if DEBUG
+            bool debug = true;
+#else
+            bool debug = false;
+#endif
+            return MessageBuilder.Shared.GetDisplayString(verbose: debug);
+        }
+
         public void Initialize(TimedTask timer)
         {
-            SetupConfig();
+            DLConfig.Instance.Initialize();
+            EventConverter.Instance.Initialize();
+            DLStorage.Instance.Initialize();
             Logger.Initialize();
             Logger.Info("Plugin version is " + PluginVersion);
+            InitTime = DateTime.Now;
+
+            WorldGeneratorPlugin.OnCompleted.Add(() => HandleWorldReset());
 
             if (!SetUpClient())
             {
@@ -84,32 +97,25 @@ namespace Eco.Plugins.DiscordLink
             // It is likely that the client object has fetched all the relevant data, but there are not guarantees.
             OnDiscordMaybeReady += (obj, args) =>
             {
-                InitializeIntegrations();
-                UpdateIntegrations(TriggerType.Startup, null);
+                InitializeModules();
+                HandleEvent(DLEventType.Startup, null);
             };
+
+            // Set up callbacks
+            UserManager.OnNewUserJoined.Add(user => HandleEvent(DLEventType.Join, user));
+            UserManager.OnUserLoggedIn.Add(user => HandleEvent(DLEventType.Login, user));
+            UserManager.OnUserLoggedOut.Add(user => HandleEvent(DLEventType.Logout, user));
+            EventConverter.OnEventFired += (sender, args) => HandleEvent(args.EventType, args.Data);
 
             _ = EcoUser; // Create the Eco User on startup
         }
 
         public void Shutdown()
         {
-            ShutdownIntegrations();
+            ShutdownModules();
+            EventConverter.Instance.Shutdown();
+            DLStorage.Instance.Shutdown();
             Logger.Shutdown();
-        }
-
-        private void SetupConfig()
-        {
-            DLConfig config = DLConfig.Instance;
-            config.Initialize();
-            config.OnTokenChanged += (obj, args) =>
-            {
-                Logger.Info("Discord Bot Token changed - Reinitialising client");
-                _ = RestartClient();
-            };
-            config.OnConfigChanged += (obj, args) =>
-            {
-                _integrations.ForEach(async integration => await integration.OnConfigChanged());
-            };
         }
 
         public void ActionPerformed(GameAction action)
@@ -120,52 +126,52 @@ namespace Eco.Plugins.DiscordLink
                     OnMessageReceivedFromEco(chatSent);
                     break;
             
-                case FirstLogin firstLogin:
-                    UpdateIntegrations(TriggerType.Login, firstLogin);
-                    break;
-            
-                case Play play:
-                    UpdateIntegrations(TriggerType.Login, play);
-                    break;
-            
                 case CurrencyTrade currencyTrade:
-                    UpdateIntegrations(TriggerType.Trade, currencyTrade);
+                    HandleEvent(DLEventType.Trade, currencyTrade);
+                    break;
+
+                case WorkOrderAction workOrderAction:
+                    HandleEvent(DLEventType.WorkOrderCreated, workOrderAction);
                     break;
             
                 case PostedWorkParty postedWorkParty:
-                    UpdateIntegrations(TriggerType.PostedWorkParty, postedWorkParty);
+                    HandleEvent(DLEventType.PostedWorkParty, postedWorkParty);
                     break;
             
                 case CompletedWorkParty completedWorkParty:
-                    UpdateIntegrations(TriggerType.CompletedWorkParty, completedWorkParty);
+                    HandleEvent(DLEventType.CompletedWorkParty, completedWorkParty);
                     break;
             
                 case JoinedWorkParty joinedWorkParty:
-                    UpdateIntegrations(TriggerType.JoinedWorkParty, joinedWorkParty);
+                    HandleEvent(DLEventType.JoinedWorkParty, joinedWorkParty);
                     break;
             
                 case LeftWorkParty leftWorkParty:
-                    UpdateIntegrations(TriggerType.LeftWorkParty, leftWorkParty);
+                    HandleEvent(DLEventType.LeftWorkParty, leftWorkParty);
                     break;
             
                 case WorkedForWorkParty workedParty:
-                    UpdateIntegrations(TriggerType.WorkedWorkParty, workedParty);
+                    HandleEvent(DLEventType.WorkedWorkParty, workedParty);
                     break;
 
                 case Vote vote:
-                    UpdateIntegrations(TriggerType.Vote, vote);
+                    HandleEvent(DLEventType.Vote, vote);
                     break;
 
                 case StartElection startElection:
-                    UpdateIntegrations(TriggerType.StartElection, startElection);
+                    HandleEvent(DLEventType.StartElection, startElection);
                     break;
 
                 case LostElection lostElection:
-                    UpdateIntegrations(TriggerType.StopElection, lostElection);
+                    HandleEvent(DLEventType.StopElection, lostElection);
                     break;
 
                 case WonElection wonElection:
-                    UpdateIntegrations(TriggerType.StopElection, wonElection);
+                    HandleEvent(DLEventType.StopElection, wonElection);
+                    break;
+
+                case CreateCurrency createCurrency:
+                    HandleEvent(DLEventType.CurrencyCreated, createCurrency);
                     break;
 
                 default:
@@ -178,30 +184,17 @@ namespace Eco.Plugins.DiscordLink
             return new Result(ResultType.None);
         }
 
-        void InitializeIntegrations()
+        public void HandleEvent(DLEventType eventType, object data)
         {
-            _integrations.Add(new DiscordChatFeed());   // Discord -> Eco
-            _integrations.Add(new EcoChatFeed());       // Eco -> Discord
-            _integrations.Add(new ChatlogFeed());
-            _integrations.Add(new ServerInfoDisplay());
-            _integrations.Add(new TradeFeed());
-            _integrations.Add(new SnippetInput());
-            _integrations.Add(new WorkPartyDisplay());
-            _integrations.Add(new PlayerDisplay());
-            _integrations.Add(new ElectionDisplay());
-
-            _integrations.ForEach(async integration => await integration.Initialize());
+            EventConverter.Instance.HandleEvent(eventType, data);
+            DLStorage.Instance.HandleEvent(eventType, data);
+            UpdateModules(eventType, data);
         }
 
-        void ShutdownIntegrations()
+        private void HandleWorldReset()
         {
-            _integrations.ForEach(async integration => await integration.Shutdown());
-            _integrations.Clear();
-        }
-        
-        void UpdateIntegrations(TriggerType trigger, object data)
-        {
-            _integrations.ForEach(async integration => await integration.Update(this, trigger, data));
+            Logger.Info("New world generated - Removing storage data for previous world");
+            DLStorage.Instance.Reset();
         }
 
         #region DiscordClient Management
@@ -229,29 +222,31 @@ namespace Eco.Plugins.DiscordLink
                     MinimumLogLevel = DLConfig.Data.BackendLogLevel
                 });
 
-                DiscordClient.ClientErrored += async args => { Logger.Debug("A Discord client error occurred. Error messages was: " + args.EventName + " " + args.Exception.ToString()); };
-                DiscordClient.SocketErrored += async args => { Logger.Debug("A socket error occurred. Error message was: " + args.Exception.ToString()); };
-                DiscordClient.SocketClosed += async args => { Logger.DebugVerbose("Socket Closed: " + args.CloseMessage + " " + args.CloseCode); };
-                DiscordClient.Resumed += async args => { Logger.Debug("Resumed connection"); };
-                DiscordClient.Ready += async args =>
+                DiscordClient.ClientErrored += async (client, args) => { Logger.Debug("A Discord client error occurred. Error messages was: " + args.EventName + " " + args.Exception.ToString()); };
+                DiscordClient.SocketErrored += async (client, args) => { Logger.Debug("A socket error occurred. Error message was: " + args.Exception.ToString()); };
+                DiscordClient.SocketClosed += async (client, args) => { Logger.DebugVerbose("Socket Closed: " + args.CloseMessage + " " + args.CloseCode); };
+                DiscordClient.Resumed += async (client, args) => { Logger.Debug("Resumed connection"); };
+                DiscordClient.Ready += async (client, args) =>
                 {
+                    _status = "Awaiting Discord Caching...";
                     DLConfig.Instance.EnqueueFullVerification();
 
                     _discordDataMaybeAvailable = new Timer(innerArgs =>
                     {
                         OnDiscordMaybeReady?.Invoke(this, EventArgs.Empty);
                         SystemUtil.StopAndDestroyTimer(ref _discordDataMaybeAvailable);
+                        _status = "Connected and running";
                     }, null, FIRST_DISPLAY_UPDATE_DELAY_MS, Timeout.Infinite);
                 };
 
-                DiscordClient.GuildAvailable += async args =>
+                DiscordClient.GuildAvailable += async (client, args) =>
                 {
                     DLConfig.Instance.EnqueueGuildVerification();
                 };
 
-                DiscordClient.MessageDeleted += async args =>
+                DiscordClient.MessageDeleted += async (client, args) =>
                 {
-                    _integrations.ForEach(async integration => await integration.OnMessageDeleted(args.Message));
+                    Modules.ForEach(async module => await module.OnMessageDeleted(args.Message));
                 };
 
                 // Set up the client to use CommandsNext
@@ -274,12 +269,13 @@ namespace Eco.Plugins.DiscordLink
 
         void StopClient()
         {
+            _status = "Shutting down";
+
             // Stop various timers that may have been set up so they do not trigger while the reset is ongoing
             DLConfig.Instance.DequeueAllVerification();
             SystemUtil.StopAndDestroyTimer(ref _discordDataMaybeAvailable);
-            SystemUtil.StopAndDestroyTimer(ref _tradePostingTimer);
 
-            ShutdownIntegrations();
+            ShutdownModules();
 
             if (DiscordClient != null)
             {
@@ -299,11 +295,15 @@ namespace Eco.Plugins.DiscordLink
 
         public async Task<bool> RestartClient()
         {
-            StopClient();
-            bool result = SetUpClient();
-            if (result)
+            bool result = false;
+            if (!_isRestarting)
             {
-                await ConnectAsync();
+                StopClient();
+                result = SetUpClient();
+                if (result)
+                {
+                    await ConnectAsync();
+                }
             }
             return result;
         }
@@ -316,12 +316,13 @@ namespace Eco.Plugins.DiscordLink
                 await DiscordClient.ConnectAsync();
                 BeginRelaying();
                 Logger.Info("Connected to Discord");
-                _status = "Connection successful";
+                _status = "Discord connection successful";
+                LastConnectionTime = DateTime.Now;
             }
             catch (Exception e)
             {
                 Logger.Error("Error occurred when connecting to Discord: Error message: " + e.Message);
-                _status = "Connection failed";
+                _status = "Discord connection failed";
             }
 
             return null;
@@ -333,14 +334,50 @@ namespace Eco.Plugins.DiscordLink
             {
                 StopRelaying();
                 await DiscordClient.DisconnectAsync();
+                _status = "Disconnected from Discord";
             }
             catch (Exception e)
             {
                 Logger.Error("An Error occurred when disconnecting from Discord: Error message: " + e.Message);
-                _status = "Connection failed";
+                _status = "Discord connection failed";
             }
 
             return null;
+        }
+
+        #endregion
+
+        #region Module Management
+
+        private void InitializeModules()
+        {
+            Modules.Add(new DiscordChatFeed());   // Discord -> Eco
+            Modules.Add(new EcoChatFeed());       // Eco -> Discord
+            Modules.Add(new ChatlogFeed());
+            Modules.Add(new TradeFeed());
+            Modules.Add(new CraftingFeed());
+            Modules.Add(new ServerInfoDisplay());
+            Modules.Add(new WorkPartyDisplay());
+            Modules.Add(new PlayerDisplay());
+            Modules.Add(new ElectionDisplay());
+            Modules.Add(new CurrencyDisplay());
+            Modules.Add(new TradeTrackerDisplay());
+            Modules.Add(new SnippetInput());
+
+            Modules.ForEach(module => module.Setup());
+            Modules.ForEach(async module => await module.HandleStartOrStop());
+        }
+
+        private void ShutdownModules()
+        {
+            Modules.ForEach(async module => await module.Stop());
+            Modules.ForEach(module => module.Destroy());
+            Modules.Clear();
+        }
+
+        private void UpdateModules(DLEventType trigger, object data)
+        {
+            Modules.ForEach(async module => await module.Update(this, trigger, data));
         }
 
         #endregion
@@ -388,7 +425,7 @@ namespace Eco.Plugins.DiscordLink
             return "Message sent";
         }
 
-        public async Task<String> SendDiscordMessageAsUser(string message, User user, DiscordChannel channel, bool allowGlobalMentions = false)
+        public async Task<string> SendDiscordMessageAsUser(string message, User user, DiscordChannel channel, bool allowGlobalMentions = false)
         {
             await DiscordUtil.SendAsync(channel, MessageUtil.FormatMessageForDiscord(message, channel, user.Name, allowGlobalMentions));
             return "Message sent";
@@ -448,13 +485,13 @@ namespace Eco.Plugins.DiscordLink
             LogEcoMessage(chatMessage);
 
             // Ignore commands and messages sent by our bot
-            if (chatMessage.Citizen.Name == EcoUser.Name) return;
-            if (chatMessage.Message.StartsWith(EchoCommandToken)) return;
+            if (chatMessage.Citizen.Name == EcoUser.Name && !chatMessage.Message.StartsWith(DLConstants.ECHO_COMMAND_TOKEN))
+                return;
 
-            UpdateIntegrations(TriggerType.EcoMessage, chatMessage);
+            HandleEvent(DLEventType.EcoMessage, chatMessage);
         }
 
-        public async Task OnDiscordMessageCreateEvent(MessageCreateEventArgs messageArgs)
+        public async Task OnDiscordMessageCreateEvent(DiscordClient client, MessageCreateEventArgs messageArgs)
         {
             OnMessageReceivedFromDiscord(messageArgs.Message);
         }
@@ -467,57 +504,8 @@ namespace Eco.Plugins.DiscordLink
             if (message.Author == DiscordClient.CurrentUser) return;
             if (message.Content.StartsWith(DLConfig.Data.DiscordCommandPrefix)) return;
 
-            UpdateIntegrations(TriggerType.DiscordMessage, message);
+            UpdateModules(DLEventType.DiscordMessage, message);
         }
-        #endregion
-
-        #region Player Configs
-
-        public DiscordPlayerConfig GetOrCreatePlayerConfig(string identifier)
-        {
-            var config = DLConfig.Data.PlayerConfigs.FirstOrDefault(user => user.Username == identifier);
-            if (config == null)
-            {
-                config = new DiscordPlayerConfig
-                {
-                    Username = identifier
-                };
-                AddOrReplacePlayerConfig(config);
-            }
-
-            return config;
-        }
-
-        public bool AddOrReplacePlayerConfig(DiscordPlayerConfig config)
-        {
-            var playerConfigs = DLConfig.Data.PlayerConfigs;
-            var removed = playerConfigs.Remove(config);
-            playerConfigs.Add(config);
-            DLConfig.Instance.Save();
-            return removed;
-        }
-
-        public DiscordChannel GetDefaultChannelForPlayer(string identifier)
-        {
-            var playerConfig = GetOrCreatePlayerConfig(identifier);
-            if (playerConfig.DefaultChannel == null
-                || string.IsNullOrEmpty(playerConfig.DefaultChannel.Guild)
-                || string.IsNullOrEmpty(playerConfig.DefaultChannel.Channel))
-            {
-                return null;
-            }
-
-            return GuildByName(playerConfig.DefaultChannel.Guild).ChannelByName(playerConfig.DefaultChannel.Channel);
-        }
-
-        public void SetDefaultChannelForPlayer(string identifier, string guildName, string channelName)
-        {
-            var playerConfig = GetOrCreatePlayerConfig(identifier);
-            playerConfig.DefaultChannel.Guild = guildName;
-            playerConfig.DefaultChannel.Channel = channelName;
-            DLConfig.Instance.Save();
-        }
-
         #endregion
     }
 }

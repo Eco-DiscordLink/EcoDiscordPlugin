@@ -1,105 +1,155 @@
-﻿using DSharpPlus;
+﻿using DiscordLink.Extensions;
+using DSharpPlus;
 using DSharpPlus.Entities;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink.Utilities
 {
     public static class DiscordUtil
     {
-        public const int EMBED_CONTENT_CHARACTER_LIMIT = 5000;
-        public const int EMBED_FIELD_CHARACTER_LIMIT = 900;
         public static bool ChannelHasPermission(DiscordChannel channel, Permissions permission)
         {
+            if (channel as DiscordDmChannel != null) return true; // Assume permission is given for DMs
+
             DiscordMember member = channel.Guild.CurrentMember;
             if (member == null)
             {
-                Logger.Debug("CurrentMember was false when evaluating channel permissions for channel " + channel.Name);
+                Logger.Debug("CurrentMember was null when evaluating channel permissions for channel " + channel.Name);
                 return false;
             }
 
             return channel.PermissionsFor(member).HasPermission(permission);
         }
 
-        public static async Task<DiscordMessage> SendAsync(DiscordChannel channel, string textContent, DiscordEmbed embedContent = null)
+        public static bool BotHasIntent(DiscordIntents intent)
+        {
+            return (DiscordLink.Obj.DiscordClient.Intents & intent) != 0;
+        }
+
+        public static async Task SendAsync(DiscordChannel channel, string textContent, DiscordLinkEmbed embedContent = null)
         {
             try
             {
-                if (!ChannelHasPermission(channel, Permissions.SendMessages)) return null;
+                if (!ChannelHasPermission(channel, Permissions.SendMessages)) return;
 
-                if (embedContent == null)
+                // Either make sure we have permission to use embeds or convert the embed to text
+                string fullTextContent = ChannelHasPermission(channel, Permissions.EmbedLinks) ? textContent : MessageBuilder.Discord.EmbedToText(textContent, embedContent);
+
+                // If needed; split the message into multiple parts
+                ICollection<string> stringParts = MessageUtil.SplitStringBySize(fullTextContent, DLConstants.DISCORD_MESSAGE_CHARACTER_LIMIT);
+                ICollection<DiscordEmbed> embedParts = MessageUtil.BuildDiscordEmbeds(embedContent);
+
+                if(stringParts.Count <= 1 && embedParts.Count <= 1)
                 {
-                    return await channel.SendMessageAsync(textContent, false);
+                    DiscordEmbed embed = (embedParts.Count >= 1) ? embedParts.First() : null;
+                    await channel.SendMessageAsync(fullTextContent, tts: false, embed);
                 }
                 else
                 {
-                    // Either make sure we have permission to use embeds or convert the embed to text
-                    if (ChannelHasPermission(channel, Permissions.EmbedLinks))
+                    foreach (string textMessagePart in stringParts)
                     {
-                        return await channel.SendMessageAsync(textContent, false, embedContent);
+                        await channel.SendMessageAsync(textMessagePart, tts: false, null);
                     }
-                    else
+                    foreach(DiscordEmbed embedPart in embedParts)
                     {
-                        return await channel.SendMessageAsync(MessageBuilder.EmbedToText(textContent, embedContent));
+                        await channel.SendMessageAsync(null, tts: false, embedPart);
                     }
                 }
             }
             catch (Newtonsoft.Json.JsonReaderException e)
             {
                 Logger.Debug(e.ToString());
-                return null;
             }
             catch (Exception e)
             {
-                Logger.Error("Error occurred while attempting to send Discord message. Error message: " + e);
-                return null;
+                Logger.Error($"Error occurred while attempting to send Discord message to channel \"{channel.Name}\". Error message: " + e);
             }
         }
 
-        public static async Task<DiscordMessage> ModifyAsync(DiscordMessage message, string textContent, DiscordEmbed embedContent = null)
+        public static async Task SendDMAsync(DiscordMember targetMember, string textContent, DiscordLinkEmbed embedContent = null)
         {
             try
             {
-                if (!ChannelHasPermission(message.Channel, Permissions.ManageMessages)) return null;
+                // If needed; split the message into multiple parts
+                ICollection<string> stringParts = MessageUtil.SplitStringBySize(textContent, DLConstants.DISCORD_MESSAGE_CHARACTER_LIMIT);
+                ICollection<DiscordEmbed> embedParts = MessageUtil.BuildDiscordEmbeds(embedContent);
 
-                if (embedContent == null)
+                if (stringParts.Count <= 1 && embedParts.Count <= 1)
                 {
-                    return await message.ModifyAsync(textContent);
+                    DiscordEmbed embed = (embedParts.Count >= 1) ? embedParts.First() : null;
+                    await targetMember.SendMessageAsync(textContent, is_tts: false, embed);
                 }
                 else
                 {
-                    // Either make sure we have permission to use embeds or convert the embed to text
-                    if (ChannelHasPermission(message.Channel, Permissions.EmbedLinks))
+                    foreach (string textMessagePart in stringParts)
                     {
-                        return await message.ModifyAsync(textContent, embedContent);
+                        await targetMember.SendMessageAsync(textMessagePart, is_tts: false, null);
                     }
-                    else
+                    foreach (DiscordEmbed embedPart in embedParts)
                     {
-                        await message.ModifyEmbedSuppressionAsync(true); // Remove existing embeds
-                        return await message.ModifyAsync(MessageBuilder.EmbedToText(textContent, embedContent));
+                        await targetMember.SendMessageAsync(null, is_tts: false, embedPart);
+                    }
+                }
+            }
+            catch (Newtonsoft.Json.JsonReaderException e)
+            {
+                Logger.Debug(e.ToString());
+            }
+            catch (Exception e)
+            {
+                Logger.Error($"Error occurred while attempting to send Discord message to user \"{targetMember.DisplayName}\". Error message: " + e);
+            }
+        }
+
+        public static async Task ModifyAsync(DiscordMessage message, string textContent, DiscordLinkEmbed embedContent = null)
+        {
+            try
+            {
+                if (!ChannelHasPermission(message.Channel, Permissions.ManageMessages)) return;
+
+                if (embedContent == null)
+                {
+                    await message.ModifyAsync(textContent);
+                }
+                else
+                {
+                    try
+                    {
+                        // Either make sure we have permission to use embeds or convert the embed to text
+                        if (ChannelHasPermission(message.Channel, Permissions.EmbedLinks))
+                        {
+                            await message.ModifyAsync(textContent, MessageUtil.BuildDiscordEmbed(embedContent)); // TODO: Not safe! May require splitting!
+                        }
+                        else
+                        {
+                            await message.ModifyEmbedSuppressionAsync(true); // Remove existing embeds
+                            await message.ModifyAsync(MessageBuilder.Discord.EmbedToText(textContent, embedContent));
+                        }
+                    }
+                    catch(Exception e)
+                    {
+                        Logger.Warning("Failed to modify message. The message may be too long. Error message: " + e);
                     }
                 }
             }
             catch (DSharpPlus.Exceptions.ServerErrorException e)
             {
                 Logger.Debug(e.ToString());
-                return null;
             }
             catch (Newtonsoft.Json.JsonReaderException e)
             {
                 Logger.Debug(e.ToString());
-                return null;
             }
             catch (DSharpPlus.Exceptions.NotFoundException e)
             {
                 Logger.Debug(e.ToString());
-                return null;
             }
             catch (Exception e)
             {
                 Logger.Error("Error occurred while attempting to modify Discord message. Error message: " + e);
-                return null;
             }
         }
 
@@ -158,6 +208,25 @@ namespace Eco.Plugins.DiscordLink.Utilities
             catch (Exception e)
             {
                 Logger.Error("Error occurred when attempting to read message history from channel \"" + channel.Name + "\". Error message: " + e);
+                return null;
+            }
+        }
+
+        public static async Task<IReadOnlyCollection<DiscordMember>> GetGuildMembersAsync(DiscordGuild guild)
+        {
+            if(!BotHasIntent(DiscordIntents.GuildMembers))
+            {
+                Logger.Error("Attempted to get full guild member list without the bot having the privileged GuildMembers intent");
+                return null;
+            }
+
+            try
+            {
+                return await guild.GetAllMembersAsync();
+            }
+            catch(Exception e)
+            {
+                Logger.Error("Error occured when attempting to fetch all guild members. Error message: " + e);
                 return null;
             }
         }

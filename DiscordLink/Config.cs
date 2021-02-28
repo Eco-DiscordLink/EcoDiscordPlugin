@@ -1,5 +1,5 @@
-﻿using Eco.Core.Plugins;
-using Eco.Gameplay.Players;
+﻿using DSharpPlus.CommandsNext.Attributes;
+using Eco.Core.Plugins;
 using Eco.Plugins.DiscordLink.Utilities;
 using System;
 using System.Collections.Generic;
@@ -9,6 +9,8 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
+using Description = System.ComponentModel.DescriptionAttribute;
 
 namespace Eco.Plugins.DiscordLink
 {
@@ -23,10 +25,17 @@ namespace Eco.Plugins.DiscordLink
 
         public static class DefaultValues
         {
+            public static LogLevel PluginLogLevel = LogLevel.Information;
+            public static Microsoft.Extensions.Logging.LogLevel BackendLogLevel = Microsoft.Extensions.Logging.LogLevel.None;
+            public static readonly string[] AdminRoles = { "admin", "administrator", "moderator" };
             public const string DiscordCommandPrefix = "?";
-            public const string EcoCommandChannel = "General";
+            public const string EcoCommandOutputChannel = "General";
             public const string InviteMessage = "Join us on Discord!\n" + InviteCommandLinkToken;
             public const string EcoBotName = "DiscordLink";
+            public const int    MaxMintedCurrencies = 1;
+            public const int    MaxPersonalCurrencies = 3;
+            public const int    MaxTopCurrencyHolderCount = 3;
+            public const int    MaxTrackedTradesPerUser = 5;
         }
 
         public static readonly DLConfig Instance = new DLConfig();
@@ -34,12 +43,12 @@ namespace Eco.Plugins.DiscordLink
         public PluginConfig<DLConfigData> PluginConfig { get { return Instance._config; } }
         public List<ChannelLink> ChannelLinks { get { return Instance._channelLinks; } }
 
-        public event EventHandler OnConfigChanged;
+        public delegate Task OnConfigChangedDelegate(object sender, EventArgs e);
+        public event OnConfigChangedDelegate OnConfigChanged;
         public event EventHandler OnConfigSaved;
         public event EventHandler OnChatlogEnabled;
         public event EventHandler OnChatlogDisabled;
         public event EventHandler OnChatlogPathChanged;
-        public event EventHandler OnTokenChanged;
 
         public const string InviteCommandLinkToken = "[LINK]";
 
@@ -56,7 +65,6 @@ namespace Eco.Plugins.DiscordLink
         private PluginConfig<DLConfigData> _config;
         private readonly List<ChannelLink> _channelLinks = new List<ChannelLink>();
 
-
         // Explicit static constructor to tell C# compiler not to mark type as beforefieldinit
         static DLConfig()
         {
@@ -71,14 +79,16 @@ namespace Eco.Plugins.DiscordLink
             _config = new PluginConfig<DLConfigData>("DiscordLink");
             _prevConfig = (DLConfigData)Data.Clone();
 
-            Data.PlayerConfigs.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.ChatChannelLinks.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.ServerInfoChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.TradeChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
+            Data.CraftingChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.SnippetChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
+            Data.DiscordCommandChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.WorkPartyChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.PlayerListChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.ElectionChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
+            Data.CurrencyChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
 
             BuildChanneLinkList();
 
@@ -118,7 +128,11 @@ namespace Eco.Plugins.DiscordLink
 
             if (tokenChanged)
             {
-                OnTokenChanged?.Invoke(this, EventArgs.Empty);
+                Logger.Info("Discord Bot Token changed - Restarting");
+                bool restarted = DiscordLink.Obj.RestartClient().Result;
+                if (!restarted)
+                    Logger.Info("Restart failed or a restart was already in progress");
+
                 return; // The token changing will trigger a reset
             }
 
@@ -183,6 +197,9 @@ namespace Eco.Plugins.DiscordLink
             {
                 _guildVerificationOutputTimer = null;
                 VerifyConfig(VerificationFlags.ChannelLinks);
+                if ((DiscordLink.Obj.DiscordClient.Intents & DSharpPlus.DiscordIntents.GuildMembers) == 0)
+                    Logger.Warning("Bot not configured to allow reading of full server member list as it lacks the Server Members Intent\nSome features will be unavailable.\nSee install instructions for help with adding intents.");
+
             }, null, GUILD_VERIFICATION_OUTPUT_DELAY_MS, Timeout.Infinite);
         }
 
@@ -241,7 +258,7 @@ namespace Eco.Plugins.DiscordLink
             // Chatlog path
             if (string.IsNullOrEmpty(Data.ChatlogPath))
             {
-                Data.ChatlogPath = DiscordLink.BasePath + "Chatlog.txt";
+                Data.ChatlogPath = DLConstants.BasePath + "Chatlog.txt";
                 correctionMade = true;
             }
 
@@ -252,10 +269,16 @@ namespace Eco.Plugins.DiscordLink
             }
 
             // Eco command channel
-            if (string.IsNullOrEmpty(Data.EcoCommandChannel))
+            if (string.IsNullOrEmpty(Data.EcoCommandOutputChannel))
             {
-                Data.EcoCommandChannel = DefaultValues.EcoCommandChannel;
+                Data.EcoCommandOutputChannel = DefaultValues.EcoCommandOutputChannel;
                 correctionMade = true;
+            }
+
+            // Max tracked trades per user
+            if(Data.MaxTrackedTradesPerUser < 0)
+            {
+                Data.MaxTrackedTradesPerUser = DLConfig.DefaultValues.MaxTrackedTradesPerUser;
             }
 
             // Invite Message
@@ -263,6 +286,28 @@ namespace Eco.Plugins.DiscordLink
             {
                 Data.InviteMessage = DefaultValues.InviteMessage;
                 correctionMade = true;
+            }
+
+            // Currency channels
+            foreach(CurrencyChannelLink link in Data.CurrencyChannels)
+            {
+                if (link.MaxMintedCount < 0)
+                {
+                    link.MaxMintedCount = DefaultValues.MaxMintedCurrencies;
+                    correctionMade = true;
+                }
+
+                if (link.MaxPersonalCount < 0)
+                {
+                    link.MaxPersonalCount = DefaultValues.MaxPersonalCurrencies;
+                    correctionMade = true;
+                }
+
+                if(link.MaxTopCurrencyHolderCount < 0 || link.MaxTopCurrencyHolderCount > DLConstants.MAX_TOP_CURRENCY_HOLDER_DISPLAY_LIMIT)
+                {
+                    link.MaxTopCurrencyHolderCount = DefaultValues.MaxTopCurrencyHolderCount;
+                    correctionMade = true;
+                }
             }
 
             _config.SaveAsync();
@@ -288,28 +333,8 @@ namespace Eco.Plugins.DiscordLink
                     errorMessages.Add("[Bot Token] Bot token not configured. See Github page for install instructions.");
                 }
 
-                // Player configs
-                foreach (DiscordPlayerConfig playerConfig in Data.PlayerConfigs)
-                {
-                    if (string.IsNullOrWhiteSpace(playerConfig.Username)) continue;
-
-                    bool found = false;
-                    foreach (User user in UserManager.Users)
-                    {
-                        if (user.Name == playerConfig.Username)
-                        {
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found)
-                    {
-                        errorMessages.Add("[Player Configs] No user with name \"" + playerConfig.Username + "\" was found");
-                    }
-                }
-
                 // Eco command channel
-                if (!string.IsNullOrWhiteSpace(Data.EcoCommandChannel) && Data.EcoCommandChannel.Contains("#"))
+                if (!string.IsNullOrWhiteSpace(Data.EcoCommandOutputChannel) && Data.EcoCommandOutputChannel.Contains("#"))
                 {
                     errorMessages.Add("[Eco Command Channel] Channel name contains a channel indicator (#). The channel indicator will be added automatically and adding one manually may cause message sending to fail");
                 }
@@ -390,10 +415,13 @@ namespace Eco.Plugins.DiscordLink
             _channelLinks.AddRange(_config.Config.ChatChannelLinks);
             _channelLinks.AddRange(_config.Config.ServerInfoChannels);
             _channelLinks.AddRange(_config.Config.TradeChannels);
+            _channelLinks.AddRange(_config.Config.CraftingChannels);
             _channelLinks.AddRange(_config.Config.SnippetChannels);
+            _channelLinks.AddRange(_config.Config.DiscordCommandChannels);
             _channelLinks.AddRange(_config.Config.WorkPartyChannels);
             _channelLinks.AddRange(_config.Config.PlayerListChannels);
             _channelLinks.AddRange(_config.Config.ElectionChannels);
+            _channelLinks.AddRange(_config.Config.CurrencyChannels);
         }
     }
 
@@ -423,16 +451,20 @@ namespace Eco.Plugins.DiscordLink
                 LogLevel = this.LogLevel,
                 LogChat = this.LogChat,
                 ChatlogPath = this.ChatlogPath,
-                EcoCommandChannel = this.EcoCommandChannel,
+                EcoCommandOutputChannel = this.EcoCommandOutputChannel,
+                MaxTrackedTradesPerUser = this.MaxTrackedTradesPerUser,
                 InviteMessage = this.InviteMessage,
-                PlayerConfigs = new ObservableCollection<DiscordPlayerConfig>(this.PlayerConfigs.Select(t => t.Clone()).Cast<DiscordPlayerConfig>()),
+                AdminRoles = new ObservableCollection<string>(this.AdminRoles.Select(t => t.Clone()).Cast<string>()),
                 ChatChannelLinks = new ObservableCollection<ChatChannelLink>(this.ChatChannelLinks.Select(t => t.Clone()).Cast<ChatChannelLink>()),
                 ServerInfoChannels = new ObservableCollection<ServerInfoChannel>(this.ServerInfoChannels.Select(t => t.Clone()).Cast<ServerInfoChannel>()),
                 TradeChannels = new ObservableCollection<ChannelLink>(this.TradeChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
+                CraftingChannels = new ObservableCollection<ChannelLink>(this.CraftingChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
                 SnippetChannels = new ObservableCollection<ChannelLink>(this.SnippetChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
+                DiscordCommandChannels = new ObservableCollection<ChannelLink>(this.DiscordCommandChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
                 WorkPartyChannels = new ObservableCollection<ChannelLink>(this.WorkPartyChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
                 PlayerListChannels = new ObservableCollection<PlayerListChannelLink>(this.PlayerListChannels.Select(t => t.Clone()).Cast<PlayerListChannelLink>()),
                 ElectionChannels = new ObservableCollection<ChannelLink>(this.ElectionChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
+                CurrencyChannels = new ObservableCollection<CurrencyChannelLink>(this.CurrencyChannels.Select(t => t.Clone()).Cast<CurrencyChannelLink>()),
             };
         }
 
@@ -442,8 +474,11 @@ namespace Eco.Plugins.DiscordLink
         [Description("The name of the bot user in Eco. This setting can be changed while the server is running, but changes will only take effect after a world reset."), Category("Bot Configuration")]
         public string EcoBotName { get; set; } = DLConfig.DefaultValues.EcoBotName;
 
-        [Description("The prefix to put before commands in order for the Discord bot to recognize them as such. This setting requires a restart to take effect."), Category("Command Settings")]
+        [Description("The prefix to put before commands in order for the Discord bot to recognize them as such. This setting requires a plugin restart to take effect."), Category("Command Settings")]
         public string DiscordCommandPrefix { get; set; } = DLConfig.DefaultValues.DiscordCommandPrefix;
+
+        [Description("The roles recognized as having admin permissions on Discord. This setting requires a plugin restart to take effect."), Category("Command Settings")]
+        public ObservableCollection<string> AdminRoles { get; set; } = new ObservableCollection<string>(DLConfig.DefaultValues.AdminRoles);
 
         [Description("The name of the Eco server, overriding the name configured within Eco. This setting can be changed while the server is running."), Category("Server Details")]
         public string ServerName { get; set; }
@@ -463,6 +498,9 @@ namespace Eco.Plugins.DiscordLink
         [Description("Channels in which trade events will be posted. This setting can be changed while the server is running."), Category("Feeds")]
         public ObservableCollection<ChannelLink> TradeChannels { get; set; } = new ObservableCollection<ChannelLink>();
 
+        [Description("Discord channels in which crafting events will be posted. This setting can be changed while the server is running."), Category("Feeds")]
+        public ObservableCollection<ChannelLink> CraftingChannels { get; set; } = new ObservableCollection<ChannelLink>();
+
         [Description("Discord channels in which to keep the Server Info display. DiscordLink will post one server info message in these channel and keep it updated trough edits. This setting can be changed while the server is running."), Category("Displays")]
         public ObservableCollection<ServerInfoChannel> ServerInfoChannels { get; set; } = new ObservableCollection<ServerInfoChannel>();
 
@@ -475,17 +513,23 @@ namespace Eco.Plugins.DiscordLink
         [Description("Discord channels in which to keep the Election display. DiscordLink will post election messages in these channel and keep it updated trough edits. This setting can be changed while the server is running."), Category("Displays")]
         public ObservableCollection<ChannelLink> ElectionChannels { get; set; } = new ObservableCollection<ChannelLink>();
 
-        [Description("Channels in which to search for snippets for the Snippet command. This setting can be changed while the server is running."), Category("Inputs")]
+        [Description("Discord channels in which to keep the currency display. DiscordLink will post election messages in these channel and keep it updated trough edits. This setting can be changed while the server is running."), Category("Displays")]
+        public ObservableCollection<CurrencyChannelLink> CurrencyChannels { get; set; } = new ObservableCollection<CurrencyChannelLink>();
+
+        [Description("Discord channels in which to search for snippets for the Snippet command. This setting can be changed while the server is running."), Category("Inputs")]
         public ObservableCollection<ChannelLink> SnippetChannels { get; set; } = new ObservableCollection<ChannelLink>();
 
-        [Description("A mapping from user to user config parameters. This setting can be changed while the server is running.")]
-        public ObservableCollection<DiscordPlayerConfig> PlayerConfigs = new ObservableCollection<DiscordPlayerConfig>();
+        [Description("Discord channels in which to allow commands. If no channels are specified, commands will be allowed in all channels. This setting can be changed while the server is running."), Category("Command Settings")]
+        public ObservableCollection<ChannelLink> DiscordCommandChannels { get; set; } = new ObservableCollection<ChannelLink>();
+
+        [Description("Max amount of tracked trades allowed per user. This setting can be changed while the server is running, but does not apply retroactively."), Category("Command Settings")]
+        public int MaxTrackedTradesPerUser { get; set; } = DLConfig.DefaultValues.MaxTrackedTradesPerUser;
 
         [Description("Determines what message types will be printed to the server log. All message types below the selected one will be printed as well. This setting can be changed while the server is running."), Category("Miscellaneous")]
-        public LogLevel LogLevel { get; set; } = LogLevel.Information;
+        public LogLevel LogLevel { get; set; } = DLConfig.DefaultValues.PluginLogLevel;
 
-        [Description("Determines what backend message types will be printed to the server log. All message types below the selected one will be printed as well. This setting requires a restart to take effect."), Category("Miscellaneous")]
-        public Microsoft.Extensions.Logging.LogLevel BackendLogLevel { get; set; } = Microsoft.Extensions.Logging.LogLevel.None;
+        [Description("Determines what backend message types will be printed to the server log. All message types below the selected one will be printed as well. This setting requires a plugin restart to take effect."), Category("Miscellaneous")]
+        public Microsoft.Extensions.Logging.LogLevel BackendLogLevel { get; set; } = DLConfig.DefaultValues.BackendLogLevel;
 
         [Description("Enables logging of chat messages into the file at Chatlog Path. This setting can be changed while the server is running."), Category("Chatlog Configuration")]
         public bool LogChat { get; set; } = false;
@@ -493,76 +537,11 @@ namespace Eco.Plugins.DiscordLink
         [Description("The path to the chatlog file, including file name and extension. This setting can be changed while the server is running, but the existing chatlog will not transfer."), Category("Chatlog Configuration")]
         public string ChatlogPath { get; set; } = Directory.GetCurrentDirectory() + "\\Mods\\DiscordLink\\Chatlog.txt";
 
-        [Description("The Eco chat channel to use for commands that outputs public messages, excluding the initial # character. This setting can be changed while the server is running."), Category("Command Settings")]
-        public string EcoCommandChannel { get; set; } = DLConfig.DefaultValues.EcoCommandChannel;
+        [Description("The Eco chat channel to use for commands that output public messages, excluding the initial # character. This setting can be changed while the server is running."), Category("Command Settings")]
+        public string EcoCommandOutputChannel { get; set; } = DLConfig.DefaultValues.EcoCommandOutputChannel;
 
         [Description("The message to use for the /DiscordInvite command. The invite link is fetched from the network config and will replace the token " + DLConfig.InviteCommandLinkToken + ". This setting can be changed while the server is running."), Category("Command Settings")]
         public string InviteMessage { get; set; } = DLConfig.DefaultValues.InviteMessage;
-    }
-
-    public enum GlobalMentionPermission
-    {
-        AnyUser,
-        Admin,
-        Forbidden
-    };
-
-    public enum ChatSyncDirection
-    {
-        DiscordToEco,
-        EcoToDiscord,
-        Duplex,
-    }
-
-    public class PlayerListChannelLink : ChannelLink
-    {
-        [Description("Display the number of online players in the status message.")]
-        public bool UsePlayerCount { get; set; } = true;
-    }
-
-    public class ChatChannelLink : EcoChannelLink
-    {
-        [Description("Allow mentions of usernames to be forwarded from Eco to the Discord channel.")]
-        public bool AllowUserMentions { get; set; } = true;
-
-        [Description("Allow mentions of roles to be forwarded from Eco to the Discord channel.")]
-        public bool AllowRoleMentions { get; set; } = true;
-
-        [Description("Allow mentions of channels to be forwarded from Eco to the Discord channel.")]
-        public bool AllowChannelMentions { get; set; } = true;
-
-        [Description("Sets which direction chat should synchronize in.")]
-        public ChatSyncDirection Direction { get; set; } = ChatSyncDirection.Duplex;
-
-        [Description("Permissions for who is allowed to forward mentions of @here or @everyone from Eco to the Discord channel.")]
-        public GlobalMentionPermission HereAndEveryoneMentionPermission { get; set; } = GlobalMentionPermission.Forbidden;
-    }
-
-    public class ServerInfoChannel : ChannelLink
-    {
-        [Description("Display the server name in the status message.")]
-        public bool UseName { get; set; } = true;
-
-        [Description("Display the server description in the status message.")]
-        public bool UseDescription { get; set; } = false;
-
-        [Description("Display the server logo in the status message.")]
-        public bool UseLogo { get; set; } = true;
-
-        [Description("Display the server IP address in the status message.")]
-        public bool UseAddress { get; set; } = true;
-
-        [Description("Display the number of online players in the status message.")]
-        public bool UsePlayerCount { get; set; } = true;
-
-        [Description("Display the time since the world was created in the status message.")]
-        public bool UseTimeSinceStart { get; set; } = true;
-
-        [Description("Display the time remaining until meteor impact in the status message.")]
-        public bool UseTimeRemaining { get; set; } = true;
-
-        [Description("Display a boolean for if the metoer has hit yet or not, in the status message.")]
-        public bool UseMeteorHasHit { get; set; } = false;
     }
 
     public class DiscordPlayerConfig : ICloneable

@@ -1,92 +1,77 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
-    <RootNamespace>Eco.Plugins.DiscordLink</RootNamespace>
-    <Configurations>Debug;Release;DebugVerbose</Configurations>
-    <PackageProjectUrl>https://github.com/Spoffy/EcoDiscordPlugin</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/Spoffy/EcoDiscordPlugin.git</RepositoryUrl>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <PackageLicenseExpression>Gnu Affero</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/Eco-DiscordLink/EcoDiscordPlugin</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Eco-DiscordLink/EcoDiscordPlugin</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Eco Discord</PackageTags>
-    <PackageLicenseExpression>Gnu Affero</PackageLicenseExpression>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <OutputPath>bin\Debug\</OutputPath>
+    <Optimize>false</Optimize>
     <NoWarn>1701;1702;1998</NoWarn>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugVerbose|AnyCPU'">
-    <DefineConstants>TRACE;DEBUG;DEBUGVERBOSE</DefineConstants>
-    <OutputPath>bin\Debug\</OutputPath>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <Optimize>false</Optimize>
+    <NoWarn>1701;1702</NoWarn>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>bin\Release\</OutputPath>
-  </PropertyGroup>
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="xcopy /Y &quot;$(SolutionDir)Dependencies\System.Threading.Timer.dll&quot; &quot;$(OutDir)&quot;&#xD;&#xA;xcopy /Y &quot;$(SolutionDir)Dependencies\System.Threading.Tasks.Extensions.dll&quot; &quot;$(OutDir)&quot;&#xD;&#xA;&#xD;&#xA;set server_dir=$(SolutionDir)..\EcoServer\&#xD;&#xA;set server_mod_dir=$(SolutionDir)..\EcoServer\Mods\DiscordLink\&#xD;&#xA;for /f &quot;tokens=*&quot; %25%25i in ($(SolutionDir)DLLCopyList.txt) DO (&#xD;&#xA;    xcopy /Y &quot;$(OutDir)%25%25i&quot; &quot;%25server_mod_dir%25&quot;&#xD;&#xA;)&#xD;&#xA;&#xD;&#xA;xcopy /Y &quot;$(OutDir)em-framework.dll&quot; &quot;%25server_dir%25/Mods&quot;&#xD;&#xA;xcopy /Y &quot;$(OutDir)DiscordLink.pdb&quot; &quot;%25server_dir%25&quot;" />
+  </Target>
 
   <ItemGroup>
-    <PackageReference Include="DSharpPlus" Version="4.0.0-nightly-00722" />
-    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.0-nightly-00722" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.5" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="Nito.AsyncEx.Coordination" Version="5.0.0" />
+    <PackageReference Include="DSharpPlus" Version="4.0.0-rc1" />
+    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.0-rc1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.0-rc.2.20475.5" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0-rc.2.20475.5" />
+    <PackageReference Include="Nito.AsyncEx.Coordination" Version="5.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.9" />
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.0" />
   </ItemGroup>
 
   <ItemGroup>
     <Reference Include="Eco.Core">
-      <HintPath>..\..\DiscordLink Dependencies\Eco.Core.dll</HintPath>
+      <HintPath Condition="Exists('..\Dependencies\Eco.Core.dll')">..\Dependencies\Eco.Core.dll</HintPath>
+      <HintPath Condition="Exists('..\..\Eco\Server\Eco.Core\bin\Release\netstandard2.1\ref\Eco.Core.dll')">..\..\Eco\Server\Eco.Core\bin\Release\netstandard2.1\ref\Eco.Core.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="Eco.Gameplay">
-      <HintPath>..\..\DiscordLink Dependencies\Eco.Gameplay.dll</HintPath>
+      <HintPath Condition="Exists('..\Dependencies\Eco.Gameplay.dll')">..\Dependencies\Eco.Gameplay.dll</HintPath>
+      <HintPath Condition="Exists('..\..\Eco\Server\Eco.Gameplay\bin\Release\netcoreapp3.1\ref\Eco.Gameplay.dll')">..\..\Eco\Server\Eco.Gameplay\bin\Release\netcoreapp3.1\ref\Eco.Gameplay.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="Eco.ModKit">
-      <HintPath>..\..\DiscordLink Dependencies\Eco.ModKit.dll</HintPath>
+      <HintPath Condition="Exists('..\Dependencies\Eco.ModKit.dll')">..\Dependencies\Eco.ModKit.dll</HintPath>
+      <HintPath Condition="Exists('..\..\Eco\Server\Eco.ModKit\bin\Release\netcoreapp3.1\ref\Eco.ModKit.dll')">..\..\Eco\Server\Eco.ModKit\bin\Release\netcoreapp3.1\ref\Eco.ModKit.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="Eco.Plugins">
-      <HintPath>..\..\DiscordLink Dependencies\Eco.Plugins.dll</HintPath>
+      <HintPath Condition="Exists('..\Dependencies\Eco.Plugins.dll')">..\Dependencies\Eco.Plugins.dll</HintPath>
+      <HintPath Condition="Exists('..\..\Eco\Server\Eco.Plugins\bin\Release\netcoreapp3.1\ref\Eco.Plugins.dll')">..\..\Eco\Server\Eco.Plugins\bin\Release\netcoreapp3.1\ref\Eco.Plugins.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="Eco.Shared">
-      <HintPath>..\..\DiscordLink Dependencies\Eco.Shared.dll</HintPath>
+      <HintPath Condition="Exists('..\Dependencies\Eco.Shared.dll')">..\Dependencies\Eco.Shared.dll</HintPath>
+      <HintPath Condition="Exists('..\..\Eco\Server\Eco.Shared\bin\Release\netstandard2.1\ref\Eco.Shared.dll')">..\..\Eco\Server\Eco.Shared\bin\Release\netstandard2.1\ref\Eco.Shared.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="Eco.Simulation">
-      <HintPath>..\..\DiscordLink Dependencies\Eco.Simulation.dll</HintPath>
+      <HintPath Condition="Exists('..\Dependencies\Eco.Simulation.dll')">..\Dependencies\Eco.Simulation.dll</HintPath>
+      <HintPath Condition="Exists('..\..\Eco\Server\Eco.Simulation\bin\Release\netcoreapp3.1\ref\Eco.Simulation.dll')">..\..\Eco\Server\Eco.Simulation\bin\Release\netcoreapp3.1\ref\Eco.Simulation.dll</HintPath>
+      <Private>false</Private>
     </Reference>
-    <Reference Include="netstandard">
-      <HintPath>..\..\DiscordLink Dependencies\netstandard.dll</HintPath>
+    <Reference Include="Eco.WorldGenerator">
+      <HintPath Condition="Exists('..\Dependencies\Eco.WorldGenerator.dll')">..\Dependencies\Eco.WorldGenerator.dll</HintPath>
+      <HintPath Condition="Exists('..\..\Eco\Server\Eco.WorldGenerator\bin\Release\netcoreapp3.1\ref\Eco.WorldGenerator.dll')">..\..\Eco\Server\Eco.WorldGenerator\bin\Release\netcoreapp3.1\ref\Eco.WorldGenerator.dll</HintPath>
     </Reference>
-    <Reference Include="System.Collections.Immutable">
-      <HintPath>..\..\DiscordLink Dependencies\System.Collections.Immutable.dll</HintPath>
-    </Reference>
-    <Reference Include="System.ComponentModel.Primitives">
-      <HintPath>..\..\DiscordLink Dependencies\System.ComponentModel.Primitives.dll</HintPath>
-    </Reference>
-    <Reference Include="System.IO.FileSystem">
-      <HintPath>..\..\DiscordLink Dependencies\System.IO.FileSystem.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Linq">
-      <HintPath>..\..\DiscordLink Dependencies\System.Linq.dll</HintPath>
-    </Reference>
-    <Reference Include="System.ObjectModel">
-      <HintPath>..\..\DiscordLink Dependencies\System.ObjectModel.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Private.CoreLib">
-      <HintPath>..\..\DiscordLink Dependencies\System.Private.CoreLib.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Private.Uri">
-      <HintPath>..\..\DiscordLink Dependencies\System.Private.Uri.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Runtime.Extensions">
-      <HintPath>..\..\DiscordLink Dependencies\System.Runtime.Extensions.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Text.RegularExpressions">
-      <HintPath>..\..\DiscordLink Dependencies\System.Text.RegularExpressions.dll</HintPath>
+    <Reference Include="em-framework">
+      <HintPath>..\Dependencies\em-framework.dll</HintPath>
     </Reference>
   </ItemGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="set server_dir=$(SolutionDir)..\EcoServer\&#xD;&#xA;set server_mod_dir=$(SolutionDir)..\EcoServer\Mods\DiscordLink\&#xD;&#xA;for /f &quot;tokens=*&quot; %25%25i in ($(SolutionDir)DLLCopyList.txt) DO (&#xD;&#xA;    xcopy /Y &quot;$(OutDir)%25%25i&quot; &quot;%25server_mod_dir%25&quot;&#xD;&#xA;)&#xD;&#xA;xcopy /Y &quot;$(OutDir)DiscordLink.pdb&quot; &quot;%25server_dir%25&quot;" />
-  </Target>
 </Project>
