@@ -11,8 +11,126 @@ The config file is named "DiscordLink.eco" is generated inside the _"Config"_ di
 * [Server Details](#server-details)
 
 ## Sample Config
-See this page for a text version of the [sample config](SampleConfig.md)
-![Sample Config](images/configuration/no_gui/1.png)
+This is an example of what a filled out configuration file (DiscordLink.eco) could look like.
+ 
+NOTE: YOU CANNOT COPY THIS ONE AND EXPECT IT TO WORK!
+The config data needs to match your Eco server, Discord server and Discord bot.
+<details>
+  <summary>Configuration File Example</summary>
+
+```
+{
+  "BotToken": "xxXXxxxXxXXxxxxxxXxxxxXXXXxxx.XxxXxx.xXXXxxxxXXxxxxXxxxXXXXXXXxxxxxxxX",  
+  "EcoBotName": "DiscordLink",  
+  "DiscordCommandPrefix": "?",  
+    "AdminRoles": [  
+    "admin",  
+    "administrator",  
+    "moderator"  
+  ],  
+  "ServerName": "TheEcoServer",  
+  "ServerDescription": "The place to play Eco!",  
+  "ServerAddress": "xxx.xxx.xxx.xx",  
+  "ServerLogo": "https://github.com/Eco-DiscordLink/EcoDiscordPlugin/blob/develop/images/DiscordLinkLogo_Nameless.png",  
+  "ChatChannelLinks": [  
+    {  
+      "AllowUserMentions": true,  
+      "AllowRoleMentions": true,  
+      "AllowChannelMentions": true,  
+      "Direction": "Duplex",  
+      "HereAndEveryoneMentionPermission": "Forbidden",  
+      "DiscordGuild": "EcoDiscordServer",  
+      "DiscordChannel": "general",  
+      "EcoChannel": "General",  
+    }  
+  ],  
+  "TradeChannels": [  
+    {  
+      "DiscordGuild": "EcoDiscordServer",  
+      "DiscordChannel": "trades"  
+    }  
+  ],  
+  "CraftingChannels": [  
+    {  
+      "DiscordGuild": "EcoDiscordServer",  
+      "DiscordChannel": "crafting"  
+    }  
+  ],  
+  "ServerInfoChannels": [
+    {
+      "UseName": true,
+      "UseDescription": false,
+      "UseLogo": true,
+      "UseConnectionInfo": true,
+      "UsePlayerCount": true,
+      "UsePlayerList": true,
+      "UsePlayerListLoggedInTime": true,
+      "UseCurrentTime": true,
+      "UseTimeRemaining": true,
+      "UseMeteorHasHit": false,
+      "UseElectionCount": false,
+      "UseElectionList": true,
+      "UseLawCount": false,
+      "UseLawList": true,
+      "DiscordGuild": "EcoWorld",
+      "DiscordChannel": "server-status"
+    }
+  ],
+  "WorkPartyChannels": [  
+    {  
+      "DiscordGuild": "EcoDiscordServer",  
+      "DiscordChannel": "work-parties"  
+    }  
+  ],  
+  "PlayerListChannels": [  
+    {  
+      "UsePlayerCount": true,  
+      "DiscordGuild": "EcoDiscordServer",  
+      "DiscordChannel": "server-info"  
+    }  
+  ],  
+  "ElectionChannels": [  
+    {  
+      "DiscordGuild": "EcoDiscordServer",  
+      "DiscordChannel": "elections"  
+    }  
+  ],  
+  "CurrencyChannels": [  
+    {  
+      "UseMintedCurrency": "MintedExists",  
+      "UsePersonalCurrency": "NoMintedExists",  
+      "MaxMintedCount": 1,  
+      "MaxPersonalCount": 3,  
+      "MaxTopCurrencyHolderCount": 6,  
+      "UseTradeCount": true,  
+      "UseBackingInfo": false,  
+      "DiscordGuild": "EcoDiscordServer",  
+      "DiscordChannel": "currency"  
+    }  
+  ],  
+  "SnippetChannels": [  
+    {  
+      "DiscordGuild": "EcoDiscordServer",  
+      "DiscordChannel": "snippets"  
+    }  
+  ],  
+  "DiscordCommandChannels": [
+    {
+      "DiscordGuild": "",
+      "DiscordChannel": ""
+    }
+  ],
+  "MaxTrackedTradesPerUser": 5,
+  "LogLevel": "Information",  
+  "BackendLogLevel": "Error",  
+  "LogChat": false,  
+  "ChatlogPath": "E:\\EcoServer\\Configs\\Mods\\DiscordLink\\Chatlog.txt",  
+  "EcoCommandChannel": "General",  
+  "InviteMessage": "Join us on Discord!\n[LINK]"  
+}  
+```  
+
+</details>
 
 ## Bot Token
 See the [installation guide](Installation.md) for instructions on how to get a bot token.  
