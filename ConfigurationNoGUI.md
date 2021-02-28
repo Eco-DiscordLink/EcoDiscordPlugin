@@ -13,7 +13,7 @@ The config file is named "DiscordLink.eco" is generated inside the _"Config"_ di
 ## Sample Config
 This is an example of what a filled out configuration file (DiscordLink.eco) could look like.
  
-NOTE: YOU CANNOT COPY THIS ONE AND EXPECT IT TO WORK!
+NOTE: YOU CANNOT COPY THIS ONE AND EXPECT IT TO WORK!  
 The config data needs to match your Eco server, Discord server and Discord bot.
 <details>
   <summary>Configuration File Example</summary>
@@ -136,7 +136,7 @@ The config data needs to match your Eco server, Discord server and Discord bot.
 See the [installation guide](Installation.md) for instructions on how to get a bot token.  
 Once you have a bot token, copy the _"BotToken"_ field in the sample config and paste your generated bot token.
 
-## Linking Channels
+## Linking Chat Channels
 1. Copy the _"ChatChannelLinks"_ section of the sample config into your config file.
 2. Set _"DiscordGuild"_ field to the name or ID of your Discord Server.
 3. Set the _"DiscordChannel"_ field to the name or ID of the Discord channel you wish to synchronize with a channel in Eco.
@@ -145,7 +145,7 @@ Once you have a bot token, copy the _"BotToken"_ field in the sample config and 
 5. **Optional** Configure the _"Direction"_ field to only allow messages to be forwarded in one direction.
 
 ## Displays, Feeds and Inputs
-All displays, feeds and inputs require a [Channel Link](#linking-channels) and will be considered turned off until a valid one exists.
+All displays, feeds and inputs require a [Channel Link](#linking-channels) and will be considered turned off until a valid one exists.  
 For more information, see the [Modules Page](Modules.md).
 
 ## Eco Bot Name
@@ -166,7 +166,7 @@ The potential values for Log Level is:
 * Debug Verbose
 * Debug
 * Warning
-* Information
+* Information (Default)
 * Error
 * Silent
 
@@ -177,11 +177,12 @@ The potential values for Backend Log Level is:
 * Warning
 * Error
 * Critical
-* None
+* None (Default)
 
 **Notes**
 * All message types below the selected one will be printed as well.
 * All non-verbose and non-backend log messages are written to a separate log in "Mods/DiscordLink/Pluginlog.txt", regardless of log settings.
+* If the backend log level is raised, it is normal to see warnings like "Pre-emptive ratelimit triggered". This simply means that the underlying communications library delayed a message in order to make sure that we do not hit Discord's rate limit.
 
 ## Command Settings
 **Discord Command Prefix**  
