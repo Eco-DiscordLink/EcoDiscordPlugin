@@ -25,6 +25,8 @@ namespace Eco.Plugins.DiscordLink
 
         public static class DefaultValues
         {
+            public static LogLevel PluginLogLevel = LogLevel.Information;
+            public static Microsoft.Extensions.Logging.LogLevel BackendLogLevel = Microsoft.Extensions.Logging.LogLevel.None;
             public static readonly string[] AdminRoles = { "admin", "administrator", "moderator" };
             public const string DiscordCommandPrefix = "?";
             public const string EcoCommandOutputChannel = "General";
@@ -524,10 +526,10 @@ namespace Eco.Plugins.DiscordLink
         public int MaxTrackedTradesPerUser { get; set; } = DLConfig.DefaultValues.MaxTrackedTradesPerUser;
 
         [Description("Determines what message types will be printed to the server log. All message types below the selected one will be printed as well. This setting can be changed while the server is running."), Category("Miscellaneous")]
-        public LogLevel LogLevel { get; set; } = LogLevel.Information;
+        public LogLevel LogLevel { get; set; } = DLConfig.DefaultValues.PluginLogLevel;
 
         [Description("Determines what backend message types will be printed to the server log. All message types below the selected one will be printed as well. This setting requires a plugin restart to take effect."), Category("Miscellaneous")]
-        public Microsoft.Extensions.Logging.LogLevel BackendLogLevel { get; set; } = Microsoft.Extensions.Logging.LogLevel.None;
+        public Microsoft.Extensions.Logging.LogLevel BackendLogLevel { get; set; } = DLConfig.DefaultValues.BackendLogLevel;
 
         [Description("Enables logging of chat messages into the file at Chatlog Path. This setting can be changed while the server is running."), Category("Chatlog Configuration")]
         public bool LogChat { get; set; } = false;
