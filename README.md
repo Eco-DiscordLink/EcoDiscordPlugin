@@ -35,10 +35,10 @@ See [installation guide](Installation.md) for information on how to do this.
 
 ### Modules
 DiscordLink offers a variety of modules that can show various types of information such as player lists, elections, laws and currencies in Discord.
-See [Modules Feature List](Modules.md) for more information.
+See the [Modules Feature List](Modules.md) for more information.
 
 ### Commands
-See [command list](Commands.md) for available commands and how to use them.
+See the [command list](Commands.md) for available commands and how to use them.
 
 ### Notes:
 1. **Emojis**  
