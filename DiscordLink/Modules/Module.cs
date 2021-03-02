@@ -37,6 +37,11 @@ namespace Eco.Plugins.DiscordLink.Modules
                 }
                 info += $"\r\n{childInfo}";
             }
+            else
+            {
+                info += "\r\n";
+            }
+
             return $"[{ToString()}]{info}\r\n";
         }
 
