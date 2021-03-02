@@ -31,7 +31,6 @@ namespace Eco.Plugins.DiscordLink
         private string _status = "Not yet started";
         private CommandsNextExtension _commands = null;
         private Timer _discordDataMaybeAvailable = null;
-        private bool _isRestarting = true; // We consider the first startup as well
 
         public event EventHandler OnClientStarted;
         public event EventHandler OnClientStopped;
@@ -44,6 +43,7 @@ namespace Eco.Plugins.DiscordLink
         public ThreadSafeAction<object, string> ParamChanged { get; set; }
         public DateTime InitTime { get; private set; } = DateTime.MinValue;
         public DateTime LastConnectionTime { get; private set; } = DateTime.MinValue;
+        public bool CanRestart { get; private set; } = false; // False to start with as we cannot restart while the initial startup is in progress
 
         public override string ToString()
         {
@@ -231,11 +231,14 @@ namespace Eco.Plugins.DiscordLink
                     _status = "Awaiting Discord Caching...";
                     DLConfig.Instance.EnqueueFullVerification();
 
+                    if(_discordDataMaybeAvailable != null)
+                        SystemUtil.StopAndDestroyTimer(ref _discordDataMaybeAvailable); // No overlapping timers allowed!
                     _discordDataMaybeAvailable = new Timer(innerArgs =>
                     {
                         OnDiscordMaybeReady?.Invoke(this, EventArgs.Empty);
                         SystemUtil.StopAndDestroyTimer(ref _discordDataMaybeAvailable);
                         _status = "Connected and running";
+                        CanRestart = true;
                     }, null, FIRST_DISPLAY_UPDATE_DELAY_MS, Timeout.Infinite);
                 };
 
@@ -296,14 +299,15 @@ namespace Eco.Plugins.DiscordLink
         public async Task<bool> RestartClient()
         {
             bool result = false;
-            if (!_isRestarting)
+            if (CanRestart)
             {
+                CanRestart = false;
                 StopClient();
                 result = SetUpClient();
                 if (result)
-                {
                     await ConnectAsync();
-                }
+                else
+                    CanRestart = true; // If the client setup failed, enable restarting, otherwise we should wait for the callbacks from Discord to fire
             }
             return result;
         }
