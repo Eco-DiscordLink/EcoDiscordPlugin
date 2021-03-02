@@ -11,13 +11,11 @@ using Eco.Gameplay.Players;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Modules;
 using Eco.Plugins.DiscordLink.Utilities;
-using Eco.Plugins.Networking;
 using Eco.Shared.Utils;
 using Eco.WorldGenerator;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -94,7 +92,7 @@ namespace Eco.Plugins.DiscordLink
             ConnectAsync().Wait();
 
             // Triggered on a timer that starts when the Discord client connects.
-            // It is likely that the client object has fetched all the relevant data, but there are not guarantees.
+            // It is likely that the client object has fetched all the relevant data, but there are no guarantees.
             OnDiscordMaybeReady += (obj, args) =>
             {
                 InitializeModules();
@@ -276,7 +274,7 @@ namespace Eco.Plugins.DiscordLink
             return false;
         }
 
-        void StopClient()
+        private void StopClient()
         {
             _status = "Shutting down";
 
@@ -318,7 +316,7 @@ namespace Eco.Plugins.DiscordLink
             return result;
         }
 
-        public async Task<object> ConnectAsync()
+        public async Task ConnectAsync()
         {
             try
             {
@@ -334,8 +332,6 @@ namespace Eco.Plugins.DiscordLink
                 Logger.Error("Error occurred when connecting to Discord: Error message: " + e.Message);
                 _status = "Discord connection failed";
             }
-
-            return null;
         }
 
         public async Task<object> DisconnectAsync()
