@@ -25,7 +25,7 @@ namespace Eco.Plugins.DiscordLink
 {
     public class DiscordLink : IModKitPlugin, IInitializablePlugin, IShutdownablePlugin, IConfigurablePlugin, IDisplayablePlugin, IGameActionAware
     {
-        public readonly Version PluginVersion = new Version(2, 2, 0);
+        public readonly Version PluginVersion = new Version(2, 2, 1);
         private const int FIRST_DISPLAY_UPDATE_DELAY_MS = 20000;
 
         private string _status = "Not yet started";
