@@ -395,7 +395,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             {
                 string serverName = MessageUtil.FirstNonEmptyString(DLConfig.Data.ServerName, MessageUtil.StripTags(NetworkManager.GetServerInfo().Description), "[Server Title Missing]");
                 string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
-                return $"By DiscordLink @ {serverName} [{timestamp}]";
+                return $"Message sent by DiscordLink @ {serverName} [{timestamp}]";
             }
 
             public static void FormatTrades(string matchedName, bool isItem, StoreOfferList groupedBuyOffers, StoreOfferList groupedSellOffers, out DiscordLinkEmbed embedContent)
