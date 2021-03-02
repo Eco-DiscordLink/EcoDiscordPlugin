@@ -27,7 +27,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected override DLEventType GetTriggers()
         {
-            return DLEventType.Startup | DLEventType.Timer | DLEventType.PostedWorkParty | DLEventType.CompletedWorkParty
+            return DLEventType.DiscordClientStarted | DLEventType.Timer | DLEventType.PostedWorkParty | DLEventType.CompletedWorkParty
                 | DLEventType.JoinedWorkParty | DLEventType.LeftWorkParty | DLEventType.WorkedWorkParty;
         }
 

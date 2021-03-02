@@ -23,7 +23,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected override DLEventType GetTriggers()
         {
-            return DLEventType.Startup | DLEventType.Timer | DLEventType.Login
+            return DLEventType.DiscordClientStarted | DLEventType.Timer | DLEventType.Login
                 | DLEventType.Vote | DLEventType.StartElection | DLEventType.StopElection;
         }
 

@@ -86,7 +86,7 @@ namespace Eco.Plugins.DiscordLink
 
             WorldGeneratorPlugin.OnCompleted.Add(() => HandleWorldReset());
 
-            if (!SetUpClient())
+            if (!SetUpClient(isRestart: false))
             {
                 return;
             }
@@ -98,7 +98,7 @@ namespace Eco.Plugins.DiscordLink
             OnDiscordMaybeReady += (obj, args) =>
             {
                 InitializeModules();
-                HandleEvent(DLEventType.Startup, null);
+                HandleEvent(DLEventType.DiscordClientStarted, null);
             };
 
             // Set up callbacks
@@ -112,6 +112,8 @@ namespace Eco.Plugins.DiscordLink
 
         public void Shutdown()
         {
+            HandleEvent(DLEventType.ServerStopped, null);
+
             ShutdownModules();
             EventConverter.Instance.Shutdown();
             DLStorage.Instance.Shutdown();
@@ -199,7 +201,7 @@ namespace Eco.Plugins.DiscordLink
 
         #region DiscordClient Management
 
-        private bool SetUpClient()
+        private bool SetUpClient(bool isRestart)
         {
             _status = "Setting up client";
 
@@ -235,8 +237,12 @@ namespace Eco.Plugins.DiscordLink
                         SystemUtil.StopAndDestroyTimer(ref _discordDataMaybeAvailable); // No overlapping timers allowed!
                     _discordDataMaybeAvailable = new Timer(innerArgs =>
                     {
-                        OnDiscordMaybeReady?.Invoke(this, EventArgs.Empty);
                         SystemUtil.StopAndDestroyTimer(ref _discordDataMaybeAvailable);
+                        OnDiscordMaybeReady?.Invoke(this, EventArgs.Empty);
+
+                        if (!isRestart)
+                            HandleEvent(DLEventType.ServerStarted, null);
+                        
                         _status = "Connected and running";
                         CanRestart = true;
                     }, null, FIRST_DISPLAY_UPDATE_DELAY_MS, Timeout.Infinite);
@@ -303,7 +309,7 @@ namespace Eco.Plugins.DiscordLink
             {
                 CanRestart = false;
                 StopClient();
-                result = SetUpClient();
+                result = SetUpClient(isRestart: true);
                 if (result)
                     await ConnectAsync();
                 else
@@ -360,6 +366,7 @@ namespace Eco.Plugins.DiscordLink
             Modules.Add(new ChatlogFeed());
             Modules.Add(new TradeFeed());
             Modules.Add(new CraftingFeed());
+            Modules.Add(new ServerStatusFeed());
             Modules.Add(new ServerInfoDisplay());
             Modules.Add(new WorkPartyDisplay());
             Modules.Add(new PlayerDisplay());

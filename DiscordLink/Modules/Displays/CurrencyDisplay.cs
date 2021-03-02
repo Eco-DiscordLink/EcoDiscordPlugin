@@ -22,7 +22,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected override DLEventType GetTriggers()
         {
-            return DLEventType.Startup | DLEventType.Timer | DLEventType.CurrencyCreated;
+            return DLEventType.DiscordClientStarted | DLEventType.Timer | DLEventType.CurrencyCreated;
         }
 
         protected override List<DiscordTarget> GetDiscordTargets()

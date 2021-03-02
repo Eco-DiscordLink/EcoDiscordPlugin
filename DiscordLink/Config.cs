@@ -83,6 +83,7 @@ namespace Eco.Plugins.DiscordLink
             Data.ServerInfoChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.TradeChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.CraftingChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
+            Data.ServerStatusChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.SnippetChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.DiscordCommandChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.WorkPartyChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
@@ -416,6 +417,7 @@ namespace Eco.Plugins.DiscordLink
             _channelLinks.AddRange(_config.Config.ServerInfoChannels);
             _channelLinks.AddRange(_config.Config.TradeChannels);
             _channelLinks.AddRange(_config.Config.CraftingChannels);
+            _channelLinks.AddRange(_config.Config.ServerStatusChannels);
             _channelLinks.AddRange(_config.Config.SnippetChannels);
             _channelLinks.AddRange(_config.Config.DiscordCommandChannels);
             _channelLinks.AddRange(_config.Config.WorkPartyChannels);
@@ -459,6 +461,7 @@ namespace Eco.Plugins.DiscordLink
                 ServerInfoChannels = new ObservableCollection<ServerInfoChannel>(this.ServerInfoChannels.Select(t => t.Clone()).Cast<ServerInfoChannel>()),
                 TradeChannels = new ObservableCollection<ChannelLink>(this.TradeChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
                 CraftingChannels = new ObservableCollection<ChannelLink>(this.CraftingChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
+                ServerStatusChannels = new ObservableCollection<ChannelLink>(this.ServerStatusChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
                 SnippetChannels = new ObservableCollection<ChannelLink>(this.SnippetChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
                 DiscordCommandChannels = new ObservableCollection<ChannelLink>(this.DiscordCommandChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
                 WorkPartyChannels = new ObservableCollection<ChannelLink>(this.WorkPartyChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
@@ -500,6 +503,9 @@ namespace Eco.Plugins.DiscordLink
 
         [Description("Discord channels in which crafting events will be posted. This setting can be changed while the server is running."), Category("Feeds")]
         public ObservableCollection<ChannelLink> CraftingChannels { get; set; } = new ObservableCollection<ChannelLink>();
+
+        [Description("Discord channels in which server status events will be posted. This setting can be changed while the server is running."), Category("Feeds")]
+        public ObservableCollection<ChannelLink> ServerStatusChannels { get; set; } = new ObservableCollection<ChannelLink>();
 
         [Description("Discord channels in which to keep the Server Info display. DiscordLink will post one server info message in these channel and keep it updated trough edits. This setting can be changed while the server is running."), Category("Displays")]
         public ObservableCollection<ServerInfoChannel> ServerInfoChannels { get; set; } = new ObservableCollection<ServerInfoChannel>();
