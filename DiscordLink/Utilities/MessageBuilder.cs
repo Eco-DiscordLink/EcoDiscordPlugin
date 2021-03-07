@@ -54,7 +54,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
             public static string GetDisplayString(bool verbose)
             {
-                Plugins.DiscordLink.DiscordLink plugin = Plugins.DiscordLink.DiscordLink.Obj;
+                DiscordLink plugin = DiscordLink.Obj;
                 StringBuilder builder = new StringBuilder();
                 builder.AppendLine($"DiscordLink {plugin.PluginVersion}");
                 if (verbose)
@@ -66,6 +66,10 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 builder.AppendLine($"Status: {plugin.GetStatus()}");
                 TimeSpan elapssedTime = DateTime.Now.Subtract(plugin.InitTime);
                 builder.AppendLine($"Running Time: {(int)elapssedTime.TotalDays}:{elapssedTime.Hours}:{elapssedTime.Minutes}");
+
+                if (!plugin.DiscordConnected)
+                    return builder.ToString();
+
                 if (verbose)
                 {
                     builder.AppendLine($"Start Time: {plugin.InitTime:yyyy-MM-dd HH:mm}");
