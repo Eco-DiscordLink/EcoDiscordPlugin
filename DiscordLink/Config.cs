@@ -8,7 +8,6 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Description = System.ComponentModel.DescriptionAttribute;
 
@@ -20,6 +19,7 @@ namespace Eco.Plugins.DiscordLink
         {
             Static = 1 << 0,
             ChannelLinks = 1 << 1,
+            BotData = 1 << 2,
             All = ~0
         }
 
@@ -52,15 +52,7 @@ namespace Eco.Plugins.DiscordLink
 
         public const string InviteCommandLinkToken = "[LINK]";
 
-        public const int LINK_VERIFICATION_TIMEOUT_MS = 15000;
-        public const int STATIC_VERIFICATION_OUTPUT_DELAY_MS = 2000;
-        public const int GUILD_VERIFICATION_OUTPUT_DELAY_MS = 3000;
-
-        private readonly List<string> _verifiedLinks = new List<string>(); // TODO[Monzun] If identical links are used, this is going to give false negatives. Fix plz
         private DLConfigData _prevConfig; // Used to detect differences when the config is saved
-        private Timer _linkVerificationTimeoutTimer = null;
-        private Timer _guildVerificationOutputTimer = null;
-        private Timer _staticVerificationOutputDelayTimer = null;
 
         private PluginConfig<DLConfigData> _config;
         private readonly List<ChannelLink> _channelLinks = new List<ChannelLink>();
@@ -92,16 +84,6 @@ namespace Eco.Plugins.DiscordLink
             Data.CurrencyChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
 
             BuildChanneLinkList();
-
-            DiscordLink.Obj.OnClientStopped += (obj, args) =>
-            {
-                _verifiedLinks.Clear(); // If we were waiting to verify channel links, we need to clear this list or risk false positives
-            };
-        }
-
-        public void OnDiscordClientStopped()
-        {
-            _verifiedLinks.Clear(); // If we were waiting to verify channel links, we need to clear this list or risk false positives
         }
 
         public void HandleCollectionChanged(NotifyCollectionChangedEventArgs args)
@@ -172,43 +154,6 @@ namespace Eco.Plugins.DiscordLink
                 }
             }
             return null;
-        }
-
-        public void EnqueueFullVerification()
-        {
-            // Queue up the check for unverified channels
-            _linkVerificationTimeoutTimer = new Timer(innerArgs =>
-            {
-                _linkVerificationTimeoutTimer = null;
-                ReportUnverifiedChannels();
-                _verifiedLinks.Clear();
-            }, null, LINK_VERIFICATION_TIMEOUT_MS, Timeout.Infinite);
-
-            // Avoid writing async while the server is still outputting initialization info
-            _staticVerificationOutputDelayTimer = new Timer(innerArgs =>
-            {
-                _staticVerificationOutputDelayTimer = null;
-                VerifyConfig(VerificationFlags.Static);
-            }, null, STATIC_VERIFICATION_OUTPUT_DELAY_MS, Timeout.Infinite);
-        }
-
-        public void EnqueueGuildVerification()
-        {
-            _guildVerificationOutputTimer = new Timer(innerArgs =>
-            {
-                _guildVerificationOutputTimer = null;
-                VerifyConfig(VerificationFlags.ChannelLinks);
-                if ((DiscordLink.Obj.DiscordClient.Intents & DSharpPlus.DiscordIntents.GuildMembers) == 0)
-                    Logger.Warning("Bot not configured to allow reading of full server member list as it lacks the Server Members Intent\nSome features will be unavailable.\nSee install instructions for help with adding intents.");
-
-            }, null, GUILD_VERIFICATION_OUTPUT_DELAY_MS, Timeout.Infinite);
-        }
-
-        public void DequeueAllVerification()
-        {
-            SystemUtil.StopAndDestroyTimer(ref _linkVerificationTimeoutTimer);
-            SystemUtil.StopAndDestroyTimer(ref _staticVerificationOutputDelayTimer);
-            SystemUtil.StopAndDestroyTimer(ref _guildVerificationOutputTimer);
         }
 
         public bool Save() // Returns true if no correction was needed
@@ -361,52 +306,49 @@ namespace Eco.Plugins.DiscordLink
                 }
             }
 
-            // Discord guild and channel information isn't available the first time this function is called
-            if (verificationFlags.HasFlag(VerificationFlags.ChannelLinks) && DiscordLink.Obj.DiscordClient != null && ChannelLinks.Count > 0)
+            if (DiscordLink.Obj.DiscordClient != null)
             {
-                foreach (ChannelLink link in _channelLinks)
+                // Discord guild and channel information isn't available the first time this function is called
+                if (verificationFlags.HasFlag(VerificationFlags.ChannelLinks) && ChannelLinks.Count > 0)
                 {
-                    if (link.Verify())
+                    List<ChannelLink> verifiedLinks = new List<ChannelLink>();
+                    foreach (ChannelLink link in _channelLinks)
                     {
-                        string linkID = link.ToString();
-                        if (!_verifiedLinks.Contains(linkID))
+                        if (link.Verify())
                         {
-                            _verifiedLinks.Add(linkID);
-                            Logger.Info("Channel Link Verified: " + linkID);
+                            if (!verifiedLinks.Contains(link))
+                            {
+                                verifiedLinks.Add(link);
+                                Logger.Info($"Channel Link Verified: {link}");
+                            }
                         }
+                    }
+
+                    if (verifiedLinks.Count >= _channelLinks.Count)
+                    {
+                        Logger.Info("All channel links sucessfully verified");
+                    }
+                    else
+                    {
+                        List<ChannelLink> unverifiedLinks = new List<ChannelLink>();
+                        foreach (ChannelLink link in _channelLinks)
+                        {
+                            if (!link.IsValid()) continue;
+
+                            if (!verifiedLinks.Contains(link))
+                                unverifiedLinks.Add(link);
+                        }
+
+                        if (unverifiedLinks.Count > 0)
+                            Logger.Info($"Unverified channels detected:\n * " + string.Join("\n * ", unverifiedLinks));
                     }
                 }
 
-                if (_verifiedLinks.Count >= _channelLinks.Count)
+                if (verificationFlags.HasFlag(VerificationFlags.BotData))
                 {
-                    Logger.Info("All channel links sucessfully verified");
+                    if ((DiscordLink.Obj.DiscordClient.Intents & DSharpPlus.DiscordIntents.GuildMembers) == 0)
+                        Logger.Warning("Bot not configured to allow reading of full server member list as it lacks the Server Members Intent\nSome features will be unavailable.\nSee install instructions for help with adding intents.");
                 }
-                else if (_linkVerificationTimeoutTimer == null) // If no timer is used, then the discord guild info should already be set up
-                {
-                    ReportUnverifiedChannels();
-                }
-            }
-        }
-
-        private void ReportUnverifiedChannels()
-        {
-            if (_verifiedLinks.Count >= _channelLinks.Count) return; // All are verified; nothing to report.
-
-            List<string> unverifiedLinks = new List<string>();
-            foreach (ChannelLink link in _channelLinks)
-            {
-                if (!link.IsValid()) continue;
-
-                string linkID = link.ToString();
-                if (!_verifiedLinks.Contains(linkID))
-                {
-                    unverifiedLinks.Add(linkID);
-                }
-            }
-
-            if (unverifiedLinks.Count > 0)
-            {
-                Logger.Info("Unverified channels detected:\n" + string.Join("\n", unverifiedLinks));
             }
         }
 

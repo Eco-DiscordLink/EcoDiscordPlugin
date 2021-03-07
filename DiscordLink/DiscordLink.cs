@@ -16,7 +16,6 @@ using Eco.WorldGenerator;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink
@@ -24,15 +23,12 @@ namespace Eco.Plugins.DiscordLink
     public class DiscordLink : IModKitPlugin, IInitializablePlugin, IShutdownablePlugin, IConfigurablePlugin, IDisplayablePlugin, IGameActionAware
     {
         public readonly Version PluginVersion = new Version(2, 2, 1);
-        private const int FIRST_DISPLAY_UPDATE_DELAY_MS = 20000;
 
         private string _status = "Not yet started";
         private CommandsNextExtension _commands = null;
-        private Timer _discordDataMaybeAvailable = null;
 
         public event EventHandler OnClientStarted;
         public event EventHandler OnClientStopped;
-        public event EventHandler OnDiscordMaybeReady;
 
         public static DiscordLink Obj { get { return PluginManager.GetPlugin<DiscordLink>(); } }
         public DiscordClient DiscordClient { get; private set; }
@@ -41,6 +37,7 @@ namespace Eco.Plugins.DiscordLink
         public ThreadSafeAction<object, string> ParamChanged { get; set; }
         public DateTime InitTime { get; private set; } = DateTime.MinValue;
         public DateTime LastConnectionTime { get; private set; } = DateTime.MinValue;
+        public bool DiscordConnected { get; private set; } = false;
         public bool CanRestart { get; private set; } = false; // False to start with as we cannot restart while the initial startup is in progress
 
         public override string ToString()
@@ -83,21 +80,21 @@ namespace Eco.Plugins.DiscordLink
             InitTime = DateTime.Now;
 
             WorldGeneratorPlugin.OnCompleted.Add(() => HandleWorldReset());
+            _ = StartClient();
 
-            if (!SetUpClient(isRestart: false))
-            {
+            PluginManager.Controller.RunIfOrWhenInited(PostServerInitialize); // Defer some initialization for when the server initialization is completed.
+        }
+
+        private void PostServerInitialize()
+        {
+            if (!DiscordConnected)
                 return;
-            }
 
-            ConnectAsync().Wait();
+            DLConfig.Instance.VerifyConfig(DLConfig.VerificationFlags.ChannelLinks | DLConfig.VerificationFlags.BotData);
 
-            // Triggered on a timer that starts when the Discord client connects.
-            // It is likely that the client object has fetched all the relevant data, but there are no guarantees.
-            OnDiscordMaybeReady += (obj, args) =>
-            {
-                InitializeModules();
-                HandleEvent(DLEventType.DiscordClientStarted, null);
-            };
+            _ = EcoUser; // Create the Eco User on startup
+
+            PostClientConnected();
 
             // Set up callbacks
             UserManager.OnNewUserJoined.Add(user => HandleEvent(DLEventType.Join, user));
@@ -105,7 +102,17 @@ namespace Eco.Plugins.DiscordLink
             UserManager.OnUserLoggedOut.Add(user => HandleEvent(DLEventType.Logout, user));
             EventConverter.OnEventFired += (sender, args) => HandleEvent(args.EventType, args.Data);
 
-            _ = EcoUser; // Create the Eco User on startup
+            HandleEvent(DLEventType.ServerStarted, null);
+        }
+
+        private void PostClientConnected()
+        {
+            // Start modules
+            InitializeModules();
+            HandleEvent(DLEventType.DiscordClientStarted, null);
+
+            _status = "Connected and running";
+            CanRestart = true;
         }
 
         public void Shutdown()
@@ -191,7 +198,7 @@ namespace Eco.Plugins.DiscordLink
             UpdateModules(eventType, data);
         }
 
-        private void HandleWorldReset()
+        public void HandleWorldReset()
         {
             Logger.Info("New world generated - Removing storage data for previous world");
             DLStorage.Instance.Reset();
@@ -199,17 +206,16 @@ namespace Eco.Plugins.DiscordLink
 
         #region DiscordClient Management
 
-        private bool SetUpClient(bool isRestart)
+        private async Task<bool> StartClient()
         {
-            _status = "Setting up client";
+            _status = "Setting up Discord client";
 
             bool BotTokenIsNull = string.IsNullOrWhiteSpace(DLConfig.Data.BotToken);
             if (BotTokenIsNull)
             {
                 DLConfig.Instance.VerifyConfig(DLConfig.VerificationFlags.Static); // Make the user aware of the empty bot token
-            }
-
-            if (BotTokenIsNull) return false; // Do not attempt to initialize if the bot token is empty
+                return false; // Do not attempt to initialize if the bot token is empty
+            }    
 
             try
             {
@@ -226,61 +232,45 @@ namespace Eco.Plugins.DiscordLink
                 DiscordClient.SocketErrored += async (client, args) => { Logger.Debug("A socket error occurred. Error message was: " + args.Exception.ToString()); };
                 DiscordClient.SocketClosed += async (client, args) => { Logger.DebugVerbose("Socket Closed: " + args.CloseMessage + " " + args.CloseCode); };
                 DiscordClient.Resumed += async (client, args) => { Logger.Debug("Resumed connection"); };
-                DiscordClient.Ready += async (client, args) =>
-                {
-                    _status = "Awaiting Discord Caching...";
-                    DLConfig.Instance.EnqueueFullVerification();
-
-                    if(_discordDataMaybeAvailable != null)
-                        SystemUtil.StopAndDestroyTimer(ref _discordDataMaybeAvailable); // No overlapping timers allowed!
-                    _discordDataMaybeAvailable = new Timer(innerArgs =>
-                    {
-                        SystemUtil.StopAndDestroyTimer(ref _discordDataMaybeAvailable);
-                        OnDiscordMaybeReady?.Invoke(this, EventArgs.Empty);
-
-                        if (!isRestart)
-                            HandleEvent(DLEventType.ServerStarted, null);
-                        
-                        _status = "Connected and running";
-                        CanRestart = true;
-                    }, null, FIRST_DISPLAY_UPDATE_DELAY_MS, Timeout.Infinite);
-                };
-
-                DiscordClient.GuildAvailable += async (client, args) =>
-                {
-                    DLConfig.Instance.EnqueueGuildVerification();
-                };
 
                 DiscordClient.MessageDeleted += async (client, args) =>
                 {
                     Modules.ForEach(async module => await module.OnMessageDeleted(args.Message));
                 };
 
-                // Set up the client to use CommandsNext
+                // Register Discord commands
                 _commands = DiscordClient.UseCommandsNext(new CommandsNextConfiguration
                 {
                     StringPrefixes = DLConfig.Data.DiscordCommandPrefix.SingleItemAsEnumerable()
                 });
                 _commands.RegisterCommands<DiscordCommands>();
-
-                OnClientStarted?.Invoke(this, EventArgs.Empty);
-                return true;
             }
             catch (Exception e)
             {
                 Logger.Error("Error occurred while creating the Discord client. Error message: " + e);
+                _status = "Failed to create Discord client";
+                return false;
             }
 
-            return false;
+            try
+            {
+                await ConnectAsync();
+            }
+            catch (Exception e)
+            {
+                Logger.Error("Error occurred while connecting to Discord. Error message: " + e);
+                _status = "Failed to connect to Discord";
+                return false;
+            }
+
+            OnClientStarted?.Invoke(this, EventArgs.Empty);
+
+            return true;
         }
 
         private void StopClient()
         {
             _status = "Shutting down";
-
-            // Stop various timers that may have been set up so they do not trigger while the reset is ongoing
-            DLConfig.Instance.DequeueAllVerification();
-            SystemUtil.StopAndDestroyTimer(ref _discordDataMaybeAvailable);
 
             ShutdownModules();
 
@@ -307,9 +297,10 @@ namespace Eco.Plugins.DiscordLink
             {
                 CanRestart = false;
                 StopClient();
-                result = SetUpClient(isRestart: true);
+                result = await StartClient();
+
                 if (result)
-                    await ConnectAsync();
+                    PostClientConnected();
                 else
                     CanRestart = true; // If the client setup failed, enable restarting, otherwise we should wait for the callbacks from Discord to fire
             }
@@ -320,9 +311,9 @@ namespace Eco.Plugins.DiscordLink
         {
             try
             {
-                _status = "Attempting connection...";
+                _status = "Attempting Discord connection...";
                 await DiscordClient.ConnectAsync();
-                BeginRelaying();
+                DiscordConnected = true;
                 Logger.Info("Connected to Discord");
                 _status = "Discord connection successful";
                 LastConnectionTime = DateTime.Now;
@@ -338,8 +329,8 @@ namespace Eco.Plugins.DiscordLink
         {
             try
             {
-                StopRelaying();
                 await DiscordClient.DisconnectAsync();
+                DiscordConnected = false;
                 _status = "Disconnected from Discord";
             }
             catch (Exception e)
