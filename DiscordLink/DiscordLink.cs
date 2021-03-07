@@ -20,6 +20,7 @@ using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink
 {
+    [Priority(PriorityAttribute.High)] // Need to start before WorldGenerator in order to listen for world generation finished event
     public class DiscordLink : IModKitPlugin, IInitializablePlugin, IShutdownablePlugin, IConfigurablePlugin, IDisplayablePlugin, IGameActionAware
     {
         public readonly Version PluginVersion = new Version(2, 2, 1);
@@ -79,9 +80,9 @@ namespace Eco.Plugins.DiscordLink
             Logger.Info("Plugin version is " + PluginVersion);
             InitTime = DateTime.Now;
 
-            WorldGeneratorPlugin.OnCompleted.Add(() => HandleWorldReset());
             _ = StartClient();
 
+            WorldGeneratorPlugin.OnFinishGenerate.AddUnique(this.HandleWorldReset);
             PluginManager.Controller.RunIfOrWhenInited(PostServerInitialize); // Defer some initialization for when the server initialization is completed.
         }
 
