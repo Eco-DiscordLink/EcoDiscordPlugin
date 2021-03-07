@@ -32,10 +32,10 @@ namespace Eco.Plugins.DiscordLink
             public const string EcoCommandOutputChannel = "General";
             public const string InviteMessage = "Join us on Discord!\n" + InviteCommandLinkToken;
             public const string EcoBotName = "DiscordLink";
-            public const int    MaxMintedCurrencies = 1;
-            public const int    MaxPersonalCurrencies = 3;
-            public const int    MaxTopCurrencyHolderCount = 3;
-            public const int    MaxTrackedTradesPerUser = 5;
+            public const int MaxMintedCurrencies = 1;
+            public const int MaxPersonalCurrencies = 3;
+            public const int MaxTopCurrencyHolderCount = 3;
+            public const int MaxTrackedTradesPerUser = 5;
         }
 
         public static readonly DLConfig Instance = new DLConfig();

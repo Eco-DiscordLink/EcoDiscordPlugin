@@ -77,7 +77,7 @@ namespace Eco.Plugins.DiscordLink
             EventConverter.Instance.Initialize();
             DLStorage.Instance.Initialize();
             Logger.Initialize();
-            Logger.Info("Plugin version is " + PluginVersion);
+            Logger.Info($"Plugin version is {PluginVersion}");
             InitTime = DateTime.Now;
 
             _ = StartClient();
@@ -326,7 +326,7 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
-        public async Task<object> DisconnectAsync()
+        public async Task DisconnectAsync()
         {
             try
             {
@@ -339,8 +339,6 @@ namespace Eco.Plugins.DiscordLink
                 Logger.Error("An Error occurred when disconnecting from Discord: Error message: " + e.Message);
                 _status = "Discord connection failed";
             }
-
-            return null;
         }
 
         #endregion
