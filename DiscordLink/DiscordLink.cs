@@ -110,6 +110,7 @@ namespace Eco.Plugins.DiscordLink
         {
             // Start modules
             InitializeModules();
+            BeginRelaying();
             HandleEvent(DLEventType.DiscordClientStarted, null);
 
             _status = "Connected and running";
