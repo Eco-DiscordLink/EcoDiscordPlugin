@@ -5,6 +5,7 @@ namespace Eco.Plugins.DiscordLink
     public static class DLConstants
     {
         public const string ECHO_COMMAND_TOKEN = "[ECHO]";
+        public const string DEFAULT_CHAT_CHANNEL = "General";
 
         public const int DISCORD_MESSAGE_CHARACTER_LIMIT = 2000;
         public const int DISCORD_EMBED_TITLE_CHARACTER_LIMIT = 256;

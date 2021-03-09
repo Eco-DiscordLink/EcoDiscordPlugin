@@ -173,7 +173,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("echo")]
         [Description("Sends the provided message to Eco and back to Discord again.")]
-        public async Task Echo(CommandContext ctx, [Description("The message to send and then receive back again. A random message will be sent if this parameter is omitted.")] string message = "")
+        public async Task Echo(CommandContext ctx, [Description("The message to send and then receive back again. A random message will be sent if this parameter is omitted.")] string message = "", [Description("The eco channel you want to test.")] string ecoChannel = "")
         {
             await CallWithErrorHandling<object>(PermissionType.Admin, async (lCtx, args) =>
             {
@@ -183,7 +183,7 @@ namespace Eco.Plugins.DiscordLink
                     return;
                 }
 
-                if (message.IsEmpty())
+                if (string.IsNullOrWhiteSpace(message))
                 {
                     Random rnd = new Random();
                     switch (rnd.Next(1, 5))
@@ -210,7 +210,10 @@ namespace Eco.Plugins.DiscordLink
                     }
                 }
 
-                string formattedMessage = $"#{DLConfig.Data.EcoCommandOutputChannel} {DLConstants.ECHO_COMMAND_TOKEN} {message}";
+                if (string.IsNullOrWhiteSpace(ecoChannel))
+                    ecoChannel = DLConstants.DEFAULT_CHAT_CHANNEL;
+
+                string formattedMessage = $"#{ecoChannel} {DLConstants.ECHO_COMMAND_TOKEN} {message}";
                 ChatManager.SendChat(formattedMessage, plugin.EcoUser);
             }, ctx);
         }

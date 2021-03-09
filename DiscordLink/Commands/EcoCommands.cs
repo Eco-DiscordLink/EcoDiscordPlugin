@@ -130,7 +130,7 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [ChatSubCommand("DiscordLink", "Post a predefined snippet from Discord.", "dl-snippet", ChatAuthorizationLevel.User)]
-        public static void Snippet(User user, string snippetKey = "", string ecoChannel = "")
+        public static void Snippet(User user, string snippetKey = "")
         {
             CallWithErrorHandling<object>((lUser, args) =>
             {
@@ -155,8 +155,7 @@ namespace Eco.Plugins.DiscordLink
                     if (snippets.TryGetValue(snippetKeyLower, out string sippetText))
                     {
                         response = user.Name + " invoked snippet \"" + snippetKey + "\"\n- - -\n" + sippetText + "\n- - -";
-                        string formattedSnippetMessage = $"#{(string.IsNullOrEmpty(ecoChannel) ? DLConfig.Data.EcoCommandOutputChannel : ecoChannel) } {response}";
-                        ChatManager.SendChat(formattedSnippetMessage, plugin.EcoUser);
+                        EcoUtil.SendServerMessage(response, permanent: true);
                     }
                     else
                     {

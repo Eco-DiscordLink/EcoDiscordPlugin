@@ -14,7 +14,16 @@ namespace Eco.Plugins.DiscordLink.Utilities
         public static IEnumerable<Election> ActiveElections => ElectionManager.Obj.CurrentElections.Where(x => x.Valid() && x.State == Shared.Items.ProposableState.Active);
         public static IEnumerable<Law> ActiveLaws => CivicsData.Obj.Laws.All<Law>().Where(x => x.State == Shared.Items.ProposableState.Active);
 
-        public static void SendServerMessage(string message, bool permanent = false, User user = null )
+        public static User GetUserbyName(string targetUserName)
+        {
+            return UserManager.FindUserByName(targetUserName);
+        }
+
+        public static User GetOnlineUserbyName(string targetUserName)
+        {
+            string lowerTargetUserName = targetUserName.ToLower();
+            return UserManager.OnlineUsers.FirstOrDefault(user => user.Name.ToLower() == lowerTargetUserName);
+        }
         {
             ChatBase.MessageType messageType = permanent ? ChatBase.MessageType.Permanent : ChatBase.MessageType.Temporary;
             SendMessageOfType(null, message, messageType, user);

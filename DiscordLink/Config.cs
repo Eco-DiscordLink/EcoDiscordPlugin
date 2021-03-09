@@ -214,13 +214,6 @@ namespace Eco.Plugins.DiscordLink
                 OnChatlogPathChanged?.Invoke(this, EventArgs.Empty);
             }
 
-            // Eco command channel
-            if (string.IsNullOrEmpty(Data.EcoCommandOutputChannel))
-            {
-                Data.EcoCommandOutputChannel = DefaultValues.EcoCommandOutputChannel;
-                correctionMade = true;
-            }
-
             // Max tracked trades per user
             if(Data.MaxTrackedTradesPerUser < 0)
             {
@@ -277,12 +270,6 @@ namespace Eco.Plugins.DiscordLink
                 if (string.IsNullOrWhiteSpace(Data.BotToken))
                 {
                     errorMessages.Add("[Bot Token] Bot token not configured. See Github page for install instructions.");
-                }
-
-                // Eco command channel
-                if (!string.IsNullOrWhiteSpace(Data.EcoCommandOutputChannel) && Data.EcoCommandOutputChannel.Contains("#"))
-                {
-                    errorMessages.Add("[Eco Command Channel] Channel name contains a channel indicator (#). The channel indicator will be added automatically and adding one manually may cause message sending to fail");
                 }
 
                 if (!string.IsNullOrWhiteSpace(Data.InviteMessage) && !Data.InviteMessage.Contains(InviteCommandLinkToken))
@@ -395,7 +382,6 @@ namespace Eco.Plugins.DiscordLink
                 LogLevel = this.LogLevel,
                 LogChat = this.LogChat,
                 ChatlogPath = this.ChatlogPath,
-                EcoCommandOutputChannel = this.EcoCommandOutputChannel,
                 MaxTrackedTradesPerUser = this.MaxTrackedTradesPerUser,
                 InviteMessage = this.InviteMessage,
                 AdminRoles = new ObservableCollection<string>(this.AdminRoles.Select(t => t.Clone()).Cast<string>()),
@@ -484,9 +470,6 @@ namespace Eco.Plugins.DiscordLink
 
         [Description("The path to the chatlog file, including file name and extension. This setting can be changed while the server is running, but the existing chatlog will not transfer."), Category("Chatlog Configuration")]
         public string ChatlogPath { get; set; } = Directory.GetCurrentDirectory() + "\\Mods\\DiscordLink\\Chatlog.txt";
-
-        [Description("The Eco chat channel to use for commands that output public messages, excluding the initial # character. This setting can be changed while the server is running."), Category("Command Settings")]
-        public string EcoCommandOutputChannel { get; set; } = DLConfig.DefaultValues.EcoCommandOutputChannel;
 
         [Description("The message to use for the /DiscordInvite command. The invite link is fetched from the network config and will replace the token " + DLConfig.InviteCommandLinkToken + ". This setting can be changed while the server is running."), Category("Command Settings")]
         public string InviteMessage { get; set; } = DLConfig.DefaultValues.InviteMessage;
