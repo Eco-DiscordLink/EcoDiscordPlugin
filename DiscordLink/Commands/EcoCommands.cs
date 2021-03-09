@@ -113,17 +113,49 @@ namespace Eco.Plugins.DiscordLink
         {
             CallWithErrorHandling<object>((lUser, args) =>
             {
-                ChatManager.ServerMessageToPlayer(new LocString(MessageBuilder.Shared.GetAboutMessage()), user);
+                EcoUtil.SendAnnouncementMessage($"About DiscordLink {Plugins.DiscordLink.DiscordLink.Obj.PluginVersion}", MessageBuilder.Shared.GetAboutMessage(), user);
             },
             user);
         }
 
-        [ChatSubCommand("DiscordLink", "Displays Discord invite message.", "dl-invite", ChatAuthorizationLevel.User)]
-        public static void Invite(User user, string ecoChannel = "")
+        [ChatSubCommand("DiscordLink", "Posts the Discord invite message to the target user.", "dl-invite", ChatAuthorizationLevel.User)]
+        public static void Invite(User user, string targetUserName = "")
         {
             CallWithErrorHandling<object>((lUser, args) =>
             {
-                string result = SharedCommands.Invite(ecoChannel);
+                string result = string.Empty;
+                User targetUser = user;
+                if (!string.IsNullOrEmpty(targetUserName))
+                {
+                    targetUser = UserManager.FindUserByName(targetUserName);
+                    if (targetUser != null)
+                    {
+                        result = SharedCommands.DiscordInvite(targetUser);
+                    }
+                    else
+                    {
+                        User offlineUser = EcoUtil.GetUserbyName(targetUserName);
+                        if (offlineUser != null)
+                            result = $"{MessageUtil.StripTags(offlineUser.Name)} is not online";
+                        else
+                            result = $"Could not find user with name {targetUserName}";
+                    }
+                    ChatManager.ServerMessageToPlayer(new LocString(result), user);
+                }
+                else
+                {
+                    SharedCommands.DiscordInvite(targetUser);
+                }
+            },
+            user);
+        }
+
+        [ChatSubCommand("DiscordLink", "Posts the Discord invite message to the Eco chat.", "dl-broadcastinvite", ChatAuthorizationLevel.User)]
+        public static void BroadcastInvite(User user, string ecoChannel = "")
+        {
+            CallWithErrorHandling<object>((lUser, args) =>
+            {
+                string result = SharedCommands.BroadcastDiscordInvite(ecoChannel);
                 ChatManager.ServerMessageToPlayer(new LocString(result), user);
             },
             user);

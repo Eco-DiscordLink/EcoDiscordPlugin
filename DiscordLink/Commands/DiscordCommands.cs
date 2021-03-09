@@ -3,7 +3,7 @@ using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
-using Eco.Core.Utils;
+using Eco.Gameplay.Players;
 using Eco.Gameplay.Systems.Chat;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Utils;
@@ -356,14 +356,40 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
-        [Command("DiscordInvite")]
-        [Description("Posts the Discord invite message to the Eco chat.")]
+        [Command("Invite")]
+        [Description("Posts the Discord invite message to the target user.")]
         [Aliases("dl-invite")]
-        public async Task DiscordInvite(CommandContext ctx, [Description("The Eco channel in which to post the invite message")] string ecoChannel = "")
+        public async Task Invite(CommandContext ctx, [Description("The Eco username of the user receiving the invite")] string targetUserName)
         {
             await CallWithErrorHandling<object>(PermissionType.User, async (lCtx, args) =>
             {
-                string result = SharedCommands.Invite(ecoChannel);
+                string result = string.Empty;
+                User targetUser = EcoUtil.GetOnlineUserbyName(targetUserName);
+                if (targetUser != null)
+                {
+                    result = SharedCommands.DiscordInvite(targetUser);
+                }
+                else
+                {
+                    User offlineUser = EcoUtil.GetUserbyName(targetUserName);
+                    if (offlineUser != null)
+                        result = $"{MessageUtil.StripTags(offlineUser.Name)} is not online";
+                    else
+                        result = $"Could not find user with name {targetUserName}";
+                }
+
+                await RespondToCommand(ctx, result);
+            }, ctx);
+        }
+
+        [Command("BroadcastInvite")]
+        [Description("Posts the Discord invite message to the Eco chat.")]
+        [Aliases("dl-broadcastinvite")]
+        public async Task BroadcastInvite(CommandContext ctx, [Description("The Eco channel in which to post the invite message")] string ecoChannel = "")
+        {
+            await CallWithErrorHandling<object>(PermissionType.Admin, async (lCtx, args) =>
+            {
+                string result = SharedCommands.BroadcastDiscordInvite(ecoChannel);
                 await RespondToCommand(ctx, result);
             }, ctx);
         }

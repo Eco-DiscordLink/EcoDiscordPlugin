@@ -1,8 +1,10 @@
-﻿using Eco.Gameplay.Components;
+﻿using Eco.Core.Utils;
+using Eco.Gameplay.Components;
 using Eco.Gameplay.Items;
 using Eco.Gameplay.Players;
 using Eco.Gameplay.Systems.Chat;
 using Eco.Plugins.DiscordLink.Utilities;
+using Eco.Shared.Localization;
 using Eco.Shared.Networking;
 using System;
 using System.Collections.Generic;
@@ -89,9 +91,8 @@ namespace Eco.Plugins.DiscordLink
             else
                 return "Failed to send message";
         }
-        }
 
-        public static string Invite(string ecoChannel)
+        public static string DiscordInvite(User targetUser)
         {
             var plugin = DiscordLink.Obj;
             DLConfigData config = DLConfig.Data;
@@ -102,9 +103,29 @@ namespace Eco.Plugins.DiscordLink
                 return "This server is not configured for using the /DiscordInvite command.";
 
             inviteMessage = Regex.Replace(inviteMessage, Regex.Escape(DLConfig.InviteCommandLinkToken), serverInfo.DiscordAddress);
-            string formattedInviteMessage = $"#{(string.IsNullOrEmpty(ecoChannel) ? config.EcoCommandOutputChannel : ecoChannel) } {inviteMessage}";
-            ChatManager.SendChat(formattedInviteMessage, plugin.EcoUser);
-            return "Invite sent";
+            bool result = EcoUtil.SendServerMessage(inviteMessage, permanent: true, targetUser);
+            if (result)
+                return "Invite sent";
+            else
+                return "Failed to send invite";
+        }
+
+        public static string BroadcastDiscordInvite(string ecoChannel)
+        {
+            var plugin = DiscordLink.Obj;
+            DLConfigData config = DLConfig.Data;
+            ServerInfo serverInfo = Networking.NetworkManager.GetServerInfo();
+
+            string inviteMessage = config.InviteMessage;
+            if (!inviteMessage.Contains(DLConfig.InviteCommandLinkToken) || string.IsNullOrEmpty(serverInfo.DiscordAddress))
+                return "This server is not configured for using the /DiscordInvite command.";
+
+            inviteMessage = Regex.Replace(inviteMessage, Regex.Escape(DLConfig.InviteCommandLinkToken), serverInfo.DiscordAddress);
+            bool result = EcoUtil.SendServerMessage(inviteMessage, permanent: true);
+            if (result)
+                return "Invite sent";
+            else
+                return "Failed to send invite";
         }
 
         public static string Trades(string userOrItemName, out string matchedName, out bool isItem, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers)
