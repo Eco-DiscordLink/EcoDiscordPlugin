@@ -40,8 +40,11 @@ namespace Eco.Plugins.DiscordLink
                     return "No online user with the name \"" + recipientUserName + "\" could be found.";
             }
 
-            EcoUtil.SendServerMessage("[" + senderName + "] " + message, permanent, recipient);
-            return "Message delivered.";
+            bool result = EcoUtil.SendServerMessage("[" + senderName + "] " + message, permanent, recipient);
+            if (result)
+                return "Message delivered.";
+            else
+                return "Failed to send message.";
         }
 
         public static string SendPopup(string message, string senderName, string recipientUserName)
@@ -57,17 +60,20 @@ namespace Eco.Plugins.DiscordLink
                     return "No online user with the name \"" + recipientUserName + "\" could be found.";
             }
 
-            EcoUtil.SendPopupMessage("[" + senderName + "]\n\n" + message, recipient);
-            return "Message delivered.";
+            bool result = EcoUtil.SendPopupMessage("[" + senderName + "]\n\n" + message, recipient);
+            if (result)
+                return "Message delivered";
+            else
+                return "Failed to send message";
         }
 
         public static string SendAnnouncement(string title, string message, string senderName, string recipientUserName)
         {
             if (string.IsNullOrWhiteSpace(title))
-                return "Title cannot be empty.";
+                return "Title cannot be empty";
 
             if (string.IsNullOrWhiteSpace(message))
-                return "Message cannot be empty.";
+                return "Message cannot be empty";
 
             User recipient = null;
             if (!string.IsNullOrWhiteSpace(recipientUserName))
@@ -77,8 +83,12 @@ namespace Eco.Plugins.DiscordLink
                     return "No online user with the name \"" + recipientUserName + "\" could be found.";
             }
 
-            EcoUtil.SendAnnouncementMessage(title, message + "\n\n[" + senderName + "]", recipient);
-            return "Message delivered.";
+            bool result = EcoUtil.SendAnnouncementMessage(title, message + "\n\n[" + senderName + "]", recipient);
+            if (result)
+                return "Message delivered";
+            else
+                return "Failed to send message";
+        }
         }
 
         public static string Invite(string ecoChannel)

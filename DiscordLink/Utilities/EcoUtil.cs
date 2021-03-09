@@ -24,49 +24,45 @@ namespace Eco.Plugins.DiscordLink.Utilities
             string lowerTargetUserName = targetUserName.ToLower();
             return UserManager.OnlineUsers.FirstOrDefault(user => user.Name.ToLower() == lowerTargetUserName);
         }
+
+        public static bool SendServerMessage(string message, bool permanent = false, User user = null )
         {
             ChatBase.MessageType messageType = permanent ? ChatBase.MessageType.Permanent : ChatBase.MessageType.Temporary;
-            SendMessageOfType(null, message, messageType, user);
+            return SendMessageOfType(null, message, messageType, user);
         }
 
-        public static void SendPopupMessage(string message, User user = null)
+        public static bool SendPopupMessage(string message, User user = null)
         {
-            SendMessageOfType(null, message, ChatBase.MessageType.Popup, user);
+            return SendMessageOfType(null, message, ChatBase.MessageType.Popup, user);
         }
 
-        public static void SendAnnouncementMessage(string title, string message, User user = null)
+        public static bool SendAnnouncementMessage(string title, string message, User user = null)
         {
-            SendMessageOfType(title, message, ChatBase.MessageType.Announcement, user);
+            return SendMessageOfType(title, message, ChatBase.MessageType.Announcement, user);
         }
 
-        private static void SendMessageOfType(string title, string message, ChatBase.MessageType messageType, User user )
+        private static bool SendMessageOfType(string title, string message, ChatBase.MessageType messageType, User user)
         {
-            switch(messageType)
+            bool result = false;
+            switch (messageType)
             {
                 case ChatBase.MessageType.Temporary:
                 case ChatBase.MessageType.Permanent:
                 case ChatBase.MessageType.Popup:
                     if (user == null)
-                    {
-                        ChatBase.Send(new ChatBase.Message(message, messageType));
-                    }
+                        result = ChatBase.Send(new ChatBase.Message(message, messageType));
                     else
-                    {
-                        ChatBase.Send(new ChatBase.Message(message, user, messageType));
-                    }
+                        result = ChatBase.Send(new ChatBase.Message(message, user, messageType));
                     break;
 
                 case ChatBase.MessageType.Announcement:
                     if (user == null)
-                    {
-                        ChatBase.Send(new ChatBase.Message(title, message));
-                    }
+                        result = ChatBase.Send(new ChatBase.Message(title, message));
                     else
-                    {
-                        ChatBase.Send(new ChatBase.Message(title, message, user));
-                    }
+                        result = ChatBase.Send(new ChatBase.Message(title, message, user));
                     break;
             }
+            return result;
         }
     }
 }
