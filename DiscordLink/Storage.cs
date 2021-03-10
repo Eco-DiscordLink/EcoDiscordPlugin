@@ -93,7 +93,7 @@ namespace Eco.Plugins.DiscordLink
 
         private void HandleLinkedUserRemoved(object sender, LinkedUser user)
         {
-            WorldData.PlayerTrackedTrades.Remove(ulong.Parse(user.DiscordId));
+            WorldData.PlayerTrackedTrades.Remove(ulong.Parse(user.DiscordID));
         }
 
         public class PersistantStorageData

@@ -275,15 +275,15 @@ namespace Eco.Plugins.DiscordLink
                 // Make sure that the accounts aren't already linked to any account
                 foreach (LinkedUser linkedUser in DLStorage.PersistentData.LinkedUsers)
                 {
-                    if (user.SlgId == linkedUser.SlgId || user.SteamId == linkedUser.SteamId)
+                    if (user.SlgId == linkedUser.SlgID || user.SteamId == linkedUser.SteamID)
                     {
-                        if (linkedUser.DiscordId == matchingMember.Id.ToString())
+                        if (linkedUser.DiscordID == matchingMember.Id.ToString())
                             ChatManager.ServerMessageToPlayer(new LocString("Eco account is already linked to this Discord account.\nUse /dl-unlink to remove the existing link."), user);
                         else
                             ChatManager.ServerMessageToPlayer(new LocString("Eco account is already linked to a different Discord account.\nUse /dl-unlink to remove the existing link."), user);
                         return;
                     }
-                    else if (linkedUser.DiscordId == matchingMember.Id.ToString())
+                    else if (linkedUser.DiscordID == matchingMember.Id.ToString())
                     {
                         ChatManager.ServerMessageToPlayer(new LocString("Discord account is already linked to a different Eco account."), user);
                         return;
@@ -351,7 +351,7 @@ namespace Eco.Plugins.DiscordLink
                 return;
             }
 
-            int trackedTradesCount = DLStorage.WorldData.GetTrackedTradesCountForUser(ulong.Parse(linkedUser.DiscordId));
+            int trackedTradesCount = DLStorage.WorldData.GetTrackedTradesCountForUser(ulong.Parse(linkedUser.DiscordID));
             if (trackedTradesCount >= DLConfig.Data.MaxTrackedTradesPerUser)
             {
                 ChatManager.ServerMessageToPlayer(new LocString($"You are already tracking {trackedTradesCount} trades and the limit is {DLConfig.Data.MaxTrackedTradesPerUser} tracked trades per user.\nUse the `\\dl-StopTrackTrades` command to remove a tracked trade to make space if you wish to add a new one."), user);
@@ -366,7 +366,7 @@ namespace Eco.Plugins.DiscordLink
                 return;
             }
 
-            bool added = DLStorage.WorldData.AddTrackedTradeItem(ulong.Parse(linkedUser.DiscordId), matchedName).Result;
+            bool added = DLStorage.WorldData.AddTrackedTradeItem(ulong.Parse(linkedUser.DiscordID), matchedName).Result;
             result = added ? $"Tracking all trades for {matchedName}." : $"Failed to start tracking trades for {matchedName}";
 
             ChatManager.ServerMessageToPlayer(new LocString(result), user);
@@ -382,7 +382,7 @@ namespace Eco.Plugins.DiscordLink
                 return;
             }
 
-            bool removed = DLStorage.WorldData.RemoveTrackedTradeItem(ulong.Parse(linkedUser.DiscordId), userOrItemName).Result;
+            bool removed = DLStorage.WorldData.RemoveTrackedTradeItem(ulong.Parse(linkedUser.DiscordID), userOrItemName).Result;
             string result = removed ? $"Stopped tracking trades for {userOrItemName}." : $"Failed to stop tracking trades for {userOrItemName}.\nUse `\\dl-ListTrackedStores` to see what is currently being tracked.";
 
             ChatManager.ServerMessageToPlayer(new LocString(result), user);
@@ -398,7 +398,7 @@ namespace Eco.Plugins.DiscordLink
                 return;
             }
 
-            EcoUtil.SendAnnouncementMessage("Tracked Trades", DLStorage.WorldData.ListTrackedTrades(ulong.Parse(linkedUser.DiscordId)), user);
+            EcoUtil.SendAnnouncementMessage("Tracked Trades", DLStorage.WorldData.ListTrackedTrades(ulong.Parse(linkedUser.DiscordID)), user);
         }
 
         [ChatSubCommand("DiscordLink", "Resets world data as if a new world had been created.", "dl-resetdata", ChatAuthorizationLevel.Admin)]

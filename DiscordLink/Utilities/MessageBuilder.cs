@@ -97,10 +97,10 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     builder.AppendLine("Linked User Data:");
                     foreach (LinkedUser linkedUser in DLStorage.PersistentData.LinkedUsers)
                     {
-                        User ecoUser = UserManager.FindUserById(linkedUser.SteamId, linkedUser.SlgId);
+                        User ecoUser = UserManager.FindUserById(linkedUser.SteamID, linkedUser.SlgID);
                         string ecoUserName = (ecoUser != null) ? MessageUtil.StripTags(ecoUser.Name) : "[Uknown Eco User]";
 
-                        DiscordUser discordUser = plugin.DiscordClient.GetUserAsync(ulong.Parse(linkedUser.DiscordId)).Result;
+                        DiscordUser discordUser = plugin.DiscordClient.GetUserAsync(ulong.Parse(linkedUser.DiscordID)).Result;
                         string discordUserName = (discordUser != null) ? discordUser.Username : "[Unknown Discord User]";
 
                         string verified = (linkedUser.Verified) ? "Verified" : "Unverified";
