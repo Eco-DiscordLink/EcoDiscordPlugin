@@ -95,7 +95,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                     if (dlUser == null)
                         continue;
 
-                    DiscordGuild guild = DiscordLink.Obj.GuildByNameOrId(dlUser.GuildId);
+                    DiscordGuild guild = DiscordLink.Obj.GuildByNameOrId(dlUser.GuildID);
                     if (guild == null)
                         continue;
 
@@ -110,7 +110,7 @@ namespace Eco.Plugins.DiscordLink.Modules
         {
             using (_overlapLock.Lock())
             {
-                int removeIndex = UserLinks.FindIndex(u => (u as UserLink).Member.Id == ulong.Parse(user.DiscordId));
+                int removeIndex = UserLinks.FindIndex(u => (u as UserLink).Member.Id == ulong.Parse(user.DiscordID));
                 if (removeIndex >= 0)
                     UserLinks.RemoveAt(removeIndex);
             }
