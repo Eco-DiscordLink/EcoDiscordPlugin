@@ -34,11 +34,11 @@ namespace Eco.Plugins.DiscordLink.Modules
             switch(trigger)
             {
                 case DLEventType.ServerStarted:
-                    message = "Server Started :white_check_mark:";
+                    message = "Server Started  :white_check_mark:";
                     break;
 
                 case DLEventType.ServerStopped:
-                    message = "Server Stopped :x:";
+                    message = "Server Stopped  :x:";
                     break;
 
                 default:
