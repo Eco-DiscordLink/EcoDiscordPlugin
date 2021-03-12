@@ -378,7 +378,7 @@ namespace Eco.Plugins.DiscordLink
             LinkedUser linkedUser = LinkedUserManager.LinkedUserByEcoUser(user);
             if ( linkedUser == null)
             {
-                ChatManager.ServerMessageToPlayer(new LocString($"You have not linked your Discord Account to DiscordLink on this Eco Server.\nLog into the game and use the `\\dl-link` command to initialize account linking."), user);
+                ChatManager.ServerMessageToPlayer(new LocString($"You have not linked your Discord Account to DiscordLink on this Eco Server.\nUse the `\\dl-link` command to initialize account linking."), user);
                 return;
             }
 
