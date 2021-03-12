@@ -105,13 +105,13 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     int partCount = 1;
                     foreach(string fieldSplit in splits)
                     {
-                        splitFields.Add(new DiscordLinkEmbedField($"{field.Title} ({partCount})", fieldSplit));
+                        splitFields.Add(new DiscordLinkEmbedField($"{field.Title} ({partCount})", fieldSplit, fullEmbed.Fields[i].Inline));
                         ++partCount;
                     }
                 }
                 else
                 {
-                    splitFields.Add(new DiscordLinkEmbedField(fullEmbed.Fields[i].Title, fullEmbed.Fields[i].Text));
+                    splitFields.Add(new DiscordLinkEmbedField(fullEmbed.Fields[i].Title, fullEmbed.Fields[i].Text, fullEmbed.Fields[i].Inline));
                 }
             }
 
@@ -132,7 +132,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     fieldCount = 0;
                 }
 
-                splitEmbedBuilder.AddField(field.Title, field.Text);
+                splitEmbedBuilder.AddField(field.Title, field.Text, field.Inline);
                 characterCount += field.Text.Length;
                 ++fieldCount;
             }
@@ -170,7 +170,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
             foreach (DiscordLinkEmbedField field in embedData.Fields)
             {
-                builder.AddField(field.Title, field.Text);
+                builder.AddField(field.Title, field.Text, field.Inline);
             }
 
             return builder.Build();

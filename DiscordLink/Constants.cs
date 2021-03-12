@@ -15,6 +15,7 @@ namespace Eco.Plugins.DiscordLink
         public const int DISCORD_EMBED_FIELD_COUNT_LIMIT = 25;
         public const int DISCORD_EMBED_AUTHOR_NAME_CHARACTER_LIMIT = 256;
         public const int DISCORD_EMBED_TOTAL_CHARACTER_LIMIT = 6000;
+        public const int DISCORD_EMBED_FIELDS_PER_ROW_LIMIT = 3;
 
         public const int MAX_TOP_CURRENCY_HOLDER_DISPLAY_LIMIT = 15;
 
