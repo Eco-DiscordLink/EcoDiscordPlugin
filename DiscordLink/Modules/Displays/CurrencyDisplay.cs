@@ -122,6 +122,9 @@ namespace Eco.Plugins.DiscordLink.Modules
                 var currencyEnumerator = personalCurrencies.GetEnumerator();
                 for (int i = 0; i < currencyLink.MaxPersonalCount && currencyEnumerator.MoveNext(); ++i)
                 {
+                    if (currencyEnumerator.Current.Creator == DiscordLink.Obj.EcoUser)
+                        continue; // Ignore the bot currency
+
                     AddCurrencyEntry(currencyEnumerator.Current, tagAndContent);
                 }
             }
