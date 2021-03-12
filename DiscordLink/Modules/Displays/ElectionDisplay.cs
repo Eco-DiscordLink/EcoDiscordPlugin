@@ -43,27 +43,17 @@ namespace Eco.Plugins.DiscordLink.Modules
                 embed.WithTitle(MessageUtil.StripTags(election.Name));
 
                 // Proposer name
-                embed.AddField("Proposer", election.Creator.Name);
-
-                // Time left
-                embed.AddField("Time Left", TimeFormatter.FormatSpan(election.TimeLeft));
+                embed.AddField("Proposer", election.Creator.Name, inline: true);
 
                 // Process
-                embed.AddField("Process", MessageUtil.StripTags(election.Process.Name));
+                embed.AddField("Process", MessageUtil.StripTags(election.Process.Name), inline: true);
 
-                // Choices
-                if (!election.BooleanElection && election.Choices.Count > 0)
-                {
-                    string choiceDesc = string.Empty;
-                    foreach (ElectionChoice choice in election.Choices)
-                    {
-                        choiceDesc += $"{choice.Name}\n";
-                    }
-                    embed.AddField("Choices", choiceDesc);
-                }
+                // Time left
+                embed.AddField("Time Left", TimeFormatter.FormatSpan(election.TimeLeft), inline: true);
 
                 // Votes
                 string voteDesc = string.Empty;
+                string choiceDesc = string.Empty;
                 if (!election.Process.AnonymousVoting)
                 {
                     foreach (RunoffVote vote in election.Votes)
@@ -78,7 +68,8 @@ namespace Eco.Plugins.DiscordLink.Modules
                                 break;
                             }
                         }
-                        voteDesc += $"{vote.Voter.Name} : {topChoiceName}\n";
+                        voteDesc += $"{vote.Voter.Name}\n";
+                        choiceDesc += $"{topChoiceName}\n";
                     }
                 }
                 else
@@ -89,7 +80,27 @@ namespace Eco.Plugins.DiscordLink.Modules
                 if (string.IsNullOrEmpty(voteDesc))
                     voteDesc = "--- No Votes Recorded ---";
 
-                embed.AddField($"Votes ({election.TotalVotes})", voteDesc);
+                embed.AddField($"Votes ({election.TotalVotes})", voteDesc, inline: true);
+
+                if (!string.IsNullOrEmpty(choiceDesc))
+                    embed.AddField("Choice", choiceDesc, inline: true);
+                else
+                    embed.AddAlignmentField();
+
+                // Options
+                if (!election.BooleanElection && election.Choices.Count > 0)
+                {
+                    string optionsDesc = string.Empty;
+                    foreach (ElectionChoice choice in election.Choices)
+                    {
+                        optionsDesc += $"{choice.Name}\n";
+                    }
+                    embed.AddField("Options", optionsDesc, inline: true);
+                }
+                else
+                {
+                    embed.AddAlignmentField();
+                }
 
                 if (embed.Fields.Count > 0)
                     tagAndContent.Add(new Tuple<string, DiscordLinkEmbed>(tag, new DiscordLinkEmbed(embed)));

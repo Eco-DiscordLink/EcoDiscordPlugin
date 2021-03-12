@@ -73,13 +73,13 @@ namespace Eco.Plugins.DiscordLink.Modules
                 if (!boughtItemsDesc.IsEmpty())
                 {
                     boughtItemsDesc += "\nTotal = " + boughtTotal.ToString("n2");
-                    embed.AddField("Bought", boughtItemsDesc);
+                    embed.AddField("Bought", boughtItemsDesc, inline: true);
                 }
 
                 if (!soldItemsDesc.IsEmpty())
                 {
                     soldItemsDesc += "\nTotal = " + soldTotal.ToString("n2");
-                    embed.AddField("Sold", soldItemsDesc);
+                    embed.AddField("Sold", soldItemsDesc, inline: true);
                 }
 
                 float subTotal = soldTotal - boughtTotal;

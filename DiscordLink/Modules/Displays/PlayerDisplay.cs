@@ -38,7 +38,6 @@ namespace Eco.Plugins.DiscordLink.Modules
 
             string tag = BaseTag;
             string title = "Players";
-            string content = $"\n{MessageBuilder.Shared.GetPlayerList(playerListLink.UseLoggedInTime)}";
 
             if (playerListLink.UsePlayerCount == true)
             {
@@ -47,8 +46,13 @@ namespace Eco.Plugins.DiscordLink.Modules
 
             DiscordLinkEmbed embed = new DiscordLinkEmbed()
                 .WithTitle(title)
-                .WithDescription(content)
                 .WithFooter(MessageBuilder.Discord.GetStandardEmbedFooter());
+            embed.AddField("Online Players", MessageBuilder.Shared.GetPlayerList(), inline: true);
+
+            if(playerListLink.UseLoggedInTime)
+            {
+                embed.AddField("Session Time", MessageBuilder.Shared.GetPlayerSessionTimeList(), inline: true);
+            }
 
             tagAndContent.Add(new Tuple<string, DiscordLinkEmbed>(tag, embed));
         }

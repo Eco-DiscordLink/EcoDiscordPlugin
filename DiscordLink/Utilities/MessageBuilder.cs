@@ -41,6 +41,21 @@ namespace Eco.Plugins.DiscordLink.Utilities
             All                 = ~0
         }
 
+        private class StoreOffer
+        {
+            public StoreOffer(string title, string description, bool buying)
+            {
+                this.Title = title;
+                this.Description = description;
+                this.Buying = buying;
+            }
+
+            public string Title { get; private set; }
+            public string Description { get; private set; }
+            public bool Buying { get; private set; }
+        }
+
+
         public static class Shared
         {
             public static string GetAboutMessage()
@@ -156,22 +171,30 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 return $"{numberOnline}/{numberTotal}";
             }
 
-            public static string GetPlayerList(bool useOnlineTime = false)
+            public static string GetPlayerList()
             {
                 string playerList = string.Empty;
                 IEnumerable<User> onlineUsers = UserManager.OnlineUsers.Where(user => user.Client.Connected).OrderBy(user => user.Name);
                 foreach (User player in onlineUsers)
                 {
-                    if (useOnlineTime)
-                        playerList += $"{player.Name} --- [{GetTimespan(Simulation.Time.WorldTime.Seconds - player.LoginTime, TimespanStringComponent.Hour | TimespanStringComponent.Minute)}]\n";
-                    else
-                        playerList += $"{player.Name}\n";
+                    playerList += $"{player.Name}\n";
                 }
 
                 if (string.IsNullOrEmpty(playerList))
                     playerList = "-- No players online --";
 
                 return playerList;
+            }
+
+            public static string GetPlayerSessionTimeList()
+            {
+                string playerSessionTimeList = string.Empty;
+                IEnumerable<User> onlineUsers = UserManager.OnlineUsers.Where(user => user.Client.Connected).OrderBy(user => user.Name);
+                foreach (User player in onlineUsers)
+                {
+                    playerSessionTimeList += $"{GetTimespan(Simulation.Time.WorldTime.Seconds - player.LoginTime, TimespanStringComponent.Hour | TimespanStringComponent.Minute)}\n";
+                }
+                return playerSessionTimeList;
             }
 
             public enum TimespanStringComponent
@@ -306,75 +329,132 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     embed.AddField("Connection Info", fieldText);
                 }
 
-                if (flag.HasFlag(ServerInfoComponentFlag.PlayerCount))
+                if (flag.HasFlag(ServerInfoComponentFlag.PlayerCount) || flag.HasFlag(ServerInfoComponentFlag.LawCount) || flag.HasFlag(ServerInfoComponentFlag.ActiveElectionCount))
                 {
-                    embed.AddField("Online Players Count", $"{UserManager.OnlineUsers.Where(user => user.Client.Connected).Count()}/{serverInfo.TotalPlayers}");
+                    int fieldsAdded = 0;
+                    if (flag.HasFlag(ServerInfoComponentFlag.PlayerCount))
+                    {
+                        embed.AddField("Online Players Count", $"{UserManager.OnlineUsers.Where(user => user.Client.Connected).Count()}/{serverInfo.TotalPlayers}", inline: true);
+                        ++fieldsAdded;
+                    }
+
+                    if (flag.HasFlag(ServerInfoComponentFlag.LawCount))
+                    {
+                        embed.AddField("Law Count", $"{EcoUtil.ActiveLaws.Count()}", inline: true);
+                        ++fieldsAdded;
+                    }
+
+                    if (flag.HasFlag(ServerInfoComponentFlag.ActiveElectionCount))
+                    {
+                        embed.AddField("Active Elections Count", $"{EcoUtil.ActiveElections.Count()}", inline: true);
+                        ++fieldsAdded;
+                    }
+
+                    for (int i = fieldsAdded; i < DLConstants.DISCORD_EMBED_FIELDS_PER_ROW_LIMIT; ++i)
+                    {
+                        embed.AddAlignmentField();
+                    }
+                }
+
+                if (flag.HasFlag(ServerInfoComponentFlag.CurrentTime) || flag.HasFlag(ServerInfoComponentFlag.TimeRemaining) || flag.HasFlag(ServerInfoComponentFlag.MeteorHasHit))
+                {
+                    int fieldsAdded = 0;
+                    if (flag.HasFlag(ServerInfoComponentFlag.CurrentTime))
+                    {
+                        TimeSpan timeSinceStartSpan = new TimeSpan(0, 0, (int)serverInfo.TimeSinceStart);
+                        embed.AddField("Current Time", $"Day {timeSinceStartSpan.Days + 1} {timeSinceStartSpan.Hours.ToString("00")}:{timeSinceStartSpan.Minutes.ToString("00")}", inline: true); // +1 days to get start at day 1 just like ingame
+                        ++fieldsAdded;
+                    }
+
+                    if (flag.HasFlag(ServerInfoComponentFlag.TimeRemaining))
+                    {
+                        TimeSpan timeRemainingSpan = new TimeSpan(0, 0, (int)serverInfo.TimeLeft);
+                        bool meteorHasHit = timeRemainingSpan.Seconds < 0;
+                        timeRemainingSpan = meteorHasHit ? new TimeSpan(0, 0, 0) : timeRemainingSpan;
+                        embed.AddField("Time Left Until Meteor", $"{timeRemainingSpan.Days} Days, {timeRemainingSpan.Hours} hours, {timeRemainingSpan.Minutes} minutes", inline: true);
+                        ++fieldsAdded;
+                    }
+
+                    if (flag.HasFlag(ServerInfoComponentFlag.MeteorHasHit))
+                    {
+                        TimeSpan timeRemainingSpan = new TimeSpan(0, 0, (int)serverInfo.TimeLeft);
+                        embed.AddField("Meteor Has Hit", timeRemainingSpan.Seconds < 0 ? "Yes" : "No", inline: true);
+                        ++fieldsAdded;
+                    }
+
+                    for (int i = fieldsAdded; i < DLConstants.DISCORD_EMBED_FIELDS_PER_ROW_LIMIT; ++i)
+                    {
+                        embed.AddAlignmentField();
+                    }
                 }
 
                 if (flag.HasFlag(ServerInfoComponentFlag.PlayerList))
                 {
                     IEnumerable<string> onlineUsers = UserManager.OnlineUsers.Where(user => user.Client.Connected).Select(user => user.Name);
+                    string playerCount = $"{UserManager.OnlineUsers.Where(user => user.Client.Connected).Count()}/{serverInfo.TotalPlayers}";
                     string playerList = onlineUsers.Count() > 0 ? string.Join("\n", onlineUsers) : "-- No players online --";
-                    bool useOnlineTime = flag.HasFlag(ServerInfoComponentFlag.PlayerListLoginTime);
-                    embed.AddField("Online Players", Shared.GetPlayerList(useOnlineTime));
-                }
-
-                if (flag.HasFlag(ServerInfoComponentFlag.CurrentTime))
-                {
-                    TimeSpan timeSinceStartSpan = new TimeSpan(0, 0, (int)serverInfo.TimeSinceStart);
-                    embed.AddField("Current Time", $"Day {timeSinceStartSpan.Days + 1} {timeSinceStartSpan.Hours.ToString("00")}:{timeSinceStartSpan.Minutes.ToString("00")}"); // +1 days to get start at day 1 just like ingame
-                }
-
-                if (flag.HasFlag(ServerInfoComponentFlag.TimeRemaining))
-                {
-                    TimeSpan timeRemainingSpan = new TimeSpan(0, 0, (int)serverInfo.TimeLeft);
-                    bool meteorHasHit = timeRemainingSpan.Seconds < 0;
-                    timeRemainingSpan = meteorHasHit ? new TimeSpan(0, 0, 0) : timeRemainingSpan;
-                    embed.AddField("Time Left Until Meteor", $"{timeRemainingSpan.Days} Days, {timeRemainingSpan.Hours} hours, {timeRemainingSpan.Minutes} minutes");
-                }
-
-                if (flag.HasFlag(ServerInfoComponentFlag.MeteorHasHit))
-                {
-                    TimeSpan timeRemainingSpan = new TimeSpan(0, 0, (int)serverInfo.TimeLeft);
-                    embed.AddField("Meteor Has Hit", timeRemainingSpan.Seconds < 0 ? "Yes" : "No");
-                }
-
-                if (flag.HasFlag(ServerInfoComponentFlag.ActiveElectionCount))
-                {
-                    embed.AddField("Active Elections Count", $"{EcoUtil.ActiveElections.Count()}");
+                    embed.AddField($"Online Players ({playerCount})", Shared.GetPlayerList(), inline: true);
+                    if(flag.HasFlag(ServerInfoComponentFlag.PlayerListLoginTime))
+                    {
+                        string sessionTimeList = Shared.GetPlayerSessionTimeList();
+                        if (!string.IsNullOrWhiteSpace(sessionTimeList))
+                            embed.AddField("Session Time", sessionTimeList, inline: true);
+                        else
+                            embed.AddAlignmentField();
+                        embed.AddAlignmentField();
+                    }
                 }
 
                 if (flag.HasFlag(ServerInfoComponentFlag.ActiveElectionList))
                 {
                     string electionList = string.Empty;
+                    string votesList = string.Empty;
+                    string timeRemainingList = string.Empty;
                     foreach (Election election in EcoUtil.ActiveElections)
                     {
-                        electionList += $"{MessageUtil.StripTags(election.Name)} **[{election.TotalVotes} Votes]**\n";
+                        electionList += $"{MessageUtil.StripTags(election.Name)}\n";
+                        votesList += $"{election.TotalVotes} Votes";
+
+                        TimeSpan timeRemainingSpan = new TimeSpan(0, 0, (int)serverInfo.TimeLeft);
+                        timeRemainingList += $"{timeRemainingSpan.Days} Days, {timeRemainingSpan.Hours} hours, {timeRemainingSpan.Minutes} minutes";
                     }
 
                     if (string.IsNullOrEmpty(electionList))
-                        electionList = "-- No active elections --";
-
-                    embed.AddField("Active Elections", electionList);
-                }
-
-                if (flag.HasFlag(ServerInfoComponentFlag.LawCount))
-                {
-                    embed.AddField("Law Count", $"{EcoUtil.ActiveLaws.Count()}");
+                    {
+                        embed.AddField("Active Elections", electionList, inline: true);
+                        embed.AddField("Votes", votesList, inline: true);
+                        embed.AddField("Time Remaining", timeRemainingList, inline: true);
+                    }
+                    else
+                    {
+                        embed.AddField("Active Elections", "--- No active elections ---", inline: true);
+                        embed.AddAlignmentField();
+                        embed.AddAlignmentField();
+                    }
                 }
 
                 if (flag.HasFlag(ServerInfoComponentFlag.LawList))
                 {
                     string lawList = string.Empty;
+                    string creatorList = string.Empty;
                     foreach (Law law in EcoUtil.ActiveLaws)
                     {
                         lawList += $"{MessageUtil.StripTags(law.Name)}\n";
+                        creatorList += $"{MessageUtil.StripTags(law.Creator.Name)}";
                     }
-
-                    if (string.IsNullOrEmpty(lawList))
-                        lawList = "-- No active laws --";
-
-                    embed.AddField("Laws", lawList);
+                
+                    if (!string.IsNullOrEmpty(lawList))
+                    {
+                        embed.AddField("Active Laws", lawList, inline: true);
+                        embed.AddField("Creator", creatorList, inline: true);
+                        embed.AddAlignmentField();
+                    }
+                    else
+                    {
+                        embed.AddField("Active Laws", "--- No active laws ---", inline: true);
+                        embed.AddAlignmentField();
+                        embed.AddAlignmentField();
+                    }
                 }
 
                 return embed;
@@ -404,21 +484,40 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
             public static void FormatTrades(string matchedName, bool isItem, StoreOfferList groupedBuyOffers, StoreOfferList groupedSellOffers, out DiscordLinkEmbed embedContent)
             {
-                Func<Tuple<StoreComponent, TradeOffer>, string> getLabel;
-                if (isItem)
-                    getLabel = t => t.Item1.Parent.Owners.Name;
-                else
-                    getLabel = t => t.Item2.Stack.Item.DisplayName;
-                var fieldEnumerator = TradeOffersToFields(groupedBuyOffers, groupedSellOffers, getLabel);
-
                 // Format message
                 DiscordLinkEmbed embed = new DiscordLinkEmbed()
-                    .WithTitle($"Trades for {matchedName}");
+                    .WithTitle($"Trade offers for {matchedName}");
+
                 if (groupedSellOffers.Count() > 0 || groupedBuyOffers.Count() > 0)
                 {
-                    foreach(var stringTuple in fieldEnumerator)
+                    Func<Tuple<StoreComponent, TradeOffer>, string> getLabel;
+                    if (isItem)
+                        getLabel = t => $"@ *{MessageUtil.StripTags(t.Item1.Parent.Name)}*";
+                    else
+                        getLabel = t => t.Item2.Stack.Item.DisplayName;
+                    ICollection<StoreOffer> Offers = TradeOffersToFields(groupedBuyOffers, groupedSellOffers, getLabel);
+
+                    for(int i = 0; i < Offers.Count; ++i)
                     {
-                        embed.AddField(stringTuple.Item1, stringTuple.Item2);
+                        StoreOffer currentOffer = Offers.ElementAt(i);
+                        StoreOffer nextOffer = null;
+                        if (i + 1 < Offers.Count)
+                            nextOffer = Offers.ElementAt(i + 1);
+
+                        embed.AddField(currentOffer.Title, currentOffer.Description, inline: true);
+
+                        if (currentOffer.Buying && nextOffer != null)
+                        {
+                            if (nextOffer.Buying)
+                            {
+                                embed.AddAlignmentField();
+                                embed.AddAlignmentField();
+                            }
+                            else
+                            {
+                                embed.AddAlignmentField();
+                            }
+                        }
                     }
                     embed.WithFooter(GetStandardEmbedFooter());
                 }
@@ -429,10 +528,11 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 embedContent = embed;
             }
 
-            private static IEnumerable<Tuple<string, string>> TradeOffersToFields<T>(T buyOffers, T sellOffers, Func<Tuple<StoreComponent, TradeOffer>, string> getLabel)
+            private static ICollection<StoreOffer> TradeOffersToFields<T>(T buyOfferGroups, T sellOfferGroups, Func<Tuple<StoreComponent, TradeOffer>, string> getLabel)
                 where T : StoreOfferList
             {
-                foreach (var group in buyOffers)
+                List<StoreOffer> buyOffers = new List<StoreOffer>();
+                foreach (var group in buyOfferGroups)
                 {
                     var offerDescriptions = TradeOffersToDescriptions(group,
                         t => t.Item2.Price.ToString(),
@@ -444,10 +544,12 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     {
                         fieldBodyBuilder.Append($"{offer}\n");
                     }
-                    yield return Tuple.Create($"**Buying for {group.Key}**", fieldBodyBuilder.ToString());
+
+                    buyOffers.Add(new StoreOffer($"**Buying for {group.Key}**", fieldBodyBuilder.ToString(), buying: true));
                 }
 
-                foreach (var group in sellOffers)
+                List<StoreOffer> sellOffers = new List<StoreOffer>();
+                foreach (var group in sellOfferGroups)
                 {
                     var offerDescriptions = TradeOffersToDescriptions(group,
                         t => t.Item2.Price.ToString(),
@@ -459,8 +561,24 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     {
                         fieldBodyBuilder.Append($"{offer}\n");
                     }
-                    yield return Tuple.Create($"**Selling for {group.Key}**", fieldBodyBuilder.ToString());
+                    buyOffers.Add(new StoreOffer($"**Selling for {group.Key}**", fieldBodyBuilder.ToString(), buying: false));
                 }
+
+                List<StoreOffer> allOffers = new List<StoreOffer>();
+                int totalOffers = buyOffers.Count + sellOffers.Count;
+                int index = 0;
+                while (allOffers.Count < totalOffers)
+                {
+                    if (buyOffers.Count > index)
+                        allOffers.Add(buyOffers[index]);
+
+                    if (sellOffers.Count > index)
+                        allOffers.Add(sellOffers[index]);
+
+                    ++index;
+                }
+
+                return allOffers;
             }
 
             private static IEnumerable<string> TradeOffersToDescriptions<T>(IEnumerable<T> offers, Func<T, string> getPrice, Func<T, string> getLabel, Func<T, int?> getQuantity)
@@ -483,7 +601,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             {
                 Func<Tuple<StoreComponent, TradeOffer>, string> getLabel;
                 if (isItem)
-                    getLabel = t => t.Item1.Parent.MarkedUpName;
+                    getLabel = t => $"@ {t.Item1.Parent.MarkedUpName}";
                 else
                     getLabel = t => t.Item2.Stack.Item.MarkedUpName;
 
