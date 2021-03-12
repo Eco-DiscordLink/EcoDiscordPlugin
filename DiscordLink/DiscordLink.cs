@@ -354,6 +354,7 @@ namespace Eco.Plugins.DiscordLink
             Modules.Add(new TradeFeed());
             Modules.Add(new CraftingFeed());
             Modules.Add(new ServerStatusFeed());
+            Modules.Add(new PlayerStatusFeed());
             Modules.Add(new ServerInfoDisplay());
             Modules.Add(new WorkPartyDisplay());
             Modules.Add(new PlayerDisplay());
