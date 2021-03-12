@@ -142,9 +142,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                         case KnowledgeSharePayment knowledgePayment:
                             {
                                 if (knowledgePayment.Skills.Entries.Count > 0)
-                                {
                                     desc = $"Receive knowledge of `{MessageUtil.StripTags(knowledgePayment.ShortDescription())}` if work contributed is at least *{knowledgePayment.MinContributedPercent.ToString("F1")}%*.";
-                                }
                                 break;
                             }
 

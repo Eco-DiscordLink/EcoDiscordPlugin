@@ -39,7 +39,6 @@ namespace Eco.Plugins.DiscordLink.Modules
             if (channelLink.Direction == ChatSyncDirection.DiscordToEco || channelLink.Direction == ChatSyncDirection.Duplex)
             {
                 await ForwardMessageToEcoChannel(plugin, message, channel);
-                
             }
         }
 
