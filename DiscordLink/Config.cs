@@ -76,6 +76,7 @@ namespace Eco.Plugins.DiscordLink
             Data.CraftingFeedChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.ServerStatusFeedChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.PlayerStatusFeedChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
+            Data.ElectionFeedChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.ServerInfoDisplayChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.WorkPartyDisplayChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.PlayerListDisplayChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
@@ -348,6 +349,7 @@ namespace Eco.Plugins.DiscordLink
             _channelLinks.AddRange(_config.Config.CraftingFeedChannels);
             _channelLinks.AddRange(_config.Config.ServerStatusFeedChannels);
             _channelLinks.AddRange(_config.Config.PlayerStatusFeedChannels);
+            _channelLinks.AddRange(_config.Config.ElectionFeedChannels);
             _channelLinks.AddRange(_config.Config.ServerInfoDisplayChannels);
             _channelLinks.AddRange(_config.Config.WorkPartyDisplayChannels);
             _channelLinks.AddRange(_config.Config.PlayerListDisplayChannels);
@@ -392,6 +394,7 @@ namespace Eco.Plugins.DiscordLink
                 CraftingFeedChannels = new ObservableCollection<ChannelLink>(this.CraftingFeedChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
                 ServerStatusFeedChannels = new ObservableCollection<ChannelLink>(this.ServerStatusFeedChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
                 PlayerStatusFeedChannels = new ObservableCollection<ChannelLink>(this.PlayerStatusFeedChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
+                ElectionFeedChannels = new ObservableCollection<ChannelLink>(this.ElectionFeedChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
                 ServerInfoDisplayChannels = new ObservableCollection<ServerInfoChannel>(this.ServerInfoDisplayChannels.Select(t => t.Clone()).Cast<ServerInfoChannel>()),
                 WorkPartyDisplayChannels = new ObservableCollection<ChannelLink>(this.WorkPartyDisplayChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
                 PlayerListDisplayChannels = new ObservableCollection<PlayerListChannelLink>(this.PlayerListDisplayChannels.Select(t => t.Clone()).Cast<PlayerListChannelLink>()),
@@ -440,6 +443,9 @@ namespace Eco.Plugins.DiscordLink
 
         [Description("Discord channels in which player status events will be posted. This setting can be changed while the server is running."), Category("Feeds")]
         public ObservableCollection<ChannelLink> PlayerStatusFeedChannels { get; set; } = new ObservableCollection<ChannelLink>();
+
+        [Description("Discord channels in which election events will be posted. This setting can be changed while the server is running."), Category("Feeds")]
+        public ObservableCollection<ChannelLink> ElectionFeedChannels { get; set; } = new ObservableCollection<ChannelLink>();
 
         [Description("Discord channels in which to keep the Server Info display. DiscordLink will post one server info message in these channel and keep it updated trough edits. This setting can be changed while the server is running."), Category("Displays")]
         public ObservableCollection<ServerInfoChannel> ServerInfoDisplayChannels { get; set; } = new ObservableCollection<ServerInfoChannel>();
