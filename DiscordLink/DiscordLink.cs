@@ -6,6 +6,7 @@ using Eco.Core;
 using Eco.Core.Plugins;
 using Eco.Core.Plugins.Interfaces;
 using Eco.Core.Utils;
+using Eco.Gameplay.Civics.Elections;
 using Eco.Gameplay.GameActions;
 using Eco.Gameplay.Players;
 using Eco.Plugins.DiscordLink.Events;
@@ -101,6 +102,8 @@ namespace Eco.Plugins.DiscordLink
             UserManager.OnNewUserJoined.Add(user => HandleEvent(DLEventType.Join, user));
             UserManager.OnUserLoggedIn.Add(user => HandleEvent(DLEventType.Login, user));
             UserManager.OnUserLoggedOut.Add(user => HandleEvent(DLEventType.Logout, user));
+            Election.OnElectionStarted.Add(election => HandleEvent(DLEventType.StartElection, election));
+            Election.OnElectionFinished.Add(election => HandleEvent(DLEventType.StopElection, election));
             EventConverter.OnEventFired += (sender, args) => HandleEvent(args.EventType, args.Data);
 
             HandleEvent(DLEventType.ServerStarted, null);
@@ -165,18 +168,6 @@ namespace Eco.Plugins.DiscordLink
 
                 case Vote vote:
                     HandleEvent(DLEventType.Vote, vote);
-                    break;
-
-                case StartElection startElection:
-                    HandleEvent(DLEventType.StartElection, startElection);
-                    break;
-
-                case LostElection lostElection:
-                    HandleEvent(DLEventType.StopElection, lostElection);
-                    break;
-
-                case WonElection wonElection:
-                    HandleEvent(DLEventType.StopElection, wonElection);
                     break;
 
                 case CreateCurrency createCurrency:
@@ -355,6 +346,7 @@ namespace Eco.Plugins.DiscordLink
             Modules.Add(new CraftingFeed());
             Modules.Add(new ServerStatusFeed());
             Modules.Add(new PlayerStatusFeed());
+            Modules.Add(new ElectionFeed());
             Modules.Add(new ServerInfoDisplay());
             Modules.Add(new WorkPartyDisplay());
             Modules.Add(new PlayerDisplay());
