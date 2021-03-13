@@ -21,7 +21,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected override bool ShouldRun()
         {
-            foreach (ChannelLink link in DLConfig.Data.CraftingChannels)
+            foreach (ChannelLink link in DLConfig.Data.CraftingFeedChannels)
             {
                 if (link.IsValid())
                     return true;
@@ -38,7 +38,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             string itemName = craftingEvent.OrderCount > 1 ? craftingEvent.CraftedItem.DisplayNamePlural : craftingEvent.CraftedItem.DisplayName; 
             string message = $"**{craftingEvent.Citizen.Name}** started crafting {craftingEvent.OrderCount} `{itemName}` at {(craftingEvent.WorldObject as WorldObject).Name}.";
 
-            foreach (ChannelLink craftingChannel in DLConfig.Data.CraftingChannels)
+            foreach (ChannelLink craftingChannel in DLConfig.Data.CraftingFeedChannels)
             {
                 if (!craftingChannel.IsValid()) continue;
                 DiscordGuild discordGuild = plugin.GuildByNameOrId(craftingChannel.DiscordGuild);

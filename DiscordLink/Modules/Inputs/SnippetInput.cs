@@ -30,7 +30,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected override bool ShouldRun()
         {
-            foreach (ChannelLink link in DLConfig.Data.SnippetChannels)
+            foreach (ChannelLink link in DLConfig.Data.SnippetInputChannels)
             {
                 if (link.IsValid())
                     return true;
@@ -59,9 +59,9 @@ namespace Eco.Plugins.DiscordLink.Modules
 
             using (await _overlapLock.LockAsync()) // Avoid crashes caused by data being manipulated and used simultaneously
             {
-                for (int i = 0; i < DLConfig.Data.SnippetChannels.Count; ++i)
+                for (int i = 0; i < DLConfig.Data.SnippetInputChannels.Count; ++i)
                 {
-                    ChannelLink link = DLConfig.Data.SnippetChannels[i];
+                    ChannelLink link = DLConfig.Data.SnippetInputChannels[i];
                     if (!link.IsValid()) continue;
 
                     string channel = link.DiscordChannel.ToLower();
@@ -81,7 +81,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             if (message.IsDm()) return;
 
             bool isSnippetChannel = false;
-            foreach(ChannelLink link in DLConfig.Data.SnippetChannels)
+            foreach(ChannelLink link in DLConfig.Data.SnippetInputChannels)
             {
                 if (!link.IsValid()) continue;
 
@@ -102,7 +102,7 @@ namespace Eco.Plugins.DiscordLink.Modules
         {
             DiscordLink plugin = DiscordLink.Obj;
             if (plugin == null) return;
-            foreach (ChannelLink snippetChannel in DLConfig.Data.SnippetChannels)
+            foreach (ChannelLink snippetChannel in DLConfig.Data.SnippetInputChannels)
             {
                 // Fetch the channel and validate permissions
                 if (!snippetChannel.IsValid()) continue;

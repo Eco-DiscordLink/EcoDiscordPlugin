@@ -26,7 +26,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected override List<DiscordTarget> GetDiscordTargets()
         {
-            return DLConfig.Data.PlayerListChannels.Cast<DiscordTarget>().ToList();
+            return DLConfig.Data.PlayerListDisplayChannels.Cast<DiscordTarget>().ToList();
         }
 
         protected override void GetDisplayContent(DiscordTarget target, out List<Tuple<string, DiscordLinkEmbed>> tagAndContent)

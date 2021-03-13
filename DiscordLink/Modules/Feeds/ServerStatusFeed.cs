@@ -20,7 +20,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected override bool ShouldRun()
         {
-            foreach (ChannelLink link in DLConfig.Data.ServerStatusChannels)
+            foreach (ChannelLink link in DLConfig.Data.ServerStatusFeedChannels)
             {
                 if (link.IsValid())
                     return true;
@@ -50,7 +50,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             embed.WithTitle(message);
             embed.WithFooter(MessageBuilder.Discord.GetStandardEmbedFooter());
 
-            foreach (ChannelLink serverStatusChannel in DLConfig.Data.ServerStatusChannels)
+            foreach (ChannelLink serverStatusChannel in DLConfig.Data.ServerStatusFeedChannels)
             {
                 if (!serverStatusChannel.IsValid()) continue;
                 DiscordGuild discordGuild = plugin.GuildByNameOrId(serverStatusChannel.DiscordGuild);

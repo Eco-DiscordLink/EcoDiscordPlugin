@@ -72,17 +72,17 @@ namespace Eco.Plugins.DiscordLink
             _prevConfig = (DLConfigData)Data.Clone();
 
             Data.ChatChannelLinks.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
-            Data.ServerInfoChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
-            Data.TradeChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
-            Data.CraftingChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
-            Data.ServerStatusChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
-            Data.PlayerStatusChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
-            Data.SnippetChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
+            Data.TradeFeedChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
+            Data.CraftingFeedChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
+            Data.ServerStatusFeedChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
+            Data.PlayerStatusFeedChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
+            Data.ServerInfoDisplayChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
+            Data.WorkPartyDisplayChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
+            Data.PlayerListDisplayChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
+            Data.ElectionDisplayChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
+            Data.CurrencyDisplayChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
+            Data.SnippetInputChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.DiscordCommandChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
-            Data.WorkPartyChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
-            Data.PlayerListChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
-            Data.ElectionChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
-            Data.CurrencyChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
 
             BuildChanneLinkList();
         }
@@ -229,7 +229,7 @@ namespace Eco.Plugins.DiscordLink
             }
 
             // Currency channels
-            foreach(CurrencyChannelLink link in Data.CurrencyChannels)
+            foreach(CurrencyChannelLink link in Data.CurrencyDisplayChannels)
             {
                 if (link.MaxMintedCount < 0)
                 {
@@ -344,17 +344,17 @@ namespace Eco.Plugins.DiscordLink
         {
             _channelLinks.Clear();
             _channelLinks.AddRange(_config.Config.ChatChannelLinks);
-            _channelLinks.AddRange(_config.Config.ServerInfoChannels);
-            _channelLinks.AddRange(_config.Config.TradeChannels);
-            _channelLinks.AddRange(_config.Config.CraftingChannels);
-            _channelLinks.AddRange(_config.Config.ServerStatusChannels);
-            _channelLinks.AddRange(_config.Config.PlayerStatusChannels);
-            _channelLinks.AddRange(_config.Config.SnippetChannels);
+            _channelLinks.AddRange(_config.Config.TradeFeedChannels);
+            _channelLinks.AddRange(_config.Config.CraftingFeedChannels);
+            _channelLinks.AddRange(_config.Config.ServerStatusFeedChannels);
+            _channelLinks.AddRange(_config.Config.PlayerStatusFeedChannels);
+            _channelLinks.AddRange(_config.Config.ServerInfoDisplayChannels);
+            _channelLinks.AddRange(_config.Config.WorkPartyDisplayChannels);
+            _channelLinks.AddRange(_config.Config.PlayerListDisplayChannels);
+            _channelLinks.AddRange(_config.Config.ElectionDisplayChannels);
+            _channelLinks.AddRange(_config.Config.CurrencyDisplayChannels);
+            _channelLinks.AddRange(_config.Config.SnippetInputChannels);
             _channelLinks.AddRange(_config.Config.DiscordCommandChannels);
-            _channelLinks.AddRange(_config.Config.WorkPartyChannels);
-            _channelLinks.AddRange(_config.Config.PlayerListChannels);
-            _channelLinks.AddRange(_config.Config.ElectionChannels);
-            _channelLinks.AddRange(_config.Config.CurrencyChannels);
         }
     }
 
@@ -388,17 +388,17 @@ namespace Eco.Plugins.DiscordLink
                 InviteMessage = this.InviteMessage,
                 AdminRoles = new ObservableCollection<string>(this.AdminRoles.Select(t => t.Clone()).Cast<string>()),
                 ChatChannelLinks = new ObservableCollection<ChatChannelLink>(this.ChatChannelLinks.Select(t => t.Clone()).Cast<ChatChannelLink>()),
-                ServerInfoChannels = new ObservableCollection<ServerInfoChannel>(this.ServerInfoChannels.Select(t => t.Clone()).Cast<ServerInfoChannel>()),
-                TradeChannels = new ObservableCollection<ChannelLink>(this.TradeChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
-                CraftingChannels = new ObservableCollection<ChannelLink>(this.CraftingChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
-                ServerStatusChannels = new ObservableCollection<ChannelLink>(this.ServerStatusChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
-                PlayerStatusChannels = new ObservableCollection<ChannelLink>(this.PlayerStatusChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
-                SnippetChannels = new ObservableCollection<ChannelLink>(this.SnippetChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
+                TradeFeedChannels = new ObservableCollection<ChannelLink>(this.TradeFeedChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
+                CraftingFeedChannels = new ObservableCollection<ChannelLink>(this.CraftingFeedChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
+                ServerStatusFeedChannels = new ObservableCollection<ChannelLink>(this.ServerStatusFeedChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
+                PlayerStatusFeedChannels = new ObservableCollection<ChannelLink>(this.PlayerStatusFeedChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
+                ServerInfoDisplayChannels = new ObservableCollection<ServerInfoChannel>(this.ServerInfoDisplayChannels.Select(t => t.Clone()).Cast<ServerInfoChannel>()),
+                WorkPartyDisplayChannels = new ObservableCollection<ChannelLink>(this.WorkPartyDisplayChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
+                PlayerListDisplayChannels = new ObservableCollection<PlayerListChannelLink>(this.PlayerListDisplayChannels.Select(t => t.Clone()).Cast<PlayerListChannelLink>()),
+                ElectionDisplayChannels = new ObservableCollection<ChannelLink>(this.ElectionDisplayChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
+                CurrencyDisplayChannels = new ObservableCollection<CurrencyChannelLink>(this.CurrencyDisplayChannels.Select(t => t.Clone()).Cast<CurrencyChannelLink>()),
+                SnippetInputChannels = new ObservableCollection<ChannelLink>(this.SnippetInputChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
                 DiscordCommandChannels = new ObservableCollection<ChannelLink>(this.DiscordCommandChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
-                WorkPartyChannels = new ObservableCollection<ChannelLink>(this.WorkPartyChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
-                PlayerListChannels = new ObservableCollection<PlayerListChannelLink>(this.PlayerListChannels.Select(t => t.Clone()).Cast<PlayerListChannelLink>()),
-                ElectionChannels = new ObservableCollection<ChannelLink>(this.ElectionChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
-                CurrencyChannels = new ObservableCollection<CurrencyChannelLink>(this.CurrencyChannels.Select(t => t.Clone()).Cast<CurrencyChannelLink>()),
             };
         }
 
@@ -430,34 +430,34 @@ namespace Eco.Plugins.DiscordLink
         public ObservableCollection<ChatChannelLink> ChatChannelLinks { get; set; } = new ObservableCollection<ChatChannelLink>();
 
         [Description("Channels in which trade events will be posted. This setting can be changed while the server is running."), Category("Feeds")]
-        public ObservableCollection<ChannelLink> TradeChannels { get; set; } = new ObservableCollection<ChannelLink>();
+        public ObservableCollection<ChannelLink> TradeFeedChannels { get; set; } = new ObservableCollection<ChannelLink>();
 
         [Description("Discord channels in which crafting events will be posted. This setting can be changed while the server is running."), Category("Feeds")]
-        public ObservableCollection<ChannelLink> CraftingChannels { get; set; } = new ObservableCollection<ChannelLink>();
+        public ObservableCollection<ChannelLink> CraftingFeedChannels { get; set; } = new ObservableCollection<ChannelLink>();
 
         [Description("Discord channels in which server status events will be posted. This setting can be changed while the server is running."), Category("Feeds")]
-        public ObservableCollection<ChannelLink> ServerStatusChannels { get; set; } = new ObservableCollection<ChannelLink>();
+        public ObservableCollection<ChannelLink> ServerStatusFeedChannels { get; set; } = new ObservableCollection<ChannelLink>();
 
         [Description("Discord channels in which player status events will be posted. This setting can be changed while the server is running."), Category("Feeds")]
-        public ObservableCollection<ChannelLink> PlayerStatusChannels { get; set; } = new ObservableCollection<ChannelLink>();
+        public ObservableCollection<ChannelLink> PlayerStatusFeedChannels { get; set; } = new ObservableCollection<ChannelLink>();
 
         [Description("Discord channels in which to keep the Server Info display. DiscordLink will post one server info message in these channel and keep it updated trough edits. This setting can be changed while the server is running."), Category("Displays")]
-        public ObservableCollection<ServerInfoChannel> ServerInfoChannels { get; set; } = new ObservableCollection<ServerInfoChannel>();
+        public ObservableCollection<ServerInfoChannel> ServerInfoDisplayChannels { get; set; } = new ObservableCollection<ServerInfoChannel>();
 
         [Description("Discord channels in which to keep ongoing work parties. DiscordLink will post messages in these channel and keep them updated trough edits. This setting can be changed while the server is running."), Category("Displays")]
-        public ObservableCollection<ChannelLink> WorkPartyChannels { get; set; } = new ObservableCollection<ChannelLink>();
+        public ObservableCollection<ChannelLink> WorkPartyDisplayChannels { get; set; } = new ObservableCollection<ChannelLink>();
 
         [Description("Discord channels in which to keep the Player List display. DiscordLink will post one Player List message in these channel and keep it updated trough edits. This setting can be changed while the server is running."), Category("Displays")]
-        public ObservableCollection<PlayerListChannelLink> PlayerListChannels { get; set; } = new ObservableCollection<PlayerListChannelLink>();
+        public ObservableCollection<PlayerListChannelLink> PlayerListDisplayChannels { get; set; } = new ObservableCollection<PlayerListChannelLink>();
 
         [Description("Discord channels in which to keep the Election display. DiscordLink will post election messages in these channel and keep it updated trough edits. This setting can be changed while the server is running."), Category("Displays")]
-        public ObservableCollection<ChannelLink> ElectionChannels { get; set; } = new ObservableCollection<ChannelLink>();
+        public ObservableCollection<ChannelLink> ElectionDisplayChannels { get; set; } = new ObservableCollection<ChannelLink>();
 
         [Description("Discord channels in which to keep the currency display. DiscordLink will post election messages in these channel and keep it updated trough edits. This setting can be changed while the server is running."), Category("Displays")]
-        public ObservableCollection<CurrencyChannelLink> CurrencyChannels { get; set; } = new ObservableCollection<CurrencyChannelLink>();
+        public ObservableCollection<CurrencyChannelLink> CurrencyDisplayChannels { get; set; } = new ObservableCollection<CurrencyChannelLink>();
 
         [Description("Discord channels in which to search for snippets for the Snippet command. This setting can be changed while the server is running."), Category("Inputs")]
-        public ObservableCollection<ChannelLink> SnippetChannels { get; set; } = new ObservableCollection<ChannelLink>();
+        public ObservableCollection<ChannelLink> SnippetInputChannels { get; set; } = new ObservableCollection<ChannelLink>();
 
         [Description("Discord channels in which to allow commands. If no channels are specified, commands will be allowed in all channels. This setting can be changed while the server is running."), Category("Command Settings")]
         public ObservableCollection<ChannelLink> DiscordCommandChannels { get; set; } = new ObservableCollection<ChannelLink>();

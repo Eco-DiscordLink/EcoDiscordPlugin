@@ -25,7 +25,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected override bool ShouldRun()
         {
-            foreach (ChannelLink link in DLConfig.Data.TradeChannels)
+            foreach (ChannelLink link in DLConfig.Data.TradeFeedChannels)
             {
                 if (link.IsValid())
                     return true;
@@ -35,7 +35,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, object data)
         {
-            if (DLConfig.Data.TradeChannels.Count <= 0) return;
+            if (DLConfig.Data.TradeFeedChannels.Count <= 0) return;
             if (!(data is IEnumerable<List<CurrencyTrade>> accumulatedTrades)) return;
 
 
@@ -87,7 +87,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 embed.AddField("Total", sign + Math.Abs(subTotal).ToString("n2") + " " + MessageUtil.StripTags(firstTrade.Currency.Name));
 
                 // Post the trade summary in all trade channels
-                foreach (ChannelLink tradeChannel in DLConfig.Data.TradeChannels)
+                foreach (ChannelLink tradeChannel in DLConfig.Data.TradeFeedChannels)
                 {
                     if (!tradeChannel.IsValid()) continue;
                     DiscordGuild discordGuild = plugin.GuildByNameOrId(tradeChannel.DiscordGuild);
