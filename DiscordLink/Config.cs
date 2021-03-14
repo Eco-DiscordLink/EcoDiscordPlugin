@@ -90,6 +90,8 @@ namespace Eco.Plugins.DiscordLink
 
         public void HandleCollectionChanged(NotifyCollectionChangedEventArgs args)
         {
+            Logger.Debug("Config Changed");
+
             if (args.Action == NotifyCollectionChangedAction.Add
                 || args.Action == NotifyCollectionChangedAction.Remove
                 || args.Action == NotifyCollectionChangedAction.Replace)

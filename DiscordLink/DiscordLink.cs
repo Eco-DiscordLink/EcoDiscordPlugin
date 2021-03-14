@@ -78,6 +78,7 @@ namespace Eco.Plugins.DiscordLink
             EventConverter.Instance.Initialize();
             DLStorage.Instance.Initialize();
             Logger.Initialize();
+            Logger.Debug("Plugin Initializing");
             Logger.Info($"Plugin version is {PluginVersion}");
             InitTime = DateTime.Now;
 
@@ -89,6 +90,8 @@ namespace Eco.Plugins.DiscordLink
 
         private void PostServerInitialize()
         {
+            Logger.Debug("Plugin Post Eco Server Init");
+
             if (!DiscordConnected)
                 return;
 
@@ -111,6 +114,8 @@ namespace Eco.Plugins.DiscordLink
 
         private void PostClientConnected()
         {
+            Logger.Debug("Plugin Post Client Conencted");
+
             // Start modules
             InitializeModules();
             BeginRelaying();
@@ -122,6 +127,8 @@ namespace Eco.Plugins.DiscordLink
 
         public void Shutdown()
         {
+            Logger.Debug("Plugin Shutting Down");
+
             HandleEvent(DLEventType.ServerStopped, null);
 
             ShutdownModules();
@@ -186,6 +193,8 @@ namespace Eco.Plugins.DiscordLink
 
         public void HandleEvent(DLEventType eventType, object data)
         {
+            Logger.DebugVerbose($"Event of type {eventType} received");
+
             EventConverter.Instance.HandleEvent(eventType, data);
             DLStorage.Instance.HandleEvent(eventType, data);
             UpdateModules(eventType, data);
@@ -201,6 +210,7 @@ namespace Eco.Plugins.DiscordLink
 
         private async Task<bool> StartClient()
         {
+            Logger.Debug("Plugin Starting Discord Client");
             _status = "Setting up Discord client";
 
             bool BotTokenIsNull = string.IsNullOrWhiteSpace(DLConfig.Data.BotToken);
@@ -263,6 +273,7 @@ namespace Eco.Plugins.DiscordLink
 
         private void StopClient()
         {
+            Logger.Debug("Plugin Stopping Discord Client");
             _status = "Shutting down";
 
             ShutdownModules();
@@ -285,6 +296,8 @@ namespace Eco.Plugins.DiscordLink
 
         public async Task<bool> RestartClient()
         {
+            Logger.Debug("Plugin Restarting Discord Client");
+
             bool result = false;
             if (CanRestart)
             {
@@ -339,6 +352,8 @@ namespace Eco.Plugins.DiscordLink
 
         private void InitializeModules()
         {
+            Logger.Debug("Initializing modules");
+
             Modules.Add(new DiscordChatFeed());   // Discord -> Eco
             Modules.Add(new EcoChatFeed());       // Eco -> Discord
             Modules.Add(new ChatlogFeed());
@@ -361,6 +376,8 @@ namespace Eco.Plugins.DiscordLink
 
         private void ShutdownModules()
         {
+            Logger.Debug("Shutting down modules");
+
             Modules.ForEach(async module => await module.Stop());
             Modules.ForEach(module => module.Destroy());
             Modules.Clear();
@@ -434,12 +451,16 @@ namespace Eco.Plugins.DiscordLink
 
         private void BeginRelaying()
         {
+            Logger.Debug("Relaying Started");
+
             ActionUtil.AddListener(this);
             DiscordClient.MessageCreated += OnDiscordMessageCreateEvent;
         }
 
         private void StopRelaying()
         {
+            Logger.Debug("Relaying stopped");
+
             ActionUtil.RemoveListener(this);
             DiscordClient.MessageCreated -= OnDiscordMessageCreateEvent;
         }

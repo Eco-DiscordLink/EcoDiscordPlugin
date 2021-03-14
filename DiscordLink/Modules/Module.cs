@@ -1,5 +1,6 @@
 ﻿using DSharpPlus.Entities;
 using Eco.Plugins.DiscordLink.Events;
+using Eco.Plugins.DiscordLink.Utilities;
 using Nito.AsyncEx;
 using System;
 using System.Threading.Tasks;
@@ -82,6 +83,8 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected virtual async Task Initialize()
         {
+            Logger.Debug($"Starting {this}");
+
             IsEnabled = true;
             _status = "Running";
             _startTime = DateTime.Now;
@@ -89,6 +92,8 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected virtual async Task Shutdown()
         {
+            Logger.Debug($"Stopping {this}");
+
             _isShuttingDown = true;
             IsEnabled = false;
             _status = "Off";

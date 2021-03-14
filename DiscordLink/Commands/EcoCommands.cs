@@ -22,6 +22,7 @@ namespace Eco.Plugins.DiscordLink
         {
             try
             {
+                Logger.Debug($"{MessageUtil.StripTags(user.Name)} invoked Eco command \"/{toCall.Method.Name}\"");
                 toCall(user, args);
             }
             catch (Exception e)

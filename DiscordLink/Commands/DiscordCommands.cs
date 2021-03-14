@@ -47,6 +47,7 @@ namespace Eco.Plugins.DiscordLink
                     return;
                 }
 
+                Logger.Debug($"{ctx.User.Username} invoked Discord command \"{ctx.Prefix}{toCall.Method.Name}\" in channel {ctx.Channel.Name} in guild {ctx.Guild.Name}");
                 await toCall(ctx, args);
             }
             catch (Exception e)
