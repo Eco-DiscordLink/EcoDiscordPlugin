@@ -353,7 +353,7 @@ namespace Eco.Plugins.DiscordLink
             CallWithErrorHandling<object>((lUser, args) =>
             {
                 // Fetch trade data
-                string result = SharedCommands.Trades(userOrItemName, out string title, out bool isItem, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
+                string result = SharedCommands.Trades(userOrItemName, out string title, out TradeTargetType tradeType, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
                 if (!string.IsNullOrEmpty(result))
                 {
                     // Report commmand error
@@ -361,7 +361,7 @@ namespace Eco.Plugins.DiscordLink
                     return;
                 }
 
-                MessageBuilder.Eco.FormatTrades(isItem, groupedBuyOffers, groupedSellOffers, out string message);
+                MessageBuilder.Eco.FormatTrades(tradeType, groupedBuyOffers, groupedSellOffers, out string message);
                 EcoUtil.SendAnnouncementMessage(title, message, user);
             }, user);
         }
@@ -391,7 +391,7 @@ namespace Eco.Plugins.DiscordLink
             }
 
             // Fetch trade data using the trades command once to see that the command parameters are valid
-            string result = SharedCommands.Trades(userOrItemName, out string matchedName, out bool isItem, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
+            string result = SharedCommands.Trades(userOrItemName, out string matchedName, out TradeTargetType tradeType, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
             if (!string.IsNullOrEmpty(result))
             {
                 ChatManager.ServerMessageToPlayer(new LocString(result), user);

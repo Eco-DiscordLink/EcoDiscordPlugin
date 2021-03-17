@@ -73,12 +73,12 @@ namespace Eco.Plugins.DiscordLink.Modules
             List<string> trackedTrades = DLStorage.WorldData.PlayerTrackedTrades[(target as UserLink).Member.Id];
             foreach(string trade in trackedTrades)
             {
-                string result = SharedCommands.Trades(trade, out string matchedName, out bool isItem, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
+                string result = SharedCommands.Trades(trade, out string matchedName, out TradeTargetType tradeType, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
                 if (!string.IsNullOrEmpty(result))
                     continue; // There was an error
 
                 DiscordLinkEmbed embedContent;
-                MessageBuilder.Discord.FormatTrades(matchedName, isItem, groupedBuyOffers, groupedSellOffers, out embedContent);
+                MessageBuilder.Discord.FormatTrades(matchedName, tradeType, groupedBuyOffers, groupedSellOffers, out embedContent);
                 tagAndContent.Add(new Tuple<string, DiscordLinkEmbed>($"{BaseTag} [{matchedName}]", embedContent));
             }
         }

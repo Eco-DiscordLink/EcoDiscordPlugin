@@ -453,7 +453,7 @@ namespace Eco.Plugins.DiscordLink
             await CallWithErrorHandling<object>(PermissionType.User, async (lCtx, args) =>
             {
                 // Fetch trade data
-                string result = SharedCommands.Trades(userOrItemName, out string matchedName, out bool isItem, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
+                string result = SharedCommands.Trades(userOrItemName, out string matchedName, out TradeTargetType tradeType, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
                 if (!string.IsNullOrEmpty(result))
                 {
                     // Report commmand error
@@ -462,7 +462,7 @@ namespace Eco.Plugins.DiscordLink
                 }
 
                 DiscordLinkEmbed embedContent;
-                MessageBuilder.Discord.FormatTrades(matchedName, isItem, groupedBuyOffers, groupedSellOffers, out embedContent);
+                MessageBuilder.Discord.FormatTrades(matchedName, tradeType, groupedBuyOffers, groupedSellOffers, out embedContent);
                 await RespondToCommand(ctx, null, embedContent);
             }, ctx);
         }
@@ -489,7 +489,7 @@ namespace Eco.Plugins.DiscordLink
                 }
 
                 // Fetch trade data using the trades command once to see that the command parameters are valid
-                string result = SharedCommands.Trades(userOrItemName, out string matchedName, out bool isItem, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
+                string result = SharedCommands.Trades(userOrItemName, out string matchedName, out TradeTargetType tradeType, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
                 if (!string.IsNullOrEmpty(result))
                 {
                     await RespondToCommand(ctx, result);

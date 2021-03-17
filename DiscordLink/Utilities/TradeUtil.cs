@@ -8,14 +8,31 @@ using Eco.Gameplay.Players;
 
 namespace Eco.Plugins.DiscordLink.Utilities
 {
+    public enum TradeTargetType
+    {
+        Tag,
+        Item,
+        User,
+        Invalid,
+    }
+
     public class TradeUtil
     {
-        private static List<Either<Item, User>> _itemLookup = null;
+        private static List<Either<Item, User, Tag>> _itemLookup = null;
 
-        public static List<Either<Item, User>> ItemLookup =>
+        public static List<Either<Item, User, Tag>> ItemLookup =>
             _itemLookup == null
-                ? Item.AllItems.Select(item => new Either<Item, User>(item)).ToList()
+                ? Item.AllItems.Select(item => new Either<Item, User, Tag>(item)).ToList()
                 : _itemLookup;
+
+        private static List<Either<Item, User, Tag>> _tagLookup = null;
+
+        public static List<Either<Item, User, Tag>> TagLookup =>
+            _tagLookup == null
+                ? _tagLookup = FindTags().Select(tag => new Either<Item, User, Tag>(tag)).ToList()
+                : _tagLookup;
+
+        public static List<Either<Item, User, Tag>> UserLookup => UserManager.Users.Select(user => new Either<Item, User, Tag>(user)).ToList();
 
         public static T BestMatchOrDefault<T>(string rawQuery, IEnumerable<T> lookup, Func<T, string> getKey)
         {
@@ -40,13 +57,19 @@ namespace Eco.Plugins.DiscordLink.Utilities
             return default(T);
         }
 
-        public static Either<Item, User> MatchItemOrUser(string itemNameOrPlayerName)
+        public static Either<Item, User, Tag> MatchType(string name)
         {
-            var lookup = ItemLookup.Concat(UserManager.Users.Select(user => new Either<Item, User>(user)));
-            return BestMatchOrDefault(itemNameOrPlayerName, lookup, o =>
+            var lookup = ItemLookup.Concat(TagLookup).Concat(UserManager.Users.Select(user => new Either<Item, User, Tag>(user)));
+            return BestMatchOrDefault(name, lookup, o =>
             {
-                if (o.Is<Item>()) return o.Get<Item>().DisplayName;
-                return o.Get<User>().Name;
+                if (o.Is<Tag>())
+                    return o.Get<Tag>().DisplayName;
+                else if (o.Is<Item>())
+                    return o.Get<Item>().DisplayName;
+                else if (o.Is<User>())
+                    return o.Get<User>().Name;
+                else
+                    return string.Empty;
             });
         }
 
@@ -87,6 +110,20 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 .OrderBy(t => t.Item2.Stack.Item.DisplayName)
                 .Skip(start)
                 .Take(count);
+        }
+
+        private static IEnumerable<Tag> FindTags()
+        {
+            List<Tag> uniqueTags = new List<Tag>();
+            foreach(Item item in Item.AllItems)
+            {
+                foreach(Tag tag in item.Tags())
+                {
+                    if (!uniqueTags.Contains(tag)) 
+                        uniqueTags.Add(tag);
+                }
+            }
+            return uniqueTags;
         }
     }
 }

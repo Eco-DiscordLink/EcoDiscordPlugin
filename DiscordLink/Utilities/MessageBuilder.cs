@@ -482,7 +482,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 return $"Message sent by DiscordLink @ {serverName} [{timestamp}]";
             }
 
-            public static void FormatTrades(string matchedName, bool isItem, StoreOfferList groupedBuyOffers, StoreOfferList groupedSellOffers, out DiscordLinkEmbed embedContent)
+            public static void FormatTrades(string matchedName, TradeTargetType tradeType, StoreOfferList groupedBuyOffers, StoreOfferList groupedSellOffers, out DiscordLinkEmbed embedContent)
             {
                 // Format message
                 DiscordLinkEmbed embed = new DiscordLinkEmbed()
@@ -491,10 +491,24 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 if (groupedSellOffers.Count() > 0 || groupedBuyOffers.Count() > 0)
                 {
                     Func<Tuple<StoreComponent, TradeOffer>, string> getLabel;
-                    if (isItem)
-                        getLabel = t => $"@ *{MessageUtil.StripTags(t.Item1.Parent.Name)}*";
-                    else
-                        getLabel = t => t.Item2.Stack.Item.DisplayName;
+                    switch(tradeType)
+                    {
+                        case TradeTargetType.Tag:
+                            getLabel = t => $"{t.Item2.Stack.Item.DisplayName} @ *{MessageUtil.StripTags(t.Item1.Parent.Name)}*";
+                            break;
+
+                        case TradeTargetType.Item:
+                            getLabel = t => $"@ *{MessageUtil.StripTags(t.Item1.Parent.Name)}*";
+                            break;
+
+                        case TradeTargetType.User:
+                            getLabel = t => t.Item2.Stack.Item.DisplayName;
+                            break;
+
+                        default:
+                            getLabel = t => string.Empty;
+                            break;
+                    }
                     ICollection<StoreOffer> Offers = TradeOffersToFields(groupedBuyOffers, groupedSellOffers, getLabel);
 
                     for(int i = 0; i < Offers.Count; ++i)
@@ -597,13 +611,28 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         public static class Eco
         {
-            public static void FormatTrades(bool isItem, StoreOfferList groupedBuyOffers, StoreOfferList groupedSellOffers, out string message)
+            public static void FormatTrades(TradeTargetType tradeType, StoreOfferList groupedBuyOffers, StoreOfferList groupedSellOffers, out string message)
             {
                 Func<Tuple<StoreComponent, TradeOffer>, string> getLabel;
-                if (isItem)
-                    getLabel = t => $"@ {t.Item1.Parent.MarkedUpName}";
-                else
-                    getLabel = t => t.Item2.Stack.Item.MarkedUpName;
+                
+                switch(tradeType)
+                {
+                    case TradeTargetType.Tag:
+                        getLabel = t => $"{t.Item2.Stack.Item.MarkedUpName} @ {t.Item1.Parent.MarkedUpName}";
+                        break;
+
+                    case TradeTargetType.Item:
+                        getLabel = t => $"@ {t.Item1.Parent.MarkedUpName}";
+                        break;
+
+                    case TradeTargetType.User:
+                        getLabel = t => t.Item2.Stack.Item.MarkedUpName;
+                        break;
+
+                    default:
+                        getLabel = t => string.Empty;
+                        break;
+                }
 
                 // Format message
                 StringBuilder builder = new StringBuilder();
@@ -654,7 +683,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     var price = getPrice(t);
                     var quantity = getQuantity(t);
                     var quantityString = quantity.HasValue ? $"{quantity.Value} - " : "";
-                    var line = $"{quantityString}${price} at {getLabel(t)}";
+                    var line = $"{quantityString}${price} {getLabel(t)}";
                     if (quantity == 0) line = Text.Color(Color.Yellow, line);
                     return line;
                 });

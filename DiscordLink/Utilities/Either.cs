@@ -1,6 +1,6 @@
 ﻿namespace Eco.Plugins.DiscordLink.Utilities
 {
-    public struct Either<T1, T2> where T1 : class where T2 : class
+    public struct Either<T1, T2, T3> where T1 : class where T2 : class where T3 : class
     {
         private readonly object _value;
 
@@ -21,10 +21,10 @@
 
         public override bool Equals(object obj)
         {
-            return obj is Either<T1, T2> && ((Either<T1, T2>) obj)._value == _value;
+            return obj is Either<T1, T2, T3> && ((Either<T1, T2, T3>) obj)._value == _value;
         }
 
-        public bool Equals(Either<T1, T2> other)
+        public bool Equals(Either<T1, T2, T3> other)
         {
             return Equals(_value, other._value);
         }
