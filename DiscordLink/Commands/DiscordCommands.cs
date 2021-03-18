@@ -147,9 +147,10 @@ namespace Eco.Plugins.DiscordLink
             if (!allowed)
             {
                 string channelNameLower = ctx.Channel.Name.ToLower();
+                string channelIDLower = ctx.Channel.Id.ToString();
                 foreach (ChannelLink link in commandChannels)
                 {
-                    if (channelNameLower == link.DiscordChannel)
+                    if (channelNameLower == link.DiscordChannel || channelIDLower == link.DiscordChannel)
                     {
                         allowed = true;
                         break;
