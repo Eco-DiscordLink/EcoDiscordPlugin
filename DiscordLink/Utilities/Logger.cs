@@ -12,6 +12,16 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         private static StreamWriter _writer = null;
 
+        public enum LogLevel
+        {
+            DebugVerbose,
+            Debug,
+            Warning,
+            Information,
+            Error,
+            Silent,
+        }
+
         public static void Initialize()
         {
             try
@@ -50,48 +60,38 @@ namespace Eco.Plugins.DiscordLink.Utilities
         public static void DebugVerbose(string message)
         {
             if (DLConfig.Data.LogLevel <= LogLevel.DebugVerbose)
-            {
-                Log.Write(new LocString("[DiscordLink] DEBUG: " + message + "\n"));
-            }
+                Log.Write(new LocString($"[DiscordLink] DEBUG: {message}\n"));
         }
 
         public static void Debug(string message)
         {
-            string fullMessage = "[DiscordLink] DEBUG: " + message + "\n";
+            string fullMessage = $"[DiscordLink] DEBUG: {message}\n";
             if (DLConfig.Data.LogLevel <= LogLevel.Debug)
-            {
                 Log.Write(new LocString(fullMessage));
-            }
             WriteToPluginLog(fullMessage);
         }
 
         public static void Warning(string message)
         {
-            string fullMessage = "[DiscordLink] WARNING: " + message + "\n";
+            string fullMessage = $"[DiscordLink] WARNING: {message}\n";
             if (DLConfig.Data.LogLevel <= LogLevel.Warning)
-            {
                 Log.Write(new LocString(fullMessage));   
-            }
             WriteToPluginLog(fullMessage);
         }
 
         public static void Info(string message)
         {
-            string fullMessage = "[DiscordLink] " + message + "\n";
+            string fullMessage = $"[DiscordLink] {message}\n";
             if (DLConfig.Data.LogLevel <= LogLevel.Information)
-            {
                 Log.Write(new LocString(fullMessage));   
-            }
             WriteToPluginLog(fullMessage);
         }
 
         public static void Error(string message)
         {
-            string fullMessage = "[DiscordLink] ERROR: " + message + "\n";
+            string fullMessage = $"[DiscordLink] ERROR: {message}\n";
             if (DLConfig.Data.LogLevel <= LogLevel.Error)
-            {
                 Log.Write(new LocString(fullMessage));   
-            }
             WriteToPluginLog(fullMessage);
         }
 

@@ -324,7 +324,6 @@ namespace Eco.Plugins.DiscordLink
         [Aliases("dl-status", "status")]
         public async Task PluginStatus(CommandContext ctx)
         {
-            PermissionType a = PermissionType.Admin;
             await CallWithErrorHandling<object>(PermissionType.Admin, async (lCtx, args) =>
             {
                 await RespondToCommand(ctx, MessageBuilder.Shared.GetDisplayString(verbose: false));

@@ -128,16 +128,19 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
                     builder.AppendLine();
                     builder.AppendLine("--- Storage - World ---");
-                    builder.AppendLine("Tracked Trades:");
-                    foreach (var trackedUserTrades in DLStorage.WorldData.PlayerTrackedTrades)
+                    if (DLStorage.WorldData.PlayerTrackedTrades.Count > 0)
                     {
-                        DiscordUser discordUser = plugin.DiscordClient.GetUserAsync(trackedUserTrades.Key).Result;
-                        if (discordUser == null) continue;
-
-                        builder.AppendLine($"[{discordUser.Username}]");
-                        foreach (string trade in trackedUserTrades.Value)
+                        builder.AppendLine("Tracked Trades:");
+                        foreach (var trackedUserTrades in DLStorage.WorldData.PlayerTrackedTrades)
                         {
-                            builder.AppendLine($"- {trade}");
+                            DiscordUser discordUser = plugin.DiscordClient.GetUserAsync(trackedUserTrades.Key).Result;
+                            if (discordUser == null) continue;
+
+                            builder.AppendLine($"[{discordUser.Username}]");
+                            foreach (string trade in trackedUserTrades.Value)
+                            {
+                                builder.AppendLine($"- {trade}");
+                            }
                         }
                     }
 

@@ -25,7 +25,7 @@ namespace Eco.Plugins.DiscordLink
 
         public static class DefaultValues
         {
-            public static LogLevel PluginLogLevel = LogLevel.Information;
+            public static Logger.LogLevel PluginLogLevel = Logger.LogLevel.Information;
             public static Microsoft.Extensions.Logging.LogLevel BackendLogLevel = Microsoft.Extensions.Logging.LogLevel.None;
             public static readonly string[] AdminRoles = { "admin", "administrator", "moderator" };
             public const string DiscordCommandPrefix = "?";
@@ -362,16 +362,6 @@ namespace Eco.Plugins.DiscordLink
         }
     }
 
-    public enum LogLevel
-    {
-        DebugVerbose,
-        Debug,
-        Warning,
-        Information,
-        Error,
-        Silent,
-    }
-
     public class DLConfigData : ICloneable
     {
         public object Clone() // Be careful not to change the original object here as that will trigger endless recursion.
@@ -431,10 +421,10 @@ namespace Eco.Plugins.DiscordLink
         [Description("The address (URL or IP) of the server. Overrides the automatically detected IP. This setting can be changed while the server is running."), Category("Server Details")]
         public string ServerAddress { get; set; }
 
-        [Description("Channels to connect together. This setting can be changed while the server is running."), Category("Feeds")]
+        [Description("Discord and Eco Channels to connect together. This setting can be changed while the server is running."), Category("Feeds")]
         public ObservableCollection<ChatChannelLink> ChatChannelLinks { get; set; } = new ObservableCollection<ChatChannelLink>();
 
-        [Description("Channels in which trade events will be posted. This setting can be changed while the server is running."), Category("Feeds")]
+        [Description("Discord Channels in which trade events will be posted. This setting can be changed while the server is running."), Category("Feeds")]
         public ObservableCollection<ChannelLink> TradeFeedChannels { get; set; } = new ObservableCollection<ChannelLink>();
 
         [Description("Discord channels in which crafting events will be posted. This setting can be changed while the server is running."), Category("Feeds")]
@@ -449,19 +439,19 @@ namespace Eco.Plugins.DiscordLink
         [Description("Discord channels in which election events will be posted. This setting can be changed while the server is running."), Category("Feeds")]
         public ObservableCollection<ChannelLink> ElectionFeedChannels { get; set; } = new ObservableCollection<ChannelLink>();
 
-        [Description("Discord channels in which to keep the Server Info display. DiscordLink will post one server info message in these channel and keep it updated trough edits. This setting can be changed while the server is running."), Category("Displays")]
+        [Description("Discord channels in which to keep the Server Info display. DiscordLink will post one server info message in these channel and keep it updated through edits. This setting can be changed while the server is running."), Category("Displays")]
         public ObservableCollection<ServerInfoChannel> ServerInfoDisplayChannels { get; set; } = new ObservableCollection<ServerInfoChannel>();
 
-        [Description("Discord channels in which to keep ongoing work parties. DiscordLink will post messages in these channel and keep them updated trough edits. This setting can be changed while the server is running."), Category("Displays")]
+        [Description("Discord channels in which to keep ongoing work parties. DiscordLink will post messages in these channel and keep them updated through edits. This setting can be changed while the server is running."), Category("Displays")]
         public ObservableCollection<ChannelLink> WorkPartyDisplayChannels { get; set; } = new ObservableCollection<ChannelLink>();
 
-        [Description("Discord channels in which to keep the Player List display. DiscordLink will post one Player List message in these channel and keep it updated trough edits. This setting can be changed while the server is running."), Category("Displays")]
+        [Description("Discord channels in which to keep the Player List display. DiscordLink will post one Player List message in these channel and keep it updated through edits. This setting can be changed while the server is running."), Category("Displays")]
         public ObservableCollection<PlayerListChannelLink> PlayerListDisplayChannels { get; set; } = new ObservableCollection<PlayerListChannelLink>();
 
-        [Description("Discord channels in which to keep the Election display. DiscordLink will post election messages in these channel and keep it updated trough edits. This setting can be changed while the server is running."), Category("Displays")]
+        [Description("Discord channels in which to keep the Election display. DiscordLink will post election messages in these channel and keep it updated through edits. This setting can be changed while the server is running."), Category("Displays")]
         public ObservableCollection<ChannelLink> ElectionDisplayChannels { get; set; } = new ObservableCollection<ChannelLink>();
 
-        [Description("Discord channels in which to keep the currency display. DiscordLink will post election messages in these channel and keep it updated trough edits. This setting can be changed while the server is running."), Category("Displays")]
+        [Description("Discord channels in which to keep the currency display. DiscordLink will post currency messages in these channel and keep it updated through edits. This setting can be changed while the server is running."), Category("Displays")]
         public ObservableCollection<CurrencyChannelLink> CurrencyDisplayChannels { get; set; } = new ObservableCollection<CurrencyChannelLink>();
 
         [Description("Discord channels in which to search for snippets for the Snippet command. This setting can be changed while the server is running."), Category("Inputs")]
@@ -474,7 +464,7 @@ namespace Eco.Plugins.DiscordLink
         public int MaxTrackedTradesPerUser { get; set; } = DLConfig.DefaultValues.MaxTrackedTradesPerUser;
 
         [Description("Determines what message types will be printed to the server log. All message types below the selected one will be printed as well. This setting can be changed while the server is running."), Category("Miscellaneous")]
-        public LogLevel LogLevel { get; set; } = DLConfig.DefaultValues.PluginLogLevel;
+        public Logger.LogLevel LogLevel { get; set; } = DLConfig.DefaultValues.PluginLogLevel;
 
         [Description("Determines what backend message types will be printed to the server log. All message types below the selected one will be printed as well. This setting requires a plugin restart to take effect."), Category("Miscellaneous")]
         public Microsoft.Extensions.Logging.LogLevel BackendLogLevel { get; set; } = DLConfig.DefaultValues.BackendLogLevel;

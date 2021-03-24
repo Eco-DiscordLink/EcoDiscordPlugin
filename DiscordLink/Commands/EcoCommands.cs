@@ -177,7 +177,7 @@ namespace Eco.Plugins.DiscordLink
                     response = (snippets.Count > 0 ? "Available snippets:\n" : "There are no registered snippets.");
                     foreach (var snippetKeyVal in snippets)
                     {
-                        response += snippetKeyVal.Key + "\n";
+                        response += $"{snippetKeyVal.Key}\n";
                     }
                     ChatManager.ServerMessageToPlayer(new LocString(response), user);
                 }
@@ -185,14 +185,14 @@ namespace Eco.Plugins.DiscordLink
                 {
                     // Find and post the snippet requested by the user
                     string snippetKeyLower = snippetKey.ToLower();
-                    if (snippets.TryGetValue(snippetKeyLower, out string sippetText))
+                    if (snippets.TryGetValue(snippetKeyLower, out string snippetText))
                     {
-                        response = user.Name + " invoked snippet \"" + snippetKey + "\"\n- - -\n" + sippetText + "\n- - -";
+                        response = $"{user.Name} invoked snippet \"{snippetKey}\"\n- - -\n{ snippetText}\n- - -";
                         EcoUtil.SendServerMessage(response, permanent: true);
                     }
                     else
                     {
-                        response = "No snippet with key \"" + snippetKey + "\" could be found.";
+                        response = $"No snippet with key \"{snippetKey}\" could be found.";
                         ChatManager.ServerMessageToPlayer(new LocString(response), user);
                     }
                 }
