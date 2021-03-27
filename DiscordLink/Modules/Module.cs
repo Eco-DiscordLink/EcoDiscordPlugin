@@ -107,12 +107,12 @@ namespace Eco.Plugins.DiscordLink.Modules
             await HandleStartOrStop();
         }
 
-        protected abstract Task UpdateInternal(DiscordLink plugin, DLEventType trigger, object data);
 
         public virtual async Task OnMessageDeleted(DiscordMessage message)
         { }
+        protected abstract Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data);
 
-        public virtual async Task Update(DiscordLink plugin, DLEventType trigger, object data)
+        public virtual async Task Update(DiscordLink plugin, DLEventType trigger, params object[] data)
         {
             if (plugin == null) return;
 

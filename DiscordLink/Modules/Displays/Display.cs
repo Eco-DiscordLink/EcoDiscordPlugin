@@ -122,7 +122,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             SystemUtil.StopAndDestroyTimer(ref _HighFrequencyEventTimer);
         }
 
-        protected sealed override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, object data)
+        protected sealed override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
         {
             // Avoid hitting the rate limitation by not allowig events that can be fired often to pass straight through.
             if ((trigger & HighFrequencyTriggerFlags) == trigger)

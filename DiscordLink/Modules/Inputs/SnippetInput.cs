@@ -54,7 +54,9 @@ namespace Eco.Plugins.DiscordLink.Modules
         }
 
         public override async Task OnMessageDeleted(DiscordMessage message)
+        protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
         {
+            if (!(data[0] is DiscordMessage message)) return;
             if (message.IsDm()) return;
 
             using (await _overlapLock.LockAsync()) // Avoid crashes caused by data being manipulated and used simultaneously

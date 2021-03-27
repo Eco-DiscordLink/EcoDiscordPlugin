@@ -28,7 +28,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             return false;
         }
 
-        protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, object data)
+        protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
         {
             string message = string.Empty;
             switch(trigger)

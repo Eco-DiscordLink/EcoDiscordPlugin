@@ -30,9 +30,9 @@ namespace Eco.Plugins.DiscordLink.Modules
             return false;
         }
 
-        protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, object data)
+        protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
         {
-            if (!(data is Election election))
+            if (!(data[0] is Election election))
                 return;
 
             DiscordLinkEmbed embed = new DiscordLinkEmbed();

@@ -383,7 +383,7 @@ namespace Eco.Plugins.DiscordLink
             Modules.Clear();
         }
 
-        private void UpdateModules(DLEventType trigger, object data)
+        private void UpdateModules(DLEventType trigger, params object[] data)
         {
             Modules.ForEach(async module => await module.Update(this, trigger, data));
         }

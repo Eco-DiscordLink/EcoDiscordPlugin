@@ -29,9 +29,9 @@ namespace Eco.Plugins.DiscordLink.Modules
             return false;
         }
 
-        protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, object data)
+        protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
         {
-            if (!(data is WorkOrderAction craftingEvent)) return;
+            if (!(data[0] is WorkOrderAction craftingEvent)) return;
             if (craftingEvent.Citizen == null) return; // Happens when a crafting table contiues crafting after finishing an item
             if (craftingEvent.MarkedUpName != "Create Work Order") return; // Happens when a player feeds materials to a blocked work order
 

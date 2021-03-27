@@ -29,11 +29,11 @@ namespace Eco.Plugins.DiscordLink.Modules
             return false;
         }
 
-        protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, object data)
+        protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
         {
-            if (!(data is User user)) return;
             
             string message = string.Empty;
+            if (!(data[0] is User user)) return;
             switch (trigger)
             {
                 case DLEventType.Join:

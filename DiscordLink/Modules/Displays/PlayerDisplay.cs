@@ -21,7 +21,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected override DLEventType GetTriggers()
         {
-            return DLEventType.DiscordClientStarted | DLEventType.Timer | DLEventType.Join | DLEventType.Login | DLEventType.Logout;
+            return base.GetTriggers() | DLEventType.DiscordClientStarted | DLEventType.Timer | DLEventType.Join | DLEventType.Login | DLEventType.Logout;
         }
 
         protected override List<DiscordTarget> GetDiscordTargets()

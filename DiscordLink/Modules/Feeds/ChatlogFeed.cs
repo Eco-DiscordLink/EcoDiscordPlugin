@@ -55,18 +55,18 @@ namespace Eco.Plugins.DiscordLink.Modules
             await base.OnConfigChanged(sender, e);
         }
 
-        protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, object data)
+        protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
         {
             if (!Initialized) return;
 
             string username;
             string content;
-            if (data is ChatSent ecoMessage)
+            if (data[0] is ChatSent ecoMessage)
             {
                 username = ecoMessage.Citizen.Name;
                 content = ecoMessage.Message;
             }
-            else if(data is DiscordMessage discordMessage)
+            else if(data[0] is DiscordMessage discordMessage)
             {
                 username = discordMessage.Author.Username;
                 content = discordMessage.Content;

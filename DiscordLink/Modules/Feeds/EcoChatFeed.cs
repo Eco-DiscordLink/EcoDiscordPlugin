@@ -27,9 +27,9 @@ namespace Eco.Plugins.DiscordLink.Modules
             return false;
         }
 
-        protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, object data)
+        protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
         {
-            if (!(data is ChatSent message)) return;
+            if (!(data[0] is ChatSent message)) return;
 
             // Remove the # character from the start.
             var channelLink = plugin.GetLinkForDiscordChannel(message.Tag.Substring(1));

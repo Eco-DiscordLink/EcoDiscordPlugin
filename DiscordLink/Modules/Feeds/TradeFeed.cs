@@ -33,7 +33,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             return false;
         }
 
-        protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, object data)
+        protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
         {
             if (DLConfig.Data.TradeFeedChannels.Count <= 0) return;
             if (!(data is IEnumerable<List<CurrencyTrade>> accumulatedTrades)) return;

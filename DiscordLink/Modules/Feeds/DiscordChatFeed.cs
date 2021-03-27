@@ -28,9 +28,9 @@ namespace Eco.Plugins.DiscordLink.Modules
             return false;
         }
 
-        protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, object data)
+        protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
         {
-            if (!(data is DiscordMessage message)) return;
+            if (!(data[0] is DiscordMessage message)) return;
 
             ChatChannelLink channelLink = plugin.GetLinkForEcoChannel(message.Channel.Name) ?? plugin.GetLinkForEcoChannel(message.Channel.Id.ToString());
             string channel = channelLink?.EcoChannel;
