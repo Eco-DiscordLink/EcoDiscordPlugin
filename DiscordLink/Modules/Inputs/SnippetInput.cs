@@ -121,7 +121,15 @@ namespace Eco.Plugins.DiscordLink.Modules
                 {
                     Match match = MessageUtil.SnippetRegex.Match(channelMessage.Content);
                     if (match.Groups.Count == 3)
-                        DLStorage.Instance.Snippets.Add(match.Groups[1].Value.ToLower(), match.Groups[2].Value);
+                    {
+                        string key = match.Groups[1].Value.ToLower();
+                        string content = match.Groups[2].Value;
+                        var snippets = DLStorage.Instance.Snippets;
+                        if (!snippets.ContainsKey(key))
+                            snippets.Add(key, content);
+                        else
+                            Logger.Info($"Found duplicate Snippet key \"{key}\". Only the first instance of this Snippet will be loaded.");
+                    }
                 }
             }
         }
