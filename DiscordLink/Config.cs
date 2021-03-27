@@ -253,7 +253,7 @@ namespace Eco.Plugins.DiscordLink
                 }
             }
 
-            _config.SaveAsync();
+            _config.SaveAsync().Wait();
             OnConfigSaved?.Invoke(this, EventArgs.Empty);
             _prevConfig = (DLConfigData)Data.Clone();
 
