@@ -60,6 +60,7 @@ namespace Eco.Plugins.DiscordLink
         public void OnEditObjectChanged(object o, string param)
         {
             DLConfig.Instance.HandleConfigChanged();
+            ParamChanged?.Invoke(o, param);
         }
 
         public string GetDisplayText()
