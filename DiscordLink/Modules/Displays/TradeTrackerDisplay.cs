@@ -56,7 +56,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected override DLEventType GetTriggers()
         {
-            return DLEventType.DiscordClientStarted | DLEventType.Timer | DLEventType.TrackedTradeAdded | DLEventType.TrackedTradeRemoved;
+            return base.GetTriggers() | DLEventType.DiscordClientStarted | DLEventType.Timer | DLEventType.TrackedTradeAdded | DLEventType.TrackedTradeRemoved;
         }
 
         protected override List<DiscordTarget> GetDiscordTargets()

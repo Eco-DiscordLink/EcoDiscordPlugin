@@ -236,11 +236,6 @@ namespace Eco.Plugins.DiscordLink
                 DiscordClient.SocketClosed += async (client, args) => { Logger.DebugVerbose("Socket Closed: " + args.CloseMessage + " " + args.CloseCode); };
                 DiscordClient.Resumed += async (client, args) => { Logger.Debug("Resumed connection"); };
 
-                DiscordClient.MessageDeleted += async (client, args) =>
-                {
-                    Modules.ForEach(async module => await module.OnMessageDeleted(args.Message));
-                };
-
                 // Register Discord commands
                 _commands = DiscordClient.UseCommandsNext(new CommandsNextConfiguration
                 {
@@ -454,15 +449,19 @@ namespace Eco.Plugins.DiscordLink
             Logger.Debug("Relaying Started");
 
             ActionUtil.AddListener(this);
-            DiscordClient.MessageCreated += OnDiscordMessageCreateEvent;
+            DiscordClient.MessageCreated += OnDiscordMessageCreated;
+            DiscordClient.MessageUpdated += OnDiscordMessageEdited;
+            DiscordClient.MessageDeleted += OnDiscordMessageDeleted;
         }
 
         private void StopRelaying()
         {
-            Logger.Debug("Relaying stopped");
-
             ActionUtil.RemoveListener(this);
-            DiscordClient.MessageCreated -= OnDiscordMessageCreateEvent;
+            DiscordClient.MessageCreated -= OnDiscordMessageCreated;
+            DiscordClient.MessageUpdated -= OnDiscordMessageEdited;
+            DiscordClient.MessageDeleted -= OnDiscordMessageDeleted;
+
+            Logger.Debug("Relaying stopped");
         }
 
         public ChatChannelLink GetLinkForEcoChannel(string discordChannelNameOrId)
@@ -500,23 +499,35 @@ namespace Eco.Plugins.DiscordLink
             if (chatMessage.Citizen.Name == EcoUser.Name && !chatMessage.Message.StartsWith(DLConstants.ECHO_COMMAND_TOKEN))
                 return;
 
-            HandleEvent(DLEventType.EcoMessage, chatMessage);
+            HandleEvent(DLEventType.EcoMessageSent, chatMessage);
         }
 
-        public async Task OnDiscordMessageCreateEvent(DiscordClient client, MessageCreateEventArgs messageArgs)
+        public async Task OnDiscordMessageCreated(DiscordClient client, MessageCreateEventArgs args)
         {
-            OnMessageReceivedFromDiscord(messageArgs.Message);
-        }
-
-        public void OnMessageReceivedFromDiscord(DiscordMessage message)
-        {
+            DiscordMessage message = args.Message;
             LogDiscordMessage(message);
 
             // Ignore commands and messages sent by our bot
-            if (message.Author == DiscordClient.CurrentUser) return;
-            if (message.Content.StartsWith(DLConfig.Data.DiscordCommandPrefix)) return;
+            if (args.Author == DiscordClient.CurrentUser) return;
+            if (!string.IsNullOrWhiteSpace(message.Content) && message.Content.StartsWith(DLConfig.Data.DiscordCommandPrefix)) return;
 
-            UpdateModules(DLEventType.DiscordMessage, message);
+            UpdateModules(DLEventType.DiscordMessageSent, message);
+        }
+
+        public async Task OnDiscordMessageEdited(DiscordClient client, MessageUpdateEventArgs args)
+        {
+            DiscordMessage message = args.Message;
+
+            // Ignore commands and messages sent by our bot
+            if (args.Author == DiscordClient.CurrentUser) return;
+            if (!string.IsNullOrWhiteSpace(message.Content) && message.Content.StartsWith(DLConfig.Data.DiscordCommandPrefix)) return;
+
+            UpdateModules(DLEventType.DiscordMessageEdited, args.Message, args.MessageBefore);
+        }
+
+        public async Task OnDiscordMessageDeleted(DiscordClient client, MessageDeleteEventArgs args)
+        {
+            UpdateModules(DLEventType.DiscordMessageDeleted, args.Message);
         }
         #endregion
     }

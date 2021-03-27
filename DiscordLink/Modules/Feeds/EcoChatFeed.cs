@@ -14,7 +14,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected override DLEventType GetTriggers()
         {
-            return DLEventType.EcoMessage;
+            return DLEventType.EcoMessageSent;
         }
 
         protected override bool ShouldRun()

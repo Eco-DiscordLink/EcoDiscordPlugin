@@ -39,6 +39,11 @@ namespace Eco.Plugins.DiscordLink.Modules
             return base.GetDisplayText(info, verbose);
         }
 
+        protected override DLEventType GetTriggers()
+        {
+            return DLEventType.DiscordMessageDeleted;
+        }
+
         protected override async Task Initialize()
         {
             StartTimer();
@@ -58,28 +63,6 @@ namespace Eco.Plugins.DiscordLink.Modules
                 Clear(); // The channel links may have changed so we should find the messages again.
             }
             await base.OnConfigChanged(sender, e);
-        }
-
-        public override async Task OnMessageDeleted(DiscordMessage message)
-        {
-            using (await _overlapLock.LockAsync()) // Avoid crashes caused by data being manipulated and used simultaneously
-            {
-                foreach(TargetDisplayData display in _targetDisplays)
-                {
-                    bool found = false;
-                    for(int i = 0; i < display.MessageIDs.Count; ++i)
-                    {
-                        if(message.Id == display.MessageIDs[i])
-                        {
-                            display.MessageIDs.RemoveAt(i);
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (found) break;
-                }
-            }
-            await base.OnMessageDeleted(message);
         }
 
         protected override bool ShouldRun()
@@ -124,6 +107,33 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected sealed override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
         {
+            // Handle deleted messages first to avoid crashes
+            if(trigger == DLEventType.DiscordMessageDeleted)
+            {
+                if (!(data[0] is DiscordMessage message))
+                    return;
+
+                foreach (TargetDisplayData display in _targetDisplays)
+                {
+                    bool found = false;
+                    for (int i = 0; i < display.MessageIDs.Count; ++i)
+                    {
+                        if (message.Id == display.MessageIDs[i])
+                        {
+                            display.MessageIDs.RemoveAt(i);
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (found)
+                        break;
+                }
+            }
+
+            // Block Display implementations from using edit and delete events
+            if (trigger == DLEventType.DiscordMessageEdited || trigger == DLEventType.DiscordMessageDeleted)
+                return;
+
             // Avoid hitting the rate limitation by not allowig events that can be fired often to pass straight through.
             if ((trigger & HighFrequencyTriggerFlags) == trigger)
             {

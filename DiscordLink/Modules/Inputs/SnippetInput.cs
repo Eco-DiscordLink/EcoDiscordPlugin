@@ -25,7 +25,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected override DLEventType GetTriggers()
         {
-            return DLEventType.DiscordMessage;
+            return DLEventType.DiscordMessageSent | DLEventType.DiscordMessageEdited | DLEventType.DiscordMessageDeleted;
         }
 
         protected override bool ShouldRun()
@@ -53,50 +53,21 @@ namespace Eco.Plugins.DiscordLink.Modules
             await base.OnConfigChanged(sender, e);
         }
 
-        public override async Task OnMessageDeleted(DiscordMessage message)
         protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
         {
             if (!(data[0] is DiscordMessage message)) return;
             if (message.IsDm()) return;
 
-            using (await _overlapLock.LockAsync()) // Avoid crashes caused by data being manipulated and used simultaneously
-            {
-                for (int i = 0; i < DLConfig.Data.SnippetInputChannels.Count; ++i)
-                {
-                    ChannelLink link = DLConfig.Data.SnippetInputChannels[i];
-                    if (!link.IsValid()) continue;
-
-                    string channel = link.DiscordChannel.ToLower();
-                    if(channel == message.Channel.Name.ToLower() || channel == message.ChannelId.ToString())
-                    {
-                        await ReloadSnippets();
-                        break;
-                    }
-                }
-            }
-            await base.OnMessageDeleted(message);
-        }
-
-        protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, object data)
-        {
-            if (!(data is DiscordMessage message)) return;
-            if (message.IsDm()) return;
-
-            bool isSnippetChannel = false;
-            foreach(ChannelLink link in DLConfig.Data.SnippetInputChannels)
+            foreach (ChannelLink link in DLConfig.Data.SnippetInputChannels)
             {
                 if (!link.IsValid()) continue;
 
                 if (link.DiscordGuild.ToLower() == message.Channel.Guild.Name.ToLower()
-                    && link.DiscordChannel == message.Channel.Name)
+                    && (link.DiscordChannel.ToLower() == message.Channel.Name.ToLower() || link.DiscordChannel == message.ChannelId.ToString()))
                 {
-                    isSnippetChannel = true;
+                    await ReloadSnippets();
                     break;
                 }
-            }
-            if (isSnippetChannel)
-            {
-                await ReloadSnippets();
             }
         }
 
