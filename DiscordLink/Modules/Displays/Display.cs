@@ -138,16 +138,15 @@ namespace Eco.Plugins.DiscordLink.Modules
             if ((trigger & HighFrequencyTriggerFlags) == trigger)
             {
                 if (_HighFrequencyEventTimer == null)
-                {
                     _HighFrequencyEventTimer = new Timer(this.TriggerTimedUpdate, null, HighFrequencyEventDelayMS, Timeout.Infinite);
-                }
                 return;
             }
 
             if(_dirty || _targetDisplays.Count <= 0)
             {
                 await FindMessages(plugin);
-                if (_dirty || _targetDisplays.Count <= 0) return; // If something went wrong, we should just retry later
+                if (_dirty || _targetDisplays.Count <= 0)
+                    return; // If something went wrong, we should just retry later
             }
 
             bool createdOrDestroyedMessage = false;
@@ -228,9 +227,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             }
 
             if(createdOrDestroyedMessage)
-            {
                 await FindMessages(plugin);
-            }
 
             LastUpdateTime = DateTime.Now;
         }
