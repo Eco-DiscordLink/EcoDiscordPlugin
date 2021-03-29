@@ -8,6 +8,7 @@
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Eco Discord</PackageTags>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <Version>2.2.1</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

@@ -6,6 +6,7 @@ using Eco.Core;
 using Eco.Core.Plugins;
 using Eco.Core.Plugins.Interfaces;
 using Eco.Core.Utils;
+using Eco.EM.Framework.VersioningTools;
 using Eco.Gameplay.Civics.Elections;
 using Eco.Gameplay.GameActions;
 using Eco.Gameplay.Players;
@@ -17,14 +18,17 @@ using Eco.WorldGenerator;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
+
+using Module = Eco.Plugins.DiscordLink.Modules.Module;
 
 namespace Eco.Plugins.DiscordLink
 {
     [Priority(PriorityAttribute.High)] // Need to start before WorldGenerator in order to listen for world generation finished event
     public class DiscordLink : IModKitPlugin, IInitializablePlugin, IShutdownablePlugin, IConfigurablePlugin, IDisplayablePlugin, IGameActionAware
     {
-        public readonly Version PluginVersion = new Version(2, 2, 1);
+        public readonly Version PluginVersion = Assembly.GetExecutingAssembly().GetName().Version;
 
         private string _status = "Not yet started";
         private CommandsNextExtension _commands = null;
@@ -41,6 +45,9 @@ namespace Eco.Plugins.DiscordLink
         public DateTime LastConnectionTime { get; private set; } = DateTime.MinValue;
         public bool DiscordConnected { get; private set; } = false;
         public bool CanRestart { get; private set; } = false; // False to start with as we cannot restart while the initial startup is in progress
+
+        private const string ModIOAppID = "";
+        private const string ModIODeveloperToken = ""; // This will always be empty for all but actual release builds.
 
         public override string ToString()
         {
@@ -87,6 +94,9 @@ namespace Eco.Plugins.DiscordLink
 
             WorldGeneratorPlugin.OnFinishGenerate.AddUnique(this.HandleWorldReset);
             PluginManager.Controller.RunIfOrWhenInited(PostServerInitialize); // Defer some initialization for when the server initialization is completed.
+
+            if(!string.IsNullOrWhiteSpace(ModIOAppID) && !string.IsNullOrWhiteSpace(ModIODeveloperToken)) // Only check for mod versioning if the data required for it exists
+                ModVersioning.GetModInit(ModIOAppID, ModIODeveloperToken, "DiscordLink", "DiscordLink", ConsoleColor.Cyan, "DiscordLink");
         }
 
         private void PostServerInitialize()
