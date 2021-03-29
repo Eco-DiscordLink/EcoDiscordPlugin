@@ -77,8 +77,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 if (!string.IsNullOrEmpty(result))
                     continue; // There was an error
 
-                DiscordLinkEmbed embedContent;
-                MessageBuilder.Discord.FormatTrades(matchedName, tradeType, groupedBuyOffers, groupedSellOffers, out embedContent);
+                MessageBuilder.Discord.FormatTrades(matchedName, tradeType, groupedBuyOffers, groupedSellOffers, out DiscordLinkEmbed embedContent);
                 tagAndContent.Add(new Tuple<string, DiscordLinkEmbed>($"{BaseTag} [{matchedName}]", embedContent));
             }
         }

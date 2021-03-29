@@ -21,7 +21,7 @@
 
         public override bool Equals(object obj)
         {
-            return obj is Either<T1, T2, T3> && ((Either<T1, T2, T3>) obj)._value == _value;
+            return obj is Either<T1, T2, T3> either && either._value == _value;
         }
 
         public bool Equals(Either<T1, T2, T3> other)

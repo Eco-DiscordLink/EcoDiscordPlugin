@@ -493,25 +493,13 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
                 if (groupedSellOffers.Count() > 0 || groupedBuyOffers.Count() > 0)
                 {
-                    Func<Tuple<StoreComponent, TradeOffer>, string> getLabel;
-                    switch(tradeType)
+                    Func<Tuple<StoreComponent, TradeOffer>, string> getLabel = tradeType switch
                     {
-                        case TradeTargetType.Tag:
-                            getLabel = t => $"{t.Item2.Stack.Item.DisplayName} @ *{MessageUtil.StripTags(t.Item1.Parent.Name)}*";
-                            break;
-
-                        case TradeTargetType.Item:
-                            getLabel = t => $"@ *{MessageUtil.StripTags(t.Item1.Parent.Name)}*";
-                            break;
-
-                        case TradeTargetType.User:
-                            getLabel = t => t.Item2.Stack.Item.DisplayName;
-                            break;
-
-                        default:
-                            getLabel = t => string.Empty;
-                            break;
-                    }
+                        TradeTargetType.Tag => t => $"{t.Item2.Stack.Item.DisplayName} @ *{MessageUtil.StripTags(t.Item1.Parent.Name)}*",
+                        TradeTargetType.Item => t => $"@ *{MessageUtil.StripTags(t.Item1.Parent.Name)}*",
+                        TradeTargetType.User => t => t.Item2.Stack.Item.DisplayName,
+                        _ => t => string.Empty,
+                    };
                     ICollection<StoreOffer> Offers = TradeOffersToFields(groupedBuyOffers, groupedSellOffers, getLabel);
 
                     for(int i = 0; i < Offers.Count; ++i)
@@ -616,26 +604,13 @@ namespace Eco.Plugins.DiscordLink.Utilities
         {
             public static void FormatTrades(TradeTargetType tradeType, StoreOfferList groupedBuyOffers, StoreOfferList groupedSellOffers, out string message)
             {
-                Func<Tuple<StoreComponent, TradeOffer>, string> getLabel;
-                
-                switch(tradeType)
+                Func<Tuple<StoreComponent, TradeOffer>, string> getLabel = tradeType switch
                 {
-                    case TradeTargetType.Tag:
-                        getLabel = t => $"{t.Item2.Stack.Item.MarkedUpName} @ {t.Item1.Parent.MarkedUpName}";
-                        break;
-
-                    case TradeTargetType.Item:
-                        getLabel = t => $"@ {t.Item1.Parent.MarkedUpName}";
-                        break;
-
-                    case TradeTargetType.User:
-                        getLabel = t => t.Item2.Stack.Item.MarkedUpName;
-                        break;
-
-                    default:
-                        getLabel = t => string.Empty;
-                        break;
-                }
+                    TradeTargetType.Tag => t => $"{t.Item2.Stack.Item.MarkedUpName} @ {t.Item1.Parent.MarkedUpName}",
+                    TradeTargetType.Item => t => $"@ {t.Item1.Parent.MarkedUpName}",
+                    TradeTargetType.User => t => t.Item2.Stack.Item.MarkedUpName,
+                    _ => t => string.Empty,
+                };
 
                 // Format message
                 StringBuilder builder = new StringBuilder();

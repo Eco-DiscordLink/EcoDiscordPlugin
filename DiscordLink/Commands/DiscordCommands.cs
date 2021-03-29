@@ -461,8 +461,7 @@ namespace Eco.Plugins.DiscordLink
                     return;
                 }
 
-                DiscordLinkEmbed embedContent;
-                MessageBuilder.Discord.FormatTrades(matchedName, tradeType, groupedBuyOffers, groupedSellOffers, out embedContent);
+                MessageBuilder.Discord.FormatTrades(matchedName, tradeType, groupedBuyOffers, groupedSellOffers, out DiscordLinkEmbed embedContent);
                 await RespondToCommand(ctx, null, embedContent);
             }, ctx);
         }

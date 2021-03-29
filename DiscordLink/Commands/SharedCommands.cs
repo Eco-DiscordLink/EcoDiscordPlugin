@@ -94,7 +94,6 @@ namespace Eco.Plugins.DiscordLink
 
         public static string DiscordInvite(User targetUser)
         {
-            var plugin = DiscordLink.Obj;
             DLConfigData config = DLConfig.Data;
             ServerInfo serverInfo = Networking.NetworkManager.GetServerInfo();
 
@@ -112,7 +111,6 @@ namespace Eco.Plugins.DiscordLink
 
         public static string BroadcastDiscordInvite(string ecoChannel)
         {
-            var plugin = DiscordLink.Obj;
             DLConfigData config = DLConfig.Data;
             ServerInfo serverInfo = Networking.NetworkManager.GetServerInfo();
 
@@ -147,7 +145,7 @@ namespace Eco.Plugins.DiscordLink
                 var matchTag = match.Get<Tag>();
                 matchedName = matchTag.Name;
 
-                Func<StoreComponent, TradeOffer, bool> filter = (store, offer) => offer.Stack.Item.Tags().Contains(matchTag);
+                bool filter(StoreComponent store, TradeOffer offer) => offer.Stack.Item.Tags().Contains(matchTag);
                 var sellOffers = TradeUtil.SellOffers(filter);
                 groupedSellOffers = sellOffers.GroupBy(t => TradeUtil.StoreCurrencyName(t.Item1)).OrderBy(g => g.Key);
                 var buyOffers = TradeUtil.BuyOffers(filter);
@@ -160,7 +158,7 @@ namespace Eco.Plugins.DiscordLink
                 var matchItem = match.Get<Item>();
                 matchedName = matchItem.DisplayName;
 
-                Func<StoreComponent, TradeOffer, bool> filter = (store, offer) => offer.Stack.Item == matchItem;
+                bool filter(StoreComponent store, TradeOffer offer) => offer.Stack.Item == matchItem;
                 var sellOffers = TradeUtil.SellOffers(filter);
                 groupedSellOffers = sellOffers.GroupBy(t => TradeUtil.StoreCurrencyName(t.Item1)).OrderBy(g => g.Key);
                 var buyOffers = TradeUtil.BuyOffers(filter);
@@ -173,7 +171,7 @@ namespace Eco.Plugins.DiscordLink
                 var matchUser = match.Get<User>();
                 matchedName = matchUser.Name;
 
-                Func<StoreComponent, TradeOffer, bool> filter = (store, offer) => store.Parent.Owners == matchUser;
+                bool filter(StoreComponent store, TradeOffer offer) => store.Parent.Owners == matchUser;
                 var sellOffers = TradeUtil.SellOffers(filter);
                 groupedSellOffers = sellOffers.GroupBy(t => TradeUtil.StoreCurrencyName(t.Item1)).OrderBy(g => g.Key);
                 var buyOffers = TradeUtil.BuyOffers(filter);

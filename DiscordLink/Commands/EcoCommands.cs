@@ -33,7 +33,9 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [ChatCommand("Commands for the Discord integration plugin.", "DL", ChatAuthorizationLevel.User)]
+#pragma warning disable IDE0060 // Remove unused parameter - User parameter required
         public static void DiscordLink(User user) { }
+#pragma warning restore IDE0060
 
         [ChatSubCommand("DiscordLink", "Lists Discord servers the bot is in.", ChatAuthorizationLevel.Admin)]
         public static void ListGuilds(User user)
@@ -391,7 +393,7 @@ namespace Eco.Plugins.DiscordLink
             }
 
             // Fetch trade data using the trades command once to see that the command parameters are valid
-            string result = SharedCommands.Trades(userOrItemName, out string matchedName, out TradeTargetType tradeType, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
+            string result = SharedCommands.Trades(userOrItemName, out string matchedName, out _, out _, out _);
             if (!string.IsNullOrEmpty(result))
             {
                 ChatManager.ServerMessageToPlayer(new LocString(result), user);

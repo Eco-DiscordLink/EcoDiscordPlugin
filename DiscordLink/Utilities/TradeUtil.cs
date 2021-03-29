@@ -21,16 +21,12 @@ namespace Eco.Plugins.DiscordLink.Utilities
         private static List<Either<Item, User, Tag>> _itemLookup = null;
 
         public static List<Either<Item, User, Tag>> ItemLookup =>
-            _itemLookup == null
-                ? Item.AllItems.Select(item => new Either<Item, User, Tag>(item)).ToList()
-                : _itemLookup;
+            _itemLookup ?? Item.AllItems.Select(item => new Either<Item, User, Tag>(item)).ToList();
 
         private static List<Either<Item, User, Tag>> _tagLookup = null;
 
         public static List<Either<Item, User, Tag>> TagLookup =>
-            _tagLookup == null
-                ? _tagLookup = FindTags().Select(tag => new Either<Item, User, Tag>(tag)).ToList()
-                : _tagLookup;
+            _tagLookup ??= FindTags().Select(tag => new Either<Item, User, Tag>(tag)).ToList();
 
         public static List<Either<Item, User, Tag>> UserLookup => UserManager.Users.Select(user => new Either<Item, User, Tag>(user)).ToList();
 
@@ -54,7 +50,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 }
             }
 
-            return default(T);
+            return default;
         }
 
         public static Either<Item, User, Tag> MatchType(string name)

@@ -35,8 +35,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             tagAndContent = new List<Tuple<string, DiscordLinkEmbed>>();
             IEnumerable<Currency> currencies = CurrencyManager.Currencies;
             var currencyTradesMap = DLStorage.WorldData.CurrencyToTradeCountMap;
-            CurrencyChannelLink currencyLink = target as CurrencyChannelLink;
-            if (currencyLink == null)
+            if (!(target is CurrencyChannelLink currencyLink))
                 return;
 
             void AddCurrencyEntry(Currency currency, List<Tuple<string, DiscordLinkEmbed>> tagAndContent)
