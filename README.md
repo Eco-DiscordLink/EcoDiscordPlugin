@@ -75,12 +75,12 @@ For information on how to set up the development environment, see the [project s
 
 ## History & Credits
 
-## Maintainers
+### Maintainers
 
 **Spoffy** - Original author of the plugin and maintainer 2018 -> 2020.
 **MonzUn** - Maintainer 2020 -> Present.
 
-## Additional Contributors
+### Additional Contributors
 
 **Phlo** - DiscordLink logo.
 **demodude4u** - Original author of the Discord ?trades command.
