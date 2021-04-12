@@ -16,11 +16,10 @@ using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGroup
 
 namespace Eco.Plugins.DiscordLink
 {
-    /**
-     * Handles commands coming from Discord.
-     */
     public class DiscordCommands : BaseCommandModule
     {
+        #region Commands Base
+
         public enum PermissionType
         {
             User,
@@ -161,7 +160,76 @@ namespace Eco.Plugins.DiscordLink
             return allowed;
         }
 
-        // Admin commands
+        #endregion
+
+        #region Plugin Management
+
+        [Command("Restart")]
+        [Description("Restarts the plugin.")]
+        [Aliases("dl-restart")]
+        public async Task Restart(CommandContext ctx)
+        {
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
+            {
+                DiscordLink plugin = DiscordLink.Obj;
+                string result = plugin.CanRestart ? "Restarting..." : "Restarting is not possible at this time";
+                Logger.Info($"Restart command executed - {result}");
+                await RespondToCommand(ctx, result);
+                await plugin.RestartClient();
+            }, ctx);
+        }
+
+        [Command("ResetWorldData")]
+        [Description("Resets world data as if a new world had been created.")]
+        [Aliases("dl-resetdata")]
+        public async Task ResetData(CommandContext ctx)
+        {
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
+            {
+                await RespondToCommand(ctx, SharedCommands.ResetWorldData());
+            }, ctx);
+        }
+
+        #endregion
+
+        #region Meta
+
+        [Command("DiscordLinkAbout")]
+        [Description("Posts a message describing what the DiscordLink plugin is.")]
+        [Aliases("dl-about")]
+        public async Task About(CommandContext ctx)
+        {
+            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
+            {
+                DiscordLinkEmbed embed = new DiscordLinkEmbed()
+                .WithTitle("About DiscordLink")
+                .WithDescription(MessageBuilder.Shared.GetAboutMessage());
+
+                await RespondToCommand(ctx, "About DiscordLink", embed);
+            }, ctx);
+        }
+
+        [Command("pluginstatus")]
+        [Description("Shows the plugin status.")]
+        [Aliases("dl-status", "status")]
+        public async Task PluginStatus(CommandContext ctx)
+        {
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
+            {
+                await RespondToCommand(ctx, MessageBuilder.Shared.GetDisplayString(verbose: false));
+            }, ctx);
+        }
+
+        [Command("pluginstatusverbose")]
+        [Description("Shows the plugin status including verbose debug level information.")]
+        [Aliases("dl-statusverbose", "statusverbose")]
+        public async Task PluginStatusVerbose(CommandContext ctx)
+        {
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
+            {
+                await RespondToCommand(ctx, MessageBuilder.Shared.GetDisplayString(verbose: true));
+            }, ctx);
+        }
 
         [Command("Print")]
         [Description("Reposts the inputted message. Can be used to create tags for ordering display tags within a channel.")]
@@ -220,20 +288,48 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
-        [Command("Restart")]
-        [Description("Restarts the plugin.")]
-        [Aliases("dl-restart")]
-        public async Task Restart(CommandContext ctx)
+        [Command("ping")]
+        [Description("Checks if the bot is online.")]
+        public async Task Ping(CommandContext ctx)
         {
-            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
+            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                DiscordLink plugin = DiscordLink.Obj;
-                string result = plugin.CanRestart ? "Restarting..." : "Restarting is not possible at this time";
-                Logger.Info($"Restart command executed - {result}");
-                await RespondToCommand(ctx, result);
-                await plugin.RestartClient();
+                await RespondToCommand(ctx, "Pong " + ctx.User.Mention);
             }, ctx);
         }
+
+        #endregion
+
+        #region Server Info Fetching
+
+        [Command("playerlist")]
+        [Description("Lists the players currently online on the server.")]
+        [Aliases("players", "dl-players")]
+        public async Task PlayerList(CommandContext ctx)
+        {
+            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
+            {
+                DiscordLinkEmbed embed = new DiscordLinkEmbed()
+                .WithTitle("Players")
+                .WithDescription(MessageBuilder.Shared.GetPlayerList());
+                await RespondToCommand(ctx, "Displaying Online Players", embed);
+            }, ctx);
+        }
+
+        [Command("serverstatus")]
+        [Description("Prints the Server Info status.")]
+        [Aliases("dl-ecostatus", "dl-serverinfo", "ecostatus")]
+        public async Task ServerStatus(CommandContext ctx)
+        {
+            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
+            {
+                await RespondToCommand(ctx, "", MessageBuilder.Discord.GetServerInfo(MessageBuilder.ServerInfoComponentFlag.All));
+            }, ctx);
+        }
+
+        #endregion
+
+        #region Message Relaying
 
         [Command("SendServerMessage")]
         [Description("Sends an Eco server message to a specified user")]
@@ -308,54 +404,9 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
-        [Command("ResetWorldData")]
-        [Description("Resets world data as if a new world had been created.")]
-        [Aliases("dl-resetdata")]
-        public async Task ResetData(CommandContext ctx)
-        {
-            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
-            {
-                await RespondToCommand(ctx, SharedCommands.ResetWorldData());
-            }, ctx);
-        }
+        #endregion
 
-        [Command("pluginstatus")]
-        [Description("Shows the plugin status.")]
-        [Aliases("dl-status", "status")]
-        public async Task PluginStatus(CommandContext ctx)
-        {
-            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
-            {
-                await RespondToCommand(ctx, MessageBuilder.Shared.GetDisplayString(verbose: false));
-            }, ctx);
-        }
-
-        [Command("pluginstatusverbose")]
-        [Description("Shows the plugin status including verbose debug level information.")]
-        [Aliases("dl-statusverbose", "statusverbose")]
-        public async Task PluginStatusVerbose(CommandContext ctx)
-        {
-            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
-            {
-                await RespondToCommand(ctx, MessageBuilder.Shared.GetDisplayString(verbose: true));
-            }, ctx);
-        }
-
-        // User commands
-
-        [Command("playerlist")]
-        [Description("Lists the players currently online on the server.")]
-        [Aliases("players", "dl-players")]
-        public async Task PlayerList(CommandContext ctx)
-        {
-            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
-            {
-                DiscordLinkEmbed embed = new DiscordLinkEmbed()
-                .WithTitle("Players")
-                .WithDescription(MessageBuilder.Shared.GetPlayerList());
-                await RespondToCommand(ctx, "Displaying Online Players", embed);
-            }, ctx);
-        }
+        #region Invites
 
         [Command("Invite")]
         [Description("Posts the Discord invite message to the target user.")]
@@ -395,41 +446,9 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
-        [Command("DiscordLinkAbout")]
-        [Description("Posts a message describing what the DiscordLink plugin is.")]
-        [Aliases("dl-about")]
-        public async Task About(CommandContext ctx)
-        {
-            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
-            {
-                DiscordLinkEmbed embed = new DiscordLinkEmbed()
-                .WithTitle("About DiscordLink")
-                .WithDescription(MessageBuilder.Shared.GetAboutMessage());
+        #endregion
 
-                await RespondToCommand(ctx, "About DiscordLink", embed);
-            }, ctx);
-        }
-
-        [Command("ping")]
-        [Description("Checks if the bot is online.")]
-        public async Task Ping(CommandContext ctx)
-        {
-            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
-            {
-                await RespondToCommand(ctx, "Pong " + ctx.User.Mention);
-            }, ctx);
-        }
-
-        [Command("serverstatus")]
-        [Description("Prints the Server Info status.")]
-        [Aliases("dl-ecostatus", "dl-serverinfo", "ecostatus")]
-        public async Task ServerStatus(CommandContext ctx)
-        {
-            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
-            {
-                await RespondToCommand(ctx, "", MessageBuilder.Discord.GetServerInfo(MessageBuilder.ServerInfoComponentFlag.All));
-            }, ctx);
-        }
+        #region Account Linking
 
         [Command("VerifyLink")]
         [Description("Verifies that an unverified link is correct and should be used")]
@@ -444,6 +463,10 @@ namespace Eco.Plugins.DiscordLink
                     await RespondToCommand(ctx, $"There is no outstanding link request to verify for your account");
             }, ctx);
         }
+
+        #endregion
+
+        #region Trades
 
         [Command("trades")]
         [Description("Displays available trades by player or item.")]
@@ -539,5 +562,7 @@ namespace Eco.Plugins.DiscordLink
                 await RespondToCommand(ctx, DLStorage.WorldData.ListTrackedTrades(ctx.GetSenderId()));
             }, ctx);
         }
+
+        #endregion
     }
 }

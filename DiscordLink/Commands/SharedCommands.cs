@@ -20,6 +20,19 @@ namespace Eco.Plugins.DiscordLink
      */
     public static class SharedCommands
     {
+        #region Plugin Management
+
+        public static string ResetWorldData()
+        {
+            Logger.Info("ResetWorldData command invoked - Resetting world storage data");
+            DLStorage.Instance.Reset();
+            return "World storage data has been reset.";
+        }
+
+        #endregion
+
+        #region Message Relaying
+
         public static string SendServerMessage(string message, string senderName, string recipientUserName, string persistanceType)
         {
             if (string.IsNullOrWhiteSpace(message))
@@ -92,6 +105,10 @@ namespace Eco.Plugins.DiscordLink
                 return "Failed to send message";
         }
 
+        #endregion
+
+        #region Invites
+
         public static string DiscordInvite(User targetUser)
         {
             DLConfigData config = DLConfig.Data;
@@ -125,6 +142,10 @@ namespace Eco.Plugins.DiscordLink
             else
                 return "Failed to send invite";
         }
+
+        #endregion
+
+        #region Trades
 
         public static string Trades(string searchName, out string matchedName, out TradeTargetType tradeType, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers)
         {
@@ -187,11 +208,6 @@ namespace Eco.Plugins.DiscordLink
             return string.Empty;
         }
 
-        public static string ResetWorldData()
-        {
-            Logger.Info("ResetWorldData command invoked - Resetting world storage data");
-            DLStorage.Instance.Reset();
-            return "World storage data has been reset.";
-        }
+        #endregion
     }
 }

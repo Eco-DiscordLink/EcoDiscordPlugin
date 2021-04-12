@@ -11,11 +11,10 @@ using DSharpPlus;
 
 namespace Eco.Plugins.DiscordLink
 {
-    /**
-     * Handles commands coming from Eco.
-     */
     public class EcoCommands : IChatCommandHandler
     {
+        #region Commands Base
+
         private delegate void EcoCommand(User callingUser, params string[] parameters);
 
         private static void ExecuteCommand<TRet>(EcoCommand command, User callingUser, params string[] parameters)
@@ -43,6 +42,68 @@ namespace Eco.Plugins.DiscordLink
 #pragma warning disable IDE0060 // Remove unused parameter - callingUser parameter required
         public static void DiscordLink(User callingUser) { }
 #pragma warning restore IDE0060
+
+        #endregion
+
+        #region Plugin Management
+
+        [ChatSubCommand("Restart", "Restarts the plugin.", "dl-restart", ChatAuthorizationLevel.Admin)]
+        public static void Restart(User callingUser)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                DiscordLink plugin = Plugins.DiscordLink.DiscordLink.Obj;
+                Logger.Info("Restart command executed - Restarting");
+                bool restarted = plugin.RestartClient().Result;
+                string result = restarted ? "Restarting..." : "Restart failed or a restart was already in progress";
+                Logger.Info(result);
+                ChatManager.ServerMessageToPlayer(new LocString(result), callingUser);
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Resets world data as if a new world had been created.", "dl-resetdata", ChatAuthorizationLevel.Admin)]
+        public static void ResetWorldData(User callingUser)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                ChatManager.ServerMessageToPlayer(new LocString(SharedCommands.ResetWorldData()), callingUser);
+            }, callingUser);
+        }
+
+        #endregion
+
+        #region Meta
+
+        [ChatSubCommand("DiscordLink", "Displays information about the DiscordLink plugin.", "dl-about", ChatAuthorizationLevel.User)]
+        public static void About(User callingUser)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                EcoUtil.SendAnnouncementMessage($"About DiscordLink {Plugins.DiscordLink.DiscordLink.Obj.PluginVersion}", MessageBuilder.Shared.GetAboutMessage(), callingUser);
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Shows the plugin status.", "dl-status", ChatAuthorizationLevel.Admin)]
+        public static void PluginStatus(User callingUser)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                EcoUtil.SendAnnouncementMessage("DiscordLink Status", MessageBuilder.Shared.GetDisplayString(verbose: false));
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Shows the plugin status including verbose debug level information.", "dl-statusverbose", ChatAuthorizationLevel.Admin)]
+        public static void PluginStatusVerbose(User callingUser)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                EcoUtil.SendAnnouncementMessage("DiscordLink Status Verbose", MessageBuilder.Shared.GetDisplayString(verbose: true));
+            }, callingUser);
+        }
+
+        #endregion
+
+        #region Discord Bot Info Fetching
 
         [ChatSubCommand("DiscordLink", "Lists Discord servers the bot is in.", ChatAuthorizationLevel.Admin)]
         public static void ListGuilds(User callingUser)
@@ -81,6 +142,10 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
+        #endregion
+
+        #region Message Relaying
+
         [ChatSubCommand("DiscordLink", "Sends a message to a specific server and channel.", ChatAuthorizationLevel.Admin)]
         public static void SendMessageToDiscordChannel(User callingUser, string guild, string channel, string outerMessage)
         {
@@ -93,108 +158,6 @@ namespace Eco.Plugins.DiscordLink
                 {
                     ChatManager.ServerMessageToPlayer(new LocString(result.Result), callingUser);
                 });
-            }, callingUser);
-        }
-
-        [ChatSubCommand("Restart", "Restarts the plugin.", "dl-restart", ChatAuthorizationLevel.Admin)]
-        public static void Restart(User callingUser)
-        {
-            ExecuteCommand<object>((lUser, args) =>
-            {
-                DiscordLink plugin = Plugins.DiscordLink.DiscordLink.Obj;
-                Logger.Info("Restart command executed - Restarting");
-                bool restarted = plugin.RestartClient().Result;
-                string result = restarted ? "Restarting..." : "Restart failed or a restart was already in progress";
-                Logger.Info(result);
-                ChatManager.ServerMessageToPlayer(new LocString(result), callingUser);
-            }, callingUser);
-        }
-
-        [ChatSubCommand("DiscordLink", "Displays information about the DiscordLink plugin.", "dl-about", ChatAuthorizationLevel.User)]
-        public static void About(User callingUser)
-        {
-            ExecuteCommand<object>((lUser, args) =>
-            {
-                EcoUtil.SendAnnouncementMessage($"About DiscordLink {Plugins.DiscordLink.DiscordLink.Obj.PluginVersion}", MessageBuilder.Shared.GetAboutMessage(), callingUser);
-            }, callingUser);
-        }
-
-        [ChatSubCommand("DiscordLink", "Posts the Discord invite message to the target user.", "dl-invite", ChatAuthorizationLevel.User)]
-        public static void Invite(User callingUser, string targetUserName = "")
-        {
-            ExecuteCommand<object>((lUser, args) =>
-            {
-                string result = string.Empty;
-                User targetUser = callingUser;
-                if (!string.IsNullOrEmpty(targetUserName))
-                {
-                    targetUser = UserManager.FindUserByName(targetUserName);
-                    if (targetUser != null)
-                    {
-                        result = SharedCommands.DiscordInvite(targetUser);
-                    }
-                    else
-                    {
-                        User offlineUser = EcoUtil.GetUserbyName(targetUserName);
-                        if (offlineUser != null)
-                            result = $"{MessageUtil.StripTags(offlineUser.Name)} is not online";
-                        else
-                            result = $"Could not find user with name {targetUserName}";
-                    }
-                    ChatManager.ServerMessageToPlayer(new LocString(result), callingUser);
-                }
-                else
-                {
-                    SharedCommands.DiscordInvite(targetUser);
-                }
-            }, callingUser);
-        }
-
-        [ChatSubCommand("DiscordLink", "Posts the Discord invite message to the Eco chat.", "dl-broadcastinvite", ChatAuthorizationLevel.User)]
-        public static void BroadcastInvite(User user, string ecoChannel )
-        {
-            ExecuteCommand<object>((lUser, args) =>
-            {
-                string result = SharedCommands.BroadcastDiscordInvite(ecoChannel);
-                ChatManager.ServerMessageToPlayer(new LocString(result), user);
-            },
-            user);
-        }
-
-        [ChatSubCommand("DiscordLink", "Post a predefined snippet from Discord.", "dl-snippet", ChatAuthorizationLevel.User)]
-        public static void Snippet(User callingUser, string snippetKey = "")
-        {
-            ExecuteCommand<object>((lUser, args) =>
-            {
-                var plugin = Plugins.DiscordLink.DiscordLink.Obj;
-                if (plugin == null) return;
-
-                var snippets = DLStorage.Instance.Snippets;
-                string response;
-                if (string.IsNullOrWhiteSpace(snippetKey)) // List all snippets if no key is given
-                {
-                    response = (snippets.Count > 0 ? "Available snippets:\n" : "There are no registered snippets.");
-                    foreach (var snippetKeyVal in snippets)
-                    {
-                        response += $"{snippetKeyVal.Key}\n";
-                    }
-                    ChatManager.ServerMessageToPlayer(new LocString(response), callingUser);
-                }
-                else
-                {
-                    // Find and post the snippet requested by the user
-                    string snippetKeyLower = snippetKey.ToLower();
-                    if (snippets.TryGetValue(snippetKeyLower, out string snippetText))
-                    {
-                        response = $"{callingUser.Name} invoked snippet \"{snippetKey}\"\n- - -\n{ snippetText}\n- - -";
-                        EcoUtil.SendServerMessage(response, permanent: true);
-                    }
-                    else
-                    {
-                        response = $"No snippet with key \"{snippetKey}\" could be found.";
-                        ChatManager.ServerMessageToPlayer(new LocString(response), callingUser);
-                    }
-                }
             }, callingUser);
         }
 
@@ -259,6 +222,56 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
+        #endregion
+
+        #region Invites
+
+        [ChatSubCommand("DiscordLink", "Posts the Discord invite message to the target user.", "dl-invite", ChatAuthorizationLevel.User)]
+        public static void Invite(User callingUser, string targetUserName = "")
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                string result = string.Empty;
+                User targetUser = callingUser;
+                if (!string.IsNullOrEmpty(targetUserName))
+                {
+                    targetUser = UserManager.FindUserByName(targetUserName);
+                    if (targetUser != null)
+                    {
+                        result = SharedCommands.DiscordInvite(targetUser);
+                    }
+                    else
+                    {
+                        User offlineUser = EcoUtil.GetUserbyName(targetUserName);
+                        if (offlineUser != null)
+                            result = $"{MessageUtil.StripTags(offlineUser.Name)} is not online";
+                        else
+                            result = $"Could not find user with name {targetUserName}";
+                    }
+                    ChatManager.ServerMessageToPlayer(new LocString(result), callingUser);
+                }
+                else
+                {
+                    SharedCommands.DiscordInvite(targetUser);
+                }
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Posts the Discord invite message to the Eco chat.", "dl-broadcastinvite", ChatAuthorizationLevel.User)]
+        public static void BroadcastInvite(User user, string ecoChannel)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                string result = SharedCommands.BroadcastDiscordInvite(ecoChannel);
+                ChatManager.ServerMessageToPlayer(new LocString(result), user);
+            },
+            user);
+        }
+
+        #endregion
+
+        #region Account Linking
+
         [ChatSubCommand("DiscordLink", "Links the calling user account to a Discord account.", "dl-link", ChatAuthorizationLevel.User)]
         public static void LinkDiscordAccount(User callingUser, string discordName)
         {
@@ -267,7 +280,7 @@ namespace Eco.Plugins.DiscordLink
                 var plugin = Plugins.DiscordLink.DiscordLink.Obj;
                 if (plugin == null) return;
 
-                if(!DiscordUtil.BotHasIntent(DiscordIntents.GuildMembers))
+                if (!DiscordUtil.BotHasIntent(DiscordIntents.GuildMembers))
                 {
                     ChatManager.ServerMessageToPlayer(new LocString($"This server is not configured to use account linking as the bot lacks the elevated Guild Members Intent."), callingUser);
                     return;
@@ -337,6 +350,10 @@ namespace Eco.Plugins.DiscordLink
                     ChatManager.ServerMessageToPlayer(new LocString($"No linked Discord account could be found."), callingUser);
             }, callingUser);
         }
+
+        #endregion
+
+        #region Trades
 
         [ChatSubCommand("DiscordLink", "Displays available trades by player or by item.", "dl-trades", ChatAuthorizationLevel.User)]
         public static void Trades(User callingUser, string userOrItemName)
@@ -433,31 +450,47 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Resets world data as if a new world had been created.", "dl-resetdata", ChatAuthorizationLevel.Admin)]
-        public static void ResetWorldData(User callingUser)
+        #endregion
+
+        #region Snippets
+
+        [ChatSubCommand("DiscordLink", "Post a predefined snippet from Discord.", "dl-snippet", ChatAuthorizationLevel.User)]
+        public static void Snippet(User callingUser, string snippetKey = "")
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                ChatManager.ServerMessageToPlayer(new LocString(SharedCommands.ResetWorldData()), callingUser);
+                var plugin = Plugins.DiscordLink.DiscordLink.Obj;
+                if (plugin == null) return;
+
+                var snippets = DLStorage.Instance.Snippets;
+                string response;
+                if (string.IsNullOrWhiteSpace(snippetKey)) // List all snippets if no key is given
+                {
+                    response = (snippets.Count > 0 ? "Available snippets:\n" : "There are no registered snippets.");
+                    foreach (var snippetKeyVal in snippets)
+                    {
+                        response += $"{snippetKeyVal.Key}\n";
+                    }
+                    ChatManager.ServerMessageToPlayer(new LocString(response), callingUser);
+                }
+                else
+                {
+                    // Find and post the snippet requested by the user
+                    string snippetKeyLower = snippetKey.ToLower();
+                    if (snippets.TryGetValue(snippetKeyLower, out string snippetText))
+                    {
+                        response = $"{callingUser.Name} invoked snippet \"{snippetKey}\"\n- - -\n{ snippetText}\n- - -";
+                        EcoUtil.SendServerMessage(response, permanent: true);
+                    }
+                    else
+                    {
+                        response = $"No snippet with key \"{snippetKey}\" could be found.";
+                        ChatManager.ServerMessageToPlayer(new LocString(response), callingUser);
+                    }
+                }
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Shows the plugin status.", "dl-status", ChatAuthorizationLevel.Admin)]
-        public static void PluginStatus(User callingUser)
-        {
-            ExecuteCommand<object>((lUser, args) =>
-            {
-                EcoUtil.SendAnnouncementMessage("DiscordLink Status", MessageBuilder.Shared.GetDisplayString(verbose: false));
-            }, callingUser);
-        }
-
-        [ChatSubCommand("DiscordLink", "Shows the plugin status including verbose debug level information.", "dl-statusverbose", ChatAuthorizationLevel.Admin)]
-        public static void PluginStatusVerbose(User callingUser)
-        {
-            ExecuteCommand<object>((lUser, args) =>
-            {
-                EcoUtil.SendAnnouncementMessage("DiscordLink Status Verbose", MessageBuilder.Shared.GetDisplayString(verbose: true));
-            }, callingUser);
-        }
+        #endregion
     }
 }
