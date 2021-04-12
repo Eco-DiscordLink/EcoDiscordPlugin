@@ -437,11 +437,11 @@ namespace Eco.Plugins.DiscordLink
         [Command("BroadcastInvite")]
         [Description("Posts the Discord invite message to the Eco chat.")]
         [Aliases("dl-broadcastinvite")]
-        public async Task BroadcastInvite(CommandContext ctx, [Description("The Eco channel in which to post the invite message")] string ecoChannel = "")
+        public async Task BroadcastInvite(CommandContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                string result = SharedCommands.BroadcastDiscordInvite(ecoChannel);
+                string result = SharedCommands.BroadcastDiscordInvite();
                 await RespondToCommand(ctx, result);
             }, ctx);
         }

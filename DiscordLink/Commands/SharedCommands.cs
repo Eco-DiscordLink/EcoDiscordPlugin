@@ -126,7 +126,7 @@ namespace Eco.Plugins.DiscordLink
                 return "Failed to send invite";
         }
 
-        public static string BroadcastDiscordInvite(string ecoChannel)
+        public static string BroadcastDiscordInvite()
         {
             DLConfigData config = DLConfig.Data;
             ServerInfo serverInfo = Networking.NetworkManager.GetServerInfo();

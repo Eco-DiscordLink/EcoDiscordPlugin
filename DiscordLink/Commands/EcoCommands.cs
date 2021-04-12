@@ -258,11 +258,11 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [ChatSubCommand("DiscordLink", "Posts the Discord invite message to the Eco chat.", "dl-broadcastinvite", ChatAuthorizationLevel.User)]
-        public static void BroadcastInvite(User user, string ecoChannel)
+        public static void BroadcastInvite(User user)
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                string result = SharedCommands.BroadcastDiscordInvite(ecoChannel);
+                string result = SharedCommands.BroadcastDiscordInvite();
                 ChatManager.ServerMessageToPlayer(new LocString(result), user);
             },
             user);
