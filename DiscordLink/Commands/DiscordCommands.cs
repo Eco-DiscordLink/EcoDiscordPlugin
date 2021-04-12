@@ -27,9 +27,9 @@ namespace Eco.Plugins.DiscordLink
             Admin
         }
 
-        public delegate Task DiscordCommandFunction(CommandContext ctx, params string[] args);
+        public delegate Task DiscordCommand(CommandContext ctx, params string[] parameters);
 
-        private static async Task CallWithErrorHandling<TRet>(PermissionType requiredPermission, DiscordCommandFunction toCall, CommandContext ctx, params string[] args)
+        private static async Task ExecuteCommand<TRet>(PermissionType requiredPermission, DiscordCommand command, CommandContext ctx, params string[] parameters)
         {
             try
             {
@@ -47,8 +47,8 @@ namespace Eco.Plugins.DiscordLink
                     return;
                 }
 
-                Logger.Debug($"{ctx.User.Username} invoked Discord command \"{ctx.Prefix}{toCall.Method.Name}\" in channel {ctx.Channel.Name} in guild {ctx.Guild.Name}");
-                await toCall(ctx, args);
+                Logger.Debug($"{ctx.User.Username} invoked Discord command \"{ctx.Prefix}{command.Method.Name}\" in channel {ctx.Channel.Name} in guild {ctx.Guild.Name}");
+                await command(ctx, parameters);
             }
             catch (Exception e)
             {
@@ -167,7 +167,7 @@ namespace Eco.Plugins.DiscordLink
         [Description("Reposts the inputted message. Can be used to create tags for ordering display tags within a channel.")]
         public async Task Print(CommandContext ctx, [Description("The message to print.")] string message)
         {
-            await CallWithErrorHandling<object>(PermissionType.Admin, async (lCtx, args) =>
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
                 await RespondToCommand(ctx, message);
             }, ctx);
@@ -177,7 +177,7 @@ namespace Eco.Plugins.DiscordLink
         [Description("Sends the provided message to Eco and back to Discord again.")]
         public async Task Echo(CommandContext ctx, [Description("The message to send and then receive back again. A random message will be sent if this parameter is omitted.")] string message = "", [Description("The eco channel you want to test.")] string ecoChannel = "")
         {
-            await CallWithErrorHandling<object>(PermissionType.Admin, async (lCtx, args) =>
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
                 var plugin = DiscordLink.Obj;
                 if (plugin == null)
@@ -225,7 +225,7 @@ namespace Eco.Plugins.DiscordLink
         [Aliases("dl-restart")]
         public async Task Restart(CommandContext ctx)
         {
-            await CallWithErrorHandling<object>(PermissionType.Admin, async (lCtx, args) =>
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
                 DiscordLink plugin = DiscordLink.Obj;
                 string result = plugin.CanRestart ? "Restarting..." : "Restarting is not possible at this time";
@@ -242,7 +242,7 @@ namespace Eco.Plugins.DiscordLink
             [Description("Name of the recipient Eco user.")] string recipientUserName,
             [Description("Persistance type. Possible values are \"Temporary\" and \"Permanent\". Defaults to \"Temporary\".")] string persistanceType = "temporary")
         {
-            await CallWithErrorHandling<object>(PermissionType.Admin, async (lCtx, args) =>
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
                 await RespondToCommand(ctx, SharedCommands.SendServerMessage(message, ctx.GetSenderName(), recipientUserName, persistanceType));
             }, ctx);
@@ -254,7 +254,7 @@ namespace Eco.Plugins.DiscordLink
         public async Task BroadcastServerMessage(CommandContext ctx, [Description("The message to send.")] string message,
             [Description("Persistance type. Possible values are \"Temporary\" and \"Permanent\". Defaults to \"Temporary\".")] string persistanceType = "temporary")
         {
-            await CallWithErrorHandling<object>(PermissionType.Admin, async (lCtx, args) =>
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
                 await RespondToCommand(ctx, SharedCommands.SendServerMessage(message, ctx.GetSenderName(), string.Empty, persistanceType));
             }, ctx);
@@ -266,7 +266,7 @@ namespace Eco.Plugins.DiscordLink
         public async Task SendPopup(CommandContext ctx, [Description("The message to send.")] string message,
             [Description("Name of the recipient Eco user.")] string recipientUserName)
         {
-            await CallWithErrorHandling<object>(PermissionType.Admin, async (lCtx, args) =>
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
                 await RespondToCommand(ctx, SharedCommands.SendPopup(message, ctx.GetSenderName(), recipientUserName));
             }, ctx);
@@ -277,7 +277,7 @@ namespace Eco.Plugins.DiscordLink
         [Aliases("dl-broadcastpopup")]
         public async Task BroadcastPopup(CommandContext ctx, [Description("The message to send.")] string message)
         {
-            await CallWithErrorHandling<object>(PermissionType.Admin, async (lCtx, args) =>
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
                 await RespondToCommand(ctx, SharedCommands.SendPopup(message, ctx.GetSenderName(), string.Empty));
             }, ctx);
@@ -290,7 +290,7 @@ namespace Eco.Plugins.DiscordLink
             [Description("The message to display in the announcement UI.")] string message,
             [Description("Name of the recipient Eco user.")] string recipientUserName)
         {
-            await CallWithErrorHandling<object>(PermissionType.Admin, async (lCtx, args) =>
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
                 await RespondToCommand(ctx, SharedCommands.SendAnnouncement(title, message, ctx.GetSenderName(), recipientUserName));
             }, ctx);
@@ -302,7 +302,7 @@ namespace Eco.Plugins.DiscordLink
         public async Task SendAnnouncement(CommandContext ctx, [Description("The title for the announcement UI.")] string title,
             [Description("The message to display in the announcement UI.")] string message)
         {
-            await CallWithErrorHandling<object>(PermissionType.Admin, async (lCtx, args) =>
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
                 await RespondToCommand(ctx, SharedCommands.SendAnnouncement(title, message, ctx.GetSenderName(), string.Empty));
             }, ctx);
@@ -313,7 +313,7 @@ namespace Eco.Plugins.DiscordLink
         [Aliases("dl-resetdata")]
         public async Task ResetData(CommandContext ctx)
         {
-            await CallWithErrorHandling<object>(PermissionType.Admin, async (lCtx, args) =>
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
                 await RespondToCommand(ctx, SharedCommands.ResetWorldData());
             }, ctx);
@@ -324,7 +324,7 @@ namespace Eco.Plugins.DiscordLink
         [Aliases("dl-status", "status")]
         public async Task PluginStatus(CommandContext ctx)
         {
-            await CallWithErrorHandling<object>(PermissionType.Admin, async (lCtx, args) =>
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
                 await RespondToCommand(ctx, MessageBuilder.Shared.GetDisplayString(verbose: false));
             }, ctx);
@@ -335,7 +335,7 @@ namespace Eco.Plugins.DiscordLink
         [Aliases("dl-statusverbose", "statusverbose")]
         public async Task PluginStatusVerbose(CommandContext ctx)
         {
-            await CallWithErrorHandling<object>(PermissionType.Admin, async (lCtx, args) =>
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
                 await RespondToCommand(ctx, MessageBuilder.Shared.GetDisplayString(verbose: true));
             }, ctx);
@@ -348,7 +348,7 @@ namespace Eco.Plugins.DiscordLink
         [Aliases("players", "dl-players")]
         public async Task PlayerList(CommandContext ctx)
         {
-            await CallWithErrorHandling<object>(PermissionType.User, async (lCtx, args) =>
+            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
                 DiscordLinkEmbed embed = new DiscordLinkEmbed()
                 .WithTitle("Players")
@@ -362,7 +362,7 @@ namespace Eco.Plugins.DiscordLink
         [Aliases("dl-invite")]
         public async Task Invite(CommandContext ctx, [Description("The Eco username of the user receiving the invite")] string targetUserName)
         {
-            await CallWithErrorHandling<object>(PermissionType.User, async (lCtx, args) =>
+            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
                 string result = string.Empty;
                 User targetUser = EcoUtil.GetOnlineUserbyName(targetUserName);
@@ -388,7 +388,7 @@ namespace Eco.Plugins.DiscordLink
         [Aliases("dl-broadcastinvite")]
         public async Task BroadcastInvite(CommandContext ctx, [Description("The Eco channel in which to post the invite message")] string ecoChannel = "")
         {
-            await CallWithErrorHandling<object>(PermissionType.Admin, async (lCtx, args) =>
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
                 string result = SharedCommands.BroadcastDiscordInvite(ecoChannel);
                 await RespondToCommand(ctx, result);
@@ -400,7 +400,7 @@ namespace Eco.Plugins.DiscordLink
         [Aliases("dl-about")]
         public async Task About(CommandContext ctx)
         {
-            await CallWithErrorHandling<object>(PermissionType.User, async (lCtx, args) =>
+            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
                 DiscordLinkEmbed embed = new DiscordLinkEmbed()
                 .WithTitle("About DiscordLink")
@@ -414,7 +414,7 @@ namespace Eco.Plugins.DiscordLink
         [Description("Checks if the bot is online.")]
         public async Task Ping(CommandContext ctx)
         {
-            await CallWithErrorHandling<object>(PermissionType.User, async (lCtx, args) =>
+            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
                 await RespondToCommand(ctx, "Pong " + ctx.User.Mention);
             }, ctx);
@@ -425,7 +425,7 @@ namespace Eco.Plugins.DiscordLink
         [Aliases("dl-ecostatus", "dl-serverinfo", "ecostatus")]
         public async Task ServerStatus(CommandContext ctx)
         {
-            await CallWithErrorHandling<object>(PermissionType.User, async (lCtx, args) =>
+            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
                 await RespondToCommand(ctx, "", MessageBuilder.Discord.GetServerInfo(MessageBuilder.ServerInfoComponentFlag.All));
             }, ctx);
@@ -436,7 +436,7 @@ namespace Eco.Plugins.DiscordLink
         [Aliases("dl-verifylink")]
         public async Task VerifyLink(CommandContext ctx)
         {
-            await CallWithErrorHandling<object>(PermissionType.User, async (lCtx, args) =>
+            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
                 if (LinkedUserManager.VerifyLinkedUser(ctx.GetSenderId()))
                     await RespondToCommand(ctx, $"Link verified");
@@ -450,7 +450,7 @@ namespace Eco.Plugins.DiscordLink
         [Aliases("dl-trades", "dl-trade", "trade", "dlt")]
         public async Task Trades(CommandContext ctx, [Description("The player name or item name for which to display trades.")] string userOrItemName = "")
         {
-            await CallWithErrorHandling<object>(PermissionType.User, async (lCtx, args) =>
+            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
                 // Fetch trade data
                 string result = SharedCommands.Trades(userOrItemName, out string matchedName, out TradeTargetType tradeType, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
@@ -471,7 +471,7 @@ namespace Eco.Plugins.DiscordLink
         [Aliases("dl-tracktrades")]
         public async Task TrackTrades(CommandContext ctx, [Description("The player name or item name for which to display trades.")] string userOrItemName = "")
         {
-            await CallWithErrorHandling<object>(PermissionType.User, async (lCtx, args) =>
+            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
                 // Ensure that the calling user is linked
                 if (LinkedUserManager.LinkedUserByDiscordId(ctx.GetSenderId()) == null)
@@ -507,7 +507,7 @@ namespace Eco.Plugins.DiscordLink
         [Aliases("dl-stoptracktrades")]
         public async Task StopTrackTrades(CommandContext ctx, [Description("The player name or item name for which to display trades.")] string userOrItemName = "")
         {
-            await CallWithErrorHandling<object>(PermissionType.User, async (lCtx, args) =>
+            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
                 // Ensure that the calling user is linked
                 if (LinkedUserManager.LinkedUserByDiscordId(ctx.GetSenderId()) == null)
@@ -528,7 +528,7 @@ namespace Eco.Plugins.DiscordLink
         [Aliases("dl-listtrackedtrades")]
         public async Task ListTrackedTrades(CommandContext ctx)
         {
-            await CallWithErrorHandling<object>(PermissionType.User, async (lCtx, args) =>
+            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
                 if (LinkedUserManager.LinkedUserByDiscordId(ctx.GetSenderId()) == null)
                 {

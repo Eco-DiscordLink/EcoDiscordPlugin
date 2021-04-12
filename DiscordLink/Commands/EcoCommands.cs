@@ -16,19 +16,26 @@ namespace Eco.Plugins.DiscordLink
      */
     public class EcoCommands : IChatCommandHandler
     {
-        private delegate void EcoCommandFunction(User user, params string[] args);
+        private delegate void EcoCommand(User user, params string[] parameters);
 
-        private static void CallWithErrorHandling<TRet>(EcoCommandFunction toCall, User user, params string[] args)
+        private static void ExecuteCommand<TRet>(EcoCommand command, User user, params string[] parameters)
         {
+            // Trim the arguments since they often have a space at the beginning
+            for (int i = 0; i < parameters.Length; ++i)
+            {
+                parameters[i] = parameters[i].Trim();
+            }
+
+            string commandName = command.Method.Name;
             try
             {
-                Logger.Debug($"{MessageUtil.StripTags(user.Name)} invoked Eco command \"/{toCall.Method.Name}\"");
-                toCall(user, args);
+                Logger.Debug($"{MessageUtil.StripTags(user.Name)} invoked Eco command \"/{command.Method.Name}\"");
+                command(user, parameters);
             }
             catch (Exception e)
             {
                 ChatManager.ServerMessageToPlayer(new LocString("Error occurred while attempting to run that command. Error message: " + e), user);
-                Logger.Error("An error occurred while attempting to execute an Eco command. Error message: " + e);
+                Logger.Error($"An exception occured while attempting to execute a command.\nCommand name: \"{commandName}\"\nCalling user: \"{MessageUtil.StripTags(user.Name)}\"\nError message: {e}");
             }
         }
 
@@ -40,7 +47,7 @@ namespace Eco.Plugins.DiscordLink
         [ChatSubCommand("DiscordLink", "Lists Discord servers the bot is in.", ChatAuthorizationLevel.Admin)]
         public static void ListGuilds(User user)
         {
-            CallWithErrorHandling<object>((lUser, args) =>
+            ExecuteCommand<object>((lUser, args) =>
             {
                 var plugin = Plugins.DiscordLink.DiscordLink.Obj;
                 if (plugin == null) return;
@@ -55,7 +62,7 @@ namespace Eco.Plugins.DiscordLink
         [ChatSubCommand("DiscordLink", "Lists channels available to the bot in a specific server.", ChatAuthorizationLevel.Admin)]
         public static void ListChannels(User user, string guildName)
         {
-            CallWithErrorHandling<object>((lUser, args) =>
+            ExecuteCommand<object>((lUser, args) =>
             {
                 var plugin = Plugins.DiscordLink.DiscordLink.Obj;
                 if (plugin == null) return;
@@ -79,7 +86,7 @@ namespace Eco.Plugins.DiscordLink
         [ChatSubCommand("DiscordLink", "Sends a message to a specific server and channel.", ChatAuthorizationLevel.Admin)]
         public static void SendMessageToDiscordChannel(User user, string guild, string channel, string outerMessage)
         {
-            CallWithErrorHandling<object>((lUser, args) =>
+            ExecuteCommand<object>((lUser, args) =>
             {
                 var plugin = Plugins.DiscordLink.DiscordLink.Obj;
                 if (plugin == null) return;
@@ -99,7 +106,7 @@ namespace Eco.Plugins.DiscordLink
         [ChatSubCommand("Restart", "Restarts the plugin.", "dl-restart", ChatAuthorizationLevel.Admin)]
         public static void Restart(User user)
         {
-            CallWithErrorHandling<object>((lUser, args) =>
+            ExecuteCommand<object>((lUser, args) =>
             {
                 DiscordLink plugin = Plugins.DiscordLink.DiscordLink.Obj;
                 Logger.Info("Restart command executed - Restarting");
@@ -114,7 +121,7 @@ namespace Eco.Plugins.DiscordLink
         [ChatSubCommand("DiscordLink", "Displays information about the DiscordLink plugin.", "dl-about", ChatAuthorizationLevel.User)]
         public static void About(User user)
         {
-            CallWithErrorHandling<object>((lUser, args) =>
+            ExecuteCommand<object>((lUser, args) =>
             {
                 EcoUtil.SendAnnouncementMessage($"About DiscordLink {Plugins.DiscordLink.DiscordLink.Obj.PluginVersion}", MessageBuilder.Shared.GetAboutMessage(), user);
             },
@@ -124,7 +131,7 @@ namespace Eco.Plugins.DiscordLink
         [ChatSubCommand("DiscordLink", "Posts the Discord invite message to the target user.", "dl-invite", ChatAuthorizationLevel.User)]
         public static void Invite(User user, string targetUserName = "")
         {
-            CallWithErrorHandling<object>((lUser, args) =>
+            ExecuteCommand<object>((lUser, args) =>
             {
                 string result = string.Empty;
                 User targetUser = user;
@@ -154,9 +161,9 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [ChatSubCommand("DiscordLink", "Posts the Discord invite message to the Eco chat.", "dl-broadcastinvite", ChatAuthorizationLevel.User)]
-        public static void BroadcastInvite(User user, string ecoChannel = "")
+        public static void BroadcastInvite(User user, string ecoChannel )
         {
-            CallWithErrorHandling<object>((lUser, args) =>
+            ExecuteCommand<object>((lUser, args) =>
             {
                 string result = SharedCommands.BroadcastDiscordInvite(ecoChannel);
                 ChatManager.ServerMessageToPlayer(new LocString(result), user);
@@ -167,7 +174,7 @@ namespace Eco.Plugins.DiscordLink
         [ChatSubCommand("DiscordLink", "Post a predefined snippet from Discord.", "dl-snippet", ChatAuthorizationLevel.User)]
         public static void Snippet(User user, string snippetKey = "")
         {
-            CallWithErrorHandling<object>((lUser, args) =>
+            ExecuteCommand<object>((lUser, args) =>
             {
                 var plugin = Plugins.DiscordLink.DiscordLink.Obj;
                 if (plugin == null) return;
@@ -205,7 +212,7 @@ namespace Eco.Plugins.DiscordLink
         [ChatSubCommand("DiscordLink", "Sends an Eco server message to a specified user.", "dl-servermessage", ChatAuthorizationLevel.Admin)]
         public static void SendServerMessage(User user, string message, string recipientUserName, string persistanceType = "temporary")
         {
-            CallWithErrorHandling<object>((lUser, args) =>
+            ExecuteCommand<object>((lUser, args) =>
             {
                 string result = SharedCommands.SendServerMessage(message, user.Name, recipientUserName, persistanceType);
                 ChatManager.ServerMessageToPlayer(new LocString(result), user);
@@ -216,7 +223,7 @@ namespace Eco.Plugins.DiscordLink
         [ChatSubCommand("DiscordLink", "Sends an Eco server message to all online users.", "dl-broadcastservermessage", ChatAuthorizationLevel.Admin)]
         public static void BroadcastServerMessage(User user, string message, string persistanceType = "temporary")
         {
-            CallWithErrorHandling<object>((lUser, args) =>
+            ExecuteCommand<object>((lUser, args) =>
             {
                 string result = SharedCommands.SendServerMessage(message, user.Name, string.Empty, persistanceType);
                 ChatManager.ServerMessageToPlayer(new LocString(result), user);
@@ -228,7 +235,7 @@ namespace Eco.Plugins.DiscordLink
         [ChatSubCommand("DiscordLink", "Sends an Eco popup message to a specified user.", "dl-popup", ChatAuthorizationLevel.Admin)]
         public static void SendPopup(User user, string message, string recipientUserName)
         {
-            CallWithErrorHandling<object>((lUser, args) =>
+            ExecuteCommand<object>((lUser, args) =>
             {
                 string result = SharedCommands.SendPopup(message, user.Name, recipientUserName);
                 ChatManager.ServerMessageToPlayer(new LocString(result), user);
@@ -239,7 +246,7 @@ namespace Eco.Plugins.DiscordLink
         [ChatSubCommand("DiscordLink", "Sends an Eco popup message to all online users.", "dl-broadcastpopup", ChatAuthorizationLevel.Admin)]
         public static void BroadcastPopup(User user, string message)
         {
-            CallWithErrorHandling<object>((lUser, args) =>
+            ExecuteCommand<object>((lUser, args) =>
             {
                 string result = SharedCommands.SendPopup(message, user.Name, string.Empty);
                 ChatManager.ServerMessageToPlayer(new LocString(result), user);
@@ -250,7 +257,7 @@ namespace Eco.Plugins.DiscordLink
         [ChatSubCommand("DiscordLink", "Sends an Eco announcement message to a specified user.", "dl-announcement", ChatAuthorizationLevel.Admin)]
         public static void SendAnnouncement(User user, string title, string message, string recipientUserName)
         {
-            CallWithErrorHandling<object>((lUser, args) =>
+            ExecuteCommand<object>((lUser, args) =>
             {
                 string result = SharedCommands.SendAnnouncement(title, message, user.Name, recipientUserName);
                 ChatManager.ServerMessageToPlayer(new LocString(result), user);
@@ -261,7 +268,7 @@ namespace Eco.Plugins.DiscordLink
         [ChatSubCommand("DiscordLink", "Sends an Eco announcement message to a specified user.", "dl-broadcastannouncement", ChatAuthorizationLevel.Admin)]
         public static void BroadcastAnnouncement(User user, string title, string message)
         {
-            CallWithErrorHandling<object>((lUser, args) =>
+            ExecuteCommand<object>((lUser, args) =>
             {
                 string result = SharedCommands.SendAnnouncement(title, message, user.Name, string.Empty);
                 ChatManager.ServerMessageToPlayer(new LocString(result), user);
@@ -272,7 +279,7 @@ namespace Eco.Plugins.DiscordLink
         [ChatSubCommand("DiscordLink", "Links the calling user account to a Discord account.", "dl-link", ChatAuthorizationLevel.User)]
         public static void LinkDiscordAccount(User user, string discordName)
         {
-            CallWithErrorHandling<object>((lUser, args) =>
+            ExecuteCommand<object>((lUser, args) =>
             {
                 var plugin = Plugins.DiscordLink.DiscordLink.Obj;
                 if (plugin == null) return;
@@ -339,7 +346,7 @@ namespace Eco.Plugins.DiscordLink
         [ChatSubCommand("DiscordLink", "Unlinks the calling user account from a linked Discord account.", "dl-unlink", ChatAuthorizationLevel.User)]
         public static void UnlinkDiscordAccount(User user)
         {
-            CallWithErrorHandling<object>((lUser, args) =>
+            ExecuteCommand<object>((lUser, args) =>
             {
                 bool result = LinkedUserManager.RemoveLinkedUser(user);
                 if (result)
@@ -352,7 +359,7 @@ namespace Eco.Plugins.DiscordLink
         [ChatSubCommand("DiscordLink", "Displays available trades by player or by item.", "dl-trades", ChatAuthorizationLevel.User)]
         public static void Trades(User user, string userOrItemName)
         {
-            CallWithErrorHandling<object>((lUser, args) =>
+            ExecuteCommand<object>((lUser, args) =>
             {
                 // Fetch trade data
                 string result = SharedCommands.Trades(userOrItemName, out string title, out TradeTargetType tradeType, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
@@ -378,67 +385,76 @@ namespace Eco.Plugins.DiscordLink
         [ChatSubCommand("DiscordLink", "Creates a live updated display of available trades by player or item.", "dl-tracktrades", ChatAuthorizationLevel.User)]
         public static void TrackTrades(User user, string userOrItemName)
         {
-            LinkedUser linkedUser = LinkedUserManager.LinkedUserByEcoUser(user);
-            if ( linkedUser == null)
+            ExecuteCommand<object>((lUser, args) =>
             {
-                ChatManager.ServerMessageToPlayer(new LocString($"You have not linked your Discord Account to DiscordLink on this Eco Server.\nUse the `\\dl-link` command to initialize account linking."), user);
-                return;
-            }
+                LinkedUser linkedUser = LinkedUserManager.LinkedUserByEcoUser(user);
+                if (linkedUser == null)
+                {
+                    ChatManager.ServerMessageToPlayer(new LocString($"You have not linked your Discord Account to DiscordLink on this Eco Server.\nUse the `\\dl-link` command to initialize account linking."), user);
+                    return;
+                }
 
-            int trackedTradesCount = DLStorage.WorldData.GetTrackedTradesCountForUser(ulong.Parse(linkedUser.DiscordID));
-            if (trackedTradesCount >= DLConfig.Data.MaxTrackedTradesPerUser)
-            {
-                ChatManager.ServerMessageToPlayer(new LocString($"You are already tracking {trackedTradesCount} trades and the limit is {DLConfig.Data.MaxTrackedTradesPerUser} tracked trades per user.\nUse the `\\dl-StopTrackTrades` command to remove a tracked trade to make space if you wish to add a new one."), user);
-                return;
-            }
+                int trackedTradesCount = DLStorage.WorldData.GetTrackedTradesCountForUser(ulong.Parse(linkedUser.DiscordID));
+                if (trackedTradesCount >= DLConfig.Data.MaxTrackedTradesPerUser)
+                {
+                    ChatManager.ServerMessageToPlayer(new LocString($"You are already tracking {trackedTradesCount} trades and the limit is {DLConfig.Data.MaxTrackedTradesPerUser} tracked trades per user.\nUse the `\\dl-StopTrackTrades` command to remove a tracked trade to make space if you wish to add a new one."), user);
+                    return;
+                }
 
-            // Fetch trade data using the trades command once to see that the command parameters are valid
-            string result = SharedCommands.Trades(userOrItemName, out string matchedName, out _, out _, out _);
-            if (!string.IsNullOrEmpty(result))
-            {
+                // Fetch trade data using the trades command once to see that the command parameters are valid
+                string result = SharedCommands.Trades(userOrItemName, out string matchedName, out _, out _, out _);
+                if (!string.IsNullOrEmpty(result))
+                {
+                    ChatManager.ServerMessageToPlayer(new LocString(result), user);
+                    return;
+                }
+
+                bool added = DLStorage.WorldData.AddTrackedTradeItem(ulong.Parse(linkedUser.DiscordID), matchedName).Result;
+                result = added ? $"Tracking all trades for {matchedName}." : $"Failed to start tracking trades for {matchedName}";
+
                 ChatManager.ServerMessageToPlayer(new LocString(result), user);
-                return;
-            }
-
-            bool added = DLStorage.WorldData.AddTrackedTradeItem(ulong.Parse(linkedUser.DiscordID), matchedName).Result;
-            result = added ? $"Tracking all trades for {matchedName}." : $"Failed to start tracking trades for {matchedName}";
-
-            ChatManager.ServerMessageToPlayer(new LocString(result), user);
+            }, user);
         }
 
         [ChatSubCommand("DiscordLink", "Removes the live updated display of available trades for the player or item.", "dl-stoptracktrades", ChatAuthorizationLevel.User)]
         public static void StopTrackTrades(User user, string userOrItemName)
         {
-            LinkedUser linkedUser = LinkedUserManager.LinkedUserByEcoUser(user);
-            if (linkedUser == null)
+            ExecuteCommand<object>((lUser, args) =>
             {
-                ChatManager.ServerMessageToPlayer(new LocString($"You have not linked your Discord Account to DiscordLink on this Eco Server.\nLog into the game and use the `\\dl-link` command to initialize account linking."), user);
-                return;
-            }
+                LinkedUser linkedUser = LinkedUserManager.LinkedUserByEcoUser(user);
+                if (linkedUser == null)
+                {
+                    ChatManager.ServerMessageToPlayer(new LocString($"You have not linked your Discord Account to DiscordLink on this Eco Server.\nLog into the game and use the `\\dl-link` command to initialize account linking."), user);
+                    return;
+                }
 
-            bool removed = DLStorage.WorldData.RemoveTrackedTradeItem(ulong.Parse(linkedUser.DiscordID), userOrItemName).Result;
-            string result = removed ? $"Stopped tracking trades for {userOrItemName}." : $"Failed to stop tracking trades for {userOrItemName}.\nUse `\\dl-ListTrackedStores` to see what is currently being tracked.";
+                bool removed = DLStorage.WorldData.RemoveTrackedTradeItem(ulong.Parse(linkedUser.DiscordID), userOrItemName).Result;
+                string result = removed ? $"Stopped tracking trades for {userOrItemName}." : $"Failed to stop tracking trades for {userOrItemName}.\nUse `\\dl-ListTrackedStores` to see what is currently being tracked.";
 
-            ChatManager.ServerMessageToPlayer(new LocString(result), user);
+                ChatManager.ServerMessageToPlayer(new LocString(result), user);
+            }, user);
         }
 
         [ChatSubCommand("DiscordLink", "Lists all tracked trades for the calling user.", "dl-listtrackedtrades", ChatAuthorizationLevel.User)]
         public static void ListTrackedTrades(User user)
         {
-            LinkedUser linkedUser = LinkedUserManager.LinkedUserByEcoUser(user);
-            if (linkedUser == null)
+            ExecuteCommand<object>((lUser, args) =>
             {
-                ChatManager.ServerMessageToPlayer(new LocString($"You have not linked your Discord Account to DiscordLink on this Eco Server.\nLog into the game and use the `\\dl-link` command to initialize account linking."), user);
-                return;
-            }
+                LinkedUser linkedUser = LinkedUserManager.LinkedUserByEcoUser(user);
+                if (linkedUser == null)
+                {
+                    ChatManager.ServerMessageToPlayer(new LocString($"You have not linked your Discord Account to DiscordLink on this Eco Server.\nLog into the game and use the `\\dl-link` command to initialize account linking."), user);
+                    return;
+                }
 
-            EcoUtil.SendAnnouncementMessage("Tracked Trades", DLStorage.WorldData.ListTrackedTrades(ulong.Parse(linkedUser.DiscordID)), user);
+                EcoUtil.SendAnnouncementMessage("Tracked Trades", DLStorage.WorldData.ListTrackedTrades(ulong.Parse(linkedUser.DiscordID)), user);
+            }, user);
         }
 
         [ChatSubCommand("DiscordLink", "Resets world data as if a new world had been created.", "dl-resetdata", ChatAuthorizationLevel.Admin)]
         public static void ResetWorldData(User user)
         {
-            CallWithErrorHandling<object>((lUser, args) =>
+            ExecuteCommand<object>((lUser, args) =>
             {
                 ChatManager.ServerMessageToPlayer(new LocString(SharedCommands.ResetWorldData()), user);
             }, user);
@@ -447,7 +463,7 @@ namespace Eco.Plugins.DiscordLink
         [ChatSubCommand("DiscordLink", "Shows the plugin status.", "dl-status", ChatAuthorizationLevel.Admin)]
         public static void PluginStatus(User user)
         {
-            CallWithErrorHandling<object>((lUser, args) =>
+            ExecuteCommand<object>((lUser, args) =>
             {
                 EcoUtil.SendAnnouncementMessage("DiscordLink Status", MessageBuilder.Shared.GetDisplayString(verbose: false));
             }, user);
@@ -456,7 +472,7 @@ namespace Eco.Plugins.DiscordLink
         [ChatSubCommand("DiscordLink", "Shows the plugin status including verbose debug level information.", "dl-statusverbose", ChatAuthorizationLevel.Admin)]
         public static void PluginStatusVerbose(User user)
         {
-            CallWithErrorHandling<object>((lUser, args) =>
+            ExecuteCommand<object>((lUser, args) =>
             {
                 EcoUtil.SendAnnouncementMessage("DiscordLink Status Verbose", MessageBuilder.Shared.GetDisplayString(verbose: true));
             }, user);
