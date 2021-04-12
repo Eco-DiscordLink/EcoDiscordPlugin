@@ -22,7 +22,7 @@
   </PropertyGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy /Y &quot;$(SolutionDir)Dependencies\System.Threading.Timer.dll&quot; &quot;$(OutDir)&quot;&#xD;&#xA;xcopy /Y &quot;$(SolutionDir)Dependencies\System.Threading.Tasks.Extensions.dll&quot; &quot;$(OutDir)&quot;&#xD;&#xA;&#xD;&#xA;set server_dir=$(SolutionDir)..\EcoServer\&#xD;&#xA;set server_mod_dir=$(SolutionDir)..\EcoServer\Mods\DiscordLink\&#xD;&#xA;for /f &quot;tokens=*&quot; %25%25i in ($(SolutionDir)DLLCopyList.txt) DO (&#xD;&#xA;    xcopy /Y &quot;$(OutDir)%25%25i&quot; &quot;%25server_mod_dir%25&quot;&#xD;&#xA;)&#xD;&#xA;&#xD;&#xA;xcopy /Y &quot;$(OutDir)em-framework.dll&quot; &quot;%25server_dir%25Mods\Elixir Mods\&quot;&#xD;&#xA;xcopy /Y &quot;$(OutDir)DiscordLink.pdb&quot; &quot;%25server_dir%25&quot;" />
+    <Exec Command="xcopy /Y &quot;$(SolutionDir)Dependencies\System.Threading.Timer.dll&quot; &quot;$(OutDir)&quot;&#xD;&#xA;xcopy /Y &quot;$(SolutionDir)Dependencies\System.Threading.Tasks.Extensions.dll&quot; &quot;$(OutDir)&quot;&#xD;&#xA;&#xD;&#xA;set server_dir=$(SolutionDir)..\EcoServer\&#xD;&#xA;set server_mod_dir=$(SolutionDir)..\EcoServer\Mods\DiscordLink\&#xD;&#xA;for /f &quot;tokens=*&quot; %25%25i in ($(SolutionDir)DLLCopyList.txt) DO (&#xD;&#xA;    xcopy /Y &quot;$(OutDir)%25%25i&quot; &quot;%25server_mod_dir%25&quot;&#xD;&#xA;)&#xD;&#xA;&#xD;&#xA;xcopy /Y &quot;$(OutDir)em-framework.dll&quot; &quot;%25server_dir%25Mods\Elixr Mods\&quot;&#xD;&#xA;xcopy /Y &quot;$(OutDir)DiscordLink.pdb&quot; &quot;%25server_dir%25&quot;" />
   </Target>
 
   <ItemGroup>
