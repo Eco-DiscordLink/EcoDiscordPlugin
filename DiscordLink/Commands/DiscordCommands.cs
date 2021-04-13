@@ -166,7 +166,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("Restart")]
         [Description("Restarts the plugin.")]
-        [Aliases("dl-restart")]
+        [Aliases("DL-Restart")]
         public async Task Restart(CommandContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
@@ -181,7 +181,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("ResetWorldData")]
         [Description("Resets world data as if a new world had been created.")]
-        [Aliases("dl-resetdata")]
+        [Aliases("DL-Resetdata")]
         public async Task ResetData(CommandContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
@@ -196,7 +196,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("DiscordLinkAbout")]
         [Description("Posts a message describing what the DiscordLink plugin is.")]
-        [Aliases("dl-about")]
+        [Aliases("DL-About")]
         public async Task About(CommandContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
@@ -209,9 +209,9 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
-        [Command("pluginstatus")]
+        [Command("Pluginstatus")]
         [Description("Shows the plugin status.")]
-        [Aliases("dl-status", "status")]
+        [Aliases("DL-Status", "Status")]
         public async Task PluginStatus(CommandContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
@@ -220,9 +220,9 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
-        [Command("pluginstatusverbose")]
+        [Command("Pluginstatusverbose")]
         [Description("Shows the plugin status including verbose debug level information.")]
-        [Aliases("dl-statusverbose", "statusverbose")]
+        [Aliases("DL-Statusverbose", "StatusVerbose")]
         public async Task PluginStatusVerbose(CommandContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
@@ -241,7 +241,7 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
-        [Command("echo")]
+        [Command("Echo")]
         [Description("Sends the provided message to Eco and back to Discord again.")]
         public async Task Echo(CommandContext ctx, [Description("The message to send and then receive back again. A random message will be sent if this parameter is omitted.")] string message = "", [Description("The eco channel you want to test.")] string ecoChannel = "")
         {
@@ -288,7 +288,7 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
-        [Command("ping")]
+        [Command("Ping")]
         [Description("Checks if the bot is online.")]
         public async Task Ping(CommandContext ctx)
         {
@@ -302,9 +302,9 @@ namespace Eco.Plugins.DiscordLink
 
         #region Server Info Fetching
 
-        [Command("playerlist")]
+        [Command("PlayerList")]
         [Description("Lists the players currently online on the server.")]
-        [Aliases("players", "dl-players")]
+        [Aliases("Players", "DL-Players")]
         public async Task PlayerList(CommandContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
@@ -316,9 +316,9 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
-        [Command("serverstatus")]
+        [Command("ServerStatus")]
         [Description("Prints the Server Info status.")]
-        [Aliases("dl-ecostatus", "dl-serverinfo", "ecostatus")]
+        [Aliases("DL-Ecostatus", "DL-Serverinfo", "Ecostatus")]
         public async Task ServerStatus(CommandContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
@@ -333,10 +333,10 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("SendServerMessage")]
         [Description("Sends an Eco server message to a specified user")]
-        [Aliases("dl-servermessage")]
+        [Aliases("DL-ServerMessage")]
         public async Task SendServerMessage(CommandContext ctx, [Description("The message to send.")] string message,
             [Description("Name of the recipient Eco user.")] string recipientUserName,
-            [Description("Persistance type. Possible values are \"Temporary\" and \"Permanent\". Defaults to \"Temporary\".")] string persistanceType = "temporary")
+            [Description("Persistance type. Possible values are \"Temporary\" and \"Permanent\". Defaults to \"Temporary\".")] string persistanceType = "Temporary")
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
@@ -346,7 +346,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("BroadcastServerMessage")]
         [Description("Sends an Eco server message to all online users")]
-        [Aliases("dl-broadcastservermessage")]
+        [Aliases("DL-Broadcastservermessage")]
         public async Task BroadcastServerMessage(CommandContext ctx, [Description("The message to send.")] string message,
             [Description("Persistance type. Possible values are \"Temporary\" and \"Permanent\". Defaults to \"Temporary\".")] string persistanceType = "temporary")
         {
@@ -358,7 +358,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("SendPopup")]
         [Description("Sends an Eco popup message to a specified user")]
-        [Aliases("dl-popup")]
+        [Aliases("DL-Popup")]
         public async Task SendPopup(CommandContext ctx, [Description("The message to send.")] string message,
             [Description("Name of the recipient Eco user.")] string recipientUserName)
         {
@@ -370,7 +370,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("BroadcastPopup")]
         [Description("Sends an Eco popup message to all online users")]
-        [Aliases("dl-broadcastpopup")]
+        [Aliases("DL-Broadcastpopup")]
         public async Task BroadcastPopup(CommandContext ctx, [Description("The message to send.")] string message)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
@@ -381,7 +381,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("SendAnnouncement")]
         [Description("Sends an Eco announcement message")]
-        [Aliases("dl-announcement")]
+        [Aliases("DL-Announcement")]
         public async Task SendAnnouncement(CommandContext ctx, [Description("The title for the announcement UI.")] string title,
             [Description("The message to display in the announcement UI.")] string message,
             [Description("Name of the recipient Eco user.")] string recipientUserName)
@@ -394,7 +394,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("BroadcastAnnouncement")]
         [Description("Sends an Eco announcement message to all online users")]
-        [Aliases("dl-broadcastannouncement")]
+        [Aliases("DL-Broadcastannouncement")]
         public async Task SendAnnouncement(CommandContext ctx, [Description("The title for the announcement UI.")] string title,
             [Description("The message to display in the announcement UI.")] string message)
         {
@@ -410,7 +410,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("Invite")]
         [Description("Posts the Discord invite message to the target user.")]
-        [Aliases("dl-invite")]
+        [Aliases("DL-Invite")]
         public async Task Invite(CommandContext ctx, [Description("The Eco username of the user receiving the invite")] string targetUserName)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
@@ -436,7 +436,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("BroadcastInvite")]
         [Description("Posts the Discord invite message to the Eco chat.")]
-        [Aliases("dl-broadcastinvite")]
+        [Aliases("DL-Broadcastinvite")]
         public async Task BroadcastInvite(CommandContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
@@ -452,7 +452,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("VerifyLink")]
         [Description("Verifies that an unverified link is correct and should be used")]
-        [Aliases("dl-verifylink")]
+        [Aliases("DL-Verifylink")]
         public async Task VerifyLink(CommandContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
@@ -468,9 +468,9 @@ namespace Eco.Plugins.DiscordLink
 
         #region Trades
 
-        [Command("trades")]
+        [Command("Trades")]
         [Description("Displays available trades by player or item.")]
-        [Aliases("dl-trades", "dl-trade", "trade", "dlt")]
+        [Aliases("DL-Trades", "DL-Trade", "Trade", "DLT")]
         public async Task Trades(CommandContext ctx, [Description("The player name or item name for which to display trades.")] string userOrItemName = "")
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
@@ -491,7 +491,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("TrackTrades")]
         [Description("Creates a live updated display of available trades by player or item.")]
-        [Aliases("dl-tracktrades")]
+        [Aliases("DL-Tracktrades")]
         public async Task TrackTrades(CommandContext ctx, [Description("The player name or item name for which to display trades.")] string userOrItemName = "")
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
@@ -527,7 +527,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("StopTrackTrades")]
         [Description("Removes the live updated display of available trades for the player or item.")]
-        [Aliases("dl-stoptracktrades")]
+        [Aliases("DL-StopTrackTrades")]
         public async Task StopTrackTrades(CommandContext ctx, [Description("The player name or item name for which to display trades.")] string userOrItemName = "")
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
@@ -548,7 +548,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("ListTrackedTrades")]
         [Description("Lists all tracked trades for the calling user.")]
-        [Aliases("dl-listtrackedtrades")]
+        [Aliases("DL-ListTrackedTrades")]
         public async Task ListTrackedTrades(CommandContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>

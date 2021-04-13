@@ -47,7 +47,7 @@ namespace Eco.Plugins.DiscordLink
 
         #region Plugin Management
 
-        [ChatSubCommand("Restart", "Restarts the plugin.", "dl-restart", ChatAuthorizationLevel.Admin)]
+        [ChatSubCommand("Restart", "Restarts the plugin.", "DL-Restart", ChatAuthorizationLevel.Admin)]
         public static void Restart(User callingUser)
         {
             ExecuteCommand<object>((lUser, args) =>
@@ -226,7 +226,7 @@ namespace Eco.Plugins.DiscordLink
 
         #region Invites
 
-        [ChatSubCommand("DiscordLink", "Posts the Discord invite message to the target user.", "dl-invite", ChatAuthorizationLevel.User)]
+        [ChatSubCommand("DiscordLink", "Posts the Discord invite message to the target user.", "DL-Invite", ChatAuthorizationLevel.User)]
         public static void Invite(User callingUser, string targetUserName = "")
         {
             ExecuteCommand<object>((lUser, args) =>
@@ -257,7 +257,7 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Posts the Discord invite message to the Eco chat.", "dl-broadcastinvite", ChatAuthorizationLevel.User)]
+        [ChatSubCommand("DiscordLink", "Posts the Discord invite message to the Eco chat.", "DL-BroadcastInvite", ChatAuthorizationLevel.User)]
         public static void BroadcastInvite(User user)
         {
             ExecuteCommand<object>((lUser, args) =>
@@ -272,7 +272,7 @@ namespace Eco.Plugins.DiscordLink
 
         #region Account Linking
 
-        [ChatSubCommand("DiscordLink", "Links the calling user account to a Discord account.", "dl-link", ChatAuthorizationLevel.User)]
+        [ChatSubCommand("DiscordLink", "Links the calling user account to a Discord account.", "DL-Link", ChatAuthorizationLevel.User)]
         public static void LinkDiscordAccount(User callingUser, string discordName)
         {
             ExecuteCommand<object>((lUser, args) =>
@@ -338,7 +338,7 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Unlinks the calling user account from a linked Discord account.", "dl-unlink", ChatAuthorizationLevel.User)]
+        [ChatSubCommand("DiscordLink", "Unlinks the calling user account from a linked Discord account.", "DL-Unlink", ChatAuthorizationLevel.User)]
         public static void UnlinkDiscordAccount(User callingUser)
         {
             ExecuteCommand<object>((lUser, args) =>
@@ -355,7 +355,7 @@ namespace Eco.Plugins.DiscordLink
 
         #region Trades
 
-        [ChatSubCommand("DiscordLink", "Displays available trades by player or by item.", "dl-trades", ChatAuthorizationLevel.User)]
+        [ChatSubCommand("DiscordLink", "Displays available trades by player or by item.", "DL-Trades", ChatAuthorizationLevel.User)]
         public static void Trades(User callingUser, string userOrItemName)
         {
             ExecuteCommand<object>((lUser, args) =>
@@ -381,7 +381,7 @@ namespace Eco.Plugins.DiscordLink
             Trades(user, userOrItemName);
         }
 
-        [ChatSubCommand("DiscordLink", "Creates a live updated display of available trades by player or item.", "dl-tracktrades", ChatAuthorizationLevel.User)]
+        [ChatSubCommand("DiscordLink", "Creates a live updated display of available trades by player or item.", "DL-TrackTrades", ChatAuthorizationLevel.User)]
         public static void TrackTrades(User callingUser, string userOrItemName)
         {
             ExecuteCommand<object>((lUser, args) =>
@@ -415,7 +415,7 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Removes the live updated display of available trades for the player or item.", "dl-stoptracktrades", ChatAuthorizationLevel.User)]
+        [ChatSubCommand("DiscordLink", "Removes the live updated display of available trades for the player or item.", "DL-StopTrackTrades", ChatAuthorizationLevel.User)]
         public static void StopTrackTrades(User callingUser, string userOrItemName)
         {
             ExecuteCommand<object>((lUser, args) =>
@@ -434,7 +434,7 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Lists all tracked trades for the calling user.", "dl-listtrackedtrades", ChatAuthorizationLevel.User)]
+        [ChatSubCommand("DiscordLink", "Lists all tracked trades for the calling user.", "DL-ListTrackedTrades", ChatAuthorizationLevel.User)]
         public static void ListTrackedTrades(User callingUser)
         {
             ExecuteCommand<object>((lUser, args) =>
@@ -454,7 +454,7 @@ namespace Eco.Plugins.DiscordLink
 
         #region Snippets
 
-        [ChatSubCommand("DiscordLink", "Post a predefined snippet from Discord.", "dl-snippet", ChatAuthorizationLevel.User)]
+        [ChatSubCommand("DiscordLink", "Post a predefined snippet from Discord.", "DL-Snippet", ChatAuthorizationLevel.User)]
         public static void Snippet(User callingUser, string snippetKey = "")
         {
             ExecuteCommand<object>((lUser, args) =>
