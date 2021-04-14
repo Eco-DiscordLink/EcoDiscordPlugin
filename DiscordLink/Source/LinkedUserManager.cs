@@ -20,7 +20,7 @@ namespace Eco.Plugins.DiscordLink
         public static bool VerifyLinkedUser(ulong discordUserId)
         {
             // Find the linked user for the sender and mark them as verified
-            LinkedUser user = LinkedUserByDiscordId(discordUserId, false);
+            LinkedUser user = LinkedUserByDiscordID(discordUserId, false);
             bool result = user != null;
             if (result)
             {
@@ -48,7 +48,7 @@ namespace Eco.Plugins.DiscordLink
             return deleted;
         }
 
-        public static LinkedUser LinkedUserByDiscordId(ulong DiscordId, bool requireVerification = true)
+        public static LinkedUser LinkedUserByDiscordID(ulong DiscordId, bool requireVerification = true)
         {
             string DiscordIdStr = DiscordId.ToString();
             return DLStorage.PersistentData.LinkedUsers.Find(linkedUser => (linkedUser.DiscordID == DiscordIdStr) && linkedUser.Verified || !requireVerification);

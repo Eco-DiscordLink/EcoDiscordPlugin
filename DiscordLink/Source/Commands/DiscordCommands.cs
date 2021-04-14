@@ -3,7 +3,6 @@ using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
-using Eco.Gameplay.Players;
 using Eco.Gameplay.Systems.Chat;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Utils;
@@ -197,14 +196,14 @@ namespace Eco.Plugins.DiscordLink
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
                 DiscordLinkEmbed embed = new DiscordLinkEmbed()
-                .WithTitle("About DiscordLink")
-                .WithDescription(MessageBuilder.Shared.GetAboutMessage());
+                    .WithTitle("About DiscordLink")
+                    .WithDescription(MessageBuilder.Shared.GetAboutMessage());
 
                 await RespondToCommand(ctx, "About DiscordLink", embed);
             }, ctx);
         }
 
-        [Command("Pluginstatus")]
+        [Command("PluginStatus")]
         [Description("Shows the plugin status.")]
         [Aliases("DL-Status", "Status")]
         public async Task PluginStatus(CommandContext ctx)
@@ -215,7 +214,7 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
-        [Command("Pluginstatusverbose")]
+        [Command("PluginStatusVerbose")]
         [Description("Shows the plugin status including verbose debug level information.")]
         [Aliases("DL-Statusverbose", "StatusVerbose")]
         public async Task PluginStatusVerbose(CommandContext ctx)
@@ -285,7 +284,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await RespondToCommand(ctx, "Pong " + ctx.User.Mention);
+                await RespondToCommand(ctx, $"Pong {ctx.User.Mention}");
             }, ctx);
         }
 
@@ -301,15 +300,15 @@ namespace Eco.Plugins.DiscordLink
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
                 DiscordLinkEmbed embed = new DiscordLinkEmbed()
-                .WithTitle("Players")
-                .WithDescription(MessageBuilder.Shared.GetPlayerList());
+                    .WithTitle("Players")
+                    .WithDescription(MessageBuilder.Shared.GetPlayerList());
                 await DisplayCommandData(ctx, string.Empty, embed);
             }, ctx);
         }
 
         [Command("ServerStatus")]
         [Description("Prints the Server Info status.")]
-        [Aliases("DL-Ecostatus", "DL-Serverinfo", "Ecostatus")]
+        [Aliases("DL-EcoStatus", "DL-ServerInfo", "EcoStatus")]
         public async Task ServerStatus(CommandContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
@@ -323,7 +322,7 @@ namespace Eco.Plugins.DiscordLink
         #region Message Relaying
 
         [Command("SendServerMessage")]
-        [Description("Sends an Eco server message to a specified user")]
+        [Description("Sends an Eco server message to a specified user.")]
         [Aliases("DL-ServerMessage")]
         public async Task SendServerMessage(CommandContext ctx, [Description("The message to send.")] string message,
             [Description("Name of the recipient Eco user.")] string recipientUserName,
@@ -336,8 +335,8 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [Command("BroadcastServerMessage")]
-        [Description("Sends an Eco server message to all online users")]
-        [Aliases("DL-Broadcastservermessage")]
+        [Description("Sends an Eco server message to all online users.")]
+        [Aliases("DL-BroadcastServerMessage")]
         public async Task BroadcastServerMessage(CommandContext ctx, [Description("The message to send.")] string message,
             [Description("Persistance type. Possible values are \"Temporary\" and \"Permanent\". Defaults to \"Temporary\".")] string persistanceType = "temporary")
         {
@@ -348,7 +347,7 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [Command("SendPopup")]
-        [Description("Sends an Eco popup message to a specified user")]
+        [Description("Sends an Eco popup message to a specified user.")]
         [Aliases("DL-Popup")]
         public async Task SendPopup(CommandContext ctx, [Description("The message to send.")] string message,
             [Description("Name of the recipient Eco user.")] string recipientUserName)
@@ -360,8 +359,8 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [Command("BroadcastPopup")]
-        [Description("Sends an Eco popup message to all online users")]
-        [Aliases("DL-Broadcastpopup")]
+        [Description("Sends an Eco popup message to all online users.")]
+        [Aliases("DL-BroadcastPopup")]
         public async Task BroadcastPopup(CommandContext ctx, [Description("The message to send.")] string message)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
@@ -371,7 +370,7 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [Command("SendAnnouncement")]
-        [Description("Sends an Eco announcement message")]
+        [Description("Sends an Eco announcement message.")]
         [Aliases("DL-Announcement")]
         public async Task SendAnnouncement(CommandContext ctx, [Description("The title for the announcement UI.")] string title,
             [Description("The message to display in the announcement UI.")] string message,
@@ -384,8 +383,8 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [Command("BroadcastAnnouncement")]
-        [Description("Sends an Eco announcement message to all online users")]
-        [Aliases("DL-Broadcastannouncement")]
+        [Description("Sends an Eco announcement message to all online users.")]
+        [Aliases("DL-BroadcastAnnouncement")]
         public async Task SendAnnouncement(CommandContext ctx, [Description("The title for the announcement UI.")] string title,
             [Description("The message to display in the announcement UI.")] string message)
         {
@@ -426,7 +425,7 @@ namespace Eco.Plugins.DiscordLink
         #region Account Linking
 
         [Command("VerifyLink")]
-        [Description("Verifies that an unverified link is correct and should be used")]
+        [Description("Verifies that an unverified link is correct and should be used.")]
         [Aliases("DL-Verifylink")]
         public async Task VerifyLink(CommandContext ctx)
         {

@@ -1,5 +1,3 @@
-﻿using Eco.Gameplay.Components;
-using Eco.Gameplay.Items;
 ﻿using DiscordLink.Extensions;
 using DSharpPlus.CommandsNext;
 using Eco.Gameplay.Players;
@@ -7,7 +5,6 @@ using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Networking;
 using Eco.Shared.Utils;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;

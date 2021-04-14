@@ -1,13 +1,13 @@
 ﻿using DSharpPlus.Entities;
+using DiscordLink.Extensions;
+using Eco.Plugins.DiscordLink.Events;
+using Eco.Plugins.DiscordLink.Utilities;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Eco.Plugins.DiscordLink.Events;
 using System.Threading.Tasks;
+using System.Linq;
 
 using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
-using Eco.Plugins.DiscordLink.Utilities;
-using DiscordLink.Extensions;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
@@ -90,7 +90,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
                 foreach (ulong discordUserId in DLStorage.WorldData.PlayerTrackedTrades.Keys)
                 {
-                    LinkedUser dlUser = LinkedUserManager.LinkedUserByDiscordId(discordUserId);
+                    LinkedUser dlUser = LinkedUserManager.LinkedUserByDiscordID(discordUserId);
                     if (dlUser == null)
                         continue;
 

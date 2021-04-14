@@ -1,3 +1,4 @@
+using DSharpPlus;
 using DSharpPlus.Entities;
 using Eco.Gameplay.Players;
 using Eco.Gameplay.Systems.Chat;
@@ -5,9 +6,6 @@ using Eco.Shared.Localization;
 using Eco.Plugins.DiscordLink.Utilities;
 using System;
 using System.Collections.Generic;
-
-using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
-using DSharpPlus;
 
 namespace Eco.Plugins.DiscordLink
 {
@@ -35,7 +33,7 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (Exception e)
             {
-                ChatManager.ServerMessageToPlayer(new LocString("Error occurred while attempting to run that command. Error message: " + e), callingUser);
+                ChatManager.ServerMessageToPlayer(new LocString($"Error occurred while attempting to run that command. Error message: {e}"), callingUser);
                 Logger.Error($"An exception occured while attempting to execute a command.\nCommand name: \"{commandName}\"\nCalling user: \"{MessageUtil.StripTags(callingUser.Name)}\"\nError message: {e}");
             }
         }
@@ -77,7 +75,7 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Resets world data as if a new world had been created.", "dl-resetdata", ChatAuthorizationLevel.Admin)]
+        [ChatSubCommand("DiscordLink", "Resets world data as if a new world had been created.", "DL-ResetData", ChatAuthorizationLevel.Admin)]
         public static void ResetWorldData(User callingUser)
         {
             ExecuteCommand<object>((lUser, args) =>
@@ -90,7 +88,7 @@ namespace Eco.Plugins.DiscordLink
 
         #region Meta
 
-        [ChatSubCommand("DiscordLink", "Displays information about the DiscordLink plugin.", "dl-about", ChatAuthorizationLevel.User)]
+        [ChatSubCommand("DiscordLink", "Displays information about the DiscordLink plugin.", "DL-About", ChatAuthorizationLevel.User)]
         public static void About(User callingUser)
         {
             ExecuteCommand<object>((lUser, args) =>
@@ -99,7 +97,7 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Shows the plugin status.", "dl-status", ChatAuthorizationLevel.Admin)]
+        [ChatSubCommand("DiscordLink", "Shows the plugin status.", "DL-Status", ChatAuthorizationLevel.Admin)]
         public static void PluginStatus(User callingUser)
         {
             ExecuteCommand<object>((lUser, args) =>
@@ -108,7 +106,7 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Shows the plugin status including verbose debug level information.", "dl-statusverbose", ChatAuthorizationLevel.Admin)]
+        [ChatSubCommand("DiscordLink", "Shows the plugin status including verbose debug level information.", "DL-StatusVerbose", ChatAuthorizationLevel.Admin)]
         public static void PluginStatusVerbose(User callingUser)
         {
             ExecuteCommand<object>((lUser, args) =>
@@ -140,7 +138,7 @@ namespace Eco.Plugins.DiscordLink
             {
                 var plugin = Plugins.DiscordLink.DiscordLink.Obj;
 
-                var guild = string.IsNullOrEmpty(guildName)
+                DiscordGuild guild = string.IsNullOrEmpty(guildName)
                     ? plugin.DefaultGuild
                     : plugin.GuildByName(guildName);
 
@@ -335,23 +333,23 @@ namespace Eco.Plugins.DiscordLink
 
         #region Trades
 
-        [ChatSubCommand("DiscordLink", "Displays available trades by player or by item.", "DL-Trades", ChatAuthorizationLevel.User)]
+        [ChatSubCommand("DiscordLink", "Displays available trades by player, item or tag.", "DL-Trades", ChatAuthorizationLevel.User)]
         public static void Trades(User callingUser, string userOrItemName)
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.Trades(SharedCommands.CommandSource.Eco, callingUser, userOrItemName, out _);
+                SharedCommands.Trades(SharedCommands.CommandSource.Eco, callingUser, userOrItemName);
             }, callingUser);
         }
 
         // Wrapper for the Trades command in order to facilitate more command aliases
-        [ChatSubCommand("DiscordLink", "Displays available trades by player or by item.", "dlt", ChatAuthorizationLevel.User)]
+        [ChatSubCommand("DiscordLink", "Displays available trades by player, item or tag.", "DLT", ChatAuthorizationLevel.User)]
         public static void Trade(User user, string userOrItemName)
         {
             Trades(user, userOrItemName);
         }
 
-        [ChatSubCommand("DiscordLink", "Creates a live updated display of available trades by player or item.", "DL-TrackTrades", ChatAuthorizationLevel.User)]
+        [ChatSubCommand("DiscordLink", "Creates a live updated display of available trades by player, item or tag.", "DL-TrackTrades", ChatAuthorizationLevel.User)]
         public static void TrackTrades(User callingUser, string userOrItemName)
         {
             ExecuteCommand<object>((lUser, args) =>
