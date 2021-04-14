@@ -151,38 +151,43 @@ namespace Eco.Plugins.DiscordLink
 
         #region Invites
 
-        public static string DiscordInvite(User targetUser)
+        public static bool DiscordInvite(CommandSource source, object callContext, string targetUserName)
         {
             DLConfigData config = DLConfig.Data;
             ServerInfo serverInfo = Networking.NetworkManager.GetServerInfo();
 
             string inviteMessage = config.InviteMessage;
             if (!inviteMessage.Contains(DLConfig.InviteCommandLinkToken) || string.IsNullOrEmpty(serverInfo.DiscordAddress))
-                return "This server is not configured for using the /DiscordInvite command.";
+            {
+                ReportCommandError(source, callContext, "This server is not configured for using the Invite commands.");
+                return false;
+            }
+
+            User targetUser = null; // If no target user is specified; use broadcast
+            if (!string.IsNullOrEmpty(targetUserName))
+            {
+                targetUser = UserManager.FindUserByName(targetUserName);
+
+                if (targetUser == null)
+                {
+                    User offlineUser = EcoUtil.GetUserbyName(targetUserName);
+                    if (offlineUser != null)
+                        ReportCommandError(source, callContext, $"{MessageUtil.StripTags(offlineUser.Name)} is not online");
+                    else
+                        ReportCommandError(source, callContext, $"Could not find user with name {targetUserName}");
+                    return false;
+                }
+            }
 
             inviteMessage = Regex.Replace(inviteMessage, Regex.Escape(DLConfig.InviteCommandLinkToken), serverInfo.DiscordAddress);
-            bool result = EcoUtil.SendServerMessage(inviteMessage, permanent: true, targetUser);
-            if (result)
-                return "Invite sent";
+
+            bool sent = EcoUtil.SendServerMessage(inviteMessage, permanent: true, targetUser);
+            if (sent)
+                ReportCommandInfo(source, callContext, "Invite sent.");
             else
-                return "Failed to send invite";
-        }
+                ReportCommandError(source, callContext, "Failed to send invite.");
 
-        public static string BroadcastDiscordInvite()
-        {
-            DLConfigData config = DLConfig.Data;
-            ServerInfo serverInfo = Networking.NetworkManager.GetServerInfo();
-
-            string inviteMessage = config.InviteMessage;
-            if (!inviteMessage.Contains(DLConfig.InviteCommandLinkToken) || string.IsNullOrEmpty(serverInfo.DiscordAddress))
-                return "This server is not configured for using the /DiscordInvite command.";
-
-            inviteMessage = Regex.Replace(inviteMessage, Regex.Escape(DLConfig.InviteCommandLinkToken), serverInfo.DiscordAddress);
-            bool result = EcoUtil.SendServerMessage(inviteMessage, permanent: true);
-            if (result)
-                return "Invite sent";
-            else
-                return "Failed to send invite";
+            return sent;
         }
 
         #endregion

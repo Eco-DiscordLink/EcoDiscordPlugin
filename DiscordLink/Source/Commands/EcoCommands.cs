@@ -240,46 +240,22 @@ namespace Eco.Plugins.DiscordLink
 
         #region Invites
 
-        [ChatSubCommand("DiscordLink", "Posts the Discord invite message to the target user.", "DL-Invite", ChatAuthorizationLevel.User)]
+        [ChatSubCommand("DiscordLink", "Posts the Discord invite message to the target user. The invite will be broadcasted if no target user is specified.", "DL-Invite", ChatAuthorizationLevel.User)]
         public static void Invite(User callingUser, string targetUserName = "")
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                string result = string.Empty;
-                User targetUser = callingUser;
-                if (!string.IsNullOrEmpty(targetUserName))
-                {
-                    targetUser = UserManager.FindUserByName(targetUserName);
-                    if (targetUser != null)
-                    {
-                        result = SharedCommands.DiscordInvite(targetUser);
-                    }
-                    else
-                    {
-                        User offlineUser = EcoUtil.GetUserbyName(targetUserName);
-                        if (offlineUser != null)
-                            result = $"{MessageUtil.StripTags(offlineUser.Name)} is not online";
-                        else
-                            result = $"Could not find user with name {targetUserName}";
-                    }
-                    ChatManager.ServerMessageToPlayer(new LocString(result), callingUser);
-                }
-                else
-                {
-                    SharedCommands.DiscordInvite(targetUser);
-                }
+                SharedCommands.DiscordInvite(SharedCommands.CommandSource.Eco, callingUser, targetUserName);
             }, callingUser);
         }
 
         [ChatSubCommand("DiscordLink", "Posts the Discord invite message to the Eco chat.", "DL-BroadcastInvite", ChatAuthorizationLevel.User)]
-        public static void BroadcastInvite(User user)
+        public static void BroadcastInvite(User callingUser)
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                string result = SharedCommands.BroadcastDiscordInvite();
-                ChatManager.ServerMessageToPlayer(new LocString(result), user);
-            },
-            user);
+                SharedCommands.DiscordInvite(SharedCommands.CommandSource.Eco, callingUser, string.Empty);
+            }, callingUser);
         }
 
         #endregion

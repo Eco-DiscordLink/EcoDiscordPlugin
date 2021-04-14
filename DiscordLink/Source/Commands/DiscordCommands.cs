@@ -404,28 +404,13 @@ namespace Eco.Plugins.DiscordLink
         #region Invites
 
         [Command("Invite")]
-        [Description("Posts the Discord invite message to the target user.")]
+        [Description("Posts the Discord invite message to the target user. The invite will be broadcasted if no target user is specified.")]
         [Aliases("DL-Invite")]
         public async Task Invite(CommandContext ctx, [Description("The Eco username of the user receiving the invite")] string targetUserName)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                string result = string.Empty;
-                User targetUser = EcoUtil.GetOnlineUserbyName(targetUserName);
-                if (targetUser != null)
-                {
-                    result = SharedCommands.DiscordInvite(targetUser);
-                }
-                else
-                {
-                    User offlineUser = EcoUtil.GetUserbyName(targetUserName);
-                    if (offlineUser != null)
-                        result = $"{MessageUtil.StripTags(offlineUser.Name)} is not online";
-                    else
-                        result = $"Could not find user with name {targetUserName}";
-                }
-
-                await RespondToCommand(ctx, result);
+                SharedCommands.DiscordInvite(SharedCommands.CommandSource.Discord, ctx, targetUserName);
             }, ctx);
         }
 
@@ -434,10 +419,9 @@ namespace Eco.Plugins.DiscordLink
         [Aliases("DL-Broadcastinvite")]
         public async Task BroadcastInvite(CommandContext ctx)
         {
-            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
+            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                string result = SharedCommands.BroadcastDiscordInvite();
-                await RespondToCommand(ctx, result);
+                SharedCommands.DiscordInvite(SharedCommands.CommandSource.Discord, ctx, string.Empty);
             }, ctx);
         }
 
