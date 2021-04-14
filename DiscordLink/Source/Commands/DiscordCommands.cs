@@ -181,7 +181,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await RespondToCommand(ctx, SharedCommands.ResetWorldData());
+                SharedCommands.ResetWorldData(SharedCommands.CommandSource.Discord, ctx);
             }, ctx);
         }
 
@@ -307,7 +307,7 @@ namespace Eco.Plugins.DiscordLink
                 DiscordLinkEmbed embed = new DiscordLinkEmbed()
                 .WithTitle("Players")
                 .WithDescription(MessageBuilder.Shared.GetPlayerList());
-                await RespondToCommand(ctx, "Displaying Online Players", embed);
+                await DisplayCommandData(ctx, string.Empty, embed);
             }, ctx);
         }
 
@@ -318,7 +318,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await RespondToCommand(ctx, "", MessageBuilder.Discord.GetServerInfo(MessageBuilder.ServerInfoComponentFlag.All));
+                await DisplayCommandData(ctx, string.Empty, MessageBuilder.Discord.GetServerInfo(MessageBuilder.ServerInfoComponentFlag.All));
             }, ctx);
         }
 
@@ -335,7 +335,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await RespondToCommand(ctx, SharedCommands.SendServerMessage(message, ctx.GetSenderName(), recipientUserName, persistanceType));
+                SharedCommands.SendServerMessage(SharedCommands.CommandSource.Discord, ctx, message, recipientUserName, persistanceType);
             }, ctx);
         }
 
@@ -347,7 +347,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await RespondToCommand(ctx, SharedCommands.SendServerMessage(message, ctx.GetSenderName(), string.Empty, persistanceType));
+                SharedCommands.SendServerMessage(SharedCommands.CommandSource.Discord, ctx, message, string.Empty, persistanceType);
             }, ctx);
         }
 
@@ -359,7 +359,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await RespondToCommand(ctx, SharedCommands.SendPopup(message, ctx.GetSenderName(), recipientUserName));
+                SharedCommands.SendPopup(SharedCommands.CommandSource.Discord, ctx, message, recipientUserName);
             }, ctx);
         }
 
@@ -370,7 +370,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await RespondToCommand(ctx, SharedCommands.SendPopup(message, ctx.GetSenderName(), string.Empty));
+                SharedCommands.SendPopup(SharedCommands.CommandSource.Discord, ctx, message, string.Empty);
             }, ctx);
         }
 
@@ -383,7 +383,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await RespondToCommand(ctx, SharedCommands.SendAnnouncement(title, message, ctx.GetSenderName(), recipientUserName));
+                SharedCommands.SendAnnouncement(SharedCommands.CommandSource.Discord, ctx, title, message, recipientUserName);
             }, ctx);
         }
 
@@ -395,7 +395,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await RespondToCommand(ctx, SharedCommands.SendAnnouncement(title, message, ctx.GetSenderName(), string.Empty));
+                SharedCommands.SendAnnouncement(SharedCommands.CommandSource.Discord, ctx, title, message, string.Empty);
             }, ctx);
         }
 
@@ -437,9 +437,9 @@ namespace Eco.Plugins.DiscordLink
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
                 if (LinkedUserManager.VerifyLinkedUser(ctx.GetSenderID()))
-                    await RespondToCommand(ctx, $"Link verified");
+                    await ReportCommandInfo(ctx, $"Link verified");
                 else
-                    await RespondToCommand(ctx, $"There is no outstanding link request to verify for your account");
+                    await ReportCommandError(ctx, $"There is no outstanding link request to verify for your account");
             }, ctx);
         }
 

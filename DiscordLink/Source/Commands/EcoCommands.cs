@@ -80,7 +80,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                ChatManager.ServerMessageToPlayer(new LocString(SharedCommands.ResetWorldData()), callingUser);
+                SharedCommands.ResetWorldData(SharedCommands.CommandSource.Eco, callingUser);
             }, callingUser);
         }
 
@@ -93,7 +93,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                EcoUtil.SendAnnouncementMessage($"About DiscordLink {Plugins.DiscordLink.DiscordLink.Obj.PluginVersion}", MessageBuilder.Shared.GetAboutMessage(), callingUser);
+                DisplayCommandData(callingUser, $"About DiscordLink {Plugins.DiscordLink.DiscordLink.Obj.PluginVersion}", MessageBuilder.Shared.GetAboutMessage());
             }, callingUser);
         }
 
@@ -102,7 +102,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                EcoUtil.SendAnnouncementMessage("DiscordLink Status", MessageBuilder.Shared.GetDisplayString(verbose: false));
+                DisplayCommandData(callingUser, "DiscordLink Status", MessageBuilder.Shared.GetDisplayString(verbose: false));
             }, callingUser);
         }
 
@@ -111,7 +111,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                EcoUtil.SendAnnouncementMessage("DiscordLink Status Verbose", MessageBuilder.Shared.GetDisplayString(verbose: true));
+                DisplayCommandData(callingUser, "DiscordLink Status Verbose", MessageBuilder.Shared.GetDisplayString(verbose: true));
             }, callingUser);
         }
 
@@ -126,10 +126,9 @@ namespace Eco.Plugins.DiscordLink
             {
                 var plugin = Plugins.DiscordLink.DiscordLink.Obj;
                 if (plugin == null) return;
+                string joinedGuildNames = string.Join("\n", plugin.GuildNames);
 
-                var joinedNames = string.Join(", ", plugin.GuildNames);
-
-                ChatManager.ServerMessageToPlayer(new LocString("Servers: " + joinedNames), callingUser);
+                DisplayCommandData(callingUser, "Connected Discord Servers", joinedGuildNames);
             }, callingUser);
         }
 
@@ -147,12 +146,10 @@ namespace Eco.Plugins.DiscordLink
 
                 // Can happen if DefaultGuild is not configured.
                 if (guild == null)
-                {
-                    ChatManager.ServerMessageToPlayer(new LocString("Unable to find that guild, perhaps the name was misspelled?"), callingUser);
-                }
+                    ReportCommandError(callingUser, $"Failed to find guild with name \"{guildName}\"");
 
-                var joinedGames = string.Join(", ", guild.TextChannelNames());
-                ChatManager.ServerMessageToAll(new LocString("Channels: " + joinedGames));
+                string joinedChannelNames = string.Join("\n", guild.TextChannelNames());
+                DisplayCommandData(callingUser, "Connected Discord Servers", joinedChannelNames);
             }, callingUser);
         }
 
@@ -170,7 +167,7 @@ namespace Eco.Plugins.DiscordLink
 
                 plugin.SendDiscordMessageAsUser(outerMessage, callingUser, channel, guild).ContinueWith(result =>
                 {
-                    ChatManager.ServerMessageToPlayer(new LocString(result.Result), callingUser);
+                    ChatManager.ServerMessageToPlayer(Localizer.NotLocalizedStr(result.Result), callingUser);
                 });
             }, callingUser);
         }
@@ -180,8 +177,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                string result = SharedCommands.SendServerMessage(message, callingUser.Name, recipientUserName, persistanceType);
-                ChatManager.ServerMessageToPlayer(new LocString(result), callingUser);
+                SharedCommands.SendServerMessage(SharedCommands.CommandSource.Eco, callingUser, message, recipientUserName, persistanceType);
             }, callingUser);
         }
 
@@ -190,8 +186,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                string result = SharedCommands.SendServerMessage(message, callingUser.Name, string.Empty, persistanceType);
-                ChatManager.ServerMessageToPlayer(new LocString(result), callingUser);
+                SharedCommands.SendServerMessage(SharedCommands.CommandSource.Eco, callingUser, message, string.Empty, persistanceType);
             }, callingUser);
         }
 
@@ -201,8 +196,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                string result = SharedCommands.SendPopup(message, callingUser.Name, recipientUserName);
-                ChatManager.ServerMessageToPlayer(new LocString(result), callingUser);
+                SharedCommands.SendPopup(SharedCommands.CommandSource.Eco, callingUser, message, recipientUserName);
             }, callingUser);
         }
 
@@ -211,8 +205,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                string result = SharedCommands.SendPopup(message, callingUser.Name, string.Empty);
-                ChatManager.ServerMessageToPlayer(new LocString(result), callingUser);
+                SharedCommands.SendPopup(SharedCommands.CommandSource.Eco, callingUser, message, string.Empty);
             }, callingUser);
         }
 
@@ -221,8 +214,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                string result = SharedCommands.SendAnnouncement(title, message, callingUser.Name, recipientUserName);
-                ChatManager.ServerMessageToPlayer(new LocString(result), callingUser);
+                SharedCommands.SendAnnouncement(SharedCommands.CommandSource.Eco, callingUser, title, message, recipientUserName);
             }, callingUser);
         }
 
@@ -231,8 +223,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                string result = SharedCommands.SendAnnouncement(title, message, callingUser.Name, string.Empty);
-                ChatManager.ServerMessageToPlayer(new LocString(result), callingUser);
+                SharedCommands.SendAnnouncement(SharedCommands.CommandSource.Eco, callingUser, title, message, string.Empty);
             }, callingUser);
         }
 
@@ -272,7 +263,7 @@ namespace Eco.Plugins.DiscordLink
 
                 if (!DiscordUtil.BotHasIntent(DiscordIntents.GuildMembers))
                 {
-                    ChatManager.ServerMessageToPlayer(new LocString($"This server is not configured to use account linking as the bot lacks the elevated Guild Members Intent."), callingUser);
+                    ReportCommandError(callingUser, $"This server is not configured to use account linking as the bot lacks the elevated Guild Members Intent.");
                     return;
                 }
 
@@ -296,7 +287,7 @@ namespace Eco.Plugins.DiscordLink
 
                 if (matchingMember == null)
                 {
-                    ChatManager.ServerMessageToPlayer(new LocString($"No Discord account with the ID or name \"{discordName}\" could be found."), callingUser);
+                    ReportCommandError(callingUser, $"No Discord account with the ID or name \"{discordName}\" could be found.");
                     return;
                 }
 
@@ -306,14 +297,14 @@ namespace Eco.Plugins.DiscordLink
                     if (callingUser.SlgId == linkedUser.SlgID || callingUser.SteamId == linkedUser.SteamID)
                     {
                         if (linkedUser.DiscordID == matchingMember.Id.ToString())
-                            ChatManager.ServerMessageToPlayer(new LocString("Eco account is already linked to this Discord account.\nUse /dl-unlink to remove the existing link."), callingUser);
+                            ReportCommandInfo(callingUser, "Eco account is already linked to this Discord account.\nUse /dl-unlink to remove the existing link.");
                         else
-                            ChatManager.ServerMessageToPlayer(new LocString("Eco account is already linked to a different Discord account.\nUse /dl-unlink to remove the existing link."), callingUser);
+                            ReportCommandInfo(callingUser, "Eco account is already linked to a different Discord account.\nUse /dl-unlink to remove the existing link.");
                         return;
                     }
                     else if (linkedUser.DiscordID == matchingMember.Id.ToString())
                     {
-                        ChatManager.ServerMessageToPlayer(new LocString("Discord account is already linked to a different Eco account."), callingUser);
+                        ReportCommandError(callingUser, "Discord account is already linked to a different Eco account.");
                         return;
                     }
                 }
@@ -325,7 +316,7 @@ namespace Eco.Plugins.DiscordLink
                 _ = DiscordUtil.SendDMAsync(matchingMember, null, MessageBuilder.Discord.GetVerificationDM(callingUser));
 
                 // Notify the Eco user that the link has been created and that verification is required
-                ChatManager.ServerMessageToPlayer(new LocString($"Your account has been linked.\nThe link requires verification before becoming active.\nInstructions have been sent to the linked Discord account."), callingUser);
+                ReportCommandInfo(callingUser, $"Your account has been linked.\nThe link requires verification before becoming active.\nInstructions have been sent to the linked Discord account.");
             }, callingUser);
         }
 
@@ -336,9 +327,9 @@ namespace Eco.Plugins.DiscordLink
             {
                 bool result = LinkedUserManager.RemoveLinkedUser(callingUser);
                 if (result)
-                    ChatManager.ServerMessageToPlayer(new LocString($"Discord account unlinked."), callingUser);
+                    ReportCommandInfo(callingUser, $"Discord account unlinked.");
                 else
-                    ChatManager.ServerMessageToPlayer(new LocString($"No linked Discord account could be found."), callingUser);
+                    ReportCommandError(callingUser, $"No linked Discord account could be found.");
             }, callingUser);
         }
 
@@ -402,24 +393,23 @@ namespace Eco.Plugins.DiscordLink
                 if (plugin == null) return;
 
                 var snippets = DLStorage.Instance.Snippets;
-                string response;
                 if (string.IsNullOrWhiteSpace(snippetKey)) // List all snippets if no key is given
                 {
-                    response = (snippets.Count > 0 ? $"Available snippets:\n{string.Join("\n", snippets.Keys)}" : "There are no registered snippets.");
-                    ChatManager.ServerMessageToPlayer(new LocString(response), callingUser);
+                    if(snippets.Count > 0)
+                        DisplayCommandData(callingUser, "Snippets", string.Join("\n", snippets.Keys));
+                    else
+                        ReportCommandInfo(callingUser, "There are no registered snippets.");
                 }
                 else
                 {
                     // Find and post the snippet requested by the user
                     if (snippets.TryGetValue(snippetKey, out string snippetText))
                     {
-                        response = $"{callingUser.Name} invoked snippet \"{snippetKey}\"\n- - -\n{ snippetText}\n- - -";
-                        EcoUtil.SendServerMessage(response, permanent: true);
+                        EcoUtil.SendServerMessage($"{callingUser.Name} invoked snippet \"{snippetKey}\"\n- - -\n{snippetText}\n- - -", permanent: true);
                     }
                     else
                     {
-                        response = $"No snippet with key \"{snippetKey}\" could be found.";
-                        ChatManager.ServerMessageToPlayer(new LocString(response), callingUser);
+                        ReportCommandError(callingUser, $"No snippet with key \"{snippetKey}\" could be found.");
                     }
                 }
             }, callingUser);

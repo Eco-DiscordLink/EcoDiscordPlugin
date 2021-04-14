@@ -1,5 +1,7 @@
 ﻿using Eco.Gameplay.Components;
 using Eco.Gameplay.Items;
+﻿using DiscordLink.Extensions;
+using DSharpPlus.CommandsNext;
 using Eco.Gameplay.Players;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Networking;
@@ -54,7 +56,6 @@ namespace Eco.Plugins.DiscordLink
 
         #region Plugin Management
 
-        public static string ResetWorldData()
         public static void Restart(CommandSource source, object callContext)
         {
             DiscordLink plugin = DiscordLink.Obj;
@@ -75,76 +76,133 @@ namespace Eco.Plugins.DiscordLink
 
             Logger.Info(result);
         }
+
+        public static void ResetWorldData(CommandSource source, object callContext)
         {
             Logger.Info("ResetWorldData command invoked - Resetting world storage data");
             DLStorage.Instance.Reset();
-            return "World storage data has been reset.";
+            ReportCommandInfo(source, callContext, "World storage data has been reset.");
         }
 
         #endregion
 
         #region Message Relaying
 
-        public static string SendServerMessage(string message, string senderName, string recipientUserName, string persistanceType)
+        public static bool SendServerMessage(CommandSource source, object callContext, string message, string recipientUserName, string persistanceType)
         {
             if (string.IsNullOrWhiteSpace(message))
-                return "Message cannot be empty.";
+            {
+                ReportCommandError(source, callContext, "Message cannot be empty.");
+                return false;
+            }
 
             bool permanent;
             if (persistanceType.EqualsCaseInsensitive("temporary"))
+            {
                 permanent = true;
+            }
             else if (persistanceType.EqualsCaseInsensitive("permanent"))
+            {
                 permanent = false;
+            }
             else
-                return "Persistance type must either be \"Temporary\" or \"Permanent\".";
+            {
+                ReportCommandError(source, callContext, "Persistance type must either be \"Temporary\" or \"Permanent\".");
+                return false;
+            }
 
             User recipient = null;
             if (!string.IsNullOrWhiteSpace(recipientUserName))
             {
                 recipient = UserManager.OnlineUsers.FirstOrDefault(x => x.Name.EqualsCaseInsensitive(recipientUserName));
                 if (recipient == null)
-                    return $"No online user with the name \"{recipientUserName}\" could be found.";
+                {
+                    ReportCommandError(source, callContext, $"No online user with the name \"{recipientUserName}\" could be found.");
+                    return false;
+                }
             }
 
-            bool result = EcoUtil.SendServerMessage($"[{senderName}] {message}", permanent, recipient);
-            return result ? "Message delivered." : "Failed to send message.";
+            string senderName = source == CommandSource.Eco
+                ? (callContext as User).Name
+                : (callContext as CommandContext).Member.DisplayName;
+
+            bool sent = EcoUtil.SendServerMessage($"[{senderName}] {message}", permanent, recipient);
+            if (sent)
+                ReportCommandInfo(source, callContext, "Message delivered.");
+            else
+                ReportCommandError(source, callContext, "Failed to send message.");
+
+            return sent;
         }
 
-        public static string SendPopup(string message, string senderName, string recipientUserName)
+        public static bool SendPopup(CommandSource source, object callContext, string message, string recipientUserName)
         {
             if (string.IsNullOrWhiteSpace(message))
-                return "Message cannot be empty.";
+            {
+                ReportCommandError(source, callContext, "Message cannot be empty.");
+                return false;
+            }
 
             User recipient = null;
             if (!string.IsNullOrWhiteSpace(recipientUserName))
             {
                 recipient = UserManager.OnlineUsers.FirstOrDefault(x => x.Name.EqualsCaseInsensitive(recipientUserName));
                 if (recipient == null)
-                    return $"No online user with the name \"{recipientUserName}\" could be found.";
+                {
+                    ReportCommandError(source, callContext, $"No online user with the name \"{recipientUserName}\" could be found.");
+                    return false;
+                }
             }
 
-            bool result = EcoUtil.SendPopupMessage($"[{senderName}]\n\n{message}", recipient);
-            return result ? "Message delivered." : "Failed to send message.";
+            string senderName = source == CommandSource.Eco
+                ? (callContext as User).Name
+                : (callContext as CommandContext).Member.DisplayName;
+
+            bool sent = EcoUtil.SendPopupMessage($"[{senderName}]\n\n{message}", recipient);
+            if (sent)
+                ReportCommandInfo(source, callContext, "Message delivered.");
+            else
+                ReportCommandError(source, callContext, "Failed to send message.");
+
+            return sent;
         }
 
-        public static string SendAnnouncement(string title, string message, string senderName, string recipientUserName)
+        public static bool SendAnnouncement(CommandSource source, object callContext, string title, string message, string recipientUserName)
         {
             if (string.IsNullOrWhiteSpace(title))
-                return "Title cannot be empty";
+            {
+                ReportCommandError(source, callContext, "Title cannot be empty.");
+                return false;
+            }
 
             if (string.IsNullOrWhiteSpace(message))
-                return "Message cannot be empty";
+            {
+                ReportCommandError(source, callContext, "Message cannot be empty.");
+                return false;
+            }
 
             User recipient = null;
             if (!string.IsNullOrWhiteSpace(recipientUserName))
             {
                 recipient = UserManager.OnlineUsers.FirstOrDefault(x => x.Name.EqualsCaseInsensitive(recipientUserName));
                 if (recipient == null)
-                    return $"No online user with the name \"{recipientUserName}\" could be found.";
+                {
+                    ReportCommandError(source, callContext, $"No online user with the name \"{recipientUserName}\" could be found.");
+                    return false;
+                }
             }
 
-            bool result = EcoUtil.SendAnnouncementMessage(title, $"{message}\n\n[{senderName}]", recipient);
-            return result ? "Message delivered." : "Failed to send message.";
+            string senderName = source == CommandSource.Eco
+                ? (callContext as User).Name
+                : (callContext as CommandContext).Member.DisplayName;
+
+            bool sent = EcoUtil.SendAnnouncementMessage(title, $"{message}\n\n[{senderName}]", recipient);
+            if (sent)
+                ReportCommandInfo(source, callContext, "Message delivered.");
+            else
+                ReportCommandError(source, callContext, "Failed to send message.");
+
+            return sent;
         }
 
         #endregion
