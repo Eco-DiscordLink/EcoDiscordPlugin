@@ -71,12 +71,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                DiscordLink plugin = Plugins.DiscordLink.DiscordLink.Obj;
-                Logger.Info("Restart command executed - Restarting");
-                bool restarted = plugin.RestartClient().Result;
-                string result = restarted ? "Restarting..." : "Restart failed or a restart was already in progress";
-                Logger.Info(result);
-                ChatManager.ServerMessageToPlayer(new LocString(result), callingUser);
+                SharedCommands.Restart(SharedCommands.CommandSource.Eco, callingUser);
             }, callingUser);
         }
 

@@ -55,6 +55,26 @@ namespace Eco.Plugins.DiscordLink
         #region Plugin Management
 
         public static string ResetWorldData()
+        public static void Restart(CommandSource source, object callContext)
+        {
+            DiscordLink plugin = DiscordLink.Obj;
+            Logger.Info("Restart command executed - Restarting");
+            bool restarted = plugin.RestartClient().Result;
+
+            string result;
+            if (restarted)
+            {
+                result = "Restarting...";
+                ReportCommandInfo(source, callContext, result);
+            }
+            else
+            {
+                result = "Restart failed or a restart was already in progress";
+                ReportCommandError(source, callContext, result);
+            }
+
+            Logger.Info(result);
+        }
         {
             Logger.Info("ResetWorldData command invoked - Resetting world storage data");
             DLStorage.Instance.Reset();

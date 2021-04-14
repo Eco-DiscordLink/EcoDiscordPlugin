@@ -170,11 +170,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                DiscordLink plugin = DiscordLink.Obj;
-                string result = plugin.CanRestart ? "Restarting..." : "Restarting is not possible at this time";
-                Logger.Info($"Restart command executed - {result}");
-                await RespondToCommand(ctx, result);
-                await plugin.RestartClient();
+                SharedCommands.Restart(SharedCommands.CommandSource.Discord, ctx);
             }, ctx);
         }
 
