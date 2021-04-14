@@ -5,6 +5,8 @@ using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
+using Eco.Plugins.DiscordLink.Utilities;
+using Eco.Shared.Utils;
 
 namespace Eco.Plugins.DiscordLink
 {
@@ -29,6 +31,14 @@ namespace Eco.Plugins.DiscordLink
         #endregion
 
         #region DiscordGuild
+
+        public static bool HasNameOrID(this DiscordGuild guild, string nameOrID)
+        {
+            if (DiscordUtil.TryParseSnowflakeID(nameOrID, out ulong ID))
+                return guild.Id == ID;
+
+            return guild.Name.EqualsCaseInsensitive(nameOrID);
+        }
 
         public static string[] TextChannelNames(this DiscordGuild guild)
         {
@@ -61,6 +71,16 @@ namespace Eco.Plugins.DiscordLink
             catch (NotFoundException) { return null; }
         }
         
+        #region DiscordChannel
+
+        public static bool HasNameOrID(this DiscordChannel channel, string nameOrID)
+        {
+            if (DiscordUtil.TryParseSnowflakeID(nameOrID, out ulong ID))
+                return channel.Id == ID;
+
+            return channel.Name.EqualsCaseInsensitive(nameOrID);
+        }
+
         #endregion
 
         #region DiscordClient
@@ -87,6 +107,38 @@ namespace Eco.Plugins.DiscordLink
         public static string UniqueUsername(this DiscordUser user)
         {
             return user.Username + user.Discriminator;
+        }
+
+        public static bool HasNameOrID(this DiscordUser user, string nameOrID)
+        {
+            if (DiscordUtil.TryParseSnowflakeID(nameOrID, out ulong ID))
+                return user.Id == ID;
+
+            return user.Username.EqualsCaseInsensitive(nameOrID);
+        }
+
+        #endregion
+
+        #region DiscordMember
+
+        public static bool HasNameOrID(this DiscordMember member, string nameOrID)
+        {
+            if (DiscordUtil.TryParseSnowflakeID(nameOrID, out ulong ID))
+                return member.Id == ID;
+
+            return member.Username.EqualsCaseInsensitive(nameOrID);
+        }
+
+        #endregion
+
+        #region DiscordRole
+
+        public static bool HasNameOrID(this DiscordRole role, string nameOrID)
+        {
+            if (DiscordUtil.TryParseSnowflakeID(nameOrID, out ulong roleID))
+                return role.Id == roleID;
+
+            return role.Name.EqualsCaseInsensitive(nameOrID);
         }
 
         #endregion

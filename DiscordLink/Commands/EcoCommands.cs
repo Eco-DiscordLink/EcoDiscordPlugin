@@ -295,7 +295,7 @@ namespace Eco.Plugins.DiscordLink
 
                     foreach (DiscordMember member in guildMembers)
                     {
-                        if (member.Id.ToString() == discordName || member.Username.ToLower() == discordName.ToLower())
+                        if (member.HasNameOrID(discordName))
                         {
                             matchingMember = member;
                             break;
