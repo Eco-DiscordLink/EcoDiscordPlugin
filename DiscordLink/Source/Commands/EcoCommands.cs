@@ -127,7 +127,6 @@ namespace Eco.Plugins.DiscordLink
             ExecuteCommand<object>((lUser, args) =>
             {
                 var plugin = Plugins.DiscordLink.DiscordLink.Obj;
-                if (plugin == null) return;
                 string joinedGuildNames = string.Join("\n", plugin.GuildNames);
 
                 DisplayCommandData(callingUser, "Connected Discord Servers", joinedGuildNames);
@@ -140,7 +139,6 @@ namespace Eco.Plugins.DiscordLink
             ExecuteCommand<object>((lUser, args) =>
             {
                 var plugin = Plugins.DiscordLink.DiscordLink.Obj;
-                if (plugin == null) return;
 
                 var guild = string.IsNullOrEmpty(guildName)
                     ? plugin.DefaultGuild
@@ -165,7 +163,6 @@ namespace Eco.Plugins.DiscordLink
             ExecuteCommand<object>((lUser, args) =>
             {
                 var plugin = Plugins.DiscordLink.DiscordLink.Obj;
-                if (plugin == null) return;
 
                 plugin.SendDiscordMessageAsUser(outerMessage, callingUser, channel, guild).ContinueWith(result =>
                 {
@@ -261,7 +258,6 @@ namespace Eco.Plugins.DiscordLink
             ExecuteCommand<object>((lUser, args) =>
             {
                 var plugin = Plugins.DiscordLink.DiscordLink.Obj;
-                if (plugin == null) return;
 
                 if (!DiscordUtil.BotHasIntent(DiscordIntents.GuildMembers))
                 {
@@ -392,7 +388,6 @@ namespace Eco.Plugins.DiscordLink
             ExecuteCommand<object>((lUser, args) =>
             {
                 var plugin = Plugins.DiscordLink.DiscordLink.Obj;
-                if (plugin == null) return;
 
                 var snippets = DLStorage.Instance.Snippets;
                 if (string.IsNullOrWhiteSpace(snippetKey)) // List all snippets if no key is given

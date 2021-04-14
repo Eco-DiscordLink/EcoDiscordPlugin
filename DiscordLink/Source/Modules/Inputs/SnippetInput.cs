@@ -74,7 +74,6 @@ namespace Eco.Plugins.DiscordLink.Modules
         private async Task ReloadSnippets()
         {
             DiscordLink plugin = DiscordLink.Obj;
-            if (plugin == null) return;
             foreach (ChannelLink snippetChannel in DLConfig.Data.SnippetInputChannels)
             {
                 // Fetch the channel and validate permissions

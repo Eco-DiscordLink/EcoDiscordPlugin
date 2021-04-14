@@ -243,10 +243,6 @@ namespace Eco.Plugins.DiscordLink
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
                 var plugin = DiscordLink.Obj;
-                if (plugin == null)
-                {
-                    return;
-                }
 
                 if (string.IsNullOrWhiteSpace(message))
                 {

@@ -280,7 +280,6 @@ namespace Eco.Plugins.DiscordLink.Utilities
             public static DiscordLinkEmbed GetServerInfo(ServerInfoComponentFlag flag)
             {
                 var plugin = DiscordLink.Obj;
-                if (plugin == null) return null;
 
                 DLConfigData config = DLConfig.Data;
                 ServerInfo serverInfo = NetworkManager.GetServerInfo();

@@ -112,8 +112,6 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         public virtual async Task Update(DiscordLink plugin, DLEventType trigger, params object[] data)
         {
-            if (plugin == null) return;
-
             // Check if this module should execute on the supplied trigger
             if ((GetTriggers() & trigger) == 0) return;
 
