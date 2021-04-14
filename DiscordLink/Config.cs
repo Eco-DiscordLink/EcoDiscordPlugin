@@ -1,6 +1,7 @@
 ﻿using DSharpPlus.CommandsNext.Attributes;
 using Eco.Core.Plugins;
 using Eco.Plugins.DiscordLink.Utilities;
+using Eco.Shared.Utils;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -136,14 +137,12 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
-        public ChatChannelLink GetChannelLinkFromDiscordChannel(string guild, string channelName)
+        public ChatChannelLink GetChannelLinkFromDiscordChannel(string guildName, string channelName)
         {
             foreach (ChatChannelLink channelLink in Data.ChatChannelLinks)
             {
-                if (channelLink.DiscordGuild.ToLower() == guild.ToLower() && channelLink.DiscordChannel.ToLower() == channelName.ToLower())
-                {
+                if (channelLink.DiscordGuild.EqualsCaseInsensitive(guildName) && channelLink.DiscordChannel.EqualsCaseInsensitive(channelName))
                     return channelLink;
-                }
             }
             return null;
         }
@@ -152,10 +151,8 @@ namespace Eco.Plugins.DiscordLink
         {
             foreach (ChatChannelLink channelLink in Data.ChatChannelLinks)
             {
-                if (channelLink.EcoChannel.ToLower() == channelName.ToLower())
-                {
+                if (channelLink.EcoChannel.EqualsCaseInsensitive(channelName))
                     return channelLink;
-                }
             }
             return null;
         }

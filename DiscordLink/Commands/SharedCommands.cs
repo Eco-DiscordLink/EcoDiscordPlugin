@@ -39,10 +39,9 @@ namespace Eco.Plugins.DiscordLink
                 return "Message cannot be empty.";
 
             bool permanent;
-            string persistanceTypeLower = persistanceType.ToLower();
-            if (persistanceTypeLower == "temporary")
+            if (persistanceType.EqualsCaseInsensitive("temporary"))
                 permanent = true;
-            else if (persistanceTypeLower == "permanent")
+            else if (persistanceType.EqualsCaseInsensitive("permanent"))
                 permanent = false;
             else
                 return "Persistance type must either be \"Temporary\" or \"Permanent\".";
@@ -50,7 +49,7 @@ namespace Eco.Plugins.DiscordLink
             User recipient = null;
             if (!string.IsNullOrWhiteSpace(recipientUserName))
             {
-                recipient = UserManager.OnlineUsers.FirstOrDefault(x => x.Name.ToLower() == recipientUserName);
+                recipient = UserManager.OnlineUsers.FirstOrDefault(x => x.Name.EqualsCaseInsensitive(recipientUserName));
                 if (recipient == null)
                     return "No online user with the name \"" + recipientUserName + "\" could be found.";
             }
@@ -70,7 +69,7 @@ namespace Eco.Plugins.DiscordLink
             User recipient = null;
             if (!string.IsNullOrWhiteSpace(recipientUserName))
             {
-                recipient = UserManager.OnlineUsers.FirstOrDefault(x => x.Name.ToLower() == recipientUserName);
+                recipient = UserManager.OnlineUsers.FirstOrDefault(x => x.Name.EqualsCaseInsensitive(recipientUserName));
                 if (recipient == null)
                     return "No online user with the name \"" + recipientUserName + "\" could be found.";
             }
@@ -93,7 +92,7 @@ namespace Eco.Plugins.DiscordLink
             User recipient = null;
             if (!string.IsNullOrWhiteSpace(recipientUserName))
             {
-                recipient = UserManager.OnlineUsers.FirstOrDefault(x => x.Name.ToLower() == recipientUserName);
+                recipient = UserManager.OnlineUsers.FirstOrDefault(x => x.Name.EqualsCaseInsensitive(recipientUserName));
                 if (recipient == null)
                     return "No online user with the name \"" + recipientUserName + "\" could be found.";
             }

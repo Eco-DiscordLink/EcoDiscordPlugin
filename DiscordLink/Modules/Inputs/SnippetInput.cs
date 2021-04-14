@@ -94,7 +94,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                     Match match = MessageUtil.SnippetRegex.Match(channelMessage.Content);
                     if (match.Groups.Count == 3)
                     {
-                        string key = match.Groups[1].Value.ToLower();
+                        string key = match.Groups[1].Value;
                         string content = match.Groups[2].Value;
                         var snippets = DLStorage.Instance.Snippets;
                         if (!snippets.ContainsKey(key))

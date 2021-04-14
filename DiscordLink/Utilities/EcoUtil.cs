@@ -3,6 +3,7 @@ using Eco.Gameplay.Civics;
 using Eco.Gameplay.Civics.Elections;
 using Eco.Gameplay.Civics.Laws;
 using Eco.Gameplay.Players;
+using Eco.Shared.Utils;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -14,16 +15,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
         public static IEnumerable<Election> ActiveElections => ElectionManager.Obj.CurrentElections.Where(x => x.Valid() && x.State == Shared.Items.ProposableState.Active);
         public static IEnumerable<Law> ActiveLaws => CivicsData.Obj.Laws.All<Law>().Where(x => x.State == Shared.Items.ProposableState.Active);
 
-        public static User GetUserbyName(string targetUserName)
-        {
-            return UserManager.FindUserByName(targetUserName);
-        }
-
-        public static User GetOnlineUserbyName(string targetUserName)
-        {
-            string lowerTargetUserName = targetUserName.ToLower();
-            return UserManager.OnlineUsers.FirstOrDefault(user => user.Name.ToLower() == lowerTargetUserName);
-        }
+        public static User GetUserbyName(string targetUserName) => UserManager.FindUserByName(targetUserName);
+        public static User GetOnlineUserbyName(string targetUserName) => UserManager.OnlineUsers.FirstOrDefault(user => user.Name.EqualsCaseInsensitive(targetUserName));
 
         public static bool SendServerMessage(string message, bool permanent = false, User user = null )
         {

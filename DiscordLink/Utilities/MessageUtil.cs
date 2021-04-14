@@ -205,10 +205,10 @@ namespace Eco.Plugins.DiscordLink.Utilities
         {
             return DiscordMentionRegex.Replace(message, capture =>
             {
-                string match = capture.ToString().Substring(1).ToLower(); // Strip the mention character from the match
+                string match = capture.ToString().Substring(1); // Strip the mention character from the match
                 string FormatMention(string name, string mention)
                 {
-                    if (match == name)
+                    if (name.EqualsCaseInsensitive(match))
                         return mention;
 
                     string beforeMatch = "";
@@ -238,8 +238,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
                         {
                             if (!role.IsMentionable) continue;
 
-                            string name = role.Name.ToLower();
-                            if (match.Contains(name))
+                            string name = role.Name;
+                            if (match.ContainsCaseInsensitive(name))
                             {
                                 return FormatMention(name, role.Mention);
                             }
@@ -250,8 +250,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     {
                         foreach (var member in channel.Guild.Members.Values)
                         {
-                            string name = member.DisplayName.ToLower();
-                            if (match.Contains(name))
+                            string name = member.DisplayName;
+                            if (match.ContainsCaseInsensitive(name))
                             {
                                 return FormatMention(name, member.Mention);
                             }
@@ -262,8 +262,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 {
                     foreach (var listChannel in channel.Guild.Channels.Values)
                     {
-                        string name = listChannel.Name.ToLower();
-                        if (match.Contains(name))
+                        string name = listChannel.Name;
+                        if (match.ContainsCaseInsensitive(name))
                         {
                             return FormatMention(name, listChannel.Mention);
                         }

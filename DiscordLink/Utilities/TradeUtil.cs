@@ -5,6 +5,7 @@ using Eco.Gameplay.Components;
 using Eco.Gameplay.Items;
 using Eco.Gameplay.Objects;
 using Eco.Gameplay.Players;
+using Eco.Shared.Utils;
 
 namespace Eco.Plugins.DiscordLink.Utilities
 {
@@ -30,15 +31,13 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         public static List<Either<Item, User, Tag>> UserLookup => UserManager.Users.Select(user => new Either<Item, User, Tag>(user)).ToList();
 
-        public static T BestMatchOrDefault<T>(string rawQuery, IEnumerable<T> lookup, Func<T, string> getKey)
+        public static T BestMatchOrDefault<T>(string query, IEnumerable<T> lookup, Func<T, string> getKey)
         {
-            var query = rawQuery.ToLower();
-            var orderedAndKeyed = lookup.Select(t => Tuple.Create(getKey(t).ToLower(), t)).OrderBy(t => t.Item1);
-
+            var orderedAndKeyed = lookup.Select(t => Tuple.Create(getKey(t), t)).OrderBy(t => t.Item1);
             var matches = new List<Predicate<string>> {
                 k => k == query,
-                k => k.StartsWith(query),
-                k => k.Contains(query)
+                k => k.StartWithCaseInsensitive(query),
+                k => k.ContainsCaseInsensitive(query)
             };
 
             foreach (var matcher in matches)

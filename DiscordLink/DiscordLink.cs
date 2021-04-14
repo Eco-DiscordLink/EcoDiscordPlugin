@@ -401,9 +401,9 @@ namespace Eco.Plugins.DiscordLink
         public string[] GuildNames => DiscordClient.GuildNames();
         public DiscordGuild DefaultGuild => DiscordClient.DefaultGuild();
 
-        public DiscordGuild GuildByName(string name)
+        public DiscordGuild GuildByName(string guildName)
         {
-            return DiscordClient?.Guilds.Values.FirstOrDefault(guild => guild.Name?.ToLower() == name.ToLower());
+            return DiscordClient?.Guilds.Values.FirstOrDefault(guild => (bool)(guild.Name?.EqualsCaseInsensitive(guildName)));
         }
 
         public DiscordGuild GuildByNameOrID(string guildNameOrId)
@@ -474,15 +474,14 @@ namespace Eco.Plugins.DiscordLink
             Logger.Debug("Relaying stopped");
         }
 
-        public ChatChannelLink GetLinkForEcoChannel(string discordChannelNameOrId)
+        public ChatChannelLink GetLinkForEcoChannel(string discordChannelNameOrID)
         {
-            return DLConfig.Data.ChatChannelLinks.FirstOrDefault(link => link.DiscordChannel == discordChannelNameOrId);
+            return DLConfig.Data.ChatChannelLinks.FirstOrDefault(link => link.DiscordChannel.EqualsCaseInsensitive(discordChannelNameOrID));
         }
 
         public ChatChannelLink GetLinkForDiscordChannel(string ecoChannelName)
         {
-            var lowercaseEcoChannelName = ecoChannelName.ToLower();
-            return DLConfig.Data.ChatChannelLinks.FirstOrDefault(link => link.EcoChannel.ToLower() == lowercaseEcoChannelName);
+            return DLConfig.Data.ChatChannelLinks.FirstOrDefault(link => link.EcoChannel.EqualsCaseInsensitive(ecoChannelName));
         }
 
         public void LogEcoMessage(ChatSent chatMessage)

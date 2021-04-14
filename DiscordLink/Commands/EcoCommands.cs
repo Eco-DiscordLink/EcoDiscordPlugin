@@ -476,8 +476,7 @@ namespace Eco.Plugins.DiscordLink
                 else
                 {
                     // Find and post the snippet requested by the user
-                    string snippetKeyLower = snippetKey.ToLower();
-                    if (snippets.TryGetValue(snippetKeyLower, out string snippetText))
+                    if (snippets.TryGetValue(snippetKey, out string snippetText))
                     {
                         response = $"{callingUser.Name} invoked snippet \"{snippetKey}\"\n- - -\n{ snippetText}\n- - -";
                         EcoUtil.SendServerMessage(response, permanent: true);

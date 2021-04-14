@@ -18,7 +18,7 @@ namespace Eco.Plugins.DiscordLink
         public static PersistantStorageData PersistentData { get; private set; } = new PersistantStorageData();
         public static WorldStorageData WorldData { get; private set; } = new WorldStorageData();
 
-        public Dictionary<string, string> Snippets = new Dictionary<string, string>();
+        public Dictionary<string, string> Snippets = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
 
         public delegate Task OnTrackedTradeChangedDelegate(object sender, EventArgs e, string tradeItem);
         public static event OnTrackedTradeChangedDelegate TrackedTradeAdded;
