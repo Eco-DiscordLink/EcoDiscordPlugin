@@ -112,6 +112,38 @@ namespace Eco.Plugins.DiscordLink
 
             return correctionMade;
         }
+
+        public bool IsGuild(DiscordGuild guild)
+        {
+            if (ulong.TryParse(DiscordGuild, out ulong guildID))
+                return guildID == guild.Id;
+
+            return DiscordGuild.EqualsCaseInsensitive(guild.Name);
+        }
+
+        public bool IsChannel(DiscordChannel channel)
+        {
+            if (ulong.TryParse(DiscordChannel, out ulong channelID))
+                return channelID == channel.Id;
+
+            return DiscordChannel.EqualsCaseInsensitive(channel.Name);
+        }
+
+        public bool HasGuildNameOrID(string guildNameOrID)
+        {
+            if (ulong.TryParse(DiscordGuild, out ulong guildID) && ulong.TryParse(guildNameOrID, out ulong guildIDParam))
+                return guildID == guildIDParam;
+
+            return DiscordChannel.EqualsCaseInsensitive(guildNameOrID);
+        }
+
+        public bool HasChannelNameOrID(string channelNameOrID)
+        {
+            if (ulong.TryParse(DiscordChannel, out ulong channelID) && ulong.TryParse(channelNameOrID, out ulong channelIDParam))
+                return channelID == channelIDParam;
+
+            return DiscordChannel.EqualsCaseInsensitive(channelNameOrID);
+        }
     }
 
     public class EcoChannelLink : ChannelLink

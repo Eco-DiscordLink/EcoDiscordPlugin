@@ -125,26 +125,13 @@ namespace Eco.Plugins.DiscordLink
         {
             var commandChannels = DLConfig.Data.DiscordCommandChannels;
             bool allowed = ctx.Channel.IsPrivate || !(commandChannels.Any(link => link.IsValid())); // Always allow if there are no valid command channels or the command is sent via DM
-            if(!allowed)
-            {
-                foreach(string adminRole in DLConfig.Data.AdminRoles)
-                {
-                    if (ctx.Member.Roles.Any(role => role.Name.ToLower() == adminRole.ToLower()))
-                    {
-                        allowed = true;
-                        break;
-                    }
-                }
-            }
 
             // Check if the discord channel used is listed as a command channel
             if (!allowed)
             {
-                string channelNameLower = ctx.Channel.Name.ToLower();
-                string channelIDLower = ctx.Channel.Id.ToString();
                 foreach (ChannelLink link in commandChannels)
                 {
-                    if (channelNameLower == link.DiscordChannel || channelIDLower == link.DiscordChannel)
+                    if (link.IsChannel(ctx.Channel))
                     {
                         allowed = true;
                         break;
