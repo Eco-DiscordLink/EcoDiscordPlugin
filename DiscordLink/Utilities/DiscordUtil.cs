@@ -1,6 +1,7 @@
 ﻿using DiscordLink.Extensions;
 using DSharpPlus;
 using DSharpPlus.Entities;
+using Eco.Shared.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,6 +28,20 @@ namespace Eco.Plugins.DiscordLink.Utilities
         public static bool BotHasIntent(DiscordIntents intent)
         {
             return (DiscordLink.Obj.DiscordClient.Intents & intent) != 0;
+        }
+
+        public static bool MemberIsAdmin(DiscordMember member)
+        {
+            foreach (string adminRole in DLConfig.Data.AdminRoles)
+            {
+                if (ulong.TryParse(adminRole, out ulong adminRoleID) && member.Roles.Any(role => role.Id == adminRoleID))
+                    return true;
+
+                if (member.Roles.Any(role => role.Name.EqualsCaseInsensitive(adminRole)))
+                    return true;
+            }
+
+            return false;
         }
 
         public static async Task SendAsync(DiscordChannel channel, string textContent, DiscordLinkEmbed embedContent = null)

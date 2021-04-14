@@ -116,12 +116,7 @@ namespace Eco.Plugins.DiscordLink
                     return true;
 
                 case PermissionType.Admin:
-                    foreach(string adminRole in DLConfig.Data.AdminRoles)
-                    {
-                        if (ctx.Member.Roles.Any(role => role.Name.ToLower() == adminRole.ToLower()))
-                            return true;
-                    }
-                break;
+                    return DiscordUtil.MemberIsAdmin(ctx.Member);
             }
             return false;
         }
