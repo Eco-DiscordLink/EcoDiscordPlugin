@@ -7,6 +7,8 @@ using Eco.Gameplay.Objects;
 using Eco.Gameplay.Players;
 using Eco.Shared.Utils;
 
+using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
+
 namespace Eco.Plugins.DiscordLink.Utilities
 {
     public enum TradeTargetType
@@ -52,10 +54,19 @@ namespace Eco.Plugins.DiscordLink.Utilities
             return default;
         }
 
-        public static Either<Item, User, Tag> MatchType(string name)
+        public static IEnumerable<StoreComponent> Stores => WorldObjectUtil.AllObjsWithComponent<StoreComponent>();
+
+        public static string StoreCurrencyName(StoreComponent store)
         {
+            return MessageUtil.StripTags(store.CurrencyName);
+        }
+
+        public static string GetMatchAndOffers(string searchName, out TradeTargetType offerType, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers)
+        {
+            List<string> entries = new List<string>();
+
             var lookup = ItemLookup.Concat(TagLookup).Concat(UserManager.Users.Select(user => new Either<Item, User, Tag>(user)));
-            return BestMatchOrDefault(name, lookup, o =>
+            var match = BestMatchOrDefault(searchName, lookup, o =>
             {
                 if (o.Is<Tag>())
                     return o.Get<Tag>().DisplayName;
@@ -66,13 +77,46 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 else
                     return string.Empty;
             });
-        }
 
-        public static IEnumerable<StoreComponent> Stores => WorldObjectUtil.AllObjsWithComponent<StoreComponent>();
+            string matchedName = string.Empty;
+            offerType = TradeTargetType.Invalid;
+            groupedBuyOffers = null;
+            groupedSellOffers = null;
+            if (match.Is<Tag>())
+            {
+                var matchTag = match.Get<Tag>();
+                matchedName = matchTag.Name;
 
-        public static string StoreCurrencyName(StoreComponent store)
-        {
-            return MessageUtil.StripTags(store.CurrencyName);
+                bool filter(StoreComponent store, TradeOffer offer) => offer.Stack.Item.Tags().Contains(matchTag);
+                groupedSellOffers = SellOffers(filter).GroupBy(t => StoreCurrencyName(t.Item1)).OrderBy(g => g.Key);
+                groupedBuyOffers = BuyOffers(filter).GroupBy(t => StoreCurrencyName(t.Item1)).OrderBy(g => g.Key);
+
+                offerType = TradeTargetType.Tag;
+            }
+            else if (match.Is<Item>())
+            {
+                var matchItem = match.Get<Item>();
+                matchedName = matchItem.DisplayName;
+
+                bool filter(StoreComponent store, TradeOffer offer) => offer.Stack.Item == matchItem;
+                groupedSellOffers = SellOffers(filter).GroupBy(t => StoreCurrencyName(t.Item1)).OrderBy(g => g.Key);
+                groupedBuyOffers = BuyOffers(filter).GroupBy(t => StoreCurrencyName(t.Item1)).OrderBy(g => g.Key);
+
+                offerType = TradeTargetType.Item;
+            }
+            else if (match.Is<User>())
+            {
+                var matchUser = match.Get<User>();
+                matchedName = matchUser.Name;
+
+                bool filter(StoreComponent store, TradeOffer offer) => store.Parent.Owners == matchUser;
+                groupedSellOffers = SellOffers(filter).GroupBy(t => StoreCurrencyName(t.Item1)).OrderBy(g => g.Key);
+                groupedBuyOffers = BuyOffers(filter).GroupBy(t => StoreCurrencyName(t.Item1)).OrderBy(g => g.Key);
+
+                offerType = TradeTargetType.User;
+            }
+
+            return matchedName;
         }
 
         public static IEnumerable<Tuple<StoreComponent, TradeOffer>>

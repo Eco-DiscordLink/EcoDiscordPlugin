@@ -73,11 +73,11 @@ namespace Eco.Plugins.DiscordLink.Modules
             List<string> trackedTrades = DLStorage.WorldData.PlayerTrackedTrades[(target as UserLink).Member.Id];
             foreach(string trade in trackedTrades)
             {
-                string result = SharedCommands.Trades(trade, out string matchedName, out TradeTargetType tradeType, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
-                if (!string.IsNullOrEmpty(result))
-                    continue; // There was an error
+                string matchedName = TradeUtil.GetMatchAndOffers(trade, out TradeTargetType offerType, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
+                if (offerType == TradeTargetType.Invalid)
+                    continue; // There was no match
 
-                MessageBuilder.Discord.FormatTrades(matchedName, tradeType, groupedBuyOffers, groupedSellOffers, out DiscordLinkEmbed embedContent);
+                MessageBuilder.Discord.FormatTrades(matchedName, offerType, groupedBuyOffers, groupedSellOffers, out DiscordLinkEmbed embedContent);
                 tagAndContent.Add(new Tuple<string, DiscordLinkEmbed>($"{BaseTag} [{matchedName}]", embedContent));
             }
         }

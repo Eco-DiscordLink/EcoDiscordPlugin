@@ -169,65 +169,109 @@ namespace Eco.Plugins.DiscordLink
 
         #region Trades
 
-        public static string Trades(string searchName, out string matchedName, out TradeTargetType tradeType, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers)
+        public static bool Trades(CommandSource source, object callContext, string searchName, out string matchedName)
         {
-            var plugin = DiscordLink.Obj;
             matchedName = string.Empty;
-            groupedBuyOffers = null;
-            groupedSellOffers = null;
-            tradeType = TradeTargetType.Invalid;
 
-            if (string.IsNullOrEmpty(searchName))
-                return "Please provide the name of an item, a tag or a player to search for.";
-
-            List<string> entries = new List<string>();
-            var match = TradeUtil.MatchType(searchName);
-
-            if (match.Is<Tag>())
+            if (string.IsNullOrWhiteSpace(searchName))
             {
-                var matchTag = match.Get<Tag>();
-                matchedName = matchTag.Name;
-
-                bool filter(StoreComponent store, TradeOffer offer) => offer.Stack.Item.Tags().Contains(matchTag);
-                var sellOffers = TradeUtil.SellOffers(filter);
-                groupedSellOffers = sellOffers.GroupBy(t => TradeUtil.StoreCurrencyName(t.Item1)).OrderBy(g => g.Key);
-                var buyOffers = TradeUtil.BuyOffers(filter);
-                groupedBuyOffers = buyOffers.GroupBy(t => TradeUtil.StoreCurrencyName(t.Item1)).OrderBy(g => g.Key);
-
-                tradeType = TradeTargetType.Tag;
+                ReportCommandInfo(source, callContext, "Please provide the name of an item, a tag or a player to search for.");
+                return false;
             }
-            else if (match.Is<Item>())
+
+            matchedName = TradeUtil.GetMatchAndOffers(searchName, out TradeTargetType offerType, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
+            if(offerType == TradeTargetType.Invalid)
             {
-                var matchItem = match.Get<Item>();
-                matchedName = matchItem.DisplayName;
-
-                bool filter(StoreComponent store, TradeOffer offer) => offer.Stack.Item == matchItem;
-                var sellOffers = TradeUtil.SellOffers(filter);
-                groupedSellOffers = sellOffers.GroupBy(t => TradeUtil.StoreCurrencyName(t.Item1)).OrderBy(g => g.Key);
-                var buyOffers = TradeUtil.BuyOffers(filter);
-                groupedBuyOffers = buyOffers.GroupBy(t => TradeUtil.StoreCurrencyName(t.Item1)).OrderBy(g => g.Key);
-
-                tradeType = TradeTargetType.Item;
+                ReportCommandError(source, callContext, $"No item, tag or player with the name \"{searchName}\" could be found.");
+                return false;
             }
-            else if (match.Is<User>())
+
+            if(source == CommandSource.Eco)
             {
-                var matchUser = match.Get<User>();
-                matchedName = matchUser.Name;
-
-                bool filter(StoreComponent store, TradeOffer offer) => store.Parent.Owners == matchUser;
-                var sellOffers = TradeUtil.SellOffers(filter);
-                groupedSellOffers = sellOffers.GroupBy(t => TradeUtil.StoreCurrencyName(t.Item1)).OrderBy(g => g.Key);
-                var buyOffers = TradeUtil.BuyOffers(filter);
-                groupedBuyOffers = buyOffers.GroupBy(t => TradeUtil.StoreCurrencyName(t.Item1)).OrderBy(g => g.Key);
-
-                tradeType = TradeTargetType.User;
+                MessageBuilder.Eco.FormatTrades(offerType, groupedBuyOffers, groupedSellOffers, out string message);
+                DisplayCommandData(source, callContext, matchedName, message);
             }
             else
             {
-                return $"No item, tag or player with the name \"{searchName}\" could be found.";
+                MessageBuilder.Discord.FormatTrades(matchedName, offerType, groupedBuyOffers, groupedSellOffers, out DiscordLinkEmbed embed );
+                DisplayCommandData(source, callContext, matchedName, embed);
             }
 
-            return string.Empty;
+            return true;
+        }
+
+        public static bool TrackTrades(CommandSource source, object callContext, string userOrItemName)
+        {
+            LinkedUser linkedUser = source == CommandSource.Eco
+                ? LinkedUserManager.LinkedUserByEcoUser(callContext as User)
+                : LinkedUserManager.LinkedUserByDiscordID((callContext as CommandContext).Member.Id);
+            if (linkedUser == null)
+            {
+                ReportCommandError(source, callContext, $"You have not linked your Discord Account to DiscordLink on this Eco Server.\nUse the `\\dl-link` command to initialize account linking.");
+                return false;
+            }
+
+            int trackedTradesCount = DLStorage.WorldData.GetTrackedTradesCountForUser(ulong.Parse(linkedUser.DiscordID));
+            if (trackedTradesCount >= DLConfig.Data.MaxTrackedTradesPerUser)
+            {
+                ReportCommandError(source, callContext, $"You are already tracking {trackedTradesCount} trades and the limit is {DLConfig.Data.MaxTrackedTradesPerUser} tracked trades per user.\nUse the `\\dl-StopTrackTrades` command to remove a tracked trade to make space if you wish to add a new one.");
+                return false;
+            }
+
+            // Fetch trade data using the trades command once to see that the command parameters are valid and get the name of the matched target
+            if (!Trades(source, callContext, userOrItemName, out string matchedName))
+                return false;
+
+            bool added = DLStorage.WorldData.AddTrackedTradeItem(ulong.Parse(linkedUser.DiscordID), matchedName).Result;
+            if (added)
+            {
+                ReportCommandInfo(source, callContext, $"Tracking all trades for {matchedName}.");
+                return true;
+            }
+            else
+            {
+                ReportCommandError(source, callContext, $"Failed to start tracking trades for {matchedName}.");
+                return false;
+            }
+        }
+
+        public static bool StopTrackTrades(CommandSource source, object callContext, string userOrItemName)
+        {
+            LinkedUser linkedUser = source == CommandSource.Eco
+                ? LinkedUserManager.LinkedUserByEcoUser(callContext as User)
+                : LinkedUserManager.LinkedUserByDiscordID((callContext as CommandContext).Member.Id);
+            if (linkedUser == null)
+            {
+                ReportCommandError(source, callContext, $"You have not linked your Discord Account to DiscordLink on this Eco Server.\nLog into the game and use the `\\dl-link` command to initialize account linking.");
+                return false;
+            }
+
+            bool removed = DLStorage.WorldData.RemoveTrackedTradeItem(ulong.Parse(linkedUser.DiscordID), userOrItemName).Result;
+            if (removed)
+            {
+                ReportCommandInfo(source, callContext, $"Stopped tracking trades for {userOrItemName}.");
+                return true;
+            }
+            else
+            {
+                ReportCommandError(source, callContext, $"Failed to stop tracking trades for {userOrItemName}.\nUse `\\dl-ListTrackedStores` to see what is currently being tracked.");
+                return false;
+            }
+        }
+
+        public static bool ListTrackedTrades(CommandSource source, object callContext)
+        {
+            LinkedUser linkedUser = source == CommandSource.Eco
+                ? LinkedUserManager.LinkedUserByEcoUser(callContext as User)
+                : LinkedUserManager.LinkedUserByDiscordID((callContext as CommandContext).Member.Id);
+            if (linkedUser == null)
+            {
+                ReportCommandError(source, callContext, $"You have not linked your Discord Account to DiscordLink on this Eco Server.\nLog into the game and use the `\\dl-link` command to initialize account linking.");
+                return false;
+            }
+
+            DisplayCommandData(source, callContext, "Tracked Trades", DLStorage.WorldData.ListTrackedTrades(ulong.Parse(linkedUser.DiscordID)));
+            return true;
         }
 
         #endregion

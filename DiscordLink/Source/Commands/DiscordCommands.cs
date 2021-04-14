@@ -12,8 +12,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
-
 namespace Eco.Plugins.DiscordLink
 {
     public class DiscordCommands : BaseCommandModule
@@ -476,17 +474,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                // Fetch trade data
-                string result = SharedCommands.Trades(userOrItemName, out string matchedName, out TradeTargetType tradeType, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
-                if (!string.IsNullOrEmpty(result))
-                {
-                    // Report commmand error
-                    await RespondToCommand(ctx, result);
-                    return;
-                }
-
-                MessageBuilder.Discord.FormatTrades(matchedName, tradeType, groupedBuyOffers, groupedSellOffers, out DiscordLinkEmbed embedContent);
-                await RespondToCommand(ctx, null, embedContent);
+                SharedCommands.Trades(SharedCommands.CommandSource.Discord, ctx, userOrItemName, out _);
             }, ctx);
         }
 
@@ -497,32 +485,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                // Ensure that the calling user is linked
-                if (LinkedUserManager.LinkedUserByDiscordId(ctx.GetSenderID()) == null)
-                {
-                    await RespondToCommand(ctx, $"You have not linked your Discord Account to DiscordLink on this Eco Server.\nLog into the game and use the `{DLConfig.Data.DiscordCommandPrefix}dl-link` command to initialize account linking.");
-                    return;
-                }
-
-                int trackedTradesCount = DLStorage.WorldData.GetTrackedTradesCountForUser(ctx.GetSenderID());
-                if (trackedTradesCount >= DLConfig.Data.MaxTrackedTradesPerUser)
-                {
-                    await RespondToCommand(ctx, $"You are already tracking {trackedTradesCount} trades and the limit is {DLConfig.Data.MaxTrackedTradesPerUser} tracked trades per user.\n\nUse the `{DLConfig.Data.DiscordCommandPrefix}dl-StopTrackTrades` command to remove a tracked trade to make space if you wish to add a new one.");
-                    return;
-                }
-
-                // Fetch trade data using the trades command once to see that the command parameters are valid
-                string result = SharedCommands.Trades(userOrItemName, out string matchedName, out TradeTargetType tradeType, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
-                if (!string.IsNullOrEmpty(result))
-                {
-                    await RespondToCommand(ctx, result);
-                    return;
-                }
-
-                bool added = await DLStorage.WorldData.AddTrackedTradeItem(ctx.GetSenderID(), matchedName);
-                result = added ? $"Tracking all trades for {matchedName}." : $"Failed to start tracking trades for {matchedName}";
-
-                await RespondToCommand(ctx, result);
+                SharedCommands.TrackTrades(SharedCommands.CommandSource.Discord, ctx, userOrItemName);
             }, ctx);
         }
 
@@ -533,17 +496,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                // Ensure that the calling user is linked
-                if (LinkedUserManager.LinkedUserByDiscordId(ctx.GetSenderID()) == null)
-                {
-                    await RespondToCommand(ctx, $"You have not linked your Discord Account to DiscordLink on this Eco Server.\nLog into the game and use the `{DLConfig.Data.DiscordCommandPrefix}dl-link` command to initialize account linking.");
-                    return;
-                }
-
-                bool removed = await DLStorage.WorldData.RemoveTrackedTradeItem(ctx.GetSenderID(), userOrItemName);
-                string result = removed ? $"Stopped tracking trades for {userOrItemName}." : $"Failed to stop tracking trades for {userOrItemName}.\nUse `{DLConfig.Data.DiscordCommandPrefix}dl-ListTrackedStores` to see what is currently being tracked.";
-
-                await RespondToCommand(ctx, result);
+                SharedCommands.StopTrackTrades(SharedCommands.CommandSource.Discord, ctx, userOrItemName);
             }, ctx);
         }
 
@@ -554,13 +507,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                if (LinkedUserManager.LinkedUserByDiscordId(ctx.GetSenderID()) == null)
-                {
-                    await RespondToCommand(ctx, $"You have not linked your Discord Account to DiscordLink on this Eco Server.\nLog into the game and use the `{DLConfig.Data.DiscordCommandPrefix}dl-link` command to initialize account linking.");
-                    return;
-                }
-
-                await RespondToCommand(ctx, DLStorage.WorldData.ListTrackedTrades(ctx.GetSenderID()));
+                SharedCommands.ListTrackedTrades(SharedCommands.CommandSource.Discord, ctx);
             }, ctx);
         }
 
