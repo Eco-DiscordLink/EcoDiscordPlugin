@@ -90,9 +90,9 @@ namespace Eco.Plugins.DiscordLink.Modules
                 foreach (ChannelLink tradeChannel in DLConfig.Data.TradeFeedChannels)
                 {
                     if (!tradeChannel.IsValid()) continue;
-                    DiscordGuild discordGuild = plugin.GuildByNameOrId(tradeChannel.DiscordGuild);
+                    DiscordGuild discordGuild = plugin.GuildByNameOrID(tradeChannel.DiscordGuild);
                     if (discordGuild == null) continue;
-                    DiscordChannel discordChannel = discordGuild.ChannelByNameOrId(tradeChannel.DiscordChannel);
+                    DiscordChannel discordChannel = discordGuild.ChannelByNameOrID(tradeChannel.DiscordChannel);
                     if (discordChannel == null) continue;
 
                     _ = DiscordUtil.SendAsync(discordChannel, string.Empty, embed);

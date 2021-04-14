@@ -18,12 +18,13 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         public static bool ChannelHasPermission(DiscordChannel channel, Permissions permission)
         {
-            if (channel as DiscordDmChannel != null) return true; // Assume permission is given for DMs
+            if (channel as DiscordDmChannel != null)
+                return true; // Assume permission is given for DMs
 
             DiscordMember member = channel.Guild.CurrentMember;
             if (member == null)
             {
-                Logger.Debug("CurrentMember was null when evaluating channel permissions for channel " + channel.Name);
+                Logger.Debug($"CurrentMember was null when evaluating channel permissions for channel {channel.Name} ");
                 return false;
             }
 
@@ -53,7 +54,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
         {
             try
             {
-                if (!ChannelHasPermission(channel, Permissions.SendMessages)) return;
+                if (!ChannelHasPermission(channel, Permissions.SendMessages))
+                    return;
 
                 // Either make sure we have permission to use embeds or convert the embed to text
                 string fullTextContent = ChannelHasPermission(channel, Permissions.EmbedLinks) ? textContent : MessageBuilder.Discord.EmbedToText(textContent, embedContent);

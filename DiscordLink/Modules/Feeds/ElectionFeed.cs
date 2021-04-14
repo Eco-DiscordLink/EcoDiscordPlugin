@@ -96,9 +96,9 @@ namespace Eco.Plugins.DiscordLink.Modules
             foreach (ChannelLink electionChannel in DLConfig.Data.ElectionFeedChannels)
             {
                 if (!electionChannel.IsValid()) continue;
-                DiscordGuild discordGuild = plugin.GuildByNameOrId(electionChannel.DiscordGuild);
+                DiscordGuild discordGuild = plugin.GuildByNameOrID(electionChannel.DiscordGuild);
                 if (discordGuild == null) continue;
-                DiscordChannel discordChannel = discordGuild.ChannelByNameOrId(electionChannel.DiscordChannel);
+                DiscordChannel discordChannel = discordGuild.ChannelByNameOrID(electionChannel.DiscordChannel);
                 if (discordChannel == null) continue;
                 await DiscordUtil.SendAsync(discordChannel, null, embed);
                 ++_opsCount;

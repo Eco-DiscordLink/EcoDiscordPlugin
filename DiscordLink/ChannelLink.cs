@@ -40,12 +40,9 @@ namespace Eco.Plugins.DiscordLink
             this.Member = member;
         }
 
-        public override bool IsValid()
-        {
-            return Member != null;
-        }
-
         public DiscordMember Member { get; set; }
+
+        public override bool IsValid() => Member != null;
     }
 
     public class ChannelLink : DiscordTarget, ICloneable
@@ -58,7 +55,7 @@ namespace Eco.Plugins.DiscordLink
 
         public override string ToString()
         {
-            return DiscordGuild + " - " + DiscordChannel;
+            return $"{DiscordGuild} - {DiscordChannel}";
         }
 
         public object Clone()
@@ -66,49 +63,42 @@ namespace Eco.Plugins.DiscordLink
             return MemberwiseClone();
         }
 
-        public override bool IsValid()
-        {
-            return !string.IsNullOrWhiteSpace(DiscordGuild) && !string.IsNullOrWhiteSpace(DiscordChannel);
-        }
+        public override bool IsValid() => !string.IsNullOrWhiteSpace(DiscordGuild) && !string.IsNullOrWhiteSpace(DiscordChannel);
 
         public virtual bool Verify()
         {
-            if (string.IsNullOrWhiteSpace(DiscordGuild) || string.IsNullOrWhiteSpace(DiscordChannel)) return false;
-
-            var guild = DiscordLink.Obj.GuildByNameOrId(DiscordGuild);
-            if (guild == null)
-            {
-                return false; // The channel will always fail if the guild fails
-            }
-            var channel = guild.ChannelByNameOrId(DiscordChannel);
-            if (channel == null)
-            {
+            if (string.IsNullOrWhiteSpace(DiscordGuild) || string.IsNullOrWhiteSpace(DiscordChannel))
                 return false;
-            }
+
+            DiscordGuild guild = DiscordLink.Obj.GuildByNameOrID(DiscordGuild);
+            if (guild == null)
+                return false; // The channel will always fail if the guild fails
+
+            DiscordChannel channel = guild.ChannelByNameOrID(DiscordChannel);
+            if (channel == null)
+                return false;
 
             return true;
         }
 
         public virtual bool MakeCorrections()
         {
-            if (string.IsNullOrWhiteSpace(DiscordChannel)) return false;
+            if (string.IsNullOrWhiteSpace(DiscordChannel))
+                return false;
 
             bool correctionMade = false;
             string original = DiscordChannel;
-            if (DiscordChannel != DiscordChannel.ToLower()) // Discord channels are always lowercase
-            {
-                DiscordChannel = DiscordChannel.ToLower();
-            }
+            string channelNameLower = DiscordChannel.ToLower();
+            if (DiscordChannel != channelNameLower) // Discord channels are always lowercase
+                DiscordChannel = channelNameLower;
 
             if (DiscordChannel.Contains(" "))
-            {
                 DiscordChannel = DiscordChannel.Replace(' ', '-'); // Discord channels always replace spaces with dashes
-            }
 
             if (DiscordChannel != original)
             {
                 correctionMade = true;
-                Logger.Info("Corrected Discord channel name with Guild name/ID \"" + DiscordGuild + "\" from \"" + original + "\" to \"" + DiscordChannel + "\"");
+                Logger.Info($"Corrected Discord channel name with Guild name/ID \"{DiscordGuild}\" from \"{original}\" to \"{DiscordChannel}\"");
             }
 
             return correctionMade;
@@ -149,17 +139,14 @@ namespace Eco.Plugins.DiscordLink
 
     public class EcoChannelLink : ChannelLink
     {
-        [Description("Eco Channel (with # omitted) to use.")]
+        [Description("Eco channel to use (omit # prefix).")]
         public string EcoChannel { get; set; } = string.Empty;
         public override string ToString()
         {
-            return DiscordGuild + " - " + DiscordChannel + " <--> " + EcoChannel;
+            return $"{DiscordGuild} #{DiscordChannel} <--> {EcoChannel}";
         }
 
-        public override bool IsValid()
-        {
-            return !string.IsNullOrWhiteSpace(DiscordGuild) && !string.IsNullOrWhiteSpace(DiscordChannel) && !string.IsNullOrWhiteSpace(EcoChannel);
-        }
+        public override bool IsValid() => !string.IsNullOrWhiteSpace(DiscordGuild) && !string.IsNullOrWhiteSpace(DiscordChannel) && !string.IsNullOrWhiteSpace(EcoChannel);
 
         public override bool MakeCorrections()
         {
@@ -169,7 +156,7 @@ namespace Eco.Plugins.DiscordLink
             if (EcoChannel != original)
             {
                 correctionMade = true;
-                Logger.Info("Corrected Eco channel name with Guild name/ID \"" + DiscordGuild + "\" and Discord Channel name/ID \"" + DiscordChannel + "\" from \"" + original + "\" to \"" + EcoChannel + "\"");
+                Logger.Info($"Corrected Eco channel name with Guild name/ID \"{DiscordGuild}\" and Discord Channel name/ID \"{DiscordChannel}\" from \"{original}\" to \"{EcoChannel}\"");
             }
             return correctionMade;
         }

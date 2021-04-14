@@ -60,9 +60,9 @@ namespace Eco.Plugins.DiscordLink.Modules
             foreach (ChannelLink playerStatusChannel in DLConfig.Data.PlayerStatusFeedChannels)
             {
                 if (!playerStatusChannel.IsValid()) continue;
-                DiscordGuild discordGuild = plugin.GuildByNameOrId(playerStatusChannel.DiscordGuild);
+                DiscordGuild discordGuild = plugin.GuildByNameOrID(playerStatusChannel.DiscordGuild);
                 if (discordGuild == null) continue;
-                DiscordChannel discordChannel = discordGuild.ChannelByNameOrId(playerStatusChannel.DiscordChannel);
+                DiscordChannel discordChannel = discordGuild.ChannelByNameOrID(playerStatusChannel.DiscordChannel);
                 if (discordChannel == null) continue;
                 await DiscordUtil.SendAsync(discordChannel, null, embed);
                 ++_opsCount;

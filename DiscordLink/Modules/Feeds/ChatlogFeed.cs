@@ -45,14 +45,14 @@ namespace Eco.Plugins.DiscordLink.Modules
             StopLogging();
         }
 
-        protected override async Task OnConfigChanged(object sender, EventArgs e)
+        protected override async Task HandleConfigChanged(object sender, EventArgs e)
         {
             using (await _overlapLock.LockAsync()) // Avoid crashes caused by data being manipulated and used simultaneously
             {
                 StopLogging();
                 StartLogging();
             }
-            await base.OnConfigChanged(sender, e);
+            await base.HandleConfigChanged(sender, e);
         }
 
         protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)

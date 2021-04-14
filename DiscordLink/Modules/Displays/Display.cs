@@ -56,13 +56,13 @@ namespace Eco.Plugins.DiscordLink.Modules
             await base.Shutdown();
         }
 
-        protected override async Task OnConfigChanged(object sender, EventArgs e)
+        protected override async Task HandleConfigChanged(object sender, EventArgs e)
         {
             using (await _overlapLock.LockAsync()) // Avoid crashes caused by data being manipulated and used simultaneously
             {
                 Clear(); // The channel links may have changed so we should find the messages again.
             }
-            await base.OnConfigChanged(sender, e);
+            await base.HandleConfigChanged(sender, e);
         }
 
         protected override bool ShouldRun()
@@ -164,9 +164,9 @@ namespace Eco.Plugins.DiscordLink.Modules
                 if (channelLink != null)
                 {
                     // Get the channel and verify permissions
-                    DiscordGuild discordGuild = plugin.GuildByNameOrId(channelLink.DiscordGuild);
+                    DiscordGuild discordGuild = plugin.GuildByNameOrID(channelLink.DiscordGuild);
                     if (discordGuild == null) continue;
-                    targetChannel = discordGuild.ChannelByNameOrId(channelLink.DiscordChannel);
+                    targetChannel = discordGuild.ChannelByNameOrID(channelLink.DiscordChannel);
                     if (targetChannel == null) continue;
                     if (!DiscordUtil.ChannelHasPermission(targetChannel, Permissions.ReadMessageHistory)) continue;
                 }
@@ -254,9 +254,9 @@ namespace Eco.Plugins.DiscordLink.Modules
                     if (!channelLink.IsValid()) continue;
 
                     // Get the channel and verify permissions
-                    DiscordGuild discordGuild = plugin.GuildByNameOrId(channelLink.DiscordGuild);
+                    DiscordGuild discordGuild = plugin.GuildByNameOrID(channelLink.DiscordGuild);
                     if (discordGuild == null) continue;
-                    DiscordChannel discordChannel = discordGuild.ChannelByNameOrId(channelLink.DiscordChannel);
+                    DiscordChannel discordChannel = discordGuild.ChannelByNameOrID(channelLink.DiscordChannel);
                     if (discordChannel == null) continue;
                     if (!DiscordUtil.ChannelHasPermission(discordChannel, Permissions.ReadMessageHistory)) continue;
                     targetMessages = await DiscordUtil.GetMessagesAsync(discordChannel);

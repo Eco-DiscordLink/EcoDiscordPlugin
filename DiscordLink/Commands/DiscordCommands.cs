@@ -439,7 +439,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                if (LinkedUserManager.VerifyLinkedUser(ctx.GetSenderId()))
+                if (LinkedUserManager.VerifyLinkedUser(ctx.GetSenderID()))
                     await RespondToCommand(ctx, $"Link verified");
                 else
                     await RespondToCommand(ctx, $"There is no outstanding link request to verify for your account");
@@ -479,13 +479,13 @@ namespace Eco.Plugins.DiscordLink
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
                 // Ensure that the calling user is linked
-                if (LinkedUserManager.LinkedUserByDiscordId(ctx.GetSenderId()) == null)
+                if (LinkedUserManager.LinkedUserByDiscordId(ctx.GetSenderID()) == null)
                 {
                     await RespondToCommand(ctx, $"You have not linked your Discord Account to DiscordLink on this Eco Server.\nLog into the game and use the `{DLConfig.Data.DiscordCommandPrefix}dl-link` command to initialize account linking.");
                     return;
                 }
 
-                int trackedTradesCount = DLStorage.WorldData.GetTrackedTradesCountForUser(ctx.GetSenderId());
+                int trackedTradesCount = DLStorage.WorldData.GetTrackedTradesCountForUser(ctx.GetSenderID());
                 if (trackedTradesCount >= DLConfig.Data.MaxTrackedTradesPerUser)
                 {
                     await RespondToCommand(ctx, $"You are already tracking {trackedTradesCount} trades and the limit is {DLConfig.Data.MaxTrackedTradesPerUser} tracked trades per user.\n\nUse the `{DLConfig.Data.DiscordCommandPrefix}dl-StopTrackTrades` command to remove a tracked trade to make space if you wish to add a new one.");
@@ -500,7 +500,7 @@ namespace Eco.Plugins.DiscordLink
                     return;
                 }
 
-                bool added = await DLStorage.WorldData.AddTrackedTradeItem(ctx.GetSenderId(), matchedName);
+                bool added = await DLStorage.WorldData.AddTrackedTradeItem(ctx.GetSenderID(), matchedName);
                 result = added ? $"Tracking all trades for {matchedName}." : $"Failed to start tracking trades for {matchedName}";
 
                 await RespondToCommand(ctx, result);
@@ -515,13 +515,13 @@ namespace Eco.Plugins.DiscordLink
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
                 // Ensure that the calling user is linked
-                if (LinkedUserManager.LinkedUserByDiscordId(ctx.GetSenderId()) == null)
+                if (LinkedUserManager.LinkedUserByDiscordId(ctx.GetSenderID()) == null)
                 {
                     await RespondToCommand(ctx, $"You have not linked your Discord Account to DiscordLink on this Eco Server.\nLog into the game and use the `{DLConfig.Data.DiscordCommandPrefix}dl-link` command to initialize account linking.");
                     return;
                 }
 
-                bool removed = await DLStorage.WorldData.RemoveTrackedTradeItem(ctx.GetSenderId(), userOrItemName);
+                bool removed = await DLStorage.WorldData.RemoveTrackedTradeItem(ctx.GetSenderID(), userOrItemName);
                 string result = removed ? $"Stopped tracking trades for {userOrItemName}." : $"Failed to stop tracking trades for {userOrItemName}.\nUse `{DLConfig.Data.DiscordCommandPrefix}dl-ListTrackedStores` to see what is currently being tracked.";
 
                 await RespondToCommand(ctx, result);
@@ -535,13 +535,13 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                if (LinkedUserManager.LinkedUserByDiscordId(ctx.GetSenderId()) == null)
+                if (LinkedUserManager.LinkedUserByDiscordId(ctx.GetSenderID()) == null)
                 {
                     await RespondToCommand(ctx, $"You have not linked your Discord Account to DiscordLink on this Eco Server.\nLog into the game and use the `{DLConfig.Data.DiscordCommandPrefix}dl-link` command to initialize account linking.");
                     return;
                 }
 
-                await RespondToCommand(ctx, DLStorage.WorldData.ListTrackedTrades(ctx.GetSenderId()));
+                await RespondToCommand(ctx, DLStorage.WorldData.ListTrackedTrades(ctx.GetSenderID()));
             }, ctx);
         }
 

@@ -94,7 +94,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                     if (dlUser == null)
                         continue;
 
-                    DiscordGuild guild = DiscordLink.Obj.GuildByNameOrId(dlUser.GuildID);
+                    DiscordGuild guild = DiscordLink.Obj.GuildByNameOrID(dlUser.GuildID);
                     if (guild == null)
                         continue;
 

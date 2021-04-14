@@ -1,11 +1,9 @@
-﻿using Eco.Core.Utils;
-using Eco.Gameplay.Components;
+﻿using Eco.Gameplay.Components;
 using Eco.Gameplay.Items;
 using Eco.Gameplay.Players;
-using Eco.Gameplay.Systems.Chat;
 using Eco.Plugins.DiscordLink.Utilities;
-using Eco.Shared.Localization;
 using Eco.Shared.Networking;
+using Eco.Shared.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -51,14 +49,11 @@ namespace Eco.Plugins.DiscordLink
             {
                 recipient = UserManager.OnlineUsers.FirstOrDefault(x => x.Name.EqualsCaseInsensitive(recipientUserName));
                 if (recipient == null)
-                    return "No online user with the name \"" + recipientUserName + "\" could be found.";
+                    return $"No online user with the name \"{recipientUserName}\" could be found.";
             }
 
-            bool result = EcoUtil.SendServerMessage("[" + senderName + "] " + message, permanent, recipient);
-            if (result)
-                return "Message delivered.";
-            else
-                return "Failed to send message.";
+            bool result = EcoUtil.SendServerMessage($"[{senderName}] {message}", permanent, recipient);
+            return result ? "Message delivered." : "Failed to send message.";
         }
 
         public static string SendPopup(string message, string senderName, string recipientUserName)
@@ -71,14 +66,11 @@ namespace Eco.Plugins.DiscordLink
             {
                 recipient = UserManager.OnlineUsers.FirstOrDefault(x => x.Name.EqualsCaseInsensitive(recipientUserName));
                 if (recipient == null)
-                    return "No online user with the name \"" + recipientUserName + "\" could be found.";
+                    return $"No online user with the name \"{recipientUserName}\" could be found.";
             }
 
-            bool result = EcoUtil.SendPopupMessage("[" + senderName + "]\n\n" + message, recipient);
-            if (result)
-                return "Message delivered";
-            else
-                return "Failed to send message";
+            bool result = EcoUtil.SendPopupMessage($"[{senderName}]\n\n{message}", recipient);
+            return result ? "Message delivered." : "Failed to send message.";
         }
 
         public static string SendAnnouncement(string title, string message, string senderName, string recipientUserName)
@@ -94,14 +86,11 @@ namespace Eco.Plugins.DiscordLink
             {
                 recipient = UserManager.OnlineUsers.FirstOrDefault(x => x.Name.EqualsCaseInsensitive(recipientUserName));
                 if (recipient == null)
-                    return "No online user with the name \"" + recipientUserName + "\" could be found.";
+                    return $"No online user with the name \"{recipientUserName}\" could be found.";
             }
 
-            bool result = EcoUtil.SendAnnouncementMessage(title, message + "\n\n[" + senderName + "]", recipient);
-            if (result)
-                return "Message delivered";
-            else
-                return "Failed to send message";
+            bool result = EcoUtil.SendAnnouncementMessage(title, $"{message}\n\n[{senderName}]", recipient);
+            return result ? "Message delivered." : "Failed to send message.";
         }
 
         #endregion

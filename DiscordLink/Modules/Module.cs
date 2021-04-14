@@ -48,12 +48,12 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         public virtual void Setup()
         {
-            DLConfig.Instance.OnConfigChanged += OnConfigChanged; // Always listen for config changes as those may enable/disable the module
+            DLConfig.Instance.OnConfigChanged += HandleConfigChanged; // Always listen for config changes as those may enable/disable the module
         }
 
         public virtual void Destroy()
         {
-            DLConfig.Instance.OnConfigChanged -= OnConfigChanged;
+            DLConfig.Instance.OnConfigChanged -= HandleConfigChanged;
         }
 
         public async Task<bool> HandleStartOrStop()
@@ -102,7 +102,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             { }
         }
 
-        protected virtual async Task OnConfigChanged(object sender, EventArgs e)
+        protected virtual async Task HandleConfigChanged(object sender, EventArgs e)
         {
             await HandleStartOrStop();
         }

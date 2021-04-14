@@ -182,13 +182,17 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         public static string StripTags(string toStrip)
         {
-            if (toStrip == null) return string.Empty;
+            if (toStrip == null)
+                return string.Empty;
+
             return HTMLTagRegex.Replace(toStrip, string.Empty);
         }
 
         public static string StripGlobalMentions(string toStrip)
         {
-            if (toStrip == null) return null;
+            if (toStrip == null)
+                return null;
+
             return DiscordGlobalMentionRegex.Replace(toStrip, "$1");
         }
 

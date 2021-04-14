@@ -11,7 +11,6 @@ namespace Eco.Plugins.DiscordLink.Utilities
 {
     public static class EcoUtil
     {
-        // Getters
         public static IEnumerable<Election> ActiveElections => ElectionManager.Obj.CurrentElections.Where(x => x.Valid() && x.State == Shared.Items.ProposableState.Active);
         public static IEnumerable<Law> ActiveLaws => CivicsData.Obj.Laws.All<Law>().Where(x => x.State == Shared.Items.ProposableState.Active);
 

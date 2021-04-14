@@ -291,7 +291,8 @@ namespace Eco.Plugins.DiscordLink
                 foreach (DiscordGuild guild in plugin.DiscordClient.Guilds.Values)
                 {
                     IReadOnlyCollection<DiscordMember> guildMembers = DiscordUtil.GetGuildMembersAsync(guild).Result;
-                    if (guildMembers == null) continue;
+                    if (guildMembers == null)
+                        continue;
 
                     foreach (DiscordMember member in guildMembers)
                     {
@@ -466,11 +467,7 @@ namespace Eco.Plugins.DiscordLink
                 string response;
                 if (string.IsNullOrWhiteSpace(snippetKey)) // List all snippets if no key is given
                 {
-                    response = (snippets.Count > 0 ? "Available snippets:\n" : "There are no registered snippets.");
-                    foreach (var snippetKeyVal in snippets)
-                    {
-                        response += $"{snippetKeyVal.Key}\n";
-                    }
+                    response = (snippets.Count > 0 ? $"Available snippets:\n{string.Join("\n", snippets.Keys)}" : "There are no registered snippets.");
                     ChatManager.ServerMessageToPlayer(new LocString(response), callingUser);
                 }
                 else

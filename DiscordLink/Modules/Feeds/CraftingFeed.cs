@@ -41,9 +41,9 @@ namespace Eco.Plugins.DiscordLink.Modules
             foreach (ChannelLink craftingChannel in DLConfig.Data.CraftingFeedChannels)
             {
                 if (!craftingChannel.IsValid()) continue;
-                DiscordGuild discordGuild = plugin.GuildByNameOrId(craftingChannel.DiscordGuild);
+                DiscordGuild discordGuild = plugin.GuildByNameOrID(craftingChannel.DiscordGuild);
                 if (discordGuild == null) continue;
-                DiscordChannel discordChannel = discordGuild.ChannelByNameOrId(craftingChannel.DiscordChannel);
+                DiscordChannel discordChannel = discordGuild.ChannelByNameOrID(craftingChannel.DiscordChannel);
                 if (discordChannel == null) continue;
                 await DiscordUtil.SendAsync(discordChannel, message);
                 ++_opsCount;

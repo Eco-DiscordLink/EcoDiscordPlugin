@@ -44,13 +44,13 @@ namespace Eco.Plugins.DiscordLink.Modules
             await base.Initialize();
         }
 
-        protected override async Task OnConfigChanged(object sender, EventArgs e)
+        protected override async Task HandleConfigChanged(object sender, EventArgs e)
         {
             using (await _overlapLock.LockAsync()) // Avoid crashes caused by data being manipulated and used simultaneously
             {
                 await ReloadSnippets();
             }
-            await base.OnConfigChanged(sender, e);
+            await base.HandleConfigChanged(sender, e);
         }
 
         protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
@@ -60,7 +60,8 @@ namespace Eco.Plugins.DiscordLink.Modules
 
             foreach (ChannelLink link in DLConfig.Data.SnippetInputChannels)
             {
-                if (!link.IsValid()) continue;
+                if (!link.IsValid())
+                    continue;
 
                 if (message.Channel.Guild.HasNameOrID(link.DiscordGuild) && message.Channel.HasNameOrID(message.Channel.Name))
                 {
@@ -78,9 +79,9 @@ namespace Eco.Plugins.DiscordLink.Modules
             {
                 // Fetch the channel and validate permissions
                 if (!snippetChannel.IsValid()) continue;
-                DiscordGuild discordGuild = plugin.GuildByNameOrId(snippetChannel.DiscordGuild);
+                DiscordGuild discordGuild = plugin.GuildByNameOrID(snippetChannel.DiscordGuild);
                 if (discordGuild == null) continue;
-                DiscordChannel discordChannel = discordGuild.ChannelByNameOrId(snippetChannel.DiscordChannel);
+                DiscordChannel discordChannel = discordGuild.ChannelByNameOrID(snippetChannel.DiscordChannel);
                 if (discordChannel == null) continue;
                 if (!DiscordUtil.ChannelHasPermission(discordChannel, Permissions.ReadMessageHistory)) continue;
 

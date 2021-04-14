@@ -30,9 +30,6 @@ namespace Eco.Plugins.DiscordLink
     {
         public readonly Version PluginVersion = Assembly.GetExecutingAssembly().GetName().Version;
 
-        private string _status = "Not yet started";
-        private CommandsNextExtension _commands = null;
-
         public event EventHandler OnClientStarted;
         public event EventHandler OnClientStopped;
 
@@ -48,6 +45,9 @@ namespace Eco.Plugins.DiscordLink
 
         private const string ModIOAppID = "";
         private const string ModIODeveloperToken = ""; // This will always be empty for all but actual release builds.
+
+        private string _status = "Not yet started";
+        private CommandsNextExtension _commands = null;
 
         public override string ToString()
         {
@@ -419,20 +419,20 @@ namespace Eco.Plugins.DiscordLink
         {
             if (DiscordClient == null) return "No discord client";
 
-            var guild = GuildByNameOrId(guildNameOrId);
+            var guild = GuildByNameOrID(guildNameOrId);
             if (guild == null) return "No guild of that name found";
 
-            var channel = guild.ChannelByNameOrId(channelNameOrId);
+            var channel = guild.ChannelByNameOrID(channelNameOrId);
             await DiscordUtil.SendAsync(channel, message);
             return "Message sent";
         }
 
         public async Task<string> SendDiscordMessageAsUser(string message, User user, string channelNameOrId, string guildNameOrId, bool allowGlobalMentions = false)
         {
-            var guild = GuildByNameOrId(guildNameOrId);
+            var guild = GuildByNameOrID(guildNameOrId);
             if (guild == null) return "No guild of that name found";
 
-            var channel = guild.ChannelByNameOrId(channelNameOrId);
+            var channel = guild.ChannelByNameOrID(channelNameOrId);
             if (channel == null) return "No channel of that name or ID found in that guild";
             await DiscordUtil.SendAsync(channel, MessageUtil.FormatMessageForDiscord(message, channel, user.Name, allowGlobalMentions));
             return "Message sent";

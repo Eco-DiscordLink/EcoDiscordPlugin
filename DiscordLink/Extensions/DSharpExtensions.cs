@@ -1,12 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using DSharpPlus;
+﻿using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Utils;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink
 {
@@ -14,7 +14,7 @@ namespace Eco.Plugins.DiscordLink
     {
         #region CommandContext
 
-        public static ulong GetSenderId(this CommandContext ctx)
+        public static ulong GetSenderID(this CommandContext ctx)
         {
             DiscordUser user = ctx.Member ?? ctx.User;
             return user.Id;
@@ -57,20 +57,22 @@ namespace Eco.Plugins.DiscordLink
             return guild?.TextChannels().FirstOrDefault(channel => channel.Value.Name == channelName).Value;
         }
 
-        public static DiscordChannel ChannelByNameOrId(this DiscordGuild guild, string channelNameOrId)
+        public static DiscordChannel ChannelByNameOrID(this DiscordGuild guild, string channelNameOrId)
         {
-            if (guild == null) { return null; }
+            if (guild == null)
+                return null;
 
-            var maybeChannelId = TryParseSnowflakeId(channelNameOrId);
-            return maybeChannelId != null ? guild.GetChannel(maybeChannelId.Value) : guild.ChannelByName(channelNameOrId);
+            return DiscordUtil.TryParseSnowflakeID(channelNameOrId, out ulong ID) ? guild.GetChannel(ID) : guild.ChannelByName(channelNameOrId);
         }
 
-        public async static Task<DiscordMember> MaybeGetMemberAsync(this DiscordGuild guild, ulong userId)
+        public async static Task<DiscordMember> MaybeGetMemberAsync(this DiscordGuild guild, ulong userID)
         {
-            try { return await guild.GetMemberAsync(userId); }
+            try { return await guild.GetMemberAsync(userID); }
             catch (NotFoundException) { return null; }
         }
-        
+
+        #endregion
+
         #region DiscordChannel
 
         public static bool HasNameOrID(this DiscordChannel channel, string nameOrID)
