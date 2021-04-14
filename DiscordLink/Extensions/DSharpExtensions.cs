@@ -10,11 +10,6 @@ namespace Eco.Plugins.DiscordLink
 {
     public static class DSharpExtensions
     {
-        public static ulong? TryParseSnowflakeId(string nameOrId)
-        {
-            return ulong.TryParse(nameOrId, out ulong id) && id > 0xFFFFFFFFFFFFFUL ? new ulong?(id) : null;
-        }
-
         #region CommandContext
 
         public static ulong GetSenderId(this CommandContext ctx)

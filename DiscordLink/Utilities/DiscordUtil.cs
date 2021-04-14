@@ -11,6 +11,11 @@ namespace Eco.Plugins.DiscordLink.Utilities
 {
     public static class DiscordUtil
     {
+        public static bool TryParseSnowflakeID(string nameOrID, out ulong ID)
+        {
+            return ulong.TryParse(nameOrID, out ID) && ID > 0xFFFFFFFFFFFFFUL;
+        }
+
         public static bool ChannelHasPermission(DiscordChannel channel, Permissions permission)
         {
             if (channel as DiscordDmChannel != null) return true; // Assume permission is given for DMs

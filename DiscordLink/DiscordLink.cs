@@ -406,10 +406,9 @@ namespace Eco.Plugins.DiscordLink
             return DiscordClient?.Guilds.Values.FirstOrDefault(guild => guild.Name?.ToLower() == name.ToLower());
         }
 
-        public DiscordGuild GuildByNameOrId(string nameOrId)
+        public DiscordGuild GuildByNameOrID(string guildNameOrId)
         {
-            var maybeGuildId = DSharpExtensions.TryParseSnowflakeId(nameOrId);
-            return maybeGuildId != null ? DiscordClient.Guilds[maybeGuildId.Value] : GuildByName(nameOrId);
+            return DiscordUtil.TryParseSnowflakeID(guildNameOrId, out ulong ID) ? DiscordClient.Guilds[ID] : GuildByName(guildNameOrId);
         }
 
         #endregion
