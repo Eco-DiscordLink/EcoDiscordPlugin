@@ -144,6 +144,25 @@ namespace Eco.Plugins.DiscordLink
 
         #endregion
 
+        #region User Feedback
+
+        public static async Task ReportCommandError(CommandContext ctx, string message)
+        {
+           await RespondToCommand(ctx, message);
+        }
+
+        public static async Task ReportCommandInfo(CommandContext ctx, string message)
+        {
+            await RespondToCommand(ctx, message);
+        }
+
+        public static async Task DisplayCommandData(CommandContext ctx, string text, DiscordLinkEmbed embed = null)
+        {
+            await RespondToCommand(ctx, text, embed);
+        }
+
+        #endregion
+
         #region Plugin Management
 
         [Command("Restart")]

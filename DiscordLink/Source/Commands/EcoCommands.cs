@@ -45,6 +45,25 @@ namespace Eco.Plugins.DiscordLink
 
         #endregion
 
+        #region User Feedback
+
+        public static void ReportCommandError(User callingUser, string message)
+        {
+            callingUser.Player.Error(Localizer.NotLocalizedStr(message));
+        }
+
+        public static void ReportCommandInfo(User callingUser, string message)
+        {
+            callingUser.Player.InfoBox(Localizer.NotLocalizedStr(message));
+        }
+
+        public static void DisplayCommandData(User callingUser, string title, string data)
+        {
+            callingUser.Player.OpenInfoPanel(title, data, "DiscordLink");
+        }
+
+        #endregion
+
         #region Plugin Management
 
         [ChatSubCommand("Restart", "Restarts the plugin.", "DL-Restart", ChatAuthorizationLevel.Admin)]

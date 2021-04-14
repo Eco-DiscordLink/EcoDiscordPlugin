@@ -18,6 +18,40 @@ namespace Eco.Plugins.DiscordLink
      */
     public static class SharedCommands
     {
+        #region Commands Base
+
+        public enum CommandSource
+        {
+            Eco,
+            Discord
+        }
+
+        private static void ReportCommandError(CommandSource source, object callContext, string message)
+        {
+            if (source == CommandSource.Eco)
+                EcoCommands.ReportCommandError(callContext as User, message);
+            else
+                DiscordCommands.ReportCommandError(callContext as CommandContext, message);
+        }
+
+        private static void ReportCommandInfo(CommandSource source, object callContext, string message)
+        {
+            if (source == CommandSource.Eco)
+                EcoCommands.ReportCommandInfo(callContext as User, message);
+            else
+                DiscordCommands.ReportCommandInfo(callContext as CommandContext, message);
+        }
+
+        private static void DisplayCommandData(CommandSource source, object callContext, string title, object data)
+        {
+            if (source == CommandSource.Eco)
+                EcoCommands.DisplayCommandData(callContext as User, title, data as string);
+            else
+                DiscordCommands.DisplayCommandData(callContext as CommandContext, title, data as DiscordLinkEmbed);
+        }
+
+        #endregion
+
         #region Plugin Management
 
         public static string ResetWorldData()
