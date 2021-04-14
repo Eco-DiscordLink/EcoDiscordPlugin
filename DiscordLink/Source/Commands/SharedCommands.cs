@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
 
@@ -28,35 +29,35 @@ namespace Eco.Plugins.DiscordLink
             Discord
         }
 
-        private static void ReportCommandError(CommandSource source, object callContext, string message)
+        private static async Task ReportCommandError(CommandSource source, object callContext, string message)
         {
             if (source == CommandSource.Eco)
                 EcoCommands.ReportCommandError(callContext as User, message);
             else
-                DiscordCommands.ReportCommandError(callContext as CommandContext, message);
+                await DiscordCommands.ReportCommandError(callContext as CommandContext, message);
         }
 
-        private static void ReportCommandInfo(CommandSource source, object callContext, string message)
+        private static async Task ReportCommandInfo(CommandSource source, object callContext, string message)
         {
             if (source == CommandSource.Eco)
                 EcoCommands.ReportCommandInfo(callContext as User, message);
             else
-                DiscordCommands.ReportCommandInfo(callContext as CommandContext, message);
+                await DiscordCommands.ReportCommandInfo(callContext as CommandContext, message);
         }
 
-        private static void DisplayCommandData(CommandSource source, object callContext, string title, object data)
+        private static async Task DisplayCommandData(CommandSource source, object callContext, string title, object data)
         {
             if (source == CommandSource.Eco)
                 EcoCommands.DisplayCommandData(callContext as User, title, data as string);
             else
-                DiscordCommands.DisplayCommandData(callContext as CommandContext, title, data as DiscordLinkEmbed);
+                await DiscordCommands.DisplayCommandData(callContext as CommandContext, title, data as DiscordLinkEmbed);
         }
 
         #endregion
 
         #region Plugin Management
 
-        public static void Restart(CommandSource source, object callContext)
+        public static async Task<bool> Restart(CommandSource source, object callContext)
         {
             DiscordLink plugin = DiscordLink.Obj;
             Logger.Info("Restart command executed - Restarting");
@@ -66,33 +67,35 @@ namespace Eco.Plugins.DiscordLink
             if (restarted)
             {
                 result = "Restarting...";
-                ReportCommandInfo(source, callContext, result);
+                await ReportCommandInfo(source, callContext, result);
             }
             else
             {
                 result = "Restart failed or a restart was already in progress";
-                ReportCommandError(source, callContext, result);
+                await ReportCommandError(source, callContext, result);
             }
 
             Logger.Info(result);
+            return restarted;
         }
 
-        public static void ResetWorldData(CommandSource source, object callContext)
+        public static async Task<bool> ResetWorldData(CommandSource source, object callContext)
         {
             Logger.Info("ResetWorldData command invoked - Resetting world storage data");
             DLStorage.Instance.Reset();
-            ReportCommandInfo(source, callContext, "World storage data has been reset.");
+            await ReportCommandInfo(source, callContext, "World storage data has been reset.");
+            return true;
         }
 
         #endregion
 
         #region Message Relaying
 
-        public static bool SendServerMessage(CommandSource source, object callContext, string message, string recipientUserName, string persistanceType)
+        public static async Task<bool> SendServerMessage(CommandSource source, object callContext, string message, string recipientUserName, string persistanceType)
         {
             if (string.IsNullOrWhiteSpace(message))
             {
-                ReportCommandError(source, callContext, "Message cannot be empty.");
+                await ReportCommandError(source, callContext, "Message cannot be empty.");
                 return false;
             }
 
@@ -107,7 +110,7 @@ namespace Eco.Plugins.DiscordLink
             }
             else
             {
-                ReportCommandError(source, callContext, "Persistance type must either be \"Temporary\" or \"Permanent\".");
+                await ReportCommandError(source, callContext, "Persistance type must either be \"Temporary\" or \"Permanent\".");
                 return false;
             }
 
@@ -117,7 +120,7 @@ namespace Eco.Plugins.DiscordLink
                 recipient = UserManager.OnlineUsers.FirstOrDefault(x => x.Name.EqualsCaseInsensitive(recipientUserName));
                 if (recipient == null)
                 {
-                    ReportCommandError(source, callContext, $"No online user with the name \"{recipientUserName}\" could be found.");
+                    await ReportCommandError(source, callContext, $"No online user with the name \"{recipientUserName}\" could be found.");
                     return false;
                 }
             }
@@ -128,18 +131,18 @@ namespace Eco.Plugins.DiscordLink
 
             bool sent = EcoUtil.SendServerMessage($"[{senderName}] {message}", permanent, recipient);
             if (sent)
-                ReportCommandInfo(source, callContext, "Message delivered.");
+                await ReportCommandInfo(source, callContext, "Message delivered.");
             else
-                ReportCommandError(source, callContext, "Failed to send message.");
+                await ReportCommandError(source, callContext, "Failed to send message.");
 
             return sent;
         }
 
-        public static bool SendPopup(CommandSource source, object callContext, string message, string recipientUserName)
+        public static async Task<bool> SendPopup(CommandSource source, object callContext, string message, string recipientUserName)
         {
             if (string.IsNullOrWhiteSpace(message))
             {
-                ReportCommandError(source, callContext, "Message cannot be empty.");
+                await ReportCommandError(source, callContext, "Message cannot be empty.");
                 return false;
             }
 
@@ -149,7 +152,7 @@ namespace Eco.Plugins.DiscordLink
                 recipient = UserManager.OnlineUsers.FirstOrDefault(x => x.Name.EqualsCaseInsensitive(recipientUserName));
                 if (recipient == null)
                 {
-                    ReportCommandError(source, callContext, $"No online user with the name \"{recipientUserName}\" could be found.");
+                    await ReportCommandError(source, callContext, $"No online user with the name \"{recipientUserName}\" could be found.");
                     return false;
                 }
             }
@@ -160,24 +163,24 @@ namespace Eco.Plugins.DiscordLink
 
             bool sent = EcoUtil.SendPopupMessage($"[{senderName}]\n\n{message}", recipient);
             if (sent)
-                ReportCommandInfo(source, callContext, "Message delivered.");
+                await ReportCommandInfo(source, callContext, "Message delivered.");
             else
-                ReportCommandError(source, callContext, "Failed to send message.");
+                await ReportCommandError(source, callContext, "Failed to send message.");
 
             return sent;
         }
 
-        public static bool SendAnnouncement(CommandSource source, object callContext, string title, string message, string recipientUserName)
+        public static async Task<bool> SendAnnouncement(CommandSource source, object callContext, string title, string message, string recipientUserName)
         {
             if (string.IsNullOrWhiteSpace(title))
             {
-                ReportCommandError(source, callContext, "Title cannot be empty.");
+                await ReportCommandError(source, callContext, "Title cannot be empty.");
                 return false;
             }
 
             if (string.IsNullOrWhiteSpace(message))
             {
-                ReportCommandError(source, callContext, "Message cannot be empty.");
+                await ReportCommandError(source, callContext, "Message cannot be empty.");
                 return false;
             }
 
@@ -187,7 +190,7 @@ namespace Eco.Plugins.DiscordLink
                 recipient = UserManager.OnlineUsers.FirstOrDefault(x => x.Name.EqualsCaseInsensitive(recipientUserName));
                 if (recipient == null)
                 {
-                    ReportCommandError(source, callContext, $"No online user with the name \"{recipientUserName}\" could be found.");
+                    await ReportCommandError(source, callContext, $"No online user with the name \"{recipientUserName}\" could be found.");
                     return false;
                 }
             }
@@ -198,9 +201,9 @@ namespace Eco.Plugins.DiscordLink
 
             bool sent = EcoUtil.SendAnnouncementMessage(title, $"{message}\n\n[{senderName}]", recipient);
             if (sent)
-                ReportCommandInfo(source, callContext, "Message delivered.");
+                await ReportCommandInfo(source, callContext, "Message delivered.");
             else
-                ReportCommandError(source, callContext, "Failed to send message.");
+                await ReportCommandError(source, callContext, "Failed to send message.");
 
             return sent;
         }
@@ -209,7 +212,7 @@ namespace Eco.Plugins.DiscordLink
 
         #region Invites
 
-        public static bool DiscordInvite(CommandSource source, object callContext, string targetUserName)
+        public static async Task<bool> DiscordInvite(CommandSource source, object callContext, string targetUserName)
         {
             DLConfigData config = DLConfig.Data;
             ServerInfo serverInfo = Networking.NetworkManager.GetServerInfo();
@@ -217,7 +220,7 @@ namespace Eco.Plugins.DiscordLink
             string inviteMessage = config.InviteMessage;
             if (!inviteMessage.Contains(DLConfig.InviteCommandLinkToken) || string.IsNullOrEmpty(serverInfo.DiscordAddress))
             {
-                ReportCommandError(source, callContext, "This server is not configured for using the Invite commands.");
+                await ReportCommandError(source, callContext, "This server is not configured for using the Invite commands.");
                 return false;
             }
 
@@ -230,9 +233,9 @@ namespace Eco.Plugins.DiscordLink
                 {
                     User offlineUser = EcoUtil.GetUserbyName(targetUserName);
                     if (offlineUser != null)
-                        ReportCommandError(source, callContext, $"{MessageUtil.StripTags(offlineUser.Name)} is not online");
+                        await ReportCommandError(source, callContext, $"{MessageUtil.StripTags(offlineUser.Name)} is not online");
                     else
-                        ReportCommandError(source, callContext, $"Could not find user with name {targetUserName}");
+                        await ReportCommandError(source, callContext, $"Could not find user with name {targetUserName}");
                     return false;
                 }
             }
@@ -241,9 +244,9 @@ namespace Eco.Plugins.DiscordLink
 
             bool sent = EcoUtil.SendServerMessage(inviteMessage, permanent: true, targetUser);
             if (sent)
-                ReportCommandInfo(source, callContext, "Invite sent.");
+                await ReportCommandInfo(source, callContext, "Invite sent.");
             else
-                ReportCommandError(source, callContext, "Failed to send invite.");
+                await ReportCommandError(source, callContext, "Failed to send invite.");
 
             return sent;
         }
@@ -252,108 +255,108 @@ namespace Eco.Plugins.DiscordLink
 
         #region Trades
 
-        public static bool Trades(CommandSource source, object callContext, string searchName, out string matchedName)
+        public static async Task<bool> Trades(CommandSource source, object callContext, string searchName)
         {
-            matchedName = string.Empty;
+            string matchedName = string.Empty;
 
             if (string.IsNullOrWhiteSpace(searchName))
             {
-                ReportCommandInfo(source, callContext, "Please provide the name of an item, a tag or a player to search for.");
+                await ReportCommandInfo(source, callContext, "Please provide the name of an item, a tag or a player to search for.");
                 return false;
             }
 
             matchedName = TradeUtil.GetMatchAndOffers(searchName, out TradeTargetType offerType, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
             if(offerType == TradeTargetType.Invalid)
             {
-                ReportCommandError(source, callContext, $"No item, tag or player with the name \"{searchName}\" could be found.");
+                await ReportCommandError(source, callContext, $"No item, tag or player with the name \"{searchName}\" could be found.");
                 return false;
             }
 
             if(source == CommandSource.Eco)
             {
                 MessageBuilder.Eco.FormatTrades(offerType, groupedBuyOffers, groupedSellOffers, out string message);
-                DisplayCommandData(source, callContext, matchedName, message);
+                await DisplayCommandData(source, callContext, matchedName, message);
             }
             else
             {
-                MessageBuilder.Discord.FormatTrades(matchedName, offerType, groupedBuyOffers, groupedSellOffers, out DiscordLinkEmbed embed );
-                DisplayCommandData(source, callContext, matchedName, embed);
+                MessageBuilder.Discord.FormatTrades(matchedName, offerType, groupedBuyOffers, groupedSellOffers, out DiscordLinkEmbed embed);
+                await DisplayCommandData(source, callContext, matchedName, embed);
             }
 
             return true;
         }
 
-        public static bool TrackTrades(CommandSource source, object callContext, string userOrItemName)
+        public static async Task<bool> TrackTrades(CommandSource source, object callContext, string userOrItemName)
         {
             LinkedUser linkedUser = source == CommandSource.Eco
                 ? LinkedUserManager.LinkedUserByEcoUser(callContext as User)
                 : LinkedUserManager.LinkedUserByDiscordID((callContext as CommandContext).Member.Id);
             if (linkedUser == null)
             {
-                ReportCommandError(source, callContext, $"You have not linked your Discord Account to DiscordLink on this Eco Server.\nUse the `\\dl-link` command to initialize account linking.");
+                await ReportCommandError(source, callContext, $"You have not linked your Discord Account to DiscordLink on this Eco Server.\nUse the `\\dl-link` command to initialize account linking.");
                 return false;
             }
 
             int trackedTradesCount = DLStorage.WorldData.GetTrackedTradesCountForUser(ulong.Parse(linkedUser.DiscordID));
             if (trackedTradesCount >= DLConfig.Data.MaxTrackedTradesPerUser)
             {
-                ReportCommandError(source, callContext, $"You are already tracking {trackedTradesCount} trades and the limit is {DLConfig.Data.MaxTrackedTradesPerUser} tracked trades per user.\nUse the `\\dl-StopTrackTrades` command to remove a tracked trade to make space if you wish to add a new one.");
+                await ReportCommandError(source, callContext, $"You are already tracking {trackedTradesCount} trades and the limit is {DLConfig.Data.MaxTrackedTradesPerUser} tracked trades per user.\nUse the `\\dl-StopTrackTrades` command to remove a tracked trade to make space if you wish to add a new one.");
                 return false;
             }
 
-            // Fetch trade data using the trades command once to see that the command parameters are valid and get the name of the matched target
-            if (!Trades(source, callContext, userOrItemName, out string matchedName))
+            string matchedName = TradeUtil.GetMatchAndOffers(userOrItemName, out TradeTargetType offerType, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
+            if (offerType == TradeTargetType.Invalid)
                 return false;
 
             bool added = DLStorage.WorldData.AddTrackedTradeItem(ulong.Parse(linkedUser.DiscordID), matchedName).Result;
             if (added)
             {
-                ReportCommandInfo(source, callContext, $"Tracking all trades for {matchedName}.");
+                await ReportCommandInfo(source, callContext, $"Tracking all trades for {matchedName}.");
                 return true;
             }
             else
             {
-                ReportCommandError(source, callContext, $"Failed to start tracking trades for {matchedName}.");
+                await ReportCommandError(source, callContext, $"Failed to start tracking trades for {matchedName}.");
                 return false;
             }
         }
 
-        public static bool StopTrackTrades(CommandSource source, object callContext, string userOrItemName)
+        public static async Task<bool> StopTrackTrades(CommandSource source, object callContext, string userOrItemName)
         {
             LinkedUser linkedUser = source == CommandSource.Eco
                 ? LinkedUserManager.LinkedUserByEcoUser(callContext as User)
                 : LinkedUserManager.LinkedUserByDiscordID((callContext as CommandContext).Member.Id);
             if (linkedUser == null)
             {
-                ReportCommandError(source, callContext, $"You have not linked your Discord Account to DiscordLink on this Eco Server.\nLog into the game and use the `\\dl-link` command to initialize account linking.");
+                await ReportCommandError(source, callContext, $"You have not linked your Discord Account to DiscordLink on this Eco Server.\nLog into the game and use the `\\dl-link` command to initialize account linking.");
                 return false;
             }
 
             bool removed = DLStorage.WorldData.RemoveTrackedTradeItem(ulong.Parse(linkedUser.DiscordID), userOrItemName).Result;
             if (removed)
             {
-                ReportCommandInfo(source, callContext, $"Stopped tracking trades for {userOrItemName}.");
+                await ReportCommandInfo(source, callContext, $"Stopped tracking trades for {userOrItemName}.");
                 return true;
             }
             else
             {
-                ReportCommandError(source, callContext, $"Failed to stop tracking trades for {userOrItemName}.\nUse `\\dl-ListTrackedStores` to see what is currently being tracked.");
+                await ReportCommandError(source, callContext, $"Failed to stop tracking trades for {userOrItemName}.\nUse `\\dl-ListTrackedStores` to see what is currently being tracked.");
                 return false;
             }
         }
 
-        public static bool ListTrackedTrades(CommandSource source, object callContext)
+        public static async Task<bool> ListTrackedTrades(CommandSource source, object callContext)
         {
             LinkedUser linkedUser = source == CommandSource.Eco
                 ? LinkedUserManager.LinkedUserByEcoUser(callContext as User)
                 : LinkedUserManager.LinkedUserByDiscordID((callContext as CommandContext).Member.Id);
             if (linkedUser == null)
             {
-                ReportCommandError(source, callContext, $"You have not linked your Discord Account to DiscordLink on this Eco Server.\nLog into the game and use the `\\dl-link` command to initialize account linking.");
+                await ReportCommandError(source, callContext, $"You have not linked your Discord Account to DiscordLink on this Eco Server.\nLog into the game and use the `\\dl-link` command to initialize account linking.");
                 return false;
             }
 
-            DisplayCommandData(source, callContext, "Tracked Trades", DLStorage.WorldData.ListTrackedTrades(ulong.Parse(linkedUser.DiscordID)));
+            await DisplayCommandData(source, callContext, "Tracked Trades", DLStorage.WorldData.ListTrackedTrades(ulong.Parse(linkedUser.DiscordID)));
             return true;
         }
 

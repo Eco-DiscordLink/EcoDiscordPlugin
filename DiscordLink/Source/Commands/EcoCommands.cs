@@ -13,6 +13,8 @@ namespace Eco.Plugins.DiscordLink
 {
     public class EcoCommands : IChatCommandHandler
     {
+#pragma warning disable CS4014 // Call not awaited (Shared commands are async but Eco commands can't be)
+
         #region Commands Base
 
         private delegate void EcoCommand(User callingUser, params string[] parameters);
@@ -416,5 +418,7 @@ namespace Eco.Plugins.DiscordLink
         }
 
         #endregion
+
+#pragma warning restore CS4014 // Call not awaited
     }
 }
