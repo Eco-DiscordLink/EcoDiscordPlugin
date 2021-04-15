@@ -480,9 +480,13 @@ namespace Eco.Plugins.DiscordLink
             DiscordMessage message = args.Message;
             LogDiscordMessage(message);
 
-            // Ignore commands and messages sent by our bot
-            if (args.Author == DiscordClient.CurrentUser) return;
-            if (!string.IsNullOrWhiteSpace(message.Content) && message.Content.StartsWith(DLConfig.Data.DiscordCommandPrefix)) return;
+            // Ignore messages sent by our bot
+            if (args.Author == DiscordClient.CurrentUser)
+                return;
+
+            // Ignore commands
+            if (!string.IsNullOrWhiteSpace(message.Content) && message.Content.StartsWith(DLConfig.Data.DiscordCommandPrefix))
+                return;
 
             UpdateModules(DLEventType.DiscordMessageSent, message);
         }

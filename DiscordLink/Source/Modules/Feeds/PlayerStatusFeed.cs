@@ -1,5 +1,4 @@
 ﻿using DiscordLink.Extensions;
-using DSharpPlus.Entities;
 using Eco.Gameplay.Players;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Utilities;

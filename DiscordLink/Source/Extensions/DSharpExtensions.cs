@@ -57,12 +57,12 @@ namespace Eco.Plugins.DiscordLink
             return guild?.TextChannels().FirstOrDefault(channel => channel.Value.Name == channelName).Value;
         }
 
-        public static DiscordChannel ChannelByNameOrID(this DiscordGuild guild, string channelNameOrId)
+        public static DiscordChannel ChannelByNameOrID(this DiscordGuild guild, string channelNameOrID)
         {
             if (guild == null)
                 return null;
 
-            return DiscordUtil.TryParseSnowflakeID(channelNameOrId, out ulong ID) ? guild.GetChannel(ID) : guild.ChannelByName(channelNameOrId);
+            return DiscordUtil.TryParseSnowflakeID(channelNameOrID, out ulong ID) ? guild.GetChannel(ID) : guild.ChannelByName(channelNameOrID);
         }
 
         public async static Task<DiscordMember> MaybeGetMemberAsync(this DiscordGuild guild, ulong userID)

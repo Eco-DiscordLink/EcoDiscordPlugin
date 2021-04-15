@@ -4,7 +4,6 @@ using Eco.Gameplay.Players;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Networking;
 using Eco.Shared.Utils;
-using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -290,14 +289,14 @@ namespace Eco.Plugins.DiscordLink
                 : LinkedUserManager.LinkedUserByDiscordID((callContext as CommandContext).Member.Id);
             if (linkedUser == null)
             {
-                await ReportCommandError(source, callContext, $"You have not linked your Discord Account to DiscordLink on this Eco Server.\nUse the `\\dl-link` command to initialize account linking.");
+                await ReportCommandError(source, callContext, $"You have not linked your Discord Account to DiscordLink on this Eco Server.\nUse the `\\DL-link` command to initialize account linking.");
                 return false;
             }
 
             int trackedTradesCount = DLStorage.WorldData.GetTrackedTradesCountForUser(ulong.Parse(linkedUser.DiscordID));
             if (trackedTradesCount >= DLConfig.Data.MaxTrackedTradesPerUser)
             {
-                await ReportCommandError(source, callContext, $"You are already tracking {trackedTradesCount} trades and the limit is {DLConfig.Data.MaxTrackedTradesPerUser} tracked trades per user.\nUse the `\\dl-StopTrackTrades` command to remove a tracked trade to make space if you wish to add a new one.");
+                await ReportCommandError(source, callContext, $"You are already tracking {trackedTradesCount} trades and the limit is {DLConfig.Data.MaxTrackedTradesPerUser} tracked trades per user.\nUse the `\\DL-StopTrackTrades` command to remove a tracked trade to make space if you wish to add a new one.");
                 return false;
             }
 
@@ -325,7 +324,7 @@ namespace Eco.Plugins.DiscordLink
                 : LinkedUserManager.LinkedUserByDiscordID((callContext as CommandContext).Member.Id);
             if (linkedUser == null)
             {
-                await ReportCommandError(source, callContext, $"You have not linked your Discord Account to DiscordLink on this Eco Server.\nLog into the game and use the `\\dl-link` command to initialize account linking.");
+                await ReportCommandError(source, callContext, $"You have not linked your Discord Account to DiscordLink on this Eco Server.\nLog into the game and use the `\\DL-link` command to initialize account linking.");
                 return false;
             }
 
@@ -337,7 +336,7 @@ namespace Eco.Plugins.DiscordLink
             }
             else
             {
-                await ReportCommandError(source, callContext, $"Failed to stop tracking trades for {userOrItemName}.\nUse `\\dl-ListTrackedStores` to see what is currently being tracked.");
+                await ReportCommandError(source, callContext, $"Failed to stop tracking trades for {userOrItemName}.\nUse `\\DL-ListTrackedStores` to see what is currently being tracked.");
                 return false;
             }
         }
@@ -349,7 +348,7 @@ namespace Eco.Plugins.DiscordLink
                 : LinkedUserManager.LinkedUserByDiscordID((callContext as CommandContext).Member.Id);
             if (linkedUser == null)
             {
-                await ReportCommandError(source, callContext, $"You have not linked your Discord Account to DiscordLink on this Eco Server.\nLog into the game and use the `\\dl-link` command to initialize account linking.");
+                await ReportCommandError(source, callContext, $"You have not linked your Discord Account to DiscordLink on this Eco Server.\nLog into the game and use the `\\DL-link` command to initialize account linking.");
                 return false;
             }
 

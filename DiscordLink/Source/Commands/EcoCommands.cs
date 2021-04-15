@@ -180,7 +180,7 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Sends an Eco server message to a specified user.", "dl-servermessage", ChatAuthorizationLevel.Admin)]
+        [ChatSubCommand("DiscordLink", "Sends an Eco server message to a specified user.", "DL-Servermessage", ChatAuthorizationLevel.Admin)]
         public static void SendServerMessage(User callingUser, string message, string recipientUserName, string persistanceType = "temporary")
         {
             ExecuteCommand<object>((lUser, args) =>
@@ -189,7 +189,7 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Sends an Eco server message to all online users.", "dl-broadcastservermessage", ChatAuthorizationLevel.Admin)]
+        [ChatSubCommand("DiscordLink", "Sends an Eco server message to all online users.", "DL-BroadcastServerMessage", ChatAuthorizationLevel.Admin)]
         public static void BroadcastServerMessage(User callingUser, string message, string persistanceType = "temporary")
         {
             ExecuteCommand<object>((lUser, args) =>
@@ -199,7 +199,7 @@ namespace Eco.Plugins.DiscordLink
         }
 
 
-        [ChatSubCommand("DiscordLink", "Sends an Eco popup message to a specified user.", "dl-popup", ChatAuthorizationLevel.Admin)]
+        [ChatSubCommand("DiscordLink", "Sends an Eco popup message to a specified user.", "DL-Popup", ChatAuthorizationLevel.Admin)]
         public static void SendPopup(User callingUser, string message, string recipientUserName)
         {
             ExecuteCommand<object>((lUser, args) =>
@@ -208,7 +208,7 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Sends an Eco popup message to all online users.", "dl-broadcastpopup", ChatAuthorizationLevel.Admin)]
+        [ChatSubCommand("DiscordLink", "Sends an Eco popup message to all online users.", "DL-BroadcastPopup", ChatAuthorizationLevel.Admin)]
         public static void BroadcastPopup(User callingUser, string message)
         {
             ExecuteCommand<object>((lUser, args) =>
@@ -217,7 +217,7 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Sends an Eco announcement message to a specified user.", "dl-announcement", ChatAuthorizationLevel.Admin)]
+        [ChatSubCommand("DiscordLink", "Sends an Eco announcement message to a specified user.", "DL-Announcement", ChatAuthorizationLevel.Admin)]
         public static void SendAnnouncement(User callingUser, string title, string message, string recipientUserName)
         {
             ExecuteCommand<object>((lUser, args) =>
@@ -226,7 +226,7 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Sends an Eco announcement message to a specified user.", "dl-broadcastannouncement", ChatAuthorizationLevel.Admin)]
+        [ChatSubCommand("DiscordLink", "Sends an Eco announcement message to a specified user.", "DL-BroadcastAnnouncement", ChatAuthorizationLevel.Admin)]
         public static void BroadcastAnnouncement(User callingUser, string title, string message)
         {
             ExecuteCommand<object>((lUser, args) =>
@@ -304,9 +304,9 @@ namespace Eco.Plugins.DiscordLink
                     if (callingUser.SlgId == linkedUser.SlgID || callingUser.SteamId == linkedUser.SteamID)
                     {
                         if (linkedUser.DiscordID == matchingMember.Id.ToString())
-                            ReportCommandInfo(callingUser, "Eco account is already linked to this Discord account.\nUse /dl-unlink to remove the existing link.");
+                            ReportCommandInfo(callingUser, "Eco account is already linked to this Discord account.\nUse /DL-Unlink to remove the existing link.");
                         else
-                            ReportCommandInfo(callingUser, "Eco account is already linked to a different Discord account.\nUse /dl-unlink to remove the existing link.");
+                            ReportCommandInfo(callingUser, "Eco account is already linked to a different Discord account.\nUse /DL-Unlink to remove the existing link.");
                         return;
                     }
                     else if (linkedUser.DiscordID == matchingMember.Id.ToString())
