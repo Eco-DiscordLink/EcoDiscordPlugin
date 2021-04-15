@@ -362,7 +362,6 @@ namespace Eco.Plugins.DiscordLink
 
             Modules.Add(new DiscordChatFeed());   // Discord -> Eco
             Modules.Add(new EcoChatFeed());       // Eco -> Discord
-            Modules.Add(new ChatlogFeed());
             Modules.Add(new TradeFeed());
             Modules.Add(new CraftingFeed());
             Modules.Add(new ServerStatusFeed());

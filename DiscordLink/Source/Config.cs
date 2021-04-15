@@ -47,9 +47,6 @@ namespace Eco.Plugins.DiscordLink
         public delegate Task OnConfigChangedDelegate(object sender, EventArgs e);
         public event OnConfigChangedDelegate OnConfigChanged;
         public event EventHandler OnConfigSaved;
-        public event EventHandler OnChatlogEnabled;
-        public event EventHandler OnChatlogDisabled;
-        public event EventHandler OnChatlogPathChanged;
 
         public const string InviteCommandLinkToken = "[LINK]";
 
@@ -188,31 +185,6 @@ namespace Eco.Plugins.DiscordLink
                 {
                     correctionMade = true;
                 }
-            }
-
-            // Chatlog toggle
-            if (Data.LogChat && !_prevConfig.LogChat)
-            {
-                Logger.Info("Chatlog enabled");
-                OnChatlogEnabled?.Invoke(this, EventArgs.Empty);
-            }
-            else if (!Data.LogChat && _prevConfig.LogChat)
-            {
-                Logger.Info("Chatlog disabled");
-                OnChatlogDisabled?.Invoke(this, EventArgs.Empty);
-            }
-
-            // Chatlog path
-            if (string.IsNullOrEmpty(Data.ChatlogPath))
-            {
-                Data.ChatlogPath = DLConstants.BasePath + "Chatlog.txt";
-                correctionMade = true;
-            }
-
-            if (Data.ChatlogPath != _prevConfig.ChatlogPath)
-            {
-                Logger.Info("Chatlog path changed. New path: " + Data.ChatlogPath);
-                OnChatlogPathChanged?.Invoke(this, EventArgs.Empty);
             }
 
             // Max tracked trades per user
@@ -373,8 +345,6 @@ namespace Eco.Plugins.DiscordLink
                 ServerLogo = this.ServerLogo,
                 ServerAddress = this.ServerAddress,
                 LogLevel = this.LogLevel,
-                LogChat = this.LogChat,
-                ChatlogPath = this.ChatlogPath,
                 MaxTrackedTradesPerUser = this.MaxTrackedTradesPerUser,
                 InviteMessage = this.InviteMessage,
                 AdminRoles = new ObservableCollection<string>(this.AdminRoles.Select(t => t.Clone()).Cast<string>()),
@@ -465,12 +435,6 @@ namespace Eco.Plugins.DiscordLink
 
         [Description("Determines what backend message types will be printed to the server log. All message types below the selected one will be printed as well. This setting requires a plugin restart to take effect."), Category("Miscellaneous")]
         public Microsoft.Extensions.Logging.LogLevel BackendLogLevel { get; set; } = DLConfig.DefaultValues.BackendLogLevel;
-
-        [Description("Enables logging of chat messages into the file at Chatlog Path. This setting can be changed while the server is running."), Category("Chatlog Configuration")]
-        public bool LogChat { get; set; } = false;
-
-        [Description("The path to the chatlog file, including file name and extension. This setting can be changed while the server is running, but the existing chatlog will not transfer."), Category("Chatlog Configuration")]
-        public string ChatlogPath { get; set; } = Directory.GetCurrentDirectory() + "\\Mods\\DiscordLink\\Chatlog.txt";
 
         [Description("The message to use for the /DiscordInvite command. The invite link is fetched from the network config and will replace the token " + DLConfig.InviteCommandLinkToken + ". This setting can be changed while the server is running."), Category("Command Settings")]
         public string InviteMessage { get; set; } = DLConfig.DefaultValues.InviteMessage;
