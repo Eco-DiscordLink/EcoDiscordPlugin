@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Description = System.ComponentModel.DescriptionAttribute;
@@ -41,8 +40,25 @@ namespace Eco.Plugins.DiscordLink
 
         public static readonly DLConfig Instance = new DLConfig();
         public static DLConfigData Data { get { return Instance._config.Config; } }
+        public static List<ChannelLink> ChannelLinks { get { return Instance._channelLinks; } }
         public PluginConfig<DLConfigData> PluginConfig { get { return Instance._config; } }
-        public List<ChannelLink> ChannelLinks { get { return Instance._channelLinks; } }
+        
+
+        public static ChannelLink ChannelLinkForDiscordChannel(string discordGuildName, string discordChannelName) =>
+            ChannelLinks.FirstOrDefault(link
+                => link.IsValid()
+                && link.DiscordServer.EqualsCaseInsensitive(discordGuildName)
+                && link.DiscordChannel.EqualsCaseInsensitive(discordChannelName));
+
+        public static ChatChannelLink ChatLinkForEcoChannel(string ecoChannelName) => Data.ChatChannelLinks.FirstOrDefault(link
+                => link.IsValid()
+                && link.EcoChannel.EqualsCaseInsensitive(ecoChannelName));
+
+        public static ChatChannelLink ChatLinkForDiscordChannel(string discordGuildName, string discordChannelName) =>
+            Data.ChatChannelLinks.FirstOrDefault(link
+                => link.IsValid()
+                && link.DiscordServer.EqualsCaseInsensitive(discordGuildName)
+                && link.DiscordChannel.EqualsCaseInsensitive(discordChannelName));
 
         public delegate Task OnConfigChangedDelegate(object sender, EventArgs e);
         public event OnConfigChangedDelegate OnConfigChanged;
@@ -132,26 +148,6 @@ namespace Eco.Plugins.DiscordLink
                     OnConfigChanged?.Invoke(this, EventArgs.Empty);
                 });
             }
-        }
-
-        public ChatChannelLink GetChannelLinkFromDiscordChannel(string guildName, string channelName)
-        {
-            foreach (ChatChannelLink channelLink in Data.ChatChannelLinks)
-            {
-                if (channelLink.DiscordGuild.EqualsCaseInsensitive(guildName) && channelLink.DiscordChannel.EqualsCaseInsensitive(channelName))
-                    return channelLink;
-            }
-            return null;
-        }
-
-        public ChatChannelLink GetChannelLinkFromEcoChannel(string channelName)
-        {
-            foreach (ChatChannelLink channelLink in Data.ChatChannelLinks)
-            {
-                if (channelLink.EcoChannel.EqualsCaseInsensitive(channelName))
-                    return channelLink;
-            }
-            return null;
         }
 
         public bool Save() // Returns true if no correction was needed

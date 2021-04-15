@@ -229,7 +229,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     return beforeMatch + mention + afterMatch; // Add whatever characters came before or after the username when replacing the match in order to avoid changing the message context
                 }
 
-                ChatChannelLink link = DLConfig.Instance.GetChannelLinkFromDiscordChannel(channel.Guild.Name, channel.Name);
+                ChatChannelLink link = DLConfig.ChatLinkForDiscordChannel(channel.Guild.Name, channel.Name);
                 bool allowRoleMentions = (link == null || link.AllowRoleMentions);
                 bool allowMemberMentions = (link == null || link.AllowUserMentions);
                 bool allowChannelMentions = (link == null || link.AllowChannelMentions);

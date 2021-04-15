@@ -1,8 +1,11 @@
-﻿using DSharpPlus.Entities;
+﻿using DSharpPlus;
+using DSharpPlus.Entities;
 using Eco.Plugins.DiscordLink.Utilities;
+using Eco.Shared.Serialization;
 using Eco.Shared.Utils;
 using System;
 using System.ComponentModel;
+using System.Linq;
 
 namespace Eco.Plugins.DiscordLink
 {
@@ -47,15 +50,21 @@ namespace Eco.Plugins.DiscordLink
 
     public class ChannelLink : DiscordTarget, ICloneable
     {
-        [Description("Discord Guild (Server) by name or ID.")]
-        public string DiscordGuild { get; set; } = string.Empty;
+        [Browsable(false), JsonIgnore]
+        public DiscordGuild Guild { get; private set; } = null;
+
+        [Browsable(false), JsonIgnore]
+        public DiscordChannel Channel { get; private set; } = null;
+
+        [Description("Discord Server by name or ID.")]
+        public string DiscordServer { get; set; } = string.Empty;
 
         [Description("Discord Channel by name or ID.")]
         public string DiscordChannel { get; set; } = string.Empty;
 
         public override string ToString()
         {
-            return $"{DiscordGuild} - {DiscordChannel}";
+            return $"{DiscordServer} - {DiscordChannel}";
         }
 
         public object Clone()
@@ -63,22 +72,27 @@ namespace Eco.Plugins.DiscordLink
             return MemberwiseClone();
         }
 
-        public override bool IsValid() => !string.IsNullOrWhiteSpace(DiscordGuild) && !string.IsNullOrWhiteSpace(DiscordChannel);
+        public override bool IsValid() => !string.IsNullOrWhiteSpace(DiscordServer) && !string.IsNullOrWhiteSpace(DiscordChannel) && Guild != null && Channel != null;
 
         public virtual bool Verify()
         {
-            if (string.IsNullOrWhiteSpace(DiscordGuild) || string.IsNullOrWhiteSpace(DiscordChannel))
+            if (string.IsNullOrWhiteSpace(DiscordServer) || string.IsNullOrWhiteSpace(DiscordChannel))
                 return false;
 
-            DiscordGuild guild = DiscordLink.Obj.GuildByNameOrID(DiscordGuild);
-            if (guild == null)
+            DiscordClient client = DiscordLink.Obj.DiscordClient;
+            Guild = DiscordUtil.TryParseSnowflakeID(DiscordServer, out ulong guildID)
+                ? client.Guilds[guildID]
+                : client.Guilds.Values.FirstOrDefault(guild => (guild.Name.EqualsCaseInsensitive(DiscordServer)));
+
+            if (Guild == null)
                 return false; // The channel will always fail if the guild fails
 
-            DiscordChannel channel = guild.ChannelByNameOrID(DiscordChannel);
-            if (channel == null)
-                return false;
+            Channel = Guild.ChannelByNameOrID(DiscordChannel);
+            Channel = DiscordUtil.TryParseSnowflakeID(DiscordChannel, out ulong channelID)
+                ? Guild.Channels[channelID]
+                : Guild.Channels.Values.FirstOrDefault(channel => (channel.Name.EqualsCaseInsensitive(DiscordServer)));
 
-            return true;
+            return Channel != null;
         }
 
         public virtual bool MakeCorrections()
@@ -98,7 +112,7 @@ namespace Eco.Plugins.DiscordLink
             if (DiscordChannel != original)
             {
                 correctionMade = true;
-                Logger.Info($"Corrected Discord channel name with Guild name/ID \"{DiscordGuild}\" from \"{original}\" to \"{DiscordChannel}\"");
+                Logger.Info($"Corrected Discord channel name with Guild name/ID \"{DiscordServer}\" from \"{original}\" to \"{DiscordChannel}\"");
             }
 
             return correctionMade;
@@ -106,10 +120,10 @@ namespace Eco.Plugins.DiscordLink
 
         public bool IsGuild(DiscordGuild guild)
         {
-            if (ulong.TryParse(DiscordGuild, out ulong guildID))
+            if (ulong.TryParse(DiscordServer, out ulong guildID))
                 return guildID == guild.Id;
 
-            return DiscordGuild.EqualsCaseInsensitive(guild.Name);
+            return DiscordServer.EqualsCaseInsensitive(guild.Name);
         }
 
         public bool IsChannel(DiscordChannel channel)
@@ -122,7 +136,7 @@ namespace Eco.Plugins.DiscordLink
 
         public bool HasGuildNameOrID(string guildNameOrID)
         {
-            if (ulong.TryParse(DiscordGuild, out ulong guildID) && ulong.TryParse(guildNameOrID, out ulong guildIDParam))
+            if (ulong.TryParse(DiscordServer, out ulong guildID) && ulong.TryParse(guildNameOrID, out ulong guildIDParam))
                 return guildID == guildIDParam;
 
             return DiscordChannel.EqualsCaseInsensitive(guildNameOrID);
@@ -143,10 +157,10 @@ namespace Eco.Plugins.DiscordLink
         public string EcoChannel { get; set; } = string.Empty;
         public override string ToString()
         {
-            return $"{DiscordGuild} #{DiscordChannel} <--> {EcoChannel}";
+            return $"{DiscordServer} #{DiscordChannel} <--> {EcoChannel}";
         }
 
-        public override bool IsValid() => !string.IsNullOrWhiteSpace(DiscordGuild) && !string.IsNullOrWhiteSpace(DiscordChannel) && !string.IsNullOrWhiteSpace(EcoChannel);
+        public override bool IsValid() => !string.IsNullOrWhiteSpace(DiscordServer) && !string.IsNullOrWhiteSpace(DiscordChannel) && !string.IsNullOrWhiteSpace(EcoChannel);
 
         public override bool MakeCorrections()
         {
@@ -156,7 +170,7 @@ namespace Eco.Plugins.DiscordLink
             if (EcoChannel != original)
             {
                 correctionMade = true;
-                Logger.Info($"Corrected Eco channel name with Guild name/ID \"{DiscordGuild}\" and Discord Channel name/ID \"{DiscordChannel}\" from \"{original}\" to \"{EcoChannel}\"");
+                Logger.Info($"Corrected Eco channel name with Guild name/ID \"{DiscordServer}\" and Discord Channel name/ID \"{DiscordChannel}\" from \"{original}\" to \"{EcoChannel}\"");
             }
             return correctionMade;
         }

@@ -35,9 +35,11 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
         {
-            if (DLConfig.Data.TradeFeedChannels.Count <= 0) return;
-            if (!(data is IEnumerable<List<CurrencyTrade>> accumulatedTrades)) return;
+            if (DLConfig.Data.TradeFeedChannels.Count <= 0)
+                return;
 
+            if (!(data is IEnumerable<List<CurrencyTrade>> accumulatedTrades))
+                return;
 
             // Each entry is the summarized trade events for a player and a store
             foreach (List<CurrencyTrade> accumulatedTradeList in accumulatedTrades)
@@ -60,42 +62,39 @@ namespace Eco.Plugins.DiscordLink.Modules
                 {
                     if (trade.BoughtOrSold == Shared.Items.BoughtOrSold.Buying)
                     {
-                        boughtItemsDesc += trade.NumberOfItems + " X " + trade.ItemUsed.DisplayName + " * " + trade.CurrencyAmount / trade.NumberOfItems + " = " + trade.CurrencyAmount + "\n";
+                        boughtItemsDesc += $"{trade.NumberOfItems} X {trade.ItemUsed.DisplayName} * {trade.CurrencyAmount / trade.NumberOfItems} = {trade.CurrencyAmount} \n";
                         boughtTotal += trade.CurrencyAmount;
                     }
                     else if (trade.BoughtOrSold == Shared.Items.BoughtOrSold.Selling)
                     {
-                        soldItemsDesc += trade.NumberOfItems + " X " + trade.ItemUsed.DisplayName + " * " + trade.CurrencyAmount / trade.NumberOfItems + " = " + trade.CurrencyAmount + "\n";
+                        soldItemsDesc += $"{trade.NumberOfItems} X {trade.ItemUsed.DisplayName} * {trade.CurrencyAmount / trade.NumberOfItems} = {trade.CurrencyAmount} \n";
                         soldTotal += trade.CurrencyAmount;
                     }
                 }
 
                 if (!boughtItemsDesc.IsEmpty())
                 {
-                    boughtItemsDesc += "\nTotal = " + boughtTotal.ToString("n2");
+                    boughtItemsDesc += $"\nTotal = {boughtTotal.ToString("n2")}";
                     embed.AddField("Bought", boughtItemsDesc, inline: true);
                 }
 
                 if (!soldItemsDesc.IsEmpty())
                 {
-                    soldItemsDesc += "\nTotal = " + soldTotal.ToString("n2");
+                    soldItemsDesc += $"\nTotal = {soldTotal.ToString("n2")}";
                     embed.AddField("Sold", soldItemsDesc, inline: true);
                 }
 
                 float subTotal = soldTotal - boughtTotal;
                 char sign = (subTotal > 0.0f ? '+' : '-');
-                embed.AddField("Total", sign + Math.Abs(subTotal).ToString("n2") + " " + MessageUtil.StripTags(firstTrade.Currency.Name));
+                embed.AddField("Total", $"{sign} {Math.Abs(subTotal).ToString("n2")} {MessageUtil.StripTags(firstTrade.Currency.Name)}");
 
                 // Post the trade summary in all trade channels
-                foreach (ChannelLink tradeChannel in DLConfig.Data.TradeFeedChannels)
+                foreach (ChannelLink tradeLink in DLConfig.Data.TradeFeedChannels)
                 {
-                    if (!tradeChannel.IsValid()) continue;
-                    DiscordGuild discordGuild = plugin.GuildByNameOrID(tradeChannel.DiscordGuild);
-                    if (discordGuild == null) continue;
-                    DiscordChannel discordChannel = discordGuild.ChannelByNameOrID(tradeChannel.DiscordChannel);
-                    if (discordChannel == null) continue;
+                    if (!tradeLink.IsValid())
+                        continue;
 
-                    _ = DiscordUtil.SendAsync(discordChannel, string.Empty, embed);
+                    _ = DiscordUtil.SendAsync(tradeLink.Channel, string.Empty, embed);
                     ++_opsCount;
                 }
             }

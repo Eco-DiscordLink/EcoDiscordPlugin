@@ -400,47 +400,22 @@ namespace Eco.Plugins.DiscordLink
         public string[] GuildNames => DiscordClient.GuildNames();
         public DiscordGuild DefaultGuild => DiscordClient.DefaultGuild();
 
-        public DiscordGuild GuildByName(string guildName)
+        public DiscordGuild GuildByNameOrID(string guildNameOrID)
         {
-            return DiscordClient?.Guilds.Values.FirstOrDefault(guild => (bool)(guild.Name?.EqualsCaseInsensitive(guildName)));
+            return DiscordUtil.TryParseSnowflakeID(guildNameOrID, out ulong ID)
+                ? DiscordClient.Guilds[ID]
+                : DiscordClient.Guilds.Values.FirstOrDefault(guild => guild.Name.EqualsCaseInsensitive(guildNameOrID));
         }
 
-        public DiscordGuild GuildByNameOrID(string guildNameOrId)
+        public DiscordChannel ChannelByNameOrID(string guildNameOrID, string channelNameOrID)
         {
-            return DiscordUtil.TryParseSnowflakeID(guildNameOrId, out ulong ID) ? DiscordClient.Guilds[ID] : GuildByName(guildNameOrId);
-        }
+            DiscordGuild guild = GuildByNameOrID(guildNameOrID);
+            if (guild == null)
+                return null;
 
-        #endregion
-
-        #region Message Sending
-
-        public async Task<string> SendDiscordMessage(string message, string channelNameOrId, string guildNameOrId)
-        {
-            if (DiscordClient == null) return "No discord client";
-
-            var guild = GuildByNameOrID(guildNameOrId);
-            if (guild == null) return "No guild of that name found";
-
-            var channel = guild.ChannelByNameOrID(channelNameOrId);
-            await DiscordUtil.SendAsync(channel, message);
-            return "Message sent";
-        }
-
-        public async Task<string> SendDiscordMessageAsUser(string message, User user, string channelNameOrId, string guildNameOrId, bool allowGlobalMentions = false)
-        {
-            var guild = GuildByNameOrID(guildNameOrId);
-            if (guild == null) return "No guild of that name found";
-
-            var channel = guild.ChannelByNameOrID(channelNameOrId);
-            if (channel == null) return "No channel of that name or ID found in that guild";
-            await DiscordUtil.SendAsync(channel, MessageUtil.FormatMessageForDiscord(message, channel, user.Name, allowGlobalMentions));
-            return "Message sent";
-        }
-
-        public async Task<string> SendDiscordMessageAsUser(string message, User user, DiscordChannel channel, bool allowGlobalMentions = false)
-        {
-            await DiscordUtil.SendAsync(channel, MessageUtil.FormatMessageForDiscord(message, channel, user.Name, allowGlobalMentions));
-            return "Message sent";
+            return DiscordUtil.TryParseSnowflakeID(channelNameOrID, out ulong ID)
+                ? guild.Channels[ID]
+                : guild.Channels.Values.FirstOrDefault(guild => guild.Name.EqualsCaseInsensitive(guildNameOrID));
         }
 
         #endregion
@@ -471,16 +446,6 @@ namespace Eco.Plugins.DiscordLink
             DiscordClient.MessageDeleted -= OnDiscordMessageDeleted;
 
             Logger.Debug("Relaying stopped");
-        }
-
-        public ChatChannelLink GetLinkForEcoChannel(string discordChannelNameOrID)
-        {
-            return DLConfig.Data.ChatChannelLinks.FirstOrDefault(link => link.DiscordChannel.EqualsCaseInsensitive(discordChannelNameOrID));
-        }
-
-        public ChatChannelLink GetLinkForDiscordChannel(string ecoChannelName)
-        {
-            return DLConfig.Data.ChatChannelLinks.FirstOrDefault(link => link.EcoChannel.EqualsCaseInsensitive(ecoChannelName));
         }
 
         public void LogEcoMessage(ChatSent chatMessage)

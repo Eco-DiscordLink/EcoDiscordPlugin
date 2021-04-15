@@ -30,22 +30,21 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
         {
-            if (!(data[0] is DiscordMessage message)) return;
+            if (!(data[0] is DiscordMessage message))
+                return;
 
-            ChatChannelLink channelLink = plugin.GetLinkForEcoChannel(message.Channel.Name) ?? plugin.GetLinkForEcoChannel(message.Channel.Id.ToString());
-            string channel = channelLink?.EcoChannel;
-            if (string.IsNullOrWhiteSpace(channel)) return;
+            ChatChannelLink channelLink = DLConfig.ChatLinkForEcoChannel(message.Channel.Name) ?? DLConfig.ChatLinkForEcoChannel(message.Channel.Id.ToString());
+            if (channelLink == null)
+                return;
 
             if (channelLink.Direction == ChatSyncDirection.DiscordToEco || channelLink.Direction == ChatSyncDirection.Duplex)
-            {
-                await ForwardMessageToEcoChannel(plugin, message, channel);
-            }
+                await ForwardMessageToEcoChannel(plugin, message, channelLink.EcoChannel);
         }
 
         private async Task ForwardMessageToEcoChannel(DiscordLink plugin, DiscordMessage message, string ecoChannel)
         {
-            Logger.DebugVerbose("Sending Discord message to Eco channel: " + ecoChannel);
-            ChatManager.SendChat(await MessageUtil.FormatMessageForEco(message, ecoChannel),  plugin.EcoUser);
+            Logger.DebugVerbose($"Sending Discord message to Eco channel: {ecoChannel}");
+            ChatManager.SendChat(await MessageUtil.FormatMessageForEco(message, ecoChannel), plugin.EcoUser);
             ++_opsCount;
         }
     }

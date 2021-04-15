@@ -1,4 +1,5 @@
-﻿using Eco.Gameplay.GameActions;
+﻿using DSharpPlus.Entities;
+using Eco.Gameplay.GameActions;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Utilities;
 using System.Threading.Tasks;
@@ -29,35 +30,20 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
         {
-            if (!(data[0] is ChatSent message)) return;
+            if (!(data[0] is ChatSent message))
+                return;
 
-            // Remove the # character from the start.
-            var channelLink = plugin.GetLinkForDiscordChannel(message.Tag.Substring(1));
-            var channel = channelLink?.DiscordChannel;
-            var guild = channelLink?.DiscordGuild;
-            if (string.IsNullOrWhiteSpace(channel) || string.IsNullOrWhiteSpace(guild)) return;
+            ChatChannelLink chatLink = DLConfig.ChatLinkForEcoChannel(message.Tag.Substring(1)); // Remove the # character from the start.
+            if (chatLink == null)
+                return;
 
-            if (channelLink.Direction == ChatSyncDirection.EcoToDiscord || channelLink.Direction == ChatSyncDirection.Duplex)
-            {
-                ForwardMessageToDiscordChannel(plugin, message, channel, guild, channelLink.HereAndEveryoneMentionPermission);
-            }
+            if (chatLink.Direction == ChatSyncDirection.EcoToDiscord || chatLink.Direction == ChatSyncDirection.Duplex)
+                ForwardMessageToDiscordChannel(message, chatLink.Guild, chatLink.Channel, chatLink.HereAndEveryoneMentionPermission);
         }
 
-        private void ForwardMessageToDiscordChannel(DiscordLink plugin, ChatSent chatMessage, string channelNameOrId, string guildNameOrId, GlobalMentionPermission globalMentionPermission)
+        private void ForwardMessageToDiscordChannel(ChatSent chatMessage, DiscordGuild guild, DiscordChannel channel, GlobalMentionPermission globalMentionPermission)
         {
-            Logger.DebugVerbose("Sending Eco message to Discord channel " + channelNameOrId + " in guild " + guildNameOrId);
-            var guild = plugin.GuildByNameOrID(guildNameOrId);
-            if (guild == null)
-            {
-                Logger.Error("Failed to forward Eco message from user " + MessageUtil.StripTags(chatMessage.Citizen.Name) + " as no guild with the name or ID " + guildNameOrId + " exists");
-                return;
-            }
-            var channel = guild.ChannelByNameOrID(channelNameOrId);
-            if (channel == null)
-            {
-                Logger.Error("Failed to forward Eco message from user " + MessageUtil.StripTags(chatMessage.Citizen.Name) + " as no channel with the name or ID " + channelNameOrId + " exists in the guild " + guild.Name);
-                return;
-            }
+            Logger.DebugVerbose($"Sending Eco message to Discord channel {channel.Name} in guild {guild.Name}");
 
             bool allowGlobalMention = (globalMentionPermission == GlobalMentionPermission.AnyUser
                 || globalMentionPermission == GlobalMentionPermission.Admin && chatMessage.Citizen.IsAdmin);

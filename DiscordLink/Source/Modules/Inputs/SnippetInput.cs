@@ -63,7 +63,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 if (!link.IsValid())
                     continue;
 
-                if (message.Channel.Guild.HasNameOrID(link.DiscordGuild) && message.Channel.HasNameOrID(message.Channel.Name))
+                if (message.Channel.Guild.HasNameOrID(link.DiscordServer) && message.Channel.HasNameOrID(message.Channel.Name))
                 {
                     await ReloadSnippets();
                     break;
@@ -74,18 +74,14 @@ namespace Eco.Plugins.DiscordLink.Modules
         private async Task ReloadSnippets()
         {
             DiscordLink plugin = DiscordLink.Obj;
-            foreach (ChannelLink snippetChannel in DLConfig.Data.SnippetInputChannels)
+            foreach (ChannelLink snippetLink in DLConfig.Data.SnippetInputChannels)
             {
-                // Fetch the channel and validate permissions
-                if (!snippetChannel.IsValid()) continue;
-                DiscordGuild discordGuild = plugin.GuildByNameOrID(snippetChannel.DiscordGuild);
-                if (discordGuild == null) continue;
-                DiscordChannel discordChannel = discordGuild.ChannelByNameOrID(snippetChannel.DiscordChannel);
-                if (discordChannel == null) continue;
-                if (!DiscordUtil.ChannelHasPermission(discordChannel, Permissions.ReadMessageHistory)) continue;
+                if (!snippetLink.IsValid() || !DiscordUtil.ChannelHasPermission(snippetLink.Channel, Permissions.ReadMessageHistory))
+                    continue;
 
-                IReadOnlyList<DiscordMessage> snippetChannelMessages = await DiscordUtil.GetMessagesAsync(discordChannel);
-                if (snippetChannelMessages == null) continue;
+                IReadOnlyList<DiscordMessage> snippetChannelMessages = await DiscordUtil.GetMessagesAsync(snippetLink.Channel);
+                if (snippetChannelMessages == null)
+                    continue;
 
                 // Go though all the found messages and look for snippet messages matching our regex
                 DLStorage.Instance.Snippets.Clear();

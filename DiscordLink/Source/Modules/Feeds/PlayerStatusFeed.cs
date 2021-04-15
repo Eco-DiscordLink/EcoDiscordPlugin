@@ -57,14 +57,12 @@ namespace Eco.Plugins.DiscordLink.Modules
             embed.WithTitle(message);
             embed.WithFooter(MessageBuilder.Discord.GetStandardEmbedFooter());
 
-            foreach (ChannelLink playerStatusChannel in DLConfig.Data.PlayerStatusFeedChannels)
+            foreach (ChannelLink playerStatusLink in DLConfig.Data.PlayerStatusFeedChannels)
             {
-                if (!playerStatusChannel.IsValid()) continue;
-                DiscordGuild discordGuild = plugin.GuildByNameOrID(playerStatusChannel.DiscordGuild);
-                if (discordGuild == null) continue;
-                DiscordChannel discordChannel = discordGuild.ChannelByNameOrID(playerStatusChannel.DiscordChannel);
-                if (discordChannel == null) continue;
-                await DiscordUtil.SendAsync(discordChannel, null, embed);
+                if (!playerStatusLink.IsValid())
+                    continue;
+
+                await DiscordUtil.SendAsync(playerStatusLink.Channel, null, embed);
                 ++_opsCount;
             }
         }

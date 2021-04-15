@@ -38,14 +38,12 @@ namespace Eco.Plugins.DiscordLink.Modules
             string itemName = craftingEvent.OrderCount > 1 ? craftingEvent.CraftedItem.DisplayNamePlural : craftingEvent.CraftedItem.DisplayName; 
             string message = $"**{craftingEvent.Citizen.Name}** started crafting {craftingEvent.OrderCount} `{itemName}` at {(craftingEvent.WorldObject as WorldObject).Name}.";
 
-            foreach (ChannelLink craftingChannel in DLConfig.Data.CraftingFeedChannels)
+            foreach (ChannelLink craftingLink in DLConfig.Data.CraftingFeedChannels)
             {
-                if (!craftingChannel.IsValid()) continue;
-                DiscordGuild discordGuild = plugin.GuildByNameOrID(craftingChannel.DiscordGuild);
-                if (discordGuild == null) continue;
-                DiscordChannel discordChannel = discordGuild.ChannelByNameOrID(craftingChannel.DiscordChannel);
-                if (discordChannel == null) continue;
-                await DiscordUtil.SendAsync(discordChannel, message);
+                if (!craftingLink.IsValid())
+                    continue;
+
+                await DiscordUtil.SendAsync(craftingLink.Channel, message);
                 ++_opsCount;
             }
         }

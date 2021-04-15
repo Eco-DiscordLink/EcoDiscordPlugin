@@ -132,19 +132,19 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [ChatSubCommand("DiscordLink", "Lists channels available to the bot in a specific server.", ChatAuthorizationLevel.Admin)]
-        public static void ListChannels(User callingUser, string guildName)
+        public static void ListChannels(User callingUser, string guildNameOrID)
         {
             ExecuteCommand<object>((lUser, args) =>
             {
                 var plugin = Plugins.DiscordLink.DiscordLink.Obj;
 
-                DiscordGuild guild = string.IsNullOrEmpty(guildName)
+                DiscordGuild guild = string.IsNullOrEmpty(guildNameOrID)
                     ? plugin.DefaultGuild
-                    : plugin.GuildByName(guildName);
+                    : plugin.GuildByNameOrID(guildNameOrID);
 
                 // Can happen if DefaultGuild is not configured.
                 if (guild == null)
-                    ReportCommandError(callingUser, $"Failed to find guild with name \"{guildName}\"");
+                    ReportCommandError(callingUser, $"Failed to find guild with name \"{guildNameOrID}\"");
 
                 string joinedChannelNames = string.Join("\n", guild.TextChannelNames());
                 DisplayCommandData(callingUser, "Connected Discord Servers", joinedChannelNames);
@@ -156,16 +156,27 @@ namespace Eco.Plugins.DiscordLink
         #region Message Relaying
 
         [ChatSubCommand("DiscordLink", "Sends a message to a specific server and channel.", ChatAuthorizationLevel.Admin)]
-        public static void SendMessageToDiscordChannel(User callingUser, string guild, string channel, string outerMessage)
+        public static void SendMessageToDiscordChannel(User callingUser, string guildNameOrID, string channelNameOrID, string message)
         {
             ExecuteCommand<object>((lUser, args) =>
             {
                 var plugin = Plugins.DiscordLink.DiscordLink.Obj;
 
-                plugin.SendDiscordMessageAsUser(outerMessage, callingUser, channel, guild).ContinueWith(result =>
+                DiscordGuild guild = plugin.GuildByNameOrID(guildNameOrID);
+                if(guild == null)
                 {
-                    ChatManager.ServerMessageToPlayer(Localizer.NotLocalizedStr(result.Result), callingUser);
-                });
+                    ReportCommandError(callingUser, $"No guild with the name or ID \"{guildNameOrID}\" could be found.");
+                    return;
+                }
+
+                DiscordChannel channel = guild.ChannelByNameOrID(channelNameOrID);
+                if (channel == null)
+                {
+                    ReportCommandError(callingUser, $"No channel with the name or ID \"{channelNameOrID}\" could be found in the guild \"{guild.Name}\".");
+                    return;
+                }
+
+                _ = DiscordUtil.SendAsync(channel, $"**{callingUser.Name.Replace("@", "")}**: {message}");
             }, callingUser);
         }
 

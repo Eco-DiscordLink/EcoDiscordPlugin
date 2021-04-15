@@ -163,12 +163,8 @@ namespace Eco.Plugins.DiscordLink.Modules
                 DiscordChannel targetChannel = null;
                 if (channelLink != null)
                 {
-                    // Get the channel and verify permissions
-                    DiscordGuild discordGuild = plugin.GuildByNameOrID(channelLink.DiscordGuild);
-                    if (discordGuild == null) continue;
-                    targetChannel = discordGuild.ChannelByNameOrID(channelLink.DiscordChannel);
-                    if (targetChannel == null) continue;
-                    if (!DiscordUtil.ChannelHasPermission(targetChannel, Permissions.ReadMessageHistory)) continue;
+                    if (!DiscordUtil.ChannelHasPermission(channelLink.Channel, Permissions.ReadMessageHistory))
+                        continue;
                 }
                 else if(userLink != null)
                 {
@@ -251,15 +247,10 @@ namespace Eco.Plugins.DiscordLink.Modules
                 _targetDisplays.Add(data);
                 if (channelLink != null)
                 {
-                    if (!channelLink.IsValid()) continue;
+                    if (!channelLink.IsValid() || !DiscordUtil.ChannelHasPermission(channelLink.Channel, Permissions.ReadMessageHistory))
+                        continue;
 
-                    // Get the channel and verify permissions
-                    DiscordGuild discordGuild = plugin.GuildByNameOrID(channelLink.DiscordGuild);
-                    if (discordGuild == null) continue;
-                    DiscordChannel discordChannel = discordGuild.ChannelByNameOrID(channelLink.DiscordChannel);
-                    if (discordChannel == null) continue;
-                    if (!DiscordUtil.ChannelHasPermission(discordChannel, Permissions.ReadMessageHistory)) continue;
-                    targetMessages = await DiscordUtil.GetMessagesAsync(discordChannel);
+                    targetMessages = await DiscordUtil.GetMessagesAsync(channelLink.Channel);
                 }
                 else if(userLink != null)
                 {

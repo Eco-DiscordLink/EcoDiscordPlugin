@@ -93,14 +93,12 @@ namespace Eco.Plugins.DiscordLink.Modules
 
             embed.WithFooter(MessageBuilder.Discord.GetStandardEmbedFooter());
 
-            foreach (ChannelLink electionChannel in DLConfig.Data.ElectionFeedChannels)
+            foreach (ChannelLink electionLink in DLConfig.Data.ElectionFeedChannels)
             {
-                if (!electionChannel.IsValid()) continue;
-                DiscordGuild discordGuild = plugin.GuildByNameOrID(electionChannel.DiscordGuild);
-                if (discordGuild == null) continue;
-                DiscordChannel discordChannel = discordGuild.ChannelByNameOrID(electionChannel.DiscordChannel);
-                if (discordChannel == null) continue;
-                await DiscordUtil.SendAsync(discordChannel, null, embed);
+                if (!electionLink.IsValid())
+                    continue;
+
+                await DiscordUtil.SendAsync(electionLink.Channel, null, embed);
                 ++_opsCount;
             }
         }
