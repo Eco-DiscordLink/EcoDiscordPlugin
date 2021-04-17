@@ -30,7 +30,20 @@ namespace Eco.Plugins.DiscordLink
 
         #endregion
 
+        #region DiscordClient
+
+        public static string[] GuildNames(this DiscordClient client) => client.Guilds.Values.Select(guild => guild.Name).ToArray();
+
+        public static DiscordGuild DefaultGuild(this DiscordClient client) => client.Guilds.FirstOrDefault().Value;
+
+        public static DiscordGuild GuildByName(this DiscordClient client, string name) => client.Guilds.Values.FirstOrDefault(guild => guild.Name == name);
+
+        #endregion
+
         #region DiscordGuild
+
+        public static IReadOnlyList<KeyValuePair<ulong, DiscordChannel>> TextChannels(this DiscordGuild guild) => guild.Channels.Where(channel => channel.Value.Type == ChannelType.Text).ToList();
+        public static string[] TextChannelNames(this DiscordGuild guild) => guild.TextChannels().Select(channel => channel.Value.Name).ToArray();
 
         public static bool HasNameOrID(this DiscordGuild guild, string nameOrID)
         {
@@ -39,36 +52,16 @@ namespace Eco.Plugins.DiscordLink
 
             return guild.Name.EqualsCaseInsensitive(nameOrID);
         }
-
-        public static string[] TextChannelNames(this DiscordGuild guild)
-        {
-            return guild != null ? guild.TextChannels().Select(channel => channel.Value.Name).ToArray() : new string[0];
-        }
-        
-        public static IReadOnlyList<KeyValuePair<ulong, DiscordChannel>> TextChannels(this DiscordGuild guild)
-        {
-            return guild != null
-                ? guild.Channels.Where(channel => channel.Value.Type == ChannelType.Text).ToList()
-                : new List<KeyValuePair<ulong, DiscordChannel>>();
-        }
-        
         public static DiscordChannel ChannelByName(this DiscordGuild guild, string channelName)
         {
-            return guild?.TextChannels().FirstOrDefault(channel => channel.Value.Name == channelName).Value;
+            return guild.TextChannels().FirstOrDefault(channel => channel.Value.Name == channelName).Value;
         }
 
         public static DiscordChannel ChannelByNameOrID(this DiscordGuild guild, string channelNameOrID)
         {
-            if (guild == null)
-                return null;
-
-            return DiscordUtil.TryParseSnowflakeID(channelNameOrID, out ulong ID) ? guild.GetChannel(ID) : guild.ChannelByName(channelNameOrID);
-        }
-
-        public async static Task<DiscordMember> MaybeGetMemberAsync(this DiscordGuild guild, ulong userID)
-        {
-            try { return await guild.GetMemberAsync(userID); }
-            catch (NotFoundException) { return null; }
+            return DiscordUtil.TryParseSnowflakeID(channelNameOrID, out ulong ID)
+                ? guild.GetChannel(ID)
+                : guild.ChannelByName(channelNameOrID);
         }
 
         #endregion
@@ -85,31 +78,9 @@ namespace Eco.Plugins.DiscordLink
 
         #endregion
 
-        #region DiscordClient
-
-        public static string[] GuildNames(this DiscordClient client)
-        {
-            return client?.Guilds.Values.Select((guild => guild.Name)).ToArray();
-        }
-
-        public static DiscordGuild DefaultGuild(this DiscordClient client)
-        {
-            return client?.Guilds.FirstOrDefault().Value;
-        }
-     
-        public static DiscordGuild GuildByName(this DiscordClient client, string name)
-        {
-            return client?.Guilds.Values.FirstOrDefault(guild => guild.Name == name);
-        }
-        
-        #endregion
-
         #region DiscordUser
- 
-        public static string UniqueUsername(this DiscordUser user)
-        {
-            return user.Username + user.Discriminator;
-        }
+
+        public static string UniqueUsername(this DiscordUser user) => user.Username + user.Discriminator;
 
         public static bool HasNameOrID(this DiscordUser user, string nameOrID)
         {
@@ -147,10 +118,7 @@ namespace Eco.Plugins.DiscordLink
 
         #region DiscordMessage
 
-        public static bool IsDm (this DiscordMessage message)
-        {
-            return message.Channel.Guild == null;
-        }
+        public static bool IsDm(this DiscordMessage message) => message.Channel.Guild == null;
 
         public static string FormatForLog(this DiscordMessage message) => $"Channel: {message.Channel}\nAuthor: {message.Author}\nMessage: {message.Content}\nAttachments ({message.Attachments.Count}): {string.Join(", ", message.Attachments.Select(a => $"{a.FileName} ({a.FileSize} bytes)"))}";
 

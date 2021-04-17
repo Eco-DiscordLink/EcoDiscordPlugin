@@ -230,7 +230,7 @@ namespace Eco.Plugins.DiscordLink
             List<string> errorMessages = new List<string>();
             if (!DiscordLink.Obj.Client.Connected)
             {
-                errorMessages.Add("[General Verification] No Discord client connected.");
+                errorMessages.Add("[General Verification] Discord Client not connected.");
             }
 
             if (verificationFlags.HasFlag(VerificationFlags.Static))
@@ -302,8 +302,8 @@ namespace Eco.Plugins.DiscordLink
 
                 if (verificationFlags.HasFlag(VerificationFlags.BotData))
                 {
-                        Logger.Warning("Bot not configured to allow reading of full server member list as it lacks the Server Members Intent\nSome features will be unavailable.\nSee install instructions for help with adding intents.");
                     if (DiscordLink.Obj.Client.BotHasIntent(DSharpPlus.DiscordIntents.GuildMembers))
+                        Logger.Warning("Bot is not configured to allow reading of full server member list as it lacks the Server Members Intent\nSome features will be unavailable.\nSee install instructions for help with adding intents.");
                 }
             }
         }

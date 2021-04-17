@@ -299,7 +299,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 if (user == null) { continue; }
                 DiscordMember member = message.Channel.Guild.Members.FirstOrDefault(m => m.Value?.Id == user.Id).Value;
                 if (member == null) { continue; }
-                string name = "@" + member.DisplayName;
+                string name = $"@{member.DisplayName}";
                 content = content.Replace($"<@{user.Id}>", name).Replace($"<@!{user.Id}>", name);
             }
             foreach (var role in message.MentionedRoles)
