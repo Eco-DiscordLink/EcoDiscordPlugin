@@ -81,16 +81,16 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 builder.AppendLine($"Plugin Status: {plugin.GetStatus()}");
                 builder.AppendLine($"Discord Client Status: {plugin.Client.Status}");
                 TimeSpan elapssedTime = DateTime.Now.Subtract(plugin.InitTime);
+                if(verbose)
+                    builder.AppendLine($"Start Time: {plugin.InitTime:yyyy-MM-dd HH:mm}");
                 builder.AppendLine($"Running Time: {(int)elapssedTime.TotalDays}:{elapssedTime.Hours}:{elapssedTime.Minutes}");
 
                 if (!plugin.Client.Connected)
                     return builder.ToString();
 
                 if (verbose)
-                {
-                    builder.AppendLine($"Start Time: {plugin.InitTime:yyyy-MM-dd HH:mm}");
-                    builder.AppendLine($"Connection Time: {plugin.LastConnectionTime:yyyy-MM-dd HH:mm}");
-                }
+                    builder.AppendLine($"Connection Time: {plugin.Client.LastConnectionTime:yyyy-MM-dd HH:mm}");
+
                 builder.AppendLine();
                 builder.AppendLine("--- User Data ---");
                 builder.AppendLine($"Linked users: {DLStorage.PersistentData.LinkedUsers.Count}");
@@ -103,10 +103,6 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
                 if (verbose)
                 {
-                    builder.AppendLine("--- Status ---");
-                    builder.AppendLine($"Start Time: {plugin.InitTime:yyyy-MM-dd HH:mm}");
-                    builder.AppendLine($"Connection Time: {plugin.LastConnectionTime:yyyy-MM-dd HH:mm}");
-
                     builder.AppendLine();
                     builder.AppendLine("--- Config ---");
                     builder.AppendLine($"Name: {plugin.Client.DiscordClient.CurrentUser.Username}");
@@ -134,8 +130,9 @@ namespace Eco.Plugins.DiscordLink.Utilities
                         builder.AppendLine("Tracked Trades:");
                         foreach (var trackedUserTrades in DLStorage.WorldData.PlayerTrackedTrades)
                         {
-                            if (discordUser == null) continue;
                             DiscordUser discordUser = plugin.Client.GetUserAsync(trackedUserTrades.Key).Result;
+                            if (discordUser == null)
+                                continue;
 
                             builder.AppendLine($"[{discordUser.Username}]");
                             foreach (string trade in trackedUserTrades.Value)
