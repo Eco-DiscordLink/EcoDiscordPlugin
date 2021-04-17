@@ -3,6 +3,7 @@ using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using Eco.Gameplay.Economy;
 using Eco.Gameplay.Systems.Chat;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Utils;
@@ -314,6 +315,31 @@ namespace Eco.Plugins.DiscordLink
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
                 await DisplayCommandData(ctx, string.Empty, MessageBuilder.Discord.GetServerInfo(MessageBuilder.ServerInfoComponentFlag.All));
+            }, ctx);
+        }
+
+        [Command("CurrencyReport")]
+        [Description("Prints the Currency Report for the given currency")]
+        [Aliases("DL-Currency")]
+        public async Task CurrencyReport(CommandContext ctx, string currencyNameOrID)
+        {
+            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
+            {
+                Currency currency = EcoUtils.CurrencyByNameOrID(currencyNameOrID);
+                if(currency == null)
+                {
+                    await ReportCommandError(ctx, $"No currency with the name or ID \"{currencyNameOrID}\" could be found.");
+                    return;
+                }
+
+                DiscordLinkEmbed report = MessageBuilder.Discord.GetCurrencyReport(currency, DLConfig.DefaultValues.MaxTopCurrencyHolderCount);
+                if(report == null)
+                {
+                    await ReportCommandError(ctx, $"Could not create a report for `{MessageUtils.StripTags(currency.Name)}` as no one holds this currency and no trades has been made with it.");
+                    return;
+                }
+
+                await DisplayCommandData(ctx, $"Currency report for `{MessageUtils.StripTags(currency.Name)}`", report);
             }, ctx);
         }
 

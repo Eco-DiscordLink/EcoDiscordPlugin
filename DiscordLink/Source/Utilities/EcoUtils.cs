@@ -2,6 +2,7 @@
 using Eco.Gameplay.Civics;
 using Eco.Gameplay.Civics.Elections;
 using Eco.Gameplay.Civics.Laws;
+using Eco.Gameplay.Economy;
 using Eco.Gameplay.Players;
 using Eco.Shared.Utils;
 using System.Collections.Generic;
@@ -16,6 +17,10 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         public static User GetUserbyName(string targetUserName) => UserManager.FindUserByName(targetUserName);
         public static User GetOnlineUserbyName(string targetUserName) => UserManager.OnlineUsers.FirstOrDefault(user => user.Name.EqualsCaseInsensitive(targetUserName));
+
+        public static Currency CurrencyByName(string currencyName) => CurrencyManager.Currencies.FirstOrDefault(c => c.Name.EqualsCaseInsensitive(currencyName));
+        public static Currency CurrencyByID(int currencyID) => CurrencyManager.Currencies.FirstOrDefault(c => c.Id == currencyID);
+        public static Currency CurrencyByNameOrID(string currencyNameOrID) => int.TryParse(currencyNameOrID, out int ID) ? CurrencyByID(ID) : CurrencyByName(currencyNameOrID);
 
         public static bool SendServerMessage(string message, bool permanent = false, User user = null )
         {

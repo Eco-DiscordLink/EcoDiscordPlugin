@@ -38,63 +38,6 @@ namespace Eco.Plugins.DiscordLink.Modules
             if (!(target is CurrencyChannelLink currencyLink))
                 return;
 
-            void AddCurrencyEntry(Currency currency, List<Tuple<string, DiscordLinkEmbed>> tagAndContent)
-            {
-                DiscordLinkEmbed embed = new DiscordLinkEmbed();
-                embed.WithTitle(MessageUtils.StripTags(currency.Name));
-                embed.WithFooter(MessageBuilder.Discord.GetStandardEmbedFooter());
-
-                // Find and sort relevant accounts
-                IEnumerable<BankAccount> accounts = BankAccountManager.Obj.Accounts.Where(acc => acc.GetCurrencyHoldingVal(currency) >= 1).OrderByDescending(acc => acc.GetCurrencyHoldingVal(currency));
-                int tradesCount = currencyTradesMap.Keys.Contains(currency.Id) ? currencyTradesMap[currency.Id] : 0;
-
-                var accountEnumerator = accounts.GetEnumerator();
-                string topAccounts = string.Empty;
-                string amounts = string.Empty;
-                string topAccountHolders = string.Empty;
-                for (int i = 0; i < currencyLink.MaxTopCurrencyHolderCount && accountEnumerator.MoveNext(); ++i)
-                {
-                    // Some bank accounts (e.g treasury) have no creator and one will belong to the bot
-                    // Unbacked currencies has their creator owning infinity
-                    float currencyAmount = accountEnumerator.Current.GetCurrencyHoldingVal(currency);
-                    if (accountEnumerator.Current.Creator == null || accountEnumerator.Current.Creator == DiscordLink.Obj.EcoUser || currencyAmount == float.PositiveInfinity)
-                    {
-                        --i;
-                        continue;
-                    }
-                    topAccounts += $"{MessageUtils.StripTags(accountEnumerator.Current.Name)}\n";
-                    amounts += $"**{accountEnumerator.Current.GetCurrencyHoldingVal(currency):n0}**\n";
-                    topAccountHolders += $"{accountEnumerator.Current.Creator.Name}\n";
-                }
-
-                if (tradesCount <= 0 && string.IsNullOrWhiteSpace(topAccounts))
-                    return;
-
-                string backededItemName = currency.Backed ? $"{currency.BackingItem.DisplayName}" : "Personal";
-
-                // Build message
-                embed.AddField("Total trades", tradesCount.ToString("n0"), inline: true);
-                embed.AddField("Amount in circulation", currency.Circulation.ToString("n0"), inline: true);
-                embed.AddAlignmentField();
-
-                embed.AddField("Backing", backededItemName, inline: true);
-                embed.AddField("Coins per item", currency.CoinsPerItem.ToString("n0"), inline: true);
-                embed.AddAlignmentField();
-
-                if (!string.IsNullOrWhiteSpace(topAccounts))
-                {
-                    embed.AddField("Top Holders", topAccountHolders, inline: true);
-                    embed.AddField("Amount", amounts, inline: true);
-                    embed.AddField("Account", topAccounts, inline: true);
-                }
-                else
-                {
-                    embed.AddField("Top Holders", "--- No player holding this currency---", inline: true);
-                }
-
-                tagAndContent.Add(new Tuple<string, DiscordLinkEmbed>($"{BaseTag} [{currency.Id}]", embed));
-            }
-
             // Figure out which displays to enable based on config
             bool mintedExists = currencies.Any(c => c.Backed);
             bool useMinted = currencyLink.UseMintedCurrency == CurrencyTypeDisplayCondition.Always
@@ -111,7 +54,9 @@ namespace Eco.Plugins.DiscordLink.Modules
                 var currencyEnumerator = mintedCurrencies.GetEnumerator();
                 for (int i = 0; i < currencyLink.MaxMintedCount && currencyEnumerator.MoveNext(); ++i)
                 {
-                    AddCurrencyEntry(currencyEnumerator.Current, tagAndContent);
+                    DiscordLinkEmbed currencyReport = MessageBuilder.Discord.GetCurrencyReport(currencyEnumerator.Current, currencyLink.MaxTopCurrencyHolderCount);
+                    if(currencyReport != null)
+                        tagAndContent.Add(new Tuple<string, DiscordLinkEmbed>($"{BaseTag} [{currencyEnumerator.Current.Id}]", currencyReport));
                 }
             }
 
@@ -124,7 +69,9 @@ namespace Eco.Plugins.DiscordLink.Modules
                     if (currencyEnumerator.Current.Creator == DiscordLink.Obj.EcoUser)
                         continue; // Ignore the bot currency
 
-                    AddCurrencyEntry(currencyEnumerator.Current, tagAndContent);
+                    DiscordLinkEmbed currencyReport = MessageBuilder.Discord.GetCurrencyReport(currencyEnumerator.Current, currencyLink.MaxTopCurrencyHolderCount);
+                    if (currencyReport != null)
+                        tagAndContent.Add(new Tuple<string, DiscordLinkEmbed>($"{BaseTag} [{currencyEnumerator.Current.Id}]", currencyReport));
                 }
             }
         }

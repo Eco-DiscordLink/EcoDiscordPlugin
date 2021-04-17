@@ -17,6 +17,7 @@ using Eco.Shared.Utils;
 using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
 using Eco.Shared;
 using DSharpPlus;
+using Eco.Gameplay.Economy;
 
 namespace Eco.Plugins.DiscordLink.Utilities
 {
@@ -455,6 +456,65 @@ namespace Eco.Plugins.DiscordLink.Utilities
                         embed.AddAlignmentField();
                         embed.AddAlignmentField();
                     }
+                }
+
+                return embed;
+            }
+
+            public static DiscordLinkEmbed GetCurrencyReport(Currency currency, int maxTopHolders)
+            {
+                var currencyTradesMap = DLStorage.WorldData.CurrencyToTradeCountMap;
+
+                DiscordLinkEmbed embed = new DiscordLinkEmbed();
+                embed.WithTitle(MessageUtils.StripTags(currency.Name));
+                embed.WithFooter(GetStandardEmbedFooter());
+
+                // Find and sort relevant accounts
+                IEnumerable<BankAccount> accounts = BankAccountManager.Obj.Accounts.Where(acc => acc.GetCurrencyHoldingVal(currency) >= 1).OrderByDescending(acc => acc.GetCurrencyHoldingVal(currency));
+                int tradesCount = currencyTradesMap.Keys.Contains(currency.Id) ? currencyTradesMap[currency.Id] : 0;
+
+                var accountEnumerator = accounts.GetEnumerator();
+                string topAccounts = string.Empty;
+                string amounts = string.Empty;
+                string topAccountHolders = string.Empty;
+                for (int i = 0; i < maxTopHolders && accountEnumerator.MoveNext(); ++i)
+                {
+                    // Some bank accounts (e.g treasury) have no creator and one will belong to the bot
+                    // Unbacked currencies has their creator owning infinity
+                    float currencyAmount = accountEnumerator.Current.GetCurrencyHoldingVal(currency);
+                    if (accountEnumerator.Current.Creator == null || accountEnumerator.Current.Creator == DiscordLink.Obj.EcoUser || currencyAmount == float.PositiveInfinity)
+                    {
+                        --i;
+                        continue;
+                    }
+                    topAccounts += $"{MessageUtils.StripTags(accountEnumerator.Current.Name)}\n";
+                    amounts += $"**{accountEnumerator.Current.GetCurrencyHoldingVal(currency):n0}**\n";
+                    topAccountHolders += $"{accountEnumerator.Current.Creator.Name}\n";
+                }
+
+                if (tradesCount <= 0 && string.IsNullOrWhiteSpace(topAccounts))
+                    return null;
+
+                string backededItemName = currency.Backed ? $"{currency.BackingItem.DisplayName}" : "Personal";
+
+                // Build message
+                embed.AddField("Total trades", tradesCount.ToString("n0"), inline: true);
+                embed.AddField("Amount in circulation", currency.Circulation.ToString("n0"), inline: true);
+                embed.AddAlignmentField();
+
+                embed.AddField("Backing", backededItemName, inline: true);
+                embed.AddField("Coins per item", currency.CoinsPerItem.ToString("n0"), inline: true);
+                embed.AddAlignmentField();
+
+                if (!string.IsNullOrWhiteSpace(topAccounts))
+                {
+                    embed.AddField("Top Holders", topAccountHolders, inline: true);
+                    embed.AddField("Amount", amounts, inline: true);
+                    embed.AddField("Account", topAccounts, inline: true);
+                }
+                else
+                {
+                    embed.AddField("Top Holders", "--- No player holding this currency---", inline: true);
                 }
 
                 return embed;
