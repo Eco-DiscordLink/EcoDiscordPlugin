@@ -92,6 +92,7 @@ namespace Eco.Plugins.DiscordLink
             WorldGeneratorPlugin.OnFinishGenerate.AddUnique(this.HandleWorldReset);
             PluginManager.Controller.RunIfOrWhenInited(PostServerInitialize); // Defer some initialization for when the server initialization is completed
 
+            // Start the Discord client so that a connection has hopefully been established before the server is done initializing
             _ = Client.Start().Result;
 
             if(!string.IsNullOrWhiteSpace(ModIOAppID) && !string.IsNullOrWhiteSpace(ModIODeveloperToken)) // Only check for mod versioning if the data required for it exists
@@ -101,7 +102,12 @@ namespace Eco.Plugins.DiscordLink
         private void PostServerInitialize()
         {
             if (!Client.Connected)
+            {
+                Status = "Initialization aborted";
+                Logger.Error("Discord client did not connect before server initialization was completed. Use restart commands to make a new connection attempt");
+                Client.OnConnected.Add(HandleClientConnected);
                 return;
+            }
 
             Status = "Performing post server start initialization";
 
