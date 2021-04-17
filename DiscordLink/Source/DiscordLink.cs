@@ -202,7 +202,7 @@ namespace Eco.Plugins.DiscordLink
             return new Result(ResultType.None);
         }
 
-        public void HandleEvent(DLEventType eventType, object data)
+        public void HandleEvent(DLEventType eventType, params object[] data)
         {
             Logger.DebugVerbose($"Event of type {eventType} received");
 

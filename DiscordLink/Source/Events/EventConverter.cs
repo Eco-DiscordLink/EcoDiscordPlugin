@@ -62,12 +62,13 @@ namespace Eco.Plugins.DiscordLink.Events
             SystemUtil.StopAndDestroyTimer(ref _tradePostingTimer);
         }
 
-        public void HandleEvent(DLEventType eventType, object data)
+        public void HandleEvent(DLEventType eventType, params object[] data)
         {
             switch(eventType)
             {
                 case DLEventType.Trade:
-                    if (!(data is CurrencyTrade tradeEvent)) return;
+                    if (!(data[0] is CurrencyTrade tradeEvent))
+                        return;
 
                     // Store the event in a list in order to accumulate trade events that should be considered as one. We do this as each item in a trade will fire an individual event and we want to summarize them
                     Tuple<int, int> IDTuple = new Tuple<int, int>(tradeEvent.Citizen.Id, (tradeEvent.WorldObject as WorldObject).ID);

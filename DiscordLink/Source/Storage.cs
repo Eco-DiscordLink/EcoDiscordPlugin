@@ -64,13 +64,14 @@ namespace Eco.Plugins.DiscordLink
             Write(); // Make sure we don't read old data in case of an ungraceful shutdown
         }
 
-        public void HandleEvent(DLEventType eventType, object data)
+        public void HandleEvent(DLEventType eventType, params object[] data)
         {
             switch(eventType)
             {
                 // Keep track of the amount of trades per currency
                 case DLEventType.AccumulatedTrade:
-                    if (!(data is IEnumerable<List<CurrencyTrade>> accumulatedTrade)) return;
+                    if (!(data[0] is IEnumerable<List<CurrencyTrade>> accumulatedTrade))
+                        return;
                     
                     foreach(var list in accumulatedTrade)
                     {
