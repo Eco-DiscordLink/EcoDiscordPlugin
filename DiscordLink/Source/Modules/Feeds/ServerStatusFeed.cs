@@ -54,7 +54,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 if (!serverStatusLink.IsValid())
                     continue;
                 
-                await DiscordUtil.SendAsync(serverStatusLink.Channel, null, embed);
+                await DiscordLink.Obj.Client.SendMessageAsync(serverStatusLink.Channel, null, embed);
                 ++_opsCount;
             }
         }

@@ -76,10 +76,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             DiscordLink plugin = DiscordLink.Obj;
             foreach (ChannelLink snippetLink in DLConfig.Data.SnippetInputChannels)
             {
-                if (!snippetLink.IsValid() || !DiscordUtil.ChannelHasPermission(snippetLink.Channel, Permissions.ReadMessageHistory))
-                    continue;
-
-                IReadOnlyList<DiscordMessage> snippetChannelMessages = await DiscordUtil.GetMessagesAsync(snippetLink.Channel);
+                IReadOnlyList<DiscordMessage> snippetChannelMessages = await plugin.Client.GetMessagesAsync(snippetLink.Channel);
                 if (snippetChannelMessages == null)
                     continue;
 

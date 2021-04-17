@@ -42,7 +42,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 if (!craftingLink.IsValid())
                     continue;
 
-                await DiscordUtil.SendAsync(craftingLink.Channel, message);
+                await plugin.Client.SendMessageAsync(craftingLink.Channel, message);
                 ++_opsCount;
             }
         }

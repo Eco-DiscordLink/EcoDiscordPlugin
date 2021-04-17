@@ -48,7 +48,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             bool allowGlobalMention = (globalMentionPermission == GlobalMentionPermission.AnyUser
                 || globalMentionPermission == GlobalMentionPermission.Admin && chatMessage.Citizen.IsAdmin);
 
-            _ = DiscordUtil.SendAsync(channel, MessageUtil.FormatMessageForDiscord(chatMessage.Message, channel, chatMessage.Citizen.Name, allowGlobalMention));
+            _ = DiscordLink.Obj.Client.SendMessageAsync(channel, MessageUtil.FormatMessageForDiscord(chatMessage.Message, channel, chatMessage.Citizen.Name, allowGlobalMention));
             ++_opsCount;
         }
     }

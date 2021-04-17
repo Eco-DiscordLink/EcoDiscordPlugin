@@ -284,7 +284,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         public static async Task<string> FormatMessageForEco(DiscordMessage message, string ecoChannel)
         {
-            DiscordMember author = await message.Channel.Guild.MaybeGetMemberAsync(message.Author.Id);
+            DiscordMember author = await message.Channel.Guild.GetMemberAsync(message.Author.Id);
             string nametag = author != null
                 ? Text.Bold(Text.Color(EcoNametagColor, author.DisplayName))
                 : message.Author.Username;

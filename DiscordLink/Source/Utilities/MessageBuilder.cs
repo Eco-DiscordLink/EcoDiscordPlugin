@@ -76,13 +76,14 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 {
                     builder.AppendLine($"Server Name: {MessageUtil.FirstNonEmptyString(DLConfig.Data.ServerName, MessageUtil.StripTags(NetworkManager.GetServerInfo().Description), "[Server Title Missing]")}");
                     builder.AppendLine($"Server Version: {EcoVersion.VersionNumber}");
-                    builder.AppendLine($"D# Version: {plugin.DiscordClient.VersionString}");
+                    builder.AppendLine($"D# Version: {plugin.Client.DiscordClient.VersionString}");
                 }
-                builder.AppendLine($"Status: {plugin.GetStatus()}");
+                builder.AppendLine($"Plugin Status: {plugin.GetStatus()}");
+                builder.AppendLine($"Discord Client Status: {plugin.Client.Status}");
                 TimeSpan elapssedTime = DateTime.Now.Subtract(plugin.InitTime);
                 builder.AppendLine($"Running Time: {(int)elapssedTime.TotalDays}:{elapssedTime.Hours}:{elapssedTime.Minutes}");
 
-                if (!plugin.DiscordConnected)
+                if (!plugin.Client.Connected)
                     return builder.ToString();
 
                 if (verbose)
@@ -108,8 +109,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
                     builder.AppendLine();
                     builder.AppendLine("--- Config ---");
-                    builder.AppendLine($"Name: {plugin.DiscordClient.CurrentUser.Username}");
-                    builder.AppendLine($"Has GuildMembers Intent: {DiscordUtil.BotHasIntent(DiscordIntents.GuildMembers)}");
+                    builder.AppendLine($"Name: {plugin.Client.DiscordClient.CurrentUser.Username}");
+                    builder.AppendLine($"Has GuildMembers Intent: {plugin.Client.BotHasIntent(DiscordIntents.GuildMembers)}");
 
                     builder.AppendLine();
                     builder.AppendLine("--- Storage - Persistent ---");
@@ -119,7 +120,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                         User ecoUser = UserManager.FindUserById(linkedUser.SteamID, linkedUser.SlgID);
                         string ecoUserName = (ecoUser != null) ? MessageUtil.StripTags(ecoUser.Name) : "[Uknown Eco User]";
 
-                        DiscordUser discordUser = plugin.DiscordClient.GetUserAsync(ulong.Parse(linkedUser.DiscordID)).Result;
+                        DiscordUser discordUser = plugin.Client.GetUserAsync(linkedUser.DiscordID).Result;
                         string discordUserName = (discordUser != null) ? discordUser.Username : "[Unknown Discord User]";
 
                         string verified = (linkedUser.Verified) ? "Verified" : "Unverified";
@@ -133,8 +134,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
                         builder.AppendLine("Tracked Trades:");
                         foreach (var trackedUserTrades in DLStorage.WorldData.PlayerTrackedTrades)
                         {
-                            DiscordUser discordUser = plugin.DiscordClient.GetUserAsync(trackedUserTrades.Key).Result;
                             if (discordUser == null) continue;
+                            DiscordUser discordUser = plugin.Client.GetUserAsync(trackedUserTrades.Key).Result;
 
                             builder.AppendLine($"[{discordUser.Username}]");
                             foreach (string trade in trackedUserTrades.Value)
@@ -146,7 +147,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
                     builder.AppendLine();
                     builder.AppendLine("Cached Guilds:");
-                    foreach (DiscordGuild guild in plugin.DiscordClient.Guilds.Values)
+                    foreach (DiscordGuild guild in plugin.Client.DiscordClient.Guilds.Values)
                     {
                         builder.AppendLine($"- {guild.Name} ({guild.Id})");
                         builder.AppendLine("   Cached Channels");
@@ -154,11 +155,11 @@ namespace Eco.Plugins.DiscordLink.Utilities
                         {
                             builder.AppendLine($"  - {channel.Name} ({channel.Id})");
                             builder.AppendLine($"      Permissions:");
-                            builder.AppendLine($"          Read Messages:          {DiscordUtil.ChannelHasPermission(channel, Permissions.ReadMessageHistory)}");
-                            builder.AppendLine($"          Send Messages:          {DiscordUtil.ChannelHasPermission(channel, Permissions.SendMessages)}");
-                            builder.AppendLine($"          Manage Messages:        {DiscordUtil.ChannelHasPermission(channel, Permissions.ManageMessages)}");
-                            builder.AppendLine($"          Embed Links:            {DiscordUtil.ChannelHasPermission(channel, Permissions.EmbedLinks)}");
-                            builder.AppendLine($"          Mention Everyone/Here:  {DiscordUtil.ChannelHasPermission(channel, Permissions.MentionEveryone)}");
+                            builder.AppendLine($"          Read Messages:          {plugin.Client.ChannelHasPermission(channel, Permissions.ReadMessageHistory)}");
+                            builder.AppendLine($"          Send Messages:          {plugin.Client.ChannelHasPermission(channel, Permissions.SendMessages)}");
+                            builder.AppendLine($"          Manage Messages:        {plugin.Client.ChannelHasPermission(channel, Permissions.ManageMessages)}");
+                            builder.AppendLine($"          Embed Links:            {plugin.Client.ChannelHasPermission(channel, Permissions.EmbedLinks)}");
+                            builder.AppendLine($"          Mention Everyone/Here:  {plugin.Client.ChannelHasPermission(channel, Permissions.MentionEveryone)}");
                         }
                     }
                 }

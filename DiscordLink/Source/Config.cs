@@ -130,7 +130,7 @@ namespace Eco.Plugins.DiscordLink
             if (tokenChanged)
             {
                 Logger.Info("Discord Bot Token changed - Restarting");
-                bool restarted = DiscordLink.Obj.RestartClient().Result;
+                bool restarted = DiscordLink.Obj.Restart().Result;
                 if (!restarted)
                     Logger.Info("Restart failed or a restart was already in progress");
 
@@ -228,7 +228,7 @@ namespace Eco.Plugins.DiscordLink
         public void VerifyConfig(VerificationFlags verificationFlags = VerificationFlags.All)
         {
             List<string> errorMessages = new List<string>();
-            if (DiscordLink.Obj.DiscordClient == null)
+            if (!DiscordLink.Obj.Client.Connected)
             {
                 errorMessages.Add("[General Verification] No Discord client connected.");
             }
@@ -262,7 +262,7 @@ namespace Eco.Plugins.DiscordLink
                 }
             }
 
-            if (DiscordLink.Obj.DiscordClient != null)
+            if (DiscordLink.Obj.Client.Connected)
             {
                 // Discord guild and channel information isn't available the first time this function is called
                 if (verificationFlags.HasFlag(VerificationFlags.ChannelLinks) && ChannelLinks.Count > 0)
@@ -302,8 +302,8 @@ namespace Eco.Plugins.DiscordLink
 
                 if (verificationFlags.HasFlag(VerificationFlags.BotData))
                 {
-                    if ((DiscordLink.Obj.DiscordClient.Intents & DSharpPlus.DiscordIntents.GuildMembers) == 0)
                         Logger.Warning("Bot not configured to allow reading of full server member list as it lacks the Server Members Intent\nSome features will be unavailable.\nSee install instructions for help with adding intents.");
+                    if (DiscordLink.Obj.Client.BotHasIntent(DSharpPlus.DiscordIntents.GuildMembers))
                 }
             }
         }

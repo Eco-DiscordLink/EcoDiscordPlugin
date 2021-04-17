@@ -163,7 +163,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 DiscordChannel targetChannel = null;
                 if (channelLink != null)
                 {
-                    if (!DiscordUtil.ChannelHasPermission(channelLink.Channel, Permissions.ReadMessageHistory))
+                    if (!plugin.Client.ChannelHasPermission(channelLink.Channel, Permissions.ReadMessageHistory))
                         continue;
                 }
                 else if(userLink != null)
@@ -175,7 +175,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
                 foreach (ulong messageID in channelDisplayData.MessageIDs)
                 {
-                    DiscordMessage message = await DiscordUtil.GetMessageAsync(targetChannel, messageID);
+                    DiscordMessage message = await plugin.Client.GetMessageAsync(targetChannel, messageID);
                     if (message == null)
                     {
                         _dirty = true;
@@ -188,7 +188,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                     {
                         if (message.Content.Contains(tagAndContent.Item1))
                         {
-                            _ = DiscordUtil.ModifyAsync(message, tagAndContent.Item1, tagAndContent.Item2);
+                            _ = plugin.Client.ModifyMessageAsync(message, tagAndContent.Item1, tagAndContent.Item2);
                             matchedTags.Add(tagAndContent.Item1);
                             found = true;
                             ++_opsCount;
@@ -203,7 +203,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 // Delete the messages that are no longer relevant
                 foreach(DiscordMessage message in unmatchedMessages)
                 {
-                    DiscordUtil.DeleteAsync(message).Wait();
+                    plugin.Client.DeleteMessageAsync(message).Wait();
                     createdOrDestroyedMessage = true;
                     ++_opsCount;
                 }
@@ -214,7 +214,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 {
                     if(!matchedTags.Contains(tagAndContent.Item1))
                     {
-                        DiscordUtil.SendAsync(targetChannel, tagAndContent.Item1, tagAndContent.Item2).Wait();
+                        plugin.Client.SendMessageAsync(targetChannel, tagAndContent.Item1, tagAndContent.Item2).Wait();
                         createdOrDestroyedMessage = true;
                         ++_opsCount;
                     }
@@ -247,10 +247,10 @@ namespace Eco.Plugins.DiscordLink.Modules
                 _targetDisplays.Add(data);
                 if (channelLink != null)
                 {
-                    if (!channelLink.IsValid() || !DiscordUtil.ChannelHasPermission(channelLink.Channel, Permissions.ReadMessageHistory))
+                    if (!channelLink.IsValid())
                         continue;
 
-                    targetMessages = await DiscordUtil.GetMessagesAsync(channelLink.Channel);
+                    targetMessages = await plugin.Client.GetMessagesAsync(channelLink.Channel);
                 }
                 else if(userLink != null)
                 {

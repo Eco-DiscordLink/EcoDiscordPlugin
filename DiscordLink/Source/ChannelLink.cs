@@ -79,20 +79,17 @@ namespace Eco.Plugins.DiscordLink
             if (string.IsNullOrWhiteSpace(DiscordServer) || string.IsNullOrWhiteSpace(DiscordChannel))
                 return false;
 
-            DiscordClient client = DiscordLink.Obj.DiscordClient;
-            Guild = DiscordUtil.TryParseSnowflakeID(DiscordServer, out ulong guildID)
-                ? client.Guilds[guildID]
-                : client.Guilds.Values.FirstOrDefault(guild => (guild.Name.EqualsCaseInsensitive(DiscordServer)));
-
-            if (Guild == null)
+            DiscordGuild guild = DiscordLink.Obj.Client.GuildByNameOrID(DiscordServer);
+            if (guild == null)
                 return false; // The channel will always fail if the guild fails
 
-            Channel = Guild.ChannelByNameOrID(DiscordChannel);
-            Channel = DiscordUtil.TryParseSnowflakeID(DiscordChannel, out ulong channelID)
-                ? Guild.Channels[channelID]
-                : Guild.Channels.Values.FirstOrDefault(channel => (channel.Name.EqualsCaseInsensitive(DiscordServer)));
+            DiscordChannel channel = Guild.ChannelByNameOrID(DiscordChannel);
+            if (guild == null)
+                return false;
 
-            return Channel != null;
+            Guild = guild;
+            Channel = channel;
+            return true;
         }
 
         public virtual bool MakeCorrections()

@@ -89,7 +89,7 @@ namespace Eco.Plugins.DiscordLink
                 else
                 {
                     // Either make sure we have permission to use embeds or convert the embed to text
-                    if (DiscordUtil.ChannelHasPermission(ctx.Channel, Permissions.EmbedLinks))
+                    if (DiscordLink.Obj.Client.ChannelHasPermission(ctx.Channel, Permissions.EmbedLinks))
                     {
                         await Respond(ctx, fullTextContent, embedContent);
                     }
@@ -113,7 +113,7 @@ namespace Eco.Plugins.DiscordLink
                     return true;
 
                 case PermissionType.Admin:
-                    return DiscordUtil.MemberIsAdmin(ctx.Member);
+                    return DiscordLink.Obj.Client.MemberIsAdmin(ctx.Member);
             }
             return false;
         }

@@ -97,7 +97,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 if (!electionLink.IsValid())
                     continue;
 
-                await DiscordUtil.SendAsync(electionLink.Channel, null, embed);
+                await DiscordLink.Obj.Client.SendMessageAsync(electionLink.Channel, null, embed);
                 ++_opsCount;
             }
         }

@@ -93,7 +93,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                     if (!tradeLink.IsValid())
                         continue;
 
-                    _ = DiscordUtil.SendAsync(tradeLink.Channel, string.Empty, embed);
+                    _ = DiscordLink.Obj.Client.SendMessageAsync(tradeLink.Channel, string.Empty, embed);
                     ++_opsCount;
                 }
             }

@@ -125,7 +125,7 @@ namespace Eco.Plugins.DiscordLink
             ExecuteCommand<object>((lUser, args) =>
             {
                 var plugin = Plugins.DiscordLink.DiscordLink.Obj;
-                string joinedGuildNames = string.Join("\n", plugin.GuildNames);
+                string joinedGuildNames = string.Join("\n", plugin.Client.DiscordClient.GuildNames());
 
                 DisplayCommandData(callingUser, "Connected Discord Servers", joinedGuildNames);
             }, callingUser);
@@ -139,8 +139,8 @@ namespace Eco.Plugins.DiscordLink
                 var plugin = Plugins.DiscordLink.DiscordLink.Obj;
 
                 DiscordGuild guild = string.IsNullOrEmpty(guildNameOrID)
-                    ? plugin.DefaultGuild
-                    : plugin.GuildByNameOrID(guildNameOrID);
+                    ? plugin.Client.DiscordClient.DefaultGuild()
+                    : plugin.Client.GuildByNameOrID(guildNameOrID);
 
                 // Can happen if DefaultGuild is not configured.
                 if (guild == null)
@@ -162,7 +162,7 @@ namespace Eco.Plugins.DiscordLink
             {
                 var plugin = Plugins.DiscordLink.DiscordLink.Obj;
 
-                DiscordGuild guild = plugin.GuildByNameOrID(guildNameOrID);
+                DiscordGuild guild = plugin.Client.GuildByNameOrID(guildNameOrID);
                 if(guild == null)
                 {
                     ReportCommandError(callingUser, $"No guild with the name or ID \"{guildNameOrID}\" could be found.");
@@ -176,7 +176,7 @@ namespace Eco.Plugins.DiscordLink
                     return;
                 }
 
-                _ = DiscordUtil.SendAsync(channel, $"**{callingUser.Name.Replace("@", "")}**: {message}");
+                _ = plugin.Client.SendMessageAsync(channel, $"**{callingUser.Name.Replace("@", "")}**: {message}");
             }, callingUser);
         }
 
@@ -268,7 +268,7 @@ namespace Eco.Plugins.DiscordLink
             {
                 var plugin = Plugins.DiscordLink.DiscordLink.Obj;
 
-                if (!DiscordUtil.BotHasIntent(DiscordIntents.GuildMembers))
+                if (!plugin.Client.BotHasIntent(DiscordIntents.GuildMembers))
                 {
                     ReportCommandError(callingUser, $"This server is not configured to use account linking as the bot lacks the elevated Guild Members Intent.");
                     return;
@@ -276,9 +276,9 @@ namespace Eco.Plugins.DiscordLink
 
                 // Find the Discord user
                 DiscordMember matchingMember = null;
-                foreach (DiscordGuild guild in plugin.DiscordClient.Guilds.Values)
+                foreach (DiscordGuild guild in plugin.Client.DiscordClient.Guilds.Values)
                 {
-                    IReadOnlyCollection<DiscordMember> guildMembers = DiscordUtil.GetGuildMembersAsync(guild).Result;
+                    IReadOnlyCollection<DiscordMember> guildMembers = plugin.Client.GetGuildMembersAsync(guild).Result;
                     if (guildMembers == null)
                         continue;
 
@@ -320,7 +320,7 @@ namespace Eco.Plugins.DiscordLink
                 LinkedUserManager.AddLinkedUser(callingUser, matchingMember.Id.ToString(), matchingMember.Guild.Id.ToString());
 
                 // Notify the Discord account that a link has been made and ask for verification
-                _ = DiscordUtil.SendDMAsync(matchingMember, null, MessageBuilder.Discord.GetVerificationDM(callingUser));
+                _ = plugin.Client.SendDMAsync(matchingMember, null, MessageBuilder.Discord.GetVerificationDM(callingUser));
 
                 // Notify the Eco user that the link has been created and that verification is required
                 ReportCommandInfo(callingUser, $"Your account has been linked.\nThe link requires verification before becoming active.\nInstructions have been sent to the linked Discord account.");

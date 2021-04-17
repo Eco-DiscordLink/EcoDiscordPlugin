@@ -57,7 +57,7 @@ namespace Eco.Plugins.DiscordLink
         {
             DiscordLink plugin = DiscordLink.Obj;
             Logger.Info("Restart command executed - Restarting");
-            bool restarted = plugin.RestartClient().Result;
+            bool restarted = plugin.Restart().Result;
 
             string result;
             if (restarted)

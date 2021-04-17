@@ -152,6 +152,8 @@ namespace Eco.Plugins.DiscordLink
             return message.Channel.Guild == null;
         }
 
+        public static string FormatForLog(this DiscordMessage message) => $"Channel: {message.Channel}\nAuthor: {message.Author}\nMessage: {message.Content}\nAttachments ({message.Attachments.Count}): {string.Join(", ", message.Attachments.Select(a => $"{a.FileName} ({a.FileSize} bytes)"))}";
+
         #endregion
     }
 }
