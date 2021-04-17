@@ -4,6 +4,9 @@ namespace Eco.Plugins.DiscordLink
 {
     public static class DLConstants
     {
+        public const string ECO_USER_STEAM_ID = "DiscordLinkSteam";
+        public const string ECO_USER_SLG_ID = "DiscordLinkSlg";
+
         public const string ECHO_COMMAND_TOKEN = "[ECHO]";
         public const string DEFAULT_CHAT_CHANNEL = "General";
 

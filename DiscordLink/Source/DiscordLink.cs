@@ -12,6 +12,7 @@ using Eco.Plugins.DiscordLink.Utilities;
 using Eco.WorldGenerator;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -27,6 +28,7 @@ namespace Eco.Plugins.DiscordLink
         public static DiscordLink Obj { get { return PluginManager.GetPlugin<DiscordLink>(); } }
         public DLDiscordClient Client { get; private set; } = new DLDiscordClient();
         public List<Module> Modules { get; private set; } = new List<Module>();
+        public User EcoUser { get; private set; } = null;
         public IPluginConfig PluginConfig { get { return DLConfig.Instance.PluginConfig; } }
         public ThreadSafeAction<object, string> ParamChanged { get; set; }
         public DateTime InitTime { get; private set; } = DateTime.MinValue;
@@ -95,7 +97,13 @@ namespace Eco.Plugins.DiscordLink
             // Start the Discord client so that a connection has hopefully been established before the server is done initializing
             _ = Client.Start().Result;
 
-            if(!string.IsNullOrWhiteSpace(ModIOAppID) && !string.IsNullOrWhiteSpace(ModIODeveloperToken)) // Only check for mod versioning if the data required for it exists
+            // Ensure that the bot Eco user exists
+            EcoUser = UserManager.Users.FirstOrDefault(u => u.SlgId == DLConstants.ECO_USER_SLG_ID && u.SteamId == DLConstants.ECO_USER_STEAM_ID);
+            if (EcoUser == null)
+                EcoUser = UserManager.CreateNewUser(DLConstants.ECO_USER_STEAM_ID, DLConstants.ECO_USER_SLG_ID, !string.IsNullOrWhiteSpace(DLConfig.Data.EcoBotName) ? DLConfig.Data.EcoBotName : DLConfig.DefaultValues.EcoBotName);
+
+            // Check mod versioning if the required data exists
+            if (!string.IsNullOrWhiteSpace(ModIOAppID) && !string.IsNullOrWhiteSpace(ModIODeveloperToken))
                 ModVersioning.GetModInit(ModIOAppID, ModIODeveloperToken, "DiscordLink", "DiscordLink", ConsoleColor.Cyan, "DiscordLink");
         }
 
@@ -112,8 +120,6 @@ namespace Eco.Plugins.DiscordLink
             Status = "Performing post server start initialization";
 
             DLConfig.Instance.VerifyConfig(DLConfig.VerificationFlags.ChannelLinks | DLConfig.VerificationFlags.BotData);
-
-            _ = EcoUser; // Create the Eco User on startup
 
             HandleClientConnected();
 
@@ -157,7 +163,6 @@ namespace Eco.Plugins.DiscordLink
 
         private void HandleClientConnected()
         {
-            // Start modules
             InitializeModules();
             ActionUtil.AddListener(this);
             Client.OnDisconnecting.Add(HandleClientDisconnecting);
@@ -182,7 +187,13 @@ namespace Eco.Plugins.DiscordLink
             switch (action)
             {
                 case ChatSent chatSent:
-                    OnMessageReceivedFromEco(chatSent);
+                    Logger.DebugVerbose($"Eco Message Received\n{chatSent.FormatForLog()}");
+
+                    // Ignore commands and messages sent by our bot
+                    if (chatSent.Citizen.Name == EcoUser.Name && !chatSent.Message.StartsWith(DLConstants.ECHO_COMMAND_TOKEN))
+                        return;
+
+                    HandleEvent(DLEventType.EcoMessageSent, chatSent);
                     break;
             
                 case CurrencyTrade currencyTrade:
@@ -287,26 +298,6 @@ namespace Eco.Plugins.DiscordLink
             Modules.ForEach(async module => await module.Update(this, trigger, data));
         }
 
-        #endregion
-
-        #region Message Relaying
-
-        private const string EcoUserSteamId = "DiscordLinkSteam";
-        private const string EcoUserSlgId = "DiscordLinkSlg";
-
-        private User _ecoUser;
-        public User EcoUser => _ecoUser ??= UserManager.GetOrCreateUser(EcoUserSteamId, EcoUserSlgId, !string.IsNullOrWhiteSpace(DLConfig.Data.EcoBotName) ? DLConfig.Data.EcoBotName : DLConfig.DefaultValues.EcoBotName);
-
-        public void OnMessageReceivedFromEco(ChatSent chatMessage)
-        {
-            Logger.DebugVerbose($"Eco Message Received\n{chatMessage.FormatForLog()}");
-
-            // Ignore commands and messages sent by our bot
-            if (chatMessage.Citizen.Name == EcoUser.Name && !chatMessage.Message.StartsWith(DLConstants.ECHO_COMMAND_TOKEN))
-                return;
-
-            HandleEvent(DLEventType.EcoMessageSent, chatMessage);
-        }
         #endregion
     }
 }
