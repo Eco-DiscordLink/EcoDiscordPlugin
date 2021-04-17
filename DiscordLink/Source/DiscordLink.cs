@@ -35,7 +35,16 @@ namespace Eco.Plugins.DiscordLink
         private const string ModIOAppID = "";
         private const string ModIODeveloperToken = ""; // This will always be empty for all but actual release builds.
 
-        private string _status = "Not yet started";
+        public string Status
+        {
+            get { return _status; }
+            private set
+            {
+                Logger.Debug($"Plugin status changed from \"{_status}\" to \"{value}\"");
+                _status = value;
+            }
+        }
+        private string _status = "Uninitialized";
 
         #region Plugin Management
 
@@ -76,7 +85,7 @@ namespace Eco.Plugins.DiscordLink
             EventConverter.Instance.Initialize();
             DLStorage.Instance.Initialize();
             Logger.Initialize();
-            Logger.Debug("Plugin Initializing");
+            Status = "Initializing";
             Logger.Info($"Plugin version is {PluginVersion}");
             InitTime = DateTime.Now;
 
@@ -94,7 +103,7 @@ namespace Eco.Plugins.DiscordLink
             if (!Client.Connected)
                 return;
 
-            _status = "Performing post server start init";
+            Status = "Performing post server start initialization";
 
             DLConfig.Instance.VerifyConfig(DLConfig.VerificationFlags.ChannelLinks | DLConfig.VerificationFlags.BotData);
 
@@ -115,7 +124,7 @@ namespace Eco.Plugins.DiscordLink
 
         public void Shutdown()
         {
-            _status = "Shutting down";
+            Status = "Shutting down";
 
             HandleEvent(DLEventType.ServerStopped, null);
 
@@ -127,7 +136,7 @@ namespace Eco.Plugins.DiscordLink
 
         public async Task<bool> Restart()
         {
-            Logger.Debug("Plugin Restarting");
+            Logger.Debug("Plugin restarting");
 
             bool result = false;
             if (CanRestart)
@@ -147,7 +156,7 @@ namespace Eco.Plugins.DiscordLink
             ActionUtil.AddListener(this);
             Client.OnDisconnecting.Add(HandleClientDisconnecting);
 
-            _status = "Connected and running";
+            Status = "Connected and running";
             CanRestart = true;
         }
 
@@ -159,7 +168,7 @@ namespace Eco.Plugins.DiscordLink
             ShutdownModules();
             Client.OnConnected.Add(HandleClientConnected);
 
-            _status = "Disconnected";
+            Status = "Disconnected";
         }
 
         public void ActionPerformed(GameAction action)
@@ -237,7 +246,7 @@ namespace Eco.Plugins.DiscordLink
 
         private void InitializeModules()
         {
-            Logger.Debug("Initializing modules");
+            Status = "Initializing modules";
 
             Modules.Add(new DiscordChatFeed());   // Discord -> Eco
             Modules.Add(new EcoChatFeed());       // Eco -> Discord
@@ -260,7 +269,7 @@ namespace Eco.Plugins.DiscordLink
 
         private void ShutdownModules()
         {
-            Logger.Debug("Shutting down modules");
+            Status = "Shutting down modules";
 
             Modules.ForEach(async module => await module.Stop());
             Modules.ForEach(module => module.Destroy());
