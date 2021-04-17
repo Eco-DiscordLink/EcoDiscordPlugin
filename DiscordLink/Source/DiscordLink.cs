@@ -78,7 +78,7 @@ namespace Eco.Plugins.DiscordLink
 #else
             bool debug = false;
 #endif
-            return MessageBuilders.Shared.GetDisplayString(verbose: debug);
+            return MessageBuilder.Shared.GetDisplayString(verbose: debug);
         }
 
         public void Initialize(TimedTask timer)

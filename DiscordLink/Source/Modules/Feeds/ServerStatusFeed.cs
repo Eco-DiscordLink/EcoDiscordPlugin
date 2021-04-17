@@ -47,7 +47,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
             DiscordLinkEmbed embed = new DiscordLinkEmbed();
             embed.WithTitle(message);
-            embed.WithFooter(MessageBuilders.Discord.GetStandardEmbedFooter());
+            embed.WithFooter(MessageBuilder.Discord.GetStandardEmbedFooter());
 
             foreach (ChannelLink serverStatusLink in DLConfig.Data.ServerStatusFeedChannels)
             {

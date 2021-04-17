@@ -20,7 +20,7 @@ using DSharpPlus;
 
 namespace Eco.Plugins.DiscordLink.Utilities
 {
-    static class MessageBuilders
+    static class MessageBuilder
     {
         public enum ServerInfoComponentFlag
         {

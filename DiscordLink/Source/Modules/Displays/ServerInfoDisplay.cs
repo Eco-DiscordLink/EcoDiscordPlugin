@@ -36,41 +36,41 @@ namespace Eco.Plugins.DiscordLink.Modules
             if (!(target is ServerInfoChannel serverInfoChannel))
                 return;
 
-            DiscordLinkEmbed content = MessageBuilders.Discord.GetServerInfo(GetServerInfoFlagForChannel(serverInfoChannel));
+            DiscordLinkEmbed content = MessageBuilder.Discord.GetServerInfo(GetServerInfoFlagForChannel(serverInfoChannel));
             tagAndContent.Add(new Tuple<string, DiscordLinkEmbed>(BaseTag, content));
         }
 
-        private static MessageBuilders.ServerInfoComponentFlag GetServerInfoFlagForChannel(ServerInfoChannel statusChannel)
+        private static MessageBuilder.ServerInfoComponentFlag GetServerInfoFlagForChannel(ServerInfoChannel statusChannel)
         {
-            MessageBuilders.ServerInfoComponentFlag statusFlag = 0;
+            MessageBuilder.ServerInfoComponentFlag statusFlag = 0;
             if (statusChannel.UseName)
-                statusFlag |= MessageBuilders.ServerInfoComponentFlag.Name;
+                statusFlag |= MessageBuilder.ServerInfoComponentFlag.Name;
             if (statusChannel.UseDescription)
-                statusFlag |= MessageBuilders.ServerInfoComponentFlag.Description;
+                statusFlag |= MessageBuilder.ServerInfoComponentFlag.Description;
             if (statusChannel.UseLogo)
-                statusFlag |= MessageBuilders.ServerInfoComponentFlag.Logo;
+                statusFlag |= MessageBuilder.ServerInfoComponentFlag.Logo;
             if (statusChannel.UseConnectionInfo)
-                statusFlag |= MessageBuilders.ServerInfoComponentFlag.ConnectionInfo;
+                statusFlag |= MessageBuilder.ServerInfoComponentFlag.ConnectionInfo;
             if (statusChannel.UsePlayerCount)
-                statusFlag |= MessageBuilders.ServerInfoComponentFlag.PlayerCount;
+                statusFlag |= MessageBuilder.ServerInfoComponentFlag.PlayerCount;
             if (statusChannel.UsePlayerList)
-                statusFlag |= MessageBuilders.ServerInfoComponentFlag.PlayerList;
+                statusFlag |= MessageBuilder.ServerInfoComponentFlag.PlayerList;
             if (statusChannel.UsePlayerListLoggedInTime)
-                statusFlag |= MessageBuilders.ServerInfoComponentFlag.PlayerListLoginTime;
+                statusFlag |= MessageBuilder.ServerInfoComponentFlag.PlayerListLoginTime;
             if (statusChannel.UseCurrentTime)
-                statusFlag |= MessageBuilders.ServerInfoComponentFlag.CurrentTime;
+                statusFlag |= MessageBuilder.ServerInfoComponentFlag.CurrentTime;
             if (statusChannel.UseTimeRemaining)
-                statusFlag |= MessageBuilders.ServerInfoComponentFlag.TimeRemaining;
+                statusFlag |= MessageBuilder.ServerInfoComponentFlag.TimeRemaining;
             if (statusChannel.UseMeteorHasHit)
-                statusFlag |= MessageBuilders.ServerInfoComponentFlag.MeteorHasHit;
+                statusFlag |= MessageBuilder.ServerInfoComponentFlag.MeteorHasHit;
             if (statusChannel.UseElectionCount)
-                statusFlag |= MessageBuilders.ServerInfoComponentFlag.ActiveElectionCount;
+                statusFlag |= MessageBuilder.ServerInfoComponentFlag.ActiveElectionCount;
             if (statusChannel.UseElectionList)
-                statusFlag |= MessageBuilders.ServerInfoComponentFlag.ActiveElectionList;
+                statusFlag |= MessageBuilder.ServerInfoComponentFlag.ActiveElectionList;
             if (statusChannel.UseLawCount)
-                statusFlag |= MessageBuilders.ServerInfoComponentFlag.LawCount;
+                statusFlag |= MessageBuilder.ServerInfoComponentFlag.LawCount;
             if (statusChannel.UseLawList)
-                statusFlag |= MessageBuilders.ServerInfoComponentFlag.LawList;
+                statusFlag |= MessageBuilder.ServerInfoComponentFlag.LawList;
 
             return statusFlag;
         }

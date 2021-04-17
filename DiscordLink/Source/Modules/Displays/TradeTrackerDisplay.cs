@@ -77,7 +77,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 if (offerType == TradeTargetType.Invalid)
                     continue; // There was no match
 
-                MessageBuilders.Discord.FormatTrades(matchedName, offerType, groupedBuyOffers, groupedSellOffers, out DiscordLinkEmbed embedContent);
+                MessageBuilder.Discord.FormatTrades(matchedName, offerType, groupedBuyOffers, groupedSellOffers, out DiscordLinkEmbed embedContent);
                 tagAndContent.Add(new Tuple<string, DiscordLinkEmbed>($"{BaseTag} [{matchedName}]", embedContent));
             }
         }

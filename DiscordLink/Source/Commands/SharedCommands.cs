@@ -270,12 +270,12 @@ namespace Eco.Plugins.DiscordLink
 
             if(source == CommandSource.Eco)
             {
-                MessageBuilders.Eco.FormatTrades(offerType, groupedBuyOffers, groupedSellOffers, out string message);
+                MessageBuilder.Eco.FormatTrades(offerType, groupedBuyOffers, groupedSellOffers, out string message);
                 await DisplayCommandData(source, callContext, matchedName, message);
             }
             else
             {
-                MessageBuilders.Discord.FormatTrades(matchedName, offerType, groupedBuyOffers, groupedSellOffers, out DiscordLinkEmbed embed);
+                MessageBuilder.Discord.FormatTrades(matchedName, offerType, groupedBuyOffers, groupedSellOffers, out DiscordLinkEmbed embed);
                 await DisplayCommandData(source, callContext, matchedName, embed);
             }
 

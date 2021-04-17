@@ -40,17 +40,17 @@ namespace Eco.Plugins.DiscordLink.Modules
 
             if (playerListLink.UsePlayerCount == true)
             {
-                title = MessageBuilders.Shared.GetPlayerCount() + " Players Online";
+                title = MessageBuilder.Shared.GetPlayerCount() + " Players Online";
             }
 
             DiscordLinkEmbed embed = new DiscordLinkEmbed()
                 .WithTitle(title)
-                .WithFooter(MessageBuilders.Discord.GetStandardEmbedFooter());
-            embed.AddField("Online Players", MessageBuilders.Shared.GetPlayerList(), inline: true);
+                .WithFooter(MessageBuilder.Discord.GetStandardEmbedFooter());
+            embed.AddField("Online Players", MessageBuilder.Shared.GetPlayerList(), inline: true);
 
             if(playerListLink.UseLoggedInTime)
             {
-                embed.AddField("Session Time", MessageBuilders.Shared.GetPlayerSessionTimeList(), inline: true);
+                embed.AddField("Session Time", MessageBuilder.Shared.GetPlayerSessionTimeList(), inline: true);
             }
 
             tagAndContent.Add(new Tuple<string, DiscordLinkEmbed>(tag, embed));

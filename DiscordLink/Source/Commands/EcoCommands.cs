@@ -93,7 +93,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                DisplayCommandData(callingUser, $"About DiscordLink {Plugins.DiscordLink.DiscordLink.Obj.PluginVersion}", MessageBuilders.Shared.GetAboutMessage());
+                DisplayCommandData(callingUser, $"About DiscordLink {Plugins.DiscordLink.DiscordLink.Obj.PluginVersion}", MessageBuilder.Shared.GetAboutMessage());
             }, callingUser);
         }
 
@@ -102,7 +102,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                DisplayCommandData(callingUser, "DiscordLink Status", MessageBuilders.Shared.GetDisplayString(verbose: false));
+                DisplayCommandData(callingUser, "DiscordLink Status", MessageBuilder.Shared.GetDisplayString(verbose: false));
             }, callingUser);
         }
 
@@ -111,7 +111,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                DisplayCommandData(callingUser, "DiscordLink Status Verbose", MessageBuilders.Shared.GetDisplayString(verbose: true));
+                DisplayCommandData(callingUser, "DiscordLink Status Verbose", MessageBuilder.Shared.GetDisplayString(verbose: true));
             }, callingUser);
         }
 
@@ -320,7 +320,7 @@ namespace Eco.Plugins.DiscordLink
                 LinkedUserManager.AddLinkedUser(callingUser, matchingMember.Id.ToString(), matchingMember.Guild.Id.ToString());
 
                 // Notify the Discord account that a link has been made and ask for verification
-                _ = plugin.Client.SendDMAsync(matchingMember, null, MessageBuilders.Discord.GetVerificationDM(callingUser));
+                _ = plugin.Client.SendDMAsync(matchingMember, null, MessageBuilder.Discord.GetVerificationDM(callingUser));
 
                 // Notify the Eco user that the link has been created and that verification is required
                 ReportCommandInfo(callingUser, $"Your account has been linked.\nThe link requires verification before becoming active.\nInstructions have been sent to the linked Discord account.");

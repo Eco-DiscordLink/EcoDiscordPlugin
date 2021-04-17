@@ -44,7 +44,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             {
                 string tag = $"{BaseTag} [{workParty.Id}]";
                 embed.WithTitle(MessageUtils.StripTags(workParty.Name));
-                embed.WithFooter(MessageBuilders.Discord.GetStandardEmbedFooter());
+                embed.WithFooter(MessageBuilder.Discord.GetStandardEmbedFooter());
 
                 // Workers
                 string workersDesc = string.Empty;

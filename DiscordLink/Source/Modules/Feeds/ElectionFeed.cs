@@ -90,7 +90,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                     return;
             }
 
-            embed.WithFooter(MessageBuilders.Discord.GetStandardEmbedFooter());
+            embed.WithFooter(MessageBuilder.Discord.GetStandardEmbedFooter());
 
             foreach (ChannelLink electionLink in DLConfig.Data.ElectionFeedChannels)
             {
