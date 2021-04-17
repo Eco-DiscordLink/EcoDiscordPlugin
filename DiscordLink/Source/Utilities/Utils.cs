@@ -1,6 +1,6 @@
 ﻿namespace Eco.Plugins.DiscordLink.Utilities
 {
-    public static class DiscordUtil
+    public static class Utils
     {
         public static bool TryParseSnowflakeID(string nameOrID, out ulong ID)
         {

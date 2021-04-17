@@ -59,7 +59,7 @@ namespace Eco.Plugins.DiscordLink.Events
 
         public void Shutdown()
         {
-            SystemUtil.StopAndDestroyTimer(ref _tradePostingTimer);
+            SystemUtils.StopAndDestroyTimer(ref _tradePostingTimer);
         }
 
         public void HandleEvent(DLEventType eventType, params object[] data)

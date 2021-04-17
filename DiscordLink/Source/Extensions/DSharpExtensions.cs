@@ -47,7 +47,7 @@ namespace Eco.Plugins.DiscordLink
 
         public static bool HasNameOrID(this DiscordGuild guild, string nameOrID)
         {
-            if (DiscordUtil.TryParseSnowflakeID(nameOrID, out ulong ID))
+            if (Utilities.Utils.TryParseSnowflakeID(nameOrID, out ulong ID))
                 return guild.Id == ID;
 
             return guild.Name.EqualsCaseInsensitive(nameOrID);
@@ -59,7 +59,7 @@ namespace Eco.Plugins.DiscordLink
 
         public static DiscordChannel ChannelByNameOrID(this DiscordGuild guild, string channelNameOrID)
         {
-            return DiscordUtil.TryParseSnowflakeID(channelNameOrID, out ulong ID)
+            return Utilities.Utils.TryParseSnowflakeID(channelNameOrID, out ulong ID)
                 ? guild.GetChannel(ID)
                 : guild.ChannelByName(channelNameOrID);
         }
@@ -70,7 +70,7 @@ namespace Eco.Plugins.DiscordLink
 
         public static bool HasNameOrID(this DiscordChannel channel, string nameOrID)
         {
-            if (DiscordUtil.TryParseSnowflakeID(nameOrID, out ulong ID))
+            if (Utilities.Utils.TryParseSnowflakeID(nameOrID, out ulong ID))
                 return channel.Id == ID;
 
             return channel.Name.EqualsCaseInsensitive(nameOrID);
@@ -84,7 +84,7 @@ namespace Eco.Plugins.DiscordLink
 
         public static bool HasNameOrID(this DiscordUser user, string nameOrID)
         {
-            if (DiscordUtil.TryParseSnowflakeID(nameOrID, out ulong ID))
+            if (Utilities.Utils.TryParseSnowflakeID(nameOrID, out ulong ID))
                 return user.Id == ID;
 
             return user.Username.EqualsCaseInsensitive(nameOrID);
@@ -96,7 +96,7 @@ namespace Eco.Plugins.DiscordLink
 
         public static bool HasNameOrID(this DiscordMember member, string nameOrID)
         {
-            if (DiscordUtil.TryParseSnowflakeID(nameOrID, out ulong ID))
+            if (Utilities.Utils.TryParseSnowflakeID(nameOrID, out ulong ID))
                 return member.Id == ID;
 
             return member.Username.EqualsCaseInsensitive(nameOrID);
@@ -108,7 +108,7 @@ namespace Eco.Plugins.DiscordLink
 
         public static bool HasNameOrID(this DiscordRole role, string nameOrID)
         {
-            if (DiscordUtil.TryParseSnowflakeID(nameOrID, out ulong roleID))
+            if (Utilities.Utils.TryParseSnowflakeID(nameOrID, out ulong roleID))
                 return role.Id == roleID;
 
             return role.Name.EqualsCaseInsensitive(nameOrID);

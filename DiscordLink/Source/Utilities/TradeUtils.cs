@@ -19,7 +19,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
         Invalid,
     }
 
-    public class TradeUtil
+    public class TradeUtils
     {
         private static List<Either<Item, User, Tag>> _itemLookup = null;
 
@@ -58,7 +58,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         public static string StoreCurrencyName(StoreComponent store)
         {
-            return MessageUtil.StripTags(store.CurrencyName);
+            return MessageUtils.StripTags(store.CurrencyName);
         }
 
         public static string GetMatchAndOffers(string searchName, out TradeTargetType offerType, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers)

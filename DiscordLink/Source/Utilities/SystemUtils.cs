@@ -4,7 +4,7 @@ using System;
 
 namespace Eco.Plugins.DiscordLink.Utilities
 {
-    public static class SystemUtil
+    public static class SystemUtils
     {
         public static void StopAndDestroyTimer(ref Timer timer)
         {

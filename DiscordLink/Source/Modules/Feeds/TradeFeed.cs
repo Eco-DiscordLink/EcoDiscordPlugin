@@ -50,7 +50,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 DiscordLinkEmbed embed = new DiscordLinkEmbed();
                 string leftName = firstTrade.Citizen.Name;
                 string rightName = (firstTrade.WorldObject as WorldObject).Name;
-                embed.WithTitle($"{leftName} traded at {MessageUtil.StripTags(rightName)}");
+                embed.WithTitle($"{leftName} traded at {MessageUtils.StripTags(rightName)}");
 
                 // Go through all acumulated trade events and create a summary
                 string boughtItemsDesc = string.Empty;
@@ -85,7 +85,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
                 float subTotal = soldTotal - boughtTotal;
                 char sign = (subTotal > 0.0f ? '+' : '-');
-                embed.AddField("Total", $"{sign} {Math.Abs(subTotal).ToString("n2")} {MessageUtil.StripTags(firstTrade.Currency.Name)}");
+                embed.AddField("Total", $"{sign} {Math.Abs(subTotal).ToString("n2")} {MessageUtils.StripTags(firstTrade.Currency.Name)}");
 
                 // Post the trade summary in all trade channels
                 foreach (ChannelLink tradeLink in DLConfig.Data.TradeFeedChannels)

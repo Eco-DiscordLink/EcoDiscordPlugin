@@ -41,8 +41,8 @@ namespace Eco.Plugins.DiscordLink.Modules
             void AddCurrencyEntry(Currency currency, List<Tuple<string, DiscordLinkEmbed>> tagAndContent)
             {
                 DiscordLinkEmbed embed = new DiscordLinkEmbed();
-                embed.WithTitle(MessageUtil.StripTags(currency.Name));
-                embed.WithFooter(MessageBuilder.Discord.GetStandardEmbedFooter());
+                embed.WithTitle(MessageUtils.StripTags(currency.Name));
+                embed.WithFooter(MessageBuilders.Discord.GetStandardEmbedFooter());
 
                 // Find and sort relevant accounts
                 IEnumerable<BankAccount> accounts = BankAccountManager.Obj.Accounts.Where(acc => acc.GetCurrencyHoldingVal(currency) >= 1).OrderByDescending(acc => acc.GetCurrencyHoldingVal(currency));
@@ -62,7 +62,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                         --i;
                         continue;
                     }
-                    topAccounts += $"{MessageUtil.StripTags(accountEnumerator.Current.Name)}\n";
+                    topAccounts += $"{MessageUtils.StripTags(accountEnumerator.Current.Name)}\n";
                     amounts += $"**{accountEnumerator.Current.GetCurrencyHoldingVal(currency):n0}**\n";
                     topAccountHolders += $"{accountEnumerator.Current.Creator.Name}\n";
                 }

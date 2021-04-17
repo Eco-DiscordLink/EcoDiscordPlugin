@@ -28,13 +28,13 @@ namespace Eco.Plugins.DiscordLink
             string commandName = command.Method.Name;
             try
             {
-                Logger.Debug($"{MessageUtil.StripTags(callingUser.Name)} invoked Eco command \"/{command.Method.Name}\"");
+                Logger.Debug($"{MessageUtils.StripTags(callingUser.Name)} invoked Eco command \"/{command.Method.Name}\"");
                 command(callingUser, parameters);
             }
             catch (Exception e)
             {
                 ChatManager.ServerMessageToPlayer(new LocString($"Error occurred while attempting to run that command. Error message: {e}"), callingUser);
-                Logger.Error($"An exception occured while attempting to execute a command.\nCommand name: \"{commandName}\"\nCalling user: \"{MessageUtil.StripTags(callingUser.Name)}\"\nError message: {e}");
+                Logger.Error($"An exception occured while attempting to execute a command.\nCommand name: \"{commandName}\"\nCalling user: \"{MessageUtils.StripTags(callingUser.Name)}\"\nError message: {e}");
             }
         }
 
@@ -93,7 +93,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                DisplayCommandData(callingUser, $"About DiscordLink {Plugins.DiscordLink.DiscordLink.Obj.PluginVersion}", MessageBuilder.Shared.GetAboutMessage());
+                DisplayCommandData(callingUser, $"About DiscordLink {Plugins.DiscordLink.DiscordLink.Obj.PluginVersion}", MessageBuilders.Shared.GetAboutMessage());
             }, callingUser);
         }
 
@@ -102,7 +102,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                DisplayCommandData(callingUser, "DiscordLink Status", MessageBuilder.Shared.GetDisplayString(verbose: false));
+                DisplayCommandData(callingUser, "DiscordLink Status", MessageBuilders.Shared.GetDisplayString(verbose: false));
             }, callingUser);
         }
 
@@ -111,7 +111,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                DisplayCommandData(callingUser, "DiscordLink Status Verbose", MessageBuilder.Shared.GetDisplayString(verbose: true));
+                DisplayCommandData(callingUser, "DiscordLink Status Verbose", MessageBuilders.Shared.GetDisplayString(verbose: true));
             }, callingUser);
         }
 
@@ -320,7 +320,7 @@ namespace Eco.Plugins.DiscordLink
                 LinkedUserManager.AddLinkedUser(callingUser, matchingMember.Id.ToString(), matchingMember.Guild.Id.ToString());
 
                 // Notify the Discord account that a link has been made and ask for verification
-                _ = plugin.Client.SendDMAsync(matchingMember, null, MessageBuilder.Discord.GetVerificationDM(callingUser));
+                _ = plugin.Client.SendDMAsync(matchingMember, null, MessageBuilders.Discord.GetVerificationDM(callingUser));
 
                 // Notify the Eco user that the link has been created and that verification is required
                 ReportCommandInfo(callingUser, $"Your account has been linked.\nThe link requires verification before becoming active.\nInstructions have been sent to the linked Discord account.");
@@ -411,7 +411,7 @@ namespace Eco.Plugins.DiscordLink
                     // Find and post the snippet requested by the user
                     if (snippets.TryGetValue(snippetKey, out string snippetText))
                     {
-                        EcoUtil.SendServerMessage($"{callingUser.Name} invoked snippet \"{snippetKey}\"\n- - -\n{snippetText}\n- - -", permanent: true);
+                        EcoUtils.SendServerMessage($"{callingUser.Name} invoked snippet \"{snippetKey}\"\n- - -\n{snippetText}\n- - -", permanent: true);
                     }
                     else
                     {

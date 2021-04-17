@@ -143,7 +143,7 @@ namespace Eco.Plugins.DiscordLink
 
                 // This function executes on the GUI thread and therefore async calls will trigger deadlocks.
                 // We execute the callbacks on a separate joined thread to avoid these deadlocks.
-                SystemUtil.SynchronousThreadExecute(() =>
+                SystemUtils.SynchronousThreadExecute(() =>
                 {
                     OnConfigChanged?.Invoke(this, EventArgs.Empty);
                 });

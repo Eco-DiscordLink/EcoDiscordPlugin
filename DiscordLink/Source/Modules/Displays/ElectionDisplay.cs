@@ -35,17 +35,17 @@ namespace Eco.Plugins.DiscordLink.Modules
         {
             tagAndContent = new List<Tuple<string, DiscordLinkEmbed>>();
             DiscordLinkEmbed embed = new DiscordLinkEmbed();
-            embed.WithFooter(MessageBuilder.Discord.GetStandardEmbedFooter());
-            foreach (Election election in EcoUtil.ActiveElections)
+            embed.WithFooter(MessageBuilders.Discord.GetStandardEmbedFooter());
+            foreach (Election election in EcoUtils.ActiveElections)
             {
                 string tag = $"{BaseTag} [{election.Id}]";
-                embed.WithTitle(MessageUtil.StripTags(election.Name));
+                embed.WithTitle(MessageUtils.StripTags(election.Name));
 
                 // Proposer name
                 embed.AddField("Proposer", election.Creator.Name, inline: true);
 
                 // Process
-                embed.AddField("Process", MessageUtil.StripTags(election.Process.Name), inline: true);
+                embed.AddField("Process", MessageUtils.StripTags(election.Process.Name), inline: true);
 
                 // Time left
                 embed.AddField("Time Left", TimeFormatter.FormatSpan(election.TimeLeft), inline: true);

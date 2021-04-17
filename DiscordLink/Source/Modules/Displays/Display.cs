@@ -89,7 +89,7 @@ namespace Eco.Plugins.DiscordLink.Modules
         public void StopTimer()
         {
             if ((GetTriggers() & DLEventType.Timer) == 0) return;
-            SystemUtil.StopAndDestroyTimer(ref _updateTimer);
+            SystemUtils.StopAndDestroyTimer(ref _updateTimer);
         }
 
         protected abstract List<DiscordTarget> GetDiscordTargets();
@@ -102,7 +102,7 @@ namespace Eco.Plugins.DiscordLink.Modules
         private void TriggerTimedUpdate(object stateInfo)
         {
             _ = base.Update(DiscordLink.Obj, DLEventType.Timer, null);
-            SystemUtil.StopAndDestroyTimer(ref _HighFrequencyEventTimer);
+            SystemUtils.StopAndDestroyTimer(ref _HighFrequencyEventTimer);
         }
 
         protected sealed override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)

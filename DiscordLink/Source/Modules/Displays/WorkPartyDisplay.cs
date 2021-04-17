@@ -43,8 +43,8 @@ namespace Eco.Plugins.DiscordLink.Modules
             foreach (WorkParty workParty in workParties)
             {
                 string tag = $"{BaseTag} [{workParty.Id}]";
-                embed.WithTitle(MessageUtil.StripTags(workParty.Name));
-                embed.WithFooter(MessageBuilder.Discord.GetStandardEmbedFooter());
+                embed.WithTitle(MessageUtils.StripTags(workParty.Name));
+                embed.WithFooter(MessageBuilders.Discord.GetStandardEmbedFooter());
 
                 // Workers
                 string workersDesc = string.Empty;
@@ -74,7 +74,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                                 if (!string.IsNullOrEmpty(laborWork.ShortDescriptionRemainingWork))
                                 {
                                     workType = $"Labor for {laborWork.Order.Recipe.RecipeName}";
-                                    workEntries.Add(MessageUtil.StripTags(laborWork.ShortDescriptionRemainingWork));
+                                    workEntries.Add(MessageUtils.StripTags(laborWork.ShortDescriptionRemainingWork));
                                 }
                                 break;
                             }
@@ -134,14 +134,14 @@ namespace Eco.Plugins.DiscordLink.Modules
 
                         case GrantTitlePayment titlePayment:
                             {
-                                desc = $"Receive title `{MessageUtil.StripTags(titlePayment.Title.Name)}` if work contributed is at least *{titlePayment.MinContributedPercent.ToString("F1")}%*.";
+                                desc = $"Receive title `{MessageUtils.StripTags(titlePayment.Title.Name)}` if work contributed is at least *{titlePayment.MinContributedPercent.ToString("F1")}%*.";
                                 break;
                             }
 
                         case KnowledgeSharePayment knowledgePayment:
                             {
                                 if (knowledgePayment.Skills.Entries.Count > 0)
-                                    desc = $"Receive knowledge of `{MessageUtil.StripTags(knowledgePayment.ShortDescription())}` if work contributed is at least *{knowledgePayment.MinContributedPercent.ToString("F1")}%*.";
+                                    desc = $"Receive knowledge of `{MessageUtils.StripTags(knowledgePayment.ShortDescription())}` if work contributed is at least *{knowledgePayment.MinContributedPercent.ToString("F1")}%*.";
                                 break;
                             }
 

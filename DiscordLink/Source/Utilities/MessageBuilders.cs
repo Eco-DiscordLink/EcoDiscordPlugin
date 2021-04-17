@@ -20,7 +20,7 @@ using DSharpPlus;
 
 namespace Eco.Plugins.DiscordLink.Utilities
 {
-    static class MessageBuilder
+    static class MessageBuilders
     {
         public enum ServerInfoComponentFlag
         {
@@ -74,7 +74,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 builder.AppendLine($"DiscordLink {plugin.PluginVersion}");
                 if (verbose)
                 {
-                    builder.AppendLine($"Server Name: {MessageUtil.FirstNonEmptyString(DLConfig.Data.ServerName, MessageUtil.StripTags(NetworkManager.GetServerInfo().Description), "[Server Title Missing]")}");
+                    builder.AppendLine($"Server Name: {MessageUtils.FirstNonEmptyString(DLConfig.Data.ServerName, MessageUtils.StripTags(NetworkManager.GetServerInfo().Description), "[Server Title Missing]")}");
                     builder.AppendLine($"Server Version: {EcoVersion.VersionNumber}");
                     builder.AppendLine($"D# Version: {plugin.Client.DiscordClient.VersionString}");
                 }
@@ -114,7 +114,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     foreach (LinkedUser linkedUser in DLStorage.PersistentData.LinkedUsers)
                     {
                         User ecoUser = UserManager.FindUserById(linkedUser.SteamID, linkedUser.SlgID);
-                        string ecoUserName = (ecoUser != null) ? MessageUtil.StripTags(ecoUser.Name) : "[Uknown Eco User]";
+                        string ecoUserName = (ecoUser != null) ? MessageUtils.StripTags(ecoUser.Name) : "[Uknown Eco User]";
 
                         DiscordUser discordUser = plugin.Client.GetUserAsync(linkedUser.DiscordID).Result;
                         string discordUserName = (discordUser != null) ? discordUser.Username : "[Unknown Discord User]";
@@ -287,7 +287,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
                 if (flag.HasFlag(ServerInfoComponentFlag.Name))
                 {
-                    embed.WithTitle($"**{MessageUtil.FirstNonEmptyString(config.ServerName, MessageUtil.StripTags(serverInfo.Description), "[Server Title Missing]")} " + "Server Status" + "**\n" + DateTime.Now.ToShortDateString() + " : " + DateTime.Now.ToShortTimeString());
+                    embed.WithTitle($"**{MessageUtils.FirstNonEmptyString(config.ServerName, MessageUtils.StripTags(serverInfo.Description), "[Server Title Missing]")} " + "Server Status" + "**\n" + DateTime.Now.ToShortDateString() + " : " + DateTime.Now.ToShortTimeString());
                 }
                 else
                 {
@@ -298,7 +298,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
                 if (flag.HasFlag(ServerInfoComponentFlag.Description))
                 {
-                    embed.WithDescription(MessageUtil.FirstNonEmptyString(config.ServerDescription, MessageUtil.StripTags(serverInfo.Description), "No server description is available."));
+                    embed.WithDescription(MessageUtils.FirstNonEmptyString(config.ServerDescription, MessageUtils.StripTags(serverInfo.Description), "No server description is available."));
                 }
 
                 if (flag.HasFlag(ServerInfoComponentFlag.Logo) && !string.IsNullOrWhiteSpace(config.ServerLogo))
@@ -340,13 +340,13 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
                     if (flag.HasFlag(ServerInfoComponentFlag.LawCount))
                     {
-                        embed.AddField("Law Count", $"{EcoUtil.ActiveLaws.Count()}", inline: true);
+                        embed.AddField("Law Count", $"{EcoUtils.ActiveLaws.Count()}", inline: true);
                         ++fieldsAdded;
                     }
 
                     if (flag.HasFlag(ServerInfoComponentFlag.ActiveElectionCount))
                     {
-                        embed.AddField("Active Elections Count", $"{EcoUtil.ActiveElections.Count()}", inline: true);
+                        embed.AddField("Active Elections Count", $"{EcoUtils.ActiveElections.Count()}", inline: true);
                         ++fieldsAdded;
                     }
 
@@ -410,9 +410,9 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     string electionList = string.Empty;
                     string votesList = string.Empty;
                     string timeRemainingList = string.Empty;
-                    foreach (Election election in EcoUtil.ActiveElections)
+                    foreach (Election election in EcoUtils.ActiveElections)
                     {
-                        electionList += $"{MessageUtil.StripTags(election.Name)}\n";
+                        electionList += $"{MessageUtils.StripTags(election.Name)}\n";
                         votesList += $"{election.TotalVotes} Votes";
 
                         TimeSpan timeRemainingSpan = new TimeSpan(0, 0, (int)serverInfo.TimeLeft);
@@ -437,10 +437,10 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 {
                     string lawList = string.Empty;
                     string creatorList = string.Empty;
-                    foreach (Law law in EcoUtil.ActiveLaws)
+                    foreach (Law law in EcoUtils.ActiveLaws)
                     {
-                        lawList += $"{MessageUtil.StripTags(law.Name)}\n";
-                        creatorList += $"{MessageUtil.StripTags(law.Creator.Name)}";
+                        lawList += $"{MessageUtils.StripTags(law.Name)}\n";
+                        creatorList += $"{MessageUtils.StripTags(law.Creator.Name)}";
                     }
                 
                     if (!string.IsNullOrEmpty(lawList))
@@ -464,11 +464,11 @@ namespace Eco.Plugins.DiscordLink.Utilities
             {
                 DLConfigData config = DLConfig.Data;
                 ServerInfo serverInfo = NetworkManager.GetServerInfo();
-                string serverName = MessageUtil.StripTags(!string.IsNullOrWhiteSpace(config.ServerName) ? DLConfig.Data.ServerName : MessageUtil.StripTags(serverInfo.Description));
+                string serverName = MessageUtils.StripTags(!string.IsNullOrWhiteSpace(config.ServerName) ? DLConfig.Data.ServerName : MessageUtils.StripTags(serverInfo.Description));
 
                 DiscordLinkEmbed embed = new DiscordLinkEmbed();
                 embed.WithTitle("Account Linking Verification");
-                embed.AddField("Initiator", MessageUtil.StripTags(ecoUser.Name));
+                embed.AddField("Initiator", MessageUtils.StripTags(ecoUser.Name));
                 embed.AddField("Description", $"Your Eco account has been linked to your Discord account on the server \"{serverName}\".");
                 embed.AddField("Action Required", $"If you initiated this action, use the command `{config.DiscordCommandPrefix}verifylink` to verify that these accounts should be linked.");
                 embed.WithFooter("If you did not initiate this action, notify a server admin.\nThe account link cannot be used until verified.");
@@ -477,7 +477,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
             public static string GetStandardEmbedFooter()
             {
-                string serverName = MessageUtil.FirstNonEmptyString(DLConfig.Data.ServerName, MessageUtil.StripTags(NetworkManager.GetServerInfo().Description), "[Server Title Missing]");
+                string serverName = MessageUtils.FirstNonEmptyString(DLConfig.Data.ServerName, MessageUtils.StripTags(NetworkManager.GetServerInfo().Description), "[Server Title Missing]");
                 string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
                 return $"Message sent by DiscordLink @ {serverName} [{timestamp}]";
             }
@@ -492,8 +492,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 {
                     Func<Tuple<StoreComponent, TradeOffer>, string> getLabel = tradeType switch
                     {
-                        TradeTargetType.Tag => t => $"{t.Item2.Stack.Item.DisplayName} @ *{MessageUtil.StripTags(t.Item1.Parent.Name)}*",
-                        TradeTargetType.Item => t => $"@ *{MessageUtil.StripTags(t.Item1.Parent.Name)}*",
+                        TradeTargetType.Tag => t => $"{t.Item2.Stack.Item.DisplayName} @ *{MessageUtils.StripTags(t.Item1.Parent.Name)}*",
+                        TradeTargetType.Item => t => $"@ *{MessageUtils.StripTags(t.Item1.Parent.Name)}*",
                         TradeTargetType.User => t => t.Item2.Stack.Item.DisplayName,
                         _ => t => string.Empty,
                     };
@@ -636,7 +636,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                             t => getLabel(t),
                             t => t.Item2.Stack.Quantity);
 
-                        builder.AppendLine(Text.Bold(Text.Color(Color.Red, $"<--- Selling for {MessageUtil.StripTags(group.First().Item1.CurrencyName)} --->")));
+                        builder.AppendLine(Text.Bold(Text.Color(Color.Red, $"<--- Selling for {MessageUtils.StripTags(group.First().Item1.CurrencyName)} --->")));
                         foreach (string description in offerDescriptions)
                         {
                             builder.AppendLine(description);

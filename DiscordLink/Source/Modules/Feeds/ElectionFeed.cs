@@ -38,20 +38,20 @@ namespace Eco.Plugins.DiscordLink.Modules
             switch (trigger)
             {
                 case DLEventType.StartElection:
-                    embed.WithTitle($":ballot_box:  {MessageUtil.StripTags(election.Creator.Name)} Started An Election :ballot_box: ");
-                    embed.AddField("Title", MessageUtil.StripTags(election.Name), inline: true);
-                    embed.AddField("Process", MessageUtil.StripTags(election.Process.Name), inline: true);
+                    embed.WithTitle($":ballot_box:  {MessageUtils.StripTags(election.Creator.Name)} Started An Election :ballot_box: ");
+                    embed.AddField("Title", MessageUtils.StripTags(election.Name), inline: true);
+                    embed.AddField("Process", MessageUtils.StripTags(election.Process.Name), inline: true);
                     embed.AddField("Time", TimeFormatter.FormatSpan(election.TimeLeft), inline: true);
                     break;
 
                 case DLEventType.StopElection:
                     ElectionResults results = election.Results;
                     embed.WithTitle($":ballot_box:  Election Has Ended  :ballot_box: ");
-                    embed.AddField("Title", MessageUtil.StripTags(election.Name));
+                    embed.AddField("Title", MessageUtils.StripTags(election.Name));
                     if (results.Vetoed)
                     {
                         embed.AddField("Result", "Vetoed", inline: true);
-                        embed.AddField("Vetoer", MessageUtil.StripTags(results.Vetoer.Name), inline: true);
+                        embed.AddField("Vetoer", MessageUtils.StripTags(results.Vetoer.Name), inline: true);
                         embed.AddField("Time left when vetoed", TimeFormatter.FormatSpan(election.TimeLeft), inline: true);
                     }
                     else
@@ -73,12 +73,12 @@ namespace Eco.Plugins.DiscordLink.Modules
                             if (singleWinner)
                             {
                                 title = "Winner";
-                                winningUsers = MessageUtil.StripTags(results.WinningUsers.GetAt(0).Name);
+                                winningUsers = MessageUtils.StripTags(results.WinningUsers.GetAt(0).Name);
                             }
                             else
                             {
                                 title = "Winners";
-                                winningUsers = MessageUtil.StripTags(string.Join("\n", results.WinningUsers));
+                                winningUsers = MessageUtils.StripTags(string.Join("\n", results.WinningUsers));
                             }
                             embed.AddField(title, winningUsers, inline: true);
                         }
@@ -90,7 +90,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                     return;
             }
 
-            embed.WithFooter(MessageBuilder.Discord.GetStandardEmbedFooter());
+            embed.WithFooter(MessageBuilders.Discord.GetStandardEmbedFooter());
 
             foreach (ChannelLink electionLink in DLConfig.Data.ElectionFeedChannels)
             {

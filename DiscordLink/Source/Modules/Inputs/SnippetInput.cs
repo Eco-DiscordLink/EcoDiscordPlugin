@@ -84,7 +84,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 DLStorage.Instance.Snippets.Clear();
                 foreach (DiscordMessage channelMessage in snippetChannelMessages)
                 {
-                    Match match = MessageUtil.SnippetRegex.Match(channelMessage.Content);
+                    Match match = MessageUtils.SnippetRegex.Match(channelMessage.Content);
                     if (match.Groups.Count == 3)
                     {
                         string key = match.Groups[1].Value;

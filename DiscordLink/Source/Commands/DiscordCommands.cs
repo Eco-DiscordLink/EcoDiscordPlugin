@@ -58,8 +58,8 @@ namespace Eco.Plugins.DiscordLink
             async static Task Respond(CommandContext ctx, string textContent, DiscordLinkEmbed embedContent)
             {
                 // If needed; split the message into multiple parts
-                ICollection<string> stringParts = MessageUtil.SplitStringBySize(textContent, DLConstants.DISCORD_MESSAGE_CHARACTER_LIMIT);
-                ICollection<DiscordEmbed> embedParts = MessageUtil.BuildDiscordEmbeds(embedContent);
+                ICollection<string> stringParts = MessageUtils.SplitStringBySize(textContent, DLConstants.DISCORD_MESSAGE_CHARACTER_LIMIT);
+                ICollection<DiscordEmbed> embedParts = MessageUtils.BuildDiscordEmbeds(embedContent);
 
                 if (stringParts.Count <= 1 && embedParts.Count <= 1)
                 {
@@ -95,7 +95,7 @@ namespace Eco.Plugins.DiscordLink
                     }
                     else
                     {
-                        await Respond(ctx, MessageBuilder.Discord.EmbedToText(fullTextContent, embedContent), embedContent);
+                        await Respond(ctx, MessageBuilders.Discord.EmbedToText(fullTextContent, embedContent), embedContent);
                     }
                 }
             }
@@ -197,7 +197,7 @@ namespace Eco.Plugins.DiscordLink
             {
                 DiscordLinkEmbed embed = new DiscordLinkEmbed()
                     .WithTitle("About DiscordLink")
-                    .WithDescription(MessageBuilder.Shared.GetAboutMessage());
+                    .WithDescription(MessageBuilders.Shared.GetAboutMessage());
 
                 await RespondToCommand(ctx, "About DiscordLink", embed);
             }, ctx);
@@ -210,7 +210,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await RespondToCommand(ctx, MessageBuilder.Shared.GetDisplayString(verbose: false));
+                await RespondToCommand(ctx, MessageBuilders.Shared.GetDisplayString(verbose: false));
             }, ctx);
         }
 
@@ -221,7 +221,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await RespondToCommand(ctx, MessageBuilder.Shared.GetDisplayString(verbose: true));
+                await RespondToCommand(ctx, MessageBuilders.Shared.GetDisplayString(verbose: true));
             }, ctx);
         }
 
@@ -301,7 +301,7 @@ namespace Eco.Plugins.DiscordLink
             {
                 DiscordLinkEmbed embed = new DiscordLinkEmbed()
                     .WithTitle("Players")
-                    .WithDescription(MessageBuilder.Shared.GetPlayerList());
+                    .WithDescription(MessageBuilders.Shared.GetPlayerList());
                 await DisplayCommandData(ctx, string.Empty, embed);
             }, ctx);
         }
@@ -313,7 +313,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await DisplayCommandData(ctx, string.Empty, MessageBuilder.Discord.GetServerInfo(MessageBuilder.ServerInfoComponentFlag.All));
+                await DisplayCommandData(ctx, string.Empty, MessageBuilders.Discord.GetServerInfo(MessageBuilders.ServerInfoComponentFlag.All));
             }, ctx);
         }
 

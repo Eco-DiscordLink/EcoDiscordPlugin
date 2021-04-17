@@ -36,15 +36,15 @@ namespace Eco.Plugins.DiscordLink.Modules
             switch (trigger)
             {
                 case DLEventType.Join:
-                    message = $":tada:  {MessageUtil.StripTags(user.Name)} Joined The Server!  :tada:";
+                    message = $":tada:  {MessageUtils.StripTags(user.Name)} Joined The Server!  :tada:";
                     break;
 
                 case DLEventType.Login:
-                    message = $":arrow_up:  {MessageUtil.StripTags(user.Name)} Logged In  :arrow_up:";
+                    message = $":arrow_up:  {MessageUtils.StripTags(user.Name)} Logged In  :arrow_up:";
                     break;
 
                 case DLEventType.Logout:
-                    message = $":arrow_down:  {MessageUtil.StripTags(user.Name)} Logged Out  :arrow_down:";
+                    message = $":arrow_down:  {MessageUtils.StripTags(user.Name)} Logged Out  :arrow_down:";
                     break;
 
                 default:
@@ -54,7 +54,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
             DiscordLinkEmbed embed = new DiscordLinkEmbed();
             embed.WithTitle(message);
-            embed.WithFooter(MessageBuilder.Discord.GetStandardEmbedFooter());
+            embed.WithFooter(MessageBuilders.Discord.GetStandardEmbedFooter());
 
             foreach (ChannelLink playerStatusLink in DLConfig.Data.PlayerStatusFeedChannels)
             {

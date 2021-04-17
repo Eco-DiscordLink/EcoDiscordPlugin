@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink.Utilities
 {
-    public static class MessageUtil
+    public static class MessageUtils
     {
         // Snippet matching regex: Match the (case insensitive) [Snippet] header and capture the the content of the following bracket pair
         public static readonly Regex SnippetRegex = new Regex("(?i)\\[snippet\\]\\s*\\[([^\\]]+)\\].*\\s([^$]*)");

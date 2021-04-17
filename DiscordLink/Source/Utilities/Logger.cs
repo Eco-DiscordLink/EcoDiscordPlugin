@@ -28,7 +28,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             {
                 lock (LockObject)
                 {
-                    SystemUtil.EnsurePathExists(PluginLogPath);
+                    SystemUtils.EnsurePathExists(PluginLogPath);
                     _writer = new StreamWriter(PluginLogPath, append: true)
                     {
                         AutoFlush = true,

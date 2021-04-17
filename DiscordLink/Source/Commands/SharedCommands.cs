@@ -125,7 +125,7 @@ namespace Eco.Plugins.DiscordLink
                 ? (callContext as User).Name
                 : (callContext as CommandContext).Member.DisplayName;
 
-            bool sent = EcoUtil.SendServerMessage($"[{senderName}] {message}", permanent, recipient);
+            bool sent = EcoUtils.SendServerMessage($"[{senderName}] {message}", permanent, recipient);
             if (sent)
                 await ReportCommandInfo(source, callContext, "Message delivered.");
             else
@@ -157,7 +157,7 @@ namespace Eco.Plugins.DiscordLink
                 ? (callContext as User).Name
                 : (callContext as CommandContext).Member.DisplayName;
 
-            bool sent = EcoUtil.SendPopupMessage($"[{senderName}]\n\n{message}", recipient);
+            bool sent = EcoUtils.SendPopupMessage($"[{senderName}]\n\n{message}", recipient);
             if (sent)
                 await ReportCommandInfo(source, callContext, "Message delivered.");
             else
@@ -195,7 +195,7 @@ namespace Eco.Plugins.DiscordLink
                 ? (callContext as User).Name
                 : (callContext as CommandContext).Member.DisplayName;
 
-            bool sent = EcoUtil.SendAnnouncementMessage(title, $"{message}\n\n[{senderName}]", recipient);
+            bool sent = EcoUtils.SendAnnouncementMessage(title, $"{message}\n\n[{senderName}]", recipient);
             if (sent)
                 await ReportCommandInfo(source, callContext, "Message delivered.");
             else
@@ -227,9 +227,9 @@ namespace Eco.Plugins.DiscordLink
 
                 if (targetUser == null)
                 {
-                    User offlineUser = EcoUtil.GetUserbyName(targetUserName);
+                    User offlineUser = EcoUtils.GetUserbyName(targetUserName);
                     if (offlineUser != null)
-                        await ReportCommandError(source, callContext, $"{MessageUtil.StripTags(offlineUser.Name)} is not online");
+                        await ReportCommandError(source, callContext, $"{MessageUtils.StripTags(offlineUser.Name)} is not online");
                     else
                         await ReportCommandError(source, callContext, $"Could not find user with name {targetUserName}");
                     return false;
@@ -238,7 +238,7 @@ namespace Eco.Plugins.DiscordLink
 
             inviteMessage = Regex.Replace(inviteMessage, Regex.Escape(DLConfig.InviteCommandLinkToken), serverInfo.DiscordAddress);
 
-            bool sent = EcoUtil.SendServerMessage(inviteMessage, permanent: true, targetUser);
+            bool sent = EcoUtils.SendServerMessage(inviteMessage, permanent: true, targetUser);
             if (sent)
                 await ReportCommandInfo(source, callContext, "Invite sent.");
             else
@@ -261,7 +261,7 @@ namespace Eco.Plugins.DiscordLink
                 return false;
             }
 
-            matchedName = TradeUtil.GetMatchAndOffers(searchName, out TradeTargetType offerType, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
+            matchedName = TradeUtils.GetMatchAndOffers(searchName, out TradeTargetType offerType, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
             if(offerType == TradeTargetType.Invalid)
             {
                 await ReportCommandError(source, callContext, $"No item, tag or player with the name \"{searchName}\" could be found.");
@@ -270,12 +270,12 @@ namespace Eco.Plugins.DiscordLink
 
             if(source == CommandSource.Eco)
             {
-                MessageBuilder.Eco.FormatTrades(offerType, groupedBuyOffers, groupedSellOffers, out string message);
+                MessageBuilders.Eco.FormatTrades(offerType, groupedBuyOffers, groupedSellOffers, out string message);
                 await DisplayCommandData(source, callContext, matchedName, message);
             }
             else
             {
-                MessageBuilder.Discord.FormatTrades(matchedName, offerType, groupedBuyOffers, groupedSellOffers, out DiscordLinkEmbed embed);
+                MessageBuilders.Discord.FormatTrades(matchedName, offerType, groupedBuyOffers, groupedSellOffers, out DiscordLinkEmbed embed);
                 await DisplayCommandData(source, callContext, matchedName, embed);
             }
 
@@ -300,7 +300,7 @@ namespace Eco.Plugins.DiscordLink
                 return false;
             }
 
-            string matchedName = TradeUtil.GetMatchAndOffers(userOrItemName, out TradeTargetType offerType, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
+            string matchedName = TradeUtils.GetMatchAndOffers(userOrItemName, out TradeTargetType offerType, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
             if (offerType == TradeTargetType.Invalid)
                 return false;
 

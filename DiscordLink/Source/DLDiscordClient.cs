@@ -110,7 +110,7 @@ namespace Eco.Plugins.DiscordLink
             try
             {
                 // If DisconnectAsync() is called in the GUI thread, it will cause a deadlock
-                SystemUtil.SynchronousThreadExecute(() =>
+                SystemUtils.SynchronousThreadExecute(() =>
                 {
                     DiscordClient.DisconnectAsync().Wait();
                 });
@@ -217,7 +217,7 @@ namespace Eco.Plugins.DiscordLink
 
         public DiscordGuild GuildByNameOrID(string guildNameOrID)
         {
-            return Utilities.DiscordUtil.TryParseSnowflakeID(guildNameOrID, out ulong ID)
+            return Utilities.Utils.TryParseSnowflakeID(guildNameOrID, out ulong ID)
                 ? DiscordClient.Guilds[ID]
                 : DiscordClient.Guilds.Values.FirstOrDefault(guild => guild.Name.EqualsCaseInsensitive(guildNameOrID));
         }
@@ -228,7 +228,7 @@ namespace Eco.Plugins.DiscordLink
             if (guild == null)
                 return null;
 
-            return Utilities.DiscordUtil.TryParseSnowflakeID(channelNameOrID, out ulong ID)
+            return Utilities.Utils.TryParseSnowflakeID(channelNameOrID, out ulong ID)
                 ? guild.Channels[ID]
                 : guild.Channels.Values.FirstOrDefault(guild => guild.Name.EqualsCaseInsensitive(guildNameOrID));
         }
@@ -269,7 +269,7 @@ namespace Eco.Plugins.DiscordLink
 
         public async Task<DiscordUser> GetUserAsync(string userID)
         {
-            if (!Utilities.DiscordUtil.TryParseSnowflakeID(userID, out ulong ID))
+            if (!Utilities.Utils.TryParseSnowflakeID(userID, out ulong ID))
                 return null;
 
             return await GetUserAsync(ID);
@@ -358,11 +358,11 @@ namespace Eco.Plugins.DiscordLink
                     return;
 
                 // Either make sure we have permission to use embeds or convert the embed to text
-                string fullTextContent = ChannelHasPermission(channel, Permissions.EmbedLinks) ? textContent : MessageBuilder.Discord.EmbedToText(textContent, embedContent);
+                string fullTextContent = ChannelHasPermission(channel, Permissions.EmbedLinks) ? textContent : MessageBuilders.Discord.EmbedToText(textContent, embedContent);
 
                 // If needed; split the message into multiple parts
-                ICollection<string> stringParts = MessageUtil.SplitStringBySize(fullTextContent, DLConstants.DISCORD_MESSAGE_CHARACTER_LIMIT);
-                ICollection<DiscordEmbed> embedParts = MessageUtil.BuildDiscordEmbeds(embedContent);
+                ICollection<string> stringParts = MessageUtils.SplitStringBySize(fullTextContent, DLConstants.DISCORD_MESSAGE_CHARACTER_LIMIT);
+                ICollection<DiscordEmbed> embedParts = MessageUtils.BuildDiscordEmbeds(embedContent);
 
                 if (stringParts.Count <= 1 && embedParts.Count <= 1)
                 {
@@ -396,8 +396,8 @@ namespace Eco.Plugins.DiscordLink
             try
             {
                 // If needed; split the message into multiple parts
-                ICollection<string> stringParts = MessageUtil.SplitStringBySize(textContent, DLConstants.DISCORD_MESSAGE_CHARACTER_LIMIT);
-                ICollection<DiscordEmbed> embedParts = MessageUtil.BuildDiscordEmbeds(embedContent);
+                ICollection<string> stringParts = MessageUtils.SplitStringBySize(textContent, DLConstants.DISCORD_MESSAGE_CHARACTER_LIMIT);
+                ICollection<DiscordEmbed> embedParts = MessageUtils.BuildDiscordEmbeds(embedContent);
 
                 if (stringParts.Count <= 1 && embedParts.Count <= 1)
                 {
@@ -444,12 +444,12 @@ namespace Eco.Plugins.DiscordLink
                         // Either make sure we have permission to use embeds or convert the embed to text
                         if (ChannelHasPermission(message.Channel, Permissions.EmbedLinks))
                         {
-                            await message.ModifyAsync(textContent, MessageUtil.BuildDiscordEmbed(embedContent)); // TODO: Not safe! May require splitting!
+                            await message.ModifyAsync(textContent, MessageUtils.BuildDiscordEmbed(embedContent)); // TODO: Not safe! May require splitting!
                         }
                         else
                         {
                             await message.ModifyEmbedSuppressionAsync(true); // Remove existing embeds
-                            await message.ModifyAsync(MessageBuilder.Discord.EmbedToText(textContent, embedContent));
+                            await message.ModifyAsync(MessageBuilders.Discord.EmbedToText(textContent, embedContent));
                         }
                     }
                     catch (Exception e)

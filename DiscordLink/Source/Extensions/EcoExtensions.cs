@@ -7,7 +7,7 @@ namespace Eco.Plugins.DiscordLink
     {
         #region ChatMessage
 
-        public static string FormatForLog(this ChatSent message) => $"Author: {MessageUtil.StripTags(message.Citizen.Name)}\nChannel: {message.Tag}\nMessage: {message.Message}";
+        public static string FormatForLog(this ChatSent message) => $"Author: {MessageUtils.StripTags(message.Citizen.Name)}\nChannel: {message.Tag}\nMessage: {message.Message}";
 
         #endregion
     }
