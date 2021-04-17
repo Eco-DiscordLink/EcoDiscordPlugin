@@ -355,7 +355,10 @@ namespace Eco.Plugins.DiscordLink
             try
             {
                 if (!ChannelHasPermission(channel, Permissions.SendMessages))
+                {
+                    Logger.Warning($"Attempted to send message to channel `{channel}` but the bot user is lacking permissions for this action");
                     return;
+                }
 
                 // Either make sure we have permission to use embeds or convert the embed to text
                 string fullTextContent = ChannelHasPermission(channel, Permissions.EmbedLinks) ? textContent : MessageBuilders.Discord.EmbedToText(textContent, embedContent);
@@ -431,7 +434,10 @@ namespace Eco.Plugins.DiscordLink
             try
             {
                 if (!ChannelHasPermission(message.Channel, Permissions.ManageMessages))
+                {
+                    Logger.Warning($"Attempted to modify message in channel `{message.Channel}` but the bot user is lacking permissions for this action");
                     return;
+                }
 
                 if (embedContent == null)
                 {
@@ -479,7 +485,10 @@ namespace Eco.Plugins.DiscordLink
         public async Task DeleteMessageAsync(DiscordMessage message)
         {
             if (!ChannelHasPermission(message.Channel, Permissions.ManageMessages))
+            {
+                Logger.Warning($"Attempted to delete message in channel `{message.Channel}` but the bot user is lacking permissions for this action");
                 return;
+            }
 
             try
             {
