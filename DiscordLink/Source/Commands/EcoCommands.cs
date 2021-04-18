@@ -160,6 +160,17 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
+        [ChatSubCommand("DiscordLink", "Displays a report for the top used currencies.", "DL-Currencies", ChatAuthorizationLevel.User)]
+        public static void CurrenciesReport(User callingUser, string currencyType = "all",
+            string maxCurrenciesPerType = DLConstants.CURRENCY_REPORT_COMMAND_MAX_CURRENCIES_PER_TYPE_DEFAULT,
+            string holdersPerCurrency = DLConstants.CURRENCY_REPORT_COMMAND_MAX_TOP_HOLDERS_PER_CURRENCY_DEFAULT)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.CurrenciesReport(SharedCommands.CommandSource.Eco, callingUser, currencyType, maxCurrenciesPerType, holdersPerCurrency);
+            }, callingUser);
+        }
+
         [ChatSubCommand("DiscordLink", "Displays the Election Report for the given election.", "DL-Election", ChatAuthorizationLevel.User)]
         public static void ElectionReport(User callingUser, string electionNameOrID)
         {

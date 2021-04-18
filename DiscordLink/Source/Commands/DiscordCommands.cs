@@ -3,6 +3,7 @@ using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using Eco.Gameplay.Economy;
 using Eco.Gameplay.Systems.Chat;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Utils;
@@ -326,6 +327,20 @@ namespace Eco.Plugins.DiscordLink
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
                 await SharedCommands.CurrencyReport(SharedCommands.CommandSource.Discord, ctx, currencyNameOrID);
+            }, ctx);
+        }
+
+        [Command("CurrenciesReport")]
+        [Description("Displays a report for the top used currencies.")]
+        [Aliases("Currencies, DL-Currencies")]
+        public async Task CurrenciesReport(CommandContext ctx,
+            [Description("The type of currencies to include in the report (all, minted or personal).")] string currencyType = "all",
+            [Description("How many currencies per type to display reports for.")] string maxCurrenciesPerType = DLConstants.CURRENCY_REPORT_COMMAND_MAX_CURRENCIES_PER_TYPE_DEFAULT,
+            [Description("How many top account holders per currency to include in the report.")] string holdersPerCurrency = DLConstants.CURRENCY_REPORT_COMMAND_MAX_TOP_HOLDERS_PER_CURRENCY_DEFAULT)
+        {
+            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
+            {
+                await SharedCommands.CurrenciesReport(SharedCommands.CommandSource.Discord, ctx, currencyType, maxCurrenciesPerType, holdersPerCurrency);
             }, ctx);
         }
 

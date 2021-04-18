@@ -7,6 +7,7 @@ using Eco.Gameplay.Players;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Networking;
 using Eco.Shared.Utils;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -231,6 +232,74 @@ namespace Eco.Plugins.DiscordLink
                 await DisplayCommandData(source, callContext, $"Currency report for {currency}", report.AsText());
             else
                 await DisplayCommandData(source, callContext, $"Currency report for {currency}", report);
+            return true;
+        }
+
+        public static async Task<bool> CurrenciesReport(CommandSource source, object callContext, string currencyType, string maxCurrenciesPerTypeStr, string holdersPerCurrencyStr)
+        {
+            if (!currencyType.EqualsCaseInsensitive("all") && !currencyType.EqualsCaseInsensitive("minted") && !currencyType.EqualsCaseInsensitive("personal"))
+            {
+                await ReportCommandError(source, callContext, "The CurrencyType parameter must be \"All\", \"Personal\" or \"Minted\".");
+                return false;
+            }
+            if(int.TryParse(maxCurrenciesPerTypeStr, out int maxCurrenciesPerType) || maxCurrenciesPerType <= 0)
+            {
+                await ReportCommandError(source, callContext, "The MaxCurrenciesPerType parameter must be a positive number.");
+                return false;
+            }
+            if (int.TryParse(holdersPerCurrencyStr, out int holdersPerCurrency) || holdersPerCurrency <= 0)
+            {
+                await ReportCommandError(source, callContext, "The HoldersPerCurrency parameter must be a positive number.");
+                return false;
+            }
+
+            bool useMinted = currencyType.EqualsCaseInsensitive("all") || currencyType.EqualsCaseInsensitive("minted");
+            bool usePersonal = currencyType.EqualsCaseInsensitive("all") || currencyType.EqualsCaseInsensitive("personal");
+
+            IEnumerable<Currency> currencies = EcoUtils.Currencies;
+            var currencyTradesMap = DLStorage.WorldData.CurrencyToTradeCountMap;
+            List<DiscordLinkEmbed> reports = new List<DiscordLinkEmbed>();
+
+            if (useMinted)
+            {
+                IEnumerable<Currency> mintedCurrencies = currencies.Where(c => c.Backed).OrderByDescending(c => currencyTradesMap.Keys.Contains(c.Id) ? currencyTradesMap[c.Id] : 0);
+                var currencyEnumerator = mintedCurrencies.GetEnumerator();
+                for (int i = 0; i < maxCurrenciesPerType && currencyEnumerator.MoveNext(); ++i)
+                {
+                    DiscordLinkEmbed currencyReport = MessageBuilder.Discord.GetCurrencyReport(currencyEnumerator.Current, holdersPerCurrency);
+                    if (currencyReport != null)
+                        reports.Add(currencyReport);
+                }
+            }
+
+            if (usePersonal)
+            {
+                IEnumerable<Currency> personalCurrencies = currencies.Where(c => !c.Backed).OrderByDescending(c => currencyTradesMap.Keys.Contains(c.Id) ? currencyTradesMap[c.Id] : 0);
+                var currencyEnumerator = personalCurrencies.GetEnumerator();
+                for (int i = 0; i < maxCurrenciesPerType && currencyEnumerator.MoveNext(); ++i)
+                {
+                    if (currencyEnumerator.Current.Creator == DiscordLink.Obj.EcoUser)
+                        continue; // Ignore the bot currency
+
+                    DiscordLinkEmbed currencyReport = MessageBuilder.Discord.GetCurrencyReport(currencyEnumerator.Current, holdersPerCurrency);
+                    if (currencyReport != null)
+                        reports.Add(currencyReport);
+                }
+            }
+
+            if (source == CommandSource.Eco)
+            {
+                string fullReport = string.Join("\n\n", reports.Select(r => r.AsText()));
+                await DisplayCommandData(source, callContext, $"Currencies Report", fullReport);
+            }
+            else
+            {
+                foreach (DiscordLinkEmbed report in reports)
+                {
+                    await DisplayCommandData(source, callContext, $"Currency report for {report.Title}", report);
+                }
+            }
+
             return true;
         }
 

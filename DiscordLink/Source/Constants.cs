@@ -26,6 +26,8 @@ namespace Eco.Plugins.DiscordLink
         public const int DISCORD_EMBED_FIELDS_PER_ROW_LIMIT = 3;
 
         public const int MAX_TOP_CURRENCY_HOLDER_DISPLAY_LIMIT = 15;
+        public const string CURRENCY_REPORT_COMMAND_MAX_CURRENCIES_PER_TYPE_DEFAULT = "3";
+        public const string CURRENCY_REPORT_COMMAND_MAX_TOP_HOLDERS_PER_CURRENCY_DEFAULT = "5";
 
         public static string BasePath { get { return Directory.GetCurrentDirectory() + "/Configs/Mods/DiscordLink/"; } }
     }

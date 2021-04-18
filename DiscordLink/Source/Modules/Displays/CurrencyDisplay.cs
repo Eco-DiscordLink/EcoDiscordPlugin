@@ -33,7 +33,7 @@ namespace Eco.Plugins.DiscordLink.Modules
         protected override void GetDisplayContent(DiscordTarget target, out List<Tuple<string, DiscordLinkEmbed>> tagAndContent)
         {
             tagAndContent = new List<Tuple<string, DiscordLinkEmbed>>();
-            IEnumerable<Currency> currencies = CurrencyManager.Currencies;
+            IEnumerable<Currency> currencies = EcoUtils.Currencies;
             var currencyTradesMap = DLStorage.WorldData.CurrencyToTradeCountMap;
             if (!(target is CurrencyChannelLink currencyLink))
                 return;
