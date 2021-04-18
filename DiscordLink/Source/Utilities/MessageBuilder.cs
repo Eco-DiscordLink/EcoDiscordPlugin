@@ -249,33 +249,6 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         public static class Discord
         {
-            public static string EmbedToText(string textContent, DiscordLinkEmbed embedContent)
-            {
-                string message = "";
-                if (!string.IsNullOrEmpty(textContent))
-                {
-                    message += textContent + "\n\n";
-                }
-                if (embedContent != null)
-                {
-                    if (!string.IsNullOrEmpty(embedContent.Title))
-                    {
-                        message += embedContent.Title + "\n\n";
-                    }
-
-                    foreach (DiscordLinkEmbedField field in embedContent.Fields)
-                    {
-                        message += "**" + field.Title + "**\n" + field.Text + "\n\n";
-                    }
-
-                    if (!string.IsNullOrEmpty(embedContent.Footer))
-                    {
-                        message += embedContent.Footer;
-                    }
-                }
-                return message.Trim();
-            }
-
             public static DiscordLinkEmbed GetServerInfo(ServerInfoComponentFlag flag)
             {
                 var plugin = DiscordLink.Obj;

@@ -76,6 +76,26 @@ namespace DiscordLink.Extensions
             Fields.Clear();
             return this;
         }
+
+        public string AsText()
+        {
+            string text = string.Empty;
+            if (!string.IsNullOrWhiteSpace(Title))
+                text += $"{Title}\n\n";
+
+            if (!string.IsNullOrWhiteSpace(Description))
+                text += $"{Description}\n\n";
+
+            foreach (DiscordLinkEmbedField field in Fields)
+            {
+                text += $"**{field.Title}**\n[{field.Text}\n\n";
+            }
+
+            if (!string.IsNullOrWhiteSpace(Footer))
+                text += Footer;
+
+            return text.Trim();
+        }
     }
 
     public sealed class DiscordLinkEmbedField

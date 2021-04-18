@@ -96,7 +96,7 @@ namespace Eco.Plugins.DiscordLink
                     }
                     else
                     {
-                        await Respond(ctx, MessageBuilder.Discord.EmbedToText(fullTextContent, embedContent), embedContent);
+                        await Respond(ctx, $"{fullTextContent}\n{embedContent.AsText()}", null);
                     }
                 }
             }
