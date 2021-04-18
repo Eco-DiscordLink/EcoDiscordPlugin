@@ -12,6 +12,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
 {
     public static class EcoUtils
     {
+        #region Lookups
+
         public static IEnumerable<Election> ActiveElections => ElectionManager.Obj.CurrentElections.Where(x => x.Valid() && x.State == Shared.Items.ProposableState.Active);
         public static IEnumerable<Law> ActiveLaws => CivicsData.Obj.Laws.All<Law>().Where(x => x.State == Shared.Items.ProposableState.Active);
 
@@ -25,6 +27,10 @@ namespace Eco.Plugins.DiscordLink.Utilities
         public static Currency CurrencyByName(string currencyName) => CurrencyManager.Currencies.FirstOrDefault(c => c.Name.EqualsCaseInsensitive(currencyName));
         public static Currency CurrencyByID(int currencyID) => CurrencyManager.Currencies.FirstOrDefault(c => c.Id == currencyID);
         public static Currency CurrencyByNameOrID(string currencyNameOrID) => int.TryParse(currencyNameOrID, out int ID) ? CurrencyByID(ID) : CurrencyByName(currencyNameOrID);
+
+        #endregion
+
+        #region Message Sending
 
         public static bool SendServerMessage(string message, bool permanent = false, User user = null )
         {
@@ -65,5 +71,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             }
             return result;
         }
+
+        #endregion
     }
 }
