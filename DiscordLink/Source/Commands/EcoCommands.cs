@@ -180,6 +180,15 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
+        [ChatSubCommand("DiscordLink", "Displays a report for the currently active elections.", "DL-Elections", ChatAuthorizationLevel.User)]
+        public static void ElectionsReport(User callingUser)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.ElectionsReport(SharedCommands.CommandSource.Eco, callingUser);
+            }, callingUser);
+        }
+
         [ChatSubCommand("DiscordLink", "Displays the Work Party Report for the given work party.", "DL-WorkParty", ChatAuthorizationLevel.User)]
         public static void WorkPartyReport(User callingUser, string workPartyNameOrID)
         {

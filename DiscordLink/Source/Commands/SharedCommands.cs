@@ -320,6 +320,44 @@ namespace Eco.Plugins.DiscordLink
             return true;
         }
 
+        public static async Task<bool> ElectionsReport(CommandSource source, object callContext)
+        {
+            IEnumerable<Election> elections = EcoUtils.ActiveElections;
+            if(elections.Count() <= 0)
+            {
+                await ReportCommandInfo(source, callContext, "There are no active elections.");
+                return false;
+            }
+
+            List<DiscordLinkEmbed> reports = new List<DiscordLinkEmbed>();
+            foreach (Election election in elections)
+            {
+                DiscordLinkEmbed report = MessageBuilder.Discord.GetElectionReport(election);
+                if (report.Fields.Count() > 0)
+                    reports.Add(report);
+            }
+
+            if(reports.Count() <= 0)
+            {
+                await ReportCommandInfo(source, callContext, "None of the active elections have a voting option.");
+                return false;
+            }
+
+            if (source == CommandSource.Eco)
+            {
+                string fullReport = string.Join("\n\n", reports.Select(r => r.AsText()));
+                await DisplayCommandData(source, callContext, $"Elections Report", fullReport);
+            }
+            else
+            {
+                foreach (DiscordLinkEmbed report in reports)
+                {
+                    await DisplayCommandData(source, callContext, $"Election report for {report.Title}", report);
+                }
+            }
+            return true;
+        }
+
         public static async Task<bool> WorkPartyReport(CommandSource source, object callContext, string workPartyNameOrID)
         {
             WorkParty workParty = EcoUtils.ActiveWorkPartyByNameOrID(workPartyNameOrID);

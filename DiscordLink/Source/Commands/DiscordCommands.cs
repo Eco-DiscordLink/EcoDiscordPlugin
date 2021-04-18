@@ -356,6 +356,17 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
+        [Command("ElectionsReport")]
+        [Description("Displays a report for the currently active elections.")]
+        [Aliases("Elections, DL-Elections")]
+        public async Task ElectionsReport(CommandContext ctx)
+        {
+            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
+            {
+                await SharedCommands.ElectionsReport(SharedCommands.CommandSource.Discord, ctx);
+            }, ctx);
+        }
+
         [Command("WorkPartyReport")]
         [Description("Displays the Work Party Report for the given work party.")]
         [Aliases("WorkParty, DL-WorkParty")]
