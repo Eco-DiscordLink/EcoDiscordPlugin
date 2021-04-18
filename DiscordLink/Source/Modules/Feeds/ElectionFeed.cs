@@ -1,6 +1,6 @@
-﻿using DiscordLink.Extensions;
-using Eco.Gameplay.Civics.Elections;
+﻿using Eco.Gameplay.Civics.Elections;
 using Eco.Plugins.DiscordLink.Events;
+using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Utils;
 using System.Threading.Tasks;

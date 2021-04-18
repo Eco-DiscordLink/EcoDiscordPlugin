@@ -6,6 +6,7 @@ using Eco.Shared.Localization;
 using Eco.Plugins.DiscordLink.Utilities;
 using System;
 using System.Collections.Generic;
+using Eco.Plugins.DiscordLink.Extensions;
 
 namespace Eco.Plugins.DiscordLink
 {

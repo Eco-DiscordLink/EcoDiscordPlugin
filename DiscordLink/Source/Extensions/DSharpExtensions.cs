@@ -5,7 +5,7 @@ using Eco.Shared.Utils;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Eco.Plugins.DiscordLink
+namespace Eco.Plugins.DiscordLink.Extensions
 {
     public static class DSharpExtensions
     {

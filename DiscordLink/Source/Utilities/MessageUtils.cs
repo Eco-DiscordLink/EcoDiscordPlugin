@@ -1,6 +1,6 @@
-﻿using DiscordLink.Extensions;
-using DSharpPlus.Entities;
+﻿using DSharpPlus.Entities;
 using Eco.Core.Utils;
+using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Shared.Utils;
 using System;
 using System.Collections.Generic;

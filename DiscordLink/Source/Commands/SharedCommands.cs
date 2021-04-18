@@ -1,9 +1,9 @@
-﻿using DiscordLink.Extensions;
-using DSharpPlus.CommandsNext;
+﻿using DSharpPlus.CommandsNext;
 using Eco.Gameplay.Civics.Elections;
 using Eco.Gameplay.Economy;
 using Eco.Gameplay.Economy.WorkParties;
 using Eco.Gameplay.Players;
+using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Networking;
 using Eco.Shared.Utils;

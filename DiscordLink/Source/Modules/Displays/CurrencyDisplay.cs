@@ -4,7 +4,7 @@ using System.Linq;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Gameplay.Economy;
 using Eco.Plugins.DiscordLink.Utilities;
-using DiscordLink.Extensions;
+using Eco.Plugins.DiscordLink.Extensions;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {

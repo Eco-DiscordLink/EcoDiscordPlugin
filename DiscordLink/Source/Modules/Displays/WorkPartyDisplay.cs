@@ -1,7 +1,7 @@
-﻿using DiscordLink.Extensions;
-using Eco.Core.Systems;
+﻿using Eco.Core.Systems;
 using Eco.Gameplay.Economy.WorkParties;
 using Eco.Plugins.DiscordLink.Events;
+using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Shared.Items;
 using Eco.Shared.Utils;
 using System;

@@ -1,10 +1,10 @@
-﻿using DiscordLink.Extensions;
-using DSharpPlus;
+﻿using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Eco.Core.Utils;
 using Eco.Plugins.DiscordLink.Events;
+using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Utils;
 using System;

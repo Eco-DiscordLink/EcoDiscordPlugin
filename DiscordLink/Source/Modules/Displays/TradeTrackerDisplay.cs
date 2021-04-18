@@ -1,5 +1,4 @@
 ﻿using DSharpPlus.Entities;
-using DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Utilities;
 using System;
@@ -8,6 +7,7 @@ using System.Threading.Tasks;
 using System.Linq;
 
 using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
+using Eco.Plugins.DiscordLink.Extensions;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {

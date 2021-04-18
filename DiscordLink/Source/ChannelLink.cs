@@ -1,4 +1,5 @@
 ﻿using DSharpPlus.Entities;
+using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Serialization;
 using Eco.Shared.Utils;

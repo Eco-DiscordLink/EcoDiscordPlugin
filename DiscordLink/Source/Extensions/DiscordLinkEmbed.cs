@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace DiscordLink.Extensions
+namespace Eco.Plugins.DiscordLink.Extensions
 {
     // DSharp DiscordEmbed throws exceptions when it goes over the character limits.
     // This class is used to get around that by deferring the embed building to a place where the character limits can be handled.

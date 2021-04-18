@@ -1,7 +1,7 @@
 ﻿using Eco.Gameplay.GameActions;
 using Eco.Plugins.DiscordLink.Utilities;
 
-namespace Eco.Plugins.DiscordLink
+namespace Eco.Plugins.DiscordLink.Extensions
 {
     public static class EcoExtensions
     {
