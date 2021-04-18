@@ -214,7 +214,7 @@ namespace Eco.Plugins.DiscordLink
             ServerInfo serverInfo = Networking.NetworkManager.GetServerInfo();
 
             string inviteMessage = config.InviteMessage;
-            if (!inviteMessage.Contains(DLConfig.InviteCommandLinkToken) || string.IsNullOrEmpty(serverInfo.DiscordAddress))
+            if (!inviteMessage.Contains(DLConstants.INVITE_COMMAND_TOKEN) || string.IsNullOrEmpty(serverInfo.DiscordAddress))
             {
                 await ReportCommandError(source, callContext, "This server is not configured for using the Invite commands.");
                 return false;
@@ -236,7 +236,7 @@ namespace Eco.Plugins.DiscordLink
                 }
             }
 
-            inviteMessage = Regex.Replace(inviteMessage, Regex.Escape(DLConfig.InviteCommandLinkToken), serverInfo.DiscordAddress);
+            inviteMessage = Regex.Replace(inviteMessage, Regex.Escape(DLConstants.INVITE_COMMAND_TOKEN), serverInfo.DiscordAddress);
 
             bool sent = EcoUtils.SendServerMessage(inviteMessage, permanent: true, targetUser);
             if (sent)

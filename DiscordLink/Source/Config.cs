@@ -30,7 +30,7 @@ namespace Eco.Plugins.DiscordLink
             public static readonly string[] AdminRoles = { "admin", "administrator", "moderator" };
             public const string DiscordCommandPrefix = "?";
             public const string EcoCommandOutputChannel = "General";
-            public const string InviteMessage = "Join us on Discord!\n" + InviteCommandLinkToken;
+            public const string InviteMessage = "Join us on Discord!\n" + DLConstants.INVITE_COMMAND_TOKEN;
             public const string EcoBotName = "DiscordLink";
             public const int MaxMintedCurrencies = 1;
             public const int MaxPersonalCurrencies = 3;
@@ -241,9 +241,9 @@ namespace Eco.Plugins.DiscordLink
                     errorMessages.Add("[Bot Token] Bot token not configured. See Github page for install instructions.");
                 }
 
-                if (!string.IsNullOrWhiteSpace(Data.InviteMessage) && !Data.InviteMessage.Contains(InviteCommandLinkToken))
+                if (!string.IsNullOrWhiteSpace(Data.InviteMessage) && !Data.InviteMessage.Contains(DLConstants.INVITE_COMMAND_TOKEN))
                 {
-                    errorMessages.Add("[Invite Message] Message does not contain the invite link token " + InviteCommandLinkToken + ". If the invite link has been added manually, consider adding it to the network config instead");
+                    errorMessages.Add("[Invite Message] Message does not contain the invite link token " + DLConstants.INVITE_COMMAND_TOKEN + ".");
                 }
 
                 // Report errors
@@ -432,7 +432,7 @@ namespace Eco.Plugins.DiscordLink
         [Description("Determines what backend message types will be printed to the server log. All message types below the selected one will be printed as well. This setting requires a plugin restart to take effect."), Category("Miscellaneous")]
         public Microsoft.Extensions.Logging.LogLevel BackendLogLevel { get; set; } = DLConfig.DefaultValues.BackendLogLevel;
 
-        [Description("The message to use for the /DiscordInvite command. The invite link is fetched from the network config and will replace the token " + DLConfig.InviteCommandLinkToken + ". This setting can be changed while the server is running."), Category("Command Settings")]
+        [Description("The message to use for the /DiscordInvite command. The invite link is fetched from the network config and will replace the token " + DLConstants.INVITE_COMMAND_TOKEN + ". This setting can be changed while the server is running."), Category("Command Settings")]
         public string InviteMessage { get; set; } = DLConfig.DefaultValues.InviteMessage;
     }
 
