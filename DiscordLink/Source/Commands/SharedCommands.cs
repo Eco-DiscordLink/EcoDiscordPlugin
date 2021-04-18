@@ -2,6 +2,7 @@
 using DSharpPlus.CommandsNext;
 using Eco.Gameplay.Civics.Elections;
 using Eco.Gameplay.Economy;
+using Eco.Gameplay.Economy.WorkParties;
 using Eco.Gameplay.Players;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Networking;
@@ -247,6 +248,23 @@ namespace Eco.Plugins.DiscordLink
                 await DisplayCommandData(source, callContext, $"Election report for {election}", report.AsText());
             else
                 await DisplayCommandData(source, callContext, $"Election report for {election}", report);
+            return true;
+        }
+
+        public static async Task<bool> WorkPartyReport(CommandSource source, object callContext, string workPartyNameOrID)
+        {
+            WorkParty workParty = EcoUtils.ActiveWorkPartyByNameOrID(workPartyNameOrID);
+            if (workParty == null)
+            {
+                await ReportCommandError(source, callContext, $"No work party with the name or ID \"{workPartyNameOrID}\" could be found.");
+                return false;
+            }
+
+            DiscordLinkEmbed report = MessageBuilder.Discord.GetWorkPartyReport(workParty);
+            if (source == CommandSource.Eco)
+                await DisplayCommandData(source, callContext, $"Work party report for {workParty}", report.AsText());
+            else
+                await DisplayCommandData(source, callContext, $"Work party report for {workParty}", report);
             return true;
         }
 

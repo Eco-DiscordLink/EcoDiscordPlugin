@@ -341,6 +341,18 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
+        [Command("WorkPartyReport")]
+        [Description("Displays the Work Party Report for the given work party.")]
+        [Aliases("WorkParty, DL-WorkParty")]
+        public async Task WorkPartyReport(CommandContext ctx,
+            [Description("Name or ID of the work party for which to display a report.")] string workPartyNameOrID)
+        {
+            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
+            {
+                await SharedCommands.WorkPartyReport(SharedCommands.CommandSource.Discord, ctx, workPartyNameOrID);
+            }, ctx);
+        }
+
         #endregion
 
         #region Message Relaying

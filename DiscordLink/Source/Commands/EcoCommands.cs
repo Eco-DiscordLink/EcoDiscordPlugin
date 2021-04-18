@@ -169,6 +169,15 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
+        [ChatSubCommand("DiscordLink", "Displays the Work Party Report for the given work party.", "DL-WorkParty", ChatAuthorizationLevel.User)]
+        public static void WorkPartyReport(User callingUser, string workPartyNameOrID)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.WorkPartyReport(SharedCommands.CommandSource.Eco, callingUser, workPartyNameOrID);
+            }, callingUser);
+        }
+
         #endregion
 
         #region Message Relaying

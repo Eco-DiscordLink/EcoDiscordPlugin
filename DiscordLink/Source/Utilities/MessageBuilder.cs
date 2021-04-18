@@ -18,6 +18,9 @@ using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGroup
 using Eco.Shared;
 using DSharpPlus;
 using Eco.Gameplay.Economy;
+using Eco.Gameplay.Economy.WorkParties;
+using Eco.Shared.Items;
+using Eco.Gameplay.Items;
 
 namespace Eco.Plugins.DiscordLink.Utilities
 {
@@ -558,6 +561,134 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 {
                     report.AddAlignmentField();
                 }
+
+                return report;
+            }
+
+            public static DiscordLinkEmbed GetWorkPartyReport(WorkParty workParty)
+            {
+                DiscordLinkEmbed report = new DiscordLinkEmbed();
+                report.WithTitle(MessageUtils.StripTags(workParty.Name));
+                report.WithFooter(GetStandardEmbedFooter());
+
+                // Workers
+                string workersDesc = string.Empty;
+                foreach (Laborer laborer in workParty.Laborers)
+                {
+                    if (laborer.Citizen == null) continue;
+                    string creator = (laborer.Citizen == workParty.Creator) ? "Creator" : string.Empty;
+                    workersDesc += $"{laborer.Citizen.Name} ({creator})\n";
+                }
+
+                if (string.IsNullOrWhiteSpace(workersDesc))
+                {
+                    workersDesc += "--- No Workers Registered ---";
+                }
+                report.AddField("Workers", workersDesc);
+
+                // Work
+                foreach (Work work in workParty.Work)
+                {
+                    string workDesc = string.Empty;
+                    string workType = string.Empty;
+                    List<string> workEntries = new List<string>();
+                    switch (work)
+                    {
+                        case LaborWork laborWork:
+                            {
+                                if (!string.IsNullOrEmpty(laborWork.ShortDescriptionRemainingWork))
+                                {
+                                    workType = $"Labor for {laborWork.Order.Recipe.RecipeName}";
+                                    workEntries.Add(MessageUtils.StripTags(laborWork.ShortDescriptionRemainingWork));
+                                }
+                                break;
+                            }
+
+                        case WorkOrderWork orderWork:
+                            {
+                                workType = $"Materials for {orderWork.Order.Recipe.RecipeName}";
+                                foreach (TagStack stack in orderWork.Order.MissingIngredients)
+                                {
+                                    string itemName = string.Empty;
+                                    if (stack.Item != null)
+                                        itemName = stack.Item.DisplayName;
+                                    else if (stack.StackObject != null)
+                                        itemName = stack.StackObject.DisplayName;
+                                    workEntries.Add($"{itemName} ({stack.Quantity})");
+                                }
+                                break;
+                            }
+
+                        default:
+                            break;
+                    }
+
+                    if (workEntries.Count > 0)
+                    {
+                        foreach (string material in workEntries)
+                        {
+                            workDesc += $"- {material}\n";
+                        }
+
+                        if (!string.IsNullOrWhiteSpace(workDesc))
+                        {
+                            string percentDone = (work.PercentDone * 100.0f).ToString("N1", CultureInfo.InvariantCulture).Replace(".0", "");
+                            report.AddField($"\n {workType} (Weight: {work.Weight.ToString("F1")}) ({percentDone}% completed) \n", workDesc);
+                        }
+                    }
+                }
+
+                // Payment
+                string paymentDesc = string.Empty;
+                foreach (Payment payment in workParty.Payment)
+                {
+                    string desc = string.Empty;
+                    switch (payment)
+                    {
+                        case CurrencyPayment currencyPayment:
+                            {
+                                float currencyAmountLeft = currencyPayment.Amount - currencyPayment.AmountPaid;
+                                if (currencyAmountLeft > 0.0f)
+                                {
+                                    desc = $"Receive **{currencyAmountLeft.ToString("F1")} {currencyPayment.Currency.Name}**"
+                                        + (currencyPayment.PayType == PayType.SplitByWorkPercent ? ", split based on work performed" : ", split evenly")
+                                        + (currencyPayment.PayAsYouGo ? ", paid as work is performed." : ", paid when the project finishes.");
+                                }
+                                break;
+                            }
+
+                        case GrantTitlePayment titlePayment:
+                            {
+                                desc = $"Receive title `{MessageUtils.StripTags(titlePayment.Title.Name)}` if work contributed is at least *{titlePayment.MinContributedPercent.ToString("F1")}%*.";
+                                break;
+                            }
+
+                        case KnowledgeSharePayment knowledgePayment:
+                            {
+                                if (knowledgePayment.Skills.Entries.Count > 0)
+                                    desc = $"Receive knowledge of `{MessageUtils.StripTags(knowledgePayment.ShortDescription())}` if work contributed is at least *{knowledgePayment.MinContributedPercent.ToString("F1")}%*.";
+                                break;
+                            }
+
+                        case ReputationPayment reputationPayment:
+                            {
+                                float reputationAmountLeft = reputationPayment.Amount - reputationPayment.AmountPaid;
+                                desc = $"Receive **{reputationAmountLeft.ToString("F1")} reputation** from *{workParty.Creator.Name}*"
+                                    + (reputationPayment.PayType == PayType.SplitByWorkPercent ? ", split based on work performed" : ", split evenly")
+                                    + (reputationPayment.PayAsYouGo ? ", paid as work is performed." : ", paid when the project finishes.");
+                                break;
+                            }
+
+                        default:
+                            break;
+                    }
+
+                    if (!string.IsNullOrEmpty(desc))
+                        paymentDesc += $"- {desc}\n";
+                }
+
+                if (!string.IsNullOrWhiteSpace(paymentDesc))
+                    report.AddField("Payment", paymentDesc);
 
                 return report;
             }
