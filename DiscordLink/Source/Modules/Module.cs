@@ -1,5 +1,4 @@
-﻿using DSharpPlus.Entities;
-using Eco.Plugins.DiscordLink.Events;
+﻿using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Utilities;
 using Nito.AsyncEx;
 using System;

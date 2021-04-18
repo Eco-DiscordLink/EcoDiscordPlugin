@@ -1,11 +1,9 @@
-﻿using DSharpPlus;
-using DSharpPlus.Entities;
+﻿using DSharpPlus.Entities;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Serialization;
 using Eco.Shared.Utils;
 using System;
 using System.ComponentModel;
-using System.Linq;
 
 namespace Eco.Plugins.DiscordLink
 {

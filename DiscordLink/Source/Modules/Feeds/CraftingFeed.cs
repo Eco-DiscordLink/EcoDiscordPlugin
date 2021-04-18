@@ -1,7 +1,6 @@
 ﻿using Eco.Gameplay.GameActions;
 using Eco.Gameplay.Objects;
 using Eco.Plugins.DiscordLink.Events;
-using Eco.Plugins.DiscordLink.Utilities;
 using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink.Modules

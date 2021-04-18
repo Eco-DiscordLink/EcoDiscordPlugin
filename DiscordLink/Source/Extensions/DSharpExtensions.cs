@@ -1,12 +1,9 @@
 ﻿using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
-using DSharpPlus.Exceptions;
-using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Utils;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink
 {
