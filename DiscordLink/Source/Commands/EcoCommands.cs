@@ -117,7 +117,7 @@ namespace Eco.Plugins.DiscordLink
 
         #endregion
 
-        #region Discord Bot Info Fetching
+        #region Lookups
 
         [ChatSubCommand("DiscordLink", "Lists Discord servers the bot is in.", ChatAuthorizationLevel.Admin)]
         public static void ListGuilds(User callingUser)
@@ -148,6 +148,15 @@ namespace Eco.Plugins.DiscordLink
 
                 string joinedChannelNames = string.Join("\n", guild.TextChannelNames());
                 DisplayCommandData(callingUser, "Connected Discord Servers", joinedChannelNames);
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Displays the Currency Report for the given currency.", ChatAuthorizationLevel.User)]
+        public static void CurrencyReport(User callingUser, string currencyNameOrID)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.CurrencyReport(SharedCommands.CommandSource.Eco, callingUser, currencyNameOrID);
             }, callingUser);
         }
 

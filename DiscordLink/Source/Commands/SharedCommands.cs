@@ -1,5 +1,6 @@
 ﻿using DiscordLink.Extensions;
 using DSharpPlus.CommandsNext;
+using Eco.Gameplay.Economy;
 using Eco.Gameplay.Players;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Networking;
@@ -206,9 +207,36 @@ namespace Eco.Plugins.DiscordLink
 
         #endregion
 
-        #region Invites
+        #region Lookups
 
-        public static async Task<bool> DiscordInvite(CommandSource source, object callContext, string targetUserName)
+        public static async Task<bool> CurrencyReport(CommandSource source, object callContext, string currencyNameOrID)
+        {
+            Currency currency = EcoUtils.CurrencyByNameOrID(currencyNameOrID);
+            if (currency == null)
+            {
+                await ReportCommandError(source, callContext, $"No currency with the name or ID \"{currencyNameOrID}\" could be found.");
+                return false;
+            }
+
+            DiscordLinkEmbed report = MessageBuilder.Discord.GetCurrencyReport(currency, DLConfig.DefaultValues.MaxTopCurrencyHolderCount);
+            if (report == null)
+            {
+                await ReportCommandError(source, callContext, $"Could not create a report for {currency} as no one holds this currency and no trades has been made with it.");
+                return false;
+            }
+
+            if(source == CommandSource.Eco)
+                await DisplayCommandData(source, callContext, $"Currency report for {currency}", report.AsText());
+            else
+                await DisplayCommandData(source, callContext, $"Currency report for {currency}", report);
+            return true;
+        }
+
+#endregion
+
+#region Invites
+
+public static async Task<bool> DiscordInvite(CommandSource source, object callContext, string targetUserName)
         {
             DLConfigData config = DLConfig.Data;
             ServerInfo serverInfo = Networking.NetworkManager.GetServerInfo();

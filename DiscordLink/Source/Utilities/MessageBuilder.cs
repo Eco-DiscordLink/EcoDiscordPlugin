@@ -487,7 +487,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 }
                 else
                 {
-                    embed.AddField("Top Holders", "--- No player holding this currency---", inline: true);
+                    embed.AddField("Top Holders", "--- No player holding this currency ---", inline: true);
                 }
 
                 return embed;

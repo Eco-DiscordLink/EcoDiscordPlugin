@@ -3,7 +3,6 @@ using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
-using Eco.Gameplay.Economy;
 using Eco.Gameplay.Systems.Chat;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Utils;
@@ -291,7 +290,7 @@ namespace Eco.Plugins.DiscordLink
 
         #endregion
 
-        #region Server Info Fetching
+        #region Lookups
 
         [Command("PlayerList")]
         [Description("Lists the players currently online on the server.")]
@@ -308,7 +307,7 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [Command("ServerStatus")]
-        [Description("Prints the Server Info status.")]
+        [Description("Displays the Server Info status.")]
         [Aliases("DL-EcoStatus", "DL-ServerInfo", "EcoStatus")]
         public async Task ServerStatus(CommandContext ctx)
         {
@@ -319,27 +318,14 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [Command("CurrencyReport")]
-        [Description("Prints the Currency Report for the given currency")]
-        [Aliases("DL-Currency")]
-        public async Task CurrencyReport(CommandContext ctx, string currencyNameOrID)
+        [Description("Displays the Currency Report for the given currency.")]
+        [Aliases("Currency, DL-Currency")]
+        public async Task CurrencyReport(CommandContext ctx,
+            [Description("Name of the currency for which to display a report.")] string currencyNameOrID)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                Currency currency = EcoUtils.CurrencyByNameOrID(currencyNameOrID);
-                if(currency == null)
-                {
-                    await ReportCommandError(ctx, $"No currency with the name or ID \"{currencyNameOrID}\" could be found.");
-                    return;
-                }
-
-                DiscordLinkEmbed report = MessageBuilder.Discord.GetCurrencyReport(currency, DLConfig.DefaultValues.MaxTopCurrencyHolderCount);
-                if(report == null)
-                {
-                    await ReportCommandError(ctx, $"Could not create a report for `{MessageUtils.StripTags(currency.Name)}` as no one holds this currency and no trades has been made with it.");
-                    return;
-                }
-
-                await DisplayCommandData(ctx, $"Currency report for `{MessageUtils.StripTags(currency.Name)}`", report);
+                await SharedCommands.CurrencyReport(SharedCommands.CommandSource.Discord, ctx, currencyNameOrID);
             }, ctx);
         }
 
@@ -350,7 +336,8 @@ namespace Eco.Plugins.DiscordLink
         [Command("SendServerMessage")]
         [Description("Sends an Eco server message to a specified user.")]
         [Aliases("DL-ServerMessage")]
-        public async Task SendServerMessage(CommandContext ctx, [Description("The message to send.")] string message,
+        public async Task SendServerMessage(CommandContext ctx,
+            [Description("The message to send.")] string message,
             [Description("Name of the recipient Eco user.")] string recipientUserName,
             [Description("Persistance type. Possible values are \"Temporary\" and \"Permanent\". Defaults to \"Temporary\".")] string persistanceType = "Temporary")
         {
