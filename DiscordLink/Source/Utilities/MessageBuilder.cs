@@ -493,6 +493,75 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 return embed;
             }
 
+            public static DiscordLinkEmbed GetElectionReport(Election election)
+            {
+                DiscordLinkEmbed report = new DiscordLinkEmbed();
+                report.WithFooter(GetStandardEmbedFooter());
+                report.WithTitle(MessageUtils.StripTags(election.Name));
+
+                // Proposer name
+                report.AddField("Proposer", election.Creator.Name, inline: true);
+
+                // Process
+                report.AddField("Process", MessageUtils.StripTags(election.Process.Name), inline: true);
+
+                // Time left
+                report.AddField("Time Left", TimeFormatter.FormatSpan(election.TimeLeft), inline: true);
+
+                // Votes
+                string voteDesc = string.Empty;
+                string choiceDesc = string.Empty;
+                if (!election.Process.AnonymousVoting)
+                {
+                    foreach (RunoffVote vote in election.Votes)
+                    {
+                        string topChoiceName = null;
+                        int topChoiceID = vote.RankedVotes.FirstOrDefault();
+                        foreach (ElectionChoice choice in election.Choices)
+                        {
+                            if (choice.ID == topChoiceID)
+                            {
+                                topChoiceName = choice.Name;
+                                break;
+                            }
+                        }
+                        voteDesc += $"{vote.Voter.Name}\n";
+                        choiceDesc += $"{topChoiceName}\n";
+                    }
+                }
+                else
+                {
+                    voteDesc = "--- Anonymous Voting ---";
+                }
+
+                if (string.IsNullOrEmpty(voteDesc))
+                    voteDesc = "--- No Votes Recorded ---";
+
+                report.AddField($"Votes ({election.TotalVotes})", voteDesc, inline: true);
+
+                if (!string.IsNullOrEmpty(choiceDesc))
+                    report.AddField("Choice", choiceDesc, inline: true);
+                else
+                    report.AddAlignmentField();
+
+                // Options
+                if (!election.BooleanElection && election.Choices.Count > 0)
+                {
+                    string optionsDesc = string.Empty;
+                    foreach (ElectionChoice choice in election.Choices)
+                    {
+                        optionsDesc += $"{choice.Name}\n";
+                    }
+                    report.AddField("Options", optionsDesc, inline: true);
+                }
+                else
+                {
+                    report.AddAlignmentField();
+                }
+
+                return report;
+            }
+
             public static DiscordLinkEmbed GetVerificationDM(User ecoUser)
             {
                 DLConfigData config = DLConfig.Data;

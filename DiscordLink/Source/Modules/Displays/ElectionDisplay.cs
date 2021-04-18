@@ -2,7 +2,6 @@
 using Eco.Gameplay.Civics.Elections;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Utilities;
-using Eco.Shared.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,77 +33,13 @@ namespace Eco.Plugins.DiscordLink.Modules
         protected override void GetDisplayContent(DiscordTarget target, out List<Tuple<string, DiscordLinkEmbed>> tagAndContent)
         {
             tagAndContent = new List<Tuple<string, DiscordLinkEmbed>>();
-            DiscordLinkEmbed embed = new DiscordLinkEmbed();
-            embed.WithFooter(MessageBuilder.Discord.GetStandardEmbedFooter());
+
             foreach (Election election in EcoUtils.ActiveElections)
             {
                 string tag = $"{BaseTag} [{election.Id}]";
-                embed.WithTitle(MessageUtils.StripTags(election.Name));
-
-                // Proposer name
-                embed.AddField("Proposer", election.Creator.Name, inline: true);
-
-                // Process
-                embed.AddField("Process", MessageUtils.StripTags(election.Process.Name), inline: true);
-
-                // Time left
-                embed.AddField("Time Left", TimeFormatter.FormatSpan(election.TimeLeft), inline: true);
-
-                // Votes
-                string voteDesc = string.Empty;
-                string choiceDesc = string.Empty;
-                if (!election.Process.AnonymousVoting)
-                {
-                    foreach (RunoffVote vote in election.Votes)
-                    {
-                        string topChoiceName = null;
-                        int topChoiceID = vote.RankedVotes.FirstOrDefault();
-                        foreach (ElectionChoice choice in election.Choices)
-                        {
-                            if (choice.ID == topChoiceID)
-                            {
-                                topChoiceName = choice.Name;
-                                break;
-                            }
-                        }
-                        voteDesc += $"{vote.Voter.Name}\n";
-                        choiceDesc += $"{topChoiceName}\n";
-                    }
-                }
-                else
-                {
-                    voteDesc = "--- Anonymous Voting ---";
-                }
-
-                if (string.IsNullOrEmpty(voteDesc))
-                    voteDesc = "--- No Votes Recorded ---";
-
-                embed.AddField($"Votes ({election.TotalVotes})", voteDesc, inline: true);
-
-                if (!string.IsNullOrEmpty(choiceDesc))
-                    embed.AddField("Choice", choiceDesc, inline: true);
-                else
-                    embed.AddAlignmentField();
-
-                // Options
-                if (!election.BooleanElection && election.Choices.Count > 0)
-                {
-                    string optionsDesc = string.Empty;
-                    foreach (ElectionChoice choice in election.Choices)
-                    {
-                        optionsDesc += $"{choice.Name}\n";
-                    }
-                    embed.AddField("Options", optionsDesc, inline: true);
-                }
-                else
-                {
-                    embed.AddAlignmentField();
-                }
-
-                if (embed.Fields.Count > 0)
-                    tagAndContent.Add(new Tuple<string, DiscordLinkEmbed>(tag, new DiscordLinkEmbed(embed)));
-
-                embed.ClearFields();
+                DiscordLinkEmbed report = MessageBuilder.Discord.GetElectionReport(election);
+                if (report.Fields.Count > 0)
+                    tagAndContent.Add(new Tuple<string, DiscordLinkEmbed>(tag, report));
             }
         }
     }

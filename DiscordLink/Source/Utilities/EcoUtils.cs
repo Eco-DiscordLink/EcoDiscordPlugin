@@ -15,6 +15,10 @@ namespace Eco.Plugins.DiscordLink.Utilities
         #region Lookups
 
         public static IEnumerable<Election> ActiveElections => ElectionManager.Obj.CurrentElections.Where(x => x.Valid() && x.State == Shared.Items.ProposableState.Active);
+        public static Election ElectionByName(string electionName) => ActiveElections.FirstOrDefault(e => e.Name.EqualsCaseInsensitive(electionName));
+        public static Election ElectionByID(int electionID) => ActiveElections.FirstOrDefault(e => e.Id == electionID);
+        public static Election ElectionByNameOrID(string electionNameOrID) => int.TryParse(electionNameOrID, out int ID) ? ElectionByID(ID) : ElectionByName(electionNameOrID);
+
         public static IEnumerable<Law> ActiveLaws => CivicsData.Obj.Laws.All<Law>().Where(x => x.State == Shared.Items.ProposableState.Active);
 
         public static User UserByName(string userName) => UserManager.FindUserByName(userName);

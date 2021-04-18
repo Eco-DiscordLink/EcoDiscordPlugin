@@ -160,6 +160,15 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
+        [ChatSubCommand("DiscordLink", "Displays the Election Report for the given election.", ChatAuthorizationLevel.User)]
+        public static void ElectionReport(User callingUser, string electionNameOrID)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.ElectionReport(SharedCommands.CommandSource.Eco, callingUser, electionNameOrID);
+            }, callingUser);
+        }
+
         #endregion
 
         #region Message Relaying

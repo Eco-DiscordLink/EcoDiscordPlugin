@@ -321,11 +321,23 @@ namespace Eco.Plugins.DiscordLink
         [Description("Displays the Currency Report for the given currency.")]
         [Aliases("Currency, DL-Currency")]
         public async Task CurrencyReport(CommandContext ctx,
-            [Description("Name of the currency for which to display a report.")] string currencyNameOrID)
+            [Description("Name or ID of the currency for which to display a report.")] string currencyNameOrID)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
                 await SharedCommands.CurrencyReport(SharedCommands.CommandSource.Discord, ctx, currencyNameOrID);
+            }, ctx);
+        }
+
+        [Command("ElectionReport")]
+        [Description("Displays the Election Report for the given election.")]
+        [Aliases("Election, DL-Election")]
+        public async Task ElectionReport(CommandContext ctx,
+            [Description("Name or ID of the election for which to display a report.")] string electionNameOrID)
+        {
+            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
+            {
+                await SharedCommands.ElectionReport(SharedCommands.CommandSource.Discord, ctx, electionNameOrID);
             }, ctx);
         }
 

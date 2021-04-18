@@ -1,5 +1,6 @@
 ﻿using DiscordLink.Extensions;
 using DSharpPlus.CommandsNext;
+using Eco.Gameplay.Civics.Elections;
 using Eco.Gameplay.Economy;
 using Eco.Gameplay.Players;
 using Eco.Plugins.DiscordLink.Utilities;
@@ -232,11 +233,28 @@ namespace Eco.Plugins.DiscordLink
             return true;
         }
 
-#endregion
+        public static async Task<bool> ElectionReport(CommandSource source, object callContext, string electionNameOrID)
+        {
+            Election election = EcoUtils.ElectionByNameOrID(electionNameOrID);
+            if(election == null)
+            {
+                await ReportCommandError(source, callContext, $"No election with the name or ID \"{electionNameOrID}\" could be found.");
+                return false;
+            }
 
-#region Invites
+            DiscordLinkEmbed report = MessageBuilder.Discord.GetElectionReport(election);
+            if (source == CommandSource.Eco)
+                await DisplayCommandData(source, callContext, $"Election report for {election}", report.AsText());
+            else
+                await DisplayCommandData(source, callContext, $"Election report for {election}", report);
+            return true;
+        }
 
-public static async Task<bool> DiscordInvite(CommandSource source, object callContext, string targetUserName)
+        #endregion
+
+        #region Invites
+
+        public static async Task<bool> DiscordInvite(CommandSource source, object callContext, string targetUserName)
         {
             DLConfigData config = DLConfig.Data;
             ServerInfo serverInfo = Networking.NetworkManager.GetServerInfo();
