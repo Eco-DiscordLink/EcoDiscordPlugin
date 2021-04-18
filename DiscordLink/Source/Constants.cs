@@ -1,9 +1,13 @@
-﻿using System.IO;
+﻿using DSharpPlus.Entities;
+using System.IO;
 
 namespace Eco.Plugins.DiscordLink
 {
     public static class DLConstants
     {
+        public static readonly DiscordColor DISCORD_EMBED_COLOR = DiscordColor.Green;
+        public const string ECO_NAME_TAG_COLOR = "7289DAFF";
+
         public const string ECO_USER_STEAM_ID = "DiscordLinkSteam";
         public const string ECO_USER_SLG_ID = "DiscordLinkSlg";
 

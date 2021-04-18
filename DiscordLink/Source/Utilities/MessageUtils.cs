@@ -24,9 +24,6 @@ namespace Eco.Plugins.DiscordLink.Utilities
         // Discord @everyone and @here matching regex: Match all instances that would trigger a Discord tag to @everyone or @here and capture the tag so the @ can easily removed.
         private static readonly Regex DiscordGlobalMentionRegex = new Regex("@(everyone|here)");
 
-        private const string EcoNametagColor = "7289DAFF";
-        public static DiscordColor EmbedColor = DiscordColor.Green;
-
         #region General
 
         public static string FirstNonEmptyString(params string[] strings)
@@ -154,7 +151,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             builder.WithTitle(embedData.Title);
             builder.WithDescription(embedData.Description);
             builder.WithFooter(embedData.Footer);
-            builder.WithColor(EmbedColor);
+            builder.WithColor(DLConstants.DISCORD_EMBED_COLOR);
 
             if (!string.IsNullOrEmpty(embedData.Thumbnail))
             {
@@ -286,7 +283,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
         {
             DiscordMember author = await message.Channel.Guild.GetMemberAsync(message.Author.Id);
             string nametag = author != null
-                ? Text.Bold(Text.Color(EcoNametagColor, author.DisplayName))
+                ? Text.Bold(Text.Color(DLConstants.ECO_NAME_TAG_COLOR, author.DisplayName))
                 : message.Author.Username;
             return $"#{ecoChannel} {nametag}: {GetReadableContent(message)}";
         }
