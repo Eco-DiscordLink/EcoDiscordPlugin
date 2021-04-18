@@ -1,9 +1,12 @@
-﻿using Eco.EM.Framework.ChatBase;
+﻿using Eco.Core.Systems;
+using Eco.EM.Framework.ChatBase;
 using Eco.Gameplay.Civics;
 using Eco.Gameplay.Civics.Elections;
 using Eco.Gameplay.Civics.Laws;
 using Eco.Gameplay.Economy;
+using Eco.Gameplay.Economy.WorkParties;
 using Eco.Gameplay.Players;
+using Eco.Shared.Items;
 using Eco.Shared.Utils;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,11 +18,19 @@ namespace Eco.Plugins.DiscordLink.Utilities
         #region Lookups
 
         public static IEnumerable<Election> ActiveElections => ElectionManager.Obj.CurrentElections.Where(x => x.Valid() && x.State == Shared.Items.ProposableState.Active);
-        public static Election ElectionByName(string electionName) => ActiveElections.FirstOrDefault(e => e.Name.EqualsCaseInsensitive(electionName));
-        public static Election ElectionByID(int electionID) => ActiveElections.FirstOrDefault(e => e.Id == electionID);
-        public static Election ElectionByNameOrID(string electionNameOrID) => int.TryParse(electionNameOrID, out int ID) ? ElectionByID(ID) : ElectionByName(electionNameOrID);
+        public static Election ActiveElectionByName(string electionName) => ActiveElections.FirstOrDefault(e => e.Name.EqualsCaseInsensitive(electionName));
+        public static Election ActiveElectionByID(int electionID) => ActiveElections.FirstOrDefault(e => e.Id == electionID);
+        public static Election ActiveElectionByNameOrID(string electionNameOrID) => int.TryParse(electionNameOrID, out int ID) ? ActiveElectionByID(ID) : ActiveElectionByName(electionNameOrID);
 
         public static IEnumerable<Law> ActiveLaws => CivicsData.Obj.Laws.All<Law>().Where(x => x.State == Shared.Items.ProposableState.Active);
+        public static Law ActiveLawByName(string lawName) => ActiveLaws.FirstOrDefault(e => e.Name.EqualsCaseInsensitive(lawName));
+        public static Law ActiveLawByID(int lawID) => ActiveLaws.FirstOrDefault(e => e.Id == lawID);
+        public static Law ActiveLawByNameByNameOrID(string lawNameOrID) => int.TryParse(lawNameOrID, out int ID) ? ActiveLawByID(ID) : ActiveLawByName(lawNameOrID);
+
+        public static IEnumerable<WorkParty> ActiveWorkParties => Registrars.Get<WorkParty>().All<WorkParty>().NonNull().Where(x => x.State == ProposableState.Active);
+        public static WorkParty ActiveWorkPartyByName(string workPartyName) => ActiveWorkParties.FirstOrDefault(e => e.Name.EqualsCaseInsensitive(workPartyName));
+        public static WorkParty ActiveWorkPartyByID(int workPartyID) => ActiveWorkParties.FirstOrDefault(e => e.Id == workPartyID);
+        public static WorkParty ActiveWorkPartyByNameOrID(string workPartyNameOrID) => int.TryParse(workPartyNameOrID, out int ID) ? ActiveWorkPartyByID(ID) : ActiveWorkPartyByName(workPartyNameOrID);
 
         public static User UserByName(string userName) => UserManager.FindUserByName(userName);
         public static User UserByEcoID(int userID) => UserManager.FindUserByID(userID);

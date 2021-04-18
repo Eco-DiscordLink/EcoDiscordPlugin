@@ -235,7 +235,7 @@ namespace Eco.Plugins.DiscordLink
 
         public static async Task<bool> ElectionReport(CommandSource source, object callContext, string electionNameOrID)
         {
-            Election election = EcoUtils.ElectionByNameOrID(electionNameOrID);
+            Election election = EcoUtils.ActiveElectionByNameOrID(electionNameOrID);
             if(election == null)
             {
                 await ReportCommandError(source, callContext, $"No election with the name or ID \"{electionNameOrID}\" could be found.");
