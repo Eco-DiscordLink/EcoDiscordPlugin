@@ -227,7 +227,7 @@ namespace Eco.Plugins.DiscordLink
 
                 if (targetUser == null)
                 {
-                    User offlineUser = EcoUtils.GetUserbyName(targetUserName);
+                    User offlineUser = EcoUtils.UserByName(targetUserName);
                     if (offlineUser != null)
                         await ReportCommandError(source, callContext, $"{MessageUtils.StripTags(offlineUser.Name)} is not online");
                     else

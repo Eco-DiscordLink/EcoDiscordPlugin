@@ -15,8 +15,12 @@ namespace Eco.Plugins.DiscordLink.Utilities
         public static IEnumerable<Election> ActiveElections => ElectionManager.Obj.CurrentElections.Where(x => x.Valid() && x.State == Shared.Items.ProposableState.Active);
         public static IEnumerable<Law> ActiveLaws => CivicsData.Obj.Laws.All<Law>().Where(x => x.State == Shared.Items.ProposableState.Active);
 
-        public static User GetUserbyName(string targetUserName) => UserManager.FindUserByName(targetUserName);
-        public static User GetOnlineUserbyName(string targetUserName) => UserManager.OnlineUsers.FirstOrDefault(user => user.Name.EqualsCaseInsensitive(targetUserName));
+        public static User UserByName(string userName) => UserManager.FindUserByName(userName);
+        public static User UserByEcoID(int userID) => UserManager.FindUserByID(userID);
+        public static User UserBySteamOrSLGID(string steamID, string slgID) => UserManager.FindUserById(steamID, slgID);
+        public static User OnlineUserByName(string userName) => UserManager.OnlineUsers.FirstOrDefault(user => user.Name.EqualsCaseInsensitive(userName));
+        public static User OnlineUserByEcoID(int userID) => UserManager.OnlineUsers.FirstOrDefault(user => user.Id == userID);
+        public static User OnlineUserBySteamOrSLGDID(string steamID, string slgID) => UserManager.OnlineUsers.FirstOrDefault(user => user.SteamId.Equals(steamID) || user.SlgId.Equals(slgID));
 
         public static Currency CurrencyByName(string currencyName) => CurrencyManager.Currencies.FirstOrDefault(c => c.Name.EqualsCaseInsensitive(currencyName));
         public static Currency CurrencyByID(int currencyID) => CurrencyManager.Currencies.FirstOrDefault(c => c.Id == currencyID);
