@@ -214,7 +214,7 @@ namespace Eco.Plugins.DiscordLink
             ServerInfo serverInfo = Networking.NetworkManager.GetServerInfo();
 
             string inviteMessage = config.InviteMessage;
-            if (!inviteMessage.Contains(DLConstants.INVITE_COMMAND_TOKEN) || string.IsNullOrEmpty(serverInfo.DiscordAddress))
+            if (!inviteMessage.ContainsCaseInsensitive(DLConstants.INVITE_COMMAND_TOKEN) || string.IsNullOrEmpty(serverInfo.DiscordAddress))
             {
                 await ReportCommandError(source, callContext, "This server is not configured for using the Invite commands.");
                 return false;

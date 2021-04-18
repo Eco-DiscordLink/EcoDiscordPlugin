@@ -241,7 +241,7 @@ namespace Eco.Plugins.DiscordLink
                     errorMessages.Add("[Bot Token] Bot token not configured. See Github page for install instructions.");
                 }
 
-                if (!string.IsNullOrWhiteSpace(Data.InviteMessage) && !Data.InviteMessage.Contains(DLConstants.INVITE_COMMAND_TOKEN))
+                if (!string.IsNullOrWhiteSpace(Data.InviteMessage) && !Data.InviteMessage.ContainsCaseInsensitive(DLConstants.INVITE_COMMAND_TOKEN))
                 {
                     errorMessages.Add("[Invite Message] Message does not contain the invite link token " + DLConstants.INVITE_COMMAND_TOKEN + ".");
                 }
