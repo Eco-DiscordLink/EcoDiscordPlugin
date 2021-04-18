@@ -151,7 +151,7 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Displays the Currency Report for the given currency.", ChatAuthorizationLevel.User)]
+        [ChatSubCommand("DiscordLink", "Displays the Currency Report for the given currency.", "DL-Currency", ChatAuthorizationLevel.User)]
         public static void CurrencyReport(User callingUser, string currencyNameOrID)
         {
             ExecuteCommand<object>((lUser, args) =>
@@ -160,7 +160,7 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Displays the Election Report for the given election.", ChatAuthorizationLevel.User)]
+        [ChatSubCommand("DiscordLink", "Displays the Election Report for the given election.", "DL-Election", ChatAuthorizationLevel.User)]
         public static void ElectionReport(User callingUser, string electionNameOrID)
         {
             ExecuteCommand<object>((lUser, args) =>
