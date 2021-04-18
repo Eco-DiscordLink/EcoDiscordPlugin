@@ -257,7 +257,7 @@ namespace Eco.Plugins.DiscordLink
         {
             foreach (string adminRole in DLConfig.Data.AdminRoles)
             {
-                if (ulong.TryParse(adminRole, out ulong adminRoleID) && member.Roles.Any(role => role.Id == adminRoleID))
+                if (Utilities.Utils.TryParseSnowflakeID(adminRole, out ulong adminRoleID) && member.Roles.Any(role => role.Id == adminRoleID))
                     return true;
 
                 if (member.Roles.Any(role => role.Name.EqualsCaseInsensitive(adminRole)))
