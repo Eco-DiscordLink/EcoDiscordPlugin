@@ -32,7 +32,7 @@ namespace Eco.Plugins.DiscordLink
             {
                 if (!IsCommandAllowedInChannel(ctx))
                 {
-                    string commandChannels = string.Join("\n- ", DLConfig.Data.DiscordCommandChannels.Where(channel => channel.IsValid()).Select(channel => channel.DiscordChannel));
+                    string commandChannels = string.Join("\n- ", DLConfig.Data.DiscordCommandChannels.Where(link => link.IsValid()).Select(channel => channel.Channel.Name));
                     await RespondToCommand(ctx, $"You aren't allowed to post commands in this channel.\nCommands are allowed in the following channels:\n```- {commandChannels}```");
                     return;
                 }
