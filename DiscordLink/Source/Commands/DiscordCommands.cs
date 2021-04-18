@@ -379,6 +379,17 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
+        [Command("WorkPartiesReport")]
+        [Description("Displays a report for the currently active work parties.")]
+        [Aliases("WorkParties, DL-WorkParties")]
+        public async Task WorkPartiesReport(CommandContext ctx)
+        {
+            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
+            {
+                await SharedCommands.WorkPartiesReport(SharedCommands.CommandSource.Discord, ctx);
+            }, ctx);
+        }
+
         #endregion
 
         #region Message Relaying

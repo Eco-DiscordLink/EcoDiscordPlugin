@@ -375,6 +375,36 @@ namespace Eco.Plugins.DiscordLink
             return true;
         }
 
+        public static async Task<bool> WorkPartiesReport(CommandSource source, object callContext)
+        {
+            IEnumerable<WorkParty> workParties = EcoUtils.ActiveWorkParties;
+            if (workParties.Count() <= 0)
+            {
+                await ReportCommandInfo(source, callContext, "There are no active work parties");
+                return false;
+            }
+
+            List<DiscordLinkEmbed> reports = new List<DiscordLinkEmbed>();
+            foreach (WorkParty workParty in workParties)
+            {
+                reports.Add(MessageBuilder.Discord.GetWorkPartyReport(workParty));
+            }
+
+            if (source == CommandSource.Eco)
+            {
+                string fullReport = string.Join("\n\n", reports.Select(r => r.AsText()));
+                await DisplayCommandData(source, callContext, $"Work Parties Report", fullReport);
+            }
+            else
+            {
+                foreach (DiscordLinkEmbed report in reports)
+                {
+                    await DisplayCommandData(source, callContext, $"Work Party report for {report.Title}", report);
+                }
+            }
+            return true;
+        }
+
         #endregion
 
         #region Invites
