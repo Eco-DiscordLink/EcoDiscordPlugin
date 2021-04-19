@@ -216,7 +216,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("PluginStatusVerbose")]
         [Description("Shows the plugin status including verbose debug level information.")]
-        [Aliases("DL-Statusverbose", "StatusVerbose")]
+        [Aliases("DL-StatusVerbose", "StatusVerbose")]
         public async Task PluginStatusVerbose(CommandContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
@@ -319,7 +319,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("CurrencyReport")]
         [Description("Displays the Currency Report for the given currency.")]
-        [Aliases("Currency, DL-Currency")]
+        [Aliases("Currency", "DL-Currency")]
         public async Task CurrencyReport(CommandContext ctx,
             [Description("Name or ID of the currency for which to display a report.")] string currencyNameOrID)
         {
@@ -331,7 +331,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("CurrenciesReport")]
         [Description("Displays a report for the top used currencies.")]
-        [Aliases("Currencies, DL-Currencies")]
+        [Aliases("Currencies", "DL-Currencies")]
         public async Task CurrenciesReport(CommandContext ctx,
             [Description("The type of currencies to include in the report (all, minted or personal).")] string currencyType = "all",
             [Description("How many currencies per type to display reports for.")] string maxCurrenciesPerType = DLConstants.CURRENCY_REPORT_COMMAND_MAX_CURRENCIES_PER_TYPE_DEFAULT,
@@ -345,7 +345,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("ElectionReport")]
         [Description("Displays the Election Report for the given election.")]
-        [Aliases("Election, DL-Election")]
+        [Aliases("Election", "DL-Election")]
         public async Task ElectionReport(CommandContext ctx,
             [Description("Name or ID of the election for which to display a report.")] string electionNameOrID)
         {
@@ -357,7 +357,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("ElectionsReport")]
         [Description("Displays a report for the currently active elections.")]
-        [Aliases("Elections, DL-Elections")]
+        [Aliases("Elections", "DL-Elections")]
         public async Task ElectionsReport(CommandContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
@@ -368,7 +368,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("WorkPartyReport")]
         [Description("Displays the Work Party Report for the given work party.")]
-        [Aliases("WorkParty, DL-WorkParty")]
+        [Aliases("WorkParty", "DL-WorkParty")]
         public async Task WorkPartyReport(CommandContext ctx,
             [Description("Name or ID of the work party for which to display a report.")] string workPartyNameOrID)
         {
@@ -380,7 +380,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("WorkPartiesReport")]
         [Description("Displays a report for the currently active work parties.")]
-        [Aliases("WorkParties, DL-WorkParties")]
+        [Aliases("WorkParties", "DL-WorkParties")]
         public async Task WorkPartiesReport(CommandContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
