@@ -223,6 +223,11 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 return DateTime.Now.ToString("yyyy-MM-dd HH:mm");
             }
 
+            public static string GetYesNo(bool flag)
+            {
+                return flag ? "Yes" : "No";
+            }
+
             public static string GetTimeDescription(double seconds, bool annotate = false, TimespanStringComponent flag = TimespanStringComponent.Day | TimespanStringComponent.Hour | TimespanStringComponent.Minute | TimespanStringComponent.Second)
             {
                 StringBuilder builder = new StringBuilder();
@@ -368,7 +373,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     if (flag.HasFlag(ServerInfoComponentFlag.MeteorHasHit))
                     {
                         TimeSpan timeRemainingSpan = new TimeSpan(0, 0, (int)serverInfo.TimeLeft);
-                        embed.AddField("Meteor Has Hit", timeRemainingSpan.Seconds < 0 ? "Yes" : "No", inline: true);
+                        embed.AddField("Meteor Has Hit", Shared.GetYesNo(timeRemainingSpan.Seconds < 0), inline: true);
                         ++fieldsAdded;
                     }
 
