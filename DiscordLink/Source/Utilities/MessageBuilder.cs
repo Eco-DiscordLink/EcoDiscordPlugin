@@ -210,7 +210,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 Second = 1 << 3,
             }
 
-            public static string GetTimeStamp()
+            public static string GetGameTimeStamp()
             {
                 double seconds = Simulation.Time.WorldTime.Seconds;
                 return $"{((int)TimeUtil.SecondsToHours(seconds) % 24).ToString("00") }" +
@@ -218,6 +218,10 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     $":{((int)seconds % 60).ToString("00")}";
             }
 
+            public static string GetServerTimeStamp()
+            {
+                return DateTime.Now.ToString("yyyy-MM-dd HH:mm");
+            }
 
             public static string GetTimeDescription(double seconds, bool annotate = false, TimespanStringComponent flag = TimespanStringComponent.Day | TimespanStringComponent.Hour | TimespanStringComponent.Minute | TimespanStringComponent.Second)
             {
@@ -720,7 +724,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             public static string GetStandardEmbedFooter()
             {
                 string serverName = MessageUtils.FirstNonEmptyString(DLConfig.Data.ServerName, MessageUtils.StripTags(NetworkManager.GetServerInfo().Description), "[Server Title Missing]");
-                string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
+                string timestamp = Shared.GetServerTimeStamp();
                 return $"Message sent by DiscordLink @ {serverName} [{timestamp}]";
             }
 
