@@ -99,6 +99,27 @@ namespace Eco.Plugins.DiscordLink.Extensions
             return member.Username.EqualsCaseInsensitive(nameOrID);
         }
 
+        public static DiscordRole GetHighestHierarchyRole(this DiscordMember member)
+        {
+            return member.Roles.OrderByDescending(r => r.Position).FirstOrDefault();
+        }
+
+        public static string GetHighestHierarchyRoleName(this DiscordMember member)
+        {
+            string topRoleName = "Member";
+            if (member.IsOwner)
+            {
+                topRoleName = "Owner";
+            }
+            else
+            {
+                DiscordRole topRole = member.GetHighestHierarchyRole();
+                if (topRole != null)
+                    topRoleName = topRole.Name;
+            }
+            return topRoleName;
+        }
+
         #endregion
 
         #region DiscordRole
