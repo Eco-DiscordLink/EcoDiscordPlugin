@@ -11,6 +11,8 @@ namespace Eco.Plugins.DiscordLink
         public const string ECO_USER_STEAM_ID = "DiscordLinkSteam";
         public const string ECO_USER_SLG_ID = "DiscordLinkSlg";
 
+        public const int ECO_PLOT_SIZE_M2 = 5 * 5;
+
         public const string INVITE_COMMAND_TOKEN = "[LINK]";
         public const string ECHO_COMMAND_TOKEN = "[ECHO]";
         public const string DEFAULT_CHAT_CHANNEL = "General";

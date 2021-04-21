@@ -1,6 +1,10 @@
-﻿using Eco.Gameplay.GameActions;
+﻿using Eco.Gameplay.Components;
+using Eco.Gameplay.GameActions;
+using Eco.Gameplay.Objects;
 using Eco.Gameplay.Players;
+using Eco.Gameplay.Property;
 using Eco.Plugins.DiscordLink.Utilities;
+using System.Linq;
 
 namespace Eco.Plugins.DiscordLink.Extensions
 {
@@ -24,6 +28,16 @@ namespace Eco.Plugins.DiscordLink.Extensions
         #region ChatMessage
 
         public static string FormatForLog(this ChatSent message) => $"Author: {MessageUtils.StripTags(message.Citizen.Name)}\nChannel: {message.Tag}\nMessage: {message.Message}";
+
+        #endregion
+
+        #region Deed
+
+        public static int GetTotalPlotSize(this Deed deed) => deed.Plots.Count() * DLConstants.ECO_PLOT_SIZE_M2;
+
+        public static bool IsVehicle(this Deed deed) => deed.OwnedObjects.OfType<WorldObject>().Any(x => x?.HasComponent<VehicleComponent>() == true);
+
+        public static VehicleComponent GetVehicle(this Deed deed) => deed.OwnedObjects.OfType<WorldObject>().Where(x => x?.HasComponent<VehicleComponent>() == true).FirstOrDefault().GetComponent<VehicleComponent>();
 
         #endregion
     }
