@@ -152,6 +152,15 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
+        [ChatSubCommand("DiscordLink", "Displays the Player Report for the given player.", "DL-Player", ChatAuthorizationLevel.User)]
+        public static void PlayerReport(User callingUser, string playerNameOrID)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.PlayerReport(SharedCommands.CommandSource.Eco, callingUser, playerNameOrID);
+            }, callingUser);
+        }
+
         [ChatSubCommand("DiscordLink", "Displays the Currency Report for the given currency.", "DL-Currency", ChatAuthorizationLevel.User)]
         public static void CurrencyReport(User callingUser, string currencyNameOrID)
         {

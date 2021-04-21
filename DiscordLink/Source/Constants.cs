@@ -31,6 +31,11 @@ namespace Eco.Plugins.DiscordLink
         public const string CURRENCY_REPORT_COMMAND_MAX_CURRENCIES_PER_TYPE_DEFAULT = "3";
         public const string CURRENCY_REPORT_COMMAND_MAX_TOP_HOLDERS_PER_CURRENCY_DEFAULT = "5";
 
+        public const int SECONDS_PER_MINUTE = 60;
+        public const int SECONDS_PER_HOUR = SECONDS_PER_MINUTE * 60;
+        public const int SECONDS_PER_DAY = SECONDS_PER_HOUR * 24;
+        public const int SECONDS_PER_WEEK = SECONDS_PER_DAY * 7;
+
         public static string BasePath { get { return Directory.GetCurrentDirectory() + "/Configs/Mods/DiscordLink/"; } }
     }
 }

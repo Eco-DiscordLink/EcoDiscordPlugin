@@ -21,6 +21,11 @@ using Eco.Shared;
 using Eco.Shared.Items;
 
 using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
+using System.Threading.Tasks;
+using Eco.Gameplay.Skills;
+using Eco.Gameplay.Civics.Demographics;
+using Eco.Gameplay.Civics.Titles;
+using Eco.Gameplay.Property;
 
 namespace Eco.Plugins.DiscordLink.Utilities
 {
@@ -43,6 +48,22 @@ namespace Eco.Plugins.DiscordLink.Utilities
             LawCount            = 1 << 12,
             LawList             = 1 << 13,
             All                 = ~0
+        }
+
+        public enum PlayerReportComponentFlag
+        {
+            OnlineStatus    = 1 << 0,
+            PlayTime        = 1 << 1,
+            Permissions     = 1 << 2,
+            AccessLists     = 1 << 3,
+            DiscordInfo     = 1 << 4,
+            Reputation      = 1 << 5,
+            Experience      = 1 << 6,
+            Skills          = 1 << 7,
+            Demographics    = 1 << 8,
+            Titles          = 1 << 9,
+            Properties      = 1 << 10,
+            All             = ~0
         }
 
         private class StoreOffer
@@ -453,6 +474,158 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 }
 
                 return embed;
+            }
+
+            public static async Task<DiscordLinkEmbed> GetPlayerReport(User user, PlayerReportComponentFlag flag)
+            {
+                LinkedUser linkedUser = LinkedUserManager.LinkedUserByEcoUser(user);
+                DiscordMember discordMember = null;
+                bool userLinkExists = linkedUser != null;
+                if (userLinkExists)
+                    discordMember = await DiscordLink.Obj.Client.GetMemberAsync(linkedUser.GuildID, linkedUser.DiscordID);
+
+                DiscordLinkEmbed report = new DiscordLinkEmbed();
+                report.WithTitle(MessageUtils.StripTags(user.Name));
+                report.WithFooter(GetStandardEmbedFooter());
+
+                // Online Status
+                if (flag.HasFlag(PlayerReportComponentFlag.OnlineStatus))
+                {
+                    report.AddField("Online", Shared.GetYesNo(user.IsOnline));
+                    if (user.IsOnline)
+                        report.AddField("Session Time", Shared.GetTimeDescription(user.GetSecondsSinceLogin(), annotate: false, Shared.TimespanStringComponent.Hour | Shared.TimespanStringComponent.Minute), inline: true);
+                    else
+                        report.AddField("Last Online", $"{Shared.GetTimeDescription(user.GetSecondsSinceLogout(), annotate: true)} ago", inline: true);
+                    report.AddAlignmentField(); //report.AddField("Playtimes", user.OnlineTimeLog.ActiveTimes); // TODO: Add when caught up with develop
+                }
+
+                // Play time
+                if (flag.HasFlag(PlayerReportComponentFlag.PlayTime))
+                {
+                    report.AddField("Playtime Total", Shared.GetTimeDescription(user.OnlineTimeLog.SecondsOnline(0.0)), inline: true);
+                    report.AddField("Playtime last 24 hours", Shared.GetTimeDescription(user.OnlineTimeLog.SecondsOnline(DLConstants.SECONDS_PER_DAY)), inline: true);
+                    report.AddField("Playtime Last 7 days", Shared.GetTimeDescription(user.OnlineTimeLog.SecondsOnline(DLConstants.SECONDS_PER_WEEK)), inline: true);
+                }
+
+                // Permissions
+                if (flag.HasFlag(PlayerReportComponentFlag.Permissions))
+                {
+                    report.AddField("Eco Admin", Shared.GetYesNo(user.IsAdmin), inline: true);
+                    if (userLinkExists)
+                        report.AddField("Discord Admin", Shared.GetYesNo(DiscordLink.Obj.Client.MemberIsAdmin(discordMember)), inline: true);
+                    report.AddField("Eco Dev Permission", Shared.GetYesNo(user.IsDev));
+                    if (!userLinkExists)
+                        report.AddAlignmentField();
+                }
+
+                // Access lists
+                if (flag.HasFlag(PlayerReportComponentFlag.AccessLists))
+                {
+                    report.AddField("Whitelisted", Shared.GetYesNo(user.IsWhitelisted()), inline: true);
+                    report.AddField("Banned", Shared.GetYesNo(user.IsBanned()), inline: true);
+                    report.AddField("Muted", Shared.GetYesNo(user.IsMuted()), inline: true);
+                }
+
+                // Discord Account Info
+                if (flag.HasFlag(PlayerReportComponentFlag.DiscordInfo))
+                {
+                    if (userLinkExists)
+                    {
+                        report.AddField("Linked Discord Account", discordMember.DisplayName, inline: true);
+                        report.AddField($"Top Discord Role", discordMember.GetHighestHierarchyRoleName(), inline: true);
+                        report.AddField($"Joined {discordMember.Guild.Name} at: ", discordMember.JoinedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm"), inline: true);
+                    }
+                    else
+                    {
+                        report.AddField("Linked Discord Account", "Not Linked", inline: true);
+                        report.AddAlignmentField();
+                        report.AddAlignmentField();
+                    }
+                }
+
+                // Reputation
+                if (flag.HasFlag(PlayerReportComponentFlag.Reputation))
+                {
+                    Reputation reputation = ReputationManager.Obj.Rep(user.Name, createIfMissing: false);
+                    report.AddField("Reputation", ((int)reputation.CachedTotalReputation).ToString());
+                    report.AddField("Can Give Today", ((int)reputation.GiveableReputation).ToString());
+                    report.AddAlignmentField();
+                }
+
+                // XP Multiplier
+                if (flag.HasFlag(PlayerReportComponentFlag.Experience))
+                {
+                    report.AddField("Total XP Multiplier", ((int)user.GetTotalXPMultiplier()).ToString());
+                    report.AddField("Nutrition", ((int)user.GetNutritionXP()).ToString());
+                    report.AddField("Housing", ((int)user.GetHousingXP()).ToString());
+                }
+
+                // Skills
+                if (flag.HasFlag(PlayerReportComponentFlag.Skills))
+                {
+                    StringBuilder skillsDesc = new StringBuilder();
+                    StringBuilder levelsDesc = new StringBuilder();
+                    StringBuilder percentOfNextLevelDoneDesc = new StringBuilder();
+
+                    IEnumerable<Skill> orderedSkills = user.Skillset.Skills.OrderByDescending(s => s.Level);
+                    foreach (Skill skill in orderedSkills)
+                    {
+                        bool maxLevelReached = skill.Level >= skill.MaxLevel;
+                        skillsDesc.AppendLine(skill.DisplayName);
+                        levelsDesc.AppendLine(skill.Level.ToString() + (maxLevelReached ? " (Max)" : string.Empty));
+                        percentOfNextLevelDoneDesc.AppendLine(maxLevelReached ? "N/A" : $"{(int)skill.PercentTowardsNextLevel}%");
+                    }
+
+                    report.AddField("Skills", skillsDesc.ToString(), inline: true);
+                    report.AddField("Level", levelsDesc.ToString(), inline: true);
+                    report.AddField("Percent of Next Level", percentOfNextLevelDoneDesc.ToString(), inline: true);
+                }
+
+                // Demographics
+                if (flag.HasFlag(PlayerReportComponentFlag.Demographics))
+                {
+                    StringBuilder demographicDesc = new StringBuilder();
+                    IEnumerable<Demographic> userDemographics = EcoUtils.ActiveDemographics.Where(demographic => demographic.Contains(user)).OrderByDescending(demographic => demographic.Name);
+                    foreach (Demographic demographic in userDemographics)
+                    {
+                        demographicDesc.AppendLine(demographic.Name + (demographic.Creator == user ? " (Creator)" : string.Empty));
+                    }
+                    report.AddField("Demographics", demographicDesc.ToString(), inline: true);
+                }
+
+                // Titles
+                if (flag.HasFlag(PlayerReportComponentFlag.Titles))
+                {
+                    StringBuilder titlesDesc = new StringBuilder();
+                    IEnumerable<Title> userTitles = EcoUtils.ActiveTitles.Where(title => title.UserSet.Contains(user)).OrderByDescending(title => title.Name);
+                    foreach (Title title in userTitles)
+                    {
+                        titlesDesc.AppendLine(title.Name + (title.Creator == user ? " (Creator)" : string.Empty));
+                    }
+                    report.AddField("Titles", titlesDesc.ToString(), inline: true);
+                    report.AddAlignmentField();
+                }
+
+                // Deeds
+                if (flag.HasFlag(PlayerReportComponentFlag.Properties))
+                {
+                    StringBuilder propertiessDesc = new StringBuilder();
+                    StringBuilder propertiessSizeOrVehicleDesc = new StringBuilder();
+                    StringBuilder propertiessLocationDesc = new StringBuilder();
+
+                    IEnumerable<Deed> userDeeds = EcoUtils.Deeds.Where(deed => deed.ContainsOwners(user)).OrderByDescending(deed => deed.GetTotalPlotSize());
+                    foreach (Deed deed in userDeeds)
+                    {
+                        propertiessDesc.AppendLine(deed.Name);
+                        propertiessSizeOrVehicleDesc.AppendLine(deed.IsVehicle() ? deed.GetVehicle().Name : $"{deed.GetTotalPlotSize()}M²");
+                        propertiessLocationDesc.AppendLine(deed.Location.ToString());
+                    }
+                    report.AddField("Deeds", propertiessDesc.ToString(), inline: true);
+                    report.AddField("Size/Vehicle", propertiessSizeOrVehicleDesc.ToString(), inline: true);
+                    report.AddField("Location", propertiessLocationDesc.ToString(), inline: true);
+                }
+
+                return report;
             }
 
             public static DiscordLinkEmbed GetCurrencyReport(Currency currency, int maxTopHolders)

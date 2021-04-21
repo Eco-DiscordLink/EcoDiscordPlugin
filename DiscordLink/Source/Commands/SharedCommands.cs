@@ -212,6 +212,23 @@ namespace Eco.Plugins.DiscordLink
 
         #region Lookups
 
+        public static async Task<bool> PlayerReport(CommandSource source, object callContext, string playerNameOrID)
+        {
+            User user = EcoUtils.UserByNameOrEcoID(playerNameOrID);
+            if(user == null)
+            {
+                await ReportCommandError(source, callContext, $"No player with the name or ID \"{playerNameOrID}\" could be found.");
+                return false;
+            }
+
+            DiscordLinkEmbed report = await MessageBuilder.Discord.GetPlayerReport(user, MessageBuilder.PlayerReportComponentFlag.All);
+            if (source == CommandSource.Eco)
+                await DisplayCommandData(source, callContext, $"Player report for {user}", report.AsText());
+            else
+                await DisplayCommandData(source, callContext, $"Player report for {user}", report);
+            return true;
+        }
+
         public static async Task<bool> CurrencyReport(CommandSource source, object callContext, string currencyNameOrID)
         {
             Currency currency = EcoUtils.CurrencyByNameOrID(currencyNameOrID);

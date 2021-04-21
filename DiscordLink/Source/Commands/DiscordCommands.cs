@@ -292,6 +292,29 @@ namespace Eco.Plugins.DiscordLink
 
         #region Lookups
 
+        [Command("ServerStatus")]
+        [Description("Displays the Server Info status.")]
+        [Aliases("DL-EcoStatus", "DL-ServerInfo", "EcoStatus")]
+        public async Task ServerStatus(CommandContext ctx)
+        {
+            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
+            {
+                await DisplayCommandData(ctx, string.Empty, MessageBuilder.Discord.GetServerInfo(MessageBuilder.ServerInfoComponentFlag.All));
+            }, ctx);
+        }
+
+        [Command("PlayerReport")]
+        [Description("Displays the Player Report for the given player.")]
+        [Aliases("Player", "DL-Player")]
+        public async Task PlayerReport(CommandContext ctx,
+            [Description("Name or ID of the player for which to display the report.")] string playerNameOrID)
+        {
+            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
+            {
+                await SharedCommands.PlayerReport(SharedCommands.CommandSource.Discord, ctx, playerNameOrID);
+            }, ctx);
+        }
+
         [Command("PlayerList")]
         [Description("Lists the players currently online on the server.")]
         [Aliases("Players", "DL-Players")]
@@ -303,17 +326,6 @@ namespace Eco.Plugins.DiscordLink
                     .WithTitle("Players")
                     .WithDescription(MessageBuilder.Shared.GetPlayerList());
                 await DisplayCommandData(ctx, string.Empty, embed);
-            }, ctx);
-        }
-
-        [Command("ServerStatus")]
-        [Description("Displays the Server Info status.")]
-        [Aliases("DL-EcoStatus", "DL-ServerInfo", "EcoStatus")]
-        public async Task ServerStatus(CommandContext ctx)
-        {
-            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
-            {
-                await DisplayCommandData(ctx, string.Empty, MessageBuilder.Discord.GetServerInfo(MessageBuilder.ServerInfoComponentFlag.All));
             }, ctx);
         }
 
