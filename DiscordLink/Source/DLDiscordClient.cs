@@ -280,6 +280,39 @@ namespace Eco.Plugins.DiscordLink
             return await DiscordClient.GetUserAsync(userID);
         }
 
+        public async Task<DiscordMember> GetMemberAsync(string guildID, string userID)
+        {
+            if (!Utilities.Utils.TryParseSnowflakeID(userID, out ulong userSnowflakeID))
+                return null;
+
+            if (!Utilities.Utils.TryParseSnowflakeID(guildID, out ulong guildSnowflakeID))
+                return null;
+
+            return await GetMemberAsync(guildSnowflakeID, userSnowflakeID);
+        }
+
+        public async Task<DiscordMember> GetMemberAsync(ulong guildID, ulong userID)
+        {
+            DiscordGuild guild = await DiscordClient.GetGuildAsync(guildID);
+            if(guild == null)
+                return null;
+
+            return await GetMemberAsync(guild, userID);
+        }
+
+        public async Task<DiscordMember> GetMemberAsync(DiscordGuild guild, string userID)
+        {
+            if (!Utilities.Utils.TryParseSnowflakeID(userID, out ulong ID))
+                return null;
+
+            return await GetMemberAsync(guild, ID);
+        }
+
+        public async Task<DiscordMember> GetMemberAsync(DiscordGuild guild, ulong userID)
+        {
+            return await guild.GetMemberAsync(userID);
+        }
+
         public async Task<DiscordMessage> GetMessageAsync(DiscordChannel channel, ulong messageID)
         {
             if (!ChannelHasPermission(channel, Permissions.ReadMessageHistory))
