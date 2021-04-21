@@ -218,35 +218,44 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     $":{((int)seconds % 60).ToString("00")}";
             }
 
-            public static string GetTimespan(double seconds, TimespanStringComponent flag = TimespanStringComponent.Day | TimespanStringComponent.Hour | TimespanStringComponent.Minute | TimespanStringComponent.Second)
+
+            public static string GetTimeDescription(double seconds, bool annotate = false, TimespanStringComponent flag = TimespanStringComponent.Day | TimespanStringComponent.Hour | TimespanStringComponent.Minute | TimespanStringComponent.Second)
             {
                 StringBuilder builder = new StringBuilder();
                 if ((flag & TimespanStringComponent.Day) != 0)
                 {
                     builder.Append(((int)TimeUtil.SecondsToDays(seconds)).ToString("00"));
+                    if (annotate)
+                        builder.Append(" days ");
                 }
 
                 if ((flag & TimespanStringComponent.Hour) != 0)
                 {
-                    if (builder.Length != 0)
+                    if (!annotate && builder.Length != 0)
                         builder.Append(":");
                     builder.Append(((int)TimeUtil.SecondsToHours(seconds) % 24).ToString("00"));
+                    if (annotate)
+                        builder.Append(" hours ");
                 }
 
                 if ((flag & TimespanStringComponent.Minute) != 0)
                 {
-                    if (builder.Length != 0)
+                    if (!annotate && builder.Length != 0)
                         builder.Append(":");
                     builder.Append(((int)(TimeUtil.SecondsToMinutes(seconds) % 60)).ToString("00"));
+                    if (annotate)
+                        builder.Append(" minutes ");
                 }
 
                 if ((flag & TimespanStringComponent.Second) != 0)
                 {
-                    if (builder.Length != 0)
+                    if (!annotate && builder.Length != 0)
                         builder.Append(":");
                     builder.Append(((int)seconds % 60).ToString("00"));
+                    if (annotate)
+                        builder.Append(" seconds");
                 }
-                return builder.ToString();
+                return builder.ToString().Trim();
             }
         }
 
