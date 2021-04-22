@@ -101,8 +101,7 @@ namespace Eco.Plugins.DiscordLink
             PluginManager.Controller.RunIfOrWhenInited(PostServerInitialize); // Defer some initialization for when the server initialization is completed
 
             // Start the Discord client so that a connection has hopefully been established before the server is done initializing
-            _ = Client.Start().Result;
-
+            _ = Client.Start();
 
             // Check mod versioning if the required data exists
             if (!string.IsNullOrWhiteSpace(ModIOAppID) && !string.IsNullOrWhiteSpace(ModIODeveloperToken))
