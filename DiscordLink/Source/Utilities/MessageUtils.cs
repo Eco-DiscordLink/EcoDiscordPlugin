@@ -121,7 +121,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             foreach (DiscordLinkEmbedField field in splitFields)
             {
                 // If adding the next field would bring us over a limit, split into new embeds
-                if(characterCount + field.Text.Length > DLConstants.DISCORD_EMBED_TOTAL_CHARACTER_LIMIT || fieldCount + 1 > DLConstants.DISCORD_EMBED_FIELD_COUNT_LIMIT)
+                if(characterCount + field.Text.Length > DLConstants.DISCORD_EMBED_TOTAL_CHARACTER_LIMIT || fieldCount + 1 > DLConstants.DISCORD_EMBED_FIELD_ALIGNED_COUNT_LIMIT)
                 {
                     splitEmbeds.Add(new DiscordLinkEmbed(splitEmbedBuilder));
                     splitEmbedBuilder.ClearFields();
