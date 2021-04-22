@@ -160,16 +160,16 @@ namespace Eco.Plugins.DiscordLink.Modules
                 if (channelLink == null && userLink == null)
                     continue;
 
-                DiscordChannel targetChannel = null;
-                if (channelLink != null)
-                {
-                    if (!plugin.Client.ChannelHasPermission(channelLink.Channel, Permissions.ReadMessageHistory))
-                        continue;
-                }
-                else if(userLink != null)
-                {
+                DiscordChannel targetChannel;
+                if (channelLink != null && channelLink.IsValid())
+                    targetChannel = channelLink.Channel;
+                else if (userLink != null)
                     targetChannel = await userLink.Member.CreateDmChannelAsync();
-                }
+                else
+                    continue;
+
+                if (!plugin.Client.ChannelHasPermission(targetChannel, Permissions.ReadMessageHistory))
+                    continue;
 
                 GetDisplayContent(target, out List<Tuple<string, DiscordLinkEmbed>> tagsAndContent);
 
