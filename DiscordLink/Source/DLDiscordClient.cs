@@ -233,6 +233,22 @@ namespace Eco.Plugins.DiscordLink
                 : guild.Channels.Values.FirstOrDefault(guild => guild.Name.EqualsCaseInsensitive(guildNameOrID));
         }
 
+        public DiscordMember MemberByNameOrID(string guildNameOrID, string memberNameOrID)
+        {
+            DiscordGuild guild = GuildByNameOrID(guildNameOrID);
+            if (guild == null)
+                return null;
+
+            return MemberByNameOrID(guild, memberNameOrID);
+        }
+
+        public DiscordMember MemberByNameOrID(DiscordGuild guild, string memberNameOrID)
+        {
+            return Utilities.Utils.TryParseSnowflakeID(memberNameOrID, out ulong ID)
+                ? guild.Members[ID]
+                : guild.Members.Values.FirstOrDefault(member => member.DisplayName.EqualsCaseInsensitive(memberNameOrID));
+        }
+
         public bool ChannelHasPermission(DiscordChannel channel, Permissions permission)
         {
             if (channel as DiscordDmChannel != null)
