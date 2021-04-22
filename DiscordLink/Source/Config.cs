@@ -302,8 +302,8 @@ namespace Eco.Plugins.DiscordLink
 
                 if (verificationFlags.HasFlag(VerificationFlags.BotData))
                 {
-                    if (DiscordLink.Obj.Client.BotHasIntent(DSharpPlus.DiscordIntents.GuildMembers))
                         Logger.Warning("Bot is not configured to allow reading of full server member list as it lacks the Server Members Intent\nSome features will be unavailable.\nSee install instructions for help with adding intents.");
+                    if (!DiscordLink.Obj.Client.BotHasIntent(DSharpPlus.DiscordIntents.GuildMembers))
                 }
             }
         }
