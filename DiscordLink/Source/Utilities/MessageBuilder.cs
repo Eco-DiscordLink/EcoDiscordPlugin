@@ -600,7 +600,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 if (flag.HasFlag(PlayerReportComponentFlag.Demographics))
                 {
                     StringBuilder demographicDesc = new StringBuilder();
-                    IEnumerable<Demographic> userDemographics = EcoUtils.ActiveDemographics.Where(demographic => demographic.Contains(user)).OrderByDescending(demographic => demographic.Name);
+                    IEnumerable<Demographic> userDemographics = EcoUtils.ActiveDemographics.Where(demographic => demographic.Contains(user)).OrderBy(demographic => demographic.Name);
                     foreach (Demographic demographic in userDemographics)
                     {
                         demographicDesc.AppendLine(demographic.Name + (demographic.Creator == user ? " (Creator)" : string.Empty));
@@ -612,7 +612,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 if (flag.HasFlag(PlayerReportComponentFlag.Titles))
                 {
                     StringBuilder titlesDesc = new StringBuilder();
-                    IEnumerable<Title> userTitles = EcoUtils.ActiveTitles.Where(title => title.UserSet.Contains(user)).OrderByDescending(title => title.Name);
+                    IEnumerable<Title> userTitles = EcoUtils.ActiveTitles.Where(title => title.UserSet.Contains(user)).OrderBy(title => title.Name);
                     foreach (Title title in userTitles)
                     {
                         titlesDesc.AppendLine(title.Name + (title.Creator == user ? " (Creator)" : string.Empty));
