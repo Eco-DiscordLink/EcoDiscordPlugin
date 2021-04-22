@@ -115,6 +115,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             // Create new embeds that fit within the char limits
             List<DiscordLinkEmbed> splitEmbeds = new List<DiscordLinkEmbed>();
             DiscordLinkEmbed splitEmbedBuilder = new DiscordLinkEmbed(fullEmbed);
+            splitEmbedBuilder.WithFooter(string.Empty); // Remove the footer for now, we will add it back at the end
             splitEmbedBuilder.ClearFields();
             int characterCount = 0;
             int fieldCount = 0;
@@ -134,6 +135,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 ++fieldCount;
             }
             splitEmbeds.Add(splitEmbedBuilder);
+            splitEmbeds.Last().WithFooter(fullEmbed.Footer); // Add back the footer only in the last split
 
             // Convert embeds to actual DSharp Discord embeds
             foreach(DiscordLinkEmbed embedData in splitEmbeds)
