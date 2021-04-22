@@ -1,4 +1,5 @@
-﻿using Eco.Gameplay.Players;
+﻿using DSharpPlus.Entities;
+using Eco.Gameplay.Players;
 using Newtonsoft.Json;
 using System;
 
@@ -46,6 +47,12 @@ namespace Eco.Plugins.DiscordLink
                 DLStorage.Instance.Write();
             }
             return deleted;
+        }
+
+        public static LinkedUser LinkedUserByDiscordUser(DiscordUser user, bool requireVerification = true)
+        {
+            string DiscordIdStr = user.Id.ToString();
+            return DLStorage.PersistentData.LinkedUsers.Find(linkedUser => (linkedUser.DiscordID == DiscordIdStr) && linkedUser.Verified || !requireVerification);
         }
 
         public static LinkedUser LinkedUserByDiscordID(ulong DiscordId, bool requireVerification = true)
