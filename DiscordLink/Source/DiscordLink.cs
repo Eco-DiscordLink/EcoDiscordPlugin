@@ -79,7 +79,12 @@ namespace Eco.Plugins.DiscordLink
 #else
             bool debug = false;
 #endif
-            return MessageBuilder.Shared.GetDisplayString(verbose: debug);
+            string displayText = string.Empty;
+            SystemUtils.SynchronousThreadExecute(() => // Avoid deadlocks with the GUI thread
+            {
+                displayText = MessageBuilder.Shared.GetDisplayString(verbose: debug);
+            });
+            return displayText;
         }
 
         public void Initialize(TimedTask timer)
