@@ -248,41 +248,57 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 return flag ? "Yes" : "No";
             }
 
-            public static string GetTimeDescription(double seconds, bool annotate = false, TimespanStringComponent flag = TimespanStringComponent.Day | TimespanStringComponent.Hour | TimespanStringComponent.Minute | TimespanStringComponent.Second)
+            public static string GetTimeDescription(double seconds, TimespanStringComponent flag = TimespanStringComponent.Day | TimespanStringComponent.Hour | TimespanStringComponent.Minute | TimespanStringComponent.Second, bool includeZeroTimes = true, bool annotate = false)
             {
                 StringBuilder builder = new StringBuilder();
                 if ((flag & TimespanStringComponent.Day) != 0)
                 {
-                    builder.Append(((int)TimeUtil.SecondsToDays(seconds)).ToString("00"));
-                    if (annotate)
-                        builder.Append(" days ");
+                    int daysCount = (int)TimeUtil.SecondsToDays(seconds);
+                    if (includeZeroTimes || daysCount > 0)
+                    {
+                        builder.Append(daysCount.ToString("00"));
+                        if (annotate)
+                            builder.Append(" Days ");
+                    }
                 }
 
                 if ((flag & TimespanStringComponent.Hour) != 0)
                 {
-                    if (!annotate && builder.Length != 0)
-                        builder.Append(":");
-                    builder.Append(((int)TimeUtil.SecondsToHours(seconds) % 24).ToString("00"));
-                    if (annotate)
-                        builder.Append(" hours ");
+                    int hoursCount = (int)TimeUtil.SecondsToHours(seconds) % 24;
+                    if (includeZeroTimes || hoursCount > 0)
+                    {
+                        if (!annotate && builder.Length != 0)
+                            builder.Append(":");
+                        builder.Append(hoursCount.ToString("00"));
+                        if (annotate)
+                            builder.Append(" Hours ");
+                    }
                 }
 
                 if ((flag & TimespanStringComponent.Minute) != 0)
                 {
-                    if (!annotate && builder.Length != 0)
-                        builder.Append(":");
-                    builder.Append(((int)(TimeUtil.SecondsToMinutes(seconds) % 60)).ToString("00"));
-                    if (annotate)
-                        builder.Append(" minutes ");
+                    int minutesCount = (int)TimeUtil.SecondsToMinutes(seconds) % 60;
+                    if (includeZeroTimes || minutesCount > 0)
+                    {
+                        if (!annotate && builder.Length != 0)
+                            builder.Append(":");
+                        builder.Append(minutesCount.ToString("00"));
+                        if (annotate)
+                            builder.Append(" Minutes ");
+                    }
                 }
 
                 if ((flag & TimespanStringComponent.Second) != 0)
                 {
-                    if (!annotate && builder.Length != 0)
-                        builder.Append(":");
-                    builder.Append(((int)seconds % 60).ToString("00"));
-                    if (annotate)
-                        builder.Append(" seconds");
+                    int secondsCount = (int)seconds % 60;
+                    if (includeZeroTimes || secondsCount > 0)
+                    {
+                        if (!annotate && builder.Length != 0)
+                            builder.Append(":");
+                        builder.Append(secondsCount.ToString("00"));
+                        if (annotate)
+                            builder.Append(" Seconds");
+                    }
                 }
                 return builder.ToString().Trim();
             }
@@ -492,9 +508,9 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 {
                     report.AddField("Online", Shared.GetYesNo(user.IsOnline));
                     if (user.IsOnline)
-                        report.AddField("Session Time", Shared.GetTimeDescription(user.GetSecondsSinceLogin(), annotate: false, Shared.TimespanStringComponent.Hour | Shared.TimespanStringComponent.Minute), inline: true);
+                        report.AddField("Session Time", Shared.GetTimeDescription(user.GetSecondsSinceLogin(), Shared.TimespanStringComponent.Hour | Shared.TimespanStringComponent.Minute), inline: true);
                     else
-                        report.AddField("Last Online", $"{Shared.GetTimeDescription(user.GetSecondsSinceLogout(), annotate: true)} ago", inline: true);
+                        report.AddField("Last Online", $"{Shared.GetTimeDescription(user.GetSecondsSinceLogout(), includeZeroTimes: false, annotate: true)} ago", inline: true);
                     report.AddAlignmentField(); //report.AddField("Playtimes", user.OnlineTimeLog.ActiveTimes); // TODO: Add when caught up with develop
                 }
 
@@ -502,7 +518,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 if (flag.HasFlag(PlayerReportComponentFlag.PlayTime))
                 {
                     report.AddField("Playtime Total", Shared.GetTimeDescription(user.OnlineTimeLog.SecondsOnline(0.0)), inline: true);
-                    report.AddField("Playtime last 24 hours", Shared.GetTimeDescription(user.OnlineTimeLog.SecondsOnline(DLConstants.SECONDS_PER_DAY)), inline: true);
+                    report.AddField("Playtime last 24 hours", Shared.GetTimeDescription(user.OnlineTimeLog.SecondsOnline(DLConstants.SECONDS_PER_DAY), Shared.TimespanStringComponent.Hour | Shared.TimespanStringComponent.Minute | Shared.TimespanStringComponent.Second), inline: true);
                     report.AddField("Playtime Last 7 days", Shared.GetTimeDescription(user.OnlineTimeLog.SecondsOnline(DLConstants.SECONDS_PER_WEEK)), inline: true);
                 }
 
