@@ -121,10 +121,9 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 builder.AppendLine($"Linked users: {DLStorage.PersistentData.LinkedUsers.Count}");
                 builder.AppendLine();
                 builder.AppendLine("--- Modules ---");
-                foreach (Module module in plugin.Modules)
-                {
-                    builder.Append(module.GetDisplayText(string.Empty, verbose));
-                }
+
+                string moduleDisplayText = plugin.Modules.Select(m => m.GetDisplayText(string.Empty, verbose)).DoubleNewlineList();
+                builder.AppendLine(moduleDisplayText);
 
                 if (verbose)
                 {
