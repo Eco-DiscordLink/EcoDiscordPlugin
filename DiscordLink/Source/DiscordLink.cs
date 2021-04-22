@@ -98,10 +98,6 @@ namespace Eco.Plugins.DiscordLink
             // Start the Discord client so that a connection has hopefully been established before the server is done initializing
             _ = Client.Start().Result;
 
-            // Ensure that the bot Eco user exists
-            EcoUser = UserManager.Users.FirstOrDefault(u => u.SlgId == DLConstants.ECO_USER_SLG_ID && u.SteamId == DLConstants.ECO_USER_STEAM_ID);
-            if (EcoUser == null)
-                EcoUser = UserManager.CreateNewUser(DLConstants.ECO_USER_STEAM_ID, DLConstants.ECO_USER_SLG_ID, !string.IsNullOrWhiteSpace(DLConfig.Data.EcoBotName) ? DLConfig.Data.EcoBotName : DLConfig.DefaultValues.EcoBotName);
 
             // Check mod versioning if the required data exists
             if (!string.IsNullOrWhiteSpace(ModIOAppID) && !string.IsNullOrWhiteSpace(ModIODeveloperToken))
@@ -110,6 +106,13 @@ namespace Eco.Plugins.DiscordLink
 
         private void PostServerInitialize()
         {
+            Status = "Performing post server start initialization";
+
+            // Ensure that the bot Eco user exists (Needs to be done after Initialize() as it runs before the UserManager is initialized)
+            EcoUser = UserManager.Users.FirstOrDefault(u => u.SlgId == DLConstants.ECO_USER_SLG_ID && u.SteamId == DLConstants.ECO_USER_STEAM_ID);
+            if (EcoUser == null)
+                EcoUser = UserManager.CreateNewUser(DLConstants.ECO_USER_STEAM_ID, DLConstants.ECO_USER_SLG_ID, !string.IsNullOrWhiteSpace(DLConfig.Data.EcoBotName) ? DLConfig.Data.EcoBotName : DLConfig.DefaultValues.EcoBotName);
+
             if (!Client.Connected)
             {
                 Status = "Initialization aborted";
@@ -117,8 +120,6 @@ namespace Eco.Plugins.DiscordLink
                 Client.OnConnected.Add(HandleClientConnected);
                 return;
             }
-
-            Status = "Performing post server start initialization";
 
             DLConfig.Instance.VerifyConfig(DLConfig.VerificationFlags.ChannelLinks | DLConfig.VerificationFlags.BotData);
 
