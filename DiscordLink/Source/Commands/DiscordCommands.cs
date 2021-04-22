@@ -428,7 +428,7 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
-        [Command("PlayerReputationReport")]
+        [Command("PlayerXPReport")]
         [Description("Displays the Player XP Report for the given player.")]
         [Aliases("PlayerXP", "DL-PlayerXP")]
         public async Task PlayerXPReport(CommandContext ctx,
