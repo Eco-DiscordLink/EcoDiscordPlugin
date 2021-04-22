@@ -226,7 +226,7 @@ namespace Eco.Plugins.DiscordLink
             if (source == CommandSource.Eco)
                 await DisplayCommandData(source, callContext, $"Player report for {user}", report.AsText());
             else
-                await DisplayCommandData(source, callContext, $"Player report for {user}", report);
+                await DisplayCommandData(source, callContext, string.Empty, report);
             return true;
         }
 
@@ -243,7 +243,7 @@ namespace Eco.Plugins.DiscordLink
             if (source == CommandSource.Eco)
                 await DisplayCommandData(source, callContext, $"Player online report for {user}", report.AsText());
             else
-                await DisplayCommandData(source, callContext, $"Player online report for {user}", report);
+                await DisplayCommandData(source, callContext, string.Empty, report);
             return true;
         }
 
@@ -260,7 +260,7 @@ namespace Eco.Plugins.DiscordLink
             if (source == CommandSource.Eco)
                 await DisplayCommandData(source, callContext, $"Player time report for {user}", report.AsText());
             else
-                await DisplayCommandData(source, callContext, $"Player time report for {user}", report);
+                await DisplayCommandData(source, callContext, string.Empty, report);
             return true;
         }
 
@@ -277,7 +277,7 @@ namespace Eco.Plugins.DiscordLink
             if (source == CommandSource.Eco)
                 await DisplayCommandData(source, callContext, $"Player permissions report for {user}", report.AsText());
             else
-                await DisplayCommandData(source, callContext, $"Player permissions report for {user}", report);
+                await DisplayCommandData(source, callContext, string.Empty, report);
             return true;
         }
 
@@ -294,7 +294,7 @@ namespace Eco.Plugins.DiscordLink
             if (source == CommandSource.Eco)
                 await DisplayCommandData(source, callContext, $"Player access report for {user}", report.AsText());
             else
-                await DisplayCommandData(source, callContext, $"Player access report for {user}", report);
+                await DisplayCommandData(source, callContext, string.Empty, report);
             return true;
         }
 
@@ -311,7 +311,7 @@ namespace Eco.Plugins.DiscordLink
             if (source == CommandSource.Eco)
                 await DisplayCommandData(source, callContext, $"Player reputation report for {user}", report.AsText());
             else
-                await DisplayCommandData(source, callContext, $"Player reputation report for {user}", report);
+                await DisplayCommandData(source, callContext, string.Empty, report);
             return true;
         }
         public static async Task<bool> PlayerXPReport(CommandSource source, object callContext, string playerNameOrID)
@@ -327,7 +327,7 @@ namespace Eco.Plugins.DiscordLink
             if (source == CommandSource.Eco)
                 await DisplayCommandData(source, callContext, $"Player XP report for {user}", report.AsText());
             else
-                await DisplayCommandData(source, callContext, $"Player XP report for {user}", report);
+                await DisplayCommandData(source, callContext, string.Empty, report);
             return true;
         }
         public static async Task<bool> PlayerSkillsReport(CommandSource source, object callContext, string playerNameOrID)
@@ -343,7 +343,7 @@ namespace Eco.Plugins.DiscordLink
             if (source == CommandSource.Eco)
                 await DisplayCommandData(source, callContext, $"Player skills report for {user}", report.AsText());
             else
-                await DisplayCommandData(source, callContext, $"Player skills report for {user}", report);
+                await DisplayCommandData(source, callContext, string.Empty, report);
             return true;
         }
         public static async Task<bool> PlayerDemographicsReport(CommandSource source, object callContext, string playerNameOrID)
@@ -359,7 +359,7 @@ namespace Eco.Plugins.DiscordLink
             if (source == CommandSource.Eco)
                 await DisplayCommandData(source, callContext, $"Player demographics report for {user}", report.AsText());
             else
-                await DisplayCommandData(source, callContext, $"Player demographics report for {user}", report);
+                await DisplayCommandData(source, callContext, string.Empty, report);
             return true;
         }
         public static async Task<bool> PlayerTitlesReport(CommandSource source, object callContext, string playerNameOrID)
@@ -375,7 +375,7 @@ namespace Eco.Plugins.DiscordLink
             if (source == CommandSource.Eco)
                 await DisplayCommandData(source, callContext, $"Player titles report for {user}", report.AsText());
             else
-                await DisplayCommandData(source, callContext, $"Player titles report for {user}", report);
+                await DisplayCommandData(source, callContext, string.Empty, report);
             return true;
         }
         public static async Task<bool> PlayerPropertiesReport(CommandSource source, object callContext, string playerNameOrID)
@@ -391,7 +391,7 @@ namespace Eco.Plugins.DiscordLink
             if (source == CommandSource.Eco)
                 await DisplayCommandData(source, callContext, $"Player property report for {user}", report.AsText());
             else
-                await DisplayCommandData(source, callContext, $"Player property report for {user}", report);
+                await DisplayCommandData(source, callContext, string.Empty, report);
             return true;
         }
 

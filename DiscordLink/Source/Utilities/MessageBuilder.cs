@@ -500,7 +500,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     discordMember = await DiscordLink.Obj.Client.GetMemberAsync(linkedUser.GuildID, linkedUser.DiscordID);
 
                 DiscordLinkEmbed report = new DiscordLinkEmbed();
-                report.WithTitle(MessageUtils.StripTags(user.Name));
+                report.WithTitle($"Report for {MessageUtils.StripTags(user.Name)}");
                 report.WithFooter(GetStandardEmbedFooter());
 
                 // Online Status

@@ -391,7 +391,7 @@ namespace Eco.Plugins.DiscordLink
                 if (ecoUser != null)
                 {
                     DiscordLinkEmbed ecoUserReport = MessageBuilder.Discord.GetPlayerReport(ecoUser, MessageBuilder.PlayerReportComponentFlag.DiscordInfo).Result;
-                    await DisplayCommandData(ctx, $"Discord report for {ecoUser}", ecoUserReport);
+                    await DisplayCommandData(ctx, string.Empty, ecoUserReport);
                     return;
                 }
 
@@ -412,7 +412,7 @@ namespace Eco.Plugins.DiscordLink
 
                 User linkedEcoUser = EcoUtils.UserBySteamOrSLGID(linkedUser.SteamID, linkedUser.SlgID);
                 DiscordLinkEmbed linkedUserReport = MessageBuilder.Discord.GetPlayerReport(linkedEcoUser, MessageBuilder.PlayerReportComponentFlag.DiscordInfo).Result;
-                await DisplayCommandData(ctx, $"Discord report for {linkedEcoUser}", linkedUserReport);
+                await DisplayCommandData(ctx, string.Empty, linkedUserReport);
             }, ctx);
         }
 
