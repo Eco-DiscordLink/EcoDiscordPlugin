@@ -82,7 +82,7 @@ namespace Eco.Plugins.DiscordLink
             if (guild == null)
                 return false; // The channel will always fail if the guild fails
 
-            DiscordChannel channel = Guild.ChannelByNameOrID(DiscordChannel);
+            DiscordChannel channel = guild.ChannelByNameOrID(DiscordChannel);
             if (guild == null)
                 return false;
 
