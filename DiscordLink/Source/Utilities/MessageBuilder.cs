@@ -582,7 +582,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     StringBuilder levelsDesc = new StringBuilder();
                     StringBuilder percentOfNextLevelDoneDesc = new StringBuilder();
 
-                    IEnumerable<Skill> orderedSkills = user.Skillset.Skills.OrderByDescending(s => s.Level);
+                    IEnumerable<Skill> orderedSkills = user.Skillset.Skills.Where(s => s.Level > 0).OrderByDescending(s => s.Level);
                     foreach (Skill skill in orderedSkills)
                     {
                         bool maxLevelReached = skill.Level >= skill.MaxLevel;
