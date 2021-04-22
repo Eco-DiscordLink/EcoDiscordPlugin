@@ -506,7 +506,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 // Online Status
                 if (flag.HasFlag(PlayerReportComponentFlag.OnlineStatus))
                 {
-                    report.AddField("Online", Shared.GetYesNo(user.IsOnline));
+                    report.AddField("Online", Shared.GetYesNo(user.IsOnline), inline: true);
                     if (user.IsOnline)
                         report.AddField("Session Time", Shared.GetTimeDescription(user.GetSecondsSinceLogin(), Shared.TimespanStringComponent.Hour | Shared.TimespanStringComponent.Minute), inline: true);
                     else
@@ -528,7 +528,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     report.AddField("Eco Admin", Shared.GetYesNo(user.IsAdmin), inline: true);
                     if (userLinkExists)
                         report.AddField("Discord Admin", Shared.GetYesNo(DiscordLink.Obj.Client.MemberIsAdmin(discordMember)), inline: true);
-                    report.AddField("Eco Dev Permission", Shared.GetYesNo(user.IsDev));
+                    report.AddField("Eco Dev Permission", Shared.GetYesNo(user.IsDev), inline: true);
                     if (!userLinkExists)
                         report.AddAlignmentField();
                 }
@@ -562,17 +562,17 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 if (flag.HasFlag(PlayerReportComponentFlag.Reputation))
                 {
                     Reputation reputation = ReputationManager.Obj.Rep(user.Name, createIfMissing: false);
-                    report.AddField("Reputation", ((int)reputation.CachedTotalReputation).ToString());
-                    report.AddField("Can Give Today", ((int)reputation.GiveableReputation).ToString());
+                    report.AddField("Reputation", ((int)reputation.CachedTotalReputation).ToString(), inline: true);
+                    report.AddField("Can Give Today", ((int)reputation.GiveableReputation).ToString(), inline: true);
                     report.AddAlignmentField();
                 }
 
                 // XP Multiplier
                 if (flag.HasFlag(PlayerReportComponentFlag.Experience))
                 {
-                    report.AddField("Total XP Multiplier", ((int)user.GetTotalXPMultiplier()).ToString());
-                    report.AddField("Nutrition", ((int)user.GetNutritionXP()).ToString());
-                    report.AddField("Housing", ((int)user.GetHousingXP()).ToString());
+                    report.AddField("Total XP Multiplier", ((int)user.GetTotalXPMultiplier()).ToString(), inline: true);
+                    report.AddField("Nutrition", ((int)user.GetNutritionXP()).ToString(), inline: true);
+                    report.AddField("Housing", ((int)user.GetHousingXP()).ToString(), inline: true);
                 }
 
                 // Skills
