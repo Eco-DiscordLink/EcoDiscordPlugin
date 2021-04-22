@@ -161,6 +161,113 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
+        [ChatSubCommand("DiscordLink", "Displays the Player Online Status Report for the given player.", "DL-PlayerOnline", ChatAuthorizationLevel.User)]
+        public static void PlayerOnlineReport(User callingUser, string playerNameOrID)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.PlayerOnlineReport(SharedCommands.CommandSource.Eco, callingUser, playerNameOrID);
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Displays the Player Time Report for the given player.", "DL-PlayerTime", ChatAuthorizationLevel.User)]
+        public static void PlayerTimeReport(User callingUser, string playerNameOrID)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.PlayerTimeReport(SharedCommands.CommandSource.Eco, callingUser, playerNameOrID);
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Displays the Player Permissions Report for the given player.", "DL-Permissions", ChatAuthorizationLevel.User)]
+        public static void PlayerPermissionsReport(User callingUser, string playerNameOrID)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.PlayerPermissionsReport(SharedCommands.CommandSource.Eco, callingUser, playerNameOrID);
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Displays the Player WhiteList/Ban/Mute Report for the given player.", "DL-PlayerAccess", ChatAuthorizationLevel.User)]
+        public static void PlayerAccessReport(User callingUser, string playerNameOrID)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.PlayerAccessReport(SharedCommands.CommandSource.Eco, callingUser, playerNameOrID);
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Displays the Player Discord Report for the given player.", "DL-PlayerDiscord", ChatAuthorizationLevel.User)]
+        public static void PlayerDiscordReport(User callingUser, string playerNameOrID)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                User ecoUser = EcoUtils.UserByNameOrEcoID(playerNameOrID);
+                if (ecoUser == null)
+                {
+                    ReportCommandError(ecoUser, $"No player with the name or ID \"{playerNameOrID}\" could be found.\nNote that Discord usernames or IDs can't be looked up from Eco.");
+                    return;
+                }
+
+                DiscordLinkEmbed report = MessageBuilder.Discord.GetPlayerReport(ecoUser, MessageBuilder.PlayerReportComponentFlag.DiscordInfo).Result;
+                DisplayCommandData(ecoUser, $"Player Discord report for {ecoUser}", report.AsText());
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Displays the Player Reputation Report for the given player.", "DL-PlayerReputation", ChatAuthorizationLevel.User)]
+        public static void PlayerReputationReport(User callingUser, string playerNameOrID)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.PlayerReputationReport(SharedCommands.CommandSource.Eco, callingUser, playerNameOrID);
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Displays the Player XP Report for the given player.", "DL-PlayerXP", ChatAuthorizationLevel.User)]
+        public static void PlayerXPReport(User callingUser, string playerNameOrID)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.PlayerXPReport(SharedCommands.CommandSource.Eco, callingUser, playerNameOrID);
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Displays the Player Skills Report for the given player.", "DL-PlayerSkills", ChatAuthorizationLevel.User)]
+        public static void PlayerSkillsReport(User callingUser, string playerNameOrID)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.PlayerSkillsReport(SharedCommands.CommandSource.Eco, callingUser, playerNameOrID);
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Displays the Player Demographics Report for the given player.", "DL-PlayerDemographics", ChatAuthorizationLevel.User)]
+        public static void PlayerDemographicsReport(User callingUser, string playerNameOrID)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.PlayerDemographicsReport(SharedCommands.CommandSource.Eco, callingUser, playerNameOrID);
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Displays the Player Titles Report for the given player.", "DL-PlayerTitles", ChatAuthorizationLevel.User)]
+        public static void PlayerTitlesReport(User callingUser, string playerNameOrID)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.PlayerTitlesReport(SharedCommands.CommandSource.Eco, callingUser, playerNameOrID);
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Displays the Player Property Report for the given player.", "DL-PlayerProperty", ChatAuthorizationLevel.User)]
+        public static void PlayerPropertyReport(User callingUser, string playerNameOrID)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.PlayerPropertiesReport(SharedCommands.CommandSource.Eco, callingUser, playerNameOrID);
+            }, callingUser);
+        }
+
         [ChatSubCommand("DiscordLink", "Displays the Currency Report for the given currency.", "DL-Currency", ChatAuthorizationLevel.User)]
         public static void CurrencyReport(User callingUser, string currencyNameOrID)
         {

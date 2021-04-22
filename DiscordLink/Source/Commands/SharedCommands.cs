@@ -1,4 +1,5 @@
 ﻿using DSharpPlus.CommandsNext;
+using DSharpPlus.Entities;
 using Eco.Gameplay.Civics.Elections;
 using Eco.Gameplay.Economy;
 using Eco.Gameplay.Economy.WorkParties;
@@ -226,6 +227,171 @@ namespace Eco.Plugins.DiscordLink
                 await DisplayCommandData(source, callContext, $"Player report for {user}", report.AsText());
             else
                 await DisplayCommandData(source, callContext, $"Player report for {user}", report);
+            return true;
+        }
+
+        public static async Task<bool> PlayerOnlineReport(CommandSource source, object callContext, string playerNameOrID)
+        {
+            User user = EcoUtils.UserByNameOrEcoID(playerNameOrID);
+            if (user == null)
+            {
+                await ReportCommandError(source, callContext, $"No player with the name or ID \"{playerNameOrID}\" could be found.");
+                return false;
+            }
+
+            DiscordLinkEmbed report = await MessageBuilder.Discord.GetPlayerReport(user, MessageBuilder.PlayerReportComponentFlag.OnlineStatus);
+            if (source == CommandSource.Eco)
+                await DisplayCommandData(source, callContext, $"Player online report for {user}", report.AsText());
+            else
+                await DisplayCommandData(source, callContext, $"Player online report for {user}", report);
+            return true;
+        }
+
+        public static async Task<bool> PlayerTimeReport(CommandSource source, object callContext, string playerNameOrID)
+        {
+            User user = EcoUtils.UserByNameOrEcoID(playerNameOrID);
+            if (user == null)
+            {
+                await ReportCommandError(source, callContext, $"No player with the name or ID \"{playerNameOrID}\" could be found.");
+                return false;
+            }
+
+            DiscordLinkEmbed report = await MessageBuilder.Discord.GetPlayerReport(user, MessageBuilder.PlayerReportComponentFlag.PlayTime);
+            if (source == CommandSource.Eco)
+                await DisplayCommandData(source, callContext, $"Player time report for {user}", report.AsText());
+            else
+                await DisplayCommandData(source, callContext, $"Player time report for {user}", report);
+            return true;
+        }
+
+        public static async Task<bool> PlayerPermissionsReport(CommandSource source, object callContext, string playerNameOrID)
+        {
+            User user = EcoUtils.UserByNameOrEcoID(playerNameOrID);
+            if (user == null)
+            {
+                await ReportCommandError(source, callContext, $"No player with the name or ID \"{playerNameOrID}\" could be found.");
+                return false;
+            }
+
+            DiscordLinkEmbed report = await MessageBuilder.Discord.GetPlayerReport(user, MessageBuilder.PlayerReportComponentFlag.Permissions);
+            if (source == CommandSource.Eco)
+                await DisplayCommandData(source, callContext, $"Player permissions report for {user}", report.AsText());
+            else
+                await DisplayCommandData(source, callContext, $"Player permissions report for {user}", report);
+            return true;
+        }
+
+        public static async Task<bool> PlayerAccessReport(CommandSource source, object callContext, string playerNameOrID)
+        {
+            User user = EcoUtils.UserByNameOrEcoID(playerNameOrID);
+            if (user == null)
+            {
+                await ReportCommandError(source, callContext, $"No player with the name or ID \"{playerNameOrID}\" could be found.");
+                return false;
+            }
+
+            DiscordLinkEmbed report = await MessageBuilder.Discord.GetPlayerReport(user, MessageBuilder.PlayerReportComponentFlag.AccessLists);
+            if (source == CommandSource.Eco)
+                await DisplayCommandData(source, callContext, $"Player access report for {user}", report.AsText());
+            else
+                await DisplayCommandData(source, callContext, $"Player access report for {user}", report);
+            return true;
+        }
+
+        public static async Task<bool> PlayerReputationReport(CommandSource source, object callContext, string playerNameOrID)
+        {
+            User user = EcoUtils.UserByNameOrEcoID(playerNameOrID);
+            if (user == null)
+            {
+                await ReportCommandError(source, callContext, $"No player with the name or ID \"{playerNameOrID}\" could be found.");
+                return false;
+            }
+
+            DiscordLinkEmbed report = await MessageBuilder.Discord.GetPlayerReport(user, MessageBuilder.PlayerReportComponentFlag.Reputation);
+            if (source == CommandSource.Eco)
+                await DisplayCommandData(source, callContext, $"Player reputation report for {user}", report.AsText());
+            else
+                await DisplayCommandData(source, callContext, $"Player reputation report for {user}", report);
+            return true;
+        }
+        public static async Task<bool> PlayerXPReport(CommandSource source, object callContext, string playerNameOrID)
+        {
+            User user = EcoUtils.UserByNameOrEcoID(playerNameOrID);
+            if (user == null)
+            {
+                await ReportCommandError(source, callContext, $"No player with the name or ID \"{playerNameOrID}\" could be found.");
+                return false;
+            }
+
+            DiscordLinkEmbed report = await MessageBuilder.Discord.GetPlayerReport(user, MessageBuilder.PlayerReportComponentFlag.Experience);
+            if (source == CommandSource.Eco)
+                await DisplayCommandData(source, callContext, $"Player XP report for {user}", report.AsText());
+            else
+                await DisplayCommandData(source, callContext, $"Player XP report for {user}", report);
+            return true;
+        }
+        public static async Task<bool> PlayerSkillsReport(CommandSource source, object callContext, string playerNameOrID)
+        {
+            User user = EcoUtils.UserByNameOrEcoID(playerNameOrID);
+            if (user == null)
+            {
+                await ReportCommandError(source, callContext, $"No player with the name or ID \"{playerNameOrID}\" could be found.");
+                return false;
+            }
+
+            DiscordLinkEmbed report = await MessageBuilder.Discord.GetPlayerReport(user, MessageBuilder.PlayerReportComponentFlag.Skills);
+            if (source == CommandSource.Eco)
+                await DisplayCommandData(source, callContext, $"Player skills report for {user}", report.AsText());
+            else
+                await DisplayCommandData(source, callContext, $"Player skills report for {user}", report);
+            return true;
+        }
+        public static async Task<bool> PlayerDemographicsReport(CommandSource source, object callContext, string playerNameOrID)
+        {
+            User user = EcoUtils.UserByNameOrEcoID(playerNameOrID);
+            if (user == null)
+            {
+                await ReportCommandError(source, callContext, $"No player with the name or ID \"{playerNameOrID}\" could be found.");
+                return false;
+            }
+
+            DiscordLinkEmbed report = await MessageBuilder.Discord.GetPlayerReport(user, MessageBuilder.PlayerReportComponentFlag.Demographics);
+            if (source == CommandSource.Eco)
+                await DisplayCommandData(source, callContext, $"Player demographics report for {user}", report.AsText());
+            else
+                await DisplayCommandData(source, callContext, $"Player demographics report for {user}", report);
+            return true;
+        }
+        public static async Task<bool> PlayerTitlesReport(CommandSource source, object callContext, string playerNameOrID)
+        {
+            User user = EcoUtils.UserByNameOrEcoID(playerNameOrID);
+            if (user == null)
+            {
+                await ReportCommandError(source, callContext, $"No player with the name or ID \"{playerNameOrID}\" could be found.");
+                return false;
+            }
+
+            DiscordLinkEmbed report = await MessageBuilder.Discord.GetPlayerReport(user, MessageBuilder.PlayerReportComponentFlag.Titles);
+            if (source == CommandSource.Eco)
+                await DisplayCommandData(source, callContext, $"Player titles report for {user}", report.AsText());
+            else
+                await DisplayCommandData(source, callContext, $"Player titles report for {user}", report);
+            return true;
+        }
+        public static async Task<bool> PlayerPropertiesReport(CommandSource source, object callContext, string playerNameOrID)
+        {
+            User user = EcoUtils.UserByNameOrEcoID(playerNameOrID);
+            if (user == null)
+            {
+                await ReportCommandError(source, callContext, $"No player with the name or ID \"{playerNameOrID}\" could be found.");
+                return false;
+            }
+
+            DiscordLinkEmbed report = await MessageBuilder.Discord.GetPlayerReport(user, MessageBuilder.PlayerReportComponentFlag.Properties);
+            if (source == CommandSource.Eco)
+                await DisplayCommandData(source, callContext, $"Player property report for {user}", report.AsText());
+            else
+                await DisplayCommandData(source, callContext, $"Player property report for {user}", report);
             return true;
         }
 
