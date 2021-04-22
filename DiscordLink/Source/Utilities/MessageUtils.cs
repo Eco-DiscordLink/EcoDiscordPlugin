@@ -124,6 +124,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 // If adding the next field would bring us over a limit, split into new embeds
                 if(characterCount + field.Text.Length > DLConstants.DISCORD_EMBED_TOTAL_CHARACTER_LIMIT || fieldCount + 1 > DLConstants.DISCORD_EMBED_FIELD_ALIGNED_COUNT_LIMIT)
                 {
+                    splitEmbedBuilder.WithTitle($"{fullEmbed.Title} ({splitEmbeds.Count() + 1})");
                     splitEmbeds.Add(new DiscordLinkEmbed(splitEmbedBuilder));
                     splitEmbedBuilder.ClearFields();
                     characterCount = 0;
@@ -135,6 +136,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 ++fieldCount;
             }
             splitEmbeds.Add(splitEmbedBuilder);
+            splitEmbeds.Last().WithTitle($"{fullEmbed.Title} ({splitEmbeds.Count()})"); // Add the split number to the title of the last split
             splitEmbeds.Last().WithFooter(fullEmbed.Footer); // Add back the footer only in the last split
 
             // Convert embeds to actual DSharp Discord embeds
