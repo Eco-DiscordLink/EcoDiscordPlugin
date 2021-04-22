@@ -605,7 +605,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     {
                         demographicDesc.AppendLine(demographic.Name + (demographic.Creator == user ? " (Creator)" : string.Empty));
                     }
-                    report.AddField("Demographics", demographicDesc.ToString(), inline: true);
+                    report.AddField("Demographics", userDemographics.Count() > 0 ? demographicDesc.ToString() : "No Demographics", inline: true);
                 }
 
                 // Titles
@@ -617,7 +617,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     {
                         titlesDesc.AppendLine(title.Name + (title.Creator == user ? " (Creator)" : string.Empty));
                     }
-                    report.AddField("Titles", titlesDesc.ToString(), inline: true);
+                    report.AddField("Titles", userTitles.Count() > 0 ? titlesDesc.ToString() : "No Titles", inline: true);
                     report.AddAlignmentField();
                 }
 
@@ -635,9 +635,11 @@ namespace Eco.Plugins.DiscordLink.Utilities
                         propertiessSizeOrVehicleDesc.AppendLine(deed.IsVehicle() ? deed.GetVehicle().Name : $"{deed.GetTotalPlotSize()}M²");
                         propertiessLocationDesc.AppendLine(deed.Location.ToString());
                     }
-                    report.AddField("Deeds", propertiessDesc.ToString(), inline: true);
-                    report.AddField("Size/Vehicle", propertiessSizeOrVehicleDesc.ToString(), inline: true);
-                    report.AddField("Location", propertiessLocationDesc.ToString(), inline: true);
+
+                    bool hasProperty = userDeeds.Count() > 0;
+                    report.AddField("Property", hasProperty ? propertiessDesc.ToString() : "No Owned Property", inline: true);
+                    report.AddField("Size/Vehicle", hasProperty ? propertiessSizeOrVehicleDesc.ToString() : "N/A", inline: true);
+                    report.AddField("Location", hasProperty ? propertiessLocationDesc.ToString() : "N/A", inline: true);
                 }
 
                 return report;
