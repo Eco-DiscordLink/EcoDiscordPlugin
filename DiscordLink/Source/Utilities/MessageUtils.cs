@@ -85,7 +85,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             }
 
             // Early escape if no splitting is needed
-            if (totalCharsCount <= DLConstants.DISCORD_EMBED_TOTAL_CHARACTER_LIMIT && !needsSplitFields.Any(t => t == true))
+            if (totalCharsCount <= DLConstants.DISCORD_EMBED_TOTAL_CHARACTER_LIMIT && needsSplitFields.Count <= DLConstants.DISCORD_EMBED_FIELD_ALIGNED_COUNT_LIMIT && !needsSplitFields.Any(t => t == true))
             {
                 resultEmbeds.Add(BuildDiscordEmbed(fullEmbed));
                 return resultEmbeds;
