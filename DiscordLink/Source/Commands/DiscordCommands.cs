@@ -65,18 +65,18 @@ namespace Eco.Plugins.DiscordLink
                 if (stringParts.Count <= 1 && embedParts.Count <= 1)
                 {
                     DiscordEmbed embed = (embedParts.Count >= 1) ? embedParts.First() : null;
-                    await ctx.RespondAsync(textContent, isTTS: false, embed);
+                    await ctx.RespondAsync(textContent, embed);
                 }
                 else
                 {
                     // Either make sure we have permission to use embeds or convert the embed to text
                     foreach (string textMessagePart in stringParts)
                     {
-                        await ctx.RespondAsync(textMessagePart, isTTS: false, null);
+                        await ctx.RespondAsync(textMessagePart, null);
                     }
                     foreach (DiscordEmbed embedPart in embedParts)
                     {
-                        await ctx.RespondAsync(null, isTTS: false, embedPart);
+                        await ctx.RespondAsync(null, embedPart);
                     }
                 }
             }
