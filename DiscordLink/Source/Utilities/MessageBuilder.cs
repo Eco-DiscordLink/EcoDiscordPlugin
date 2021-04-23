@@ -627,7 +627,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     foreach (Deed deed in userDeeds)
                     {
                         propertiessDesc.AppendLine(deed.Name);
-                        propertiessSizeOrVehicleDesc.AppendLine(deed.IsVehicle() ? deed.GetVehicle().Name : $"{deed.GetTotalPlotSize()}M²");
+                        propertiessSizeOrVehicleDesc.AppendLine(deed.IsVehicle() ? deed.GetVehicle().Name : $"{deed.GetTotalPlotSize()}m²");
                         propertiessLocationDesc.AppendLine(deed.Location.ToString());
                     }
 
