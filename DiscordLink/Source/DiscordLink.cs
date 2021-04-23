@@ -61,6 +61,11 @@ namespace Eco.Plugins.DiscordLink
             return _status;
         }
 
+        public Result ShouldOverrideAuth(GameAction action)
+        {
+            return new Result(ResultType.None);
+        }
+
         public object GetEditObject()
         {
             return DLConfig.Data;
@@ -241,11 +246,6 @@ namespace Eco.Plugins.DiscordLink
                 default:
                     break;
             }
-        }
-
-        public Result ShouldOverrideAuth(GameAction action)
-        {
-            return new Result(ResultType.None);
         }
 
         public void HandleEvent(DLEventType eventType, params object[] data)

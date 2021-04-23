@@ -42,7 +42,6 @@ namespace Eco.Plugins.DiscordLink
         public static DLConfigData Data { get { return Instance._config.Config; } }
         public static List<ChannelLink> ChannelLinks { get { return Instance._channelLinks; } }
         public PluginConfig<DLConfigData> PluginConfig { get { return Instance._config; } }
-        
 
         public static ChannelLink ChannelLinkForDiscordChannel(string discordGuildName, string discordChannelName) =>
             ChannelLinks.FirstOrDefault(link
@@ -302,8 +301,8 @@ namespace Eco.Plugins.DiscordLink
 
                 if (verificationFlags.HasFlag(VerificationFlags.BotData))
                 {
-                        Logger.Warning("Bot is not configured to allow reading of full server member list as it lacks the Server Members Intent\nSome features will be unavailable.\nSee install instructions for help with adding intents.");
                     if (!DiscordLink.Obj.Client.BotHasIntent(DSharpPlus.DiscordIntents.GuildMembers))
+                        Logger.Warning("Bot is not configured to allow reading of full server member list as it lacks the Server Members Intent. Some features will be unavailable. See install instructions for help with adding intents.");
                 }
             }
         }

@@ -32,7 +32,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             }
             catch(Exception e)
             {
-                Logger.Error("Failed to create directory at path \"" + path + "\". Error message: " + e);
+                Logger.Error($"Failed to create directory at path \"{path}\". Error message: {e}");
             }
         }
     }

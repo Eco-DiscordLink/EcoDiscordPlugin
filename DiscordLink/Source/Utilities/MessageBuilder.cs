@@ -213,13 +213,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
             public static string GetPlayerSessionTimeList()
             {
-                string playerSessionTimeList = string.Empty;
-                IEnumerable<User> onlineUsers = UserManager.OnlineUsers.Where(user => user.Client.Connected).OrderBy(user => user.Name);
-                foreach (User player in onlineUsers)
-                {
-                    playerSessionTimeList += $"{GetTimespan(Simulation.Time.WorldTime.Seconds - player.LoginTime, TimespanStringComponent.Hour | TimespanStringComponent.Minute)}\n";
-                }
-                return playerSessionTimeList;
+                IEnumerable<User> onlineUsers = UserManager.OnlineUsers.OrderBy(user => user.Name);
+                return string.Join("\n", onlineUsers.Select(u => GetTimeDescription(u.GetSecondsSinceLogin(), TimespanStringComponent.Hour | TimespanStringComponent.Minute)));
             }
 
             public enum TimespanStringComponent

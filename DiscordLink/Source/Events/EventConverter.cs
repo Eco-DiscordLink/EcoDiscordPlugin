@@ -44,7 +44,7 @@ namespace Eco.Plugins.DiscordLink.Events
         {
             _tradePostingTimer = new Timer(InnerArgs =>
             {
-                using (_overlapLock.Lock()) // Make sure this code isn't entered multiple time simultaniously
+                using (_overlapLock.Lock()) // Make sure this code isn't entered multiple times simultaniously
                 {
                     if (_accumulatedTrades.Count > 0)
                     {
