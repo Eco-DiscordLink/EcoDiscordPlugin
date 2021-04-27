@@ -129,7 +129,12 @@ namespace Eco.Plugins.DiscordLink
             if (tokenChanged)
             {
                 Logger.Info("Discord Bot Token changed - Restarting");
-                bool restarted = DiscordLink.Obj.Restart().Result;
+                bool restarted = false;
+                SystemUtils.SynchronousThreadExecute(() => // Avoid deadlocks caused by calling async functions on the GUI thread
+                {
+                    restarted = DiscordLink.Obj.Restart().Result;
+                });
+
                 if (!restarted)
                     Logger.Info("Restart failed or a restart was already in progress");
 
