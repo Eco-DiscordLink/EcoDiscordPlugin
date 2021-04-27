@@ -101,7 +101,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 {
                     builder.AppendLine($"Server Name: {MessageUtils.FirstNonEmptyString(DLConfig.Data.ServerName, MessageUtils.StripTags(NetworkManager.GetServerInfo().Description), "[Server Title Missing]")}");
                     builder.AppendLine($"Server Version: {EcoVersion.VersionNumber}");
-                    builder.AppendLine($"D# Version: {plugin.Client.DiscordClient.VersionString}");
+                    if(DiscordLink.Obj.Client.ConnectionStatus == DLDiscordClient.ConnectionState.Connected)
+                        builder.AppendLine($"D# Version: {plugin.Client.DiscordClient.VersionString}");
                 }
                 builder.AppendLine($"Plugin Status: {plugin.GetStatus()}");
                 builder.AppendLine($"Discord Client Status: {plugin.Client.Status}");
@@ -110,7 +111,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     builder.AppendLine($"Start Time: {plugin.InitTime:yyyy-MM-dd HH:mm}");
                 builder.AppendLine($"Running Time: {(int)elapssedTime.TotalDays}:{elapssedTime.Hours}:{elapssedTime.Minutes}");
 
-                if (!plugin.Client.Connected)
+                if (DiscordLink.Obj.Client.ConnectionStatus != DLDiscordClient.ConnectionState.Connected)
                     return builder.ToString();
 
                 if (verbose)

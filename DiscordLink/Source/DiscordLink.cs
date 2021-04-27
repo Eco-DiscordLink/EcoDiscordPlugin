@@ -122,7 +122,7 @@ namespace Eco.Plugins.DiscordLink
             if (EcoUser == null)
                 EcoUser = UserManager.CreateNewUser(DLConstants.ECO_USER_STEAM_ID, DLConstants.ECO_USER_SLG_ID, !string.IsNullOrWhiteSpace(DLConfig.Data.EcoBotName) ? DLConfig.Data.EcoBotName : DLConfig.DefaultValues.EcoBotName);
 
-            if (!Client.Connected)
+            if (string.IsNullOrEmpty(DLConfig.Data.BotToken) || Client.ConnectionStatus != DLDiscordClient.ConnectionState.Connected)
             {
                 Status = "Initialization aborted";
                 Logger.Error("Discord client did not connect before server initialization was completed. Use restart commands to make a new connection attempt");

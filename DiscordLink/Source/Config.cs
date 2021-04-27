@@ -232,7 +232,7 @@ namespace Eco.Plugins.DiscordLink
         public void VerifyConfig(VerificationFlags verificationFlags = VerificationFlags.All)
         {
             List<string> errorMessages = new List<string>();
-            if (!DiscordLink.Obj.Client.Connected)
+            if (DiscordLink.Obj.Client.ConnectionStatus != DLDiscordClient.ConnectionState.Connected)
             {
                 errorMessages.Add("[General Verification] Discord Client not connected.");
             }
@@ -266,7 +266,7 @@ namespace Eco.Plugins.DiscordLink
                 }
             }
 
-            if (DiscordLink.Obj.Client.Connected)
+            if (DiscordLink.Obj.Client.ConnectionStatus == DLDiscordClient.ConnectionState.Connected)
             {
                 // Discord guild and channel information isn't available the first time this function is called
                 if (verificationFlags.HasFlag(VerificationFlags.ChannelLinks) && ChannelLinks.Count > 0)

@@ -16,9 +16,16 @@ namespace Eco.Plugins.DiscordLink
 {
     public class DLDiscordClient
     {
+        public enum ConnectionState
+        {
+            Disconnected,
+            Connecting,
+            Connected
+        }
+
         public DiscordClient DiscordClient { get; private set; }
         public DateTime LastConnectionTime { get; private set; } = DateTime.MinValue;
-        public bool Connected { get; private set; } = false;
+        public ConnectionState ConnectionStatus { get; private set; } = ConnectionState.Disconnected;
 
         public string Status
         {
@@ -91,7 +98,7 @@ namespace Eco.Plugins.DiscordLink
                 return false;
             }
 
-            Connected = true;
+            ConnectionStatus = ConnectionState.Connected;
             Status = "Connected to Discord";
             LastConnectionTime = DateTime.Now;
 
@@ -124,7 +131,7 @@ namespace Eco.Plugins.DiscordLink
             }
 
             DiscordClient = null;
-            Connected = false;
+            ConnectionStatus = ConnectionState.Disconnected;
             Status = "Disconnected from Discord";
 
             OnDisconnected?.Invoke();
@@ -136,13 +143,13 @@ namespace Eco.Plugins.DiscordLink
         {
             Status = "Restarting...";
 
-            if(Connected)
+            if(ConnectionStatus == ConnectionState.Connected || ConnectionStatus == ConnectionState.Connecting)
                 await Stop();
 
-            if (!Connected)
+            if (ConnectionStatus == ConnectionState.Disconnected)
                 await Start();
 
-            return Connected;
+            return ConnectionStatus == ConnectionState.Connected;
         }
 
         private void RegisterEventListeners()
