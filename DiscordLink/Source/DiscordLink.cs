@@ -125,8 +125,11 @@ namespace Eco.Plugins.DiscordLink
             if (string.IsNullOrEmpty(DLConfig.Data.BotToken) || Client.ConnectionStatus != DLDiscordClient.ConnectionState.Connected)
             {
                 Status = "Initialization aborted";
-                Logger.Error("Discord client did not connect before server initialization was completed. Use restart commands to make a new connection attempt");
                 Client.OnConnected.Add(HandleClientConnected);
+                if (!string.IsNullOrEmpty(DLConfig.Data.BotToken))
+                    Logger.Error("Discord client did not connect before server initialization was completed. Use restart commands to make a new connection attempt");
+
+                CanRestart = true;
                 return;
             }
 
