@@ -12,16 +12,16 @@ namespace Eco.Plugins.DiscordLink.Extensions
     {
         #region User
 
-        public static bool IsWhitelisted(this User user) => UserManager.Config.WhiteList.Contains(user.SteamId) || UserManager.Config.WhiteList.Contains(user.SlgId);
-        public static bool IsBanned(this User user) => UserManager.Config.BlackList.Contains(user.SteamId) || UserManager.Config.BlackList.Contains(user.SlgId);
-        public static bool IsMuted(this User user) => UserManager.Config.MuteList.Contains(user.SteamId) || UserManager.Config.MuteList.Contains(user.SlgId);
+        public static bool IsWhitelisted(this User user) => UserManager.Config.UserPermission.WhiteList.Contains(user);
+        public static bool IsBanned(this User user) => UserManager.Config.UserPermission.BlackList.Contains(user);
+        public static bool IsMuted(this User user) => UserManager.Config.UserPermission.MuteList.Contains(user);
 
         public static double GetSecondsSinceLogin(this User user) => user.IsOnline ? Simulation.Time.WorldTime.Seconds - user.LoginTime : 0.0;
         public static double GetSecondsSinceLogout(this User user) => user.IsOnline ? 0.0 : Simulation.Time.WorldTime.Seconds - user.LogoutTime;
 
         public static float GetTotalXPMultiplier(this User user) => user.GetNutritionXP() + user.GetHousingXP();
         public static float GetNutritionXP(this User user) => user.Stomach.NutrientSkillRate;
-        public static float GetHousingXP(this User user) => user.CachedHouseValue != null ? user.CachedHouseValue.HousingSkillRate : 0.0f;
+        public static float GetHousingXP(this User user) => user.CachedHouseValue.HousingSkillRate;
 
         #endregion
 
