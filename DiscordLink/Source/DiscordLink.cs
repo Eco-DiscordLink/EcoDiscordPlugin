@@ -148,7 +148,7 @@ namespace Eco.Plugins.DiscordLink
             HandleEvent(DLEventType.ServerStarted, null);
         }
 
-        public void Shutdown()
+        public async Task ShutdownAsync()
         {
             Status = "Shutting down";
 
