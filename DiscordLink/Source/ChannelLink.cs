@@ -238,7 +238,7 @@ namespace Eco.Plugins.DiscordLink
         public bool UseConnectionInfo { get; set; } = true;
 
         [Description("Display the number of online players in the message.")]
-        public bool UsePlayerCount { get; set; } = true;
+        public bool UsePlayerCount { get; set; } = false;
 
         [Description("Display a list of online players in the message.")]
         public bool UsePlayerList { get; set; } = true;
