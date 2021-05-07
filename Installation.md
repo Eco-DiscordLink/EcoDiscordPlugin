@@ -42,15 +42,15 @@ If you are not using the server GUI, you instead need to fill out this field in 
 
 ![Token installation message](images/installation/9.png)
 
-### 10. Navigate back to the bot's page on the Discord website (see above). Copy the "Client ID" that appears at the top - you will need it in the next section.
+### 10. Navigate back to the bot's page on the Discord website (see above). Copy the "Application ID" that appears at the top - you will need it in the next section.
 
-![Discord client id](images/installation/10.png)
+![Discord application id](images/installation/10.png)
 
 ### 11. Before you leave the bot's page, enable the "Server Members Intent" for your bot. This allows DiscordLink to read the full member list of Discord Servers. This is needed for linking Eco and Discord accounts.
 
-![Discord client id](images/installation/11.png)
+![Discord application id](images/installation/11.png)
 
-### 12. Go to <https://discordapi.com/permissions.html#216064>. Paste the Client ID in the bottom left field labelled "Client ID", and add any extra permissions you want the bot to have. Click the link at the bottom.
+### 12. Go to <https://discordapi.com/permissions.html#216064>. Paste the Application ID in the bottom left field labelled "Application ID", and add any extra permissions you want the bot to have. Click the link at the bottom.
 
 ![Setting permissions](images/installation/12.png)
 
