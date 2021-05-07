@@ -458,7 +458,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     }
                     else
                     {
-                        embed.AddField("Active Elections", "--- No active elections ---", inline: true);
+                        embed.AddField("Active Elections", "-- No active elections --", inline: true);
                         embed.AddAlignmentField();
                         embed.AddAlignmentField();
                     }
@@ -482,7 +482,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     }
                     else
                     {
-                        embed.AddField("Active Laws", "--- No active laws ---", inline: true);
+                        embed.AddField("Active Laws", "-- No active laws --", inline: true);
                         embed.AddAlignmentField();
                         embed.AddAlignmentField();
                     }
