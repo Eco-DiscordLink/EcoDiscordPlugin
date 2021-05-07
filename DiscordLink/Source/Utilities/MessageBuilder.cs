@@ -428,8 +428,12 @@ namespace Eco.Plugins.DiscordLink.Utilities
                             embed.AddField("Session Time", sessionTimeList, inline: true);
                         else
                             embed.AddAlignmentField();
+                    }
+                    else
+                    {
                         embed.AddAlignmentField();
                     }
+                    embed.AddAlignmentField();
                 }
 
                 if (flag.HasFlag(ServerInfoComponentFlag.ActiveElectionList))
