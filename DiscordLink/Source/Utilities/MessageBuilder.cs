@@ -446,7 +446,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                         timeRemainingList += $"{timeRemainingSpan.Days} Days, {timeRemainingSpan.Hours} hours, {timeRemainingSpan.Minutes} minutes";
                     }
 
-                    if (string.IsNullOrEmpty(electionList))
+                    if (!string.IsNullOrEmpty(electionList))
                     {
                         embed.AddField("Active Elections", electionList, inline: true);
                         embed.AddField("Votes", votesList, inline: true);
