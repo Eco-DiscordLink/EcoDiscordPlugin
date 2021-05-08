@@ -471,7 +471,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     foreach (Law law in EcoUtils.ActiveLaws)
                     {
                         lawList += $"{MessageUtils.StripTags(law.Name)}\n";
-                        creatorList += $"{MessageUtils.StripTags(law.Creator.Name)}";
+                        creatorList += $"{MessageUtils.StripTags(law.Creator.Name)}\n";
                     }
                 
                     if (!string.IsNullOrEmpty(lawList))
