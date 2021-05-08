@@ -698,7 +698,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 }
                 else
                 {
-                    embed.AddField("Top Holders", "--- No player holding this currency ---", inline: true);
+                    embed.AddField("Top Holders", "-- No player holding this currency --", inline: true);
                 }
 
                 return embed;
@@ -742,11 +742,11 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 }
                 else
                 {
-                    voteDesc = "--- Anonymous Voting ---";
+                    voteDesc = "-- Anonymous Voting --";
                 }
 
                 if (string.IsNullOrEmpty(voteDesc))
-                    voteDesc = "--- No Votes Recorded ---";
+                    voteDesc = "-- No Votes Recorded --";
 
                 report.AddField($"Votes ({election.TotalVotes})", voteDesc, inline: true);
 
@@ -790,7 +790,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
                 if (string.IsNullOrWhiteSpace(workersDesc))
                 {
-                    workersDesc += "--- No Workers Registered ---";
+                    workersDesc += "-- No Workers Registered --";
                 }
                 report.AddField("Workers", workersDesc);
 
