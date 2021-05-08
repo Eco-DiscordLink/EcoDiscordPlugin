@@ -50,7 +50,7 @@ If you are not using the server GUI, you instead need to fill out this field in 
 
 ![Discord application id](images/installation/11.png)
 
-### 12. Go to <https://discordapi.com/permissions.html#216064>. Paste the Application ID in the bottom left field labelled "Application ID", and add any extra permissions you want the bot to have. Click the link at the bottom.
+### 12. Go to <https://discordapi.com/permissions.html#216064>. Paste the Application ID in the bottom left field labelled "Client ID", and add any extra permissions you want the bot to have. Click the link at the bottom.
 
 ![Setting permissions](images/installation/12.png)
 
