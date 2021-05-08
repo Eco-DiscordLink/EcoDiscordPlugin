@@ -40,9 +40,9 @@ namespace Eco.Plugins.DiscordLink.Utilities
             PlayerCount         = 1 << 4,
             PlayerList          = 1 << 5,
             PlayerListLoginTime = 1 << 6,
-            CurrentTime         = 1 << 7,
+            IngameTime          = 1 << 7,
             TimeRemaining       = 1 << 8,
-            MeteorHasHit        = 1 << 9,
+            ServerTime          = 1 << 9,
             ActiveElectionCount = 1 << 10,
             ActiveElectionList  = 1 << 11,
             LawCount            = 1 << 12,
@@ -383,13 +383,13 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     }
                 }
 
-                if (flag.HasFlag(ServerInfoComponentFlag.CurrentTime) || flag.HasFlag(ServerInfoComponentFlag.TimeRemaining) || flag.HasFlag(ServerInfoComponentFlag.MeteorHasHit))
+                if (flag.HasFlag(ServerInfoComponentFlag.IngameTime) || flag.HasFlag(ServerInfoComponentFlag.TimeRemaining) || flag.HasFlag(ServerInfoComponentFlag.ServerTime))
                 {
                     int fieldsAdded = 0;
-                    if (flag.HasFlag(ServerInfoComponentFlag.CurrentTime))
+                    if (flag.HasFlag(ServerInfoComponentFlag.IngameTime))
                     {
                         TimeSpan timeSinceStartSpan = new TimeSpan(0, 0, (int)serverInfo.TimeSinceStart);
-                        embed.AddField("Current Time", $"Day {timeSinceStartSpan.Days + 1} {timeSinceStartSpan.Hours.ToString("00")}:{timeSinceStartSpan.Minutes.ToString("00")}", inline: true); // +1 days to get start at day 1 just like ingame
+                        embed.AddField("Ingame Time", $"Day {timeSinceStartSpan.Days + 1} {timeSinceStartSpan.Hours.ToString("00")}:{timeSinceStartSpan.Minutes.ToString("00")}", inline: true); // +1 days to get start at day 1 just like ingame
                         ++fieldsAdded;
                     }
 
@@ -398,14 +398,14 @@ namespace Eco.Plugins.DiscordLink.Utilities
                         TimeSpan timeRemainingSpan = new TimeSpan(0, 0, (int)serverInfo.TimeLeft);
                         bool meteorHasHit = timeRemainingSpan.Seconds < 0;
                         timeRemainingSpan = meteorHasHit ? new TimeSpan(0, 0, 0) : timeRemainingSpan;
-                        embed.AddField("Time Left Until Meteor", $"{timeRemainingSpan.Days} Days, {timeRemainingSpan.Hours} hours, {timeRemainingSpan.Minutes} minutes", inline: true);
+                        embed.AddField("Time Left", $"{timeRemainingSpan.Days} Days, {timeRemainingSpan.Hours} hours, {timeRemainingSpan.Minutes} minutes", inline: true);
                         ++fieldsAdded;
                     }
 
-                    if (flag.HasFlag(ServerInfoComponentFlag.MeteorHasHit))
+                    if (flag.HasFlag(ServerInfoComponentFlag.ServerTime))
                     {
-                        TimeSpan timeRemainingSpan = new TimeSpan(0, 0, (int)serverInfo.TimeLeft);
-                        embed.AddField("Meteor Has Hit", Shared.GetYesNo(timeRemainingSpan.Seconds < 0), inline: true);
+                        TimeSpan timeSinceStartSpan = new TimeSpan(0, 0, (int)serverInfo.TimeSinceStart);
+                        embed.AddField("Server Time", Shared.GetServerTimeStamp(), inline: true);
                         ++fieldsAdded;
                     }
 
