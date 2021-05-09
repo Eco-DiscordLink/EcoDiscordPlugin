@@ -43,9 +43,8 @@ namespace Eco.Plugins.DiscordLink.Modules
                 title = MessageBuilder.Shared.GetPlayerCount() + " Players Online";
             }
 
-            DiscordLinkEmbed embed = new DiscordLinkEmbed()
-                .WithTitle(title)
-                .WithFooter(MessageBuilder.Discord.GetStandardEmbedFooter());
+            DiscordLinkEmbed embed = new DiscordLinkEmbed();
+            embed.WithTitle(title);
             embed.AddField("Online Players", MessageBuilder.Shared.GetPlayerList(), inline: true);
 
             if(playerListLink.UseLoggedInTime)

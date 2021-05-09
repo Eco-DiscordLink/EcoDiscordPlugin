@@ -6,6 +6,14 @@ namespace Eco.Plugins.DiscordLink.Extensions
     // This class is used to get around that by deferring the embed building to a place where the character limits can be handled.
     public sealed class DiscordLinkEmbed
     {
+        public enum EmbedSize
+        {
+            Large,
+            Medium,
+            Small,
+            None // For config option to not have any footers
+        }
+
         public static readonly string INVISIBLE_EMBED_CHAR = "\u200e";
 
         public string Title { get; private set; }
@@ -95,6 +103,16 @@ namespace Eco.Plugins.DiscordLink.Extensions
                 text += Footer;
 
             return text.Trim();
+        }
+
+        public EmbedSize GetSize()
+        {
+            if (Fields.Count <= DLConstants.DISCORD_EMBED_SIZE_SMALL_FIELD_LIMIT)
+                return EmbedSize.Small;
+            else if (Fields.Count <= DLConstants.DISCORD_EMBED_SIZE_MEDIUM_FIELD_LIMIT)
+                return EmbedSize.Medium;
+            else
+                return EmbedSize.Large;
         }
     }
 

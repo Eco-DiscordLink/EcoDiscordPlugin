@@ -310,7 +310,6 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 ServerInfo serverInfo = NetworkManager.GetServerInfo();
 
                 DiscordLinkEmbed embed = new DiscordLinkEmbed();
-                embed.WithFooter(GetStandardEmbedFooter());
 
                 if (flag.HasFlag(ServerInfoComponentFlag.Name))
                 {
@@ -501,7 +500,6 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
                 DiscordLinkEmbed report = new DiscordLinkEmbed();
                 report.WithTitle($"Report for {MessageUtils.StripTags(user.Name)}");
-                report.WithFooter(GetStandardEmbedFooter());
 
                 // Online Status
                 if (flag.HasFlag(PlayerReportComponentFlag.OnlineStatus))
@@ -651,7 +649,6 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
                 DiscordLinkEmbed embed = new DiscordLinkEmbed();
                 embed.WithTitle(MessageUtils.StripTags(currency.Name));
-                embed.WithFooter(GetStandardEmbedFooter());
 
                 // Find and sort relevant accounts
                 IEnumerable<BankAccount> accounts = BankAccountManager.Obj.Accounts.Where(acc => acc.GetCurrencyHoldingVal(currency) >= 1).OrderByDescending(acc => acc.GetCurrencyHoldingVal(currency));
@@ -707,7 +704,6 @@ namespace Eco.Plugins.DiscordLink.Utilities
             public static DiscordLinkEmbed GetElectionReport(Election election)
             {
                 DiscordLinkEmbed report = new DiscordLinkEmbed();
-                report.WithFooter(GetStandardEmbedFooter());
                 report.WithTitle(MessageUtils.StripTags(election.Name));
 
                 // Proposer name
@@ -777,7 +773,6 @@ namespace Eco.Plugins.DiscordLink.Utilities
             {
                 DiscordLinkEmbed report = new DiscordLinkEmbed();
                 report.WithTitle(MessageUtils.StripTags(workParty.Name));
-                report.WithFooter(GetStandardEmbedFooter());
 
                 // Workers
                 string workersDesc = string.Empty;
@@ -962,7 +957,6 @@ namespace Eco.Plugins.DiscordLink.Utilities
                             }
                         }
                     }
-                    embed.WithFooter(GetStandardEmbedFooter());
                 }
                 else
                 {
