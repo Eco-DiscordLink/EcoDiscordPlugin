@@ -660,7 +660,7 @@ namespace Eco.Plugins.DiscordLink
             else
             {
                 MessageBuilder.Discord.FormatTrades(matchedName, offerType, groupedBuyOffers, groupedSellOffers, out DiscordLinkEmbed embed);
-                await DisplayCommandData(source, callContext, matchedName, embed);
+                await DisplayCommandData(source, callContext, null, embed);
             }
 
             return true;
