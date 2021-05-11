@@ -443,10 +443,10 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     foreach (Election election in EcoUtils.ActiveElections)
                     {
                         electionList += $"{MessageUtils.StripTags(election.Name)}\n";
-                        votesList += $"{election.TotalVotes} Votes";
+                        votesList += $"{election.TotalVotes} Votes\n";
 
                         TimeSpan timeRemainingSpan = new TimeSpan(0, 0, (int)serverInfo.TimeLeft);
-                        timeRemainingList += $"{timeRemainingSpan.Days} Days, {timeRemainingSpan.Hours} hours, {timeRemainingSpan.Minutes} minutes";
+                        timeRemainingList += $"{timeRemainingSpan.Days} Days, {timeRemainingSpan.Hours} hours, {timeRemainingSpan.Minutes} minutes\n";
                     }
 
                     if (!string.IsNullOrEmpty(electionList))
