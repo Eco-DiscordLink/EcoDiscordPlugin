@@ -51,9 +51,9 @@ namespace Eco.Plugins.DiscordLink
                 && link.DiscordServer.EqualsCaseInsensitive(discordGuildName)
                 && link.DiscordChannel.EqualsCaseInsensitive(discordChannelName));
 
-        public static ChatChannelLink ChatLinkForEcoChannel(string discordChannelNameOrID) => Data.ChatChannelLinks.FirstOrDefault(link
+        public static ChatChannelLink ChatLinkForEcoChannel(string ecoChannelName) => Data.ChatChannelLinks.FirstOrDefault(link
                 => link.IsValid()
-                && link.DiscordChannel.EqualsCaseInsensitive(discordChannelNameOrID));
+                && link.EcoChannel.EqualsCaseInsensitive(ecoChannelName));
 
         public static ChatChannelLink ChatLinkForDiscordChannel(string discordGuildName, string discordChannelName) =>
             Data.ChatChannelLinks.FirstOrDefault(link
