@@ -33,7 +33,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             if (!(data[0] is DiscordMessage message))
                 return;
 
-            ChatChannelLink channelLink = DLConfig.ChatLinkForEcoChannel(message.Channel.Name) ?? DLConfig.ChatLinkForEcoChannel(message.Channel.Id.ToString());
+            ChatChannelLink channelLink = DLConfig.ChatLinkForDiscordChannel(message.Channel);
             if (channelLink == null)
                 return;
 

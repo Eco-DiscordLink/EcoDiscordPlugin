@@ -1,4 +1,5 @@
 ﻿using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.Entities;
 using Eco.Core.Plugins;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
@@ -55,11 +56,11 @@ namespace Eco.Plugins.DiscordLink
                 => link.IsValid()
                 && link.EcoChannel.EqualsCaseInsensitive(ecoChannelName));
 
-        public static ChatChannelLink ChatLinkForDiscordChannel(string discordGuildName, string discordChannelName) =>
+        public static ChatChannelLink ChatLinkForDiscordChannel(DiscordChannel channel) =>
             Data.ChatChannelLinks.FirstOrDefault(link
                 => link.IsValid()
-                && link.DiscordServer.EqualsCaseInsensitive(discordGuildName)
-                && link.DiscordChannel.EqualsCaseInsensitive(discordChannelName));
+                && (link.DiscordServer.EqualsCaseInsensitive(channel.Guild.Name) || link.DiscordServer.EqualsCaseInsensitive(channel.Guild.Id.ToString()))
+                && (link.DiscordChannel.EqualsCaseInsensitive(channel.Name) || link.DiscordChannel.EqualsCaseInsensitive(channel.Id.ToString())));
 
         public delegate Task OnConfigChangedDelegate(object sender, EventArgs e);
         public event OnConfigChangedDelegate OnConfigChanged;
