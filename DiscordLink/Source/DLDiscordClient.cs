@@ -120,8 +120,8 @@ namespace Eco.Plugins.DiscordLink
                 SystemUtils.SynchronousThreadExecute(() =>
                 {
                     DiscordClient.DisconnectAsync().Wait();
+                    DiscordClient.Dispose();
                 });
-                DiscordClient.Dispose();
             }
             catch (Exception e)
             {
