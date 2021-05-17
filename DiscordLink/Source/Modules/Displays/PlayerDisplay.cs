@@ -45,7 +45,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
             DiscordLinkEmbed embed = new DiscordLinkEmbed();
             embed.WithTitle(title);
-            embed.AddField("Online Players", MessageBuilder.Shared.GetPlayerList(), inline: true);
+            embed.AddField("Online Players", MessageBuilder.Shared.GetOnlinePlayerList(), inline: true);
 
             if(playerListLink.UseLoggedInTime)
             {

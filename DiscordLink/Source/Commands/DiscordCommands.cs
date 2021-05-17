@@ -313,7 +313,7 @@ namespace Eco.Plugins.DiscordLink
             {
                 DiscordLinkEmbed embed = new DiscordLinkEmbed()
                     .WithTitle("Players")
-                    .WithDescription(MessageBuilder.Shared.GetPlayerList());
+                    .WithDescription(MessageBuilder.Shared.GetOnlinePlayerList());
                 await DisplayCommandData(ctx, string.Empty, embed);
             }, ctx);
         }

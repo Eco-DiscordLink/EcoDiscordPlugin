@@ -13,7 +13,6 @@ using Eco.Gameplay.Economy.WorkParties;
 using Eco.Gameplay.Items;
 using Eco.Gameplay.Players;
 using Eco.Plugins.DiscordLink.Extensions;
-using Eco.Plugins.DiscordLink.Modules;
 using Eco.Plugins.Networking;
 using Eco.Shared.Networking;
 using Eco.Shared.Utils;
@@ -197,10 +196,10 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 return $"{numberOnline}/{numberTotal}";
             }
 
-            public static string GetPlayerList()
+            public static string GetOnlinePlayerList()
             {
-                string playerList = string.Empty;
                 IEnumerable<User> onlineUsers = UserManager.OnlineUsers.Where(user => user.Client.Connected).OrderBy(user => user.Name);
+                string playerList = string.Join("\n", onlineUsers.Select(u => MessageUtils.FormatEmbedLineNoBreak(MessageUtils.StripTags(u.Name))));
                 foreach (User player in onlineUsers)
                 {
                     playerList += $"{player.Name}\n";
@@ -210,6 +209,32 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     playerList = "-- No players online --";
 
                 return playerList;
+            }
+
+            public static void GetActiveElectionsList(out string electionList, out string votesList, out string timeRemainingList)
+            {
+                electionList = string.Empty;
+                votesList = string.Empty;
+                timeRemainingList = string.Empty;
+                foreach (Election election in EcoUtils.ActiveElections)
+                {
+                    electionList += $"{MessageUtils.FormatEmbedLineNoBreak(MessageUtils.StripTags(election.Name))}\n";
+                    votesList += $"{election.TotalVotes} Votes\n";
+
+                    TimeSpan timeRemainingSpan = new TimeSpan(0, 0, (int)election.TimeLeft);
+                    timeRemainingList += $"{GetTimeDescription(timeRemainingSpan.TotalSeconds, TimespanStringComponent.Day | TimespanStringComponent.Hour | TimespanStringComponent.Minute, includeZeroTimes: false, annotate: true)}\n";
+                }
+            }
+
+            public static void GetActiveElectionsList(out string lawList, out string creatorList)
+            {
+                lawList = string.Empty;
+                creatorList = string.Empty;
+                foreach (Law law in EcoUtils.ActiveLaws)
+                {
+                    lawList += $"{MessageUtils.FormatEmbedLineNoBreak(MessageUtils.StripTags(law.Name))}\n";
+                    creatorList += $"{MessageUtils.FormatEmbedLineNoBreak(MessageUtils.StripTags(law.Creator.Name))}\n";
+                }
             }
 
             public static string GetPlayerSessionTimeList()
@@ -335,22 +360,10 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 if (flag.HasFlag(ServerInfoComponentFlag.ConnectionInfo))
                 {
                     string fieldText = "-- Connection info not configured --";
-                    string address = string.Empty;
-                    string port = string.Empty;
                     if (!string.IsNullOrEmpty(config.ServerAddress))
-                    {
-                        address = config.ServerAddress;
-                    }
+                        fieldText = config.ServerAddress;
                     else if (!string.IsNullOrEmpty(serverInfo.Address))
-                    {
-                        address = serverInfo.Address;
-                    }
-
-                    if (!string.IsNullOrEmpty(address))
-                    {
-                        port = serverInfo.GamePort.ToString();
-                        fieldText = $"{address}:{port}";
-                    }
+                        fieldText = serverInfo.Address;
 
                     embed.AddField("Connection Info", fieldText);
                 }
@@ -397,7 +410,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                         TimeSpan timeRemainingSpan = new TimeSpan(0, 0, (int)serverInfo.TimeLeft);
                         bool meteorHasHit = timeRemainingSpan.Seconds < 0;
                         timeRemainingSpan = meteorHasHit ? new TimeSpan(0, 0, 0) : timeRemainingSpan;
-                        embed.AddField("Time Left", $"{timeRemainingSpan.Days} Days, {timeRemainingSpan.Hours} hours, {timeRemainingSpan.Minutes} minutes", inline: true);
+                        embed.AddField("Time Left", Shared.GetTimeDescription(timeRemainingSpan.TotalSeconds, Shared.TimespanStringComponent.Day | Shared.TimespanStringComponent.Hour | Shared.TimespanStringComponent.Minute, includeZeroTimes: false, annotate: true), inline: true);
                         ++fieldsAdded;
                     }
 
@@ -418,8 +431,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 {
                     IEnumerable<string> onlineUsers = UserManager.OnlineUsers.Where(user => user.Client.Connected).Select(user => user.Name);
                     string playerCount = $"{UserManager.OnlineUsers.Where(user => user.Client.Connected).Count()}/{serverInfo.TotalPlayers}";
-                    string playerList = onlineUsers.Count() > 0 ? string.Join("\n", onlineUsers) : "-- No players online --";
-                    embed.AddField($"Online Players ({playerCount})", Shared.GetPlayerList(), inline: true);
+                    embed.AddField($"Online Players ({playerCount})", Shared.GetOnlinePlayerList(), inline: true);
                     if(flag.HasFlag(ServerInfoComponentFlag.PlayerListLoginTime))
                     {
                         string sessionTimeList = Shared.GetPlayerSessionTimeList();
@@ -437,18 +449,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
                 if (flag.HasFlag(ServerInfoComponentFlag.ActiveElectionList))
                 {
-                    string electionList = string.Empty;
-                    string votesList = string.Empty;
-                    string timeRemainingList = string.Empty;
-                    foreach (Election election in EcoUtils.ActiveElections)
-                    {
-                        electionList += $"{MessageUtils.StripTags(election.Name)}\n";
-                        votesList += $"{election.TotalVotes} Votes\n";
-
-                        TimeSpan timeRemainingSpan = new TimeSpan(0, 0, (int)serverInfo.TimeLeft);
-                        timeRemainingList += $"{timeRemainingSpan.Days} Days, {timeRemainingSpan.Hours} hours, {timeRemainingSpan.Minutes} minutes\n";
-                    }
-
+                    Shared.GetActiveElectionsList(out string electionList, out string votesList, out string timeRemainingList);
                     if (!string.IsNullOrEmpty(electionList))
                     {
                         embed.AddField("Active Elections", electionList, inline: true);
@@ -465,14 +466,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
                 if (flag.HasFlag(ServerInfoComponentFlag.LawList))
                 {
-                    string lawList = string.Empty;
-                    string creatorList = string.Empty;
-                    foreach (Law law in EcoUtils.ActiveLaws)
-                    {
-                        lawList += $"{MessageUtils.StripTags(law.Name)}\n";
-                        creatorList += $"{MessageUtils.StripTags(law.Creator.Name)}\n";
-                    }
-                
+                    Shared.GetActiveElectionsList(out string lawList, out string creatorList);
                     if (!string.IsNullOrEmpty(lawList))
                     {
                         embed.AddField("Active Laws", lawList, inline: true);
