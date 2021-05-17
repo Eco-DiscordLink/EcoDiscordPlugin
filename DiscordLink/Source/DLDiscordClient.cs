@@ -506,7 +506,9 @@ namespace Eco.Plugins.DiscordLink
                         // Either make sure we have permission to use embeds or convert the embed to text
                         if (ChannelHasPermission(message.Channel, Permissions.EmbedLinks))
                         {
-                            await message.ModifyAsync(textContent, MessageUtils.BuildDiscordEmbed(embedContent)); // TODO: Not safe! May require splitting!
+                            List<DiscordEmbed> splitEmbeds = MessageUtils.BuildDiscordEmbeds(embedContent);
+                            if(splitEmbeds.Count > 0)
+                                await message.ModifyAsync(textContent, splitEmbeds[0]); // TODO: Actually keep track of split messages instead of only overwriting the first one
                         }
                         else
                         {

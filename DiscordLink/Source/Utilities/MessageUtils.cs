@@ -155,7 +155,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
         }
 
         // Creates an actual Discord embed with the assumption that all fields in the input are within the character constraints
-        public static DiscordEmbed BuildDiscordEmbed(DiscordLinkEmbed embedData)
+        private static DiscordEmbed BuildDiscordEmbed(DiscordLinkEmbed embedData)
         {
             DiscordEmbedBuilder builder = new DiscordEmbedBuilder();
             builder.WithTitle(embedData.Title);
