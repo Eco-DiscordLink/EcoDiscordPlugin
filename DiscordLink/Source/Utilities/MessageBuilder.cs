@@ -279,7 +279,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     {
                         builder.Append(daysCount.ToString("00"));
                         if (annotate)
-                            builder.Append(" Days ");
+                            builder.Append("D ");
                     }
                 }
 
@@ -292,7 +292,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                             builder.Append(":");
                         builder.Append(hoursCount.ToString("00"));
                         if (annotate)
-                            builder.Append(" Hours ");
+                            builder.Append("H ");
                     }
                 }
 
@@ -305,7 +305,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                             builder.Append(":");
                         builder.Append(minutesCount.ToString("00"));
                         if (annotate)
-                            builder.Append(" Minutes ");
+                            builder.Append("M ");
                     }
                 }
 
@@ -318,7 +318,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                             builder.Append(":");
                         builder.Append(secondsCount.ToString("00"));
                         if (annotate)
-                            builder.Append(" Seconds");
+                            builder.Append("S");
                     }
                 }
                 return builder.ToString().Trim();
