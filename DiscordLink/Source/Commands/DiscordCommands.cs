@@ -122,7 +122,10 @@ namespace Eco.Plugins.DiscordLink
         private static bool IsCommandAllowedInChannel(CommandContext ctx)
         {
             var commandChannels = DLConfig.Data.DiscordCommandChannels;
-            bool allowed = ctx.Channel.IsPrivate || !(commandChannels.Any(link => link.IsValid())); // Always allow if there are no valid command channels or the command is sent via DM
+            bool allowed = 
+                ctx.Channel.IsPrivate
+                || DiscordLink.Obj.Client.MemberIsAdmin(ctx.Member) // Allow admins to override channel requirements
+                || !(commandChannels.Any(link => link.IsValid())); // Always allow if there are no valid command channels or the command is sent via DM
 
             // Check if the discord channel used is listed as a command channel
             if (!allowed)
