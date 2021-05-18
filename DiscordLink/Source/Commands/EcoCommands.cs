@@ -371,7 +371,7 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Sends an info box message to all online users.", "DL-Announcement", ChatAuthorizationLevel.Admin)]
+        [ChatSubCommand("DiscordLink", "Sends an info box message to all online users.", "DL-Announce", ChatAuthorizationLevel.Admin)]
         public static void AnnouncementToAll(User callingUser, string message)
         {
             ExecuteCommand<object>((lUser, args) =>
