@@ -353,17 +353,8 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Sends an Eco server message to the specified user.", "DL-Servermessage", ChatAuthorizationLevel.Admin)]
-        public static void SendServerMessage(User callingUser, string message, string recipientUserNameOrID, string persistanceType = "temporary")
-        {
-            ExecuteCommand<object>((lUser, args) =>
-            {
-                SharedCommands.SendServerMessage(SharedCommands.CommandSource.Eco, callingUser, message, recipientUserNameOrID, persistanceType);
-            }, callingUser);
-        }
-
-        [ChatSubCommand("DiscordLink", "Sends an Eco server message to all online users.", "DL-BroadcastServerMessage", ChatAuthorizationLevel.Admin)]
-        public static void BroadcastServerMessage(User callingUser, string message, string persistanceType = "temporary")
+        [ChatSubCommand("DiscordLink", "Sends an Eco server message to all online users.", "DL-ServerMessage", ChatAuthorizationLevel.Admin)]
+        public static void ServerMessageToAll(User callingUser, string message, string persistanceType = "temporary")
         {
             ExecuteCommand<object>((lUser, args) =>
             {
@@ -371,17 +362,17 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Sends an info box message to the specified user.", "DL-Announce", ChatAuthorizationLevel.Admin)]
-        public static void SendAnnouncement(User callingUser, string message, string recipientUserNameOrID)
+        [ChatSubCommand("DiscordLink", "Sends an Eco server message to the specified user.", "DL-ServermessageUser", ChatAuthorizationLevel.Admin)]
+        public static void ServerMessageToUser(User callingUser, string message, string recipientUserNameOrID, string persistanceType = "temporary")
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Info, SharedCommands.CommandSource.Eco, callingUser, message, recipientUserNameOrID);
+                SharedCommands.SendServerMessage(SharedCommands.CommandSource.Eco, callingUser, message, recipientUserNameOrID, persistanceType);
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Sends an info box message to all online users.", "DL-BroadcastAnnouncement", ChatAuthorizationLevel.Admin)]
-        public static void BroadcastAnnouncement(User callingUser, string message, string recipientUserNameOrID)
+        [ChatSubCommand("DiscordLink", "Sends an info box message to all online users.", "DL-Announcement", ChatAuthorizationLevel.Admin)]
+        public static void AnnouncementToAll(User callingUser, string message)
         {
             ExecuteCommand<object>((lUser, args) =>
             {
@@ -389,8 +380,26 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Sends a warning box message to the specified user.", "DL-Warning", ChatAuthorizationLevel.Admin)]
-        public static void SendWarning(User callingUser, string message, string recipientUserNameOrID)
+        [ChatSubCommand("DiscordLink", "Sends an info box message to the specified user.", "DL-AnnounceUser", ChatAuthorizationLevel.Admin)]
+        public static void AnnouncementToUser(User callingUser, string message, string recipientUserNameOrID)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Info, SharedCommands.CommandSource.Eco, callingUser, message, recipientUserNameOrID);
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Sends a warning box message to all online users.", "DL-Warning", ChatAuthorizationLevel.Admin)]
+        public static void WarningToAll(User callingUser, string message)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Warning, SharedCommands.CommandSource.Eco, callingUser, message, string.Empty);
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Sends a warning box message to the specified user.", "DL-WarnUser", ChatAuthorizationLevel.Admin)]
+        public static void WarningToUser(User callingUser, string message, string recipientUserNameOrID)
         {
             ExecuteCommand<object>((lUser, args) =>
             {
@@ -398,8 +407,8 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Sends a warning box message to all online users.", "DL-BroadcastWarning", ChatAuthorizationLevel.Admin)]
-        public static void BroadcastWarning(User callingUser, string message, string recipientUserNameOrID)
+        [ChatSubCommand("DiscordLink", "Sends an error box message to all online users.", "DL-Error", ChatAuthorizationLevel.Admin)]
+        public static void ErrorToAll(User callingUser, string message)
         {
             ExecuteCommand<object>((lUser, args) =>
             {
@@ -407,8 +416,8 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Sends an error box message to the specified user.", "DL-Error", ChatAuthorizationLevel.Admin)]
-        public static void SendError(User callingUser, string message, string recipientUserNameOrID)
+        [ChatSubCommand("DiscordLink", "Sends an error box message to the specified user.", "DL-ErrorUser", ChatAuthorizationLevel.Admin)]
+        public static void ErrorToUser(User callingUser, string message, string recipientUserNameOrID)
         {
             ExecuteCommand<object>((lUser, args) =>
             {
@@ -416,26 +425,8 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Sends an error box message to all online users.", "DL-BroadcastError", ChatAuthorizationLevel.Admin)]
-        public static void BroadcastError(User callingUser, string message, string recipientUserNameOrID)
-        {
-            ExecuteCommand<object>((lUser, args) =>
-            {
-                SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Warning, SharedCommands.CommandSource.Eco, callingUser, message, string.Empty);
-            }, callingUser);
-        }
-
-        [ChatSubCommand("DiscordLink", "Sends an Eco popup message to the specified user.", "DL-Popup", ChatAuthorizationLevel.Admin)]
-        public static void SendPopup(User callingUser, string message, string recipientUserNameOrID)
-        {
-            ExecuteCommand<object>((lUser, args) =>
-            {
-                SharedCommands.SendPopup(SharedCommands.CommandSource.Eco, callingUser, message, recipientUserNameOrID);
-            }, callingUser);
-        }
-
-        [ChatSubCommand("DiscordLink", "Sends an Eco popup message to all online users.", "DL-BroadcastPopup", ChatAuthorizationLevel.Admin)]
-        public static void BroadcastPopup(User callingUser, string message)
+        [ChatSubCommand("DiscordLink", "Sends an OK box popup message to all online users.", "DL-Popup", ChatAuthorizationLevel.Admin)]
+        public static void PopupToAll(User callingUser, string message)
         {
             ExecuteCommand<object>((lUser, args) =>
             {
@@ -443,21 +434,30 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Displays an info panel to the specified user.", "DL-InfoPanel", ChatAuthorizationLevel.Admin)]
-        public static void SendInfoPanel(User callingUser, string title, string message, string recipientUserNameOrID)
+        [ChatSubCommand("DiscordLink", "Sends an OK box popup message to the specified user.", "DL-PopupUser", ChatAuthorizationLevel.Admin)]
+        public static void PopupToUser(User callingUser, string message, string recipientUserNameOrID)
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.SendInfoPanel(SharedCommands.CommandSource.Eco, callingUser, title, message, recipientUserNameOrID);
+                SharedCommands.SendPopup(SharedCommands.CommandSource.Eco, callingUser, message, recipientUserNameOrID);
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Displays an info panel to all online users.", "DL-BroadcastInfoPanel", ChatAuthorizationLevel.Admin)]
-        public static void SendBroadcastInfoPanel(User callingUser, string title, string message)
+        [ChatSubCommand("DiscordLink", "Displays an info panel to all online users.", "DL-InfoPanel", ChatAuthorizationLevel.Admin)]
+        public static void InfoPanelToAll(User callingUser, string title, string message)
         {
             ExecuteCommand<object>((lUser, args) =>
             {
                 SharedCommands.SendInfoPanel(SharedCommands.CommandSource.Eco, callingUser, title, message, string.Empty);
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Displays an info panel to the specified user.", "DL-InfoPanelUser", ChatAuthorizationLevel.Admin)]
+        public static void InfoPanelToUser(User callingUser, string title, string message, string recipientUserNameOrID)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.SendInfoPanel(SharedCommands.CommandSource.Eco, callingUser, title, message, recipientUserNameOrID);
             }, callingUser);
         }
 
