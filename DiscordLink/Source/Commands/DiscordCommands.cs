@@ -568,16 +568,16 @@ namespace Eco.Plugins.DiscordLink
         #region Message Relaying
 
         [Command("SendServerMessage")]
-        [Description("Sends an Eco server message to a specified user.")]
+        [Description("Sends an Eco server message to the specified user.")]
         [Aliases("DL-ServerMessage")]
         public async Task SendServerMessage(CommandContext ctx,
             [Description("The message to send.")] string message,
-            [Description("Name of the recipient Eco user.")] string recipientUserName,
+            [Description("Name or ID of the recipient Eco user.")] string recipientUserNameOrID,
             [Description("Persistance type. Possible values are \"Temporary\" and \"Permanent\". Defaults to \"Temporary\".")] string persistanceType = "Temporary")
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.SendServerMessage(SharedCommands.CommandSource.Discord, ctx, message, recipientUserName, persistanceType);
+                await SharedCommands.SendServerMessage(SharedCommands.CommandSource.Discord, ctx, message, recipientUserNameOrID, persistanceType);
             }, ctx);
         }
 
@@ -593,15 +593,84 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
-        [Command("SendPopup")]
-        [Description("Sends an Eco popup message to a specified user.")]
-        [Aliases("DL-Popup")]
-        public async Task SendPopup(CommandContext ctx, [Description("The message to send.")] string message,
-            [Description("Name of the recipient Eco user.")] string recipientUserName)
+        [Command("Announce")]
+        [Description("Sends an info box message to the specified user.")]
+        [Aliases("DL-Announce")]
+        public async Task Announce(CommandContext ctx, [Description("The message to send.")] string message,
+            [Description("Name or ID of the recipient Eco user.")] string recipientUserNameOrID)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.SendPopup(SharedCommands.CommandSource.Discord, ctx, message, recipientUserName);
+                await SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Info, SharedCommands.CommandSource.Discord, ctx, message, recipientUserNameOrID);
+            }, ctx);
+        }
+
+        [Command("BroadcastAnnouncement")]
+        [Description("Sends an info box message to all online users.")]
+        [Aliases("DL-BroadcastAnnouncement")]
+        public async Task BroadcastAnnouncement(CommandContext ctx, [Description("The message to send.")] string message)
+        {
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
+            {
+                await SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Info, SharedCommands.CommandSource.Discord, ctx, message, string.Empty);
+            }, ctx);
+        }
+
+        [Command("Warning")]
+        [Description("Sends a warning box message to the specified user.")]
+        [Aliases("DL-Warning")]
+        public async Task Warning(CommandContext ctx, [Description("The message to send.")] string message,
+            [Description("Name or ID of the recipient Eco user.")] string recipientUserNameOrID)
+        {
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
+            {
+                await SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Warning, SharedCommands.CommandSource.Discord, ctx, message, recipientUserNameOrID);
+            }, ctx);
+        }
+
+        [Command("BroadcastWarning")]
+        [Description("Sends a warning box message to all online users.")]
+        [Aliases("DL-BroadcastWarning")]
+        public async Task BroadcastWarning(CommandContext ctx, [Description("The message to send.")] string message)
+        {
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
+            {
+                await SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Warning, SharedCommands.CommandSource.Discord, ctx, message, string.Empty);
+            }, ctx);
+        }
+
+        [Command("Error")]
+        [Description("Sends an error box message to the specified user.")]
+        [Aliases("DL-Error")]
+        public async Task Error(CommandContext ctx, [Description("The message to send.")] string message,
+            [Description("Name or ID of the recipient Eco user.")] string recipientUserNameOrID)
+        {
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
+            {
+                await SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Error, SharedCommands.CommandSource.Discord, ctx, message, recipientUserNameOrID);
+            }, ctx);
+        }
+
+        [Command("BroadcastError")]
+        [Description("Sends a warning box message to all online users.")]
+        [Aliases("DL-BroadcastError")]
+        public async Task BroadcastError(CommandContext ctx, [Description("The message to send.")] string message)
+        {
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
+            {
+                await SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Error, SharedCommands.CommandSource.Discord, ctx, message, string.Empty);
+            }, ctx);
+        }
+
+        [Command("SendPopup")]
+        [Description("Sends an Eco popup message to the specified user.")]
+        [Aliases("DL-Popup")]
+        public async Task SendPopup(CommandContext ctx, [Description("The message to send.")] string message,
+            [Description("Name or ID of the recipient Eco user.")] string recipientUserNameOrID)
+        {
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
+            {
+                await SharedCommands.SendPopup(SharedCommands.CommandSource.Discord, ctx, message, recipientUserNameOrID);
             }, ctx);
         }
 
@@ -616,28 +685,28 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
-        [Command("SendAnnouncement")]
-        [Description("Sends an Eco announcement message.")]
-        [Aliases("DL-Announcement")]
-        public async Task SendAnnouncement(CommandContext ctx, [Description("The title for the announcement UI.")] string title,
-            [Description("The message to display in the announcement UI.")] string message,
-            [Description("Name of the recipient Eco user.")] string recipientUserName)
+        [Command("SendInfoPanelMessage")]
+        [Description("Displays an info panel to the specified user.")]
+        [Aliases("DL-InfoPanel")]
+        public async Task SendInfoPanel(CommandContext ctx, [Description("The title for the info panel.")] string title,
+            [Description("The message to display in the info panel.")] string message,
+            [Description("Name or ID of the recipient Eco user.")] string recipientUserNameOrID)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.SendAnnouncement(SharedCommands.CommandSource.Discord, ctx, title, message, recipientUserName);
+                await SharedCommands.SendInfoPanel(SharedCommands.CommandSource.Discord, ctx, title, message, recipientUserNameOrID);
             }, ctx);
         }
 
-        [Command("BroadcastAnnouncement")]
-        [Description("Sends an Eco announcement message to all online users.")]
-        [Aliases("DL-BroadcastAnnouncement")]
-        public async Task SendAnnouncement(CommandContext ctx, [Description("The title for the announcement UI.")] string title,
-            [Description("The message to display in the announcement UI.")] string message)
+        [Command("BroadcastInfoPanelMessage")]
+        [Description("Displays an info panel to all online users.")]
+        [Aliases("DL-BroadcastInfoPanel")]
+        public async Task SendBroadcastInfoPanel(CommandContext ctx, [Description("The title for the info panel.")] string title,
+            [Description("The message to display in the info panel.")] string message)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.SendAnnouncement(SharedCommands.CommandSource.Discord, ctx, title, message, string.Empty);
+                await SharedCommands.SendInfoPanel(SharedCommands.CommandSource.Discord, ctx, title, message, string.Empty);
             }, ctx);
         }
 

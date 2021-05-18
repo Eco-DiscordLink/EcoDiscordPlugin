@@ -92,7 +92,7 @@ namespace Eco.Plugins.DiscordLink
 
         #region Message Relaying
 
-        public static async Task<bool> SendServerMessage(CommandSource source, object callContext, string message, string recipientUserName, string persistanceType)
+        public static async Task<bool> SendServerMessage(CommandSource source, object callContext, string message, string recipientUserNameOrID, string persistanceType)
         {
             if (string.IsNullOrWhiteSpace(message))
             {
@@ -116,12 +116,12 @@ namespace Eco.Plugins.DiscordLink
             }
 
             User recipient = null;
-            if (!string.IsNullOrWhiteSpace(recipientUserName))
+            if (!string.IsNullOrWhiteSpace(recipientUserNameOrID))
             {
-                recipient = UserManager.OnlineUsers.FirstOrDefault(x => x.Name.EqualsCaseInsensitive(recipientUserName));
+                recipient = UserManager.OnlineUsers.FirstOrDefault(x => x.Name.EqualsCaseInsensitive(recipientUserNameOrID) || x.Id.ToString().EqualsCaseInsensitive(recipientUserNameOrID));
                 if (recipient == null)
                 {
-                    await ReportCommandError(source, callContext, $"No online user with the name \"{recipientUserName}\" could be found.");
+                    await ReportCommandError(source, callContext, $"No online user with the name or ID \"{recipientUserNameOrID}\" could be found.");
                     return false;
                 }
             }
@@ -130,7 +130,11 @@ namespace Eco.Plugins.DiscordLink
                 ? (callContext as User).Name
                 : (callContext as CommandContext).Member.DisplayName;
 
-            bool sent = EcoUtils.SendServerMessage($"[{senderName}] {message}", permanent, recipient);
+            string formattedMessage = $"[{senderName}] {message}";
+            bool sent = recipient == null
+                ? EcoUtils.SendServerMessageToAll(permanent, formattedMessage)
+                : EcoUtils.SendServerMessageToUser(recipient, permanent, formattedMessage);
+
             if (sent)
                 await ReportCommandInfo(source, callContext, "Message delivered.");
             else
@@ -139,7 +143,7 @@ namespace Eco.Plugins.DiscordLink
             return sent;
         }
 
-        public static async Task<bool> SendPopup(CommandSource source, object callContext, string message, string recipientUserName)
+        public static async Task<bool> SendBoxMessage(EcoUtils.BoxMessageType type, CommandSource source, object callContext, string message, string recipientUserNameOrID)
         {
             if (string.IsNullOrWhiteSpace(message))
             {
@@ -148,12 +152,12 @@ namespace Eco.Plugins.DiscordLink
             }
 
             User recipient = null;
-            if (!string.IsNullOrWhiteSpace(recipientUserName))
+            if (!string.IsNullOrWhiteSpace(recipientUserNameOrID))
             {
-                recipient = UserManager.OnlineUsers.FirstOrDefault(x => x.Name.EqualsCaseInsensitive(recipientUserName));
+                recipient = UserManager.OnlineUsers.FirstOrDefault(x => x.Name.EqualsCaseInsensitive(recipientUserNameOrID) || x.Id.ToString().EqualsCaseInsensitive(recipientUserNameOrID));
                 if (recipient == null)
                 {
-                    await ReportCommandError(source, callContext, $"No online user with the name \"{recipientUserName}\" could be found.");
+                    await ReportCommandError(source, callContext, $"No online user with the name or ID \"{recipientUserNameOrID}\" could be found.");
                     return false;
                 }
             }
@@ -162,7 +166,29 @@ namespace Eco.Plugins.DiscordLink
                 ? (callContext as User).Name
                 : (callContext as CommandContext).Member.DisplayName;
 
-            bool sent = EcoUtils.SendPopupMessage($"[{senderName}]\n\n{message}", recipient);
+            bool sent = false;
+            string formattedMessage = $"[{senderName}]\n\n{message}";
+            switch (type)
+            {
+                case EcoUtils.BoxMessageType.Info:
+                    sent = recipient == null
+                        ? EcoUtils.SendInfoBoxToAll(message)
+                        : EcoUtils.SendInfoBoxToUser(recipient, formattedMessage);
+                    break;
+
+                case EcoUtils.BoxMessageType.Warning:
+                    sent = recipient == null
+                        ? EcoUtils.SendWarningBoxToAll(message)
+                        : EcoUtils.SendWarningBoxToUser(recipient, formattedMessage);
+                    break;
+
+                case EcoUtils.BoxMessageType.Error:
+                    sent = recipient == null
+                        ? EcoUtils.SendErrorBoxToAll(message)
+                        : EcoUtils.SendErrorBoxToUser(recipient, formattedMessage);
+                    break;
+            }
+
             if (sent)
                 await ReportCommandInfo(source, callContext, "Message delivered.");
             else
@@ -171,7 +197,43 @@ namespace Eco.Plugins.DiscordLink
             return sent;
         }
 
-        public static async Task<bool> SendAnnouncement(CommandSource source, object callContext, string title, string message, string recipientUserName)
+        public static async Task<bool> SendPopup(CommandSource source, object callContext, string message, string recipientUserNameOrID)
+        {
+            if (string.IsNullOrWhiteSpace(message))
+            {
+                await ReportCommandError(source, callContext, "Message cannot be empty.");
+                return false;
+            }
+
+            User recipient = null;
+            if (!string.IsNullOrWhiteSpace(recipientUserNameOrID))
+            {
+                recipient = UserManager.OnlineUsers.FirstOrDefault(x => x.Name.EqualsCaseInsensitive(recipientUserNameOrID) || x.Id.ToString().EqualsCaseInsensitive(recipientUserNameOrID));
+                if (recipient == null)
+                {
+                    await ReportCommandError(source, callContext, $"No online user with the name or ID \"{recipientUserNameOrID}\" could be found.");
+                    return false;
+                }
+            }
+
+            string senderName = source == CommandSource.Eco
+                ? (callContext as User).Name
+                : (callContext as CommandContext).Member.DisplayName;
+
+            string formattedMessage = $"[{senderName}]\n\n{message}";
+            bool sent = recipient == null
+                ? EcoUtils.SendOKBoxToAll(formattedMessage)
+                : EcoUtils.SendOKBoxToUser(recipient, formattedMessage);
+
+            if (sent)
+                await ReportCommandInfo(source, callContext, "Message delivered.");
+            else
+                await ReportCommandError(source, callContext, "Failed to send message.");
+
+            return sent;
+        }
+
+        public static async Task<bool> SendInfoPanel(CommandSource source, object callContext, string title, string message, string recipientUserNameOrID)
         {
             if (string.IsNullOrWhiteSpace(title))
             {
@@ -186,12 +248,12 @@ namespace Eco.Plugins.DiscordLink
             }
 
             User recipient = null;
-            if (!string.IsNullOrWhiteSpace(recipientUserName))
+            if (!string.IsNullOrWhiteSpace(recipientUserNameOrID))
             {
-                recipient = UserManager.OnlineUsers.FirstOrDefault(x => x.Name.EqualsCaseInsensitive(recipientUserName));
+                recipient = UserManager.OnlineUsers.FirstOrDefault(x => x.Name.EqualsCaseInsensitive(recipientUserNameOrID) || x.Id.ToString().EqualsCaseInsensitive(recipientUserNameOrID));
                 if (recipient == null)
                 {
-                    await ReportCommandError(source, callContext, $"No online user with the name \"{recipientUserName}\" could be found.");
+                    await ReportCommandError(source, callContext, $"No online user with the name or ID \"{recipientUserNameOrID}\" could be found.");
                     return false;
                 }
             }
@@ -200,7 +262,11 @@ namespace Eco.Plugins.DiscordLink
                 ? (callContext as User).Name
                 : (callContext as CommandContext).Member.DisplayName;
 
-            bool sent = EcoUtils.SendAnnouncementMessage(title, $"{message}\n\n[{senderName}]", recipient);
+            string formattedMessage = $"{message}\n\n[{senderName}]";
+            bool sent = recipient == null
+                ?  EcoUtils.SendInfoPanelToAll(title, formattedMessage)
+                : EcoUtils.SendInfoPanelToUser(recipient, title, formattedMessage);
+
             if (sent)
                 await ReportCommandInfo(source, callContext, "Message delivered.");
             else
@@ -604,12 +670,11 @@ namespace Eco.Plugins.DiscordLink
                 return false;
             }
 
-            User targetUser = null; // If no target user is specified; use broadcast
+            User recipient = null; // If no target user is specified; use broadcast
             if (!string.IsNullOrEmpty(targetUserName))
             {
-                targetUser = UserManager.FindUserByName(targetUserName);
-
-                if (targetUser == null)
+                recipient = UserManager.FindUserByName(targetUserName);
+                if (recipient == null)
                 {
                     User offlineUser = EcoUtils.UserByName(targetUserName);
                     if (offlineUser != null)
@@ -622,7 +687,10 @@ namespace Eco.Plugins.DiscordLink
 
             inviteMessage = Regex.Replace(inviteMessage, Regex.Escape(DLConstants.INVITE_COMMAND_TOKEN), serverInfo.DiscordAddress);
 
-            bool sent = EcoUtils.SendServerMessage(inviteMessage, permanent: true, targetUser);
+            bool sent = recipient == null
+                ? EcoUtils.SendServerMessageToAll(permanent: true, inviteMessage)
+                : EcoUtils.SendServerMessageToUser(recipient, permanent: true, inviteMessage);
+
             if (sent)
                 await ReportCommandInfo(source, callContext, "Invite sent.");
             else
