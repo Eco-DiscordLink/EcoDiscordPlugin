@@ -662,6 +662,30 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
+        [Command("NotificationToAll")]
+        [Description("Sends an Eco notification message to all online and conditionally offline users.")]
+        [Aliases("DL-Notification", "DL-Notify")]
+        public async Task NotificationToAll(CommandContext ctx, [Description("The message to send.")] string message,
+            [Description("Whether or not to send the message to offline users as well.")] bool includeOfflineUsers = true)
+        {
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
+            {
+                await SharedCommands.SendNotification(SharedCommands.CommandSource.Discord, ctx, message, string.Empty, includeOfflineUsers );
+            }, ctx);
+        }
+
+        [Command("NotificationToUser")]
+        [Description("Sends an Eco notification message to the specified user.")]
+        [Aliases("DL-NotificationUser", "DL-NotifyUser")]
+        public async Task NotificationToUser(CommandContext ctx, [Description("The message to send.")] string message,
+            [Description("Name or ID of the recipient Eco user.")] string recipientUserNameOrID)
+        {
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
+            {
+                await SharedCommands.SendNotification(SharedCommands.CommandSource.Discord, ctx, message, recipientUserNameOrID, includeOfflineUsers: true);
+            }, ctx);
+        }
+
         [Command("PopupToAll")]
         [Description("Sends an Eco popup message to all online users.")]
         [Aliases("DL-Popup")]

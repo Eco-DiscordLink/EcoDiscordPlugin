@@ -425,6 +425,24 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
+        [ChatSubCommand("DiscordLink", "Sends a notification message to all online and conditionally offline users.", "DL-Notify", ChatAuthorizationLevel.Admin)]
+        public static void NotificationToAll(User callingUser, string message, bool includeOfflineUsers = true)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.SendNotification(SharedCommands.CommandSource.Eco, callingUser, message, string.Empty, includeOfflineUsers);
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Sends a notification message to the specified user.", "DL-NotifyUser", ChatAuthorizationLevel.Admin)]
+        public static void NotificationToUser(User callingUser, string message, string recipientUserNameOrID)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.SendNotification(SharedCommands.CommandSource.Eco, callingUser, message, recipientUserNameOrID, includeOfflineUsers: true);
+            }, callingUser);
+        }
+
         [ChatSubCommand("DiscordLink", "Sends an OK box popup message to all online users.", "DL-Popup", ChatAuthorizationLevel.Admin)]
         public static void PopupToAll(User callingUser, string message)
         {

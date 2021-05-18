@@ -233,6 +233,54 @@ namespace Eco.Plugins.DiscordLink
             return sent;
         }
 
+        public static async Task<bool> SendNotification(CommandSource source, object callContext, string message, string recipientUserNameOrID, bool includeOfflineUsers)
+        {
+            if (string.IsNullOrWhiteSpace(message))
+            {
+                await ReportCommandError(source, callContext, "Message cannot be empty.");
+                return false;
+            }
+
+            User recipient = null;
+            if (!string.IsNullOrWhiteSpace(recipientUserNameOrID))
+            {
+                recipient = UserManager.Users.FirstOrDefault(x => x.Name.EqualsCaseInsensitive(recipientUserNameOrID) || x.Id.ToString().EqualsCaseInsensitive(recipientUserNameOrID));
+                if (recipient == null)
+                {
+                    await ReportCommandError(source, callContext, $"No online user with the name or ID \"{recipientUserNameOrID}\" could be found.");
+                    return false;
+                }
+            }
+
+            string senderName = source == CommandSource.Eco
+                ? (callContext as User).Name
+                : (callContext as CommandContext).Member.DisplayName;
+
+            string formattedMessage = $"[{senderName}]\n\n{message}";
+            bool sent = true;
+            if (includeOfflineUsers)
+            {
+                sent = recipient == null
+                    ? EcoUtils.SendNotificationToAll(formattedMessage)
+                    : EcoUtils.SendNotificationToUser(recipient, formattedMessage);
+            }
+            else
+            {
+                foreach (User user in UserManager.Users)
+                {
+                    if (!EcoUtils.SendNotificationToUser(user, formattedMessage))
+                        sent = false;
+                }
+            }
+
+            if (sent)
+                await ReportCommandInfo(source, callContext, "Message delivered.");
+            else
+                await ReportCommandError(source, callContext, "Failed to send message.");
+
+            return sent;
+        }
+
         public static async Task<bool> SendInfoPanel(CommandSource source, object callContext, string title, string message, string recipientUserNameOrID)
         {
             if (string.IsNullOrWhiteSpace(title))
