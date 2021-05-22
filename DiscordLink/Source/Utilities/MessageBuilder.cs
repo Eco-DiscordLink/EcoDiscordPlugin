@@ -201,10 +201,6 @@ namespace Eco.Plugins.DiscordLink.Utilities
             {
                 IEnumerable<User> onlineUsers = UserManager.OnlineUsers.Where(user => user.Client.Connected).OrderBy(user => user.Name);
                 string playerList = string.Join("\n", onlineUsers.Select(u => MessageUtils.FormatEmbedLineNoBreak(MessageUtils.StripTags(u.Name))));
-                foreach (User player in onlineUsers)
-                {
-                    playerList += $"{player.Name}\n";
-                }
 
                 if (string.IsNullOrEmpty(playerList))
                     playerList = "-- No players online --";
