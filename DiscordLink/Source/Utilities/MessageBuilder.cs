@@ -25,6 +25,7 @@ using Eco.Gameplay.Skills;
 using Eco.Gameplay.Civics.Demographics;
 using Eco.Gameplay.Civics.Titles;
 using Eco.Gameplay.Property;
+using Eco.Simulation.Types;
 
 namespace Eco.Plugins.DiscordLink.Utilities
 {
@@ -327,6 +328,41 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         public static class Discord
         {
+            public static string GetActivityString()
+            {
+                int onlinePlayers = NetworkManager.GetServerInfo().OnlinePlayers;
+                string activityString;
+                if (onlinePlayers > 0)
+                {
+                    string playerDesc = onlinePlayers == 1 ? "player" : "players";
+                    activityString = $"{onlinePlayers} {playerDesc} play Eco";
+                }
+                else
+                {
+                    int randomNumber = new Random().Next(2);
+                    if(randomNumber == 0)
+                    {
+                        AnimalSpecies animal = (AnimalSpecies)Simulation.EcoSim.AllSpecies.Where(species => species.GetType().DerivesFrom(typeof(AnimalSpecies))).Random();
+                        string animalName = animal.DisplayName.ToLower();
+                        string movementDesc;
+                        if (animal.Swimming)
+                            movementDesc = "swim";
+                        else if (animal.Flying)
+                            movementDesc = "fly";
+                        else
+                            movementDesc = "run";
+
+                        activityString = $"{animalName} {movementDesc} around";
+                    }
+                    else
+                    {
+                        string plantName = Simulation.EcoSim.AllSpecies.Where(species => species.GetType().DerivesFrom(typeof(PlantSpecies)) || species.GetType().DerivesFrom(typeof(TreeSpecies))).Random().DisplayName.ToLower();
+                        activityString = $"{plantName} grow";
+                    }
+                }
+                return activityString;
+            }
+
             public static DiscordLinkEmbed GetServerInfo(ServerInfoComponentFlag flag)
             {
                 var plugin = DiscordLink.Obj;

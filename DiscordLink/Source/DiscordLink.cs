@@ -1,4 +1,5 @@
-﻿using Eco.Core;
+﻿using DSharpPlus.Entities;
+using Eco.Core;
 using Eco.Core.Plugins;
 using Eco.Core.Plugins.Interfaces;
 using Eco.Core.Utils;
@@ -15,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Module = Eco.Plugins.DiscordLink.Modules.Module;
@@ -48,6 +50,7 @@ namespace Eco.Plugins.DiscordLink
             }
         }
         private string _status = "Uninitialized";
+        private Timer _activityUpdateTimer = null;
 
         #region Plugin Management
 
@@ -179,6 +182,7 @@ namespace Eco.Plugins.DiscordLink
         {
             InitializeModules();
             ActionUtil.AddListener(this);
+            _activityUpdateTimer = new Timer(TriggerActivityStringUpdate, null, DLConstants.DISCORD_ACTIVITY_STRING_UPDATE_INTERVAL_MS, DLConstants.DISCORD_ACTIVITY_STRING_UPDATE_INTERVAL_MS);
             Client.OnDisconnecting.Add(HandleClientDisconnecting);
 
             Status = "Connected and running";
@@ -189,6 +193,7 @@ namespace Eco.Plugins.DiscordLink
         {
             Client.OnDisconnecting.Remove(HandleClientDisconnecting);
 
+            SystemUtils.StopAndDestroyTimer(ref _activityUpdateTimer);
             ActionUtil.RemoveListener(this);
             ShutdownModules();
             Client.OnConnected.Add(HandleClientConnected);
@@ -258,6 +263,7 @@ namespace Eco.Plugins.DiscordLink
             EventConverter.Instance.HandleEvent(eventType, data);
             DLStorage.Instance.HandleEvent(eventType, data);
             UpdateModules(eventType, data);
+            UpdateActivityString(eventType);
         }
 
         public void HandleWorldReset()
@@ -305,6 +311,20 @@ namespace Eco.Plugins.DiscordLink
         private void UpdateModules(DLEventType trigger, params object[] data)
         {
             Modules.ForEach(async module => await module.Update(this, trigger, data));
+        }
+
+        private void TriggerActivityStringUpdate(object stateInfo)
+        {
+            UpdateActivityString(DLEventType.Timer);
+        }
+
+        private void UpdateActivityString(DLEventType trigger)
+        {
+            if (Client.ConnectionStatus != DLDiscordClient.ConnectionState.Connected
+                || (trigger & (DLEventType.Join | DLEventType.Login | DLEventType.Logout | DLEventType.Timer)) == 0)
+                return;
+
+            Client.DiscordClient.UpdateStatusAsync(new DiscordActivity(MessageBuilder.Discord.GetActivityString(), ActivityType.Watching));
         }
 
         #endregion

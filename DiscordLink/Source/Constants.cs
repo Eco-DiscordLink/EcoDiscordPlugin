@@ -31,6 +31,7 @@ namespace Eco.Plugins.DiscordLink
         public const int DISCORD_EMBED_AUTHOR_NAME_CHARACTER_LIMIT = 256;
         public const int DISCORD_EMBED_TOTAL_CHARACTER_LIMIT = 6000;
         public const int DISCORD_EMBED_FIELDS_PER_ROW_LIMIT = 3;
+        public const int DISCORD_ACTIVITY_STRING_UPDATE_INTERVAL_MS = 900000; // 15 minutes
 
         public const int MAX_TOP_CURRENCY_HOLDER_DISPLAY_LIMIT = 15;
         public const string CURRENCY_REPORT_COMMAND_MAX_CURRENCIES_PER_TYPE_DEFAULT = "3";

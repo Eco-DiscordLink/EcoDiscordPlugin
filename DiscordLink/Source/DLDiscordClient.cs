@@ -89,7 +89,7 @@ namespace Eco.Plugins.DiscordLink
             OnConnecting.Invoke();
             try
             {
-                await DiscordClient.ConnectAsync();
+                await DiscordClient.ConnectAsync(new DiscordActivity(MessageBuilder.Discord.GetActivityString(), ActivityType.Watching));
             }
             catch (Exception e)
             {
