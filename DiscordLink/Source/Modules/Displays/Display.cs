@@ -203,7 +203,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 // Delete the messages that are no longer relevant
                 foreach(DiscordMessage message in unmatchedMessages)
                 {
-                    plugin.Client.DeleteMessageAsync(message).Wait();
+                    await plugin.Client.DeleteMessageAsync(message);
                     createdOrDestroyedMessage = true;
                     ++_opsCount;
                 }
@@ -214,7 +214,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 {
                     if(!matchedTags.Contains(tagAndContent.Item1))
                     {
-                        plugin.Client.SendMessageAsync(targetChannel, tagAndContent.Item1, tagAndContent.Item2).Wait();
+                        await plugin.Client.SendMessageAsync(targetChannel, tagAndContent.Item1, tagAndContent.Item2);
                         createdOrDestroyedMessage = true;
                         ++_opsCount;
                     }

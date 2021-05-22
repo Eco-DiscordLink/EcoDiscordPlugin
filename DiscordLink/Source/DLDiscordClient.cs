@@ -117,9 +117,9 @@ namespace Eco.Plugins.DiscordLink
             try
             {
                 // If DisconnectAsync() is called in the GUI thread, it will cause a deadlock
-                SystemUtils.SynchronousThreadExecute(() =>
+                SystemUtils.SynchronousThreadExecute(async () => 
                 {
-                    DiscordClient.DisconnectAsync().Wait();
+                    await DiscordClient.DisconnectAsync();
                     DiscordClient.Dispose();
                 });
             }
