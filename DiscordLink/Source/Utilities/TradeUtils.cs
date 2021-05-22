@@ -98,7 +98,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 var matchItem = match.Get<Item>();
                 matchedName = matchItem.DisplayName;
 
-                bool filter(StoreComponent store, TradeOffer offer) => offer.Stack.Item == matchItem;
+                bool filter(StoreComponent store, TradeOffer offer) => offer.Stack.Item.TypeID == matchItem.TypeID;
                 groupedSellOffers = SellOffers(filter).GroupBy(t => StoreCurrencyName(t.Item1)).OrderBy(g => g.Key);
                 groupedBuyOffers = BuyOffers(filter).GroupBy(t => StoreCurrencyName(t.Item1)).OrderBy(g => g.Key);
 
