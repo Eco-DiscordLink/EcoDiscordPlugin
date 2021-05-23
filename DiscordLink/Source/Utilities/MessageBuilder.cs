@@ -405,7 +405,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     int fieldsAdded = 0;
                     if (flag.HasFlag(ServerInfoComponentFlag.PlayerCount))
                     {
-                        embed.AddField("Online Players Count", $"{UserManager.OnlineUsers.Where(user => user.Client.Connected).Count()}/{serverInfo.TotalPlayers}", inline: true);
+                        embed.AddField("Player Count", $"{UserManager.OnlineUsers.Where(user => user.Client.Connected).Count()} Online / {serverInfo.TotalPlayers} Total", inline: true);
                         ++fieldsAdded;
                     }
 
@@ -462,7 +462,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 if (flag.HasFlag(ServerInfoComponentFlag.PlayerList))
                 {
                     IEnumerable<string> onlineUsers = UserManager.OnlineUsers.Where(user => user.Client.Connected).Select(user => user.Name);
-                    string playerCount = $"{UserManager.OnlineUsers.Where(user => user.Client.Connected).Count()}/{serverInfo.TotalPlayers}";
+                    string playerCount = UserManager.OnlineUsers.Where(user => user.Client.Connected).Count().ToString();
                     embed.AddField($"Online Players ({playerCount})", Shared.GetOnlinePlayerList(), inline: true);
                     if(flag.HasFlag(ServerInfoComponentFlag.PlayerListLoginTime))
                     {
