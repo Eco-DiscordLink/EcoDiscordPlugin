@@ -58,9 +58,9 @@ namespace Eco.Plugins.DiscordLink
             EcoUtils.SendInfoBoxToUser(callingUser, message);
         }
 
-        public static void DisplayCommandData(User callingUser, string title, string data)
+        public static void DisplayCommandData(User callingUser, string panelInstance, string title, string data)
         {
-            callingUser.Player.OpenInfoPanel(title, data, "DiscordLink"); // TODO: Update this to use EcoUtils when EM has added support for the category parameter
+            EcoUtils.SendInfoPanelToUser(callingUser, panelInstance, title, data);
         }
 
         #endregion
@@ -94,7 +94,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                DisplayCommandData(callingUser, $"About DiscordLink {Plugins.DiscordLink.DiscordLink.Obj.PluginVersion}", MessageBuilder.Shared.GetAboutMessage());
+                DisplayCommandData(callingUser, DLConstants.ECO_PANEL_DL_MESSAGE_MEDIUM, $"About DiscordLink {Plugins.DiscordLink.DiscordLink.Obj.PluginVersion}", MessageBuilder.Shared.GetAboutMessage());
             }, callingUser);
         }
 
@@ -103,7 +103,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                DisplayCommandData(callingUser, "DiscordLink Status", MessageBuilder.Shared.GetDisplayString(verbose: false));
+                DisplayCommandData(callingUser, DLConstants.ECO_PANEL_COMPLEX_LIST, "DiscordLink Status", MessageBuilder.Shared.GetDisplayString(verbose: false));
             }, callingUser);
         }
 
@@ -112,7 +112,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                DisplayCommandData(callingUser, "DiscordLink Status Verbose", MessageBuilder.Shared.GetDisplayString(verbose: true));
+                DisplayCommandData(callingUser, DLConstants.ECO_PANEL_COMPLEX_LIST, "DiscordLink Status Verbose", MessageBuilder.Shared.GetDisplayString(verbose: true));
             }, callingUser);
         }
 
@@ -128,7 +128,7 @@ namespace Eco.Plugins.DiscordLink
                 var plugin = Plugins.DiscordLink.DiscordLink.Obj;
                 string joinedGuildNames = string.Join("\n", plugin.Client.DiscordClient.GuildNames());
 
-                DisplayCommandData(callingUser, "Connected Discord Servers", joinedGuildNames);
+                DisplayCommandData(callingUser, DLConstants.ECO_PANEL_SIMPLE_LIST, "Connected Discord Servers", joinedGuildNames);
             }, callingUser);
         }
 
@@ -148,7 +148,7 @@ namespace Eco.Plugins.DiscordLink
                     ReportCommandError(callingUser, $"Failed to find guild with name \"{guildNameOrID}\"");
 
                 string joinedChannelNames = string.Join("\n", guild.TextChannelNames());
-                DisplayCommandData(callingUser, "Connected Discord Servers", joinedChannelNames);
+                DisplayCommandData(callingUser, DLConstants.ECO_PANEL_SIMPLE_LIST, "Connected Discord Servers", joinedChannelNames);
             }, callingUser);
         }
 
@@ -210,7 +210,7 @@ namespace Eco.Plugins.DiscordLink
                 }
 
                 DiscordLinkEmbed report = MessageBuilder.Discord.GetPlayerReport(ecoUser, MessageBuilder.PlayerReportComponentFlag.DiscordInfo).Result;
-                DisplayCommandData(ecoUser, $"Player Discord report for {ecoUser}", report.AsText());
+                DisplayCommandData(ecoUser, DLConstants.ECO_PANEL_REPORT, $"Player Discord report for {ecoUser}", report.AsText());
             }, callingUser);
         }
 
@@ -466,7 +466,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.SendInfoPanel(SharedCommands.CommandSource.Eco, callingUser, title, message, string.Empty);
+                SharedCommands.SendInfoPanel(SharedCommands.CommandSource.Eco, callingUser, DLConstants.ECO_PANEL_NOTIFICATION, title, message, string.Empty);
             }, callingUser);
         }
 
@@ -475,7 +475,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.SendInfoPanel(SharedCommands.CommandSource.Eco, callingUser, title, message, recipientUserNameOrID);
+                SharedCommands.SendInfoPanel(SharedCommands.CommandSource.Eco, callingUser, DLConstants.ECO_PANEL_NOTIFICATION, title, message, recipientUserNameOrID);
             }, callingUser);
         }
 
@@ -646,7 +646,7 @@ namespace Eco.Plugins.DiscordLink
                 if (string.IsNullOrWhiteSpace(snippetKey)) // List all snippets if no key is given
                 {
                     if(snippets.Count > 0)
-                        DisplayCommandData(callingUser, "Snippets", string.Join("\n", snippets.Keys));
+                        DisplayCommandData(callingUser, DLConstants.ECO_PANEL_SIMPLE_LIST, "Snippets", string.Join("\n", snippets.Keys));
                     else
                         ReportCommandInfo(callingUser, "There are no registered snippets.");
                 }

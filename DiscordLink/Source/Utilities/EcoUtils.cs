@@ -137,14 +137,14 @@ namespace Eco.Plugins.DiscordLink.Utilities
             return ChatBaseExtended.CBMail(message);
         }
 
-        public static bool SendInfoPanelToUser(User user, string title, string message)
+        public static bool SendInfoPanelToUser(User user, string instance, string title, string message)
         {
-            return ChatBaseExtended.CBInfoPane(title, message, user, messageType: true);
+            return ChatBaseExtended.CBInfoPane(title, message, instance, user, messageType: true);
         }
 
-        public static bool SendInfoPanelToAll(string title, string message)
+        public static bool SendInfoPanelToAll(string instance, string title, string message)
         {
-            return ChatBaseExtended.CBInfoPane(title, message, messageType: true);
+            return ChatBaseExtended.CBInfoPane(title, message, instance, messageType: true);
         }
 
         #endregion

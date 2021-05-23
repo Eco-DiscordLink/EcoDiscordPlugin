@@ -46,10 +46,10 @@ namespace Eco.Plugins.DiscordLink
                 await DiscordCommands.ReportCommandInfo(callContext as CommandContext, message);
         }
 
-        private static async Task DisplayCommandData(CommandSource source, object callContext, string title, object data)
+        private static async Task DisplayCommandData(CommandSource source, object callContext, string title, object data, string panelInstance = "")
         {
             if (source == CommandSource.Eco)
-                EcoCommands.DisplayCommandData(callContext as User, title, data as string);
+                EcoCommands.DisplayCommandData(callContext as User, panelInstance, title, data as string);
             else
                 await DiscordCommands.DisplayCommandData(callContext as CommandContext, title, data as DiscordLinkEmbed);
         }
@@ -281,7 +281,7 @@ namespace Eco.Plugins.DiscordLink
             return sent;
         }
 
-        public static async Task<bool> SendInfoPanel(CommandSource source, object callContext, string title, string message, string recipientUserNameOrID)
+        public static async Task<bool> SendInfoPanel(CommandSource source, object callContext, string instance, string title, string message, string recipientUserNameOrID)
         {
             if (string.IsNullOrWhiteSpace(title))
             {
@@ -312,8 +312,8 @@ namespace Eco.Plugins.DiscordLink
 
             string formattedMessage = $"{message}\n\n[{senderName}]";
             bool sent = recipient == null
-                ?  EcoUtils.SendInfoPanelToAll(title, formattedMessage)
-                : EcoUtils.SendInfoPanelToUser(recipient, title, formattedMessage);
+                ?  EcoUtils.SendInfoPanelToAll(instance, title, formattedMessage)
+                : EcoUtils.SendInfoPanelToUser(recipient, instance, title, formattedMessage);
 
             if (sent)
                 await ReportCommandInfo(source, callContext, "Message delivered.");
@@ -338,7 +338,7 @@ namespace Eco.Plugins.DiscordLink
 
             DiscordLinkEmbed report = await MessageBuilder.Discord.GetPlayerReport(user, MessageBuilder.PlayerReportComponentFlag.All);
             if (source == CommandSource.Eco)
-                await DisplayCommandData(source, callContext, $"Player report for {user}", report.AsText());
+                await DisplayCommandData(source, callContext, $"Player report for {user}", report.AsText(), DLConstants.ECO_PANEL_REPORT);
             else
                 await DisplayCommandData(source, callContext, string.Empty, report);
             return true;
@@ -355,7 +355,7 @@ namespace Eco.Plugins.DiscordLink
 
             DiscordLinkEmbed report = await MessageBuilder.Discord.GetPlayerReport(user, MessageBuilder.PlayerReportComponentFlag.OnlineStatus);
             if (source == CommandSource.Eco)
-                await DisplayCommandData(source, callContext, $"Player online report for {user}", report.AsText());
+                await DisplayCommandData(source, callContext, $"Player online report for {user}", report.AsText(), DLConstants.ECO_PANEL_REPORT);
             else
                 await DisplayCommandData(source, callContext, string.Empty, report);
             return true;
@@ -372,7 +372,7 @@ namespace Eco.Plugins.DiscordLink
 
             DiscordLinkEmbed report = await MessageBuilder.Discord.GetPlayerReport(user, MessageBuilder.PlayerReportComponentFlag.PlayTime);
             if (source == CommandSource.Eco)
-                await DisplayCommandData(source, callContext, $"Player time report for {user}", report.AsText());
+                await DisplayCommandData(source, callContext, $"Player time report for {user}", report.AsText(), DLConstants.ECO_PANEL_REPORT);
             else
                 await DisplayCommandData(source, callContext, string.Empty, report);
             return true;
@@ -389,7 +389,7 @@ namespace Eco.Plugins.DiscordLink
 
             DiscordLinkEmbed report = await MessageBuilder.Discord.GetPlayerReport(user, MessageBuilder.PlayerReportComponentFlag.Permissions);
             if (source == CommandSource.Eco)
-                await DisplayCommandData(source, callContext, $"Player permissions report for {user}", report.AsText());
+                await DisplayCommandData(source, callContext, $"Player permissions report for {user}", report.AsText(), DLConstants.ECO_PANEL_REPORT);
             else
                 await DisplayCommandData(source, callContext, string.Empty, report);
             return true;
@@ -406,7 +406,7 @@ namespace Eco.Plugins.DiscordLink
 
             DiscordLinkEmbed report = await MessageBuilder.Discord.GetPlayerReport(user, MessageBuilder.PlayerReportComponentFlag.AccessLists);
             if (source == CommandSource.Eco)
-                await DisplayCommandData(source, callContext, $"Player access report for {user}", report.AsText());
+                await DisplayCommandData(source, callContext, $"Player access report for {user}", report.AsText(), DLConstants.ECO_PANEL_REPORT);
             else
                 await DisplayCommandData(source, callContext, string.Empty, report);
             return true;
@@ -423,7 +423,7 @@ namespace Eco.Plugins.DiscordLink
 
             DiscordLinkEmbed report = await MessageBuilder.Discord.GetPlayerReport(user, MessageBuilder.PlayerReportComponentFlag.Reputation);
             if (source == CommandSource.Eco)
-                await DisplayCommandData(source, callContext, $"Player reputation report for {user}", report.AsText());
+                await DisplayCommandData(source, callContext, $"Player reputation report for {user}", report.AsText(), DLConstants.ECO_PANEL_REPORT);
             else
                 await DisplayCommandData(source, callContext, string.Empty, report);
             return true;
@@ -439,7 +439,7 @@ namespace Eco.Plugins.DiscordLink
 
             DiscordLinkEmbed report = await MessageBuilder.Discord.GetPlayerReport(user, MessageBuilder.PlayerReportComponentFlag.Experience);
             if (source == CommandSource.Eco)
-                await DisplayCommandData(source, callContext, $"Player XP report for {user}", report.AsText());
+                await DisplayCommandData(source, callContext, $"Player XP report for {user}", report.AsText(), DLConstants.ECO_PANEL_REPORT);
             else
                 await DisplayCommandData(source, callContext, string.Empty, report);
             return true;
@@ -455,7 +455,7 @@ namespace Eco.Plugins.DiscordLink
 
             DiscordLinkEmbed report = await MessageBuilder.Discord.GetPlayerReport(user, MessageBuilder.PlayerReportComponentFlag.Skills);
             if (source == CommandSource.Eco)
-                await DisplayCommandData(source, callContext, $"Player skills report for {user}", report.AsText());
+                await DisplayCommandData(source, callContext, $"Player skills report for {user}", report.AsText(), DLConstants.ECO_PANEL_REPORT);
             else
                 await DisplayCommandData(source, callContext, string.Empty, report);
             return true;
@@ -471,7 +471,7 @@ namespace Eco.Plugins.DiscordLink
 
             DiscordLinkEmbed report = await MessageBuilder.Discord.GetPlayerReport(user, MessageBuilder.PlayerReportComponentFlag.Demographics);
             if (source == CommandSource.Eco)
-                await DisplayCommandData(source, callContext, $"Player demographics report for {user}", report.AsText());
+                await DisplayCommandData(source, callContext, $"Player demographics report for {user}", report.AsText(), DLConstants.ECO_PANEL_REPORT);
             else
                 await DisplayCommandData(source, callContext, string.Empty, report);
             return true;
@@ -487,7 +487,7 @@ namespace Eco.Plugins.DiscordLink
 
             DiscordLinkEmbed report = await MessageBuilder.Discord.GetPlayerReport(user, MessageBuilder.PlayerReportComponentFlag.Titles);
             if (source == CommandSource.Eco)
-                await DisplayCommandData(source, callContext, $"Player titles report for {user}", report.AsText());
+                await DisplayCommandData(source, callContext, $"Player titles report for {user}", report.AsText(), DLConstants.ECO_PANEL_REPORT);
             else
                 await DisplayCommandData(source, callContext, string.Empty, report);
             return true;
@@ -503,7 +503,7 @@ namespace Eco.Plugins.DiscordLink
 
             DiscordLinkEmbed report = await MessageBuilder.Discord.GetPlayerReport(user, MessageBuilder.PlayerReportComponentFlag.Properties);
             if (source == CommandSource.Eco)
-                await DisplayCommandData(source, callContext, $"Player property report for {user}", report.AsText());
+                await DisplayCommandData(source, callContext, $"Player property report for {user}", report.AsText(), DLConstants.ECO_PANEL_REPORT);
             else
                 await DisplayCommandData(source, callContext, string.Empty, report);
             return true;
@@ -526,7 +526,7 @@ namespace Eco.Plugins.DiscordLink
             }
 
             if(source == CommandSource.Eco)
-                await DisplayCommandData(source, callContext, $"Currency report for {currency}", report.AsText());
+                await DisplayCommandData(source, callContext, $"Currency report for {currency}", report.AsText(), DLConstants.ECO_PANEL_REPORT);
             else
                 await DisplayCommandData(source, callContext, $"Currency report for {currency}", report);
             return true;
@@ -587,7 +587,7 @@ namespace Eco.Plugins.DiscordLink
             if (source == CommandSource.Eco)
             {
                 string fullReport = string.Join("\n\n", reports.Select(r => r.AsText()));
-                await DisplayCommandData(source, callContext, $"Currencies Report", fullReport);
+                await DisplayCommandData(source, callContext, $"Currencies Report", fullReport, DLConstants.ECO_PANEL_REPORT);
             }
             else
             {
@@ -611,7 +611,7 @@ namespace Eco.Plugins.DiscordLink
 
             DiscordLinkEmbed report = MessageBuilder.Discord.GetElectionReport(election);
             if (source == CommandSource.Eco)
-                await DisplayCommandData(source, callContext, $"Election report for {election}", report.AsText());
+                await DisplayCommandData(source, callContext, $"Election report for {election}", report.AsText(), DLConstants.ECO_PANEL_REPORT);
             else
                 await DisplayCommandData(source, callContext, $"Election report for {election}", report);
             return true;
@@ -643,7 +643,7 @@ namespace Eco.Plugins.DiscordLink
             if (source == CommandSource.Eco)
             {
                 string fullReport = string.Join("\n\n", reports.Select(r => r.AsText()));
-                await DisplayCommandData(source, callContext, $"Elections Report", fullReport);
+                await DisplayCommandData(source, callContext, $"Elections Report", fullReport, DLConstants.ECO_PANEL_REPORT);
             }
             else
             {
@@ -666,7 +666,7 @@ namespace Eco.Plugins.DiscordLink
 
             DiscordLinkEmbed report = MessageBuilder.Discord.GetWorkPartyReport(workParty);
             if (source == CommandSource.Eco)
-                await DisplayCommandData(source, callContext, $"Work party report for {workParty}", report.AsText());
+                await DisplayCommandData(source, callContext, $"Work party report for {workParty}", report.AsText(), DLConstants.ECO_PANEL_REPORT);
             else
                 await DisplayCommandData(source, callContext, $"Work party report for {workParty}", report);
             return true;
@@ -690,7 +690,7 @@ namespace Eco.Plugins.DiscordLink
             if (source == CommandSource.Eco)
             {
                 string fullReport = string.Join("\n\n", reports.Select(r => r.AsText()));
-                await DisplayCommandData(source, callContext, $"Work Parties Report", fullReport);
+                await DisplayCommandData(source, callContext, $"Work Parties Report", fullReport, DLConstants.ECO_PANEL_REPORT);
             }
             else
             {
@@ -771,7 +771,7 @@ namespace Eco.Plugins.DiscordLink
             if(source == CommandSource.Eco)
             {
                 MessageBuilder.Eco.FormatTrades(offerType, groupedBuyOffers, groupedSellOffers, out string message);
-                await DisplayCommandData(source, callContext, matchedName, message);
+                await DisplayCommandData(source, callContext, matchedName, message, DLConstants.ECO_PANEL_DL_TRADES);
             }
             else
             {

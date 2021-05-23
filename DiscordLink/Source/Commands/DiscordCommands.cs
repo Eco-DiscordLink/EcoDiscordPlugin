@@ -717,7 +717,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.SendInfoPanel(SharedCommands.CommandSource.Discord, ctx, title, message, string.Empty);
+                await SharedCommands.SendInfoPanel(SharedCommands.CommandSource.Discord, ctx, DLConstants.ECO_PANEL_NOTIFICATION, title, message, string.Empty);
             }, ctx);
         }
 
@@ -730,7 +730,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.SendInfoPanel(SharedCommands.CommandSource.Discord, ctx, title, message, recipientUserNameOrID);
+                await SharedCommands.SendInfoPanel(SharedCommands.CommandSource.Discord, ctx, DLConstants.ECO_PANEL_NOTIFICATION, title, message, recipientUserNameOrID);
             }, ctx);
         }
 

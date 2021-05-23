@@ -42,6 +42,13 @@ namespace Eco.Plugins.DiscordLink
         public const int SECONDS_PER_DAY = SECONDS_PER_HOUR * 24;
         public const int SECONDS_PER_WEEK = SECONDS_PER_DAY * 7;
 
+        public const string ECO_PANEL_NOTIFICATION = "DLNotification";
+        public const string ECO_PANEL_SIMPLE_LIST = "DLSimpleList";
+        public const string ECO_PANEL_COMPLEX_LIST = "DL_ComplexList";
+        public const string ECO_PANEL_DL_MESSAGE_MEDIUM = "DLMessageMedium";
+        public const string ECO_PANEL_REPORT = "DLReport";
+        public const string ECO_PANEL_DL_TRADES = "DLTrades";
+
         public static string BasePath { get { return Directory.GetCurrentDirectory() + "/Configs/Mods/DiscordLink/"; } }
     }
 }
