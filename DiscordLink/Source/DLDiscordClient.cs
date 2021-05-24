@@ -269,7 +269,7 @@ namespace Eco.Plugins.DiscordLink
         public DiscordGuild GuildByNameOrID(string guildNameOrID)
         {
             return Utilities.Utils.TryParseSnowflakeID(guildNameOrID, out ulong ID)
-                ? DiscordClient.Guilds[ID]
+                ? DiscordClient.Guilds.Values.FirstOrDefault(guild => guild.Id == ID)
                 : DiscordClient.Guilds.Values.FirstOrDefault(guild => guild.Name.EqualsCaseInsensitive(guildNameOrID));
         }
 
@@ -280,7 +280,7 @@ namespace Eco.Plugins.DiscordLink
                 return null;
 
             return Utilities.Utils.TryParseSnowflakeID(channelNameOrID, out ulong ID)
-                ? guild.Channels[ID]
+                ? guild.Channels.Values.FirstOrDefault(channel => channel.Id == ID)
                 : guild.Channels.Values.FirstOrDefault(guild => guild.Name.EqualsCaseInsensitive(guildNameOrID));
         }
 
