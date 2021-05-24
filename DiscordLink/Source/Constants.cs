@@ -42,6 +42,8 @@ namespace Eco.Plugins.DiscordLink
         public const int SECONDS_PER_DAY = SECONDS_PER_HOUR * 24;
         public const int SECONDS_PER_WEEK = SECONDS_PER_DAY * 7;
 
+        public const int POST_SERVER_CONNECTION_WAIT_MS = 3000;
+
         public const string ECO_PANEL_NOTIFICATION = "DLNotification";
         public const string ECO_PANEL_SIMPLE_LIST = "DLSimpleList";
         public const string ECO_PANEL_COMPLEX_LIST = "DL_ComplexList";

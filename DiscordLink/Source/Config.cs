@@ -306,12 +306,6 @@ namespace Eco.Plugins.DiscordLink
                             Logger.Info($"Unverified channels detected:\n * " + string.Join("\n * ", unverifiedLinks));
                     }
                 }
-
-                if (verificationFlags.HasFlag(VerificationFlags.BotData))
-                {
-                    if (!DiscordLink.Obj.Client.BotHasIntent(DSharpPlus.DiscordIntents.GuildMembers))
-                        Logger.Warning("Bot is not configured to allow reading of full server member list as it lacks the Server Members Intent. Some features will be unavailable. See install instructions for help with adding intents.");
-                }
             }
         }
 

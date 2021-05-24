@@ -10,6 +10,7 @@ using Eco.Shared.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink
@@ -58,16 +59,52 @@ namespace Eco.Plugins.DiscordLink
                 return false; // Do not attempt to initialize if the bot token is empty
             }
 
+            if(!await CreateAndConnectClient(useFullIntents: true))
+                return false;
+
+            await Task.Delay(DLConstants.POST_SERVER_CONNECTION_WAIT_MS);
+            DiscordClient.SocketClosed -= HandleSocketClosedOnConnection; // Stop waiting for aborted connections caused by faulty connection attempts
+            if (ConnectionStatus == ConnectionState.Disconnected)
+            {
+                // Make another connection attempt without privileged intents
+                if (!await CreateAndConnectClient(useFullIntents: false))
+                    return false;
+            }
+
+            await Task.Delay(DLConstants.POST_SERVER_CONNECTION_WAIT_MS);
+            DiscordClient.SocketClosed -= HandleSocketClosedOnConnection;
+            if (ConnectionStatus == ConnectionState.Disconnected)
+            {
+                DiscordClient = null;
+                _commands = null;
+                Status = "Discord connection failed";
+                return false; // If the second connection attempt also fails we give up
+            }
+
+            ConnectionStatus = ConnectionState.Connected;
+            Status = "Connected to Discord";
+            LastConnectionTime = DateTime.Now;
+
+            RegisterEventListeners();
+            OnConnected?.Invoke();
+            return true;
+        }
+
+        private async Task<bool> CreateAndConnectClient(bool useFullIntents)
+        {
             Status = "Creating Discord Client";
+            ConnectionStatus = ConnectionState.Connecting;
+
+            // Create client
             try
             {
-                // Create client
                 DiscordClient = new DiscordClient(new DiscordConfiguration
                 {
                     AutoReconnect = true,
                     Token = DLConfig.Data.BotToken,
                     TokenType = TokenType.Bot,
-                    MinimumLogLevel = DLConfig.Data.BackendLogLevel
+                    MinimumLogLevel = DLConfig.Data.BackendLogLevel,
+                    Intents = useFullIntents ? DiscordIntents.GuildMembers | DiscordIntents.AllUnprivileged : DiscordIntents.AllUnprivileged
                 });
 
                 // Register Discord commands
@@ -79,10 +116,13 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (Exception e)
             {
+                ConnectionStatus = ConnectionState.Disconnected;
                 Status = "Failed to create Discord Client";
                 Logger.Error($"Error occurred while creating the Discord client. Error message: {e}");
                 return false;
             }
+
+            DiscordClient.SocketClosed += HandleSocketClosedOnConnection;
 
             // Connect client
             Status = "Connecting to Discord...";
@@ -93,17 +133,12 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (Exception e)
             {
-                Logger.Error("Error occurred while connecting to Discord. Error message: " + e);
+                Logger.Error($"Error occurred while connecting to Discord. Error message: {e}");
+                ConnectionStatus = ConnectionState.Disconnected;
                 Status = "Discord connection failed";
                 return false;
             }
 
-            ConnectionStatus = ConnectionState.Connected;
-            Status = "Connected to Discord";
-            LastConnectionTime = DateTime.Now;
-
-            RegisterEventListeners();
-            OnConnected?.Invoke();
             return true;
         }
 
@@ -216,6 +251,15 @@ namespace Eco.Plugins.DiscordLink
         {
             Logger.Debug($"A socket error occurred. Error message: {args.Exception}");
             await Restart();
+        }
+
+        private async Task HandleSocketClosedOnConnection(DiscordClient client, SocketCloseEventArgs args)
+        {
+            if(args.CloseCode == 4014) // Application does not have the requested privileged intents
+            {
+                Logger.Warning("Bot application is not configured to allow reading of full server member list as it lacks the Server Members Intent. Some features will be unavailable. See install instructions for help with adding intents.");
+            }
+            ConnectionStatus = ConnectionState.Disconnected;
         }
 
         #endregion

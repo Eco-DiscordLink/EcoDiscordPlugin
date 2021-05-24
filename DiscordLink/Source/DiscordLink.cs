@@ -136,7 +136,7 @@ namespace Eco.Plugins.DiscordLink
                 return;
             }
 
-            DLConfig.Instance.VerifyConfig(DLConfig.VerificationFlags.ChannelLinks | DLConfig.VerificationFlags.BotData);
+            DLConfig.Instance.VerifyConfig(DLConfig.VerificationFlags.ChannelLinks);
 
             HandleClientConnected();
 
