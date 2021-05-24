@@ -116,6 +116,8 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (Exception e)
             {
+                DiscordClient = null;
+                _commands = null;
                 ConnectionStatus = ConnectionState.Disconnected;
                 Status = "Failed to create Discord Client";
                 Logger.Error($"Error occurred while creating the Discord client. Error message: {e}");
@@ -133,6 +135,8 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (Exception e)
             {
+                DiscordClient = null;
+                _commands = null;
                 Logger.Error($"Error occurred while connecting to Discord. Error message: {e}");
                 ConnectionStatus = ConnectionState.Disconnected;
                 Status = "Discord connection failed";
