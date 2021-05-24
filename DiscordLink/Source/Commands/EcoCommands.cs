@@ -67,7 +67,7 @@ namespace Eco.Plugins.DiscordLink
 
         #region Plugin Management
 
-        [ChatSubCommand("Restart", "Restarts the plugin.", "DL-Restart", ChatAuthorizationLevel.Admin)]
+        [ChatSubCommand("DiscordLink", "Restarts the plugin.", "DL-Restart", ChatAuthorizationLevel.Admin)]
         public static void Restart(User callingUser)
         {
             ExecuteCommand<object>((lUser, args) =>
