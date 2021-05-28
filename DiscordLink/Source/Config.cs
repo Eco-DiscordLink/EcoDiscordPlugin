@@ -385,6 +385,10 @@ namespace Eco.Plugins.DiscordLink
         [Description("The game server connection information to display to users. This setting can be changed while the server is running."), Category("Server Details")]
         public string ConnectionInfo { get; set; }
 
+        [Description("The address (URL or IP) of the web server to use in web server links. This setting can be changed while the server is running."), Category("Server Details")]
+        [UrlValidation(ErrorMessage = "The value must start with http:// or https://. ")]
+        public string WebServerAddress { get; set; }
+
         [Description("Discord and Eco Channels to connect together. This setting can be changed while the server is running."), Category("Feeds")]
         public ObservableCollection<ChatChannelLink> ChatChannelLinks { get; set; } = new ObservableCollection<ChatChannelLink>();
 

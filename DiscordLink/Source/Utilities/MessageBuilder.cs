@@ -732,6 +732,13 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 DiscordLinkEmbed report = new DiscordLinkEmbed();
                 report.WithTitle(MessageUtils.StripTags(election.Name));
 
+                // Link
+                if (!string.IsNullOrWhiteSpace(DLConfig.Data.WebServerAddress))
+                {
+                    ServerInfo serverInfo = NetworkManager.GetServerInfo();
+                    report.AddField("URL", $"{DLConfig.Data.WebServerAddress}:{serverInfo.WebPort}/elections.html?election={election.Id}");
+                }
+
                 // Proposer name
                 report.AddField("Proposer", election.Creator.Name, inline: true);
 
