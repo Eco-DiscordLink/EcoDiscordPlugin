@@ -24,7 +24,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
         private static List<Either<Item, User, Tag>> _itemLookup = null;
 
         public static List<Either<Item, User, Tag>> ItemLookup =>
-            _itemLookup ?? Item.AllItems.Select(item => new Either<Item, User, Tag>(item)).ToList();
+            _itemLookup ??= Item.AllItems.Select(item => new Either<Item, User, Tag>(item)).ToList();
 
         private static List<Either<Item, User, Tag>> _tagLookup = null;
 
