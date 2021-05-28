@@ -392,8 +392,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 if (flag.HasFlag(ServerInfoComponentFlag.ConnectionInfo))
                 {
                     string fieldText = "-- Connection info not configured --";
-                    if (!string.IsNullOrEmpty(config.ServerAddress))
-                        fieldText = config.ServerAddress;
+                    if (!string.IsNullOrEmpty(config.ConnectionInfo))
+                        fieldText = config.ConnectionInfo;
                     else if (!string.IsNullOrEmpty(serverInfo.Address))
                         fieldText = serverInfo.Address;
 

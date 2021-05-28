@@ -340,7 +340,7 @@ namespace Eco.Plugins.DiscordLink
                 ServerName = this.ServerName,
                 ServerDescription = this.ServerDescription,
                 ServerLogo = this.ServerLogo,
-                ServerAddress = this.ServerAddress,
+                ConnectionInfo = this.ConnectionInfo,
                 LogLevel = this.LogLevel,
                 MaxTrackedTradesPerUser = this.MaxTrackedTradesPerUser,
                 InviteMessage = this.InviteMessage,
@@ -382,8 +382,8 @@ namespace Eco.Plugins.DiscordLink
         [Description("The logo of the server as a URL. This setting can be changed while the server is running."), Category("Server Details")]
         public string ServerLogo { get; set; }
 
-        [Description("The address (URL or IP) of the server. Overrides the automatically detected IP. This setting can be changed while the server is running."), Category("Server Details")]
-        public string ServerAddress { get; set; }
+        [Description("The game server connection information to display to users. This setting can be changed while the server is running."), Category("Server Details")]
+        public string ConnectionInfo { get; set; }
 
         [Description("Discord and Eco Channels to connect together. This setting can be changed while the server is running."), Category("Feeds")]
         public ObservableCollection<ChatChannelLink> ChatChannelLinks { get; set; } = new ObservableCollection<ChatChannelLink>();
