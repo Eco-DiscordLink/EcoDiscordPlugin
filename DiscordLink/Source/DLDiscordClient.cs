@@ -231,6 +231,9 @@ namespace Eco.Plugins.DiscordLink
 
         private async Task HandleDiscordMessageEdited(DiscordClient client, MessageUpdateEventArgs args)
         {
+            if (args.Author == DiscordClient.CurrentUser)
+                return; // Ignore messages edits made by our own bot
+
             DiscordMessage message = args.Message;
 
             // Ignore commands and messages sent by our bot
