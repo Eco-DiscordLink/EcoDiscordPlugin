@@ -1,10 +1,14 @@
-﻿using Eco.Gameplay.Civics.Elections;
+﻿using DSharpPlus.Entities;
+using Eco.Core.Utils;
+using Eco.Gameplay.Civics.Elections;
+using Eco.Gameplay.Players;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
@@ -14,6 +18,8 @@ namespace Eco.Plugins.DiscordLink.Modules
         protected override string BaseTag { get { return "[Election]"; } }
         protected override int TimerStartDelayMS { get { return 15000; } }
 
+        private readonly DiscordEmoji VoteForEmoji = DiscordEmoji.FromName(DiscordLink.Obj.Client.DiscordClient, ":white_check_mark:");
+        private readonly DiscordEmoji VoteAgainstEmoji = DiscordEmoji.FromName(DiscordLink.Obj.Client.DiscordClient, ":x:");
         public override string ToString()
         {
             return "Election Display";
@@ -40,6 +46,81 @@ namespace Eco.Plugins.DiscordLink.Modules
                 DiscordLinkEmbed report = MessageBuilder.Discord.GetElectionReport(election);
                 if (report.Fields.Count > 0)
                     tagAndContent.Add(new Tuple<string, DiscordLinkEmbed>(tag, report));
+            }
+        }
+
+        protected async override Task PostDisplayCreated(DiscordMessage message)
+        {
+            Election election = GetElectionFromMessage(message);
+            if (election != null && !election.BooleanElection)
+                await CreateVoteReactions(message);
+        }
+
+        protected async override Task HandleReactionChange(DiscordUser user, DiscordMessage message, DiscordEmoji reaction, Utilities.Utils.DiscordReactionChange changeType)
+        {
+            if (reaction != VoteForEmoji && reaction != VoteAgainstEmoji)
+                return;
+
+            if (changeType != Utilities.Utils.DiscordReactionChange.Added)
+                return;
+
+            LinkedUser linkedUser = LinkedUserManager.LinkedUserByDiscordUser(user);
+            if (linkedUser == null)
+            {
+                DiscordMember member = await message.Channel.Guild.GetMemberAsync(user.Id);
+                if (member == null)
+                    return;
+
+                await DiscordLink.Obj.Client.SendDMAsync(member, $"**Reaction voting failed**\nYou have not linked your Discord Account to DiscordLink on this Eco Server.\nUse the `\\DL-link` command in Eco to initialize account linking.");
+            }
+
+            Election election = GetElectionFromMessage(message);
+            if (election == null || !election.BooleanElection)
+                return;
+
+            string choice = reaction == VoteForEmoji ? "Yes" : "No";
+            Result result = election.Vote(new RunoffVote(UserManager.FindUserById(linkedUser.SteamID, linkedUser.SlgID), election.GetChoiceByName(choice).ID));
+            if (result.Failed)
+                Logger.Debug($"Failed to cast rection vote of type \"{choice}\" for Discord user \"{user.Username}\" in election {election.Id}. Message: {result.Message}");
+
+            if (election.Process.AnonymousVoting)
+            {
+                await message.DeleteAllReactionsAsync("DiscordLink - Anonymous election");
+                await CreateVoteReactions(message);
+            }
+        }
+
+        private Election GetElectionFromMessage(DiscordMessage message)
+        {
+            Election election = null;
+            foreach (TargetDisplayData displayData in TargetDisplays)
+            {
+                if (!(displayData.Target is ChannelLink channelLink))
+                    continue;
+
+                string tag = displayData.DisplayMessages.GetValueOrDefault(message.Id);
+                if (string.IsNullOrWhiteSpace(tag))
+                    continue;
+
+                if (!int.TryParse(tag, out int electionID))
+                    continue;
+
+                Election foundElection = EcoUtils.ActiveElections.FirstOrDefault(e => e.Id == electionID);
+                if (foundElection != null)
+                {
+                    election = foundElection;
+                    break;
+                }
+            }
+            return election;
+        }
+
+        private async Task CreateVoteReactions(DiscordMessage message)
+        {
+            if (DiscordLink.Obj.Client.ChannelHasPermission(message.Channel, DSharpPlus.Permissions.AddReactions))
+            {
+                await message.CreateReactionAsync(VoteForEmoji);
+                await message.CreateReactionAsync(VoteAgainstEmoji);
             }
         }
     }

@@ -42,7 +42,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected override DLEventType GetTriggers()
         {
-            return DLEventType.DiscordMessageDeleted;
+            return DLEventType.DiscordMessageDeleted | DLEventType.DiscordReactionAdded | DLEventType.DiscordReactionRemoved;
         }
 
         protected override async Task Initialize()
@@ -129,6 +129,12 @@ namespace Eco.Plugins.DiscordLink.Modules
                     if (found)
                         break;
                 }
+            }
+            else if(trigger == DLEventType.DiscordReactionAdded || trigger == DLEventType.DiscordReactionRemoved)
+            {
+                Utilities.Utils.DiscordReactionChange changeType = (trigger == DLEventType.DiscordReactionAdded ? Utilities.Utils.DiscordReactionChange.Added : Utilities.Utils.DiscordReactionChange.Removed);
+                await HandleReactionChange(data[0] as DiscordUser, data[1] as DiscordMessage, data[2] as DiscordEmoji, changeType);
+                return;
             }
 
             // Block Display implementations from using edit and delete events
@@ -242,6 +248,9 @@ namespace Eco.Plugins.DiscordLink.Modules
         protected async virtual Task PostDisplayCreated(DiscordMessage message) { }
 
         protected async virtual Task PostDisplayEdited(DiscordMessage message) { }
+
+        protected async virtual Task HandleReactionChange(DiscordUser user, DiscordMessage message, DiscordEmoji reaction, Utilities.Utils.DiscordReactionChange changeType) { }
+
         private async Task FindMessages(DiscordLink plugin)
         {
             ClearTargetDisplays();

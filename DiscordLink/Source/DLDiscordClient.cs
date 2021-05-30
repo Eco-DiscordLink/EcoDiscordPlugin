@@ -198,6 +198,8 @@ namespace Eco.Plugins.DiscordLink
             DiscordClient.MessageCreated += HandleDiscordMessageCreated;
             DiscordClient.MessageUpdated += HandleDiscordMessageEdited;
             DiscordClient.MessageDeleted += HandleDiscordMessageDeleted;
+            DiscordClient.MessageReactionAdded += HandleDiscordReactionAdded;
+            DiscordClient.MessageReactionRemoved += HandleDiscordReactionRemoved;
         }
 
         private void UnregisterEventListeners()
@@ -207,6 +209,8 @@ namespace Eco.Plugins.DiscordLink
             DiscordClient.MessageCreated -= HandleDiscordMessageCreated;
             DiscordClient.MessageUpdated -= HandleDiscordMessageEdited;
             DiscordClient.MessageDeleted -= HandleDiscordMessageDeleted;
+            DiscordClient.MessageReactionAdded -= HandleDiscordReactionAdded;
+            DiscordClient.MessageReactionRemoved -= HandleDiscordReactionRemoved;
         }
 
         #endregion
@@ -246,6 +250,22 @@ namespace Eco.Plugins.DiscordLink
         private async Task HandleDiscordMessageDeleted(DiscordClient client, MessageDeleteEventArgs args)
         {
             DiscordLink.Obj.HandleEvent(DLEventType.DiscordMessageDeleted, args.Message);
+        }
+
+        private async Task HandleDiscordReactionAdded(DiscordClient client, MessageReactionAddEventArgs args)
+        {
+            if (args.User == client.CurrentUser)
+                return; // Ignore reactions sent by our own bot
+
+            DiscordLink.Obj.HandleEvent(DLEventType.DiscordReactionAdded, args.User, args.Message, args.Emoji);
+        }
+
+        private async Task HandleDiscordReactionRemoved(DiscordClient client, MessageReactionRemoveEventArgs args)
+        {
+            if (args.User == client.CurrentUser)
+                return; // Ignore reactions sent by our own bot
+
+            DiscordLink.Obj.HandleEvent(DLEventType.DiscordReactionRemoved, args.User, args.Message, args.Emoji);
         }
 
         private async Task HandleClientError(DiscordClient client, ClientErrorEventArgs args)
