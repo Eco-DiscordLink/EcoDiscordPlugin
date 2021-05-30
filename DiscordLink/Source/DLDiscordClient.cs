@@ -457,14 +457,15 @@ namespace Eco.Plugins.DiscordLink
 
         #region Manipulation
 
-        public async Task SendMessageAsync(DiscordChannel channel, string textContent, DiscordLinkEmbed embedContent = null)
+        public async Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, string textContent, DiscordLinkEmbed embedContent = null)
         {
+            DiscordMessage createdMessage = null;
             try
             {
                 if (!ChannelHasPermission(channel, Permissions.SendMessages))
                 {
                     Logger.Warning($"Attempted to send message to channel `{channel}` but the bot user is lacking permissions for this action");
-                    return;
+                    return null;
                 }
 
                 // Either make sure we have permission to use embeds or convert the embed to text
@@ -477,17 +478,17 @@ namespace Eco.Plugins.DiscordLink
                 if (stringParts.Count <= 1 && embedParts.Count <= 1)
                 {
                     DiscordEmbed embed = (embedParts.Count >= 1) ? embedParts.First() : null;
-                    await channel.SendMessageAsync(fullTextContent, embed);
+                    createdMessage = await channel.SendMessageAsync(fullTextContent, embed);
                 }
                 else
                 {
                     foreach (string textMessagePart in stringParts)
                     {
-                        await channel.SendMessageAsync(textMessagePart, null);
+                        createdMessage = await channel.SendMessageAsync(textMessagePart, null);
                     }
                     foreach (DiscordEmbed embedPart in embedParts)
                     {
-                        await channel.SendMessageAsync(null, embedPart);
+                        createdMessage = await channel.SendMessageAsync(null, embedPart);
                     }
                 }
             }
@@ -499,10 +500,12 @@ namespace Eco.Plugins.DiscordLink
             {
                 Logger.Error($"Error occurred while attempting to send Discord message to channel \"{channel.Name}\". Error message: {e}");
             }
+            return createdMessage;
         }
 
-        public async Task SendDMAsync(DiscordMember targetMember, string textContent, DiscordLinkEmbed embedContent = null)
+        public async Task<DiscordMessage> SendDMAsync(DiscordMember targetMember, string textContent, DiscordLinkEmbed embedContent = null)
         {
+            DiscordMessage createdMessage = null;
             try
             {
                 // If needed; split the message into multiple parts
@@ -512,17 +515,17 @@ namespace Eco.Plugins.DiscordLink
                 if (stringParts.Count <= 1 && embedParts.Count <= 1)
                 {
                     DiscordEmbed embed = (embedParts.Count >= 1) ? embedParts.First() : null;
-                    await targetMember.SendMessageAsync(textContent, embed);
+                    createdMessage = await targetMember.SendMessageAsync(textContent, embed);
                 }
                 else
                 {
                     foreach (string textMessagePart in stringParts)
                     {
-                        await targetMember.SendMessageAsync(textMessagePart, null);
+                        createdMessage = await targetMember.SendMessageAsync(textMessagePart, null);
                     }
                     foreach (DiscordEmbed embedPart in embedParts)
                     {
-                        await targetMember.SendMessageAsync(null, embedPart);
+                        createdMessage = await targetMember.SendMessageAsync(null, embedPart);
                     }
                 }
             }
@@ -534,21 +537,23 @@ namespace Eco.Plugins.DiscordLink
             {
                 Logger.Error($"Error occurred while attempting to send Discord message to user \"{targetMember.DisplayName}\". Error message: {e}");
             }
+            return createdMessage;
         }
 
-        public async Task ModifyMessageAsync(DiscordMessage message, string textContent, DiscordLinkEmbed embedContent = null)
+        public async Task<DiscordMessage> ModifyMessageAsync(DiscordMessage message, string textContent, DiscordLinkEmbed embedContent = null)
         {
+            DiscordMessage editedMessage = null;
             try
             {
                 if (!ChannelHasPermission(message.Channel, Permissions.ManageMessages))
                 {
                     Logger.Warning($"Attempted to modify message in channel `{message.Channel}` but the bot user is lacking permissions for this action");
-                    return;
+                    return null;
                 }
 
                 if (embedContent == null)
                 {
-                    await message.ModifyAsync(textContent);
+                    editedMessage = await message.ModifyAsync(textContent);
                 }
                 else
                 {
@@ -559,12 +564,12 @@ namespace Eco.Plugins.DiscordLink
                         {
                             List<DiscordEmbed> splitEmbeds = MessageUtils.BuildDiscordEmbeds(embedContent);
                             if(splitEmbeds.Count > 0)
-                                await message.ModifyAsync(textContent, splitEmbeds[0]); // TODO: Actually keep track of split messages instead of only overwriting the first one
+                                editedMessage = await message.ModifyAsync(textContent, splitEmbeds[0]); // TODO: Actually keep track of split messages instead of only overwriting the first one
                         }
                         else
                         {
                             await message.ModifyEmbedSuppressionAsync(true); // Remove existing embeds
-                            await message.ModifyAsync($"{textContent}\n{embedContent.AsText()}");
+                            editedMessage = await message.ModifyAsync($"{textContent}\n{embedContent.AsText()}");
                         }
                     }
                     catch (Exception e)
@@ -589,6 +594,7 @@ namespace Eco.Plugins.DiscordLink
             {
                 Logger.Error($"Error occurred while attempting to modify Discord message. Error message: {e}");
             }
+            return editedMessage;
         }
 
         public async Task DeleteMessageAsync(DiscordMessage message)

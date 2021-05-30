@@ -188,7 +188,9 @@ namespace Eco.Plugins.DiscordLink.Modules
                     {
                         if (message.Content.Contains(tagAndContent.Item1))
                         {
-                            _ = plugin.Client.ModifyMessageAsync(message, tagAndContent.Item1, tagAndContent.Item2);
+                            DiscordMessage editedMessage = await plugin.Client.ModifyMessageAsync(message, tagAndContent.Item1, tagAndContent.Item2);
+                            if (editedMessage == null)
+                                continue;
                             matchedTags.Add(tagAndContent.Item1);
                             found = true;
                             ++_opsCount;
@@ -214,7 +216,9 @@ namespace Eco.Plugins.DiscordLink.Modules
                 {
                     if(!matchedTags.Contains(tagAndContent.Item1))
                     {
-                        await plugin.Client.SendMessageAsync(targetChannel, tagAndContent.Item1, tagAndContent.Item2);
+                        DiscordMessage createdMessage = await plugin.Client.SendMessageAsync(targetChannel, tagAndContent.Item1, tagAndContent.Item2);
+                        if (createdMessage == null)
+                            continue;
                         createdOrDestroyedMessage = true;
                         ++_opsCount;
                     }
