@@ -44,7 +44,11 @@ namespace Eco.Plugins.DiscordLink
                     return;
                 }
 
-                Logger.Debug($"{ctx.User.Username} invoked Discord command \"{ctx.Prefix}{command.Method.Name}\" in channel {ctx.Channel.Name} in guild {ctx.Guild.Name}");
+                if (ctx.Channel.IsPrivate)
+                    Logger.Debug($"{ctx.User.Username} invoked Discord command \"{ctx.Prefix}{command.Method.Name}\" in DM");
+                else
+                    Logger.Debug($"{ctx.User.Username} invoked Discord command \"{ctx.Prefix}{command.Method.Name}\" in channel {ctx.Channel.Name} in guild {ctx.Guild.Name}");
+
                 await command(ctx, parameters);
             }
             catch (Exception e)
