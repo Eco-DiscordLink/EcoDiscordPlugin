@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using DSharpPlus;
+﻿using DSharpPlus;
 using DSharpPlus.Entities;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
+using System;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
@@ -18,19 +19,19 @@ namespace Eco.Plugins.DiscordLink.Modules
         protected virtual int TimerUpdateIntervalMS { get; } = -1;
         protected virtual int TimerStartDelayMS { get; } = 0;
         protected virtual int HighFrequencyEventDelayMS { get; } = 2000;
+        protected List<TargetDisplayData> TargetDisplays { get; } = new List<TargetDisplayData>();
 
         private bool _dirty = false;
         private Timer _updateTimer = null;
         private Timer _HighFrequencyEventTimer = null;
-        private readonly List<TargetDisplayData> _targetDisplays = new List<TargetDisplayData>();
 
         public override string GetDisplayText(string childInfo, bool verbose)
         {
             string lastUpdateTime = (LastUpdateTime == DateTime.MinValue) ? "Never" : LastUpdateTime.ToString("yyyy-MM-dd HH:mm");
             int trackedMessageCount = 0;
-            foreach(TargetDisplayData target in _targetDisplays)
+            foreach(TargetDisplayData target in TargetDisplays)
             {
-                trackedMessageCount += target.MessageIDs.Count;
+                trackedMessageCount += target.DisplayMessages.Count;
             }
             string info = $"Last update time: {lastUpdateTime}";
                 info += $"\r\nTracked Display Messages: {trackedMessageCount}";
@@ -60,7 +61,7 @@ namespace Eco.Plugins.DiscordLink.Modules
         {
             using (await _overlapLock.LockAsync()) // Avoid crashes caused by data being manipulated and used simultaneously
             {
-                Clear(); // The channel links may have changed so we should find the messages again.
+                ClearTargetDisplays(); // The channel links may have changed so we should find the messages again.
             }
             await base.HandleConfigChanged(sender, e);
         }
@@ -94,9 +95,9 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected abstract List<DiscordTarget> GetDiscordTargets();
 
-        protected void Clear()
+        protected void ClearTargetDisplays()
         {
-            _targetDisplays.Clear();
+            TargetDisplays.Clear();
         }
 
         private void TriggerTimedUpdate(object stateInfo)
@@ -113,14 +114,14 @@ namespace Eco.Plugins.DiscordLink.Modules
                 if (!(data[0] is DiscordMessage message))
                     return;
 
-                foreach (TargetDisplayData display in _targetDisplays)
+                foreach (TargetDisplayData display in TargetDisplays)
                 {
                     bool found = false;
-                    for (int i = 0; i < display.MessageIDs.Count; ++i)
+                    for (int i = 0; i < display.DisplayMessages.Count; ++i)
                     {
-                        if (message.Id == display.MessageIDs[i])
+                        if (display.DisplayMessages.ContainsKey(message.Id))
                         {
-                            display.MessageIDs.RemoveAt(i);
+                            display.DisplayMessages.Remove(message.Id);
                             found = true;
                             break;
                         }
@@ -142,17 +143,17 @@ namespace Eco.Plugins.DiscordLink.Modules
                 return;
             }
 
-            if(_dirty || _targetDisplays.Count <= 0)
+            if(_dirty || TargetDisplays.Count <= 0)
             {
                 await FindMessages(plugin);
-                if (_dirty || _targetDisplays.Count <= 0)
+                if (_dirty || TargetDisplays.Count <= 0)
                     return; // If something went wrong, we should just retry later
             }
 
             bool createdOrDestroyedMessage = false;
             List<string> matchedTags = new List<string>();
             List<DiscordMessage> unmatchedMessages = new List<DiscordMessage>();
-            foreach(TargetDisplayData channelDisplayData in _targetDisplays)
+            foreach(TargetDisplayData channelDisplayData in TargetDisplays)
             {
                 DiscordTarget target = channelDisplayData.Target;
                 ChannelLink channelLink = target as ChannelLink;
@@ -173,7 +174,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
                 GetDisplayContent(target, out List<Tuple<string, DiscordLinkEmbed>> tagsAndContent);
 
-                foreach (ulong messageID in channelDisplayData.MessageIDs)
+                foreach (ulong messageID in channelDisplayData.DisplayMessages.Keys)
                 {
                     DiscordMessage message = await plugin.Client.GetMessageAsync(targetChannel, messageID);
                     if (message == null)
@@ -243,7 +244,7 @@ namespace Eco.Plugins.DiscordLink.Modules
         protected async virtual Task PostDisplayEdited(DiscordMessage message) { }
         private async Task FindMessages(DiscordLink plugin)
         {
-            _targetDisplays.Clear();
+            ClearTargetDisplays();
 
             foreach (DiscordTarget target in GetDiscordTargets())
             {
@@ -255,7 +256,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                     continue;
 
                 TargetDisplayData data = new TargetDisplayData(target);
-                _targetDisplays.Add(data);
+                TargetDisplays.Add(data);
                 if (channelLink != null)
                 {
                     if (!channelLink.IsValid())
@@ -272,30 +273,40 @@ namespace Eco.Plugins.DiscordLink.Modules
                 if (targetMessages == null)
                 {
                     // There was an error or no messages exist - Clean up and return
-                    _targetDisplays.Clear();
+                    ClearTargetDisplays();
                     return;
                 } 
 
                 // Go through the messages and find any our tagged messages
                 foreach(DiscordMessage message in targetMessages)
                 {
-                    if (!message.Content.StartsWith(BaseTag)) continue;
-                    data.MessageIDs.Add(message.Id);
+                    Match match = MessageUtils.DisplayRegex.Match(message.Content);
+                    if (match.Groups.Count <= 1)
+                        continue;
+
+                    if (match.Groups[1].Value != BaseTag)
+                        continue;
+
+                    string tag = null;
+                    if (match.Groups.Count > 2)
+                        tag = match.Groups[2].Value;
+
+                    data.DisplayMessages.Add(message.Id, tag);
                 }
             }
             _dirty = false;
         }
 
-        private struct TargetDisplayData
+        protected struct TargetDisplayData
         {
             public TargetDisplayData(DiscordTarget target)
             {
                 this.Target = target;
-                this.MessageIDs = new List<ulong>();
+                this.DisplayMessages = new Dictionary<ulong, string>();
             }
 
             public DiscordTarget Target;
-            public List<ulong> MessageIDs;
+            public Dictionary<ulong, string> DisplayMessages;
         }
     }
 }
