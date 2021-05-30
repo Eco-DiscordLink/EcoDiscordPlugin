@@ -191,7 +191,9 @@ namespace Eco.Plugins.DiscordLink.Modules
                             DiscordMessage editedMessage = await plugin.Client.ModifyMessageAsync(message, tagAndContent.Item1, tagAndContent.Item2);
                             if (editedMessage == null)
                                 continue;
+
                             matchedTags.Add(tagAndContent.Item1);
+                            await PostDisplayEdited(editedMessage);
                             found = true;
                             ++_opsCount;
                             break;
@@ -219,6 +221,8 @@ namespace Eco.Plugins.DiscordLink.Modules
                         DiscordMessage createdMessage = await plugin.Client.SendMessageAsync(targetChannel, tagAndContent.Item1, tagAndContent.Item2);
                         if (createdMessage == null)
                             continue;
+
+                        await PostDisplayCreated(createdMessage);
                         createdOrDestroyedMessage = true;
                         ++_opsCount;
                     }
@@ -234,6 +238,9 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected abstract void GetDisplayContent(DiscordTarget target, out List<Tuple<string, DiscordLinkEmbed>> tagAndContent);
 
+        protected async virtual Task PostDisplayCreated(DiscordMessage message) { }
+
+        protected async virtual Task PostDisplayEdited(DiscordMessage message) { }
         private async Task FindMessages(DiscordLink plugin)
         {
             _targetDisplays.Clear();
