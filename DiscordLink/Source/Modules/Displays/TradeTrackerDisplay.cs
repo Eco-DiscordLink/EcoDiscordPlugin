@@ -27,7 +27,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         public override void Setup()
         {
-            LinkedUserManager.OnLinkedUserRemoved += HandleLinkedUserRemoved;
+            UserLinkManager.OnLinkedUserRemoved += HandleLinkedUserRemoved;
             DLStorage.TrackedTradeAdded += OnTrackedTradeAdded;
             DLStorage.TrackedTradeRemoved += OnTrackedTradeRemoved;
 
@@ -36,7 +36,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         public override void Destroy()
         {
-            LinkedUserManager.OnLinkedUserRemoved -= HandleLinkedUserRemoved;
+            UserLinkManager.OnLinkedUserRemoved -= HandleLinkedUserRemoved;
             DLStorage.TrackedTradeAdded -= OnTrackedTradeAdded;
             DLStorage.TrackedTradeRemoved -= OnTrackedTradeRemoved;
 
@@ -90,7 +90,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
                 foreach (ulong discordUserId in DLStorage.WorldData.PlayerTrackedTrades.Keys)
                 {
-                    LinkedUser dlUser = LinkedUserManager.LinkedUserByDiscordID(discordUserId);
+                    LinkedUser dlUser = UserLinkManager.LinkedUserByDiscordID(discordUserId);
                     if (dlUser == null)
                         continue;
 

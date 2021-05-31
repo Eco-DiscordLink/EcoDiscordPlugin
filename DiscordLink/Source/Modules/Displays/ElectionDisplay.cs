@@ -65,7 +65,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 return;
 
             message.Channel.Guild.Members.TryGetValue(user.Id, out DiscordMember member);
-            LinkedUser linkedUser = LinkedUserManager.LinkedUserByDiscordUser(user, member, "Reaction Voting");
+            LinkedUser linkedUser = UserLinkManager.LinkedUserByDiscordUser(user, member, "Reaction Voting");
             if (linkedUser == null)
                 return;
 

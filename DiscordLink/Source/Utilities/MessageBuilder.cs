@@ -518,7 +518,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
             public static async Task<DiscordLinkEmbed> GetPlayerReport(User user, PlayerReportComponentFlag flag)
             {
-                LinkedUser linkedUser = LinkedUserManager.LinkedUserByEcoUser(user);
+                LinkedUser linkedUser = UserLinkManager.LinkedUserByEcoUser(user);
                 DiscordMember discordMember = null;
                 bool userLinkExists = linkedUser != null;
                 if (userLinkExists)

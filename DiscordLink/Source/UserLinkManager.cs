@@ -6,7 +6,7 @@ using System;
 
 namespace Eco.Plugins.DiscordLink
 {
-    public sealed class LinkedUserManager
+    public sealed class UserLinkManager
     {
         public static event EventHandler<LinkedUser> OnLinkedUserVerified;
         public static event EventHandler<LinkedUser> OnLinkedUserRemoved;

@@ -784,8 +784,8 @@ namespace Eco.Plugins.DiscordLink
         public static async Task<bool> TrackTrades(CommandSource source, object callContext, string userOrItemName)
         {
             LinkedUser linkedUser = source == CommandSource.Eco
-                ? LinkedUserManager.LinkedUserByEcoUser(callContext as User, callContext as User, "Trade Tracking Registration")
-                : LinkedUserManager.LinkedUserByDiscordUser((callContext as CommandContext).Member, (callContext as CommandContext).Member, "Trade Tracking Registration");
+                ? UserLinkManager.LinkedUserByEcoUser(callContext as User, callContext as User, "Trade Tracking Registration")
+                : UserLinkManager.LinkedUserByDiscordUser((callContext as CommandContext).Member, (callContext as CommandContext).Member, "Trade Tracking Registration");
             if (linkedUser == null)
                 return false;
 
@@ -816,8 +816,8 @@ namespace Eco.Plugins.DiscordLink
         public static async Task<bool> StopTrackTrades(CommandSource source, object callContext, string userOrItemName)
         {
             LinkedUser linkedUser = source == CommandSource.Eco
-                ? LinkedUserManager.LinkedUserByEcoUser(callContext as User, callContext as User, "Tracked Trade Unregistration")
-                : LinkedUserManager.LinkedUserByDiscordUser((callContext as CommandContext).Member, (callContext as CommandContext).Member, "Tracked Trade Unregistration");
+                ? UserLinkManager.LinkedUserByEcoUser(callContext as User, callContext as User, "Tracked Trade Unregistration")
+                : UserLinkManager.LinkedUserByDiscordUser((callContext as CommandContext).Member, (callContext as CommandContext).Member, "Tracked Trade Unregistration");
             if (linkedUser == null)
                 return false;
 
@@ -837,8 +837,8 @@ namespace Eco.Plugins.DiscordLink
         public static async Task<bool> ListTrackedTrades(CommandSource source, object callContext)
         {
             LinkedUser linkedUser = source == CommandSource.Eco
-                ? LinkedUserManager.LinkedUserByEcoUser(callContext as User, callContext as User, "Tracked Trades Listing")
-                : LinkedUserManager.LinkedUserByDiscordUser((callContext as CommandContext).Member, (callContext as CommandContext).Member, "Tracked Trades Listing");
+                ? UserLinkManager.LinkedUserByEcoUser(callContext as User, callContext as User, "Tracked Trades Listing")
+                : UserLinkManager.LinkedUserByDiscordUser((callContext as CommandContext).Member, (callContext as CommandContext).Member, "Tracked Trades Listing");
             if (linkedUser == null)
                 return false;
 

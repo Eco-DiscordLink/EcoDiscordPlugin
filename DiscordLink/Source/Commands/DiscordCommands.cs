@@ -410,7 +410,7 @@ namespace Eco.Plugins.DiscordLink
                     return;
                 }
 
-                LinkedUser linkedUser = LinkedUserManager.LinkedUserByDiscordUser(member, ctx.Member, "Player Discord Report Generation");
+                LinkedUser linkedUser = UserLinkManager.LinkedUserByDiscordUser(member, ctx.Member, "Player Discord Report Generation");
                 if(linkedUser == null)
                     return;
 
@@ -772,7 +772,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                if (LinkedUserManager.VerifyLinkedUser(ctx.GetSenderID()))
+                if (UserLinkManager.VerifyLinkedUser(ctx.GetSenderID()))
                     await ReportCommandInfo(ctx, $"Link verified");
                 else
                     await ReportCommandError(ctx, $"There is no outstanding link request to verify for your account.\nUse the `\\DL-Link` command in Eco to initiate account linking.");

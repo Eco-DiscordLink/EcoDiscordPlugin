@@ -561,7 +561,7 @@ namespace Eco.Plugins.DiscordLink
                 }
 
                 // Create a linked user from the combined Eco and Discord info
-                LinkedUserManager.AddLinkedUser(callingUser, matchingMember.Id.ToString(), matchingMember.Guild.Id.ToString());
+                UserLinkManager.AddLinkedUser(callingUser, matchingMember.Id.ToString(), matchingMember.Guild.Id.ToString());
 
                 // Notify the Discord account that a link has been made and ask for verification
                 _ = plugin.Client.SendDMAsync(matchingMember, null, MessageBuilder.Discord.GetVerificationDM(callingUser));
@@ -576,7 +576,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                bool result = LinkedUserManager.RemoveLinkedUser(callingUser);
+                bool result = UserLinkManager.RemoveLinkedUser(callingUser);
                 if (result)
                     ReportCommandInfo(callingUser, $"Discord account unlinked.");
                 else

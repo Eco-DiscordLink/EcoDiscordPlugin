@@ -37,12 +37,12 @@ namespace Eco.Plugins.DiscordLink
         public void Initialize()
         {
             Read();
-            LinkedUserManager.OnLinkedUserRemoved += HandleLinkedUserRemoved;
+            UserLinkManager.OnLinkedUserRemoved += HandleLinkedUserRemoved;
         }
 
         public void Shutdown()
         {
-            LinkedUserManager.OnLinkedUserRemoved -= HandleLinkedUserRemoved;
+            UserLinkManager.OnLinkedUserRemoved -= HandleLinkedUserRemoved;
             Write();
         }
 
