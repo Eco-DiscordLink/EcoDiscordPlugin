@@ -3,29 +3,29 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
+using Eco.Gameplay.Civics.Demographics;
 using Eco.Gameplay.Civics.Elections;
 using Eco.Gameplay.Civics.Laws;
+using Eco.Gameplay.Civics.Titles;
 using Eco.Gameplay.Components;
 using Eco.Gameplay.Economy;
 using Eco.Gameplay.Economy.WorkParties;
 using Eco.Gameplay.Items;
 using Eco.Gameplay.Players;
+using Eco.Gameplay.Property;
+using Eco.Gameplay.Skills;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.Networking;
+using Eco.Simulation.Types;
 using Eco.Shared.Networking;
 using Eco.Shared.Utils;
 using Eco.Shared;
 using Eco.Shared.Items;
 
 using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
-using System.Threading.Tasks;
-using Eco.Gameplay.Skills;
-using Eco.Gameplay.Civics.Demographics;
-using Eco.Gameplay.Civics.Titles;
-using Eco.Gameplay.Property;
-using Eco.Simulation.Types;
 
 namespace Eco.Plugins.DiscordLink.Utilities
 {

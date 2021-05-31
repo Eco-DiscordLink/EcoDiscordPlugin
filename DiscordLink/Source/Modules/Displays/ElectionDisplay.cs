@@ -80,7 +80,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
             if (election.Process.AnonymousVoting)
             {
-                await message.DeleteAllReactionsAsync("DiscordLink - Anonymous election");
+                await message.DeleteAllReactionsAsync("DiscordLink - Anonymous Election");
                 await CreateVoteReactions(message);
             }
         }

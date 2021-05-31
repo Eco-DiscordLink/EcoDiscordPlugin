@@ -45,7 +45,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected override async Task Initialize()
         {
-            await BuildeUserLinkList();
+            await BuildUserLinkList();
             await base.Initialize();
         }
 
@@ -62,7 +62,7 @@ namespace Eco.Plugins.DiscordLink.Modules
         protected override List<DiscordTarget> GetDiscordTargets()
         {
             if (UserLinks.Count < DLStorage.WorldData.PlayerTrackedTrades.Keys.Count())
-                BuildeUserLinkList().Wait();
+                BuildUserLinkList().Wait();
 
             return UserLinks;
         }
@@ -82,7 +82,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             }
         }
 
-        private async Task BuildeUserLinkList()
+        private async Task BuildUserLinkList()
         {
             using (await _overlapLock.LockAsync())
             {

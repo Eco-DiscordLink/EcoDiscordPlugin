@@ -10,7 +10,6 @@ using Eco.Shared.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink
@@ -218,13 +217,11 @@ namespace Eco.Plugins.DiscordLink
             DiscordMessage message = args.Message;
             Logger.DebugVerbose($"Discord Message Received\n{message.FormatForLog()}");
 
-            // Ignore messages sent by our bot
             if (args.Author == DiscordClient.CurrentUser)
-                return;
+                return; // Ignore messages sent by our own bot
 
-            // Ignore commands
             if (!string.IsNullOrWhiteSpace(message.Content) && message.Content.StartsWith(DLConfig.Data.DiscordCommandPrefix))
-                return;
+                return; // Ignore commands
 
             DiscordLink.Obj.HandleEvent(DLEventType.DiscordMessageSent, message);
         }
@@ -236,9 +233,8 @@ namespace Eco.Plugins.DiscordLink
 
             DiscordMessage message = args.Message;
 
-            // Ignore commands and messages sent by our bot
-            if (args.Author == DiscordClient.CurrentUser) return;
-            if (!string.IsNullOrWhiteSpace(message.Content) && message.Content.StartsWith(DLConfig.Data.DiscordCommandPrefix)) return;
+            if (!string.IsNullOrWhiteSpace(message.Content) && message.Content.StartsWith(DLConfig.Data.DiscordCommandPrefix))
+                return;
 
             DiscordLink.Obj.HandleEvent(DLEventType.DiscordMessageEdited, args.Message, args.MessageBefore);
         }
@@ -266,7 +262,7 @@ namespace Eco.Plugins.DiscordLink
 
         private async Task HandleClientError(DiscordClient client, ClientErrorEventArgs args)
         {
-            Logger.Debug($"A Discord client error occurred. Error messages: {args.EventName} {args.Exception}");
+            Logger.Debug($"A Discord client error occurred. Error message: {args.EventName} {args.Exception}");
         }
 
         private async Task HandleSocketError(DiscordClient client, SocketErrorEventArgs args)

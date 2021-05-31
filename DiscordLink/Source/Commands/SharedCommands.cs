@@ -1,5 +1,4 @@
 ﻿using DSharpPlus.CommandsNext;
-using DSharpPlus.Entities;
 using Eco.Gameplay.Civics.Elections;
 using Eco.Gameplay.Economy;
 using Eco.Gameplay.Economy.WorkParties;
@@ -714,7 +713,7 @@ namespace Eco.Plugins.DiscordLink
             string inviteMessage = config.InviteMessage;
             if (!inviteMessage.ContainsCaseInsensitive(DLConstants.INVITE_COMMAND_TOKEN) || string.IsNullOrEmpty(serverInfo.DiscordAddress))
             {
-                await ReportCommandError(source, callContext, "This server is not configured for using the Invite commands.");
+                await ReportCommandError(source, callContext, "This server is not configured for using Invite commands.");
                 return false;
             }
 
