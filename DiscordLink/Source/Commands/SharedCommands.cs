@@ -735,8 +735,8 @@ namespace Eco.Plugins.DiscordLink
             inviteMessage = Regex.Replace(inviteMessage, Regex.Escape(DLConstants.INVITE_COMMAND_TOKEN), serverInfo.DiscordAddress);
 
             bool sent = recipient == null
-                ? EcoUtils.SendServerMessageToAll(permanent: true, inviteMessage)
-                : EcoUtils.SendServerMessageToUser(recipient, permanent: true, inviteMessage);
+                ? EcoUtils.SendServerMessageToAll(permanent: true, $"{DiscordLink.Obj.EcoUser.MarkedUpName}: {inviteMessage}")
+                : EcoUtils.SendServerMessageToUser(recipient, permanent: true, $"{DiscordLink.Obj.EcoUser.MarkedUpName}: {inviteMessage}");
 
             if (sent)
                 await ReportCommandInfo(source, callContext, "Invite sent.");
