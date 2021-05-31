@@ -785,13 +785,10 @@ namespace Eco.Plugins.DiscordLink
         public static async Task<bool> TrackTrades(CommandSource source, object callContext, string userOrItemName)
         {
             LinkedUser linkedUser = source == CommandSource.Eco
-                ? LinkedUserManager.LinkedUserByEcoUser(callContext as User)
-                : LinkedUserManager.LinkedUserByDiscordID((callContext as CommandContext).Member.Id);
+                ? LinkedUserManager.LinkedUserByEcoUser(callContext as User, callContext as User, "Trade Tracking Registration")
+                : LinkedUserManager.LinkedUserByDiscordUser((callContext as CommandContext).Member, (callContext as CommandContext).Member, "Trade Tracking Registration");
             if (linkedUser == null)
-            {
-                await ReportCommandError(source, callContext, $"You have not linked your Discord Account to DiscordLink on this Eco Server.\nUse the `\\DL-link` command to initialize account linking.");
                 return false;
-            }
 
             int trackedTradesCount = DLStorage.WorldData.GetTrackedTradesCountForUser(ulong.Parse(linkedUser.DiscordID));
             if (trackedTradesCount >= DLConfig.Data.MaxTrackedTradesPerUser)
@@ -820,13 +817,10 @@ namespace Eco.Plugins.DiscordLink
         public static async Task<bool> StopTrackTrades(CommandSource source, object callContext, string userOrItemName)
         {
             LinkedUser linkedUser = source == CommandSource.Eco
-                ? LinkedUserManager.LinkedUserByEcoUser(callContext as User)
-                : LinkedUserManager.LinkedUserByDiscordID((callContext as CommandContext).Member.Id);
+                ? LinkedUserManager.LinkedUserByEcoUser(callContext as User, callContext as User, "Tracked Trade Unregistration")
+                : LinkedUserManager.LinkedUserByDiscordUser((callContext as CommandContext).Member, (callContext as CommandContext).Member, "Tracked Trade Unregistration");
             if (linkedUser == null)
-            {
-                await ReportCommandError(source, callContext, $"You have not linked your Discord Account to DiscordLink on this Eco Server.\nLog into the game and use the `\\DL-link` command to initialize account linking.");
                 return false;
-            }
 
             bool removed = DLStorage.WorldData.RemoveTrackedTradeItem(ulong.Parse(linkedUser.DiscordID), userOrItemName).Result;
             if (removed)
@@ -844,13 +838,10 @@ namespace Eco.Plugins.DiscordLink
         public static async Task<bool> ListTrackedTrades(CommandSource source, object callContext)
         {
             LinkedUser linkedUser = source == CommandSource.Eco
-                ? LinkedUserManager.LinkedUserByEcoUser(callContext as User)
-                : LinkedUserManager.LinkedUserByDiscordID((callContext as CommandContext).Member.Id);
+                ? LinkedUserManager.LinkedUserByEcoUser(callContext as User, callContext as User, "Tracked Trades Listing")
+                : LinkedUserManager.LinkedUserByDiscordUser((callContext as CommandContext).Member, (callContext as CommandContext).Member, "Tracked Trades Listing");
             if (linkedUser == null)
-            {
-                await ReportCommandError(source, callContext, $"You have not linked your Discord Account to DiscordLink on this Eco Server.\nLog into the game and use the `\\DL-link` command to initialize account linking.");
                 return false;
-            }
 
             await DisplayCommandData(source, callContext, "Tracked Trades", DLStorage.WorldData.ListTrackedTrades(ulong.Parse(linkedUser.DiscordID)));
             return true;

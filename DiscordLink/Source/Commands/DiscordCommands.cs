@@ -410,12 +410,9 @@ namespace Eco.Plugins.DiscordLink
                     return;
                 }
 
-                LinkedUser linkedUser = LinkedUserManager.LinkedUserByDiscordUser(member);
+                LinkedUser linkedUser = LinkedUserManager.LinkedUserByDiscordUser(member, ctx.Member, "Player Discord Report Generation");
                 if(linkedUser == null)
-                {
-                    await ReportCommandError(ctx, $"{member.DisplayName} has not linked their Discord account on this Eco server.\nAccount links can be created by logging into the game and running the command \\DL-Link.");
                     return;
-                }
 
                 User linkedEcoUser = EcoUtils.UserBySteamOrSLGID(linkedUser.SteamID, linkedUser.SlgID);
                 DiscordLinkEmbed linkedUserReport = MessageBuilder.Discord.GetPlayerReport(linkedEcoUser, MessageBuilder.PlayerReportComponentFlag.DiscordInfo).Result;
@@ -778,7 +775,7 @@ namespace Eco.Plugins.DiscordLink
                 if (LinkedUserManager.VerifyLinkedUser(ctx.GetSenderID()))
                     await ReportCommandInfo(ctx, $"Link verified");
                 else
-                    await ReportCommandError(ctx, $"There is no outstanding link request to verify for your account");
+                    await ReportCommandError(ctx, $"There is no outstanding link request to verify for your account.\nUse the `\\DL-Link` command in Eco to initiate account linking.");
             }, ctx);
         }
 

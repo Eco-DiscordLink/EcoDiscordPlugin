@@ -64,15 +64,10 @@ namespace Eco.Plugins.DiscordLink.Modules
             if (changeType != Utilities.Utils.DiscordReactionChange.Added)
                 return;
 
-            LinkedUser linkedUser = LinkedUserManager.LinkedUserByDiscordUser(user);
+            message.Channel.Guild.Members.TryGetValue(user.Id, out DiscordMember member);
+            LinkedUser linkedUser = LinkedUserManager.LinkedUserByDiscordUser(user, member, "Reaction Voting");
             if (linkedUser == null)
-            {
-                DiscordMember member = await message.Channel.Guild.GetMemberAsync(user.Id);
-                if (member == null)
-                    return;
-
-                await DiscordLink.Obj.Client.SendDMAsync(member, $"**Reaction voting failed**\nYou have not linked your Discord Account to DiscordLink on this Eco Server.\nUse the `\\DL-link` command in Eco to initialize account linking.");
-            }
+                return;
 
             Election election = GetElectionFromMessage(message);
             if (election == null || !election.BooleanElection)
