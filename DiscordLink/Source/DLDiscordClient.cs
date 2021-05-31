@@ -155,12 +155,8 @@ namespace Eco.Plugins.DiscordLink
             OnDisconnecting?.Invoke();
             try
             {
-                // If DisconnectAsync() is called in the GUI thread, it will cause a deadlock
-                SystemUtils.SynchronousThreadExecute(async () => 
-                {
-                    await DiscordClient.DisconnectAsync();
-                    DiscordClient.Dispose();
-                });
+                await DiscordClient.DisconnectAsync();
+                DiscordClient.Dispose();
             }
             catch (Exception e)
             {
@@ -271,13 +267,11 @@ namespace Eco.Plugins.DiscordLink
         private async Task HandleClientError(DiscordClient client, ClientErrorEventArgs args)
         {
             Logger.Debug($"A Discord client error occurred. Error messages: {args.EventName} {args.Exception}");
-            await Restart();
         }
 
         private async Task HandleSocketError(DiscordClient client, SocketErrorEventArgs args)
         {
             Logger.Debug($"A socket error occurred. Error message: {args.Exception}");
-            await Restart();
         }
 
         private async Task HandleSocketClosedOnConnection(DiscordClient client, SocketCloseEventArgs args)

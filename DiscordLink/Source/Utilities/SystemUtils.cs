@@ -15,14 +15,6 @@ namespace Eco.Plugins.DiscordLink.Utilities
             }
         }
 
-        public delegate void SynchronousThreadFunction();
-        public static void SynchronousThreadExecute(SynchronousThreadFunction func)
-        {
-            Thread thread = new Thread(new ThreadStart(func));
-            thread.Start();
-            thread.Join();
-        }
-
         public static void EnsurePathExists(string path)
         {
             string directoryPath = Path.GetDirectoryName(path);

@@ -92,7 +92,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     "\n\nFor more information, visit \"www.github.com/Eco-DiscordLink/EcoDiscordPlugin\".";
             }
 
-            public static string GetDisplayString(bool verbose)
+            public static async Task<string> GetDisplayStringAsync(bool verbose)
             {
                 DiscordLink plugin = DiscordLink.Obj;
                 StringBuilder builder = new StringBuilder();
@@ -141,7 +141,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                         User ecoUser = UserManager.FindUserById(linkedUser.SteamID, linkedUser.SlgID);
                         string ecoUserName = (ecoUser != null) ? MessageUtils.StripTags(ecoUser.Name) : "[Uknown Eco User]";
 
-                        DiscordUser discordUser = plugin.Client.GetUserAsync(linkedUser.DiscordID).Result;
+                        DiscordUser discordUser = await plugin.Client.GetUserAsync(linkedUser.DiscordID);
                         string discordUserName = (discordUser != null) ? discordUser.Username : "[Unknown Discord User]";
 
                         string verified = (linkedUser.Verified) ? "Verified" : "Unverified";
@@ -155,7 +155,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                         builder.AppendLine("Tracked Trades:");
                         foreach (var trackedUserTrades in DLStorage.WorldData.PlayerTrackedTrades)
                         {
-                            DiscordUser discordUser = plugin.Client.GetUserAsync(trackedUserTrades.Key).Result;
+                            DiscordUser discordUser = await plugin.Client.GetUserAsync(trackedUserTrades.Key);
                             if (discordUser == null)
                                 continue;
 

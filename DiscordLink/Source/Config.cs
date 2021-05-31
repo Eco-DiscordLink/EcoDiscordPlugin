@@ -4,6 +4,7 @@ using Eco.Core.Plugins;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Utils;
+using Eco.Shared.Validation;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -19,10 +20,9 @@ namespace Eco.Plugins.DiscordLink
     {
         public enum VerificationFlags
         {
-            Static = 1 << 0,
-            ChannelLinks = 1 << 1,
-            BotData = 1 << 2,
-            All = ~0
+            Static          = 1 << 0,
+            ChannelLinks    = 1 << 1,
+            All             = ~0
         }
 
         public static class DefaultValues
@@ -112,7 +112,7 @@ namespace Eco.Plugins.DiscordLink
                 || args.Action == NotifyCollectionChangedAction.Remove
                 || args.Action == NotifyCollectionChangedAction.Replace)
             {
-                HandleConfigChanged();
+                _ = HandleConfigChanged();
             }
             else
             {
@@ -120,7 +120,7 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
-        public void HandleConfigChanged()
+        public async Task HandleConfigChanged()
         {
             // Do not verify if change occurred as this function is going to be called again in that case
             // Do not verify the config in case the bot token has been changed, as the client will be restarted and that will trigger verification
@@ -132,11 +132,7 @@ namespace Eco.Plugins.DiscordLink
             if (tokenChanged)
             {
                 Logger.Info("Discord Bot Token changed - Restarting");
-                bool restarted = false;
-                SystemUtils.SynchronousThreadExecute(() => // Avoid deadlocks caused by calling async functions on the GUI thread
-                {
-                    restarted = DiscordLink.Obj.Restart().Result;
-                });
+                bool restarted = await DiscordLink.Obj.Restart();
 
                 if (!restarted)
                     Logger.Info("Restart failed or a restart was already in progress");
@@ -147,13 +143,7 @@ namespace Eco.Plugins.DiscordLink
             if (!correctionMade) // If a correction was made, this function will be called again
             {
                 VerifyConfig();
-
-                // This function executes on the GUI thread and therefore async calls will trigger deadlocks.
-                // We execute the callbacks on a separate joined thread to avoid these deadlocks.
-                SystemUtils.SynchronousThreadExecute(() =>
-                {
-                    OnConfigChanged?.Invoke(this, EventArgs.Empty);
-                });
+                await OnConfigChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 

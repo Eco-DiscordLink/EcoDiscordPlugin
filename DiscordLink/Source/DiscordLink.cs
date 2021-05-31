@@ -76,7 +76,7 @@ namespace Eco.Plugins.DiscordLink
 
         public void OnEditObjectChanged(object o, string param)
         {
-            DLConfig.Instance.HandleConfigChanged();
+            DLConfig.Instance.HandleConfigChanged().Wait();
             ParamChanged?.Invoke(o, param);
         }
 
@@ -87,11 +87,7 @@ namespace Eco.Plugins.DiscordLink
 #else
             bool debug = false;
 #endif
-            string displayText = string.Empty;
-            SystemUtils.SynchronousThreadExecute(() => // Avoid deadlocks with the GUI thread
-            {
-                displayText = MessageBuilder.Shared.GetDisplayString(verbose: debug);
-            });
+            string displayText = MessageBuilder.Shared.GetDisplayStringAsync(verbose: debug).Result;
             return displayText;
         }
 

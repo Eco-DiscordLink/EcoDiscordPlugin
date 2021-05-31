@@ -218,7 +218,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await RespondToCommand(ctx, MessageBuilder.Shared.GetDisplayString(verbose: false));
+                await RespondToCommand(ctx, await MessageBuilder.Shared.GetDisplayStringAsync(verbose: false));
             }, ctx);
         }
 
@@ -229,7 +229,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await RespondToCommand(ctx, MessageBuilder.Shared.GetDisplayString(verbose: true));
+                await RespondToCommand(ctx, await MessageBuilder.Shared.GetDisplayStringAsync(verbose: true));
             }, ctx);
         }
 
