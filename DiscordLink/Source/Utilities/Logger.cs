@@ -1,16 +1,12 @@
+using Eco.Core.Utils;
 using Eco.Shared.Localization;
 using Eco.Shared.Utils;
-using System;
-using System.IO;
 
 namespace Eco.Plugins.DiscordLink.Utilities
 {
     public static class Logger
     {
-        private static readonly string PluginLogPath = DLConstants.BasePath + "Pluginlog.txt";
-        private static readonly object LockObject = new object();
-
-        private static StreamWriter _writer = null;
+        private static NLogWrapper _pluginLog = NLogWriter.GetConcreteLogger("DiscordLink");
 
         public enum LogLevel
         {
@@ -22,85 +18,45 @@ namespace Eco.Plugins.DiscordLink.Utilities
             Silent,
         }
 
-        public static void Initialize()
-        {
-            try
-            {
-                lock (LockObject)
-                {
-                    SystemUtils.EnsurePathExists(PluginLogPath);
-                    _writer = new StreamWriter(PluginLogPath, append: true)
-                    {
-                        AutoFlush = true,
-                    };
-                }
-            }
-            catch (Exception e)
-            {
-                Error("Error occurred while attempting to initialize the plugin log. Error message: " + e);
-            }
-        }
-
-        public static void Shutdown()
-        {
-            try
-            {
-                lock (LockObject)
-                {
-                    _writer.Flush();
-                    _writer.Close();
-                }
-            }
-            catch (Exception e)
-            {
-                Error("Error occurred while attempting to close the plugin log file writer. Error message: " + e);
-            }
-        }
-
         public static void DebugVerbose(string message)
         {
             if (DLConfig.Data.LogLevel <= LogLevel.DebugVerbose)
-                Log.Write(new LocString($"[DiscordLink] DEBUG: {message}\n"));
+            {
+                string fullMessage = $"DEBUG: {message}";
+                Log.WriteLine(new LocString($"[DiscordLink] {fullMessage}"));
+                _pluginLog.Info(fullMessage); // Verbose debug log messages are only written to the log file if enabled via configuration
+            }
         }
 
         public static void Debug(string message)
         {
-            string fullMessage = $"[DiscordLink] DEBUG: {message}\n";
+            string fullMessage = $"DEBUG: {message}";
             if (DLConfig.Data.LogLevel <= LogLevel.Debug)
-                Log.Write(new LocString(fullMessage));
-            WriteToPluginLog(fullMessage);
+                Log.WriteLine(new LocString($"[DiscordLink] {fullMessage}"));
+            _pluginLog.Info(fullMessage);
         }
 
         public static void Warning(string message)
         {
-            string fullMessage = $"[DiscordLink] WARNING: {message}\n";
+            string fullMessage = $"WARNING: {message}";
             if (DLConfig.Data.LogLevel <= LogLevel.Warning)
-                Log.Write(new LocString(fullMessage));   
-            WriteToPluginLog(fullMessage);
+                Log.WriteLine(new LocString($"[DiscordLink] {fullMessage}"));
+            _pluginLog.Info(fullMessage);
         }
 
         public static void Info(string message)
         {
-            string fullMessage = $"[DiscordLink] {message}\n";
             if (DLConfig.Data.LogLevel <= LogLevel.Information)
-                Log.Write(new LocString(fullMessage));   
-            WriteToPluginLog(fullMessage);
+                Log.WriteLine(new LocString($"[DiscordLink] {message}"));
+            _pluginLog.Info(message);
         }
 
         public static void Error(string message)
         {
-            string fullMessage = $"[DiscordLink] ERROR: {message}\n";
+            string fullMessage = $"ERROR: {message}";
             if (DLConfig.Data.LogLevel <= LogLevel.Error)
-                Log.Write(new LocString(fullMessage));   
-            WriteToPluginLog(fullMessage);
-        }
-
-        private static void WriteToPluginLog(string message)
-        {
-            lock (LockObject)
-            {
-                _writer?.Write(message);
-            }
+                Log.WriteLine(new LocString($"[DiscordLink] {fullMessage}"));
+            _pluginLog.Info(fullMessage);
         }
     }
 }
