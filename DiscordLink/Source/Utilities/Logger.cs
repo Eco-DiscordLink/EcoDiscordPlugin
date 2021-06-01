@@ -48,7 +48,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
         {
             if (DLConfig.Data.LogLevel <= LogLevel.Information)
                 Log.WriteLine(new LocString($"[DiscordLink] {message}"));
-            _pluginLog.Info(message);
+            _pluginLog.Info($"INFO: {message}");
         }
 
         public static void Error(string message)
