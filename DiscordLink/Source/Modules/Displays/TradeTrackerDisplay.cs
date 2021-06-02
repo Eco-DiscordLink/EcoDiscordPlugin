@@ -90,15 +90,11 @@ namespace Eco.Plugins.DiscordLink.Modules
 
                 foreach (ulong discordUserId in DLStorage.WorldData.PlayerTrackedTrades.Keys)
                 {
-                    LinkedUser dlUser = UserLinkManager.LinkedUserByDiscordID(discordUserId);
-                    if (dlUser == null)
+                    LinkedUser linkedUser = UserLinkManager.LinkedUserByDiscordID(discordUserId);
+                    if (linkedUser == null)
                         continue;
 
-                    DiscordGuild guild = DiscordLink.Obj.Client.GuildByNameOrID(dlUser.GuildID);
-                    if (guild == null)
-                        continue;
-
-                    DiscordMember member = await guild.GetMemberAsync(discordUserId);
+                    DiscordMember member = linkedUser.DiscordMember;
                     if (member != null)
                         UserLinks.Add(new UserLink(member));
                 }

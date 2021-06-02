@@ -3,6 +3,7 @@ using Eco.Gameplay.Players;
 using Eco.Plugins.DiscordLink.Utilities;
 using Newtonsoft.Json;
 using System;
+using System.Linq;
 
 namespace Eco.Plugins.DiscordLink
 {
@@ -113,7 +114,10 @@ namespace Eco.Plugins.DiscordLink
     public class LinkedUser
     {
         [JsonIgnore]
-        public string EcoID { get { return !string.IsNullOrEmpty(SlgID) ? SlgID : SteamID; } }
+        public User EcoUser { get { return EcoUtils.UserBySteamOrSLGID(SteamID, SlgID); } }
+
+        [JsonIgnore]
+        public DiscordMember DiscordMember { get { return !string.IsNullOrEmpty(DiscordID) ? DiscordLink.Obj.Client.GuildByNameOrID(GuildID)?.Members.Values.FirstOrDefault(member => member.Id.ToString() == DiscordID) : null; } }
 
         public readonly string SlgID = string.Empty;
         public readonly string SteamID = string.Empty;

@@ -138,10 +138,10 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     builder.AppendLine("Linked User Data:");
                     foreach (LinkedUser linkedUser in DLStorage.PersistentData.LinkedUsers)
                     {
-                        User ecoUser = UserManager.FindUserById(linkedUser.SteamID, linkedUser.SlgID);
+                        User ecoUser = linkedUser.EcoUser;
                         string ecoUserName = (ecoUser != null) ? MessageUtils.StripTags(ecoUser.Name) : "[Uknown Eco User]";
 
-                        DiscordUser discordUser = await plugin.Client.GetUserAsync(linkedUser.DiscordID);
+                        DiscordUser discordUser = linkedUser.DiscordMember;
                         string discordUserName = (discordUser != null) ? discordUser.Username : "[Unknown Discord User]";
 
                         string verified = (linkedUser.Verified) ? "Verified" : "Unverified";
@@ -522,7 +522,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 DiscordMember discordMember = null;
                 bool userLinkExists = linkedUser != null;
                 if (userLinkExists)
-                    discordMember = await DiscordLink.Obj.Client.GetMemberAsync(linkedUser.GuildID, linkedUser.DiscordID);
+                    discordMember = linkedUser.DiscordMember;
 
                 DiscordLinkEmbed report = new DiscordLinkEmbed();
                 report.WithTitle($"Report for {MessageUtils.StripTags(user.Name)}");
