@@ -752,15 +752,13 @@ namespace Eco.Plugins.DiscordLink
 
         public static async Task<bool> Trades(CommandSource source, object callContext, string searchName)
         {
-            string matchedName = string.Empty;
-
             if (string.IsNullOrWhiteSpace(searchName))
             {
                 await ReportCommandInfo(source, callContext, "Please provide the name of an item, a tag or a player to search for.");
                 return false;
             }
 
-            matchedName = TradeUtils.GetMatchAndOffers(searchName, out TradeTargetType offerType, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
+            string matchedName = TradeUtils.GetMatchAndOffers(searchName, out TradeTargetType offerType, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
             if(offerType == TradeTargetType.Invalid)
             {
                 await ReportCommandError(source, callContext, $"No item, tag or player with the name \"{searchName}\" could be found.");
@@ -796,7 +794,7 @@ namespace Eco.Plugins.DiscordLink
                 return false;
             }
 
-            string matchedName = TradeUtils.GetMatchAndOffers(userOrItemName, out TradeTargetType offerType, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
+            string matchedName = TradeUtils.GetMatchAndOffers(userOrItemName, out TradeTargetType offerType, out _, out _);
             if (offerType == TradeTargetType.Invalid)
                 return false;
 

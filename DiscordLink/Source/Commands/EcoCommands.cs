@@ -40,8 +40,10 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [ChatCommand("Commands for the Discord integration plugin.", "DL", ChatAuthorizationLevel.User)]
+#pragma warning disable IDE0079 // Remove unnecessary suppression (This is a false positive case)
 #pragma warning disable IDE0060 // Remove unused parameter - callingUser parameter required
         public static void DiscordLink(User callingUser) { }
+#pragma warning restore IDE0079
 #pragma warning restore IDE0060
 
         #endregion

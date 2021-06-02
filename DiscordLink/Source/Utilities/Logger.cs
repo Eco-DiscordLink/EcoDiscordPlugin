@@ -6,7 +6,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 {
     public static class Logger
     {
-        private static NLogWrapper _pluginLog = NLogWriter.GetConcreteLogger("DiscordLink");
+        private static readonly NLogWrapper _pluginLog = NLogWriter.GetConcreteLogger("DiscordLink");
 
         public enum LogLevel
         {

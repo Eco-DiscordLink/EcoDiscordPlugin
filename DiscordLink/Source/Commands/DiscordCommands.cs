@@ -112,15 +112,12 @@ namespace Eco.Plugins.DiscordLink
 
         private static bool IsCommandAllowedForUser(CommandContext ctx, PermissionType requiredPermission)
         {
-            switch(requiredPermission)
+            return requiredPermission switch
             {
-                case PermissionType.User:
-                    return true;
-
-                case PermissionType.Admin:
-                    return DiscordLink.Obj.Client.MemberIsAdmin(ctx.Member);
-            }
-            return false;
+                PermissionType.User => true,
+                PermissionType.Admin => DiscordLink.Obj.Client.MemberIsAdmin(ctx.Member),
+                _ => false,
+            };
         }
 
         private static bool IsCommandAllowedInChannel(CommandContext ctx)

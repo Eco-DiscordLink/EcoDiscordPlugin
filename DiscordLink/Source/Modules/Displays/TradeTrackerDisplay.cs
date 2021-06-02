@@ -17,7 +17,7 @@ namespace Eco.Plugins.DiscordLink.Modules
         protected override int TimerUpdateIntervalMS { get { return 300000; } }
         protected override int TimerStartDelayMS { get { return 10000; } }
 
-        private List<DiscordTarget> UserLinks = new List<DiscordTarget>();
+        private readonly List<DiscordTarget> UserLinks = new List<DiscordTarget>();
 
         public override string GetDisplayText(string childInfo, bool verbose)
         {
