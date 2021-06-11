@@ -83,7 +83,7 @@ namespace Eco.Plugins.DiscordLink
                 return false; // The channel will always fail if the guild fails
 
             DiscordChannel channel = guild.ChannelByNameOrID(DiscordChannel);
-            if (guild == null)
+            if (channel == null)
                 return false;
 
             Guild = guild;
@@ -156,7 +156,7 @@ namespace Eco.Plugins.DiscordLink
             return $"{DiscordServer} #{DiscordChannel} <--> {EcoChannel}";
         }
 
-        public override bool IsValid() => !string.IsNullOrWhiteSpace(DiscordServer) && !string.IsNullOrWhiteSpace(DiscordChannel) && !string.IsNullOrWhiteSpace(EcoChannel);
+        public override bool IsValid() => base.IsValid() && !string.IsNullOrWhiteSpace(EcoChannel);
 
         public override bool MakeCorrections()
         {
