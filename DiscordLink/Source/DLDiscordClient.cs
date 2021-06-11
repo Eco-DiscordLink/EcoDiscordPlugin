@@ -425,7 +425,7 @@ namespace Eco.Plugins.DiscordLink
 
         public async Task<IReadOnlyList<DiscordMessage>> GetMessagesAsync(DiscordChannel channel)
         {
-            if (!ChannelHasPermission(channel, Permissions.ReadMessageHistory))
+            if (channel == null || !ChannelHasPermission(channel, Permissions.ReadMessageHistory))
                 return null;
 
             try
