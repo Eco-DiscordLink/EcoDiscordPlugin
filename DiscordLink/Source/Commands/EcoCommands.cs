@@ -74,7 +74,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.Restart(SharedCommands.CommandSource.Eco, callingUser);
+                SharedCommands.Restart(SharedCommands.CommandInterface.Eco, callingUser);
             }, callingUser);
         }
 
@@ -83,7 +83,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.ResetWorldData(SharedCommands.CommandSource.Eco, callingUser);
+                SharedCommands.ResetWorldData(SharedCommands.CommandInterface.Eco, callingUser);
             }, callingUser);
         }
 
@@ -159,7 +159,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.PlayerReport(SharedCommands.CommandSource.Eco, callingUser, playerNameOrID);
+                SharedCommands.PlayerReport(SharedCommands.CommandInterface.Eco, callingUser, playerNameOrID);
             }, callingUser);
         }
 
@@ -168,7 +168,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.PlayerOnlineReport(SharedCommands.CommandSource.Eco, callingUser, playerNameOrID);
+                SharedCommands.PlayerOnlineReport(SharedCommands.CommandInterface.Eco, callingUser, playerNameOrID);
             }, callingUser);
         }
 
@@ -177,7 +177,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.PlayerTimeReport(SharedCommands.CommandSource.Eco, callingUser, playerNameOrID);
+                SharedCommands.PlayerTimeReport(SharedCommands.CommandInterface.Eco, callingUser, playerNameOrID);
             }, callingUser);
         }
 
@@ -186,7 +186,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.PlayerPermissionsReport(SharedCommands.CommandSource.Eco, callingUser, playerNameOrID);
+                SharedCommands.PlayerPermissionsReport(SharedCommands.CommandInterface.Eco, callingUser, playerNameOrID);
             }, callingUser);
         }
 
@@ -195,7 +195,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.PlayerAccessReport(SharedCommands.CommandSource.Eco, callingUser, playerNameOrID);
+                SharedCommands.PlayerAccessReport(SharedCommands.CommandInterface.Eco, callingUser, playerNameOrID);
             }, callingUser);
         }
 
@@ -221,7 +221,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.PlayerReputationReport(SharedCommands.CommandSource.Eco, callingUser, playerNameOrID);
+                SharedCommands.PlayerReputationReport(SharedCommands.CommandInterface.Eco, callingUser, playerNameOrID);
             }, callingUser);
         }
 
@@ -230,7 +230,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.PlayerXPReport(SharedCommands.CommandSource.Eco, callingUser, playerNameOrID);
+                SharedCommands.PlayerXPReport(SharedCommands.CommandInterface.Eco, callingUser, playerNameOrID);
             }, callingUser);
         }
 
@@ -239,7 +239,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.PlayerSkillsReport(SharedCommands.CommandSource.Eco, callingUser, playerNameOrID);
+                SharedCommands.PlayerSkillsReport(SharedCommands.CommandInterface.Eco, callingUser, playerNameOrID);
             }, callingUser);
         }
 
@@ -248,7 +248,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.PlayerDemographicsReport(SharedCommands.CommandSource.Eco, callingUser, playerNameOrID);
+                SharedCommands.PlayerDemographicsReport(SharedCommands.CommandInterface.Eco, callingUser, playerNameOrID);
             }, callingUser);
         }
 
@@ -257,7 +257,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.PlayerTitlesReport(SharedCommands.CommandSource.Eco, callingUser, playerNameOrID);
+                SharedCommands.PlayerTitlesReport(SharedCommands.CommandInterface.Eco, callingUser, playerNameOrID);
             }, callingUser);
         }
 
@@ -266,7 +266,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.PlayerPropertiesReport(SharedCommands.CommandSource.Eco, callingUser, playerNameOrID);
+                SharedCommands.PlayerPropertiesReport(SharedCommands.CommandInterface.Eco, callingUser, playerNameOrID);
             }, callingUser);
         }
 
@@ -275,7 +275,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.CurrencyReport(SharedCommands.CommandSource.Eco, callingUser, currencyNameOrID);
+                SharedCommands.CurrencyReport(SharedCommands.CommandInterface.Eco, callingUser, currencyNameOrID);
             }, callingUser);
         }
 
@@ -286,7 +286,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.CurrenciesReport(SharedCommands.CommandSource.Eco, callingUser, currencyType, maxCurrenciesPerType, holdersPerCurrency);
+                SharedCommands.CurrenciesReport(SharedCommands.CommandInterface.Eco, callingUser, currencyType, maxCurrenciesPerType, holdersPerCurrency);
             }, callingUser);
         }
 
@@ -295,7 +295,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.ElectionReport(SharedCommands.CommandSource.Eco, callingUser, electionNameOrID);
+                SharedCommands.ElectionReport(SharedCommands.CommandInterface.Eco, callingUser, electionNameOrID);
             }, callingUser);
         }
 
@@ -304,7 +304,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.ElectionsReport(SharedCommands.CommandSource.Eco, callingUser);
+                SharedCommands.ElectionsReport(SharedCommands.CommandInterface.Eco, callingUser);
             }, callingUser);
         }
 
@@ -313,7 +313,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.WorkPartyReport(SharedCommands.CommandSource.Eco, callingUser, workPartyNameOrID);
+                SharedCommands.WorkPartyReport(SharedCommands.CommandInterface.Eco, callingUser, workPartyNameOrID);
             }, callingUser);
         }
 
@@ -322,7 +322,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.WorkPartiesReport(SharedCommands.CommandSource.Eco, callingUser);
+                SharedCommands.WorkPartiesReport(SharedCommands.CommandInterface.Eco, callingUser);
             }, callingUser);
         }
 
@@ -360,7 +360,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.SendServerMessage(SharedCommands.CommandSource.Eco, callingUser, message, string.Empty, persistanceType);
+                SharedCommands.SendServerMessage(SharedCommands.CommandInterface.Eco, callingUser, message, string.Empty, persistanceType);
             }, callingUser);
         }
 
@@ -369,7 +369,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.SendServerMessage(SharedCommands.CommandSource.Eco, callingUser, message, recipientUserNameOrID, persistanceType);
+                SharedCommands.SendServerMessage(SharedCommands.CommandInterface.Eco, callingUser, message, recipientUserNameOrID, persistanceType);
             }, callingUser);
         }
 
@@ -378,7 +378,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Info, SharedCommands.CommandSource.Eco, callingUser, message, string.Empty);
+                SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Info, SharedCommands.CommandInterface.Eco, callingUser, message, string.Empty);
             }, callingUser);
         }
 
@@ -387,7 +387,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Info, SharedCommands.CommandSource.Eco, callingUser, message, recipientUserNameOrID);
+                SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Info, SharedCommands.CommandInterface.Eco, callingUser, message, recipientUserNameOrID);
             }, callingUser);
         }
 
@@ -396,7 +396,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Warning, SharedCommands.CommandSource.Eco, callingUser, message, string.Empty);
+                SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Warning, SharedCommands.CommandInterface.Eco, callingUser, message, string.Empty);
             }, callingUser);
         }
 
@@ -405,7 +405,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Warning, SharedCommands.CommandSource.Eco, callingUser, message, recipientUserNameOrID);
+                SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Warning, SharedCommands.CommandInterface.Eco, callingUser, message, recipientUserNameOrID);
             }, callingUser);
         }
 
@@ -414,7 +414,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Warning, SharedCommands.CommandSource.Eco, callingUser, message, string.Empty);
+                SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Warning, SharedCommands.CommandInterface.Eco, callingUser, message, string.Empty);
             }, callingUser);
         }
 
@@ -423,7 +423,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Error, SharedCommands.CommandSource.Eco, callingUser, message, recipientUserNameOrID);
+                SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Error, SharedCommands.CommandInterface.Eco, callingUser, message, recipientUserNameOrID);
             }, callingUser);
         }
 
@@ -432,7 +432,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.SendNotification(SharedCommands.CommandSource.Eco, callingUser, message, string.Empty, includeOfflineUsers);
+                SharedCommands.SendNotification(SharedCommands.CommandInterface.Eco, callingUser, message, string.Empty, includeOfflineUsers);
             }, callingUser);
         }
 
@@ -441,7 +441,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.SendNotification(SharedCommands.CommandSource.Eco, callingUser, message, recipientUserNameOrID, includeOfflineUsers: true);
+                SharedCommands.SendNotification(SharedCommands.CommandInterface.Eco, callingUser, message, recipientUserNameOrID, includeOfflineUsers: true);
             }, callingUser);
         }
 
@@ -450,7 +450,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.SendPopup(SharedCommands.CommandSource.Eco, callingUser, message, string.Empty);
+                SharedCommands.SendPopup(SharedCommands.CommandInterface.Eco, callingUser, message, string.Empty);
             }, callingUser);
         }
 
@@ -459,7 +459,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.SendPopup(SharedCommands.CommandSource.Eco, callingUser, message, recipientUserNameOrID);
+                SharedCommands.SendPopup(SharedCommands.CommandInterface.Eco, callingUser, message, recipientUserNameOrID);
             }, callingUser);
         }
 
@@ -468,7 +468,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.SendInfoPanel(SharedCommands.CommandSource.Eco, callingUser, DLConstants.ECO_PANEL_NOTIFICATION, title, message, string.Empty);
+                SharedCommands.SendInfoPanel(SharedCommands.CommandInterface.Eco, callingUser, DLConstants.ECO_PANEL_NOTIFICATION, title, message, string.Empty);
             }, callingUser);
         }
 
@@ -477,7 +477,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.SendInfoPanel(SharedCommands.CommandSource.Eco, callingUser, DLConstants.ECO_PANEL_NOTIFICATION, title, message, recipientUserNameOrID);
+                SharedCommands.SendInfoPanel(SharedCommands.CommandInterface.Eco, callingUser, DLConstants.ECO_PANEL_NOTIFICATION, title, message, recipientUserNameOrID);
             }, callingUser);
         }
 
@@ -490,7 +490,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.DiscordInvite(SharedCommands.CommandSource.Eco, callingUser, targetUserName);
+                SharedCommands.DiscordInvite(SharedCommands.CommandInterface.Eco, callingUser, targetUserName);
             }, callingUser);
         }
 
@@ -499,7 +499,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.DiscordInvite(SharedCommands.CommandSource.Eco, callingUser, string.Empty);
+                SharedCommands.DiscordInvite(SharedCommands.CommandInterface.Eco, callingUser, string.Empty);
             }, callingUser);
         }
 
@@ -595,7 +595,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.Trades(SharedCommands.CommandSource.Eco, callingUser, userOrItemName);
+                SharedCommands.Trades(SharedCommands.CommandInterface.Eco, callingUser, userOrItemName);
             }, callingUser);
         }
 
@@ -611,7 +611,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.TrackTrades(SharedCommands.CommandSource.Eco, callingUser, userOrItemName);
+                SharedCommands.TrackTrades(SharedCommands.CommandInterface.Eco, callingUser, userOrItemName);
             }, callingUser);
         }
 
@@ -620,7 +620,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.StopTrackTrades(SharedCommands.CommandSource.Eco, callingUser, userOrItemName);
+                SharedCommands.StopTrackTrades(SharedCommands.CommandInterface.Eco, callingUser, userOrItemName);
             }, callingUser);
         }
 
@@ -629,7 +629,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.ListTrackedTrades(SharedCommands.CommandSource.Eco, callingUser);
+                SharedCommands.ListTrackedTrades(SharedCommands.CommandInterface.Eco, callingUser);
             }, callingUser);
         }
 

@@ -23,31 +23,31 @@ namespace Eco.Plugins.DiscordLink
     {
         #region Commands Base
 
-        public enum CommandSource
+        public enum CommandInterface
         {
             Eco,
             Discord
         }
 
-        private static async Task ReportCommandError(CommandSource source, object callContext, string message)
+        private static async Task ReportCommandError(CommandInterface source, object callContext, string message)
         {
-            if (source == CommandSource.Eco)
+            if (source == CommandInterface.Eco)
                 EcoCommands.ReportCommandError(callContext as User, message);
             else
                 await DiscordCommands.ReportCommandError(callContext as CommandContext, message);
         }
 
-        private static async Task ReportCommandInfo(CommandSource source, object callContext, string message)
+        private static async Task ReportCommandInfo(CommandInterface source, object callContext, string message)
         {
-            if (source == CommandSource.Eco)
+            if (source == CommandInterface.Eco)
                 EcoCommands.ReportCommandInfo(callContext as User, message);
             else
                 await DiscordCommands.ReportCommandInfo(callContext as CommandContext, message);
         }
 
-        private static async Task DisplayCommandData(CommandSource source, object callContext, string title, object data, string panelInstance = "")
+        private static async Task DisplayCommandData(CommandInterface source, object callContext, string title, object data, string panelInstance = "")
         {
-            if (source == CommandSource.Eco)
+            if (source == CommandInterface.Eco)
                 EcoCommands.DisplayCommandData(callContext as User, panelInstance, title, data as string);
             else
                 await DiscordCommands.DisplayCommandData(callContext as CommandContext, title, data as DiscordLinkEmbed);
@@ -57,7 +57,7 @@ namespace Eco.Plugins.DiscordLink
 
         #region Plugin Management
 
-        public static async Task<bool> Restart(CommandSource source, object callContext)
+        public static async Task<bool> Restart(CommandInterface source, object callContext)
         {
             DiscordLink plugin = DiscordLink.Obj;
             Logger.Info("Restart command executed - Restarting");
@@ -79,7 +79,7 @@ namespace Eco.Plugins.DiscordLink
             return restarted;
         }
 
-        public static async Task<bool> ResetWorldData(CommandSource source, object callContext)
+        public static async Task<bool> ResetWorldData(CommandInterface source, object callContext)
         {
             Logger.Info("ResetWorldData command invoked - Resetting world storage data");
             DLStorage.Instance.Reset();
@@ -91,7 +91,7 @@ namespace Eco.Plugins.DiscordLink
 
         #region Message Relaying
 
-        public static async Task<bool> SendServerMessage(CommandSource source, object callContext, string message, string recipientUserNameOrID, string persistanceType)
+        public static async Task<bool> SendServerMessage(CommandInterface source, object callContext, string message, string recipientUserNameOrID, string persistanceType)
         {
             if (string.IsNullOrWhiteSpace(message))
             {
@@ -125,7 +125,7 @@ namespace Eco.Plugins.DiscordLink
                 }
             }
 
-            string senderName = source == CommandSource.Eco
+            string senderName = source == CommandInterface.Eco
                 ? (callContext as User).Name
                 : (callContext as CommandContext).Member.DisplayName;
 
@@ -142,7 +142,7 @@ namespace Eco.Plugins.DiscordLink
             return sent;
         }
 
-        public static async Task<bool> SendBoxMessage(EcoUtils.BoxMessageType type, CommandSource source, object callContext, string message, string recipientUserNameOrID)
+        public static async Task<bool> SendBoxMessage(EcoUtils.BoxMessageType type, CommandInterface source, object callContext, string message, string recipientUserNameOrID)
         {
             if (string.IsNullOrWhiteSpace(message))
             {
@@ -161,7 +161,7 @@ namespace Eco.Plugins.DiscordLink
                 }
             }
 
-            string senderName = source == CommandSource.Eco
+            string senderName = source == CommandInterface.Eco
                 ? (callContext as User).Name
                 : (callContext as CommandContext).Member.DisplayName;
 
@@ -196,7 +196,7 @@ namespace Eco.Plugins.DiscordLink
             return sent;
         }
 
-        public static async Task<bool> SendPopup(CommandSource source, object callContext, string message, string recipientUserNameOrID)
+        public static async Task<bool> SendPopup(CommandInterface source, object callContext, string message, string recipientUserNameOrID)
         {
             if (string.IsNullOrWhiteSpace(message))
             {
@@ -215,7 +215,7 @@ namespace Eco.Plugins.DiscordLink
                 }
             }
 
-            string senderName = source == CommandSource.Eco
+            string senderName = source == CommandInterface.Eco
                 ? (callContext as User).Name
                 : (callContext as CommandContext).Member.DisplayName;
 
@@ -232,7 +232,7 @@ namespace Eco.Plugins.DiscordLink
             return sent;
         }
 
-        public static async Task<bool> SendNotification(CommandSource source, object callContext, string message, string recipientUserNameOrID, bool includeOfflineUsers)
+        public static async Task<bool> SendNotification(CommandInterface source, object callContext, string message, string recipientUserNameOrID, bool includeOfflineUsers)
         {
             if (string.IsNullOrWhiteSpace(message))
             {
@@ -251,7 +251,7 @@ namespace Eco.Plugins.DiscordLink
                 }
             }
 
-            string senderName = source == CommandSource.Eco
+            string senderName = source == CommandInterface.Eco
                 ? (callContext as User).Name
                 : (callContext as CommandContext).Member.DisplayName;
 
@@ -280,7 +280,7 @@ namespace Eco.Plugins.DiscordLink
             return sent;
         }
 
-        public static async Task<bool> SendInfoPanel(CommandSource source, object callContext, string instance, string title, string message, string recipientUserNameOrID)
+        public static async Task<bool> SendInfoPanel(CommandInterface source, object callContext, string instance, string title, string message, string recipientUserNameOrID)
         {
             if (string.IsNullOrWhiteSpace(title))
             {
@@ -305,7 +305,7 @@ namespace Eco.Plugins.DiscordLink
                 }
             }
 
-            string senderName = source == CommandSource.Eco
+            string senderName = source == CommandInterface.Eco
                 ? (callContext as User).Name
                 : (callContext as CommandContext).Member.DisplayName;
 
@@ -326,7 +326,7 @@ namespace Eco.Plugins.DiscordLink
 
         #region Lookups
 
-        public static async Task<bool> PlayerReport(CommandSource source, object callContext, string playerNameOrID)
+        public static async Task<bool> PlayerReport(CommandInterface source, object callContext, string playerNameOrID)
         {
             User user = EcoUtils.UserByNameOrEcoID(playerNameOrID);
             if(user == null)
@@ -336,14 +336,14 @@ namespace Eco.Plugins.DiscordLink
             }
 
             DiscordLinkEmbed report = await MessageBuilder.Discord.GetPlayerReport(user, MessageBuilder.PlayerReportComponentFlag.All);
-            if (source == CommandSource.Eco)
+            if (source == CommandInterface.Eco)
                 await DisplayCommandData(source, callContext, $"Player report for {user}", report.AsText(), DLConstants.ECO_PANEL_REPORT);
             else
                 await DisplayCommandData(source, callContext, string.Empty, report);
             return true;
         }
 
-        public static async Task<bool> PlayerOnlineReport(CommandSource source, object callContext, string playerNameOrID)
+        public static async Task<bool> PlayerOnlineReport(CommandInterface source, object callContext, string playerNameOrID)
         {
             User user = EcoUtils.UserByNameOrEcoID(playerNameOrID);
             if (user == null)
@@ -353,14 +353,14 @@ namespace Eco.Plugins.DiscordLink
             }
 
             DiscordLinkEmbed report = await MessageBuilder.Discord.GetPlayerReport(user, MessageBuilder.PlayerReportComponentFlag.OnlineStatus);
-            if (source == CommandSource.Eco)
+            if (source == CommandInterface.Eco)
                 await DisplayCommandData(source, callContext, $"Player online report for {user}", report.AsText(), DLConstants.ECO_PANEL_REPORT);
             else
                 await DisplayCommandData(source, callContext, string.Empty, report);
             return true;
         }
 
-        public static async Task<bool> PlayerTimeReport(CommandSource source, object callContext, string playerNameOrID)
+        public static async Task<bool> PlayerTimeReport(CommandInterface source, object callContext, string playerNameOrID)
         {
             User user = EcoUtils.UserByNameOrEcoID(playerNameOrID);
             if (user == null)
@@ -370,14 +370,14 @@ namespace Eco.Plugins.DiscordLink
             }
 
             DiscordLinkEmbed report = await MessageBuilder.Discord.GetPlayerReport(user, MessageBuilder.PlayerReportComponentFlag.PlayTime);
-            if (source == CommandSource.Eco)
+            if (source == CommandInterface.Eco)
                 await DisplayCommandData(source, callContext, $"Player time report for {user}", report.AsText(), DLConstants.ECO_PANEL_REPORT);
             else
                 await DisplayCommandData(source, callContext, string.Empty, report);
             return true;
         }
 
-        public static async Task<bool> PlayerPermissionsReport(CommandSource source, object callContext, string playerNameOrID)
+        public static async Task<bool> PlayerPermissionsReport(CommandInterface source, object callContext, string playerNameOrID)
         {
             User user = EcoUtils.UserByNameOrEcoID(playerNameOrID);
             if (user == null)
@@ -387,14 +387,14 @@ namespace Eco.Plugins.DiscordLink
             }
 
             DiscordLinkEmbed report = await MessageBuilder.Discord.GetPlayerReport(user, MessageBuilder.PlayerReportComponentFlag.Permissions);
-            if (source == CommandSource.Eco)
+            if (source == CommandInterface.Eco)
                 await DisplayCommandData(source, callContext, $"Player permissions report for {user}", report.AsText(), DLConstants.ECO_PANEL_REPORT);
             else
                 await DisplayCommandData(source, callContext, string.Empty, report);
             return true;
         }
 
-        public static async Task<bool> PlayerAccessReport(CommandSource source, object callContext, string playerNameOrID)
+        public static async Task<bool> PlayerAccessReport(CommandInterface source, object callContext, string playerNameOrID)
         {
             User user = EcoUtils.UserByNameOrEcoID(playerNameOrID);
             if (user == null)
@@ -404,14 +404,14 @@ namespace Eco.Plugins.DiscordLink
             }
 
             DiscordLinkEmbed report = await MessageBuilder.Discord.GetPlayerReport(user, MessageBuilder.PlayerReportComponentFlag.AccessLists);
-            if (source == CommandSource.Eco)
+            if (source == CommandInterface.Eco)
                 await DisplayCommandData(source, callContext, $"Player access report for {user}", report.AsText(), DLConstants.ECO_PANEL_REPORT);
             else
                 await DisplayCommandData(source, callContext, string.Empty, report);
             return true;
         }
 
-        public static async Task<bool> PlayerReputationReport(CommandSource source, object callContext, string playerNameOrID)
+        public static async Task<bool> PlayerReputationReport(CommandInterface source, object callContext, string playerNameOrID)
         {
             User user = EcoUtils.UserByNameOrEcoID(playerNameOrID);
             if (user == null)
@@ -421,13 +421,13 @@ namespace Eco.Plugins.DiscordLink
             }
 
             DiscordLinkEmbed report = await MessageBuilder.Discord.GetPlayerReport(user, MessageBuilder.PlayerReportComponentFlag.Reputation);
-            if (source == CommandSource.Eco)
+            if (source == CommandInterface.Eco)
                 await DisplayCommandData(source, callContext, $"Player reputation report for {user}", report.AsText(), DLConstants.ECO_PANEL_REPORT);
             else
                 await DisplayCommandData(source, callContext, string.Empty, report);
             return true;
         }
-        public static async Task<bool> PlayerXPReport(CommandSource source, object callContext, string playerNameOrID)
+        public static async Task<bool> PlayerXPReport(CommandInterface source, object callContext, string playerNameOrID)
         {
             User user = EcoUtils.UserByNameOrEcoID(playerNameOrID);
             if (user == null)
@@ -437,13 +437,13 @@ namespace Eco.Plugins.DiscordLink
             }
 
             DiscordLinkEmbed report = await MessageBuilder.Discord.GetPlayerReport(user, MessageBuilder.PlayerReportComponentFlag.Experience);
-            if (source == CommandSource.Eco)
+            if (source == CommandInterface.Eco)
                 await DisplayCommandData(source, callContext, $"Player XP report for {user}", report.AsText(), DLConstants.ECO_PANEL_REPORT);
             else
                 await DisplayCommandData(source, callContext, string.Empty, report);
             return true;
         }
-        public static async Task<bool> PlayerSkillsReport(CommandSource source, object callContext, string playerNameOrID)
+        public static async Task<bool> PlayerSkillsReport(CommandInterface source, object callContext, string playerNameOrID)
         {
             User user = EcoUtils.UserByNameOrEcoID(playerNameOrID);
             if (user == null)
@@ -453,13 +453,13 @@ namespace Eco.Plugins.DiscordLink
             }
 
             DiscordLinkEmbed report = await MessageBuilder.Discord.GetPlayerReport(user, MessageBuilder.PlayerReportComponentFlag.Skills);
-            if (source == CommandSource.Eco)
+            if (source == CommandInterface.Eco)
                 await DisplayCommandData(source, callContext, $"Player skills report for {user}", report.AsText(), DLConstants.ECO_PANEL_REPORT);
             else
                 await DisplayCommandData(source, callContext, string.Empty, report);
             return true;
         }
-        public static async Task<bool> PlayerDemographicsReport(CommandSource source, object callContext, string playerNameOrID)
+        public static async Task<bool> PlayerDemographicsReport(CommandInterface source, object callContext, string playerNameOrID)
         {
             User user = EcoUtils.UserByNameOrEcoID(playerNameOrID);
             if (user == null)
@@ -469,13 +469,13 @@ namespace Eco.Plugins.DiscordLink
             }
 
             DiscordLinkEmbed report = await MessageBuilder.Discord.GetPlayerReport(user, MessageBuilder.PlayerReportComponentFlag.Demographics);
-            if (source == CommandSource.Eco)
+            if (source == CommandInterface.Eco)
                 await DisplayCommandData(source, callContext, $"Player demographics report for {user}", report.AsText(), DLConstants.ECO_PANEL_REPORT);
             else
                 await DisplayCommandData(source, callContext, string.Empty, report);
             return true;
         }
-        public static async Task<bool> PlayerTitlesReport(CommandSource source, object callContext, string playerNameOrID)
+        public static async Task<bool> PlayerTitlesReport(CommandInterface source, object callContext, string playerNameOrID)
         {
             User user = EcoUtils.UserByNameOrEcoID(playerNameOrID);
             if (user == null)
@@ -485,13 +485,13 @@ namespace Eco.Plugins.DiscordLink
             }
 
             DiscordLinkEmbed report = await MessageBuilder.Discord.GetPlayerReport(user, MessageBuilder.PlayerReportComponentFlag.Titles);
-            if (source == CommandSource.Eco)
+            if (source == CommandInterface.Eco)
                 await DisplayCommandData(source, callContext, $"Player titles report for {user}", report.AsText(), DLConstants.ECO_PANEL_REPORT);
             else
                 await DisplayCommandData(source, callContext, string.Empty, report);
             return true;
         }
-        public static async Task<bool> PlayerPropertiesReport(CommandSource source, object callContext, string playerNameOrID)
+        public static async Task<bool> PlayerPropertiesReport(CommandInterface source, object callContext, string playerNameOrID)
         {
             User user = EcoUtils.UserByNameOrEcoID(playerNameOrID);
             if (user == null)
@@ -501,14 +501,14 @@ namespace Eco.Plugins.DiscordLink
             }
 
             DiscordLinkEmbed report = await MessageBuilder.Discord.GetPlayerReport(user, MessageBuilder.PlayerReportComponentFlag.Properties);
-            if (source == CommandSource.Eco)
+            if (source == CommandInterface.Eco)
                 await DisplayCommandData(source, callContext, $"Player property report for {user}", report.AsText(), DLConstants.ECO_PANEL_REPORT);
             else
                 await DisplayCommandData(source, callContext, string.Empty, report);
             return true;
         }
 
-        public static async Task<bool> CurrencyReport(CommandSource source, object callContext, string currencyNameOrID)
+        public static async Task<bool> CurrencyReport(CommandInterface source, object callContext, string currencyNameOrID)
         {
             Currency currency = EcoUtils.CurrencyByNameOrID(currencyNameOrID);
             if (currency == null)
@@ -524,14 +524,14 @@ namespace Eco.Plugins.DiscordLink
                 return false;
             }
 
-            if(source == CommandSource.Eco)
+            if (source == CommandInterface.Eco)
                 await DisplayCommandData(source, callContext, $"Currency report for {currency}", report.AsText(), DLConstants.ECO_PANEL_REPORT);
             else
                 await DisplayCommandData(source, callContext, $"Currency report for {currency}", report);
             return true;
         }
 
-        public static async Task<bool> CurrenciesReport(CommandSource source, object callContext, string currencyType, string maxCurrenciesPerTypeStr, string holdersPerCurrencyStr)
+        public static async Task<bool> CurrenciesReport(CommandInterface source, object callContext, string currencyType, string maxCurrenciesPerTypeStr, string holdersPerCurrencyStr)
         {
             if (!currencyType.EqualsCaseInsensitive("all") && !currencyType.EqualsCaseInsensitive("minted") && !currencyType.EqualsCaseInsensitive("personal"))
             {
@@ -583,7 +583,7 @@ namespace Eco.Plugins.DiscordLink
                 }
             }
 
-            if (source == CommandSource.Eco)
+            if (source == CommandInterface.Eco)
             {
                 string fullReport = string.Join("\n\n", reports.Select(r => r.AsText()));
                 await DisplayCommandData(source, callContext, $"Currencies Report", fullReport, DLConstants.ECO_PANEL_REPORT);
@@ -599,7 +599,7 @@ namespace Eco.Plugins.DiscordLink
             return true;
         }
 
-        public static async Task<bool> ElectionReport(CommandSource source, object callContext, string electionNameOrID)
+        public static async Task<bool> ElectionReport(CommandInterface source, object callContext, string electionNameOrID)
         {
             Election election = EcoUtils.ActiveElectionByNameOrID(electionNameOrID);
             if(election == null)
@@ -609,14 +609,14 @@ namespace Eco.Plugins.DiscordLink
             }
 
             DiscordLinkEmbed report = MessageBuilder.Discord.GetElectionReport(election);
-            if (source == CommandSource.Eco)
+            if (source == CommandInterface.Eco)
                 await DisplayCommandData(source, callContext, $"Election report for {election}", report.AsText(), DLConstants.ECO_PANEL_REPORT);
             else
                 await DisplayCommandData(source, callContext, $"Election report for {election}", report);
             return true;
         }
 
-        public static async Task<bool> ElectionsReport(CommandSource source, object callContext)
+        public static async Task<bool> ElectionsReport(CommandInterface source, object callContext)
         {
             IEnumerable<Election> elections = EcoUtils.ActiveElections;
             if(elections.Count() <= 0)
@@ -639,7 +639,7 @@ namespace Eco.Plugins.DiscordLink
                 return false;
             }
 
-            if (source == CommandSource.Eco)
+            if (source == CommandInterface.Eco)
             {
                 string fullReport = string.Join("\n\n", reports.Select(r => r.AsText()));
                 await DisplayCommandData(source, callContext, $"Elections Report", fullReport, DLConstants.ECO_PANEL_REPORT);
@@ -654,7 +654,7 @@ namespace Eco.Plugins.DiscordLink
             return true;
         }
 
-        public static async Task<bool> WorkPartyReport(CommandSource source, object callContext, string workPartyNameOrID)
+        public static async Task<bool> WorkPartyReport(CommandInterface source, object callContext, string workPartyNameOrID)
         {
             WorkParty workParty = EcoUtils.ActiveWorkPartyByNameOrID(workPartyNameOrID);
             if (workParty == null)
@@ -664,14 +664,14 @@ namespace Eco.Plugins.DiscordLink
             }
 
             DiscordLinkEmbed report = MessageBuilder.Discord.GetWorkPartyReport(workParty);
-            if (source == CommandSource.Eco)
+            if (source == CommandInterface.Eco)
                 await DisplayCommandData(source, callContext, $"Work party report for {workParty}", report.AsText(), DLConstants.ECO_PANEL_REPORT);
             else
                 await DisplayCommandData(source, callContext, $"Work party report for {workParty}", report);
             return true;
         }
 
-        public static async Task<bool> WorkPartiesReport(CommandSource source, object callContext)
+        public static async Task<bool> WorkPartiesReport(CommandInterface source, object callContext)
         {
             IEnumerable<WorkParty> workParties = EcoUtils.ActiveWorkParties;
             if (workParties.Count() <= 0)
@@ -686,7 +686,7 @@ namespace Eco.Plugins.DiscordLink
                 reports.Add(MessageBuilder.Discord.GetWorkPartyReport(workParty));
             }
 
-            if (source == CommandSource.Eco)
+            if (source == CommandInterface.Eco)
             {
                 string fullReport = string.Join("\n\n", reports.Select(r => r.AsText()));
                 await DisplayCommandData(source, callContext, $"Work Parties Report", fullReport, DLConstants.ECO_PANEL_REPORT);
@@ -705,7 +705,7 @@ namespace Eco.Plugins.DiscordLink
 
         #region Invites
 
-        public static async Task<bool> DiscordInvite(CommandSource source, object callContext, string targetUserName)
+        public static async Task<bool> DiscordInvite(CommandInterface source, object callContext, string targetUserName)
         {
             DLConfigData config = DLConfig.Data;
             ServerInfo serverInfo = Networking.NetworkManager.GetServerInfo();
@@ -750,7 +750,7 @@ namespace Eco.Plugins.DiscordLink
 
         #region Trades
 
-        public static async Task<bool> Trades(CommandSource source, object callContext, string searchName)
+        public static async Task<bool> Trades(CommandInterface source, object callContext, string searchName)
         {
             if (string.IsNullOrWhiteSpace(searchName))
             {
@@ -765,7 +765,7 @@ namespace Eco.Plugins.DiscordLink
                 return false;
             }
 
-            if(source == CommandSource.Eco)
+            if (source == CommandInterface.Eco)
             {
                 MessageBuilder.Eco.FormatTrades(offerType, groupedBuyOffers, groupedSellOffers, out string message);
                 await DisplayCommandData(source, callContext, matchedName, message, DLConstants.ECO_PANEL_DL_TRADES);
@@ -779,9 +779,9 @@ namespace Eco.Plugins.DiscordLink
             return true;
         }
 
-        public static async Task<bool> TrackTrades(CommandSource source, object callContext, string userOrItemName)
+        public static async Task<bool> TrackTrades(CommandInterface source, object callContext, string userOrItemName)
         {
-            LinkedUser linkedUser = source == CommandSource.Eco
+            LinkedUser linkedUser = source == CommandInterface.Eco
                 ? UserLinkManager.LinkedUserByEcoUser(callContext as User, callContext as User, "Trade Tracking Registration")
                 : UserLinkManager.LinkedUserByDiscordUser((callContext as CommandContext).Member, (callContext as CommandContext).Member, "Trade Tracking Registration");
             if (linkedUser == null)
@@ -811,9 +811,9 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
-        public static async Task<bool> StopTrackTrades(CommandSource source, object callContext, string userOrItemName)
+        public static async Task<bool> StopTrackTrades(CommandInterface source, object callContext, string userOrItemName)
         {
-            LinkedUser linkedUser = source == CommandSource.Eco
+            LinkedUser linkedUser = source == CommandInterface.Eco
                 ? UserLinkManager.LinkedUserByEcoUser(callContext as User, callContext as User, "Tracked Trade Unregistration")
                 : UserLinkManager.LinkedUserByDiscordUser((callContext as CommandContext).Member, (callContext as CommandContext).Member, "Tracked Trade Unregistration");
             if (linkedUser == null)
@@ -832,9 +832,9 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
-        public static async Task<bool> ListTrackedTrades(CommandSource source, object callContext)
+        public static async Task<bool> ListTrackedTrades(CommandInterface source, object callContext)
         {
-            LinkedUser linkedUser = source == CommandSource.Eco
+            LinkedUser linkedUser = source == CommandInterface.Eco
                 ? UserLinkManager.LinkedUserByEcoUser(callContext as User, callContext as User, "Tracked Trades Listing")
                 : UserLinkManager.LinkedUserByDiscordUser((callContext as CommandContext).Member, (callContext as CommandContext).Member, "Tracked Trades Listing");
             if (linkedUser == null)
