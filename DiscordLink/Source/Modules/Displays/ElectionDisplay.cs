@@ -64,13 +64,13 @@ namespace Eco.Plugins.DiscordLink.Modules
             if (changeType != Utilities.Utils.DiscordReactionChange.Added)
                 return;
 
+            Election election = GetElectionFromMessage(message);
+            if (election == null || !election.BooleanElection)
+                return;
+
             message.Channel.Guild.Members.TryGetValue(user.Id, out DiscordMember member);
             LinkedUser linkedUser = UserLinkManager.LinkedUserByDiscordUser(user, member, "Reaction Voting");
             if (linkedUser == null)
-                return;
-
-            Election election = GetElectionFromMessage(message);
-            if (election == null || !election.BooleanElection)
                 return;
 
             string choice = reaction == VoteForEmoji ? "Yes" : "No";
