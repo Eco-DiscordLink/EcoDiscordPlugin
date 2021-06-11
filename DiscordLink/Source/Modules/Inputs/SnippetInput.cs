@@ -74,9 +74,12 @@ namespace Eco.Plugins.DiscordLink.Modules
         private async Task ReloadSnippets()
         {
             DiscordLink plugin = DiscordLink.Obj;
-            foreach (ChannelLink snippetLink in DLConfig.Data.SnippetInputChannels)
+            foreach (ChannelLink snippetChannel in DLConfig.Data.SnippetInputChannels)
             {
-                IReadOnlyList<DiscordMessage> snippetChannelMessages = await plugin.Client.GetMessagesAsync(snippetLink.Channel);
+                if (!snippetChannel.IsValid())
+                    continue;
+
+                IReadOnlyList<DiscordMessage> snippetChannelMessages = await plugin.Client.GetMessagesAsync(snippetChannel.Channel);
                 if (snippetChannelMessages == null)
                     continue;
 
