@@ -845,5 +845,41 @@ namespace Eco.Plugins.DiscordLink
         }
 
         #endregion
+
+        #region Snippets
+
+        public static async Task Snippet(CommandInterface source, object callContext, CommandInterface target, string userName, string snippetKey)
+        {
+            var snippets = DLStorage.Instance.Snippets;
+            if (string.IsNullOrWhiteSpace(snippetKey)) // List all snippets if no key is given
+            {
+                if (snippets.Count > 0)
+                    await DisplayCommandData(source, callContext, "", new DiscordLinkEmbed().AddField("Snippets", string.Join("\n", snippets.Keys)), DLConstants.ECO_PANEL_SIMPLE_LIST);
+                else
+                    await ReportCommandInfo(source, callContext, "There are no registered snippets.");
+            }
+            else
+            {
+                // Find and post the snippet requested by the user
+                if (snippets.TryGetValue(snippetKey, out string snippetText))
+                {
+                    if (target == CommandInterface.Eco)
+                    {
+                        EcoUtils.SendServerMessageToAll(permanent: true, $"{userName} invoked snippet \"{snippetKey}\"\n- - -\n{snippetText}\n- - -");
+                        ReportCommandInfo(source, callContext, "Snippet posted.");
+                    }
+                    else
+                    {
+                        await DiscordCommands.DisplayCommandData((CommandContext)callContext, $"[{snippetKey}]\n```{snippetText}```");
+                    }
+                }
+                else
+                {
+                    await ReportCommandError(source, callContext, $"No snippet with key \"{snippetKey}\" could be found.");
+                }
+            }
+        }
+
+        #endregion
     }
 }

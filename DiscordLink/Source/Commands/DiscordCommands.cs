@@ -824,5 +824,31 @@ namespace Eco.Plugins.DiscordLink
         }
 
         #endregion
+
+        #region Snippets
+
+        [Command("DiscordSnippet")]
+        [Description("Post a predefined snippet.")]
+        [Aliases("DL-DiscordSnippet", "DL-SnippetToDiscord", "DL-Snippet")]
+        public async Task DiscordSnippet(CommandContext ctx, string snippetKey = "")
+        {
+            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
+            {
+                await SharedCommands.Snippet(SharedCommands.CommandInterface.Discord, ctx, SharedCommands.CommandInterface.Discord, ctx.GetSenderName(), snippetKey);
+            }, ctx);
+        }
+
+        [Command("EcoSnippet")]
+        [Description("Post a predefined snippet.")]
+        [Aliases("DL-EcoSnippet", "DL-SnippetToEco")]
+        public async Task EcoSnippet(CommandContext ctx, string snippetKey = "")
+        {
+            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
+            {
+                await SharedCommands.Snippet(SharedCommands.CommandInterface.Discord, ctx, SharedCommands.CommandInterface.Eco, ctx.GetSenderName(), snippetKey);
+            }, ctx);
+        }
+
+        #endregion
     }
 }

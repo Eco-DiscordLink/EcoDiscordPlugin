@@ -642,28 +642,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                var plugin = Plugins.DiscordLink.DiscordLink.Obj;
-
-                var snippets = DLStorage.Instance.Snippets;
-                if (string.IsNullOrWhiteSpace(snippetKey)) // List all snippets if no key is given
-                {
-                    if(snippets.Count > 0)
-                        DisplayCommandData(callingUser, DLConstants.ECO_PANEL_SIMPLE_LIST, "Snippets", string.Join("\n", snippets.Keys));
-                    else
-                        ReportCommandInfo(callingUser, "There are no registered snippets.");
-                }
-                else
-                {
-                    // Find and post the snippet requested by the user
-                    if (snippets.TryGetValue(snippetKey, out string snippetText))
-                    {
-                        EcoUtils.SendServerMessageToAll(permanent: true, $"{callingUser.Name} invoked snippet \"{snippetKey}\"\n- - -\n{snippetText}\n- - -");
-                    }
-                    else
-                    {
-                        ReportCommandError(callingUser, $"No snippet with key \"{snippetKey}\" could be found.");
-                    }
-                }
+                SharedCommands.Snippet(SharedCommands.CommandInterface.Eco, callingUser, SharedCommands.CommandInterface.Eco, callingUser.Name, snippetKey);
             }, callingUser);
         }
 
