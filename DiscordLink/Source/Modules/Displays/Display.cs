@@ -156,7 +156,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                     return; // If something went wrong, we should just retry later
             }
 
-            bool createdOrDestroyedMessage = false;
+            List<DiscordMessage> createdMessages = new List<DiscordMessage>();
             List<string> matchedTags = new List<string>();
             List<DiscordMessage> unmatchedMessages = new List<DiscordMessage>();
             foreach(TargetDisplayData channelDisplayData in TargetDisplays)
@@ -215,7 +215,6 @@ namespace Eco.Plugins.DiscordLink.Modules
                 foreach(DiscordMessage message in unmatchedMessages)
                 {
                     await plugin.Client.DeleteMessageAsync(message);
-                    createdOrDestroyedMessage = true;
                     ++_opsCount;
                 }
                 unmatchedMessages.Clear();
@@ -229,16 +228,22 @@ namespace Eco.Plugins.DiscordLink.Modules
                         if (createdMessage == null)
                             continue;
 
-                        await PostDisplayCreated(createdMessage);
-                        createdOrDestroyedMessage = true;
+                        createdMessages.Add(createdMessage);
                         ++_opsCount;
                     }
                 }
                 matchedTags.Clear();
             }
 
-            if(createdOrDestroyedMessage)
+            if (unmatchedMessages.Count > 0 || createdMessages.Count > 0)
+            {
                 await FindMessages(plugin);
+
+                foreach(DiscordMessage message in createdMessages)
+                {
+                    await PostDisplayCreated(message);
+                }
+            }
 
             LastUpdateTime = DateTime.Now;
         }
