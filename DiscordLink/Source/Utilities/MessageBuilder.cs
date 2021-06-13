@@ -812,8 +812,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 foreach (Laborer laborer in workParty.Laborers)
                 {
                     if (laborer.Citizen == null) continue;
-                    string creator = (laborer.Citizen == workParty.Creator) ? "Creator" : string.Empty;
-                    workersDesc += $"{laborer.Citizen.Name} ({creator})\n";
+                    string creator = (laborer.Citizen == workParty.Creator) ? "(Creator)" : string.Empty;
+                    workersDesc += $"{laborer.Citizen.Name} {creator}\n";
                 }
 
                 if (string.IsNullOrWhiteSpace(workersDesc))
