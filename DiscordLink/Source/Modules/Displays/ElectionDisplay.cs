@@ -52,7 +52,7 @@ namespace Eco.Plugins.DiscordLink.Modules
         protected async override Task PostDisplayCreated(DiscordMessage message)
         {
             Election election = GetElectionFromMessage(message);
-            if (election != null && !election.BooleanElection)
+            if (election != null && election.BooleanElection)
                 await CreateVoteReactions(message);
         }
 
