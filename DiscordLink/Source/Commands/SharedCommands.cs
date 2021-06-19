@@ -82,7 +82,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task<bool> ResetWorldData(CommandInterface source, object callContext)
         {
             Logger.Info("ResetWorldData command invoked - Resetting world storage data");
-            DLStorage.Instance.Reset();
+            DLStorage.Instance.ResetWorldData();
             await ReportCommandInfo(source, callContext, "World storage data has been reset.");
             return true;
         }

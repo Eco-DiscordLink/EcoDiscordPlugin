@@ -46,6 +46,12 @@ namespace Eco.Plugins.DiscordLink
             Write();
         }
 
+        public void ResetWorldData()
+        {
+            WorldData = new WorldStorageData();
+            Write(); // Make sure we don't read old data in case of an ungraceful shutdown
+        }
+
         public void Write()
         {
             FileManager<PersistantStorageData>.WriteTypeHandledToFile(PersistentData, DLConstants.BasePath, PERSISANT_STORAGE_FILE_NAME);
@@ -56,12 +62,6 @@ namespace Eco.Plugins.DiscordLink
         {
             PersistentData = FileManager<PersistantStorageData>.ReadTypeHandledFromFile(DLConstants.BasePath, PERSISANT_STORAGE_FILE_NAME);
             WorldData = FileManager<WorldStorageData>.ReadTypeHandledFromFile(DLConstants.BasePath, WORLD_STORAGE_FILE_NAME);
-        }
-
-        public void Reset()
-        {
-            WorldData = new WorldStorageData();
-            Write(); // Make sure we don't read old data in case of an ungraceful shutdown
         }
 
         public void HandleEvent(DLEventType eventType, params object[] data)

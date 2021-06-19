@@ -263,7 +263,7 @@ namespace Eco.Plugins.DiscordLink
         public void HandleWorldReset()
         {
             Logger.Info("New world generated - Removing storage data for previous world");
-            DLStorage.Instance.Reset();
+            DLStorage.Instance.ResetWorldData();
         }
 
         #endregion
