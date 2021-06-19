@@ -20,7 +20,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected override bool ShouldRun()
         {
-            foreach(ChatChannelLink link in DLConfig.Data.ChatChannelLinks)
+            foreach (ChatChannelLink link in DLConfig.Data.ChatChannelLinks)
             {
                 if (link.IsValid() && (link.Direction == ChatSyncDirection.DiscordToEco || link.Direction == ChatSyncDirection.Duplex))
                     return true;

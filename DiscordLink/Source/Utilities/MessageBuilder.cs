@@ -101,13 +101,13 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 {
                     builder.AppendLine($"Server Name: {MessageUtils.FirstNonEmptyString(DLConfig.Data.ServerName, MessageUtils.StripTags(NetworkManager.GetServerInfo().Description), "[Server Title Missing]")}");
                     builder.AppendLine($"Server Version: {EcoVersion.VersionNumber}");
-                    if(DiscordLink.Obj.Client.ConnectionStatus == DLDiscordClient.ConnectionState.Connected)
+                    if (DiscordLink.Obj.Client.ConnectionStatus == DLDiscordClient.ConnectionState.Connected)
                         builder.AppendLine($"D# Version: {plugin.Client.DiscordClient.VersionString}");
                 }
                 builder.AppendLine($"Plugin Status: {plugin.GetStatus()}");
                 builder.AppendLine($"Discord Client Status: {plugin.Client.Status}");
                 TimeSpan elapssedTime = DateTime.Now.Subtract(plugin.InitTime);
-                if(verbose)
+                if (verbose)
                     builder.AppendLine($"Start Time: {plugin.InitTime:yyyy-MM-dd HH:mm}");
                 builder.AppendLine($"Running Time: {(int)elapssedTime.TotalDays}:{elapssedTime.Hours}:{elapssedTime.Minutes}");
 
@@ -336,7 +336,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 else
                 {
                     int randomNumber = new Random().Next(2);
-                    if(randomNumber == 0)
+                    if (randomNumber == 0)
                     {
                         AnimalSpecies animal = (AnimalSpecies)Simulation.EcoSim.AllSpecies.Where(species => species.GetType().DerivesFrom(typeof(AnimalSpecies))).Random();
                         string animalName = animal.DisplayName.ToLower();
@@ -464,7 +464,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     IEnumerable<string> onlineUsers = UserManager.OnlineUsers.Where(user => user.Client.Connected).Select(user => user.Name);
                     string playerCount = UserManager.OnlineUsers.Where(user => user.Client.Connected).Count().ToString();
                     embed.AddField($"Online Players ({playerCount})", Shared.GetOnlinePlayerList(), inline: true);
-                    if(flag.HasFlag(ServerInfoComponentFlag.PlayerListLoginTime))
+                    if (flag.HasFlag(ServerInfoComponentFlag.PlayerListLoginTime))
                     {
                         string sessionTimeList = Shared.GetPlayerSessionTimeList();
                         if (!string.IsNullOrWhiteSpace(sessionTimeList))
@@ -968,7 +968,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     };
                     ICollection<StoreOffer> Offers = TradeOffersToFields(groupedBuyOffers, groupedSellOffers, getLabel);
 
-                    for(int i = 0; i < Offers.Count; ++i)
+                    for (int i = 0; i < Offers.Count; ++i)
                     {
                         StoreOffer currentOffer = Offers.ElementAt(i);
                         StoreOffer nextOffer = null;

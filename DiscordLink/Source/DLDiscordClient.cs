@@ -58,7 +58,7 @@ namespace Eco.Plugins.DiscordLink
                 return false; // Do not attempt to initialize if the bot token is empty
             }
 
-            if(!await CreateAndConnectClient(useFullIntents: true))
+            if (!await CreateAndConnectClient(useFullIntents: true))
                 return false;
 
             await Task.Delay(DLConstants.POST_SERVER_CONNECTION_WAIT_MS);
@@ -177,7 +177,7 @@ namespace Eco.Plugins.DiscordLink
         {
             Status = "Restarting...";
 
-            if(ConnectionStatus == ConnectionState.Connected || ConnectionStatus == ConnectionState.Connecting)
+            if (ConnectionStatus == ConnectionState.Connected || ConnectionStatus == ConnectionState.Connecting)
                 await Stop();
 
             if (ConnectionStatus == ConnectionState.Disconnected)
@@ -272,7 +272,7 @@ namespace Eco.Plugins.DiscordLink
 
         private async Task HandleSocketClosedOnConnection(DiscordClient client, SocketCloseEventArgs args)
         {
-            if(args.CloseCode == 4014) // Application does not have the requested privileged intents
+            if (args.CloseCode == 4014) // Application does not have the requested privileged intents
             {
                 Logger.Warning("Bot application is not configured to allow reading of full server member list as it lacks the Server Members Intent. Some features will be unavailable. See install instructions for help with adding intents.");
             }
@@ -378,7 +378,7 @@ namespace Eco.Plugins.DiscordLink
         public async Task<DiscordMember> GetMemberAsync(ulong guildID, ulong userID)
         {
             DiscordGuild guild = await DiscordClient.GetGuildAsync(guildID);
-            if(guild == null)
+            if (guild == null)
                 return null;
 
             return await GetMemberAsync(guild, userID);
@@ -573,7 +573,7 @@ namespace Eco.Plugins.DiscordLink
                         if (ChannelHasPermission(message.Channel, Permissions.EmbedLinks))
                         {
                             List<DiscordEmbed> splitEmbeds = MessageUtils.BuildDiscordEmbeds(embedContent);
-                            if(splitEmbeds.Count > 0)
+                            if (splitEmbeds.Count > 0)
                                 editedMessage = await message.ModifyAsync(textContent, splitEmbeds[0]); // TODO: Actually keep track of split messages instead of only overwriting the first one
                         }
                         else

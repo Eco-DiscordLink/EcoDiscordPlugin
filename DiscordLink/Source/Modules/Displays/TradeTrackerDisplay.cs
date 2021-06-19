@@ -71,7 +71,7 @@ namespace Eco.Plugins.DiscordLink.Modules
         {
             tagAndContent = new List<Tuple<string, DiscordLinkEmbed>>();
             List<string> trackedTrades = DLStorage.WorldData.PlayerTrackedTrades[(target as UserLink).Member.Id];
-            foreach(string trade in trackedTrades)
+            foreach (string trade in trackedTrades)
             {
                 string matchedName = TradeUtils.GetMatchAndOffers(trade, out TradeTargetType offerType, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
                 if (offerType == TradeTargetType.Invalid)

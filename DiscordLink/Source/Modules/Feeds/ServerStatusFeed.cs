@@ -30,7 +30,7 @@ namespace Eco.Plugins.DiscordLink.Modules
         protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
         {
             string message;
-            switch(trigger)
+            switch (trigger)
             {
                 case DLEventType.ServerStarted:
                     message = "Server Started  :white_check_mark:";
@@ -52,7 +52,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             {
                 if (!serverStatusLink.IsValid())
                     continue;
-                
+
                 await DiscordLink.Obj.Client.SendMessageAsync(serverStatusLink.Channel, null, embed);
                 ++_opsCount;
             }

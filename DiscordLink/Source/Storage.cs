@@ -66,14 +66,14 @@ namespace Eco.Plugins.DiscordLink
 
         public void HandleEvent(DLEventType eventType, params object[] data)
         {
-            switch(eventType)
+            switch (eventType)
             {
                 // Keep track of the amount of trades per currency
                 case DLEventType.AccumulatedTrade:
                     if (!(data[0] is IEnumerable<List<CurrencyTrade>> accumulatedTrade))
                         return;
-                    
-                    foreach(var list in accumulatedTrade)
+
+                    foreach (var list in accumulatedTrade)
                     {
                         if (list.Count <= 0) continue;
 
@@ -109,14 +109,14 @@ namespace Eco.Plugins.DiscordLink
 
             public async Task<bool> AddTrackedTradeItem(ulong discordUserId, string tradeItem)
             {
-                if(!PlayerTrackedTrades.ContainsKey(discordUserId))
+                if (!PlayerTrackedTrades.ContainsKey(discordUserId))
                     PlayerTrackedTrades.Add(discordUserId, new List<string>());
 
                 if (PlayerTrackedTrades[discordUserId].Contains(tradeItem))
                     return false;
 
                 PlayerTrackedTrades[discordUserId].Add(tradeItem);
-                if(TrackedTradeAdded != null)
+                if (TrackedTradeAdded != null)
                     await TrackedTradeAdded.Invoke(this, EventArgs.Empty, tradeItem);
 
                 return true;
@@ -149,29 +149,29 @@ namespace Eco.Plugins.DiscordLink
             public int GetTrackedTradesCountTotal()
             {
                 int count = 0;
-                foreach(List<string> trades in PlayerTrackedTrades.Values)
+                foreach (List<string> trades in PlayerTrackedTrades.Values)
                 {
                     count += trades.Count;
                 }
                 return count;
             }
 
-            public int GetTrackedTradesCountForUser(ulong discordUserId)
+            public int GetTrackedTradesCountForUser(ulong discordUserID)
             {
-                if (!PlayerTrackedTrades.ContainsKey(discordUserId))
+                if (!PlayerTrackedTrades.ContainsKey(discordUserID))
                     return 0;
 
-                return PlayerTrackedTrades[discordUserId].Count;
+                return PlayerTrackedTrades[discordUserID].Count;
             }
 
-            public string ListTrackedTrades(ulong discordUserId)
+            public string ListTrackedTrades(ulong discordUserID)
             {
-                if (!PlayerTrackedTrades.ContainsKey(discordUserId) || PlayerTrackedTrades[discordUserId].Count <= 0)
+                if (!PlayerTrackedTrades.ContainsKey(discordUserID) || PlayerTrackedTrades[discordUserID].Count <= 0)
                     return "No tracked trades exist for this user";
 
                 StringBuilder builder = new StringBuilder();
                 builder.Append("Your tracked trades are:\n");
-                foreach(string trackedTrade in PlayerTrackedTrades[discordUserId])
+                foreach (string trackedTrade in PlayerTrackedTrades[discordUserID])
                 {
                     builder.AppendLine($"- {trackedTrade}");
                 }

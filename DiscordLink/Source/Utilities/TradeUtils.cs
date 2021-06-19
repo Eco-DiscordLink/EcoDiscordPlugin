@@ -154,11 +154,11 @@ namespace Eco.Plugins.DiscordLink.Utilities
         private static IEnumerable<Tag> FindTags()
         {
             List<Tag> uniqueTags = new List<Tag>();
-            foreach(Item item in Item.AllItems)
+            foreach (Item item in Item.AllItems)
             {
-                foreach(Tag tag in item.Tags())
+                foreach (Tag tag in item.Tags())
                 {
-                    if (!uniqueTags.Contains(tag)) 
+                    if (!uniqueTags.Contains(tag))
                         uniqueTags.Add(tag);
                 }
             }

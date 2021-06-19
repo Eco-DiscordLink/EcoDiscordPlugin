@@ -123,7 +123,7 @@ namespace Eco.Plugins.DiscordLink
         private static bool IsCommandAllowedInChannel(CommandContext ctx)
         {
             var commandChannels = DLConfig.Data.DiscordCommandChannels;
-            bool allowed = 
+            bool allowed =
                 ctx.Channel.IsPrivate
                 || DiscordLink.Obj.Client.MemberIsAdmin(ctx.Member) // Allow admins to override channel requirements
                 || !(commandChannels.Any(link => link.IsValid())); // Always allow if there are no valid command channels or the command is sent via DM
@@ -150,7 +150,7 @@ namespace Eco.Plugins.DiscordLink
 
         public static async Task ReportCommandError(CommandContext ctx, string message)
         {
-           await RespondToCommand(ctx, message);
+            await RespondToCommand(ctx, message);
         }
 
         public static async Task ReportCommandInfo(CommandContext ctx, string message)
@@ -401,14 +401,14 @@ namespace Eco.Plugins.DiscordLink
 
                 // Discord member
                 DiscordMember member = DiscordLink.Obj.Client.MemberByNameOrID(ctx.Guild, userNameOrID);
-                if(ecoUser == null && member == null)
+                if (ecoUser == null && member == null)
                 {
                     await ReportCommandError(ctx, $"No Eco or Discord User with the name or ID {userNameOrID} could be found.");
                     return;
                 }
 
                 LinkedUser linkedUser = UserLinkManager.LinkedUserByDiscordUser(member, ctx.Member, "Player Discord Report Generation");
-                if(linkedUser == null)
+                if (linkedUser == null)
                     return;
 
                 DiscordLinkEmbed linkedUserReport = MessageBuilder.Discord.GetPlayerReport(linkedUser.EcoUser, MessageBuilder.PlayerReportComponentFlag.DiscordInfo).Result;
@@ -667,7 +667,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.SendNotification(SharedCommands.CommandInterface.Discord, ctx, message, string.Empty, includeOfflineUsers );
+                await SharedCommands.SendNotification(SharedCommands.CommandInterface.Discord, ctx, message, string.Empty, includeOfflineUsers);
             }, ctx);
         }
 

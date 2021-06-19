@@ -41,7 +41,7 @@ namespace Eco.Plugins.DiscordLink
             LinkedUser linkedUser = LinkedUserByEcoUser(user, requireVerification: false);
             if (linkedUser != null)
             {
-                if(linkedUser.Verified)
+                if (linkedUser.Verified)
                     OnLinkedUserRemoved?.Invoke(null, linkedUser);
 
                 DLStorage.PersistentData.LinkedUsers.Remove(linkedUser);
@@ -90,7 +90,7 @@ namespace Eco.Plugins.DiscordLink
             if (user.SlgId != null)
                 result = DLStorage.PersistentData.LinkedUsers.Find(linkedUser => linkedUser.SlgID == user.SlgId && (linkedUser.Verified || !requireVerification));
             else if (user.SteamId != null)
-                result = DLStorage.PersistentData.LinkedUsers.Find(linkedUser => linkedUser.SteamID == user.SteamId && (linkedUser.Verified || !requireVerification));    
+                result = DLStorage.PersistentData.LinkedUsers.Find(linkedUser => linkedUser.SteamID == user.SteamId && (linkedUser.Verified || !requireVerification));
             else
                 return null;
 
@@ -102,9 +102,9 @@ namespace Eco.Plugins.DiscordLink
 
         public static void ReportLinkLookupFailure(object caller, string callingContext)
         {
-            if(caller is User user)
+            if (caller is User user)
                 EcoUtils.SendErrorBoxToUser(user, $"{callingContext} Failed\nYou have not linked your Discord Account to DiscordLink on this Eco Server.\nUse the `\\DL-Link` command to initiate account linking.");
-            else if(caller is DiscordMember member)
+            else if (caller is DiscordMember member)
                 _ = DiscordLink.Obj.Client.SendDMAsync(member, $"**{callingContext} Failed**\nYou have not linked your Discord Account to DiscordLink on this Eco Server.\nUse the `\\DL-Link` command in Eco to initiate account linking.");
             else
                 Logger.Error("Attempted to fetch a linked user using an invalid caller argument");

@@ -20,9 +20,9 @@ namespace Eco.Plugins.DiscordLink.Utilities
             string directoryPath = Path.GetDirectoryName(path);
             try
             {
-               Directory.CreateDirectory(directoryPath);
+                Directory.CreateDirectory(directoryPath);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Logger.Error($"Failed to create directory at path \"{path}\". Error message: {e}");
             }

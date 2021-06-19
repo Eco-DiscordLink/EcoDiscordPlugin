@@ -29,13 +29,13 @@ namespace Eco.Plugins.DiscordLink.Modules
         {
             string lastUpdateTime = (LastUpdateTime == DateTime.MinValue) ? "Never" : LastUpdateTime.ToString("yyyy-MM-dd HH:mm");
             int trackedMessageCount = 0;
-            foreach(TargetDisplayData target in TargetDisplays)
+            foreach (TargetDisplayData target in TargetDisplays)
             {
                 trackedMessageCount += target.DisplayMessages.Count;
             }
             string info = $"Last update time: {lastUpdateTime}";
-                info += $"\r\nTracked Display Messages: {trackedMessageCount}";
-                info += $"\r\n{childInfo}";
+            info += $"\r\nTracked Display Messages: {trackedMessageCount}";
+            info += $"\r\n{childInfo}";
 
             return base.GetDisplayText(info, verbose);
         }
@@ -68,7 +68,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected override bool ShouldRun()
         {
-            foreach(DiscordTarget target in GetDiscordTargets())
+            foreach (DiscordTarget target in GetDiscordTargets())
             {
                 // If there is at least one valid target, we should run the display
                 if (target.IsValid())
@@ -109,7 +109,7 @@ namespace Eco.Plugins.DiscordLink.Modules
         protected sealed override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
         {
             // Handle deleted messages first to avoid crashes
-            if(trigger == DLEventType.DiscordMessageDeleted)
+            if (trigger == DLEventType.DiscordMessageDeleted)
             {
                 if (!(data[0] is DiscordMessage message))
                     return;
@@ -130,7 +130,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                         break;
                 }
             }
-            else if(trigger == DLEventType.DiscordReactionAdded || trigger == DLEventType.DiscordReactionRemoved)
+            else if (trigger == DLEventType.DiscordReactionAdded || trigger == DLEventType.DiscordReactionRemoved)
             {
                 Utilities.Utils.DiscordReactionChange changeType = (trigger == DLEventType.DiscordReactionAdded ? Utilities.Utils.DiscordReactionChange.Added : Utilities.Utils.DiscordReactionChange.Removed);
                 await HandleReactionChange(data[0] as DiscordUser, data[1] as DiscordMessage, data[2] as DiscordEmoji, changeType);
@@ -149,7 +149,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 return;
             }
 
-            if(_dirty || TargetDisplays.Count <= 0)
+            if (_dirty || TargetDisplays.Count <= 0)
             {
                 await FindMessages(plugin);
                 if (_dirty || TargetDisplays.Count <= 0)
@@ -159,7 +159,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             List<DiscordMessage> createdMessages = new List<DiscordMessage>();
             List<string> matchedTags = new List<string>();
             List<DiscordMessage> unmatchedMessages = new List<DiscordMessage>();
-            foreach(TargetDisplayData channelDisplayData in TargetDisplays)
+            foreach (TargetDisplayData channelDisplayData in TargetDisplays)
             {
                 DiscordTarget target = channelDisplayData.Target;
                 ChannelLink channelLink = target as ChannelLink;
@@ -191,7 +191,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                     if (!message.Content.StartsWith(BaseTag)) continue; // The message belongs to a different display
 
                     bool found = false;
-                    foreach(var tagAndContent in tagsAndContent)
+                    foreach (var tagAndContent in tagsAndContent)
                     {
                         if (message.Content.Contains(tagAndContent.Item1))
                         {
@@ -212,7 +212,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 }
 
                 // Delete the messages that are no longer relevant
-                foreach(DiscordMessage message in unmatchedMessages)
+                foreach (DiscordMessage message in unmatchedMessages)
                 {
                     await plugin.Client.DeleteMessageAsync(message);
                     ++_opsCount;
@@ -220,9 +220,9 @@ namespace Eco.Plugins.DiscordLink.Modules
                 unmatchedMessages.Clear();
 
                 // Send the messages that didn't already exist
-                foreach(var tagAndContent in tagsAndContent)
+                foreach (var tagAndContent in tagsAndContent)
                 {
-                    if(!matchedTags.Contains(tagAndContent.Item1))
+                    if (!matchedTags.Contains(tagAndContent.Item1))
                     {
                         DiscordMessage createdMessage = await plugin.Client.SendMessageAsync(targetChannel, tagAndContent.Item1, tagAndContent.Item2);
                         if (createdMessage == null)
@@ -239,7 +239,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             {
                 await FindMessages(plugin);
 
-                foreach(DiscordMessage message in createdMessages)
+                foreach (DiscordMessage message in createdMessages)
                 {
                     await PostDisplayCreated(message);
                 }
@@ -278,21 +278,21 @@ namespace Eco.Plugins.DiscordLink.Modules
 
                     targetMessages = await plugin.Client.GetMessagesAsync(channelLink.Channel);
                 }
-                else if(userLink != null)
+                else if (userLink != null)
                 {
                     DiscordDmChannel dmChannel = await userLink.Member.CreateDmChannelAsync();
                     targetMessages = await dmChannel.GetMessagesAsync();
                 }
-                
+
                 if (targetMessages == null)
                 {
                     // There was an error or no messages exist - Clean up and return
                     ClearTargetDisplays();
                     return;
-                } 
+                }
 
                 // Go through the messages and find any our tagged messages
-                foreach(DiscordMessage message in targetMessages)
+                foreach (DiscordMessage message in targetMessages)
                 {
                     Match match = MessageUtils.DisplayRegex.Match(message.Content);
                     if (match.Groups.Count <= 1)

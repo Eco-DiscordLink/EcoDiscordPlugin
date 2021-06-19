@@ -44,7 +44,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             foreach (List<CurrencyTrade> accumulatedTradeList in accumulatedTrades)
             {
                 if (accumulatedTradeList.Count <= 0) continue;
-                
+
                 CurrencyTrade firstTrade = accumulatedTradeList[0];
 
                 DiscordLinkEmbed embed = new DiscordLinkEmbed();

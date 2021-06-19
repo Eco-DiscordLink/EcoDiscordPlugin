@@ -311,7 +311,7 @@ namespace Eco.Plugins.DiscordLink
 
             string formattedMessage = $"{message}\n\n[{senderName}]";
             bool sent = recipient == null
-                ?  EcoUtils.SendInfoPanelToAll(instance, title, formattedMessage)
+                ? EcoUtils.SendInfoPanelToAll(instance, title, formattedMessage)
                 : EcoUtils.SendInfoPanelToUser(recipient, instance, title, formattedMessage);
 
             if (sent)
@@ -329,7 +329,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task<bool> PlayerReport(CommandInterface source, object callContext, string playerNameOrID)
         {
             User user = EcoUtils.UserByNameOrEcoID(playerNameOrID);
-            if(user == null)
+            if (user == null)
             {
                 await ReportCommandError(source, callContext, $"No player with the name or ID \"{playerNameOrID}\" could be found.");
                 return false;
@@ -538,7 +538,7 @@ namespace Eco.Plugins.DiscordLink
                 await ReportCommandError(source, callContext, "The CurrencyType parameter must be \"All\", \"Personal\" or \"Minted\".");
                 return false;
             }
-            if(int.TryParse(maxCurrenciesPerTypeStr, out int maxCurrenciesPerType) || maxCurrenciesPerType <= 0)
+            if (int.TryParse(maxCurrenciesPerTypeStr, out int maxCurrenciesPerType) || maxCurrenciesPerType <= 0)
             {
                 await ReportCommandError(source, callContext, "The MaxCurrenciesPerType parameter must be a positive number.");
                 return false;
@@ -602,7 +602,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task<bool> ElectionReport(CommandInterface source, object callContext, string electionNameOrID)
         {
             Election election = EcoUtils.ActiveElectionByNameOrID(electionNameOrID);
-            if(election == null)
+            if (election == null)
             {
                 await ReportCommandError(source, callContext, $"No election with the name or ID \"{electionNameOrID}\" could be found.");
                 return false;
@@ -619,7 +619,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task<bool> ElectionsReport(CommandInterface source, object callContext)
         {
             IEnumerable<Election> elections = EcoUtils.ActiveElections;
-            if(elections.Count() <= 0)
+            if (elections.Count() <= 0)
             {
                 await ReportCommandInfo(source, callContext, "There are no active elections.");
                 return false;
@@ -633,7 +633,7 @@ namespace Eco.Plugins.DiscordLink
                     reports.Add(report);
             }
 
-            if(reports.Count() <= 0)
+            if (reports.Count() <= 0)
             {
                 await ReportCommandInfo(source, callContext, "None of the active elections have a voting option.");
                 return false;
@@ -759,7 +759,7 @@ namespace Eco.Plugins.DiscordLink
             }
 
             string matchedName = TradeUtils.GetMatchAndOffers(searchName, out TradeTargetType offerType, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
-            if(offerType == TradeTargetType.Invalid)
+            if (offerType == TradeTargetType.Invalid)
             {
                 await ReportCommandError(source, callContext, $"No item, tag or player with the name \"{searchName}\" could be found.");
                 return false;

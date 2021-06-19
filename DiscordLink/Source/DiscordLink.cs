@@ -208,7 +208,7 @@ namespace Eco.Plugins.DiscordLink
 
                     HandleEvent(DLEventType.EcoMessageSent, chatSent);
                     break;
-            
+
                 case CurrencyTrade currencyTrade:
                     HandleEvent(DLEventType.Trade, currencyTrade);
                     break;
@@ -216,23 +216,23 @@ namespace Eco.Plugins.DiscordLink
                 case WorkOrderAction workOrderAction:
                     HandleEvent(DLEventType.WorkOrderCreated, workOrderAction);
                     break;
-            
+
                 case PostedWorkParty postedWorkParty:
                     HandleEvent(DLEventType.PostedWorkParty, postedWorkParty);
                     break;
-            
+
                 case CompletedWorkParty completedWorkParty:
                     HandleEvent(DLEventType.CompletedWorkParty, completedWorkParty);
                     break;
-            
+
                 case JoinedWorkParty joinedWorkParty:
                     HandleEvent(DLEventType.JoinedWorkParty, joinedWorkParty);
                     break;
-            
+
                 case LeftWorkParty leftWorkParty:
                     HandleEvent(DLEventType.LeftWorkParty, leftWorkParty);
                     break;
-            
+
                 case WorkedForWorkParty workedParty:
                     HandleEvent(DLEventType.WorkedWorkParty, workedParty);
                     break;

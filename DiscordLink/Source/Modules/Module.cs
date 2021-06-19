@@ -112,12 +112,15 @@ namespace Eco.Plugins.DiscordLink.Modules
         public virtual async Task Update(DiscordLink plugin, DLEventType trigger, params object[] data)
         {
             // Check if this module should execute on the supplied trigger
-            if ((GetTriggers() & trigger) == 0) return;
+            if ((GetTriggers() & trigger) == 0)
+                return;
 
             // Make sure that the Update function doesn't get overlapping executions
             using (await _overlapLock.LockAsync())
             {
-                if (_isShuttingDown) return;
+                if (_isShuttingDown)
+                    return;
+
                 await UpdateInternal(plugin, trigger, data);
             }
         }

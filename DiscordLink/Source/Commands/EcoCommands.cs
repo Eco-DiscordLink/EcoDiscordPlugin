@@ -338,7 +338,7 @@ namespace Eco.Plugins.DiscordLink
                 var plugin = Plugins.DiscordLink.DiscordLink.Obj;
 
                 DiscordGuild guild = plugin.Client.GuildByNameOrID(guildNameOrID);
-                if(guild == null)
+                if (guild == null)
                 {
                     ReportCommandError(callingUser, $"No guild with the name or ID \"{guildNameOrID}\" could be found.");
                     return;

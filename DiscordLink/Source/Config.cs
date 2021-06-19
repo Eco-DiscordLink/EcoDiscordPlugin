@@ -181,7 +181,7 @@ namespace Eco.Plugins.DiscordLink
             }
 
             // Max tracked trades per user
-            if(Data.MaxTrackedTradesPerUser < 0)
+            if (Data.MaxTrackedTradesPerUser < 0)
             {
                 Data.MaxTrackedTradesPerUser = DLConfig.DefaultValues.MaxTrackedTradesPerUser;
             }
@@ -194,7 +194,7 @@ namespace Eco.Plugins.DiscordLink
             }
 
             // Currency channels
-            foreach(CurrencyChannelLink link in Data.CurrencyDisplayChannels)
+            foreach (CurrencyChannelLink link in Data.CurrencyDisplayChannels)
             {
                 if (link.MaxMintedCount < 0)
                 {
@@ -208,7 +208,7 @@ namespace Eco.Plugins.DiscordLink
                     correctionMade = true;
                 }
 
-                if(link.MaxTopCurrencyHolderCount < 0 || link.MaxTopCurrencyHolderCount > DLConstants.MAX_TOP_CURRENCY_HOLDER_DISPLAY_LIMIT)
+                if (link.MaxTopCurrencyHolderCount < 0 || link.MaxTopCurrencyHolderCount > DLConstants.MAX_TOP_CURRENCY_HOLDER_DISPLAY_LIMIT)
                 {
                     link.MaxTopCurrencyHolderCount = DefaultValues.MaxTopCurrencyHolderCount;
                     correctionMade = true;

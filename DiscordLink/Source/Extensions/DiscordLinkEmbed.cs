@@ -33,7 +33,7 @@ namespace Eco.Plugins.DiscordLink.Extensions
             this.Description = RHS.Description;
             this.Footer = RHS.Footer;
             this.Thumbnail = RHS.Thumbnail;
-            foreach(DiscordLinkEmbedField field in RHS.Fields)
+            foreach (DiscordLinkEmbedField field in RHS.Fields)
             {
                 Fields.Add(new DiscordLinkEmbedField(field));
             }
@@ -73,7 +73,7 @@ namespace Eco.Plugins.DiscordLink.Extensions
 
             // Default auto line break allowing to opposite value of inline
             if (!allowAutoLineBreak == null)
-                allowAutoLineBreak = !inline; 
+                allowAutoLineBreak = !inline;
 
             // Shorten lines to avoid alignment being broken by automatic line breaks
             if (!(bool)allowAutoLineBreak && text.Length > DLConstants.DISCORD_EMBED_FIELD_CHARACTER_PER_LINE_LIMIT)
