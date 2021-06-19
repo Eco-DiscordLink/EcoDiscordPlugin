@@ -23,8 +23,8 @@ namespace Eco.Plugins.DiscordLink
         public static bool VerifyLinkedUser(ulong discordUserId)
         {
             // Find the linked user for the sender and mark them as verified
-            LinkedUser user = LinkedUserByDiscordID(discordUserId, false);
-            bool result = user != null;
+            LinkedUser user = LinkedUserByDiscordID(discordUserId, requireVerification: false);
+            bool result = user != null && !user.Verified;
             if (result)
             {
                 user.Verified = true;
