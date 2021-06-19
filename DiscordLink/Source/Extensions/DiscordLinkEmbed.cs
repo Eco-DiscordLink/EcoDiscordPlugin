@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Eco.Plugins.DiscordLink.Utilities;
+using System.Collections.Generic;
+using System.Text;
 
 namespace Eco.Plugins.DiscordLink.Extensions
 {
@@ -61,13 +63,31 @@ namespace Eco.Plugins.DiscordLink.Extensions
             return this;
         }
 
-        public DiscordLinkEmbed AddField(string name, string text, bool inline = false)
+        public DiscordLinkEmbed AddField(string name, string text, bool? allowAutoLineBreak = null, bool inline = false)
         {
             if (string.IsNullOrWhiteSpace(name))
                 name = INVISIBLE_EMBED_CHAR;
 
             if (string.IsNullOrWhiteSpace(text))
                 text = INVISIBLE_EMBED_CHAR;
+
+            // Default auto line break allowing to opposite value of inline
+            if (!allowAutoLineBreak == null)
+                allowAutoLineBreak = !inline; 
+
+            // Shorten lines to avoid alignment being broken by automatic line breaks
+            if (!(bool)allowAutoLineBreak && text.Length > DLConstants.DISCORD_EMBED_FIELD_CHARACTER_PER_LINE_LIMIT)
+            {
+                StringBuilder builder = new StringBuilder();
+                foreach (string line in text.Split("\n"))
+                {
+                    string shortLine = line;
+                    if (line.Length > DLConstants.DISCORD_EMBED_FIELD_CHARACTER_PER_LINE_LIMIT)
+                        shortLine = $"{line.Substring(0, DLConstants.DISCORD_EMBED_FIELD_CHARACTER_PER_LINE_LIMIT - 3)}...";
+                    builder.AppendLine(shortLine);
+                }
+                text = builder.ToString();
+            }
 
             Fields.Add(new DiscordLinkEmbedField(name, text, inline));
             return this;

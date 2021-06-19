@@ -215,11 +215,6 @@ namespace Eco.Plugins.DiscordLink.Utilities
             return FormatDiscordMentions(formattedMessage, channel);
         }
 
-        public static string FormatEmbedLineNoBreak(string str)
-        {
-            return str.Length <= DLConstants.DISCORD_EMBED_FIELD_CHARACTER_PER_LINE_LIMIT ? str : $"{str.Substring(0, DLConstants.DISCORD_EMBED_FIELD_CHARACTER_PER_LINE_LIMIT - 3)}...";
-        }
-
         private static string FormatDiscordMentions(string message, DiscordChannel channel)
         {
             return DiscordMentionRegex.Replace(message, capture =>

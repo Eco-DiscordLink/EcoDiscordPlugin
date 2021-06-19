@@ -200,7 +200,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             public static string GetOnlinePlayerList()
             {
                 IEnumerable<User> onlineUsers = UserManager.OnlineUsers.Where(user => user.Client.Connected).OrderBy(user => user.Name);
-                string playerList = string.Join("\n", onlineUsers.Select(u => MessageUtils.FormatEmbedLineNoBreak(MessageUtils.StripTags(u.Name))));
+                string playerList = string.Join("\n", onlineUsers.Select(u => MessageUtils.StripTags(u.Name)));
 
                 if (string.IsNullOrEmpty(playerList))
                     playerList = "-- No players online --";
@@ -215,7 +215,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 timeRemainingList = string.Empty;
                 foreach (Election election in EcoUtils.ActiveElections)
                 {
-                    electionList += $"{MessageUtils.FormatEmbedLineNoBreak(MessageUtils.StripTags(election.Name))}\n";
+                    electionList += $"{MessageUtils.StripTags(election.Name)}\n";
                     votesList += $"{election.TotalVotes} Votes\n";
 
                     TimeSpan timeRemainingSpan = new TimeSpan(0, 0, (int)election.TimeLeft);
@@ -229,8 +229,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 creatorList = string.Empty;
                 foreach (Law law in EcoUtils.ActiveLaws)
                 {
-                    lawList += $"{MessageUtils.FormatEmbedLineNoBreak(MessageUtils.StripTags(law.Name))}\n";
-                    creatorList += $"{MessageUtils.FormatEmbedLineNoBreak(MessageUtils.StripTags(law.Creator.Name))}\n";
+                    lawList += $"{MessageUtils.StripTags(law.Name)}\n";
+                    creatorList += $"{MessageUtils.StripTags(law.Creator.Name)}\n";
                 }
             }
 
