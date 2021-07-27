@@ -119,12 +119,6 @@ namespace Eco.Plugins.DiscordLink
         [JsonIgnore]
         public DiscordMember DiscordMember { get { return !string.IsNullOrEmpty(DiscordID) ? DiscordLink.Obj.Client.GuildByNameOrID(GuildID)?.Members.Values.FirstOrDefault(member => member.Id.ToString() == DiscordID) : null; } }
 
-        public readonly string SlgID = string.Empty;
-        public readonly string SteamID = string.Empty;
-        public readonly string DiscordID = string.Empty;
-        public readonly string GuildID = string.Empty;
-        public bool Verified = false;
-
         public LinkedUser(string slgID, string steamID, string discordID, string guildID)
         {
             this.SlgID = slgID;
@@ -132,5 +126,11 @@ namespace Eco.Plugins.DiscordLink
             this.DiscordID = discordID;
             this.GuildID = guildID;
         }
+
+        public readonly string SlgID = string.Empty;
+        public readonly string SteamID = string.Empty;
+        public readonly string DiscordID = string.Empty;
+        public readonly string GuildID = string.Empty;
+        public bool Verified = false;
     }
 }

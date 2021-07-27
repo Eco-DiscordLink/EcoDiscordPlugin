@@ -1,6 +1,4 @@
 using Eco.Core.Utils;
-using Eco.Shared.Localization;
-using Eco.Shared.Utils;
 using static Eco.EM.Framework.Utils.ConsoleColors;
 
 namespace Eco.Plugins.DiscordLink.Utilities

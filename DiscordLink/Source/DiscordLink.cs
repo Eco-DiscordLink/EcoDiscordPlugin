@@ -61,7 +61,7 @@ namespace Eco.Plugins.DiscordLink
 
         public string GetStatus()
         {
-            return _status;
+            return Status;
         }
 
         public Result ShouldOverrideAuth(GameAction action)
