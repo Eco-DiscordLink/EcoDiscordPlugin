@@ -230,7 +230,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 foreach (Law law in EcoUtils.ActiveLaws)
                 {
                     lawList += $"{MessageUtils.StripTags(law.Name)}\n";
-                    creatorList += $"{MessageUtils.StripTags(law.Creator.Name)}\n";
+                    creatorList += law.Creator != null ? $"{MessageUtils.StripTags(law.Creator.Name)}\n" : "Unknown\n";
                 }
             }
 
