@@ -353,6 +353,18 @@ namespace Eco.Plugins.DiscordLink
             };
         }
 
+        public bool WebServerAddressEndsWithPort()
+        {
+            if (string.IsNullOrEmpty(WebServerAddress))
+                return false;
+
+            int lastColonPos = WebServerAddress.LastIndexOf(":");
+            if (lastColonPos == -1 || lastColonPos >= WebServerAddress.Length)
+                return false;
+
+            return WebServerAddress.Substring(lastColonPos + 1).All(c => Char.IsDigit(c));
+        }
+
         [Description("The token provided by the Discord API to allow access to the Discord bot. This setting can be changed while the server is running and will in that case trigger a reconnection to Discord."), Category("Base Configuration - Discord")]
         public string BotToken { get; set; }
 
@@ -377,7 +389,7 @@ namespace Eco.Plugins.DiscordLink
         [Description("The game server connection information to display to users. This setting can be changed while the server is running."), Category("Base Configuration - Eco")]
         public string ConnectionInfo { get; set; }
 
-        [Description("The address (URL or IP) of the web server to use in web server links. This setting can be changed while the server is running."), Category("Base Configuration - Eco")]
+        [Description("The address (URL or IP) of the web server to use in web server links. If the web server traffic is being routed through a different port than the configured \"Web Server Port\" fro, the Network config, also qualify this address with the rereouted port number. This setting can be changed while the server is running."), Category("Base Configuration - Eco")]
         [UrlValidation(ErrorMessage = "The value must start with http:// or https://. ")]
         public string WebServerAddress { get; set; }
 

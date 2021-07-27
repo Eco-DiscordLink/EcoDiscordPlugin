@@ -736,7 +736,10 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 if (!string.IsNullOrWhiteSpace(DLConfig.Data.WebServerAddress))
                 {
                     ServerInfo serverInfo = NetworkManager.GetServerInfo();
-                    report.AddField("URL", $"{DLConfig.Data.WebServerAddress}:{serverInfo.WebPort}/elections.html?election={election.Id}");
+                    string webServerAddress = DLConfig.Data.WebServerAddress;
+                    if (!DLConfig.Data.WebServerAddressEndsWithPort())
+                        webServerAddress += $":{serverInfo.WebPort}";
+                    report.AddField("URL", $"{webServerAddress}/elections.html?election={election.Id}");
                 }
 
                 // Proposer name
