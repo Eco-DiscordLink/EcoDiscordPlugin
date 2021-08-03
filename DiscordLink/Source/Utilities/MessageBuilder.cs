@@ -835,10 +835,10 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     {
                         case LaborWork laborWork:
                             {
-                                if (!string.IsNullOrEmpty(laborWork.ShortDescriptionRemainingWork))
+                                if (!string.IsNullOrEmpty(laborWork.ShortDescriptionRemaining))
                                 {
                                     workType = $"Labor for {laborWork.Order.Recipe.RecipeName}";
-                                    workEntries.Add(MessageUtils.StripTags(laborWork.ShortDescriptionRemainingWork));
+                                    workEntries.Add(MessageUtils.StripTags(laborWork.ShortDescriptionRemaining));
                                 }
                                 break;
                             }
