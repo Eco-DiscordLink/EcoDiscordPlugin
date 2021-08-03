@@ -6,6 +6,7 @@ using Eco.Core;
 using Eco.Core.Plugins;
 using Eco.Core.Plugins.Interfaces;
 using Eco.Core.Utils;
+using Eco.EM.Framework.VersioningTools;
 using Eco.Gameplay.GameActions;
 using Eco.Gameplay.Players;
 using Eco.Plugins.DiscordLink.Events;
@@ -17,15 +18,17 @@ using Eco.WorldGenerator;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Module = Eco.Plugins.DiscordLink.Modules.Module;
 
 namespace Eco.Plugins.DiscordLink
 {
     public class DiscordLink : IModKitPlugin, IInitializablePlugin, IShutdownablePlugin, IConfigurablePlugin, IDisplayablePlugin, IGameActionAware
     {
-        public readonly Version PluginVersion = new Version(2, 2, 1);
+        public readonly Version PluginVersion = Assembly.GetExecutingAssembly().GetName().Version;
         private const int FIRST_DISPLAY_UPDATE_DELAY_MS = 20000;
 
         private string _status = "Not yet started";
@@ -44,6 +47,9 @@ namespace Eco.Plugins.DiscordLink
         public DateTime InitTime { get; private set; } = DateTime.MinValue;
         public DateTime LastConnectionTime { get; private set; } = DateTime.MinValue;
         public bool CanRestart { get; private set; } = false; // False to start with as we cannot restart while the initial startup is in progress
+
+        private const string ModIOAppID = "";
+        private const string ModIODeveloperToken = ""; // This will always be empty for all but actual release builds.
 
         public override string ToString()
         {
@@ -80,10 +86,15 @@ namespace Eco.Plugins.DiscordLink
             DLConfig.Instance.Initialize();
             EventConverter.Instance.Initialize();
             DLStorage.Instance.Initialize();
-            Logger.Info("Plugin version is " + PluginVersion);
             InitTime = DateTime.Now;
 
             WorldGeneratorPlugin.OnCompleted.Add(() => HandleWorldReset());
+
+            // Check mod versioning if the required data exists
+            if (!string.IsNullOrWhiteSpace(ModIOAppID) && !string.IsNullOrWhiteSpace(ModIODeveloperToken))
+                ModVersioning.GetModInit(ModIOAppID, ModIODeveloperToken, "DiscordLink", "DiscordLink", ConsoleColor.Cyan, "DiscordLink");
+            else
+                Logger.Info($"Plugin version is {PluginVersion}");
 
             if (!SetUpClient())
             {
