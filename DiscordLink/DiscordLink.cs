@@ -80,7 +80,6 @@ namespace Eco.Plugins.DiscordLink
             DLConfig.Instance.Initialize();
             EventConverter.Instance.Initialize();
             DLStorage.Instance.Initialize();
-            Logger.Initialize();
             Logger.Info("Plugin version is " + PluginVersion);
             InitTime = DateTime.Now;
 
@@ -115,7 +114,6 @@ namespace Eco.Plugins.DiscordLink
             ShutdownModules();
             EventConverter.Instance.Shutdown();
             DLStorage.Instance.Shutdown();
-            Logger.Shutdown();
         }
 
         public void ActionPerformed(GameAction action)

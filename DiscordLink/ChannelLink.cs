@@ -107,7 +107,7 @@ namespace Eco.Plugins.DiscordLink
             if (DiscordChannel != original)
             {
                 correctionMade = true;
-                Logger.Info("Corrected Discord channel name with Guild name/ID \"" + DiscordGuild + "\" from \"" + original + "\" to \"" + DiscordChannel + "\"");
+                Eco.Plugins.DiscordLink.Utilities.Logger.Info("Corrected Discord channel name with Guild name/ID \"" + DiscordGuild + "\" from \"" + original + "\" to \"" + DiscordChannel + "\"");
             }
 
             return correctionMade;

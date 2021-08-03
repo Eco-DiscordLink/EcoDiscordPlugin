@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using static Eco.Plugins.DiscordLink.Utilities.Logger;
 using Description = System.ComponentModel.DescriptionAttribute;
 
 namespace Eco.Plugins.DiscordLink
@@ -423,16 +424,6 @@ namespace Eco.Plugins.DiscordLink
             _channelLinks.AddRange(_config.Config.ElectionChannels);
             _channelLinks.AddRange(_config.Config.CurrencyChannels);
         }
-    }
-
-    public enum LogLevel
-    {
-        DebugVerbose,
-        Debug,
-        Warning,
-        Information,
-        Error,
-        Silent,
     }
 
     public class DLConfigData : ICloneable
