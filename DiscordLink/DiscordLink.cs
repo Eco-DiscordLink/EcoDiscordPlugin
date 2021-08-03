@@ -109,11 +109,12 @@ namespace Eco.Plugins.DiscordLink
             _ = EcoUser; // Create the Eco User on startup
         }
 
-        public void Shutdown()
+        public Task ShutdownAsync()
         {
             ShutdownModules();
             EventConverter.Instance.Shutdown();
             DLStorage.Instance.Shutdown();
+            return Task.CompletedTask;
         }
 
         public void ActionPerformed(GameAction action)

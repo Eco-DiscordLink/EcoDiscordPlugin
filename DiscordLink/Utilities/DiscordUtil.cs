@@ -45,17 +45,17 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 if(stringParts.Count <= 1 && embedParts.Count <= 1)
                 {
                     DiscordEmbed embed = (embedParts.Count >= 1) ? embedParts.First() : null;
-                    await channel.SendMessageAsync(fullTextContent, tts: false, embed);
+                    await channel.SendMessageAsync(fullTextContent, embed);
                 }
                 else
                 {
                     foreach (string textMessagePart in stringParts)
                     {
-                        await channel.SendMessageAsync(textMessagePart, tts: false, null);
+                        await channel.SendMessageAsync(textMessagePart, null);
                     }
                     foreach(DiscordEmbed embedPart in embedParts)
                     {
-                        await channel.SendMessageAsync(null, tts: false, embedPart);
+                        await channel.SendMessageAsync(null, embedPart);
                     }
                 }
             }
@@ -80,17 +80,17 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 if (stringParts.Count <= 1 && embedParts.Count <= 1)
                 {
                     DiscordEmbed embed = (embedParts.Count >= 1) ? embedParts.First() : null;
-                    await targetMember.SendMessageAsync(textContent, is_tts: false, embed);
+                    await targetMember.SendMessageAsync(textContent, embed);
                 }
                 else
                 {
                     foreach (string textMessagePart in stringParts)
                     {
-                        await targetMember.SendMessageAsync(textMessagePart, is_tts: false, null);
+                        await targetMember.SendMessageAsync(textMessagePart, null);
                     }
                     foreach (DiscordEmbed embedPart in embedParts)
                     {
-                        await targetMember.SendMessageAsync(null, is_tts: false, embedPart);
+                        await targetMember.SendMessageAsync(null, embedPart);
                     }
                 }
             }
