@@ -30,13 +30,6 @@ namespace Eco.Plugins.DiscordLink
         {
             try
             {
-                if (!IsCommandAllowedInChannel(ctx))
-                {
-                    string commandChannels = string.Join("\n- ", DLConfig.Data.DiscordCommandChannels.Where(link => link.IsValid()).Select(channel => channel.Channel.Name));
-                    await RespondToCommand(ctx, $"You aren't allowed to post commands in this channel.\nCommands are allowed in the following channels:\n```- {commandChannels}```");
-                    return;
-                }
-
                 if (!IsCommandAllowedForUser(ctx, requiredPermission))
                 {
                     string permittedRolesDesc = (DLConfig.Data.AdminRoles.Count > 0) ? string.Join("\n- ", DLConfig.Data.AdminRoles.ToArray()) : "No admin roles configured";
@@ -44,13 +37,24 @@ namespace Eco.Plugins.DiscordLink
                     return;
                 }
 
-                Logger.Debug($"{ctx.User.Username} invoked Discord command \"{ctx.Prefix}{command.Method.Name}\" in channel {ctx.Channel.Name} in guild {ctx.Guild.Name}");
+                if (!IsCommandAllowedInChannel(ctx))
+                {
+                    string commandChannels = string.Join("\n- ", DLConfig.Data.DiscordCommandChannels.Where(link => link.IsValid()).Select(channel => channel.Channel.Name));
+                    await RespondToCommand(ctx, $"You aren't allowed to post commands in this channel.\nCommands are allowed in the following channels:\n```- {commandChannels}```");
+                    return;
+                }
+
+                if (ctx.Channel.IsPrivate)
+                    Logger.Debug($"{ctx.User.Username} invoked Discord command \"{ctx.Prefix}{command.Method.Name}\" in DM");
+                else
+                    Logger.Debug($"{ctx.User.Username} invoked Discord command \"{ctx.Prefix}{command.Method.Name}\" in channel {ctx.Channel.Name} in guild {ctx.Guild.Name}");
+
                 await command(ctx, parameters);
             }
             catch (Exception e)
             {
-                Logger.Error("An error occurred while attempting to execute a Discord command. Error message: " + e);
-                await RespondToCommand(ctx, "An error occurred while attempting to run that command. Error message: " + e);
+                Logger.Error($"An error occurred while attempting to execute a Discord command. Error message: {e}");
+                await RespondToCommand(ctx, $"An error occurred while attempting to run that command. Error message: {e}");
             }
         }
 
@@ -108,21 +112,21 @@ namespace Eco.Plugins.DiscordLink
 
         private static bool IsCommandAllowedForUser(CommandContext ctx, PermissionType requiredPermission)
         {
-            switch(requiredPermission)
+            return requiredPermission switch
             {
-                case PermissionType.User:
-                    return true;
-
-                case PermissionType.Admin:
-                    return DiscordLink.Obj.Client.MemberIsAdmin(ctx.Member);
-            }
-            return false;
+                PermissionType.User => true,
+                PermissionType.Admin => DiscordLink.Obj.Client.MemberIsAdmin(ctx.Member),
+                _ => false,
+            };
         }
 
         private static bool IsCommandAllowedInChannel(CommandContext ctx)
         {
             var commandChannels = DLConfig.Data.DiscordCommandChannels;
-            bool allowed = ctx.Channel.IsPrivate || !(commandChannels.Any(link => link.IsValid())); // Always allow if there are no valid command channels or the command is sent via DM
+            bool allowed =
+                ctx.Channel.IsPrivate
+                || DiscordLink.Obj.Client.MemberIsAdmin(ctx.Member) // Allow admins to override channel requirements
+                || !(commandChannels.Any(link => link.IsValid())); // Always allow if there are no valid command channels or the command is sent via DM
 
             // Check if the discord channel used is listed as a command channel
             if (!allowed)
@@ -146,7 +150,7 @@ namespace Eco.Plugins.DiscordLink
 
         public static async Task ReportCommandError(CommandContext ctx, string message)
         {
-           await RespondToCommand(ctx, message);
+            await RespondToCommand(ctx, message);
         }
 
         public static async Task ReportCommandInfo(CommandContext ctx, string message)
@@ -170,7 +174,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.Restart(SharedCommands.CommandSource.Discord, ctx);
+                await SharedCommands.Restart(SharedCommands.CommandInterface.Discord, ctx);
             }, ctx);
         }
 
@@ -181,7 +185,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.ResetWorldData(SharedCommands.CommandSource.Discord, ctx);
+                await SharedCommands.ResetWorldData(SharedCommands.CommandInterface.Discord, ctx);
             }, ctx);
         }
 
@@ -211,7 +215,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await RespondToCommand(ctx, MessageBuilder.Shared.GetDisplayString(verbose: false));
+                await RespondToCommand(ctx, await MessageBuilder.Shared.GetDisplayStringAsync(verbose: false));
             }, ctx);
         }
 
@@ -222,7 +226,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await RespondToCommand(ctx, MessageBuilder.Shared.GetDisplayString(verbose: true));
+                await RespondToCommand(ctx, await MessageBuilder.Shared.GetDisplayStringAsync(verbose: true));
             }, ctx);
         }
 
@@ -313,7 +317,7 @@ namespace Eco.Plugins.DiscordLink
             {
                 DiscordLinkEmbed embed = new DiscordLinkEmbed()
                     .WithTitle("Players")
-                    .WithDescription(MessageBuilder.Shared.GetPlayerList());
+                    .WithDescription(MessageBuilder.Shared.GetOnlinePlayerList());
                 await DisplayCommandData(ctx, string.Empty, embed);
             }, ctx);
         }
@@ -326,7 +330,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.PlayerReport(SharedCommands.CommandSource.Discord, ctx, playerNameOrID);
+                await SharedCommands.PlayerReport(SharedCommands.CommandInterface.Discord, ctx, playerNameOrID);
             }, ctx);
         }
 
@@ -338,7 +342,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.PlayerOnlineReport(SharedCommands.CommandSource.Discord, ctx, playerNameOrID);
+                await SharedCommands.PlayerOnlineReport(SharedCommands.CommandInterface.Discord, ctx, playerNameOrID);
             }, ctx);
         }
 
@@ -350,7 +354,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.PlayerTimeReport(SharedCommands.CommandSource.Discord, ctx, playerNameOrID);
+                await SharedCommands.PlayerTimeReport(SharedCommands.CommandInterface.Discord, ctx, playerNameOrID);
             }, ctx);
         }
 
@@ -362,7 +366,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.PlayerPermissionsReport(SharedCommands.CommandSource.Discord, ctx, playerNameOrID);
+                await SharedCommands.PlayerPermissionsReport(SharedCommands.CommandInterface.Discord, ctx, playerNameOrID);
             }, ctx);
         }
 
@@ -374,7 +378,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.PlayerAccessReport(SharedCommands.CommandSource.Discord, ctx, playerNameOrID);
+                await SharedCommands.PlayerAccessReport(SharedCommands.CommandInterface.Discord, ctx, playerNameOrID);
             }, ctx);
         }
 
@@ -397,21 +401,17 @@ namespace Eco.Plugins.DiscordLink
 
                 // Discord member
                 DiscordMember member = DiscordLink.Obj.Client.MemberByNameOrID(ctx.Guild, userNameOrID);
-                if(ecoUser == null && member == null)
+                if (ecoUser == null && member == null)
                 {
                     await ReportCommandError(ctx, $"No Eco or Discord User with the name or ID {userNameOrID} could be found.");
                     return;
                 }
 
-                LinkedUser linkedUser = LinkedUserManager.LinkedUserByDiscordUser(member);
-                if(linkedUser == null)
-                {
-                    await ReportCommandError(ctx, $"{member.DisplayName} has not linked their Discord account on this Eco server.\nAccount links can be created by logging into the game and running the command \\DL-Link.");
+                LinkedUser linkedUser = UserLinkManager.LinkedUserByDiscordUser(member, ctx.Member, "Player Discord Report Generation");
+                if (linkedUser == null)
                     return;
-                }
 
-                User linkedEcoUser = EcoUtils.UserBySteamOrSLGID(linkedUser.SteamID, linkedUser.SlgID);
-                DiscordLinkEmbed linkedUserReport = MessageBuilder.Discord.GetPlayerReport(linkedEcoUser, MessageBuilder.PlayerReportComponentFlag.DiscordInfo).Result;
+                DiscordLinkEmbed linkedUserReport = MessageBuilder.Discord.GetPlayerReport(linkedUser.EcoUser, MessageBuilder.PlayerReportComponentFlag.DiscordInfo).Result;
                 await DisplayCommandData(ctx, string.Empty, linkedUserReport);
             }, ctx);
         }
@@ -424,7 +424,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.PlayerReputationReport(SharedCommands.CommandSource.Discord, ctx, playerNameOrID);
+                await SharedCommands.PlayerReputationReport(SharedCommands.CommandInterface.Discord, ctx, playerNameOrID);
             }, ctx);
         }
 
@@ -436,7 +436,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.PlayerXPReport(SharedCommands.CommandSource.Discord, ctx, playerNameOrID);
+                await SharedCommands.PlayerXPReport(SharedCommands.CommandInterface.Discord, ctx, playerNameOrID);
             }, ctx);
         }
 
@@ -448,7 +448,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.PlayerSkillsReport(SharedCommands.CommandSource.Discord, ctx, playerNameOrID);
+                await SharedCommands.PlayerSkillsReport(SharedCommands.CommandInterface.Discord, ctx, playerNameOrID);
             }, ctx);
         }
 
@@ -460,7 +460,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.PlayerDemographicsReport(SharedCommands.CommandSource.Discord, ctx, playerNameOrID);
+                await SharedCommands.PlayerDemographicsReport(SharedCommands.CommandInterface.Discord, ctx, playerNameOrID);
             }, ctx);
         }
 
@@ -472,7 +472,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.PlayerTitlesReport(SharedCommands.CommandSource.Discord, ctx, playerNameOrID);
+                await SharedCommands.PlayerTitlesReport(SharedCommands.CommandInterface.Discord, ctx, playerNameOrID);
             }, ctx);
         }
 
@@ -484,7 +484,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.PlayerPropertiesReport(SharedCommands.CommandSource.Discord, ctx, playerNameOrID);
+                await SharedCommands.PlayerPropertiesReport(SharedCommands.CommandInterface.Discord, ctx, playerNameOrID);
             }, ctx);
         }
 
@@ -496,7 +496,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.CurrencyReport(SharedCommands.CommandSource.Discord, ctx, currencyNameOrID);
+                await SharedCommands.CurrencyReport(SharedCommands.CommandInterface.Discord, ctx, currencyNameOrID);
             }, ctx);
         }
 
@@ -510,7 +510,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.CurrenciesReport(SharedCommands.CommandSource.Discord, ctx, currencyType, maxCurrenciesPerType, holdersPerCurrency);
+                await SharedCommands.CurrenciesReport(SharedCommands.CommandInterface.Discord, ctx, currencyType, maxCurrenciesPerType, holdersPerCurrency);
             }, ctx);
         }
 
@@ -522,7 +522,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.ElectionReport(SharedCommands.CommandSource.Discord, ctx, electionNameOrID);
+                await SharedCommands.ElectionReport(SharedCommands.CommandInterface.Discord, ctx, electionNameOrID);
             }, ctx);
         }
 
@@ -533,7 +533,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.ElectionsReport(SharedCommands.CommandSource.Discord, ctx);
+                await SharedCommands.ElectionsReport(SharedCommands.CommandInterface.Discord, ctx);
             }, ctx);
         }
 
@@ -545,7 +545,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.WorkPartyReport(SharedCommands.CommandSource.Discord, ctx, workPartyNameOrID);
+                await SharedCommands.WorkPartyReport(SharedCommands.CommandInterface.Discord, ctx, workPartyNameOrID);
             }, ctx);
         }
 
@@ -556,7 +556,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.WorkPartiesReport(SharedCommands.CommandSource.Discord, ctx);
+                await SharedCommands.WorkPartiesReport(SharedCommands.CommandInterface.Discord, ctx);
             }, ctx);
         }
 
@@ -564,77 +564,170 @@ namespace Eco.Plugins.DiscordLink
 
         #region Message Relaying
 
-        [Command("SendServerMessage")]
-        [Description("Sends an Eco server message to a specified user.")]
-        [Aliases("DL-ServerMessage")]
-        public async Task SendServerMessage(CommandContext ctx,
-            [Description("The message to send.")] string message,
-            [Description("Name of the recipient Eco user.")] string recipientUserName,
-            [Description("Persistance type. Possible values are \"Temporary\" and \"Permanent\". Defaults to \"Temporary\".")] string persistanceType = "Temporary")
-        {
-            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
-            {
-                await SharedCommands.SendServerMessage(SharedCommands.CommandSource.Discord, ctx, message, recipientUserName, persistanceType);
-            }, ctx);
-        }
-
-        [Command("BroadcastServerMessage")]
+        [Command("ServerMessageToAll")]
         [Description("Sends an Eco server message to all online users.")]
-        [Aliases("DL-BroadcastServerMessage")]
-        public async Task BroadcastServerMessage(CommandContext ctx, [Description("The message to send.")] string message,
+        [Aliases("DL-ServerMessage")]
+        public async Task ServerMessageToAll(CommandContext ctx, [Description("The message to send.")] string message,
             [Description("Persistance type. Possible values are \"Temporary\" and \"Permanent\". Defaults to \"Temporary\".")] string persistanceType = "temporary")
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.SendServerMessage(SharedCommands.CommandSource.Discord, ctx, message, string.Empty, persistanceType);
+                await SharedCommands.SendServerMessage(SharedCommands.CommandInterface.Discord, ctx, message, string.Empty, persistanceType);
             }, ctx);
         }
 
-        [Command("SendPopup")]
-        [Description("Sends an Eco popup message to a specified user.")]
-        [Aliases("DL-Popup")]
-        public async Task SendPopup(CommandContext ctx, [Description("The message to send.")] string message,
-            [Description("Name of the recipient Eco user.")] string recipientUserName)
+        [Command("ServerMessageToUser")]
+        [Description("Sends an Eco server message to the specified user.")]
+        [Aliases("DL-ServerMessageUser")]
+        public async Task ServerMessageToUser(CommandContext ctx,
+            [Description("The message to send.")] string message,
+            [Description("Name or ID of the recipient Eco user.")] string recipientUserNameOrID,
+            [Description("Persistance type. Possible values are \"Temporary\" and \"Permanent\". Defaults to \"Temporary\".")] string persistanceType = "Temporary")
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.SendPopup(SharedCommands.CommandSource.Discord, ctx, message, recipientUserName);
+                await SharedCommands.SendServerMessage(SharedCommands.CommandInterface.Discord, ctx, message, recipientUserNameOrID, persistanceType);
             }, ctx);
         }
 
-        [Command("BroadcastPopup")]
+        [Command("AnnouncementToAll")]
+        [Description("Sends an Eco info box message to all online users.")]
+        [Aliases("DL-Announce")]
+        public async Task AnnouncementToAll(CommandContext ctx, [Description("The message to send.")] string message)
+        {
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
+            {
+                await SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Info, SharedCommands.CommandInterface.Discord, ctx, message, string.Empty);
+            }, ctx);
+        }
+
+        [Command("AnnouncementToUser")]
+        [Description("Sends an Eco info box message to the specified user.")]
+        [Aliases("DL-AnnounceUser")]
+        public async Task AnnounceToAll(CommandContext ctx, [Description("The message to send.")] string message,
+            [Description("Name or ID of the recipient Eco user.")] string recipientUserNameOrID)
+        {
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
+            {
+                await SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Info, SharedCommands.CommandInterface.Discord, ctx, message, recipientUserNameOrID);
+            }, ctx);
+        }
+
+        [Command("WarningToAll")]
+        [Description("Sends an Eco warning box message to all online users.")]
+        [Aliases("DL-Warning", "DL-Warn")]
+        public async Task WarningToAll(CommandContext ctx, [Description("The message to send.")] string message)
+        {
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
+            {
+                await SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Warning, SharedCommands.CommandInterface.Discord, ctx, message, string.Empty);
+            }, ctx);
+        }
+
+        [Command("WarningToUser")]
+        [Description("Sends an Eco warning box message to the specified user.")]
+        [Aliases("DL-WarningUser", "DL-WarnUser")]
+        public async Task WarningToUser(CommandContext ctx, [Description("The message to send.")] string message,
+            [Description("Name or ID of the recipient Eco user.")] string recipientUserNameOrID)
+        {
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
+            {
+                await SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Warning, SharedCommands.CommandInterface.Discord, ctx, message, recipientUserNameOrID);
+            }, ctx);
+        }
+
+        [Command("ErrorToAll")]
+        [Description("Sends an Eco error box message to all online users.")]
+        [Aliases("DL-Error")]
+        public async Task ErrorToAll(CommandContext ctx, [Description("The message to send.")] string message)
+        {
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
+            {
+                await SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Error, SharedCommands.CommandInterface.Discord, ctx, message, string.Empty);
+            }, ctx);
+        }
+
+        [Command("ErrorToUser")]
+        [Description("Sends an Eco error box message to the specified user.")]
+        [Aliases("DL-ErrorUser")]
+        public async Task ErrorToUser(CommandContext ctx, [Description("The message to send.")] string message,
+            [Description("Name or ID of the recipient Eco user.")] string recipientUserNameOrID)
+        {
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
+            {
+                await SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Error, SharedCommands.CommandInterface.Discord, ctx, message, recipientUserNameOrID);
+            }, ctx);
+        }
+
+        [Command("NotificationToAll")]
+        [Description("Sends an Eco notification message to all online and conditionally offline users.")]
+        [Aliases("DL-Notification", "DL-Notify")]
+        public async Task NotificationToAll(CommandContext ctx, [Description("The message to send.")] string message,
+            [Description("Whether or not to send the message to offline users as well.")] bool includeOfflineUsers = true)
+        {
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
+            {
+                await SharedCommands.SendNotification(SharedCommands.CommandInterface.Discord, ctx, message, string.Empty, includeOfflineUsers);
+            }, ctx);
+        }
+
+        [Command("NotificationToUser")]
+        [Description("Sends an Eco notification message to the specified user.")]
+        [Aliases("DL-NotificationUser", "DL-NotifyUser")]
+        public async Task NotificationToUser(CommandContext ctx, [Description("The message to send.")] string message,
+            [Description("Name or ID of the recipient Eco user.")] string recipientUserNameOrID)
+        {
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
+            {
+                await SharedCommands.SendNotification(SharedCommands.CommandInterface.Discord, ctx, message, recipientUserNameOrID, includeOfflineUsers: true);
+            }, ctx);
+        }
+
+        [Command("PopupToAll")]
         [Description("Sends an Eco popup message to all online users.")]
-        [Aliases("DL-BroadcastPopup")]
-        public async Task BroadcastPopup(CommandContext ctx, [Description("The message to send.")] string message)
+        [Aliases("DL-Popup")]
+        public async Task PopupToAll(CommandContext ctx, [Description("The message to send.")] string message)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.SendPopup(SharedCommands.CommandSource.Discord, ctx, message, string.Empty);
+                await SharedCommands.SendPopup(SharedCommands.CommandInterface.Discord, ctx, message, string.Empty);
             }, ctx);
         }
 
-        [Command("SendAnnouncement")]
-        [Description("Sends an Eco announcement message.")]
-        [Aliases("DL-Announcement")]
-        public async Task SendAnnouncement(CommandContext ctx, [Description("The title for the announcement UI.")] string title,
-            [Description("The message to display in the announcement UI.")] string message,
-            [Description("Name of the recipient Eco user.")] string recipientUserName)
+        [Command("PopupToUser")]
+        [Description("Sends an Eco popup message to the specified user.")]
+        [Aliases("DL-PopupUser")]
+        public async Task PopupToUser(CommandContext ctx, [Description("The message to send.")] string message,
+            [Description("Name or ID of the recipient Eco user.")] string recipientUserNameOrID)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.SendAnnouncement(SharedCommands.CommandSource.Discord, ctx, title, message, recipientUserName);
+                await SharedCommands.SendPopup(SharedCommands.CommandInterface.Discord, ctx, message, recipientUserNameOrID);
             }, ctx);
         }
 
-        [Command("BroadcastAnnouncement")]
-        [Description("Sends an Eco announcement message to all online users.")]
-        [Aliases("DL-BroadcastAnnouncement")]
-        public async Task SendAnnouncement(CommandContext ctx, [Description("The title for the announcement UI.")] string title,
-            [Description("The message to display in the announcement UI.")] string message)
+        [Command("InfoPanelToAll")]
+        [Description("Displays an info panel to all online users.")]
+        [Aliases("DL-InfoPanel")]
+        public async Task InfoPanelToAll(CommandContext ctx, [Description("The title for the info panel.")] string title,
+            [Description("The message to display in the info panel.")] string message)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.SendAnnouncement(SharedCommands.CommandSource.Discord, ctx, title, message, string.Empty);
+                await SharedCommands.SendInfoPanel(SharedCommands.CommandInterface.Discord, ctx, DLConstants.ECO_PANEL_NOTIFICATION, title, message, string.Empty);
+            }, ctx);
+        }
+
+        [Command("InfoPanelToUser")]
+        [Description("Displays an info panel to the specified user.")]
+        [Aliases("DL-InfoPanelUser")]
+        public async Task InfoPanelToUser(CommandContext ctx, [Description("The title for the info panel.")] string title,
+            [Description("The message to display in the info panel.")] string message,
+            [Description("Name or ID of the recipient Eco user.")] string recipientUserNameOrID)
+        {
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
+            {
+                await SharedCommands.SendInfoPanel(SharedCommands.CommandInterface.Discord, ctx, DLConstants.ECO_PANEL_NOTIFICATION, title, message, recipientUserNameOrID);
             }, ctx);
         }
 
@@ -649,7 +742,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.DiscordInvite(SharedCommands.CommandSource.Discord, ctx, targetUserName);
+                await SharedCommands.DiscordInvite(SharedCommands.CommandInterface.Discord, ctx, targetUserName);
             }, ctx);
         }
 
@@ -660,7 +753,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.DiscordInvite(SharedCommands.CommandSource.Discord, ctx, string.Empty);
+                await SharedCommands.DiscordInvite(SharedCommands.CommandInterface.Discord, ctx, string.Empty);
             }, ctx);
         }
 
@@ -675,10 +768,10 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                if (LinkedUserManager.VerifyLinkedUser(ctx.GetSenderID()))
+                if (UserLinkManager.VerifyLinkedUser(ctx.GetSenderID()))
                     await ReportCommandInfo(ctx, $"Link verified");
                 else
-                    await ReportCommandError(ctx, $"There is no outstanding link request to verify for your account");
+                    await ReportCommandError(ctx, $"There is no outstanding link request to verify for your account.\nUse the `\\DL-Link` command in Eco to initiate account linking.");
             }, ctx);
         }
 
@@ -693,7 +786,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.Trades(SharedCommands.CommandSource.Discord, ctx, userOrItemName);
+                await SharedCommands.Trades(SharedCommands.CommandInterface.Discord, ctx, userOrItemName);
             }, ctx);
         }
 
@@ -704,7 +797,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.TrackTrades(SharedCommands.CommandSource.Discord, ctx, userOrItemName);
+                await SharedCommands.TrackTrades(SharedCommands.CommandInterface.Discord, ctx, userOrItemName);
             }, ctx);
         }
 
@@ -715,7 +808,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.StopTrackTrades(SharedCommands.CommandSource.Discord, ctx, userOrItemName);
+                await SharedCommands.StopTrackTrades(SharedCommands.CommandInterface.Discord, ctx, userOrItemName);
             }, ctx);
         }
 
@@ -726,7 +819,33 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.ListTrackedTrades(SharedCommands.CommandSource.Discord, ctx);
+                await SharedCommands.ListTrackedTrades(SharedCommands.CommandInterface.Discord, ctx);
+            }, ctx);
+        }
+
+        #endregion
+
+        #region Snippets
+
+        [Command("DiscordSnippet")]
+        [Description("Post a predefined snippet.")]
+        [Aliases("DL-DiscordSnippet", "DL-SnippetToDiscord", "DL-Snippet")]
+        public async Task DiscordSnippet(CommandContext ctx, string snippetKey = "")
+        {
+            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
+            {
+                await SharedCommands.Snippet(SharedCommands.CommandInterface.Discord, ctx, SharedCommands.CommandInterface.Discord, ctx.GetSenderName(), snippetKey);
+            }, ctx);
+        }
+
+        [Command("EcoSnippet")]
+        [Description("Post a predefined snippet.")]
+        [Aliases("DL-EcoSnippet", "DL-SnippetToEco")]
+        public async Task EcoSnippet(CommandContext ctx, string snippetKey = "")
+        {
+            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
+            {
+                await SharedCommands.Snippet(SharedCommands.CommandInterface.Discord, ctx, SharedCommands.CommandInterface.Eco, ctx.GetSenderName(), snippetKey);
             }, ctx);
         }
 

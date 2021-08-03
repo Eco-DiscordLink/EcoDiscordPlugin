@@ -17,7 +17,7 @@ namespace Eco.Plugins.DiscordLink.Modules
         protected override int TimerUpdateIntervalMS { get { return 300000; } }
         protected override int TimerStartDelayMS { get { return 10000; } }
 
-        private List<DiscordTarget> UserLinks = new List<DiscordTarget>();
+        private readonly List<DiscordTarget> UserLinks = new List<DiscordTarget>();
 
         public override string GetDisplayText(string childInfo, bool verbose)
         {
@@ -27,7 +27,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         public override void Setup()
         {
-            LinkedUserManager.OnLinkedUserRemoved += HandleLinkedUserRemoved;
+            UserLinkManager.OnLinkedUserRemoved += HandleLinkedUserRemoved;
             DLStorage.TrackedTradeAdded += OnTrackedTradeAdded;
             DLStorage.TrackedTradeRemoved += OnTrackedTradeRemoved;
 
@@ -36,7 +36,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         public override void Destroy()
         {
-            LinkedUserManager.OnLinkedUserRemoved -= HandleLinkedUserRemoved;
+            UserLinkManager.OnLinkedUserRemoved -= HandleLinkedUserRemoved;
             DLStorage.TrackedTradeAdded -= OnTrackedTradeAdded;
             DLStorage.TrackedTradeRemoved -= OnTrackedTradeRemoved;
 
@@ -45,7 +45,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected override async Task Initialize()
         {
-            await BuildeUserLinkList();
+            await BuildUserLinkList();
             await base.Initialize();
         }
 
@@ -62,7 +62,7 @@ namespace Eco.Plugins.DiscordLink.Modules
         protected override List<DiscordTarget> GetDiscordTargets()
         {
             if (UserLinks.Count < DLStorage.WorldData.PlayerTrackedTrades.Keys.Count())
-                BuildeUserLinkList().Wait();
+                BuildUserLinkList().Wait();
 
             return UserLinks;
         }
@@ -71,7 +71,7 @@ namespace Eco.Plugins.DiscordLink.Modules
         {
             tagAndContent = new List<Tuple<string, DiscordLinkEmbed>>();
             List<string> trackedTrades = DLStorage.WorldData.PlayerTrackedTrades[(target as UserLink).Member.Id];
-            foreach(string trade in trackedTrades)
+            foreach (string trade in trackedTrades)
             {
                 string matchedName = TradeUtils.GetMatchAndOffers(trade, out TradeTargetType offerType, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
                 if (offerType == TradeTargetType.Invalid)
@@ -82,7 +82,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             }
         }
 
-        private async Task BuildeUserLinkList()
+        private async Task BuildUserLinkList()
         {
             using (await _overlapLock.LockAsync())
             {
@@ -90,15 +90,11 @@ namespace Eco.Plugins.DiscordLink.Modules
 
                 foreach (ulong discordUserId in DLStorage.WorldData.PlayerTrackedTrades.Keys)
                 {
-                    LinkedUser dlUser = LinkedUserManager.LinkedUserByDiscordID(discordUserId);
-                    if (dlUser == null)
+                    LinkedUser linkedUser = UserLinkManager.LinkedUserByDiscordID(discordUserId);
+                    if (linkedUser == null)
                         continue;
 
-                    DiscordGuild guild = DiscordLink.Obj.Client.GuildByNameOrID(dlUser.GuildID);
-                    if (guild == null)
-                        continue;
-
-                    DiscordMember member = await guild.GetMemberAsync(discordUserId);
+                    DiscordMember member = linkedUser.DiscordMember;
                     if (member != null)
                         UserLinks.Add(new UserLink(member));
                 }

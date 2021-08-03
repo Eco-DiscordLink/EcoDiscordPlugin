@@ -2,6 +2,7 @@
 using Eco.Gameplay.Economy.WorkParties;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Extensions;
+using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Items;
 using Eco.Shared.Utils;
 using System;
@@ -35,16 +36,13 @@ namespace Eco.Plugins.DiscordLink.Modules
         protected override void GetDisplayContent(DiscordTarget target, out List<Tuple<string, DiscordLinkEmbed>> tagAndContent)
         {
             tagAndContent = new List<Tuple<string, DiscordLinkEmbed>>();
-            DiscordLinkEmbed embed = new DiscordLinkEmbed();
             List<WorkParty> workParties = Registrars.Get<WorkParty>().All<WorkParty>().NonNull().Where(x => x.State == ProposableState.Active).ToList();
             foreach (WorkParty workParty in workParties)
             {
                 string tag = $"{BaseTag} [{workParty.Id}]";
-                DiscordLinkEmbed report = new DiscordLinkEmbed();
-                if (embed.Fields.Count > 0)
-                    tagAndContent.Add(new Tuple<string, DiscordLinkEmbed>(tag, embed));
-
-                embed.ClearFields();
+                DiscordLinkEmbed report = MessageBuilder.Discord.GetWorkPartyReport(workParty);
+                if (report.Fields.Count > 0)
+                    tagAndContent.Add(new Tuple<string, DiscordLinkEmbed>(tag, report));
             }
         }
     }

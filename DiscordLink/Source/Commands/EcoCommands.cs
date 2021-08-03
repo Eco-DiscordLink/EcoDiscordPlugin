@@ -40,8 +40,10 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [ChatCommand("Commands for the Discord integration plugin.", "DL", ChatAuthorizationLevel.User)]
+#pragma warning disable IDE0079 // Remove unnecessary suppression (This is a false positive case)
 #pragma warning disable IDE0060 // Remove unused parameter - callingUser parameter required
         public static void DiscordLink(User callingUser) { }
+#pragma warning restore IDE0079
 #pragma warning restore IDE0060
 
         #endregion
@@ -50,29 +52,29 @@ namespace Eco.Plugins.DiscordLink
 
         public static void ReportCommandError(User callingUser, string message)
         {
-            callingUser.Player.Error(Localizer.NotLocalizedStr(message));
+            EcoUtils.SendErrorBoxToUser(callingUser, message);
         }
 
         public static void ReportCommandInfo(User callingUser, string message)
         {
-            callingUser.Player.InfoBox(Localizer.NotLocalizedStr(message));
+            EcoUtils.SendInfoBoxToUser(callingUser, message);
         }
 
-        public static void DisplayCommandData(User callingUser, string title, string data)
+        public static void DisplayCommandData(User callingUser, string panelInstance, string title, string data)
         {
-            callingUser.Player.OpenInfoPanel(title, data, "DiscordLink");
+            EcoUtils.SendInfoPanelToUser(callingUser, panelInstance, title, data);
         }
 
         #endregion
 
         #region Plugin Management
 
-        [ChatSubCommand("Restart", "Restarts the plugin.", "DL-Restart", ChatAuthorizationLevel.Admin)]
+        [ChatSubCommand("DiscordLink", "Restarts the plugin.", "DL-Restart", ChatAuthorizationLevel.Admin)]
         public static void Restart(User callingUser)
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.Restart(SharedCommands.CommandSource.Eco, callingUser);
+                SharedCommands.Restart(SharedCommands.CommandInterface.Eco, callingUser);
             }, callingUser);
         }
 
@@ -81,7 +83,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.ResetWorldData(SharedCommands.CommandSource.Eco, callingUser);
+                SharedCommands.ResetWorldData(SharedCommands.CommandInterface.Eco, callingUser);
             }, callingUser);
         }
 
@@ -94,7 +96,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                DisplayCommandData(callingUser, $"About DiscordLink {Plugins.DiscordLink.DiscordLink.Obj.PluginVersion}", MessageBuilder.Shared.GetAboutMessage());
+                DisplayCommandData(callingUser, DLConstants.ECO_PANEL_DL_MESSAGE_MEDIUM, $"About DiscordLink {Plugins.DiscordLink.DiscordLink.Obj.PluginVersion}", MessageBuilder.Shared.GetAboutMessage());
             }, callingUser);
         }
 
@@ -103,7 +105,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                DisplayCommandData(callingUser, "DiscordLink Status", MessageBuilder.Shared.GetDisplayString(verbose: false));
+                DisplayCommandData(callingUser, DLConstants.ECO_PANEL_COMPLEX_LIST, "DiscordLink Status", MessageBuilder.Shared.GetDisplayStringAsync(verbose: false).Result);
             }, callingUser);
         }
 
@@ -112,7 +114,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                DisplayCommandData(callingUser, "DiscordLink Status Verbose", MessageBuilder.Shared.GetDisplayString(verbose: true));
+                DisplayCommandData(callingUser, DLConstants.ECO_PANEL_COMPLEX_LIST, "DiscordLink Status Verbose", MessageBuilder.Shared.GetDisplayStringAsync(verbose: true).Result);
             }, callingUser);
         }
 
@@ -128,7 +130,7 @@ namespace Eco.Plugins.DiscordLink
                 var plugin = Plugins.DiscordLink.DiscordLink.Obj;
                 string joinedGuildNames = string.Join("\n", plugin.Client.DiscordClient.GuildNames());
 
-                DisplayCommandData(callingUser, "Connected Discord Servers", joinedGuildNames);
+                DisplayCommandData(callingUser, DLConstants.ECO_PANEL_SIMPLE_LIST, "Connected Discord Servers", joinedGuildNames);
             }, callingUser);
         }
 
@@ -148,7 +150,7 @@ namespace Eco.Plugins.DiscordLink
                     ReportCommandError(callingUser, $"Failed to find guild with name \"{guildNameOrID}\"");
 
                 string joinedChannelNames = string.Join("\n", guild.TextChannelNames());
-                DisplayCommandData(callingUser, "Connected Discord Servers", joinedChannelNames);
+                DisplayCommandData(callingUser, DLConstants.ECO_PANEL_SIMPLE_LIST, "Connected Discord Servers", joinedChannelNames);
             }, callingUser);
         }
 
@@ -157,7 +159,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.PlayerReport(SharedCommands.CommandSource.Eco, callingUser, playerNameOrID);
+                SharedCommands.PlayerReport(SharedCommands.CommandInterface.Eco, callingUser, playerNameOrID);
             }, callingUser);
         }
 
@@ -166,7 +168,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.PlayerOnlineReport(SharedCommands.CommandSource.Eco, callingUser, playerNameOrID);
+                SharedCommands.PlayerOnlineReport(SharedCommands.CommandInterface.Eco, callingUser, playerNameOrID);
             }, callingUser);
         }
 
@@ -175,7 +177,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.PlayerTimeReport(SharedCommands.CommandSource.Eco, callingUser, playerNameOrID);
+                SharedCommands.PlayerTimeReport(SharedCommands.CommandInterface.Eco, callingUser, playerNameOrID);
             }, callingUser);
         }
 
@@ -184,7 +186,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.PlayerPermissionsReport(SharedCommands.CommandSource.Eco, callingUser, playerNameOrID);
+                SharedCommands.PlayerPermissionsReport(SharedCommands.CommandInterface.Eco, callingUser, playerNameOrID);
             }, callingUser);
         }
 
@@ -193,7 +195,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.PlayerAccessReport(SharedCommands.CommandSource.Eco, callingUser, playerNameOrID);
+                SharedCommands.PlayerAccessReport(SharedCommands.CommandInterface.Eco, callingUser, playerNameOrID);
             }, callingUser);
         }
 
@@ -210,7 +212,7 @@ namespace Eco.Plugins.DiscordLink
                 }
 
                 DiscordLinkEmbed report = MessageBuilder.Discord.GetPlayerReport(ecoUser, MessageBuilder.PlayerReportComponentFlag.DiscordInfo).Result;
-                DisplayCommandData(ecoUser, $"Player Discord report for {ecoUser}", report.AsText());
+                DisplayCommandData(ecoUser, DLConstants.ECO_PANEL_REPORT, $"Player Discord report for {ecoUser}", report.AsText());
             }, callingUser);
         }
 
@@ -219,7 +221,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.PlayerReputationReport(SharedCommands.CommandSource.Eco, callingUser, playerNameOrID);
+                SharedCommands.PlayerReputationReport(SharedCommands.CommandInterface.Eco, callingUser, playerNameOrID);
             }, callingUser);
         }
 
@@ -228,7 +230,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.PlayerXPReport(SharedCommands.CommandSource.Eco, callingUser, playerNameOrID);
+                SharedCommands.PlayerXPReport(SharedCommands.CommandInterface.Eco, callingUser, playerNameOrID);
             }, callingUser);
         }
 
@@ -237,7 +239,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.PlayerSkillsReport(SharedCommands.CommandSource.Eco, callingUser, playerNameOrID);
+                SharedCommands.PlayerSkillsReport(SharedCommands.CommandInterface.Eco, callingUser, playerNameOrID);
             }, callingUser);
         }
 
@@ -246,7 +248,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.PlayerDemographicsReport(SharedCommands.CommandSource.Eco, callingUser, playerNameOrID);
+                SharedCommands.PlayerDemographicsReport(SharedCommands.CommandInterface.Eco, callingUser, playerNameOrID);
             }, callingUser);
         }
 
@@ -255,7 +257,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.PlayerTitlesReport(SharedCommands.CommandSource.Eco, callingUser, playerNameOrID);
+                SharedCommands.PlayerTitlesReport(SharedCommands.CommandInterface.Eco, callingUser, playerNameOrID);
             }, callingUser);
         }
 
@@ -264,7 +266,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.PlayerPropertiesReport(SharedCommands.CommandSource.Eco, callingUser, playerNameOrID);
+                SharedCommands.PlayerPropertiesReport(SharedCommands.CommandInterface.Eco, callingUser, playerNameOrID);
             }, callingUser);
         }
 
@@ -273,7 +275,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.CurrencyReport(SharedCommands.CommandSource.Eco, callingUser, currencyNameOrID);
+                SharedCommands.CurrencyReport(SharedCommands.CommandInterface.Eco, callingUser, currencyNameOrID);
             }, callingUser);
         }
 
@@ -284,7 +286,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.CurrenciesReport(SharedCommands.CommandSource.Eco, callingUser, currencyType, maxCurrenciesPerType, holdersPerCurrency);
+                SharedCommands.CurrenciesReport(SharedCommands.CommandInterface.Eco, callingUser, currencyType, maxCurrenciesPerType, holdersPerCurrency);
             }, callingUser);
         }
 
@@ -293,7 +295,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.ElectionReport(SharedCommands.CommandSource.Eco, callingUser, electionNameOrID);
+                SharedCommands.ElectionReport(SharedCommands.CommandInterface.Eco, callingUser, electionNameOrID);
             }, callingUser);
         }
 
@@ -302,7 +304,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.ElectionsReport(SharedCommands.CommandSource.Eco, callingUser);
+                SharedCommands.ElectionsReport(SharedCommands.CommandInterface.Eco, callingUser);
             }, callingUser);
         }
 
@@ -311,7 +313,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.WorkPartyReport(SharedCommands.CommandSource.Eco, callingUser, workPartyNameOrID);
+                SharedCommands.WorkPartyReport(SharedCommands.CommandInterface.Eco, callingUser, workPartyNameOrID);
             }, callingUser);
         }
 
@@ -320,7 +322,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.WorkPartiesReport(SharedCommands.CommandSource.Eco, callingUser);
+                SharedCommands.WorkPartiesReport(SharedCommands.CommandInterface.Eco, callingUser);
             }, callingUser);
         }
 
@@ -336,7 +338,7 @@ namespace Eco.Plugins.DiscordLink
                 var plugin = Plugins.DiscordLink.DiscordLink.Obj;
 
                 DiscordGuild guild = plugin.Client.GuildByNameOrID(guildNameOrID);
-                if(guild == null)
+                if (guild == null)
                 {
                     ReportCommandError(callingUser, $"No guild with the name or ID \"{guildNameOrID}\" could be found.");
                     return;
@@ -353,58 +355,129 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Sends an Eco server message to a specified user.", "DL-Servermessage", ChatAuthorizationLevel.Admin)]
-        public static void SendServerMessage(User callingUser, string message, string recipientUserName, string persistanceType = "temporary")
+        [ChatSubCommand("DiscordLink", "Sends an Eco server message to all online users.", "DL-ServerMessage", ChatAuthorizationLevel.Admin)]
+        public static void ServerMessageToAll(User callingUser, string message, string persistanceType = "temporary")
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.SendServerMessage(SharedCommands.CommandSource.Eco, callingUser, message, recipientUserName, persistanceType);
+                SharedCommands.SendServerMessage(SharedCommands.CommandInterface.Eco, callingUser, message, string.Empty, persistanceType);
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Sends an Eco server message to all online users.", "DL-BroadcastServerMessage", ChatAuthorizationLevel.Admin)]
-        public static void BroadcastServerMessage(User callingUser, string message, string persistanceType = "temporary")
+        [ChatSubCommand("DiscordLink", "Sends an Eco server message to the specified user.", "DL-ServermessageUser", ChatAuthorizationLevel.Admin)]
+        public static void ServerMessageToUser(User callingUser, string message, string recipientUserNameOrID, string persistanceType = "temporary")
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.SendServerMessage(SharedCommands.CommandSource.Eco, callingUser, message, string.Empty, persistanceType);
+                SharedCommands.SendServerMessage(SharedCommands.CommandInterface.Eco, callingUser, message, recipientUserNameOrID, persistanceType);
             }, callingUser);
         }
 
-
-        [ChatSubCommand("DiscordLink", "Sends an Eco popup message to a specified user.", "DL-Popup", ChatAuthorizationLevel.Admin)]
-        public static void SendPopup(User callingUser, string message, string recipientUserName)
+        [ChatSubCommand("DiscordLink", "Sends an info box message to all online users.", "DL-Announce", ChatAuthorizationLevel.Admin)]
+        public static void AnnouncementToAll(User callingUser, string message)
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.SendPopup(SharedCommands.CommandSource.Eco, callingUser, message, recipientUserName);
+                SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Info, SharedCommands.CommandInterface.Eco, callingUser, message, string.Empty);
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Sends an Eco popup message to all online users.", "DL-BroadcastPopup", ChatAuthorizationLevel.Admin)]
-        public static void BroadcastPopup(User callingUser, string message)
+        [ChatSubCommand("DiscordLink", "Sends an info box message to the specified user.", "DL-AnnounceUser", ChatAuthorizationLevel.Admin)]
+        public static void AnnouncementToUser(User callingUser, string message, string recipientUserNameOrID)
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.SendPopup(SharedCommands.CommandSource.Eco, callingUser, message, string.Empty);
+                SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Info, SharedCommands.CommandInterface.Eco, callingUser, message, recipientUserNameOrID);
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Sends an Eco announcement message to a specified user.", "DL-Announcement", ChatAuthorizationLevel.Admin)]
-        public static void SendAnnouncement(User callingUser, string title, string message, string recipientUserName)
+        [ChatSubCommand("DiscordLink", "Sends a warning box message to all online users.", "DL-Warning", ChatAuthorizationLevel.Admin)]
+        public static void WarningToAll(User callingUser, string message)
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.SendAnnouncement(SharedCommands.CommandSource.Eco, callingUser, title, message, recipientUserName);
+                SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Warning, SharedCommands.CommandInterface.Eco, callingUser, message, string.Empty);
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Sends an Eco announcement message to a specified user.", "DL-BroadcastAnnouncement", ChatAuthorizationLevel.Admin)]
-        public static void BroadcastAnnouncement(User callingUser, string title, string message)
+        [ChatSubCommand("DiscordLink", "Sends a warning box message to the specified user.", "DL-WarnUser", ChatAuthorizationLevel.Admin)]
+        public static void WarningToUser(User callingUser, string message, string recipientUserNameOrID)
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.SendAnnouncement(SharedCommands.CommandSource.Eco, callingUser, title, message, string.Empty);
+                SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Warning, SharedCommands.CommandInterface.Eco, callingUser, message, recipientUserNameOrID);
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Sends an error box message to all online users.", "DL-Error", ChatAuthorizationLevel.Admin)]
+        public static void ErrorToAll(User callingUser, string message)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Warning, SharedCommands.CommandInterface.Eco, callingUser, message, string.Empty);
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Sends an error box message to the specified user.", "DL-ErrorUser", ChatAuthorizationLevel.Admin)]
+        public static void ErrorToUser(User callingUser, string message, string recipientUserNameOrID)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Error, SharedCommands.CommandInterface.Eco, callingUser, message, recipientUserNameOrID);
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Sends a notification message to all online and conditionally offline users.", "DL-Notify", ChatAuthorizationLevel.Admin)]
+        public static void NotificationToAll(User callingUser, string message, bool includeOfflineUsers = true)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.SendNotification(SharedCommands.CommandInterface.Eco, callingUser, message, string.Empty, includeOfflineUsers);
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Sends a notification message to the specified user.", "DL-NotifyUser", ChatAuthorizationLevel.Admin)]
+        public static void NotificationToUser(User callingUser, string message, string recipientUserNameOrID)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.SendNotification(SharedCommands.CommandInterface.Eco, callingUser, message, recipientUserNameOrID, includeOfflineUsers: true);
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Sends an OK box popup message to all online users.", "DL-Popup", ChatAuthorizationLevel.Admin)]
+        public static void PopupToAll(User callingUser, string message)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.SendPopup(SharedCommands.CommandInterface.Eco, callingUser, message, string.Empty);
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Sends an OK box popup message to the specified user.", "DL-PopupUser", ChatAuthorizationLevel.Admin)]
+        public static void PopupToUser(User callingUser, string message, string recipientUserNameOrID)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.SendPopup(SharedCommands.CommandInterface.Eco, callingUser, message, recipientUserNameOrID);
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Displays an info panel to all online users.", "DL-InfoPanel", ChatAuthorizationLevel.Admin)]
+        public static void InfoPanelToAll(User callingUser, string title, string message)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.SendInfoPanel(SharedCommands.CommandInterface.Eco, callingUser, DLConstants.ECO_PANEL_NOTIFICATION, title, message, string.Empty);
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Displays an info panel to the specified user.", "DL-InfoPanelUser", ChatAuthorizationLevel.Admin)]
+        public static void InfoPanelToUser(User callingUser, string title, string message, string recipientUserNameOrID)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.SendInfoPanel(SharedCommands.CommandInterface.Eco, callingUser, DLConstants.ECO_PANEL_NOTIFICATION, title, message, recipientUserNameOrID);
             }, callingUser);
         }
 
@@ -417,7 +490,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.DiscordInvite(SharedCommands.CommandSource.Eco, callingUser, targetUserName);
+                SharedCommands.DiscordInvite(SharedCommands.CommandInterface.Eco, callingUser, targetUserName);
             }, callingUser);
         }
 
@@ -426,7 +499,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.DiscordInvite(SharedCommands.CommandSource.Eco, callingUser, string.Empty);
+                SharedCommands.DiscordInvite(SharedCommands.CommandInterface.Eco, callingUser, string.Empty);
             }, callingUser);
         }
 
@@ -490,7 +563,7 @@ namespace Eco.Plugins.DiscordLink
                 }
 
                 // Create a linked user from the combined Eco and Discord info
-                LinkedUserManager.AddLinkedUser(callingUser, matchingMember.Id.ToString(), matchingMember.Guild.Id.ToString());
+                UserLinkManager.AddLinkedUser(callingUser, matchingMember.Id.ToString(), matchingMember.Guild.Id.ToString());
 
                 // Notify the Discord account that a link has been made and ask for verification
                 _ = plugin.Client.SendDMAsync(matchingMember, null, MessageBuilder.Discord.GetVerificationDM(callingUser));
@@ -505,7 +578,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                bool result = LinkedUserManager.RemoveLinkedUser(callingUser);
+                bool result = UserLinkManager.RemoveLinkedUser(callingUser);
                 if (result)
                     ReportCommandInfo(callingUser, $"Discord account unlinked.");
                 else
@@ -522,7 +595,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.Trades(SharedCommands.CommandSource.Eco, callingUser, userOrItemName);
+                SharedCommands.Trades(SharedCommands.CommandInterface.Eco, callingUser, userOrItemName);
             }, callingUser);
         }
 
@@ -538,7 +611,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.TrackTrades(SharedCommands.CommandSource.Eco, callingUser, userOrItemName);
+                SharedCommands.TrackTrades(SharedCommands.CommandInterface.Eco, callingUser, userOrItemName);
             }, callingUser);
         }
 
@@ -547,7 +620,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.StopTrackTrades(SharedCommands.CommandSource.Eco, callingUser, userOrItemName);
+                SharedCommands.StopTrackTrades(SharedCommands.CommandInterface.Eco, callingUser, userOrItemName);
             }, callingUser);
         }
 
@@ -556,7 +629,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.ListTrackedTrades(SharedCommands.CommandSource.Eco, callingUser);
+                SharedCommands.ListTrackedTrades(SharedCommands.CommandInterface.Eco, callingUser);
             }, callingUser);
         }
 
@@ -569,28 +642,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                var plugin = Plugins.DiscordLink.DiscordLink.Obj;
-
-                var snippets = DLStorage.Instance.Snippets;
-                if (string.IsNullOrWhiteSpace(snippetKey)) // List all snippets if no key is given
-                {
-                    if(snippets.Count > 0)
-                        DisplayCommandData(callingUser, "Snippets", string.Join("\n", snippets.Keys));
-                    else
-                        ReportCommandInfo(callingUser, "There are no registered snippets.");
-                }
-                else
-                {
-                    // Find and post the snippet requested by the user
-                    if (snippets.TryGetValue(snippetKey, out string snippetText))
-                    {
-                        EcoUtils.SendServerMessage($"{callingUser.Name} invoked snippet \"{snippetKey}\"\n- - -\n{snippetText}\n- - -", permanent: true);
-                    }
-                    else
-                    {
-                        ReportCommandError(callingUser, $"No snippet with key \"{snippetKey}\" could be found.");
-                    }
-                }
+                SharedCommands.Snippet(SharedCommands.CommandInterface.Eco, callingUser, SharedCommands.CommandInterface.Eco, callingUser.Name, snippetKey);
             }, callingUser);
         }
 

@@ -5,6 +5,7 @@ Emzi0767.Common.dll
 Microsoft.Extensions.DependencyInjection.dll
 Microsoft.Extensions.DependencyInjection.Abstractions.dll
 Microsoft.Extensions.Logging.Abstractions.dll
+Newtonsoft.Json.dll
 Nito.AsyncEx.Coordination.dll
 Nito.AsyncEx.Tasks.dll
 Nito.Collections.Deque.dll

@@ -1,7 +1,10 @@
 ﻿using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.Entities;
 using Eco.Core.Plugins;
+using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Utils;
+using Eco.Shared.Validation;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -17,10 +20,9 @@ namespace Eco.Plugins.DiscordLink
     {
         public enum VerificationFlags
         {
-            Static = 1 << 0,
-            ChannelLinks = 1 << 1,
-            BotData = 1 << 2,
-            All = ~0
+            Static          = 1 << 0,
+            ChannelLinks    = 1 << 1,
+            All             = ~0
         }
 
         public static class DefaultValues
@@ -36,6 +38,7 @@ namespace Eco.Plugins.DiscordLink
             public const int MaxPersonalCurrencies = 3;
             public const int MaxTopCurrencyHolderCount = 3;
             public const int MaxTrackedTradesPerUser = 5;
+            public const DiscordLinkEmbed.EmbedSize MinEmbedSizeForFooter = DiscordLinkEmbed.EmbedSize.Medium;
         }
 
         public static readonly DLConfig Instance = new DLConfig();
@@ -53,11 +56,11 @@ namespace Eco.Plugins.DiscordLink
                 => link.IsValid()
                 && link.EcoChannel.EqualsCaseInsensitive(ecoChannelName));
 
-        public static ChatChannelLink ChatLinkForDiscordChannel(string discordGuildName, string discordChannelName) =>
+        public static ChatChannelLink ChatLinkForDiscordChannel(DiscordChannel channel) =>
             Data.ChatChannelLinks.FirstOrDefault(link
                 => link.IsValid()
-                && link.DiscordServer.EqualsCaseInsensitive(discordGuildName)
-                && link.DiscordChannel.EqualsCaseInsensitive(discordChannelName));
+                && (link.DiscordServer.EqualsCaseInsensitive(channel.Guild.Name) || link.DiscordServer.EqualsCaseInsensitive(channel.Guild.Id.ToString()))
+                && (link.DiscordChannel.EqualsCaseInsensitive(channel.Name) || link.DiscordChannel.EqualsCaseInsensitive(channel.Id.ToString())));
 
         public delegate Task OnConfigChangedDelegate(object sender, EventArgs e);
         public event OnConfigChangedDelegate OnConfigChanged;
@@ -109,7 +112,7 @@ namespace Eco.Plugins.DiscordLink
                 || args.Action == NotifyCollectionChangedAction.Remove
                 || args.Action == NotifyCollectionChangedAction.Replace)
             {
-                HandleConfigChanged();
+                _ = HandleConfigChanged();
             }
             else
             {
@@ -117,7 +120,7 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
-        public void HandleConfigChanged()
+        public async Task HandleConfigChanged()
         {
             // Do not verify if change occurred as this function is going to be called again in that case
             // Do not verify the config in case the bot token has been changed, as the client will be restarted and that will trigger verification
@@ -129,11 +132,7 @@ namespace Eco.Plugins.DiscordLink
             if (tokenChanged)
             {
                 Logger.Info("Discord Bot Token changed - Restarting");
-                bool restarted = false;
-                SystemUtils.SynchronousThreadExecute(() => // Avoid deadlocks caused by calling async functions on the GUI thread
-                {
-                    restarted = DiscordLink.Obj.Restart().Result;
-                });
+                bool restarted = await DiscordLink.Obj.Restart();
 
                 if (!restarted)
                     Logger.Info("Restart failed or a restart was already in progress");
@@ -144,13 +143,7 @@ namespace Eco.Plugins.DiscordLink
             if (!correctionMade) // If a correction was made, this function will be called again
             {
                 VerifyConfig();
-
-                // This function executes on the GUI thread and therefore async calls will trigger deadlocks.
-                // We execute the callbacks on a separate joined thread to avoid these deadlocks.
-                SystemUtils.SynchronousThreadExecute(() =>
-                {
-                    OnConfigChanged?.Invoke(this, EventArgs.Empty);
-                });
+                await OnConfigChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -188,7 +181,7 @@ namespace Eco.Plugins.DiscordLink
             }
 
             // Max tracked trades per user
-            if(Data.MaxTrackedTradesPerUser < 0)
+            if (Data.MaxTrackedTradesPerUser < 0)
             {
                 Data.MaxTrackedTradesPerUser = DLConfig.DefaultValues.MaxTrackedTradesPerUser;
             }
@@ -201,7 +194,7 @@ namespace Eco.Plugins.DiscordLink
             }
 
             // Currency channels
-            foreach(CurrencyChannelLink link in Data.CurrencyDisplayChannels)
+            foreach (CurrencyChannelLink link in Data.CurrencyDisplayChannels)
             {
                 if (link.MaxMintedCount < 0)
                 {
@@ -215,7 +208,7 @@ namespace Eco.Plugins.DiscordLink
                     correctionMade = true;
                 }
 
-                if(link.MaxTopCurrencyHolderCount < 0 || link.MaxTopCurrencyHolderCount > DLConstants.MAX_TOP_CURRENCY_HOLDER_DISPLAY_LIMIT)
+                if (link.MaxTopCurrencyHolderCount < 0 || link.MaxTopCurrencyHolderCount > DLConstants.MAX_TOP_CURRENCY_HOLDER_DISPLAY_LIMIT)
                 {
                     link.MaxTopCurrencyHolderCount = DefaultValues.MaxTopCurrencyHolderCount;
                     correctionMade = true;
@@ -303,12 +296,6 @@ namespace Eco.Plugins.DiscordLink
                             Logger.Info($"Unverified channels detected:\n * " + string.Join("\n * ", unverifiedLinks));
                     }
                 }
-
-                if (verificationFlags.HasFlag(VerificationFlags.BotData))
-                {
-                    if (!DiscordLink.Obj.Client.BotHasIntent(DSharpPlus.DiscordIntents.GuildMembers))
-                        Logger.Warning("Bot is not configured to allow reading of full server member list as it lacks the Server Members Intent. Some features will be unavailable. See install instructions for help with adding intents.");
-                }
             }
         }
 
@@ -339,11 +326,13 @@ namespace Eco.Plugins.DiscordLink
             {
                 BotToken = this.BotToken,
                 EcoBotName = this.EcoBotName,
-                DiscordCommandPrefix = this.DiscordCommandPrefix,
+                MinEmbedSizeForFooter = this.MinEmbedSizeForFooter,
                 ServerName = this.ServerName,
                 ServerDescription = this.ServerDescription,
                 ServerLogo = this.ServerLogo,
-                ServerAddress = this.ServerAddress,
+                ConnectionInfo = this.ConnectionInfo,
+                WebServerAddress = this.WebServerAddress,
+                DiscordCommandPrefix = this.DiscordCommandPrefix,
                 LogLevel = this.LogLevel,
                 MaxTrackedTradesPerUser = this.MaxTrackedTradesPerUser,
                 InviteMessage = this.InviteMessage,
@@ -364,31 +353,50 @@ namespace Eco.Plugins.DiscordLink
             };
         }
 
-        [Description("The token provided by the Discord API to allow access to the bot. This setting can be changed while the server is running and will in that case trigger a reconnection to Discord."), Category("Bot Configuration")]
+        public bool WebServerAddressEndsWithPort()
+        {
+            if (string.IsNullOrEmpty(WebServerAddress))
+                return false;
+
+            int lastColonPos = WebServerAddress.LastIndexOf(":");
+            if (lastColonPos == -1 || lastColonPos >= WebServerAddress.Length)
+                return false;
+
+            return WebServerAddress.Substring(lastColonPos + 1).All(c => Char.IsDigit(c));
+        }
+
+        [Description("The token provided by the Discord API to allow access to the Discord bot. This setting can be changed while the server is running and will in that case trigger a reconnection to Discord."), Category("Base Configuration - Discord")]
         public string BotToken { get; set; }
 
-        [Description("The name of the bot user in Eco. This setting can be changed while the server is running, but changes will only take effect after a world reset."), Category("Bot Configuration")]
+        [Description("The name of the bot user in Eco. This setting can be changed while the server is running, but changes will only take effect after a world reset."), Category("Base Configuration - Discord")]
         public string EcoBotName { get; set; } = DLConfig.DefaultValues.EcoBotName;
+
+        [Description("The roles recognized as having admin permissions on Discord. This setting requires a plugin restart to take effect."), Category("Base Configuration - Discord")]
+        public ObservableCollection<string> AdminRoles { get; set; } = new ObservableCollection<string>(DLConfig.DefaultValues.AdminRoles);
+
+        [Description("Determines for what sizes of embeds to show the footer containing meta information about posted embeds. All embeds of sizes bigger than the selected one will have footers as well. This setting can be changed while the server is running."), Category("Base Configuration - Discord")]
+        public DiscordLinkEmbed.EmbedSize MinEmbedSizeForFooter { get; set; } = DLConfig.DefaultValues.MinEmbedSizeForFooter;
+
+        [Description("The name of the Eco server, overriding the name configured within Eco. This setting can be changed while the server is running."), Category("Base Configuration - Eco")]
+        public string ServerName { get; set; }
+
+        [Description("The description of the Eco server, overriding the description configured within Eco. This setting can be changed while the server is running."), Category("Base Configuration - Eco")]
+        public string ServerDescription { get; set; }
+
+        [Description("The logo of the server as a URL. This setting can be changed while the server is running."), Category("Base Configuration - Eco")]
+        public string ServerLogo { get; set; }
+
+        [Description("The game server connection information to display to users. This setting can be changed while the server is running."), Category("Base Configuration - Eco")]
+        public string ConnectionInfo { get; set; }
+
+        [Description("The address (URL or IP) of the web server to use in web server links. If the web server traffic is being routed through a different port than the configured \"Web Server Port\" fro, the Network config, also qualify this address with the rereouted port number. This setting can be changed while the server is running."), Category("Base Configuration - Eco")]
+        [UrlValidation(ErrorMessage = "The value must start with http:// or https://. ")]
+        public string WebServerAddress { get; set; }
 
         [Description("The prefix to put before commands in order for the Discord bot to recognize them as such. This setting requires a plugin restart to take effect."), Category("Command Settings")]
         public string DiscordCommandPrefix { get; set; } = DLConfig.DefaultValues.DiscordCommandPrefix;
 
-        [Description("The roles recognized as having admin permissions on Discord. This setting requires a plugin restart to take effect."), Category("Command Settings")]
-        public ObservableCollection<string> AdminRoles { get; set; } = new ObservableCollection<string>(DLConfig.DefaultValues.AdminRoles);
-
-        [Description("The name of the Eco server, overriding the name configured within Eco. This setting can be changed while the server is running."), Category("Server Details")]
-        public string ServerName { get; set; }
-
-        [Description("The description of the Eco server, overriding the description configured within Eco. This setting can be changed while the server is running."), Category("Server Details")]
-        public string ServerDescription { get; set; }
-
-        [Description("The logo of the server as a URL. This setting can be changed while the server is running."), Category("Server Details")]
-        public string ServerLogo { get; set; }
-
-        [Description("The address (URL or IP) of the server. Overrides the automatically detected IP. This setting can be changed while the server is running."), Category("Server Details")]
-        public string ServerAddress { get; set; }
-
-        [Description("Discord and Eco Channels to connect together. This setting can be changed while the server is running."), Category("Feeds")]
+        [Description("Discord and Eco Channels to connect together for chat crossposting. This setting can be changed while the server is running."), Category("Feeds")]
         public ObservableCollection<ChatChannelLink> ChatChannelLinks { get; set; } = new ObservableCollection<ChatChannelLink>();
 
         [Description("Discord Channels in which trade events will be posted. This setting can be changed while the server is running."), Category("Feeds")]
@@ -430,14 +438,14 @@ namespace Eco.Plugins.DiscordLink
         [Description("Max amount of tracked trades allowed per user. This setting can be changed while the server is running, but does not apply retroactively."), Category("Command Settings")]
         public int MaxTrackedTradesPerUser { get; set; } = DLConfig.DefaultValues.MaxTrackedTradesPerUser;
 
-        [Description("Determines what message types will be printed to the server log. All message types below the selected one will be printed as well. This setting can be changed while the server is running."), Category("Miscellaneous")]
-        public Logger.LogLevel LogLevel { get; set; } = DLConfig.DefaultValues.PluginLogLevel;
-
-        [Description("Determines what backend message types will be printed to the server log. All message types below the selected one will be printed as well. This setting requires a plugin restart to take effect."), Category("Miscellaneous")]
-        public Microsoft.Extensions.Logging.LogLevel BackendLogLevel { get; set; } = DLConfig.DefaultValues.BackendLogLevel;
-
         [Description("The message to use for the /DiscordInvite command. The invite link is fetched from the network config and will replace the token " + DLConstants.INVITE_COMMAND_TOKEN + ". This setting can be changed while the server is running."), Category("Command Settings")]
         public string InviteMessage { get; set; } = DLConfig.DefaultValues.InviteMessage;
+
+        [Description("Determines what message types will be printed to the server log. All message types below the selected one will be printed as well. This setting can be changed while the server is running."), Category("Plugin Configuration")]
+        public Logger.LogLevel LogLevel { get; set; } = DLConfig.DefaultValues.PluginLogLevel;
+
+        [Description("Determines what backend message types will be printed to the server log. All message types below the selected one will be printed as well. This setting requires a plugin restart to take effect."), Category("Plugin Configuration")]
+        public Microsoft.Extensions.Logging.LogLevel BackendLogLevel { get; set; } = DLConfig.DefaultValues.BackendLogLevel;
     }
 
     public class DiscordPlayerConfig : ICloneable

@@ -24,7 +24,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
         private static List<Either<Item, User, Tag>> _itemLookup = null;
 
         public static List<Either<Item, User, Tag>> ItemLookup =>
-            _itemLookup ?? Item.AllItems.Select(item => new Either<Item, User, Tag>(item)).ToList();
+            _itemLookup ??= Item.AllItems.Select(item => new Either<Item, User, Tag>(item)).ToList();
 
         private static List<Either<Item, User, Tag>> _tagLookup = null;
 
@@ -98,7 +98,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 var matchItem = match.Get<Item>();
                 matchedName = matchItem.DisplayName;
 
-                bool filter(StoreComponent store, TradeOffer offer) => offer.Stack.Item == matchItem;
+                bool filter(StoreComponent store, TradeOffer offer) => offer.Stack.Item.TypeID == matchItem.TypeID;
                 groupedSellOffers = SellOffers(filter).GroupBy(t => StoreCurrencyName(t.Item1)).OrderBy(g => g.Key);
                 groupedBuyOffers = BuyOffers(filter).GroupBy(t => StoreCurrencyName(t.Item1)).OrderBy(g => g.Key);
 
@@ -154,11 +154,11 @@ namespace Eco.Plugins.DiscordLink.Utilities
         private static IEnumerable<Tag> FindTags()
         {
             List<Tag> uniqueTags = new List<Tag>();
-            foreach(Item item in Item.AllItems)
+            foreach (Item item in Item.AllItems)
             {
-                foreach(Tag tag in item.Tags())
+                foreach (Tag tag in item.Tags())
                 {
-                    if (!uniqueTags.Contains(tag)) 
+                    if (!uniqueTags.Contains(tag))
                         uniqueTags.Add(tag);
                 }
             }

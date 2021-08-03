@@ -37,14 +37,14 @@ namespace Eco.Plugins.DiscordLink.Modules
             if (DLConfig.Data.TradeFeedChannels.Count <= 0)
                 return;
 
-            if (!(data is IEnumerable<List<CurrencyTrade>> accumulatedTrades))
+            if (!(data[0] is IEnumerable<List<CurrencyTrade>> accumulatedTrades))
                 return;
 
             // Each entry is the summarized trade events for a player and a store
             foreach (List<CurrencyTrade> accumulatedTradeList in accumulatedTrades)
             {
                 if (accumulatedTradeList.Count <= 0) continue;
-                
+
                 CurrencyTrade firstTrade = accumulatedTradeList[0];
 
                 DiscordLinkEmbed embed = new DiscordLinkEmbed();

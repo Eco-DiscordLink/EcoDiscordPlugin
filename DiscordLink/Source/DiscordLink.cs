@@ -1,4 +1,5 @@
-﻿using Eco.Core;
+﻿using DSharpPlus.Entities;
+using Eco.Core;
 using Eco.Core.Plugins;
 using Eco.Core.Plugins.Interfaces;
 using Eco.Core.Utils;
@@ -15,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Module = Eco.Plugins.DiscordLink.Modules.Module;
@@ -48,6 +50,7 @@ namespace Eco.Plugins.DiscordLink
             }
         }
         private string _status = "Uninitialized";
+        private Timer _activityUpdateTimer = null;
 
         #region Plugin Management
 
@@ -58,7 +61,7 @@ namespace Eco.Plugins.DiscordLink
 
         public string GetStatus()
         {
-            return _status;
+            return Status;
         }
 
         public Result ShouldOverrideAuth(GameAction action)
@@ -73,7 +76,13 @@ namespace Eco.Plugins.DiscordLink
 
         public void OnEditObjectChanged(object o, string param)
         {
-            DLConfig.Instance.HandleConfigChanged();
+            // TODO: Hack to avoid deadlocks with async and the GUI thread. Move work to another thread context
+            Thread configChangeThread = new Thread(() =>
+            {
+                DLConfig.Instance.HandleConfigChanged().Wait();
+            });
+            configChangeThread.Start();
+            configChangeThread.Join();
             ParamChanged?.Invoke(o, param);
         }
 
@@ -84,11 +93,7 @@ namespace Eco.Plugins.DiscordLink
 #else
             bool debug = false;
 #endif
-            string displayText = string.Empty;
-            SystemUtils.SynchronousThreadExecute(() => // Avoid deadlocks with the GUI thread
-            {
-                displayText = MessageBuilder.Shared.GetDisplayString(verbose: debug);
-            });
+            string displayText = MessageBuilder.Shared.GetDisplayStringAsync(verbose: debug).Result;
             return displayText;
         }
 
@@ -97,7 +102,6 @@ namespace Eco.Plugins.DiscordLink
             DLConfig.Instance.Initialize();
             EventConverter.Instance.Initialize();
             DLStorage.Instance.Initialize();
-            Logger.Initialize();
             Status = "Initializing";
             Logger.Info($"Plugin version is {PluginVersion}");
             InitTime = DateTime.Now;
@@ -133,7 +137,7 @@ namespace Eco.Plugins.DiscordLink
                 return;
             }
 
-            DLConfig.Instance.VerifyConfig(DLConfig.VerificationFlags.ChannelLinks | DLConfig.VerificationFlags.BotData);
+            DLConfig.Instance.VerifyConfig(DLConfig.VerificationFlags.ChannelLinks);
 
             HandleClientConnected();
 
@@ -157,7 +161,6 @@ namespace Eco.Plugins.DiscordLink
             ShutdownModules();
             EventConverter.Instance.Shutdown();
             DLStorage.Instance.Shutdown();
-            Logger.Shutdown();
         }
 
         public async Task<bool> Restart()
@@ -179,6 +182,7 @@ namespace Eco.Plugins.DiscordLink
         {
             InitializeModules();
             ActionUtil.AddListener(this);
+            _activityUpdateTimer = new Timer(TriggerActivityStringUpdate, null, DLConstants.DISCORD_ACTIVITY_STRING_UPDATE_INTERVAL_MS, DLConstants.DISCORD_ACTIVITY_STRING_UPDATE_INTERVAL_MS);
             Client.OnDisconnecting.Add(HandleClientDisconnecting);
 
             Status = "Connected and running";
@@ -189,6 +193,7 @@ namespace Eco.Plugins.DiscordLink
         {
             Client.OnDisconnecting.Remove(HandleClientDisconnecting);
 
+            SystemUtils.StopAndDestroyTimer(ref _activityUpdateTimer);
             ActionUtil.RemoveListener(this);
             ShutdownModules();
             Client.OnConnected.Add(HandleClientConnected);
@@ -209,7 +214,7 @@ namespace Eco.Plugins.DiscordLink
 
                     HandleEvent(DLEventType.EcoMessageSent, chatSent);
                     break;
-            
+
                 case CurrencyTrade currencyTrade:
                     HandleEvent(DLEventType.Trade, currencyTrade);
                     break;
@@ -217,23 +222,23 @@ namespace Eco.Plugins.DiscordLink
                 case WorkOrderAction workOrderAction:
                     HandleEvent(DLEventType.WorkOrderCreated, workOrderAction);
                     break;
-            
+
                 case PostedWorkParty postedWorkParty:
                     HandleEvent(DLEventType.PostedWorkParty, postedWorkParty);
                     break;
-            
+
                 case CompletedWorkParty completedWorkParty:
                     HandleEvent(DLEventType.CompletedWorkParty, completedWorkParty);
                     break;
-            
+
                 case JoinedWorkParty joinedWorkParty:
                     HandleEvent(DLEventType.JoinedWorkParty, joinedWorkParty);
                     break;
-            
+
                 case LeftWorkParty leftWorkParty:
                     HandleEvent(DLEventType.LeftWorkParty, leftWorkParty);
                     break;
-            
+
                 case WorkedForWorkParty workedParty:
                     HandleEvent(DLEventType.WorkedWorkParty, workedParty);
                     break;
@@ -258,12 +263,13 @@ namespace Eco.Plugins.DiscordLink
             EventConverter.Instance.HandleEvent(eventType, data);
             DLStorage.Instance.HandleEvent(eventType, data);
             UpdateModules(eventType, data);
+            UpdateActivityString(eventType);
         }
 
         public void HandleWorldReset()
         {
             Logger.Info("New world generated - Removing storage data for previous world");
-            DLStorage.Instance.Reset();
+            DLStorage.Instance.ResetWorldData();
         }
 
         #endregion
@@ -305,6 +311,20 @@ namespace Eco.Plugins.DiscordLink
         private void UpdateModules(DLEventType trigger, params object[] data)
         {
             Modules.ForEach(async module => await module.Update(this, trigger, data));
+        }
+
+        private void TriggerActivityStringUpdate(object stateInfo)
+        {
+            UpdateActivityString(DLEventType.Timer);
+        }
+
+        private void UpdateActivityString(DLEventType trigger)
+        {
+            if (Client.ConnectionStatus != DLDiscordClient.ConnectionState.Connected
+                || (trigger & (DLEventType.Join | DLEventType.Login | DLEventType.Logout | DLEventType.Timer)) == 0)
+                return;
+
+            Client.DiscordClient.UpdateStatusAsync(new DiscordActivity(MessageBuilder.Discord.GetActivityString(), ActivityType.Watching));
         }
 
         #endregion

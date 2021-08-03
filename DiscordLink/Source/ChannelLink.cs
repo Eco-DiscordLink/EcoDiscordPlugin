@@ -83,7 +83,7 @@ namespace Eco.Plugins.DiscordLink
                 return false; // The channel will always fail if the guild fails
 
             DiscordChannel channel = guild.ChannelByNameOrID(DiscordChannel);
-            if (guild == null)
+            if (channel == null)
                 return false;
 
             Guild = guild;
@@ -156,7 +156,7 @@ namespace Eco.Plugins.DiscordLink
             return $"{DiscordServer} #{DiscordChannel} <--> {EcoChannel}";
         }
 
-        public override bool IsValid() => !string.IsNullOrWhiteSpace(DiscordServer) && !string.IsNullOrWhiteSpace(DiscordChannel) && !string.IsNullOrWhiteSpace(EcoChannel);
+        public override bool IsValid() => base.IsValid() && !string.IsNullOrWhiteSpace(EcoChannel);
 
         public override bool MakeCorrections()
         {
@@ -225,46 +225,46 @@ namespace Eco.Plugins.DiscordLink
 
     public class ServerInfoChannel : ChannelLink
     {
-        [Description("Display the server name in the message.")]
+        [Description("Display the server name.")]
         public bool UseName { get; set; } = true;
 
-        [Description("Display the server description in the message.")]
+        [Description("Display the server description.")]
         public bool UseDescription { get; set; } = false;
 
-        [Description("Display the server logo in the message.")]
+        [Description("Display the server logo.")]
         public bool UseLogo { get; set; } = true;
 
-        [Description("Display the server IP address and port in the message.")]
+        [Description("Display the server IP address and port.")]
         public bool UseConnectionInfo { get; set; } = true;
 
-        [Description("Display the number of online players in the message.")]
-        public bool UsePlayerCount { get; set; } = true;
+        [Description("Display the number of online players.")]
+        public bool UsePlayerCount { get; set; } = false;
 
-        [Description("Display a list of online players in the message.")]
+        [Description("Display a list of online players.")]
         public bool UsePlayerList { get; set; } = true;
 
         [Description("Display how long the players in the playerlist has been logged in for.")]
         public bool UsePlayerListLoggedInTime { get; set; } = false;
 
-        [Description("Display the current server time.")]
-        public bool UseCurrentTime { get; set; } = true;
+        [Description("Display the current ingame time.")]
+        public bool UseIngameTime { get; set; } = true;
 
-        [Description("Display the time remaining until meteor impact in the message.")]
+        [Description("Display the time remaining until meteor impact.")]
         public bool UseTimeRemaining { get; set; } = true;
 
-        [Description("Display a boolean for if the meteor has hit yet or not, in the message.")]
-        public bool UseMeteorHasHit { get; set; } = false;
+        [Description("Display the current server time.")]
+        public bool UseServerTime { get; set; } = true;
 
-        [Description("Display the number of active elections in the message.")]
+        [Description("Display the number of active elections.")]
         public bool UseElectionCount { get; set; } = false;
 
-        [Description("Display a list of all active elections in the message.")]
+        [Description("Display a list of all active elections.")]
         public bool UseElectionList { get; set; } = true;
 
-        [Description("Display the number of active laws in the message.")]
+        [Description("Display the number of active laws.")]
         public bool UseLawCount { get; set; } = false;
 
-        [Description("Display a list of all active laws in the message.")]
+        [Description("Display a list of all active laws.")]
         public bool UseLawList { get; set; } = true;
     }
 }

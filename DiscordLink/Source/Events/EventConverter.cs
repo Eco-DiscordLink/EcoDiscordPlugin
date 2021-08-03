@@ -10,7 +10,7 @@ namespace Eco.Plugins.DiscordLink.Events
 {
     public class DLEventArgs : EventArgs
     {
-        public DLEventArgs(DLEventType eventType, object data )
+        public DLEventArgs(DLEventType eventType, object data)
         {
             EventType = eventType;
             Data = data;
@@ -64,7 +64,7 @@ namespace Eco.Plugins.DiscordLink.Events
 
         public void HandleEvent(DLEventType eventType, params object[] data)
         {
-            switch(eventType)
+            switch (eventType)
             {
                 case DLEventType.Trade:
                     if (!(data[0] is CurrencyTrade tradeEvent))
@@ -89,7 +89,7 @@ namespace Eco.Plugins.DiscordLink.Events
 
         private void FireEvent(DLEventType evetType, object data)
         {
-            if(OnEventFired != null)
+            if (OnEventFired != null)
                 OnEventFired.Invoke(this, new DLEventArgs(evetType, data));
         }
     }

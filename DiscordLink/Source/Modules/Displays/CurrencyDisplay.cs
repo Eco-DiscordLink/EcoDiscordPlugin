@@ -54,12 +54,12 @@ namespace Eco.Plugins.DiscordLink.Modules
                 for (int i = 0; i < currencyLink.MaxMintedCount && currencyEnumerator.MoveNext(); ++i)
                 {
                     DiscordLinkEmbed currencyReport = MessageBuilder.Discord.GetCurrencyReport(currencyEnumerator.Current, currencyLink.MaxTopCurrencyHolderCount);
-                    if(currencyReport != null)
+                    if (currencyReport != null)
                         tagAndContent.Add(new Tuple<string, DiscordLinkEmbed>($"{BaseTag} [{currencyEnumerator.Current.Id}]", currencyReport));
                 }
             }
 
-            if(usePersonal)
+            if (usePersonal)
             {
                 IEnumerable<Currency> personalCurrencies = currencies.Where(c => !c.Backed).OrderByDescending(c => currencyTradesMap.Keys.Contains(c.Id) ? currencyTradesMap[c.Id] : 0);
                 var currencyEnumerator = personalCurrencies.GetEnumerator();

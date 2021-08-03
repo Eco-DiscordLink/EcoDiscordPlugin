@@ -8,7 +8,7 @@
         {
             _value = value1;
         }
-        
+
         public TG Get<TG>() where TG : class
         {
             return _value as TG;

@@ -18,6 +18,13 @@ namespace Eco.Plugins.DiscordLink.Utilities
 {
     public static class EcoUtils
     {
+        public enum BoxMessageType
+        {
+            Info,
+            Warning,
+            Error
+        }
+
         #region Lookups
 
         public static User UserByName(string userName) => UserManager.FindUserByName(userName);
@@ -68,44 +75,76 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         #region Message Sending
 
-        public static bool SendServerMessage(string message, bool permanent = false, User user = null )
+        public static bool SendServerMessageToUser(User user, bool permanent, string message)
         {
             ChatBase.MessageType messageType = permanent ? ChatBase.MessageType.Permanent : ChatBase.MessageType.Temporary;
-            return SendMessageOfType(null, message, messageType, user);
+            return ChatBaseExtended.CBChat(message, user, messageType);
         }
 
-        public static bool SendPopupMessage(string message, User user = null)
+        public static bool SendServerMessageToAll(bool permanent, string message)
         {
-            return SendMessageOfType(null, message, ChatBase.MessageType.Popup, user);
+            ChatBase.MessageType messageType = permanent ? ChatBase.MessageType.Permanent : ChatBase.MessageType.Temporary;
+            return ChatBaseExtended.CBChat(message, messageType);
         }
 
-        public static bool SendAnnouncementMessage(string title, string message, User user = null)
+        public static bool SendOKBoxToUser(User user, string message)
         {
-            return SendMessageOfType(title, message, ChatBase.MessageType.Announcement, user);
+            return ChatBaseExtended.CBOkBox(message, user);
         }
 
-        private static bool SendMessageOfType(string title, string message, ChatBase.MessageType messageType, User user)
+        public static bool SendOKBoxToAll(string message)
         {
-            bool result = false;
-            switch (messageType)
-            {
-                case ChatBase.MessageType.Temporary:
-                case ChatBase.MessageType.Permanent:
-                case ChatBase.MessageType.Popup:
-                    if (user == null)
-                        result = ChatBase.Send(new ChatBase.Message(message, messageType));
-                    else
-                        result = ChatBase.Send(new ChatBase.Message(message, user, messageType));
-                    break;
+            return ChatBaseExtended.CBOkBox(message);
+        }
 
-                case ChatBase.MessageType.Announcement:
-                    if (user == null)
-                        result = ChatBase.Send(new ChatBase.Message(title, message));
-                    else
-                        result = ChatBase.Send(new ChatBase.Message(title, message, user));
-                    break;
-            }
-            return result;
+        public static bool SendInfoBoxToUser(User user, string message)
+        {
+            return ChatBaseExtended.CBInfoBox(message, user);
+        }
+
+        public static bool SendInfoBoxToAll(string message)
+        {
+            return ChatBaseExtended.CBInfoBox(message);
+        }
+
+        public static bool SendWarningBoxToAll(string message)
+        {
+            return ChatBaseExtended.CBWarning(message);
+        }
+
+        public static bool SendWarningBoxToUser(User user, string message)
+        {
+            return ChatBaseExtended.CBWarning(message, user);
+        }
+
+        public static bool SendErrorBoxToUser(User user, string message)
+        {
+            return ChatBaseExtended.CBError(message, user);
+        }
+
+        public static bool SendErrorBoxToAll(string message)
+        {
+            return ChatBaseExtended.CBError(message);
+        }
+
+        public static bool SendNotificationToUser(User user, string message)
+        {
+            return ChatBaseExtended.CBMail(message, user);
+        }
+
+        public static bool SendNotificationToAll(string message)
+        {
+            return ChatBaseExtended.CBMail(message);
+        }
+
+        public static bool SendInfoPanelToUser(User user, string instance, string title, string message)
+        {
+            return ChatBaseExtended.CBInfoPane(title, message, instance, user, messageType: true);
+        }
+
+        public static bool SendInfoPanelToAll(string instance, string title, string message)
+        {
+            return ChatBaseExtended.CBInfoPane(title, message, instance, messageType: true);
         }
 
         #endregion

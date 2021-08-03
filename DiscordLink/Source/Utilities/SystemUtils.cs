@@ -15,22 +15,14 @@ namespace Eco.Plugins.DiscordLink.Utilities
             }
         }
 
-        public delegate void SynchronousThreadFunction();
-        public static void SynchronousThreadExecute(SynchronousThreadFunction func)
-        {
-            Thread thread = new Thread(new ThreadStart(func));
-            thread.Start();
-            thread.Join();
-        }
-
         public static void EnsurePathExists(string path)
         {
             string directoryPath = Path.GetDirectoryName(path);
             try
             {
-               Directory.CreateDirectory(directoryPath);
+                Directory.CreateDirectory(directoryPath);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Logger.Error($"Failed to create directory at path \"{path}\". Error message: {e}");
             }

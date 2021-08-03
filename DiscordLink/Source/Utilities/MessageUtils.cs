@@ -15,6 +15,9 @@ namespace Eco.Plugins.DiscordLink.Utilities
         // Snippet matching regex: Match the (case insensitive) [Snippet] header and capture the the content of the following bracket pair
         public static readonly Regex SnippetRegex = new Regex("(?i)\\[snippet\\]\\s*\\[([^\\]]+)\\].*\\s([^$]*)");
 
+        // Display tag matching regex: Match the [] header and the [] tag and capture them both. Will capture only the header if no tag exists.
+        public static readonly Regex DisplayRegex = new Regex("(\\[[^\\]]+\\])(?:\\s*\\[([^\\]]+)\\])*");
+
         // Eco tag matching regex: Match all characters that are used to create HTML style tags
         private static readonly Regex HTMLTagRegex = new Regex("<[^>]*>");
 
@@ -63,6 +66,12 @@ namespace Eco.Plugins.DiscordLink.Utilities
             if (fullEmbed == null)
                 return resultEmbeds;
 
+            // Conditionally add the standard footer
+            if (string.IsNullOrWhiteSpace(fullEmbed.Footer) && fullEmbed.GetSize() <= DLConfig.Data.MinEmbedSizeForFooter)
+            {
+                fullEmbed.WithFooter(MessageBuilder.Discord.GetStandardEmbedFooter());
+            }
+
             // Count chars needed for title and footer
             int titleFooterCharCount = 0;
             if (fullEmbed.Title != null)
@@ -74,11 +83,11 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
             // Count chars needed for fields and track fields that are too long
             List<bool> needsSplitFields = Enumerable.Repeat(false, fullEmbed.Fields.Count).ToList();
-            for(int i = 0; i < fullEmbed.Fields.Count; ++i)
+            for (int i = 0; i < fullEmbed.Fields.Count; ++i)
             {
                 DiscordLinkEmbedField field = fullEmbed.Fields[i];
                 int length = field.Title.Length + field.Text.Length;
-                if ( length > DLConstants.DISCORD_EMBED_FIELD_CHARACTER_LIMIT)
+                if (length > DLConstants.DISCORD_EMBED_FIELD_CHARACTER_LIMIT)
                     needsSplitFields[i] = true;
 
                 totalCharsCount += length;
@@ -100,7 +109,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 {
                     IEnumerable<string> splits = SplitStringBySize(field.Text, DLConstants.DISCORD_EMBED_FIELD_CHARACTER_LIMIT);
                     int partCount = 1;
-                    foreach(string fieldSplit in splits)
+                    foreach (string fieldSplit in splits)
                     {
                         splitFields.Add(new DiscordLinkEmbedField($"{field.Title} ({partCount})", fieldSplit, fullEmbed.Fields[i].Inline));
                         ++partCount;
@@ -122,7 +131,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             foreach (DiscordLinkEmbedField field in splitFields)
             {
                 // If adding the next field would bring us over a limit, split into new embeds
-                if(characterCount + field.Text.Length > DLConstants.DISCORD_EMBED_TOTAL_CHARACTER_LIMIT || fieldCount + 1 > DLConstants.DISCORD_EMBED_FIELD_ALIGNED_COUNT_LIMIT)
+                if (characterCount + field.Text.Length > DLConstants.DISCORD_EMBED_TOTAL_CHARACTER_LIMIT || fieldCount + 1 > DLConstants.DISCORD_EMBED_FIELD_ALIGNED_COUNT_LIMIT)
                 {
                     splitEmbedBuilder.WithTitle($"{fullEmbed.Title} ({splitEmbeds.Count() + 1})");
                     splitEmbeds.Add(new DiscordLinkEmbed(splitEmbedBuilder));
@@ -140,7 +149,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             splitEmbeds.Last().WithFooter(fullEmbed.Footer); // Add back the footer only in the last split
 
             // Convert embeds to actual DSharp Discord embeds
-            foreach(DiscordLinkEmbed embedData in splitEmbeds)
+            foreach (DiscordLinkEmbed embedData in splitEmbeds)
             {
                 resultEmbeds.Add(BuildDiscordEmbed(embedData));
             }
@@ -149,7 +158,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
         }
 
         // Creates an actual Discord embed with the assumption that all fields in the input are within the character constraints
-        public static DiscordEmbed BuildDiscordEmbed(DiscordLinkEmbed embedData)
+        private static DiscordEmbed BuildDiscordEmbed(DiscordLinkEmbed embedData)
         {
             DiscordEmbedBuilder builder = new DiscordEmbedBuilder();
             builder.WithTitle(embedData.Title);
@@ -230,7 +239,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     return beforeMatch + mention + afterMatch; // Add whatever characters came before or after the username when replacing the match in order to avoid changing the message context
                 }
 
-                ChatChannelLink link = DLConfig.ChatLinkForDiscordChannel(channel.Guild.Name, channel.Name);
+                ChatChannelLink link = !channel.IsPrivate ? DLConfig.ChatLinkForDiscordChannel(channel) : null;
                 bool allowRoleMentions = (link == null || link.AllowRoleMentions);
                 bool allowMemberMentions = (link == null || link.AllowUserMentions);
                 bool allowChannelMentions = (link == null || link.AllowChannelMentions);
@@ -314,10 +323,10 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 content = content.Replace($"<#{channel.Id}>", $"#{channel.Name}");
             }
 
-            if(message.Attachments.Count > 0)
+            if (message.Attachments.Count > 0)
             {
                 content += "\nAttachments:";
-                foreach(DiscordAttachment attachment in message.Attachments)
+                foreach (DiscordAttachment attachment in message.Attachments)
                 {
                     content += $"\n{attachment.FileName}";
                 }

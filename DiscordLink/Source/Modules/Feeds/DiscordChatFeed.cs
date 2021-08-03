@@ -20,7 +20,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected override bool ShouldRun()
         {
-            foreach(ChatChannelLink link in DLConfig.Data.ChatChannelLinks)
+            foreach (ChatChannelLink link in DLConfig.Data.ChatChannelLinks)
             {
                 if (link.IsValid() && (link.Direction == ChatSyncDirection.DiscordToEco || link.Direction == ChatSyncDirection.Duplex))
                     return true;
@@ -33,7 +33,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             if (!(data[0] is DiscordMessage message))
                 return;
 
-            ChatChannelLink channelLink = DLConfig.ChatLinkForEcoChannel(message.Channel.Name) ?? DLConfig.ChatLinkForEcoChannel(message.Channel.Id.ToString());
+            ChatChannelLink channelLink = DLConfig.ChatLinkForDiscordChannel(message.Channel);
             if (channelLink == null)
                 return;
 

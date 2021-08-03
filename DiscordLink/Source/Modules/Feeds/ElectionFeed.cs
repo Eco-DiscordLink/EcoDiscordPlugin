@@ -90,8 +90,6 @@ namespace Eco.Plugins.DiscordLink.Modules
                     return;
             }
 
-            embed.WithFooter(MessageBuilder.Discord.GetStandardEmbedFooter());
-
             foreach (ChannelLink electionLink in DLConfig.Data.ElectionFeedChannels)
             {
                 if (!electionLink.IsValid())

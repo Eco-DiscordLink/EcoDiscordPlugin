@@ -22,11 +22,16 @@ namespace Eco.Plugins.DiscordLink
         public const int DISCORD_EMBED_FOOTER_CHARACTER_LIMIT = 2048;
         public const int DISCORD_EMBED_FOOTER_DESCRIPTION_LIMIT = 2048;
         public const int DISCORD_EMBED_FIELD_CHARACTER_LIMIT = 1024;
+        public const int DISCORD_EMBED_FIELD_CHARACTER_PER_LINE_LIMIT = 25;
         public const int DISCORD_EMBED_FIELD_COUNT_LIMIT = 25;
         public const int DISCORD_EMBED_FIELD_ALIGNED_COUNT_LIMIT = 24; // Discord embed fields align when there are three fields per row
+        public const int DISCORD_EMBED_SIZE_SMALL_FIELD_LIMIT = 3;
+        public const int DISCORD_EMBED_SIZE_MEDIUM_FIELD_LIMIT = 12;
+        public const int DISCORD_EMBED_SIZE_LARGE_FIELD_LIMIT = 24;
         public const int DISCORD_EMBED_AUTHOR_NAME_CHARACTER_LIMIT = 256;
         public const int DISCORD_EMBED_TOTAL_CHARACTER_LIMIT = 6000;
         public const int DISCORD_EMBED_FIELDS_PER_ROW_LIMIT = 3;
+        public const int DISCORD_ACTIVITY_STRING_UPDATE_INTERVAL_MS = 900000; // 15 minutes
 
         public const int MAX_TOP_CURRENCY_HOLDER_DISPLAY_LIMIT = 15;
         public const string CURRENCY_REPORT_COMMAND_MAX_CURRENCIES_PER_TYPE_DEFAULT = "3";
@@ -36,6 +41,15 @@ namespace Eco.Plugins.DiscordLink
         public const int SECONDS_PER_HOUR = SECONDS_PER_MINUTE * 60;
         public const int SECONDS_PER_DAY = SECONDS_PER_HOUR * 24;
         public const int SECONDS_PER_WEEK = SECONDS_PER_DAY * 7;
+
+        public const int POST_SERVER_CONNECTION_WAIT_MS = 3000;
+
+        public const string ECO_PANEL_NOTIFICATION = "DLNotification";
+        public const string ECO_PANEL_SIMPLE_LIST = "DLSimpleList";
+        public const string ECO_PANEL_COMPLEX_LIST = "DL_ComplexList";
+        public const string ECO_PANEL_DL_MESSAGE_MEDIUM = "DLMessageMedium";
+        public const string ECO_PANEL_REPORT = "DLReport";
+        public const string ECO_PANEL_DL_TRADES = "DLTrades";
 
         public static string BasePath { get { return Directory.GetCurrentDirectory() + "/Configs/Mods/DiscordLink/"; } }
     }

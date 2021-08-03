@@ -20,7 +20,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected override DLEventType GetTriggers()
         {
-            return base.GetTriggers() | DLEventType.DiscordClientStarted | DLEventType.Timer | DLEventType.Login| DLEventType.StartElection
+            return base.GetTriggers() | DLEventType.DiscordClientStarted | DLEventType.Timer | DLEventType.Login | DLEventType.StartElection
                 | DLEventType.StopElection | DLEventType.Vote;
         }
 
@@ -39,36 +39,36 @@ namespace Eco.Plugins.DiscordLink.Modules
             tagAndContent.Add(new Tuple<string, DiscordLinkEmbed>(BaseTag, content));
         }
 
-        private static MessageBuilder.ServerInfoComponentFlag GetServerInfoFlagForChannel(ServerInfoChannel statusChannel)
+        private static MessageBuilder.ServerInfoComponentFlag GetServerInfoFlagForChannel(ServerInfoChannel infoChannel)
         {
             MessageBuilder.ServerInfoComponentFlag statusFlag = 0;
-            if (statusChannel.UseName)
+            if (infoChannel.UseName)
                 statusFlag |= MessageBuilder.ServerInfoComponentFlag.Name;
-            if (statusChannel.UseDescription)
+            if (infoChannel.UseDescription)
                 statusFlag |= MessageBuilder.ServerInfoComponentFlag.Description;
-            if (statusChannel.UseLogo)
+            if (infoChannel.UseLogo)
                 statusFlag |= MessageBuilder.ServerInfoComponentFlag.Logo;
-            if (statusChannel.UseConnectionInfo)
+            if (infoChannel.UseConnectionInfo)
                 statusFlag |= MessageBuilder.ServerInfoComponentFlag.ConnectionInfo;
-            if (statusChannel.UsePlayerCount)
+            if (infoChannel.UsePlayerCount)
                 statusFlag |= MessageBuilder.ServerInfoComponentFlag.PlayerCount;
-            if (statusChannel.UsePlayerList)
+            if (infoChannel.UsePlayerList)
                 statusFlag |= MessageBuilder.ServerInfoComponentFlag.PlayerList;
-            if (statusChannel.UsePlayerListLoggedInTime)
+            if (infoChannel.UsePlayerListLoggedInTime)
                 statusFlag |= MessageBuilder.ServerInfoComponentFlag.PlayerListLoginTime;
-            if (statusChannel.UseCurrentTime)
-                statusFlag |= MessageBuilder.ServerInfoComponentFlag.CurrentTime;
-            if (statusChannel.UseTimeRemaining)
+            if (infoChannel.UseIngameTime)
+                statusFlag |= MessageBuilder.ServerInfoComponentFlag.IngameTime;
+            if (infoChannel.UseTimeRemaining)
                 statusFlag |= MessageBuilder.ServerInfoComponentFlag.TimeRemaining;
-            if (statusChannel.UseMeteorHasHit)
-                statusFlag |= MessageBuilder.ServerInfoComponentFlag.MeteorHasHit;
-            if (statusChannel.UseElectionCount)
+            if (infoChannel.UseServerTime)
+                statusFlag |= MessageBuilder.ServerInfoComponentFlag.ServerTime;
+            if (infoChannel.UseElectionCount)
                 statusFlag |= MessageBuilder.ServerInfoComponentFlag.ActiveElectionCount;
-            if (statusChannel.UseElectionList)
+            if (infoChannel.UseElectionList)
                 statusFlag |= MessageBuilder.ServerInfoComponentFlag.ActiveElectionList;
-            if (statusChannel.UseLawCount)
+            if (infoChannel.UseLawCount)
                 statusFlag |= MessageBuilder.ServerInfoComponentFlag.LawCount;
-            if (statusChannel.UseLawList)
+            if (infoChannel.UseLawList)
                 statusFlag |= MessageBuilder.ServerInfoComponentFlag.LawList;
 
             return statusFlag;
