@@ -152,7 +152,7 @@ namespace Eco.Plugins.DiscordLink
             HandleEvent(DLEventType.ServerStarted, null);
         }
 
-        public async Task ShutdownAsync()
+        public Task ShutdownAsync()
         {
             Status = "Shutting down";
 
@@ -161,6 +161,7 @@ namespace Eco.Plugins.DiscordLink
             ShutdownModules();
             EventConverter.Instance.Shutdown();
             DLStorage.Instance.Shutdown();
+            return Task.CompletedTask;
         }
 
         public async Task<bool> Restart()
