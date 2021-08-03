@@ -866,7 +866,7 @@ namespace Eco.Plugins.DiscordLink
                     if (target == CommandInterface.Eco)
                     {
                         EcoUtils.SendServerMessageToAll(permanent: true, $"{userName} invoked snippet \"{snippetKey}\"\n- - -\n{snippetText}\n- - -");
-                        ReportCommandInfo(source, callContext, "Snippet posted.");
+                        _ = ReportCommandInfo(source, callContext, "Snippet posted.");
                     }
                     else
                     {
