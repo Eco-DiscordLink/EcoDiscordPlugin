@@ -5,3 +5,6 @@ csharp_style_prefer_range_operator = false
 
 # IDE0071: Simplify interpolation
 dotnet_style_prefer_simplified_interpolation = false
+
+# CA1416: Validate platform compatibility
+dotnet_diagnostic.CA1416.severity = silent
