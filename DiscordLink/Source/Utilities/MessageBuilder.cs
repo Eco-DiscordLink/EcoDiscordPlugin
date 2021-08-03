@@ -657,7 +657,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     {
                         propertiessDesc.AppendLine(deed.Name);
                         propertiessSizeOrVehicleDesc.AppendLine(deed.IsVehicle() ? deed.GetVehicle().Parent.Name : $"{deed.GetTotalPlotSize()}m²");
-                        propertiessLocationDesc.AppendLine(deed.IsVehicle() ? deed.GetVehicle().Parent.Position3i.ToString() : deed.Location.ToString());
+                        propertiessLocationDesc.AppendLine(deed.IsVehicle() ? deed.GetVehicle().Parent.Position3i.ToString() : deed.Position3i.ToString());
                     }
 
                     bool hasProperty = userDeeds.Count() > 0;
