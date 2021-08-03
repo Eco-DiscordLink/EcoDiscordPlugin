@@ -37,7 +37,7 @@ namespace Eco.Plugins.DiscordLink
         public DateTime InitTime { get; private set; } = DateTime.MinValue;
         public bool CanRestart { get; private set; } = false; // False to start with as we cannot restart while the initial startup is in progress
 
-        private const string ModIOAppID = "";
+        private const string ModIOAppID = "77";
         private const string ModIODeveloperToken = ""; // This will always be empty for all but actual release builds.
 
         public string Status
@@ -103,7 +103,6 @@ namespace Eco.Plugins.DiscordLink
             EventConverter.Instance.Initialize();
             DLStorage.Instance.Initialize();
             Status = "Initializing";
-            Logger.Info($"Plugin version is {PluginVersion}");
             InitTime = DateTime.Now;
 
             WorldGeneratorPlugin.OnFinishGenerate.AddUnique(this.HandleWorldReset);
@@ -115,6 +114,8 @@ namespace Eco.Plugins.DiscordLink
             // Check mod versioning if the required data exists
             if (!string.IsNullOrWhiteSpace(ModIOAppID) && !string.IsNullOrWhiteSpace(ModIODeveloperToken))
                 ModVersioning.GetModInit(ModIOAppID, ModIODeveloperToken, "DiscordLink", "DiscordLink", ConsoleColor.Cyan, "DiscordLink");
+            else
+                Logger.Info($"Plugin version is {PluginVersion}");
         }
 
         private void PostServerInitialize()
