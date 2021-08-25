@@ -2,13 +2,7 @@ DiscordLink.dll
 DSharpPlus.dll
 DSharpPlus.CommandsNext.dll
 Emzi0767.Common.dll
-Microsoft.Extensions.DependencyInjection.dll
-Microsoft.Extensions.DependencyInjection.Abstractions.dll
-Microsoft.Extensions.Logging.Abstractions.dll
-Newtonsoft.Json.dll
 Nito.AsyncEx.Coordination.dll
 Nito.AsyncEx.Tasks.dll
 Nito.Collections.Deque.dll
 Nito.Disposables.dll
-System.Collections.Immutable.dll
-System.Threading.Timer.dll
