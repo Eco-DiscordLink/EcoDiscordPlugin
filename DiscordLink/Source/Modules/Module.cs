@@ -121,7 +121,14 @@ namespace Eco.Plugins.DiscordLink.Modules
                 if (_isShuttingDown)
                     return;
 
-                await UpdateInternal(plugin, trigger, data);
+                try
+                {
+                    await UpdateInternal(plugin, trigger, data);
+                }
+                catch(Exception e)
+                {
+                    Logger.Error($"An error occured while updating the {ToString()} module. Error: {e}");
+                }
             }
         }
     }
