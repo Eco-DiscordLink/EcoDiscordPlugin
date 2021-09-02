@@ -727,7 +727,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 return report;
             }
 
-            public static DiscordLinkEmbed GetCurrencyReport(Currency currency, int maxTopHolders)
+            public static DiscordLinkEmbed GetCurrencyReport(Currency currency, int maxTopHolders, bool useBackingInfo, bool useTradeCount)
             {
                 var currencyTradesMap = DLStorage.WorldData.CurrencyToTradeCountMap;
 
@@ -763,13 +763,20 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 string backededItemName = currency.Backed ? $"{currency.BackingItem.DisplayName}" : "Personal";
 
                 // Build message
-                embed.AddField("Total trades", tradesCount.ToString("n0"), inline: true);
+                if (useTradeCount)
+                    embed.AddField("Total trades", tradesCount.ToString("n0"), inline: true);
+                
                 embed.AddField("Amount in circulation", currency.Circulation.ToString("n0"), inline: true);
                 embed.AddAlignmentField();
+                if (!useTradeCount)
+                    embed.AddAlignmentField();
 
-                embed.AddField("Backing", backededItemName, inline: true);
-                embed.AddField("Coins per item", currency.CoinsPerItem.ToString("n0"), inline: true);
-                embed.AddAlignmentField();
+                if (useBackingInfo && currency.Backed)
+                {
+                    embed.AddField("Backing", backededItemName, inline: true);
+                    embed.AddField("Coins per item", currency.CoinsPerItem.ToString("n0"), inline: true);
+                    embed.AddAlignmentField();
+                }
 
                 if (!string.IsNullOrWhiteSpace(topAccounts))
                 {

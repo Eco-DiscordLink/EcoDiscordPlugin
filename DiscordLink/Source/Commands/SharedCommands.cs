@@ -517,7 +517,7 @@ namespace Eco.Plugins.DiscordLink
                 return false;
             }
 
-            DiscordLinkEmbed report = MessageBuilder.Discord.GetCurrencyReport(currency, DLConfig.DefaultValues.MaxTopCurrencyHolderCount);
+            DiscordLinkEmbed report = MessageBuilder.Discord.GetCurrencyReport(currency, DLConfig.DefaultValues.MaxTopCurrencyHolderCount, useBackingInfo: true, useTradeCount: true);
             if (report == null)
             {
                 await ReportCommandError(source, callContext, $"Could not create a report for {currency} as no one holds this currency and no trades has been made with it.");
@@ -562,7 +562,7 @@ namespace Eco.Plugins.DiscordLink
                 var currencyEnumerator = mintedCurrencies.GetEnumerator();
                 for (int i = 0; i < maxCurrenciesPerType && currencyEnumerator.MoveNext(); ++i)
                 {
-                    DiscordLinkEmbed currencyReport = MessageBuilder.Discord.GetCurrencyReport(currencyEnumerator.Current, holdersPerCurrency);
+                    DiscordLinkEmbed currencyReport = MessageBuilder.Discord.GetCurrencyReport(currencyEnumerator.Current, holdersPerCurrency, useBackingInfo: true, useTradeCount: true);
                     if (currencyReport != null)
                         reports.Add(currencyReport);
                 }
@@ -577,7 +577,7 @@ namespace Eco.Plugins.DiscordLink
                     if (currencyEnumerator.Current.Creator == DiscordLink.Obj.EcoUser)
                         continue; // Ignore the bot currency
 
-                    DiscordLinkEmbed currencyReport = MessageBuilder.Discord.GetCurrencyReport(currencyEnumerator.Current, holdersPerCurrency);
+                    DiscordLinkEmbed currencyReport = MessageBuilder.Discord.GetCurrencyReport(currencyEnumerator.Current, holdersPerCurrency, useBackingInfo: true, useTradeCount: true);
                     if (currencyReport != null)
                         reports.Add(currencyReport);
                 }
