@@ -29,6 +29,7 @@
 
     <PackageReference Include="DSharpPlus" Version="4.0.1" />
     <PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.1" />
+    <PackageReference Include="ElixrMods.Framework" Version="3.1.0-rc.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="Nito.AsyncEx.Coordination" Version="5.1.0" />
   </ItemGroup>
@@ -67,9 +68,6 @@
     <Reference Include="Eco.WorldGenerator">
       <HintPath Condition="Exists('..\..\Eco\Server\Eco.WorldGenerator\bin\Release\netcoreapp3.1\ref\Eco.WorldGenerator.dll')">..\..\Eco\Server\Eco.WorldGenerator\bin\Release\netcoreapp3.1\ref\Eco.WorldGenerator.dll</HintPath>
       <HintPath Condition="Exists('..\Dependencies\Eco.WorldGenerator.dll')">..\Dependencies\Eco.WorldGenerator.dll</HintPath>
-    </Reference>
-    <Reference Include="em-framework">
-      <HintPath>..\Dependencies\em-framework.dll</HintPath>
     </Reference>
   </ItemGroup>
 

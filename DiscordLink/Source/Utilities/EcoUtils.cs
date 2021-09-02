@@ -149,12 +149,12 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         public static bool SendInfoPanelToUser(User user, string instance, string title, string message)
         {
-            return ChatBaseExtended.CBInfoPane(title, message, instance, user, messageType: true);
+            return ChatBaseExtended.CBInfoPane(title, message, instance, user, ChatBase.PanelType.InfoPanel);
         }
 
         public static bool SendInfoPanelToAll(string instance, string title, string message)
         {
-            return ChatBaseExtended.CBInfoPane(title, message, instance, messageType: true);
+            return ChatBaseExtended.CBInfoPane(title, message, instance, ChatBase.PanelType.InfoPanel);
         }
 
         #endregion
