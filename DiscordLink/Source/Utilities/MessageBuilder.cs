@@ -17,6 +17,7 @@ using Eco.Gameplay.Items;
 using Eco.Gameplay.Players;
 using Eco.Gameplay.Property;
 using Eco.Gameplay.Skills;
+using Eco.Gameplay.Systems.Balance;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.Networking;
 using Eco.Simulation.Types;
@@ -33,36 +34,41 @@ namespace Eco.Plugins.DiscordLink.Utilities
     {
         public enum ServerInfoComponentFlag
         {
-            Name                = 1 << 0,
-            Description         = 1 << 1,
-            Logo                = 1 << 2,
-            ConnectionInfo      = 1 << 3,
-            PlayerCount         = 1 << 4,
-            PlayerList          = 1 << 5,
-            PlayerListLoginTime = 1 << 6,
-            IngameTime          = 1 << 7,
-            TimeRemaining       = 1 << 8,
-            ServerTime          = 1 << 9,
-            ActiveElectionCount = 1 << 10,
-            ActiveElectionList  = 1 << 11,
-            LawCount            = 1 << 12,
-            LawList             = 1 << 13,
-            All                 = ~0
+            Name                        = 1 << 0,
+            Description                 = 1 << 1,
+            Logo                        = 1 << 2,
+            ConnectionInfo              = 1 << 3,
+            PlayerCount                 = 1 << 4,
+            PlayerList                  = 1 << 5,
+            PlayerListLoginTime         = 1 << 6,
+            PlayerListExhaustionTime    = 1 << 7,
+            ExhaustionResetTime         = 1 << 8,
+            ExhaustionResetTimeLeft     = 1 << 9,
+            ExhaustedPlayerCount        = 1 << 10,
+            IngameTime                  = 1 << 11,
+            MeteorTimeRemaining         = 1 << 12,
+            ServerTime                  = 1 << 13,
+            ActiveElectionCount         = 1 << 14,
+            ActiveElectionList          = 1 << 15,
+            LawCount                    = 1 << 16,
+            LawList                     = 1 << 17,
+            All                         = ~0
         }
 
         public enum PlayerReportComponentFlag
         {
             OnlineStatus    = 1 << 0,
             PlayTime        = 1 << 1,
-            Permissions     = 1 << 2,
-            AccessLists     = 1 << 3,
-            DiscordInfo     = 1 << 4,
-            Reputation      = 1 << 5,
-            Experience      = 1 << 6,
-            Skills          = 1 << 7,
-            Demographics    = 1 << 8,
-            Titles          = 1 << 9,
-            Properties      = 1 << 10,
+            Exhaustion      = 1 << 2,
+            Permissions     = 1 << 3,
+            AccessLists     = 1 << 4,
+            DiscordInfo     = 1 << 5,
+            Reputation      = 1 << 6,
+            Experience      = 1 << 7,
+            Skills          = 1 << 8,
+            Demographics    = 1 << 9,
+            Titles          = 1 << 10,
+            Properties      = 1 << 11,
             All             = ~0
         }
 
@@ -240,6 +246,12 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 return string.Join("\n", onlineUsers.Select(u => GetTimeDescription(u.GetSecondsSinceLogin(), TimespanStringComponent.Hour | TimespanStringComponent.Minute)));
             }
 
+            public static string GetPlayerExhaustionTimeList()
+            {
+                IEnumerable<User> onlineUsers = UserManager.OnlineUsers.OrderBy(user => user.Name);
+                return string.Join("\n", onlineUsers.Select(u => u.ExhaustionMonitor.IsExhausted ? "Exhausted" : GetTimeDescription(u.GetSecondsLeftUntilExhaustion(), TimespanStringComponent.Hour | TimespanStringComponent.Minute)));
+            }
+
             public enum TimespanStringComponent
             {
                 Day = 1 << 0,
@@ -326,7 +338,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
         {
             public static string GetActivityString()
             {
-                int onlinePlayers = NetworkManager.GetServerInfo().OnlinePlayers;
+                int onlinePlayers = EcoUtils.NumOnlinePlayers;
                 string activityString;
                 if (onlinePlayers > 0)
                 {
@@ -405,7 +417,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     int fieldsAdded = 0;
                     if (flag.HasFlag(ServerInfoComponentFlag.PlayerCount))
                     {
-                        embed.AddField("Player Count", $"{UserManager.OnlineUsers.Where(user => user.Client.Connected).Count()} Online / {serverInfo.TotalPlayers} Total", inline: true);
+                        embed.AddField("Player Count", $"{EcoUtils.NumOnlinePlayers} Online / {serverInfo.TotalPlayers} Total", inline: true);
                         ++fieldsAdded;
                     }
 
@@ -427,7 +439,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     }
                 }
 
-                if (flag.HasFlag(ServerInfoComponentFlag.IngameTime) || flag.HasFlag(ServerInfoComponentFlag.TimeRemaining) || flag.HasFlag(ServerInfoComponentFlag.ServerTime))
+                if (flag.HasFlag(ServerInfoComponentFlag.IngameTime) || flag.HasFlag(ServerInfoComponentFlag.MeteorTimeRemaining) || flag.HasFlag(ServerInfoComponentFlag.ServerTime))
                 {
                     int fieldsAdded = 0;
                     if (flag.HasFlag(ServerInfoComponentFlag.IngameTime))
@@ -437,7 +449,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                         ++fieldsAdded;
                     }
 
-                    if (flag.HasFlag(ServerInfoComponentFlag.TimeRemaining))
+                    if (flag.HasFlag(ServerInfoComponentFlag.MeteorTimeRemaining))
                     {
                         TimeSpan timeRemainingSpan = new TimeSpan(0, 0, (int)serverInfo.TimeLeft);
                         bool meteorHasHit = timeRemainingSpan.Seconds < 0;
@@ -459,10 +471,37 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     }
                 }
 
+                if (BalancePlugin.Obj.Config.IsLimitingHours && flag.HasFlag(ServerInfoComponentFlag.ExhaustionResetTime) || flag.HasFlag(ServerInfoComponentFlag.ExhaustionResetTimeLeft) || flag.HasFlag(ServerInfoComponentFlag.ExhaustedPlayerCount))
+                {
+                    int fieldsAdded = 0;
+                    if (flag.HasFlag(ServerInfoComponentFlag.ExhaustionResetTime))
+                    {
+                        embed.AddField("Exhaustion Reset Time", DateTime.Now.AddSeconds(EcoUtils.SecondsLeftOnDay).ToString("yyyy-MM-dd HH:mm"), inline: true);
+                        ++fieldsAdded;
+                    }
+
+                    if (flag.HasFlag(ServerInfoComponentFlag.ExhaustionResetTimeLeft))
+                    {
+                        embed.AddField("Exhaustion Reset Countdown", Shared.GetTimeDescription(EcoUtils.SecondsLeftOnDay, Shared.TimespanStringComponent.Hour | Shared.TimespanStringComponent.Minute, includeZeroTimes: true, annotate: true), inline: true);
+                        ++fieldsAdded;
+                    }
+
+                    if (flag.HasFlag(ServerInfoComponentFlag.ExhaustedPlayerCount))
+                    {
+                        embed.AddField("Exhausted Players Count", EcoUtils.NumExhaustedPlayers.ToString(), inline: true);
+                        ++fieldsAdded;
+                    }
+
+                    for (int i = fieldsAdded; i < DLConstants.DISCORD_EMBED_FIELDS_PER_ROW_LIMIT; ++i)
+                    {
+                        embed.AddAlignmentField();
+                    }
+                }
+
                 if (flag.HasFlag(ServerInfoComponentFlag.PlayerList))
                 {
                     IEnumerable<string> onlineUsers = UserManager.OnlineUsers.Where(user => user.Client.Connected).Select(user => user.Name);
-                    string playerCount = UserManager.OnlineUsers.Where(user => user.Client.Connected).Count().ToString();
+                    string playerCount = EcoUtils.NumOnlinePlayers.ToString();
                     embed.AddField($"Online Players ({playerCount})", Shared.GetOnlinePlayerList(), inline: true);
                     if (flag.HasFlag(ServerInfoComponentFlag.PlayerListLoginTime))
                     {
@@ -476,7 +515,19 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     {
                         embed.AddAlignmentField();
                     }
-                    embed.AddAlignmentField();
+
+                    if(flag.HasFlag(ServerInfoComponentFlag.PlayerListExhaustionTime) && BalancePlugin.Obj.Config.IsLimitingHours)
+                    {
+                        string exhaustTimeList = Shared.GetPlayerExhaustionTimeList();
+                        if (!string.IsNullOrWhiteSpace(exhaustTimeList))
+                            embed.AddField("Exhaustion Countdown", exhaustTimeList, inline: true);
+                        else
+                            embed.AddAlignmentField();
+                    }
+                    else
+                    {
+                        embed.AddAlignmentField();
+                    }
                 }
 
                 if (flag.HasFlag(ServerInfoComponentFlag.ActiveElectionList))
@@ -535,7 +586,6 @@ namespace Eco.Plugins.DiscordLink.Utilities
                         report.AddField("Session Time", Shared.GetTimeDescription(user.GetSecondsSinceLogin(), Shared.TimespanStringComponent.Hour | Shared.TimespanStringComponent.Minute), inline: true);
                     else
                         report.AddField("Last Online", $"{Shared.GetTimeDescription(user.GetSecondsSinceLogout(), includeZeroTimes: false, annotate: true)} ago", inline: true);
-                    report.AddAlignmentField(); //report.AddField("Playtimes", user.OnlineTimeLog.ActiveTimes); // TODO: Add when caught up with develop
                 }
 
                 // Play time
@@ -544,6 +594,14 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     report.AddField("Playtime Total", Shared.GetTimeDescription(user.OnlineTimeLog.SecondsOnline(0.0)), inline: true);
                     report.AddField("Playtime last 24 hours", Shared.GetTimeDescription(user.OnlineTimeLog.SecondsOnline(DLConstants.SECONDS_PER_DAY), Shared.TimespanStringComponent.Hour | Shared.TimespanStringComponent.Minute | Shared.TimespanStringComponent.Second), inline: true);
                     report.AddField("Playtime Last 7 days", Shared.GetTimeDescription(user.OnlineTimeLog.SecondsOnline(DLConstants.SECONDS_PER_WEEK)), inline: true);
+                }
+
+                // Exhaustion
+                if (flag.HasFlag(PlayerReportComponentFlag.Exhaustion) && BalancePlugin.Obj.Config.IsLimitingHours)
+                {
+                    report.AddField("Exhaustion Countdown", user.ExhaustionMonitor.IsExhausted ? "Exhausted" : Shared.GetTimeDescription(user.GetSecondsLeftUntilExhaustion(), Shared.TimespanStringComponent.Hour | Shared.TimespanStringComponent.Minute | Shared.TimespanStringComponent.Second));
+                    report.AddAlignmentField();
+                    report.AddAlignmentField();
                 }
 
                 // Permissions

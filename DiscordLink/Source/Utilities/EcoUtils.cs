@@ -73,6 +73,16 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         #endregion
 
+        #region Calculations & Enumerations
+
+        public static double SecondsPassedOnDay => Simulation.Time.WorldTime.Seconds % DLConstants.SECONDS_PER_DAY;
+        public static double SecondsLeftOnDay => DLConstants.SECONDS_PER_DAY - SecondsPassedOnDay;
+
+        public static int NumOnlinePlayers => UserManager.OnlineUsers.Where(user => user.Client.Connected).Count();
+        public static int NumExhaustedPlayers => UserManager.Users.Count(u => u.ExhaustionMonitor.IsExhausted);
+
+        #endregion
+
         #region Message Sending
 
         public static bool SendServerMessageToUser(User user, bool permanent, string message)

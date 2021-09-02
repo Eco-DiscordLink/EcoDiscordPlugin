@@ -246,6 +246,9 @@ namespace Eco.Plugins.DiscordLink
         [Description("Display how long the players in the playerlist has been logged in for.")]
         public bool UsePlayerListLoggedInTime { get; set; } = false;
 
+        [Description("Display how long the players in the player list has left before they get exhausted.")]
+        public bool UsePlayerListExhaustionTime { get; set; } = false;
+
         [Description("Display the current ingame time.")]
         public bool UseIngameTime { get; set; } = true;
 
@@ -254,6 +257,15 @@ namespace Eco.Plugins.DiscordLink
 
         [Description("Display the current server time.")]
         public bool UseServerTime { get; set; } = true;
+
+        [Description("Display the server time at which exhaustion resets.")]
+        public bool UseExhaustionResetServerTime { get; set; } = false;
+
+        [Description("Display the time remaining before exhaustion resets.")]
+        public bool UseExhaustionResetTimeLeft { get; set; } = false;
+
+        [Description("Display the amount of exhausted players.")]
+        public bool UseExhaustedPlayerCount { get; set; } = false;
 
         [Description("Display the number of active elections.")]
         public bool UseElectionCount { get; set; } = false;

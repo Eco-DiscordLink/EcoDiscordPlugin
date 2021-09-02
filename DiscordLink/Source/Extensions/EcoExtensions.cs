@@ -3,7 +3,9 @@ using Eco.Gameplay.GameActions;
 using Eco.Gameplay.Objects;
 using Eco.Gameplay.Players;
 using Eco.Gameplay.Property;
+using Eco.Gameplay.Systems.Balance;
 using Eco.Plugins.DiscordLink.Utilities;
+using Eco.Shared.Utils;
 using System.Linq;
 
 namespace Eco.Plugins.DiscordLink.Extensions
@@ -18,6 +20,7 @@ namespace Eco.Plugins.DiscordLink.Extensions
 
         public static double GetSecondsSinceLogin(this User user) => user.IsOnline ? Simulation.Time.WorldTime.Seconds - user.LoginTime : 0.0;
         public static double GetSecondsSinceLogout(this User user) => user.IsOnline ? 0.0 : Simulation.Time.WorldTime.Seconds - user.LogoutTime;
+        public static double GetSecondsLeftUntilExhaustion(this User user) => TimeUtil.HoursToSeconds(BalancePlugin.Obj.Config.ExhaustionAfterHours) - user.OnlineTimeLog.SecondsPlayedToday();
 
         public static float GetTotalXPMultiplier(this User user) => user.GetNutritionXP() + user.GetHousingXP();
         public static float GetNutritionXP(this User user) => user.Stomach.NutrientSkillRate();

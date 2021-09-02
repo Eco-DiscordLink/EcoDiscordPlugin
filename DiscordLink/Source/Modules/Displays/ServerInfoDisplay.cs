@@ -56,12 +56,20 @@ namespace Eco.Plugins.DiscordLink.Modules
                 statusFlag |= MessageBuilder.ServerInfoComponentFlag.PlayerList;
             if (infoChannel.UsePlayerListLoggedInTime)
                 statusFlag |= MessageBuilder.ServerInfoComponentFlag.PlayerListLoginTime;
+            if (infoChannel.UsePlayerListExhaustionTime)
+                statusFlag |= MessageBuilder.ServerInfoComponentFlag.PlayerListExhaustionTime;
             if (infoChannel.UseIngameTime)
                 statusFlag |= MessageBuilder.ServerInfoComponentFlag.IngameTime;
             if (infoChannel.UseTimeRemaining)
-                statusFlag |= MessageBuilder.ServerInfoComponentFlag.TimeRemaining;
+                statusFlag |= MessageBuilder.ServerInfoComponentFlag.MeteorTimeRemaining;
             if (infoChannel.UseServerTime)
                 statusFlag |= MessageBuilder.ServerInfoComponentFlag.ServerTime;
+            if (infoChannel.UseExhaustionResetServerTime)
+                statusFlag |= MessageBuilder.ServerInfoComponentFlag.ExhaustionResetTime;
+            if (infoChannel.UseExhaustionResetTimeLeft)
+                statusFlag |= MessageBuilder.ServerInfoComponentFlag.ExhaustionResetTimeLeft;
+            if (infoChannel.UseExhaustedPlayerCount)
+                statusFlag |= MessageBuilder.ServerInfoComponentFlag.ExhaustedPlayerCount;
             if (infoChannel.UseElectionCount)
                 statusFlag |= MessageBuilder.ServerInfoComponentFlag.ActiveElectionCount;
             if (infoChannel.UseElectionList)
