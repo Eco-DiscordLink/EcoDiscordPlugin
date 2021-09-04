@@ -22,12 +22,13 @@
   </PropertyGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy /Y &quot;$(SolutionDir)Dependencies\System.Threading.Timer.dll&quot; &quot;$(OutDir)&quot;&#xD;&#xA;xcopy /Y &quot;$(SolutionDir)Dependencies\System.Threading.Tasks.Extensions.dll&quot; &quot;$(OutDir)&quot;&#xD;&#xA;&#xD;&#xA;set server_dir=$(SolutionDir)..\EcoServer\&#xD;&#xA;set server_mod_dir=$(SolutionDir)..\EcoServer\Mods\DiscordLink\&#xD;&#xA;for /f &quot;tokens=*&quot; %25%25i in ($(SolutionDir)DLLCopyList.txt) DO (&#xD;&#xA;    xcopy /Y &quot;$(OutDir)%25%25i&quot; &quot;%25server_mod_dir%25&quot;&#xD;&#xA;)&#xD;&#xA;&#xD;&#xA;xcopy /Y &quot;$(OutDir)em-framework.dll&quot; &quot;%25server_dir%25Mods\Elixir Mods\&quot;&#xD;&#xA;xcopy /Y &quot;$(OutDir)DiscordLink.pdb&quot; &quot;%25server_dir%25&quot;" />
+    <Exec Command="xcopy /Y &quot;$(SolutionDir)Dependencies\System.Threading.Timer.dll&quot; &quot;$(OutDir)&quot;&#xD;&#xA;xcopy /Y &quot;$(SolutionDir)Dependencies\System.Threading.Tasks.Extensions.dll&quot; &quot;$(OutDir)&quot;&#xD;&#xA;&#xD;&#xA;set server_dir=$(SolutionDir)..\EcoServer\&#xD;&#xA;set server_mod_dir=$(SolutionDir)..\EcoServer\Mods\DiscordLink\&#xD;&#xA;for /f &quot;tokens=*&quot; %25%25i in ($(SolutionDir)DLLCopyList.txt) DO (&#xD;&#xA;    xcopy /Y &quot;$(OutDir)%25%25i&quot; &quot;%25server_mod_dir%25&quot;&#xD;&#xA;)&#xD;&#xA;&#xD;&#xA;xcopy /Y &quot;$(OutDir)Eco.EM.Framework.dll&quot; &quot;%25server_dir%25Mods\Elixir Mods\&quot;&#xD;&#xA;xcopy /Y &quot;$(OutDir)DiscordLink.pdb&quot; &quot;%25server_dir%25&quot;" />
   </Target>
 
   <ItemGroup>
     <PackageReference Include="DSharpPlus" Version="4.0.0" />
     <PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.0" />
+    <PackageReference Include="ElixrMods.Framework" Version="3.1.0" />
     <PackageReference Include="Nito.AsyncEx.Coordination" Version="5.1.0" />
   </ItemGroup>
 
@@ -65,12 +66,6 @@
     <Reference Include="Eco.WorldGenerator">
       <HintPath Condition="Exists('..\Dependencies\Eco.WorldGenerator.dll')">..\Dependencies\Eco.WorldGenerator.dll</HintPath>
       <HintPath Condition="Exists('..\..\Eco\Server\Eco.WorldGenerator\bin\Release\netcoreapp3.1\ref\Eco.WorldGenerator.dll')">..\..\Eco\Server\Eco.WorldGenerator\bin\Release\netcoreapp3.1\ref\Eco.WorldGenerator.dll</HintPath>
-    </Reference>
-    <Reference Include="em-framework">
-      <HintPath>..\Dependencies\em-framework.dll</HintPath>
-    </Reference>
-    <Reference Include="em-framework">
-      <HintPath>..\Dependencies\em-framework.dll</HintPath>
     </Reference>
   </ItemGroup>
 

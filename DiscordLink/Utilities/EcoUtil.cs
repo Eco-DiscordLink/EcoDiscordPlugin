@@ -27,7 +27,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         public static void SendAnnouncementMessage(string title, string message, User user = null)
         {
-            SendMessageOfType(title, message, ChatBase.MessageType.Permanent, user);
+            SendMessageOfType(title, message, ChatBase.MessageType.InfoPanel, user);
         }
 
         private static void SendMessageOfType(string title, string message, ChatBase.MessageType messageType, User user )
@@ -39,22 +39,22 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 case ChatBase.MessageType.OkBox:
                     if (user == null)
                     {
-                        ChatBase.Send(new ChatBase.Message(message, messageType));
+                        ChatBaseExtended.CBOkBox(message);
                     }
                     else
                     {
-                        ChatBase.Send(new ChatBase.Message(message, user, messageType));
+                        ChatBaseExtended.CBOkBox(message, user);
                     }
                     break;
 
                 case ChatBase.MessageType.InfoPanel:
                     if (user == null)
                     {
-                        ChatBase.Send(new ChatBase.Message(title, message));
+                        ChatBaseExtended.CBInfoPane(title, message, "DiscordLink", ChatBase.PanelType.InfoPanel);
                     }
                     else
                     {
-                        ChatBase.Send(new ChatBase.Message(title, message, user));
+                        ChatBaseExtended.CBInfoPane(title, message, "DiscordLink", user, ChatBase.PanelType.InfoPanel);
                     }
                     break;
             }
