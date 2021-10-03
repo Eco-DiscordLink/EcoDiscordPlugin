@@ -482,7 +482,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
                     if (flag.HasFlag(ServerInfoComponentFlag.ExhaustionResetTimeLeft))
                     {
-                        embed.AddField("Exhaustion Reset Countdown", Shared.GetTimeDescription(EcoUtils.SecondsLeftOnDay, Shared.TimespanStringComponent.Hour | Shared.TimespanStringComponent.Minute, includeZeroTimes: true, annotate: true), inline: true);
+                        embed.AddField("Exhaustion Reset Countdown", Shared.GetTimeDescription(Math.Min(EcoUtils.SecondsLeftOnDay, 0.0), Shared.TimespanStringComponent.Hour | Shared.TimespanStringComponent.Minute, includeZeroTimes: true, annotate: true), inline: true);
                         ++fieldsAdded;
                     }
 
@@ -599,7 +599,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 // Exhaustion
                 if (flag.HasFlag(PlayerReportComponentFlag.Exhaustion) && BalancePlugin.Obj.Config.IsLimitingHours)
                 {
-                    report.AddField("Exhaustion Countdown", user.ExhaustionMonitor.IsExhausted ? "Exhausted" : Shared.GetTimeDescription(user.GetSecondsLeftUntilExhaustion(), Shared.TimespanStringComponent.Hour | Shared.TimespanStringComponent.Minute | Shared.TimespanStringComponent.Second));
+                    double SecondsLeft = user.GetSecondsLeftUntilExhaustion();
+                    report.AddField("Exhaustion Countdown", user.ExhaustionMonitor.IsExhausted || SecondsLeft < 0.0 ? "Exhausted" : Shared.GetTimeDescription(SecondsLeft, Shared.TimespanStringComponent.Hour | Shared.TimespanStringComponent.Minute | Shared.TimespanStringComponent.Second));
                     report.AddAlignmentField();
                     report.AddAlignmentField();
                 }
