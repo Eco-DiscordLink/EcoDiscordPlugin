@@ -767,7 +767,7 @@ namespace Eco.Plugins.DiscordLink
 
             if (source == CommandInterface.Eco)
             {
-                MessageBuilder.Eco.FormatTrades(offerType, groupedBuyOffers, groupedSellOffers, out string message);
+                MessageBuilder.Eco.FormatTrades(callContext as User, offerType, groupedBuyOffers, groupedSellOffers, out string message);
                 await DisplayCommandData(source, callContext, matchedName, message, DLConstants.ECO_PANEL_DL_TRADES);
             }
             else

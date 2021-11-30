@@ -1,4 +1,5 @@
 ﻿using Eco.Gameplay.Components;
+using Eco.Gameplay.Economy;
 using Eco.Gameplay.GameActions;
 using Eco.Gameplay.Objects;
 using Eco.Gameplay.Players;
@@ -25,6 +26,18 @@ namespace Eco.Plugins.DiscordLink.Extensions
         public static float GetTotalXPMultiplier(this User user) => user.GetNutritionXP() + user.GetHousingXP();
         public static float GetNutritionXP(this User user) => user.Stomach.NutrientSkillRate();
         public static float GetHousingXP(this User user) => user.HomePropertyValue.TotalSkillPoints;
+
+        public static float GetWealthInCurrency(this User user, Currency cur)
+        {
+            var wealth = 0f;
+            foreach (var account in Transfers.GetTaxableAccountsForUser(user, cur))
+            {
+                var amount = account.GetCurrencyHoldingVal(cur, user);
+                if (amount < Transfers.AlmostZero) continue;
+                wealth += amount;
+            }
+            return wealth;
+        }
 
         #endregion
 
