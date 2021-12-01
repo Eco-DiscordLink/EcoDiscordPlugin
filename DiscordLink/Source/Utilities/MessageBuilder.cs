@@ -1142,6 +1142,18 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 StringBuilder builder = new StringBuilder();
                 if (groupedSellOffers.Count() > 0 || groupedBuyOffers.Count() > 0)
                 {
+                    switch (tradeType)
+                    {
+                        case TradeTargetType.Tag:
+                        case TradeTargetType.Item:
+                            groupedBuyOffers = groupedBuyOffers.OrderByDescending(o => DLStorage.WorldData.CurrencyToTradeCountMap.GetValueOrDefault(o.First().Item1.Currency.Id, 0));
+                            groupedSellOffers = groupedSellOffers.OrderByDescending(o => DLStorage.WorldData.CurrencyToTradeCountMap.GetValueOrDefault(o.First().Item1.Currency.Id, 0));
+                            break;
+
+                        case TradeTargetType.User:
+                            break;
+                    }
+
                     foreach (StoreOfferGroup group in groupedBuyOffers)
                     {
                         var offerDescriptions = TradeOffersToDescriptions(group, user, tradeType);
