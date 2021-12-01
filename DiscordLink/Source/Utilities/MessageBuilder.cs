@@ -1189,7 +1189,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     var quantity = t.Item2.Stack.Quantity;
                     var currency = t.Item1.Currency;
                     var availableCurrency = t.Item2.Buying ? t.Item1.BankAccount.GetCurrencyHoldingVal(currency) : user.GetWealthInCurrency(currency);
-                    var maxTradeCount = price > 0f ? (int)Mathf.Floor(availableCurrency / price) : Int32.MaxValue; // Calculate how many items can be traded using the available money
+                    var maxTradeCount = price > 0f && !float.IsInfinity(availableCurrency) ? (int)Mathf.Floor(availableCurrency / price) : Int32.MaxValue; // Calculate how many items can be traded using the available money
                     if (t.Item2.Buying)
                     {
                         if (t.Item2.ShouldLimit && t.Item2.MaxNumWanted < maxTradeCount) // If there is a buy limit that is lower than what can be afforded, lower to that limit
