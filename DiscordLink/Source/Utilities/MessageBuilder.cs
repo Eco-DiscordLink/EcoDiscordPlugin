@@ -483,7 +483,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
                     if (flag.HasFlag(ServerInfoComponentFlag.ExhaustionResetTimeLeft))
                     {
-                        embed.AddField("Exhaustion Reset Countdown", Shared.GetTimeDescription(Math.Min(EcoUtils.SecondsLeftOnDay, 0.0), Shared.TimespanStringComponent.Hour | Shared.TimespanStringComponent.Minute, includeZeroTimes: true, annotate: true), inline: true);
+                        embed.AddField("Exhaustion Reset Countdown", Shared.GetTimeDescription(EcoUtils.SecondsLeftOnDay, Shared.TimespanStringComponent.Hour | Shared.TimespanStringComponent.Minute, includeZeroTimes: true, annotate: true), inline: true);
                         ++fieldsAdded;
                     }
 
@@ -600,8 +600,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 // Exhaustion
                 if (flag.HasFlag(PlayerReportComponentFlag.Exhaustion) && BalancePlugin.Obj.Config.IsLimitingHours)
                 {
-                    double SecondsLeft = user.GetSecondsLeftUntilExhaustion();
-                    report.AddField("Exhaustion Countdown", user.ExhaustionMonitor.IsExhausted || SecondsLeft < 0.0 ? "Exhausted" : Shared.GetTimeDescription(SecondsLeft, Shared.TimespanStringComponent.Hour | Shared.TimespanStringComponent.Minute | Shared.TimespanStringComponent.Second));
+                    report.AddField("Exhaustion Countdown", user.ExhaustionMonitor.IsExhausted ? "Exhausted" : Shared.GetTimeDescription(user.GetSecondsLeftUntilExhaustion(), Shared.TimespanStringComponent.Hour | Shared.TimespanStringComponent.Minute | Shared.TimespanStringComponent.Second));
                     report.AddAlignmentField();
                     report.AddAlignmentField();
                 }
@@ -1157,25 +1156,15 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
                     foreach (StoreOfferGroup group in groupedBuyOffers)
                     {
-                        var offerDescriptions = TradeOffersToDescriptions(group, user, tradeType);
-
                         builder.AppendLine(Text.Bold(Text.Color(Color.Green, $"<--- Buying for {group.First().Item1.CurrencyName} --->")));
-                        foreach (string description in offerDescriptions)
-                        {
-                            builder.AppendLine(description);
-                        }
+                        builder.Append(TradeOffersToDescriptions(group, user, tradeType));
                         builder.AppendLine();
                     }
 
                     foreach (StoreOfferGroup group in groupedSellOffers)
                     {
-                        var offerDescriptions = TradeOffersToDescriptions(group, user, tradeType);
-
                         builder.AppendLine(Text.Bold(Text.Color(Color.Red, $"<--- Selling for {MessageUtils.StripTags(group.First().Item1.CurrencyName)} --->")));
-                        foreach (string description in offerDescriptions)
-                        {
-                            builder.AppendLine(description);
-                        }
+                        builder.Append(TradeOffersToDescriptions(group, user, tradeType));
                         builder.AppendLine();
                     }
                 }
@@ -1186,7 +1175,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 message = builder.ToString();
             }
 
-            private static IEnumerable<string> TradeOffersToDescriptions(StoreOfferGroup offers, User user, TradeTargetType tradeType)
+            private static string TradeOffersToDescriptions(StoreOfferGroup offers, User user, TradeTargetType tradeType)
             {
                 Func<Tuple<StoreComponent, TradeOffer>, string> getLabel = tradeType switch
                 {
@@ -1196,36 +1185,52 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     _ => t => string.Empty,
                 };
 
-                return offers.Select(t =>
+                StringBuilder NormalOffers = new StringBuilder();
+                StringBuilder NoQuantityOffers = new StringBuilder();
+                StringBuilder DisabledOffers = new StringBuilder();
+                foreach (var storeAndoffer in offers)
                 {
-                    var price = t.Item2.Price;
-                    var quantity = t.Item2.Stack.Quantity;
-                    var currency = t.Item1.Currency;
-                    var availableCurrency = t.Item2.Buying ? t.Item1.BankAccount.GetCurrencyHoldingVal(currency) : user.GetWealthInCurrency(currency);
-                    var maxTradeCount = price > 0f && !float.IsInfinity(availableCurrency) ? (int)Mathf.Floor(availableCurrency / price) : Int32.MaxValue; // Calculate how many items can be traded using the available money
-                    if (t.Item2.Buying)
+                    StoreComponent store = storeAndoffer.Item1;
+                    TradeOffer offer = storeAndoffer.Item2;
+
+                    float price = offer.Price;
+                    int quantity = offer.Stack.Quantity;
+                    Currency currency = store.Currency;
+                    float availableCurrency = offer.Buying ? store.BankAccount.GetCurrencyHoldingVal(currency) : user.GetWealthInCurrency(currency);
+                    int maxTradeCount = price > 0f && !float.IsInfinity(availableCurrency) ? (int)Mathf.Floor(availableCurrency / price) : Int32.MaxValue; // Calculate how many items can be traded using the available money
+                    if (offer.Buying)
                     {
-                        if (t.Item2.ShouldLimit && t.Item2.MaxNumWanted < maxTradeCount) // If there is a buy limit that is lower than what can be afforded, lower to that limit
-                            maxTradeCount = t.Item2.MaxNumWanted;
+                        if (offer.ShouldLimit && offer.MaxNumWanted < maxTradeCount) // If there is a buy limit that is lower than what can be afforded, lower to that limit
+                            maxTradeCount = offer.MaxNumWanted;
                     }
                     else if (quantity < maxTradeCount)
                     {
                         maxTradeCount = quantity; // If there less items for sale than we can pay for, lower to the amount available for sale
                     }
 
-                    var quantityString = (t.Item2.Stack.Quantity == maxTradeCount || maxTradeCount == Int32.MaxValue)
+                    var quantityString = (offer.Stack.Quantity == maxTradeCount || maxTradeCount == Int32.MaxValue)
                         ? $"{quantity}"
                         : $"{quantity} ({maxTradeCount})";
-                    var line = $"{quantityString} - ${price} {getLabel(t)}";
+                    var line = $"{quantityString} - ${price} {getLabel(storeAndoffer)}";
 
-                    // Apply color
-                    if (!t.Item1.OnOff.Enabled)
+                    // Apply color and sort
+                    if (!store.OnOff.Enabled)
+                    {
                         line = Text.Color(Color.Red, line);
-                    else if ((t.Item2.Stack.Quantity == 0))
+                        DisabledOffers.AppendLine(line);
+                    }
+                    else if (offer.Stack.Quantity == 0)
+                    {
                         line = Text.Color(Color.Yellow, line);
+                        NoQuantityOffers.AppendLine(line);
+                    }
+                    else
+                    {
+                        NormalOffers.AppendLine(line);
+                    }
+                }
 
-                    return line;
-                });
+                return $"{NormalOffers}{NoQuantityOffers}{DisabledOffers}";
             }
         }
     }
