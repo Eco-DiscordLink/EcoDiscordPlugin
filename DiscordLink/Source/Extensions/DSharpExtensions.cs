@@ -96,7 +96,7 @@ namespace Eco.Plugins.DiscordLink.Extensions
             if (Utilities.Utils.TryParseSnowflakeID(nameOrID, out ulong ID))
                 return member.Id == ID;
 
-            return member.Username.EqualsCaseInsensitive(nameOrID);
+            return member.UniqueUsername().EqualsCaseInsensitive(nameOrID) || member.Username.EqualsCaseInsensitive(nameOrID);
         }
 
         public static DiscordRole GetHighestHierarchyRole(this DiscordMember member)
