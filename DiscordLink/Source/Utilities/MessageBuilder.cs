@@ -735,8 +735,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     IEnumerable<Deed> userDeeds = EcoUtils.Deeds.Where(deed => deed.ContainsOwners(user)).OrderByDescending(deed => deed.GetTotalPlotSize());
                     foreach (Deed deed in userDeeds)
                     {
-                        propertiessDesc.AppendLine(deed.Name);
-                        propertiessSizeOrVehicleDesc.AppendLine(deed.IsVehicle() ? deed.GetVehicle().Parent.Name : $"{deed.GetTotalPlotSize()}m²");
+                        propertiessDesc.AppendLine(deed.Name.TrimEndString(" Deed"));
+                        propertiessSizeOrVehicleDesc.AppendLine(deed.IsVehicle() ? deed.GetVehicle().Parent.CreatingItem.DisplayName : $"{deed.GetTotalPlotSize()}m²");
                         propertiessLocationDesc.AppendLine(deed.IsVehicle() ? deed.GetVehicle().Parent.Position3i.ToString() : deed.Position3i.ToString());
                     }
 
