@@ -51,6 +51,6 @@ namespace Eco.Plugins.DiscordLink
         public const string ECO_PANEL_REPORT = "DLReport";
         public const string ECO_PANEL_DL_TRADES = "DLTrades";
 
-        public static string BasePath { get { return Directory.GetCurrentDirectory() + "/Configs/Mods/DiscordLink/"; } }
+        public static string BasePath { get { return Directory.GetCurrentDirectory() + "/Storage/Mods/DiscordLink/"; } }
     }
 }
