@@ -25,7 +25,7 @@ namespace Eco.Plugins.DiscordLink.Extensions
 
         public static float GetTotalXPMultiplier(this User user) => user.GetNutritionXP() + user.GetHousingXP();
         public static float GetNutritionXP(this User user) => user.Stomach.NutrientSkillRate();
-        public static float GetHousingXP(this User user) => user.HomePropertyValue.TotalSkillPoints;
+        public static float GetHousingXP(this User user) => user.HomePropertyValue != null ? user.HomePropertyValue.TotalSkillPoints : 0;
 
         public static float GetWealthInCurrency(this User user, Currency cur)
         {
