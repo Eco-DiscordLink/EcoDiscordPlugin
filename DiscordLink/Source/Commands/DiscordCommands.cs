@@ -222,7 +222,7 @@ namespace Eco.Plugins.DiscordLink
                     .WithTitle("About DiscordLink")
                     .WithDescription(MessageBuilder.Shared.GetAboutMessage());
 
-                await RespondToCommand(ctx, "About DiscordLink", embed);
+                await RespondToCommand(ctx, null, embed);
             }, ctx);
         }
 
