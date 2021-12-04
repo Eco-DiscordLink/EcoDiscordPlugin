@@ -27,6 +27,7 @@ using Eco.Shared;
 using Eco.Shared.Items;
 
 using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
+using StoreOfferGroup = System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.StoreComponent, Eco.Gameplay.Components.TradeOffer>>;
 
 namespace Eco.Plugins.DiscordLink.Utilities
 {
@@ -1136,27 +1137,27 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         public static class Eco
         {
-            public static void FormatTrades(TradeTargetType tradeType, StoreOfferList groupedBuyOffers, StoreOfferList groupedSellOffers, out string message)
+            public static void FormatTrades(User user, TradeTargetType tradeType, StoreOfferList groupedBuyOffers, StoreOfferList groupedSellOffers, out string message)
             {
-                Func<Tuple<StoreComponent, TradeOffer>, string> getLabel = tradeType switch
-                {
-                    TradeTargetType.Tag => t => $"{t.Item2.Stack.Item.MarkedUpName} @ {t.Item1.Parent.MarkedUpName}",
-                    TradeTargetType.Item => t => $"@ {t.Item1.Parent.MarkedUpName}",
-                    TradeTargetType.User => t => t.Item2.Stack.Item.MarkedUpName,
-                    _ => t => string.Empty,
-                };
-
                 // Format message
                 StringBuilder builder = new StringBuilder();
-
                 if (groupedSellOffers.Count() > 0 || groupedBuyOffers.Count() > 0)
                 {
-                    foreach (var group in groupedBuyOffers)
+                    switch (tradeType)
                     {
-                        var offerDescriptions = TradeOffersToDescriptions(group,
-                            t => t.Item2.Price.ToString(),
-                            t => getLabel(t),
-                            t => t.Item2.Stack.Quantity);
+                        case TradeTargetType.Tag:
+                        case TradeTargetType.Item:
+                            groupedBuyOffers = groupedBuyOffers.OrderByDescending(o => DLStorage.WorldData.CurrencyToTradeCountMap.GetValueOrDefault(o.First().Item1.Currency.Id, 0));
+                            groupedSellOffers = groupedSellOffers.OrderByDescending(o => DLStorage.WorldData.CurrencyToTradeCountMap.GetValueOrDefault(o.First().Item1.Currency.Id, 0));
+                            break;
+
+                        case TradeTargetType.User:
+                            break;
+                    }
+
+                    foreach (StoreOfferGroup group in groupedBuyOffers)
+                    {
+                        var offerDescriptions = TradeOffersToDescriptions(group, user, tradeType);
 
                         builder.AppendLine(Text.Bold(Text.Color(Color.Green, $"<--- Buying for {group.First().Item1.CurrencyName} --->")));
                         foreach (string description in offerDescriptions)
@@ -1166,12 +1167,9 @@ namespace Eco.Plugins.DiscordLink.Utilities
                         builder.AppendLine();
                     }
 
-                    foreach (var group in groupedSellOffers)
+                    foreach (StoreOfferGroup group in groupedSellOffers)
                     {
-                        var offerDescriptions = TradeOffersToDescriptions(group,
-                            t => t.Item2.Price.ToString(),
-                            t => getLabel(t),
-                            t => t.Item2.Stack.Quantity);
+                        var offerDescriptions = TradeOffersToDescriptions(group, user, tradeType);
 
                         builder.AppendLine(Text.Bold(Text.Color(Color.Red, $"<--- Selling for {MessageUtils.StripTags(group.First().Item1.CurrencyName)} --->")));
                         foreach (string description in offerDescriptions)
@@ -1188,15 +1186,44 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 message = builder.ToString();
             }
 
-            private static IEnumerable<string> TradeOffersToDescriptions<T>(IEnumerable<T> offers, Func<T, string> getPrice, Func<T, string> getLabel, Func<T, int?> getQuantity)
+            private static IEnumerable<string> TradeOffersToDescriptions(StoreOfferGroup offers, User user, TradeTargetType tradeType)
             {
+                Func<Tuple<StoreComponent, TradeOffer>, string> getLabel = tradeType switch
+                {
+                    TradeTargetType.Tag => t => $"{t.Item2.Stack.Item.MarkedUpName} @ {t.Item1.Parent.MarkedUpName}",
+                    TradeTargetType.Item => t => $"@ {t.Item1.Parent.MarkedUpName}",
+                    TradeTargetType.User => t => t.Item2.Stack.Item.MarkedUpName,
+                    _ => t => string.Empty,
+                };
+
                 return offers.Select(t =>
                 {
-                    var price = getPrice(t);
-                    var quantity = getQuantity(t);
-                    var quantityString = quantity.HasValue ? $"{quantity.Value} - " : "";
-                    var line = $"{quantityString}${price} {getLabel(t)}";
-                    if (quantity == 0) line = Text.Color(Color.Yellow, line);
+                    var price = t.Item2.Price;
+                    var quantity = t.Item2.Stack.Quantity;
+                    var currency = t.Item1.Currency;
+                    var availableCurrency = t.Item2.Buying ? t.Item1.BankAccount.GetCurrencyHoldingVal(currency) : user.GetWealthInCurrency(currency);
+                    var maxTradeCount = price > 0f && !float.IsInfinity(availableCurrency) ? (int)Mathf.Floor(availableCurrency / price) : Int32.MaxValue; // Calculate how many items can be traded using the available money
+                    if (t.Item2.Buying)
+                    {
+                        if (t.Item2.ShouldLimit && t.Item2.MaxNumWanted < maxTradeCount) // If there is a buy limit that is lower than what can be afforded, lower to that limit
+                            maxTradeCount = t.Item2.MaxNumWanted;
+                    }
+                    else if (quantity < maxTradeCount)
+                    {
+                        maxTradeCount = quantity; // If there less items for sale than we can pay for, lower to the amount available for sale
+                    }
+
+                    var quantityString = (t.Item2.Stack.Quantity == maxTradeCount || maxTradeCount == Int32.MaxValue)
+                        ? $"{quantity}"
+                        : $"{quantity} ({maxTradeCount})";
+                    var line = $"{quantityString} - ${price} {getLabel(t)}";
+
+                    // Apply color
+                    if (!t.Item1.OnOff.Enabled)
+                        line = Text.Color(Color.Red, line);
+                    else if ((t.Item2.Stack.Quantity == 0))
+                        line = Text.Color(Color.Yellow, line);
+
                     return line;
                 });
             }
