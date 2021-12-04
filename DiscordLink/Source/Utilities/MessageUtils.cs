@@ -140,7 +140,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     fieldCount = 0;
                 }
 
-                splitEmbedBuilder.AddField(field.Title, field.Text, field.Inline);
+                splitEmbedBuilder.AddField(field.Title, field.Text, inline: field.Inline);
                 characterCount += field.Text.Length;
                 ++fieldCount;
             }
