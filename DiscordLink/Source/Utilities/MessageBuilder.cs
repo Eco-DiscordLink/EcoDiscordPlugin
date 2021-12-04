@@ -607,6 +607,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                         report.AddField("Session Time", Shared.GetTimeDescription(user.GetSecondsSinceLogin(), Shared.TimespanStringComponent.Hour | Shared.TimespanStringComponent.Minute), inline: true);
                     else
                         report.AddField("Last Online", $"{Shared.GetTimeDescription(user.GetSecondsSinceLogout(), includeZeroTimes: false, annotate: true)} ago", inline: true);
+                    report.AddAlignmentField();
                 }
 
                 // Play time
@@ -620,7 +621,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 // Exhaustion
                 if (flag.HasFlag(PlayerReportComponentFlag.Exhaustion) && BalancePlugin.Obj.Config.IsLimitingHours)
                 {
-                    report.AddField("Exhaustion Countdown", user.ExhaustionMonitor.IsExhausted ? "Exhausted" : Shared.GetTimeDescription(user.GetSecondsLeftUntilExhaustion(), Shared.TimespanStringComponent.Hour | Shared.TimespanStringComponent.Minute | Shared.TimespanStringComponent.Second));
+                    report.AddField("Exhaustion Countdown", user.ExhaustionMonitor.IsExhausted ? "Exhausted" : Shared.GetTimeDescription(user.GetSecondsLeftUntilExhaustion(), Shared.TimespanStringComponent.Hour | Shared.TimespanStringComponent.Minute | Shared.TimespanStringComponent.Second), inline: true);
                     report.AddAlignmentField();
                     report.AddAlignmentField();
                 }
