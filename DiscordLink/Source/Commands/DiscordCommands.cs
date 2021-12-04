@@ -306,6 +306,25 @@ namespace Eco.Plugins.DiscordLink
 
         #endregion
 
+        #region Account Linking
+
+        [Command("LinkInformation")]
+        [Description("Presents information about account linking.")]
+        [Aliases("DL-LinkInfo")]
+        public async Task LinkInformation(CommandContext ctx)
+        {
+            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
+            {
+                DiscordLinkEmbed embed = new DiscordLinkEmbed()
+                    .WithTitle("Eco --> Discord Account Linking")
+                    .WithDescription(MessageBuilder.Shared.GetLinkAccountInfoMessage());
+
+                await RespondToCommand(ctx, null, embed);
+            }, ctx);
+        }
+
+        #endregion
+
         #region Lookups
 
         [Command("ServerStatus")]

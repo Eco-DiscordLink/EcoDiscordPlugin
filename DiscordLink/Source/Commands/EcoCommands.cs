@@ -516,6 +516,15 @@ namespace Eco.Plugins.DiscordLink
 
         #region Account Linking
 
+        [ChatSubCommand("DiscordLink", "Presents information about account linking.", "DL-LinkInfo", ChatAuthorizationLevel.User)]
+        public static void LinkInformation(User callingUser)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                DisplayCommandData(callingUser, DLConstants.ECO_PANEL_DL_MESSAGE_MEDIUM, $"Eco --> Discord Account Linking", MessageBuilder.Shared.GetLinkAccountInfoMessage());
+            }, callingUser);
+        }
+
         [ChatSubCommand("DiscordLink", "Links the calling user account to a Discord account.", "DL-Link", ChatAuthorizationLevel.User)]
         public static void LinkDiscordAccount(User callingUser, string discordName)
         {
@@ -549,7 +558,7 @@ namespace Eco.Plugins.DiscordLink
 
                 if (matchingMember == null)
                 {
-                    ReportCommandError(callingUser, $"No Discord account with the ID or name \"{discordName}\" could be found.");
+                    ReportCommandError(callingUser, $"No Discord account with the name \"{discordName}\" could be found.\nUse /DL-LinkInfo for linking instructions.");
                     return;
                 }
 
