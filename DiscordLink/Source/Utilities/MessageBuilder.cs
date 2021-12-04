@@ -1166,8 +1166,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     {
                         case TradeTargetType.Tag:
                         case TradeTargetType.Item:
-                            groupedBuyOffers = groupedBuyOffers.OrderByDescending(o => DLStorage.WorldData.CurrencyToTradeCountMap.GetValueOrDefault(o.First().Item1.Currency.Id, 0));
-                            groupedSellOffers = groupedSellOffers.OrderByDescending(o => DLStorage.WorldData.CurrencyToTradeCountMap.GetValueOrDefault(o.First().Item1.Currency.Id, 0));
+                            groupedBuyOffers = groupedBuyOffers.OrderByDescending(o => o.First().Item1.Currency != null ? DLStorage.WorldData.CurrencyToTradeCountMap.GetValueOrDefault(o.First().Item1.Currency.Id, 0) : int.MinValue); // Currency == null => Barter store
+                            groupedSellOffers = groupedSellOffers.OrderByDescending(o => o.First().Item1.Currency != null ? DLStorage.WorldData.CurrencyToTradeCountMap.GetValueOrDefault(o.First().Item1.Currency.Id, 0) : int.MinValue);
                             break;
 
                         case TradeTargetType.User:
