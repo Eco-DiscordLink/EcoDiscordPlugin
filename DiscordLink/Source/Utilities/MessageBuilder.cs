@@ -106,7 +106,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     "\n* Discord election voting - Vote in elections directly via Discord." +
                     "\n" +
                     "\nLink instructions" +
-                    "\n1. Use /DL-Link <UserName> in Eco. The username parameter is your qualified or unqualified account name (not nickname and with or without the #xxxx). Example: /dl-link Monzun#1234" +
+                    "\n1. Use /DL-Link <UserName> in Eco. The username parameter is your Discord account name (not nickname) with or without the #xxxx at the end. Example: /dl-link Monzun#1234" +
                     "\n2. If your account could be found on the Discord server, the bot will send you a DM." +
                     "\n3. Click the approve button on the message to verify that you are the owner of both the Eco and Discord account." +
                     "\n4. Your account is now linked!" +
