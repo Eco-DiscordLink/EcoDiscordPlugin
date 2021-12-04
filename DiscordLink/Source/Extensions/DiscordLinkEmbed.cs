@@ -79,7 +79,7 @@ namespace Eco.Plugins.DiscordLink.Extensions
             if (!(bool)allowAutoLineBreak && text.Length > DLConstants.DISCORD_EMBED_FIELD_CHARACTER_PER_LINE_LIMIT)
             {
                 StringBuilder builder = new StringBuilder();
-                foreach (string line in text.Split("\n"))
+                foreach (string line in text.Split("\r\n"))
                 {
                     string shortLine = line;
                     if (line.Length > DLConstants.DISCORD_EMBED_FIELD_CHARACTER_PER_LINE_LIMIT)
