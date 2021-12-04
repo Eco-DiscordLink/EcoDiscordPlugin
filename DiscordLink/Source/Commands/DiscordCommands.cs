@@ -178,10 +178,21 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
+        [Command("ResetPersistentData")]
+        [Description("Removes all persistent storage data.")]
+        [Aliases("DL-ResetPersistentdata")]
+        public async Task ResetPersistentData(CommandContext ctx)
+        {
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
+            {
+                await SharedCommands.ResetPersistentData(SharedCommands.CommandInterface.Discord, ctx);
+            }, ctx);
+        }
+
         [Command("ResetWorldData")]
         [Description("Resets world data as if a new world had been created.")]
-        [Aliases("DL-Resetdata")]
-        public async Task ResetData(CommandContext ctx)
+        [Aliases("DL-ResetWorldData")]
+        public async Task ResetWorldData(CommandContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {

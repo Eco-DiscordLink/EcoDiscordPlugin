@@ -79,6 +79,14 @@ namespace Eco.Plugins.DiscordLink
             return restarted;
         }
 
+        public static async Task<bool> ResetPersistentData(CommandInterface source, object callContext)
+        {
+            Logger.Info("ResetPersistentData command invoked - Resetting persistent storage data");
+            DLStorage.Instance.ResetPersistentData();
+            await ReportCommandInfo(source, callContext, "Persistent storage data has been reset.");
+            return true;
+        }
+
         public static async Task<bool> ResetWorldData(CommandInterface source, object callContext)
         {
             Logger.Info("ResetWorldData command invoked - Resetting world storage data");

@@ -11,11 +11,11 @@ namespace Eco.Plugins.DiscordLink
 {
     public sealed class DLStorage
     {
-        private const string PERSISANT_STORAGE_FILE_NAME = "DLPersistantData";
+        private const string PERSISANT_STORAGE_FILE_NAME = "DLPersistentData";
         private const string WORLD_STORAGE_FILE_NAME = "DLWorldData";
 
         public static readonly DLStorage Instance = new DLStorage();
-        public static PersistantStorageData PersistentData { get; private set; } = new PersistantStorageData();
+        public static PersistentStorageData PersistentData { get; private set; } = new PersistentStorageData();
         public static WorldStorageData WorldData { get; private set; } = new WorldStorageData();
 
         public Dictionary<string, string> Snippets = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
@@ -27,7 +27,7 @@ namespace Eco.Plugins.DiscordLink
         // Explicit static constructor to tell C# compiler not to mark type as beforefieldinit
         static DLStorage()
         {
-            PersistentData = new PersistantStorageData();
+            PersistentData = new PersistentStorageData();
         }
 
         private DLStorage()
@@ -46,6 +46,12 @@ namespace Eco.Plugins.DiscordLink
             Write();
         }
 
+        public void ResetPersistentData()
+        {
+            PersistentData = new PersistentStorageData();
+            Write(); // Make sure we don't read old data in case of an ungraceful shutdown
+        }
+
         public void ResetWorldData()
         {
             WorldData = new WorldStorageData();
@@ -54,13 +60,13 @@ namespace Eco.Plugins.DiscordLink
 
         public void Write()
         {
-            FileManager<PersistantStorageData>.WriteTypeHandledToFile(PersistentData, DLConstants.BasePath, PERSISANT_STORAGE_FILE_NAME);
+            FileManager<PersistentStorageData>.WriteTypeHandledToFile(PersistentData, DLConstants.BasePath, PERSISANT_STORAGE_FILE_NAME);
             FileManager<WorldStorageData>.WriteTypeHandledToFile(WorldData, DLConstants.BasePath, WORLD_STORAGE_FILE_NAME);
         }
 
         public void Read()
         {
-            PersistentData = FileManager<PersistantStorageData>.ReadTypeHandledFromFile(DLConstants.BasePath, PERSISANT_STORAGE_FILE_NAME);
+            PersistentData = FileManager<PersistentStorageData>.ReadTypeHandledFromFile(DLConstants.BasePath, PERSISANT_STORAGE_FILE_NAME);
             WorldData = FileManager<WorldStorageData>.ReadTypeHandledFromFile(DLConstants.BasePath, WORLD_STORAGE_FILE_NAME);
         }
 
@@ -97,7 +103,7 @@ namespace Eco.Plugins.DiscordLink
             WorldData.PlayerTrackedTrades.Remove(ulong.Parse(user.DiscordID));
         }
 
-        public class PersistantStorageData
+        public class PersistentStorageData
         {
             public List<LinkedUser> LinkedUsers = new List<LinkedUser>();
         }

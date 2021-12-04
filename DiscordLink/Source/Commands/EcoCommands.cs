@@ -78,7 +78,16 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Resets world data as if a new world had been created.", "DL-ResetData", ChatAuthorizationLevel.Admin)]
+        [ChatSubCommand("DiscordLink", "Removes all persistent storage data.", "DL-ResetPersistentData", ChatAuthorizationLevel.Admin)]
+        public static void ResetPersistentData(User callingUser)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.ResetPersistentData(SharedCommands.CommandInterface.Eco, callingUser);
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Resets world data as if a new world had been created.", "DL-ResetWorldData", ChatAuthorizationLevel.Admin)]
         public static void ResetWorldData(User callingUser)
         {
             ExecuteCommand<object>((lUser, args) =>
