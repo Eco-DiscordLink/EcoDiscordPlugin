@@ -1008,8 +1008,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 embed.WithTitle("Account Linking Verification");
                 embed.AddField("Initiator", MessageUtils.StripTags(ecoUser.Name));
                 embed.AddField("Description", $"Your Eco account has been linked to your Discord account on the server \"{serverName}\".");
-                embed.AddField("Action Required", $"If you initiated this action, use the command `{config.DiscordCommandPrefix}verifylink` to verify that these accounts should be linked.");
-                embed.WithFooter("If you did not initiate this action, notify a server admin.\nThe account link cannot be used until verified.");
+                embed.AddField("Action Required", $"If you initiated this action, click the {DLConstants.AcceptEmoji} below to verify that these accounts should be linked.");
+                embed.WithFooter($"If you did not initiate this action, click the {DLConstants.DenyEmoji} and notify a server admin.\nThe account link cannot be used until verified.");
                 return embed;
             }
 

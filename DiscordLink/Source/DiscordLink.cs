@@ -264,6 +264,7 @@ namespace Eco.Plugins.DiscordLink
 
             EventConverter.Instance.HandleEvent(eventType, data);
             DLStorage.Instance.HandleEvent(eventType, data);
+            UserLinkManager.HandleEvent(eventType, data);
             UpdateModules(eventType, data);
             UpdateActivityString(eventType);
         }

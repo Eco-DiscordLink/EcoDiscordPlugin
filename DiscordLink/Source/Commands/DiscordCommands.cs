@@ -759,24 +759,6 @@ namespace Eco.Plugins.DiscordLink
 
         #endregion
 
-        #region Account Linking
-
-        [Command("VerifyLink")]
-        [Description("Verifies that an unverified link is correct and should be used.")]
-        [Aliases("DL-Verifylink")]
-        public async Task VerifyLink(CommandContext ctx)
-        {
-            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
-            {
-                if (UserLinkManager.VerifyLinkedUser(ctx.GetSenderID()))
-                    await ReportCommandInfo(ctx, $"Link verified");
-                else
-                    await ReportCommandError(ctx, $"There is no outstanding link request to verify for your account.\nUse the `\\DL-Link` command in Eco to initiate account linking.");
-            }, ctx);
-        }
-
-        #endregion
-
         #region Trades
 
         [Command("Trades")]

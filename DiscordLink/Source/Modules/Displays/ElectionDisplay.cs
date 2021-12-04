@@ -18,8 +18,6 @@ namespace Eco.Plugins.DiscordLink.Modules
         protected override string BaseTag { get { return "[Election]"; } }
         protected override int TimerStartDelayMS { get { return 15000; } }
 
-        private readonly DiscordEmoji VoteForEmoji = DiscordEmoji.FromName(DiscordLink.Obj.Client.DiscordClient, ":white_check_mark:");
-        private readonly DiscordEmoji VoteAgainstEmoji = DiscordEmoji.FromName(DiscordLink.Obj.Client.DiscordClient, ":x:");
         public override string ToString()
         {
             return "Election Display";
@@ -56,9 +54,9 @@ namespace Eco.Plugins.DiscordLink.Modules
                 await CreateVoteReactions(message);
         }
 
-        protected async override Task HandleReactionChange(DiscordUser user, DiscordMessage message, DiscordEmoji reaction, Utilities.Utils.DiscordReactionChange changeType)
+        protected async override Task HandleReactionChange(DiscordUser user, DiscordMessage message, DiscordEmoji emoji, Utilities.Utils.DiscordReactionChange changeType)
         {
-            if (reaction != VoteForEmoji && reaction != VoteAgainstEmoji)
+            if (emoji != DLConstants.AcceptEmoji && emoji != DLConstants.DenyEmoji)
                 return;
 
             if (changeType != Utilities.Utils.DiscordReactionChange.Added)
@@ -73,7 +71,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             if (linkedUser == null)
                 return;
 
-            string choice = reaction == VoteForEmoji ? "Yes" : "No";
+            string choice = emoji == DLConstants.AcceptEmoji ? "Yes" : "No";
             Result result = election.Vote(new RunoffVote(linkedUser.EcoUser, election.GetChoiceByName(choice).ID));
             if (result.Failed)
                 Logger.Debug($"Failed to cast rection vote of type \"{choice}\" for Discord user \"{user.Username}\" in election {election.Id}. Message: {result.Message}");
@@ -114,8 +112,8 @@ namespace Eco.Plugins.DiscordLink.Modules
         {
             if (DiscordLink.Obj.Client.ChannelHasPermission(message.Channel, DSharpPlus.Permissions.AddReactions))
             {
-                await message.CreateReactionAsync(VoteForEmoji);
-                await message.CreateReactionAsync(VoteAgainstEmoji);
+                await message.CreateReactionAsync(DLConstants.AcceptEmoji);
+                await message.CreateReactionAsync(DLConstants.DenyEmoji);
             }
         }
     }
