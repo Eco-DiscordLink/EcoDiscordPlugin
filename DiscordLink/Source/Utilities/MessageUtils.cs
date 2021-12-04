@@ -294,7 +294,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         public static async Task<string> FormatMessageForEco(DiscordMessage message, string ecoChannel)
         {
-            DiscordMember author = await message.Channel.Guild.GetMemberAsync(message.Author.Id);
+            DiscordMember author = await message.GetChannel().Guild.GetMemberAsync(message.Author.Id);
             string nametag = author != null
                 ? Text.Bold(Text.Color(DLConstants.ECO_NAME_TAG_COLOR, author.DisplayName))
                 : message.Author.Username;
@@ -307,7 +307,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             foreach (var user in message.MentionedUsers)
             {
                 if (user == null) { continue; }
-                DiscordMember member = message.Channel.Guild.Members.FirstOrDefault(m => m.Value?.Id == user.Id).Value;
+                DiscordMember member = message.GetChannel().Guild.Members.FirstOrDefault(m => m.Value?.Id == user.Id).Value;
                 if (member == null) { continue; }
                 string name = $"@{member.DisplayName}";
                 content = content.Replace($"<@{user.Id}>", name).Replace($"<@!{user.Id}>", name);

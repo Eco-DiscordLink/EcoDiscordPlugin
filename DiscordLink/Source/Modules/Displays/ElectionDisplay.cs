@@ -66,7 +66,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             if (election == null || !election.BooleanElection)
                 return;
 
-            message.Channel.Guild.Members.TryGetValue(user.Id, out DiscordMember member);
+            message.GetChannel().Guild.Members.TryGetValue(user.Id, out DiscordMember member);
             LinkedUser linkedUser = UserLinkManager.LinkedUserByDiscordUser(user, member, "Reaction Voting");
             if (linkedUser == null)
                 return;
@@ -110,7 +110,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         private async Task CreateVoteReactions(DiscordMessage message)
         {
-            if (DiscordLink.Obj.Client.ChannelHasPermission(message.Channel, DSharpPlus.Permissions.AddReactions))
+            if (DiscordLink.Obj.Client.ChannelHasPermission(message.GetChannel(), DSharpPlus.Permissions.AddReactions))
             {
                 await message.CreateReactionAsync(DLConstants.AcceptEmoji);
                 await message.CreateReactionAsync(DLConstants.DenyEmoji);

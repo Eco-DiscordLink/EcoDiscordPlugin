@@ -136,9 +136,8 @@ namespace Eco.Plugins.DiscordLink.Extensions
 
         #region DiscordMessage
 
-        public static bool IsDm(this DiscordMessage message) => message.Channel.Guild == null;
-
-        public static string FormatForLog(this DiscordMessage message) => $"Channel: {message.Channel}\nAuthor: {message.Author}\nMessage: {message.Content}\nAttachments ({message.Attachments.Count}): {string.Join(", ", message.Attachments.Select(a => $"{a.FileName} ({a.FileSize} bytes)"))}";
+        public static DiscordChannel GetChannel(this DiscordMessage message) => message.Channel ?? DiscordLink.Obj.Client.DiscordClient.GetChannelAsync(message.ChannelId).Result;
+        public static string FormatForLog(this DiscordMessage message) => $"Channel: {message.GetChannel()}\nAuthor: {message.Author}\nMessage: {message.Content}\nAttachments ({message.Attachments.Count}): {string.Join(", ", message.Attachments.Select(a => $"{a.FileName} ({a.FileSize} bytes)"))}";
 
         #endregion
     }

@@ -319,7 +319,7 @@ namespace Eco.Plugins.DiscordLink
 
         public bool ChannelHasPermission(DiscordChannel channel, Permissions permission)
         {
-            if (channel as DiscordDmChannel != null)
+            if (channel.IsPrivate)
                 return true; // Assume permission is given for DMs
 
             DiscordMember member = channel.Guild.CurrentMember;
@@ -555,9 +555,10 @@ namespace Eco.Plugins.DiscordLink
             DiscordMessage editedMessage = null;
             try
             {
-                if (!ChannelHasPermission(message.Channel, Permissions.ManageMessages))
+                DiscordChannel channel = message.GetChannel();
+                if (!ChannelHasPermission(channel, Permissions.ManageMessages))
                 {
-                    Logger.Warning($"Attempted to modify message in channel `{message.Channel}` but the bot user is lacking permissions for this action");
+                    Logger.Warning($"Attempted to modify message in channel `{channel}` but the bot user is lacking permissions for this action");
                     return null;
                 }
 
@@ -570,7 +571,7 @@ namespace Eco.Plugins.DiscordLink
                     try
                     {
                         // Either make sure we have permission to use embeds or convert the embed to text
-                        if (ChannelHasPermission(message.Channel, Permissions.EmbedLinks))
+                        if (ChannelHasPermission(channel, Permissions.EmbedLinks))
                         {
                             List<DiscordEmbed> splitEmbeds = MessageUtils.BuildDiscordEmbeds(embedContent);
                             if (splitEmbeds.Count > 0)
@@ -609,9 +610,10 @@ namespace Eco.Plugins.DiscordLink
 
         public async Task DeleteMessageAsync(DiscordMessage message)
         {
-            if (!ChannelHasPermission(message.Channel, Permissions.ManageMessages))
+            DiscordChannel channel = message.GetChannel();
+            if (!ChannelHasPermission(channel, Permissions.ManageMessages))
             {
-                Logger.Warning($"Attempted to delete message in channel `{message.Channel}` but the bot user is lacking permissions for this action");
+                Logger.Warning($"Attempted to delete message in channel `{channel}` but the bot user is lacking permissions for this action");
                 return;
             }
 

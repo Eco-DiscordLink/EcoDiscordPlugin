@@ -1,6 +1,7 @@
 ﻿using DSharpPlus.Entities;
 using Eco.Gameplay.Players;
 using Eco.Plugins.DiscordLink.Events;
+using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
 using Newtonsoft.Json;
 using System;
@@ -125,7 +126,9 @@ namespace Eco.Plugins.DiscordLink
                     DiscordMessage message = data[1] as DiscordMessage;
                     DiscordEmoji emoji = data[2] as DiscordEmoji;
 
-                    if (!message.Channel.IsPrivate)
+                    DLDiscordClient client = DiscordLink.Obj.Client;
+                    DiscordChannel channel = message.GetChannel();
+                    if (channel == null || !channel.IsPrivate)
                         return;
 
                     if (emoji != DLConstants.AcceptEmoji && emoji != DLConstants.DenyEmoji)
@@ -152,9 +155,8 @@ namespace Eco.Plugins.DiscordLink
                     {
                         response = "Link verification failed - No outstanding link request";
                     }
-
-                    DLDiscordClient client = DiscordLink.Obj.Client;
-                    client.SendMessageAsync(message.Channel, response).Wait();
+                    
+                    client.SendMessageAsync(channel, response).Wait();
                     _ = client.DeleteMessageAsync(message);
                     break;
 

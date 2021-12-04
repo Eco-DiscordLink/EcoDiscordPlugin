@@ -1,6 +1,7 @@
 ﻿using DSharpPlus.Entities;
 using Eco.Gameplay.Systems.Chat;
 using Eco.Plugins.DiscordLink.Events;
+using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
 using System.Threading.Tasks;
 
@@ -33,7 +34,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             if (!(data[0] is DiscordMessage message))
                 return;
 
-            ChatChannelLink channelLink = DLConfig.ChatLinkForDiscordChannel(message.Channel);
+            ChatChannelLink channelLink = DLConfig.ChatLinkForDiscordChannel(message.GetChannel());
             if (channelLink == null)
                 return;
 
