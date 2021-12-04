@@ -54,7 +54,7 @@ namespace Eco.Plugins.DiscordLink
         public static LinkedUser LinkedUserByDiscordUser(DiscordUser user, object caller = null, string callingReason = null, bool requireVerification = true)
         {
             string DiscordIdStr = user.Id.ToString();
-            LinkedUser result = DLStorage.PersistentData.LinkedUsers.Find(linkedUser => (linkedUser.DiscordID == DiscordIdStr) && linkedUser.Verified || !requireVerification);
+            LinkedUser result = DLStorage.PersistentData.LinkedUsers.Find(linkedUser => linkedUser.DiscordID == DiscordIdStr && (linkedUser.Verified || !requireVerification));
             if (result == null && caller != null && callingReason != null)
                 ReportLinkLookupFailure(caller, callingReason);
 
@@ -64,7 +64,7 @@ namespace Eco.Plugins.DiscordLink
         public static LinkedUser LinkedUserByDiscordID(ulong DiscordId, object caller = null, string callingReason = null, bool requireVerification = true)
         {
             string DiscordIdStr = DiscordId.ToString();
-            LinkedUser result = DLStorage.PersistentData.LinkedUsers.Find(linkedUser => (linkedUser.DiscordID == DiscordIdStr) && linkedUser.Verified || !requireVerification);
+            LinkedUser result = DLStorage.PersistentData.LinkedUsers.Find(linkedUser => linkedUser.DiscordID == DiscordIdStr && (linkedUser.Verified || !requireVerification));
             if (result == null && caller != null && callingReason != null)
                 ReportLinkLookupFailure(caller, callingReason);
 
