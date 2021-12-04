@@ -77,7 +77,7 @@ namespace Eco.Plugins.DiscordLink.Extensions
 
         #region DiscordUser
 
-        public static string UniqueUsername(this DiscordUser user) => user.Username + user.Discriminator;
+        public static string UniqueUsername(this DiscordUser user) => $"{user.Username}#{user.Discriminator}";
 
         public static bool HasNameOrID(this DiscordUser user, string nameOrID)
         {
