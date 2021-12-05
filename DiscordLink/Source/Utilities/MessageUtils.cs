@@ -27,6 +27,12 @@ namespace Eco.Plugins.DiscordLink.Utilities
         // Discord @everyone and @here matching regex: Match all instances that would trigger a Discord tag to @everyone or @here and capture the tag so the @ can easily removed.
         private static readonly Regex DiscordGlobalMentionRegex = new Regex("@(everyone|here)");
 
+        // Discord bold tag matching regex: Match all characters between ** pairs.
+        private static readonly Regex DiscordBoldRegex = new Regex("\\*\\*(.*?)\\*\\*");
+
+        // Excessive newline matching regex: Match all cases of (0+)\r followed by (2+)\n.
+        private static readonly Regex ExcessiveNewLineRegex = new Regex("(\\\r)*(\\\n){2,}");
+
         #region General
 
         public static string FirstNonEmptyString(params string[] strings)
@@ -333,6 +339,19 @@ namespace Eco.Plugins.DiscordLink.Utilities
             }
 
             return content;
+        }
+
+        public static string FormatEmbedForEco(DiscordLinkEmbed embed)
+        {
+            string text = embed.AsText();
+            text = text.Substring(text.IndexOf('\n') + 1);
+            text = text.Replace(DiscordLinkEmbed.INVISIBLE_EMBED_CHAR, null);
+            text = text.Replace("[", null);
+            text = text.Replace("****", null);
+            text = text.Replace("\r", null);
+            text = ExcessiveNewLineRegex.Replace(text, "\n\n");
+            text = DiscordBoldRegex.Replace(text, Text.Color(Color.Green, Text.Bold("$1")));
+            return text;
         }
 
         #endregion
