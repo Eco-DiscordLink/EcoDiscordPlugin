@@ -172,7 +172,7 @@ namespace Eco.Plugins.DiscordLink
         public User EcoUser { get { return EcoUtils.UserBySteamOrSLGID(SteamID, SlgID); } }
 
         [JsonIgnore]
-        public DiscordMember DiscordMember { get { return !string.IsNullOrEmpty(DiscordID) ? DiscordLink.Obj.Client.GuildByNameOrID(GuildID)?.Members.Values.FirstOrDefault(member => member.Id.ToString() == DiscordID) : null; } }
+        public DiscordMember DiscordMember { get { return !string.IsNullOrEmpty(DiscordID) ? DiscordLink.Obj.Client.GuildByNameOrID(GuildID)?.GetMemberAsync(ulong.Parse(DiscordID)).Result : null; } }
 
         public LinkedUser(string slgID, string steamID, string discordID, string guildID)
         {
