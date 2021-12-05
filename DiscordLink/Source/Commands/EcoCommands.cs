@@ -163,7 +163,7 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Displays the Player Report for the given player.", "DL-Player", ChatAuthorizationLevel.User)]
+        [ChatSubCommand("DiscordLink", "Displays the Player Report for the given player.", "DL-PlayerReport", ChatAuthorizationLevel.User)]
         public static void PlayerReport(User callingUser, string playerNameOrID)
         {
             ExecuteCommand<object>((lUser, args) =>
@@ -190,7 +190,7 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Displays the Player Permissions Report for the given player.", "DL-Permissions", ChatAuthorizationLevel.User)]
+        [ChatSubCommand("DiscordLink", "Displays the Player Permissions Report for the given player.", "DL-PlayerPermissions", ChatAuthorizationLevel.User)]
         public static void PlayerPermissionsReport(User callingUser, string playerNameOrID)
         {
             ExecuteCommand<object>((lUser, args) =>
@@ -279,7 +279,7 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Displays the Currency Report for the given currency.", "DL-Currency", ChatAuthorizationLevel.User)]
+        [ChatSubCommand("DiscordLink", "Displays the Currency Report for the given currency.", "DL-CurrencyReport", ChatAuthorizationLevel.User)]
         public static void CurrencyReport(User callingUser, string currencyNameOrID)
         {
             ExecuteCommand<object>((lUser, args) =>
