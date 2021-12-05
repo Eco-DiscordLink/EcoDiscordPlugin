@@ -294,7 +294,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 // Go through the messages and find any our tagged messages
                 foreach (DiscordMessage message in targetMessages)
                 {
-                    Match match = MessageUtils.DisplayRegex.Match(message.Content);
+                    Match match = MessageUtils.DisplayTagRegex.Match(message.Content);
                     if (match.Groups.Count <= 1)
                         continue;
 
