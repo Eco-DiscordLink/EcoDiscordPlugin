@@ -1065,7 +1065,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                         if (i + 1 < Offers.Count)
                             nextOffer = Offers.ElementAt(i + 1);
 
-                        embed.AddField(currentOffer.Title, currentOffer.Description, inline: true);
+                        embed.AddField(currentOffer.Title, currentOffer.Description, allowAutoLineBreak: true, inline: true);
 
                         if (currentOffer.Buying && nextOffer != null)
                         {
