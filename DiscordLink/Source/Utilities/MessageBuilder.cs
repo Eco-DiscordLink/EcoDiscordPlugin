@@ -1148,9 +1148,10 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     var price = getPrice(t);
                     var quantity = getQuantity(t);
                     var quantityString = quantity.HasValue ? $"{quantity.Value} - " : "";
-                    var line = $"{quantityString}${price} {getLabel(t)}";
-                    if (quantity == 0) line = $"~~{line}~~";
-                    return line;
+                    var quantityAndPrice = $"{quantityString}${price}";
+                    if (quantity == 0)
+                        quantityAndPrice = $"~~{quantityAndPrice}~~";
+                    return $"{quantityAndPrice} {getLabel(t)}";
                 });
             }
         }
