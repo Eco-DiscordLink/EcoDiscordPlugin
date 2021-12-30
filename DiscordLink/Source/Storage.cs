@@ -60,14 +60,14 @@ namespace Eco.Plugins.DiscordLink
 
         public void Write()
         {
-            FileManager<PersistentStorageData>.WriteTypeHandledToFile(PersistentData, DLConstants.BasePath, PERSISANT_STORAGE_FILE_NAME);
-            FileManager<WorldStorageData>.WriteTypeHandledToFile(WorldData, DLConstants.BasePath, WORLD_STORAGE_FILE_NAME);
+            FileManager<PersistentStorageData>.WriteTypeHandledToFile(PersistentData, DLConstants.StoragePathAbs, PERSISANT_STORAGE_FILE_NAME);
+            FileManager<WorldStorageData>.WriteTypeHandledToFile(WorldData, DLConstants.StoragePathAbs, WORLD_STORAGE_FILE_NAME);
         }
 
         public void Read()
         {
-            PersistentData = FileManager<PersistentStorageData>.ReadTypeHandledFromFile(DLConstants.BasePath, PERSISANT_STORAGE_FILE_NAME);
-            WorldData = FileManager<WorldStorageData>.ReadTypeHandledFromFile(DLConstants.BasePath, WORLD_STORAGE_FILE_NAME);
+            PersistentData = FileManager<PersistentStorageData>.ReadTypeHandledFromFile(DLConstants.StoragePathAbs, PERSISANT_STORAGE_FILE_NAME);
+            WorldData = FileManager<WorldStorageData>.ReadTypeHandledFromFile(DLConstants.StoragePathAbs, WORLD_STORAGE_FILE_NAME);
         }
 
         public void HandleEvent(DLEventType eventType, params object[] data)

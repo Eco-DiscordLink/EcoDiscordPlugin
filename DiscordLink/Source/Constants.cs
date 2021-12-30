@@ -54,6 +54,6 @@ namespace Eco.Plugins.DiscordLink
         public static readonly DiscordEmoji AcceptEmoji = DiscordEmoji.FromName(DiscordLink.Obj.Client.DiscordClient, ":white_check_mark:");
         public static readonly DiscordEmoji DenyEmoji = DiscordEmoji.FromName(DiscordLink.Obj.Client.DiscordClient, ":x:");
 
-        public static string BasePath { get { return Directory.GetCurrentDirectory() + "/Storage/Mods/DiscordLink/"; } }
+        public static string StoragePathAbs { get { return Directory.GetCurrentDirectory() + "/Storage/Mods/DiscordLink/"; } }
     }
 }
