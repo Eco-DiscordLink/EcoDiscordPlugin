@@ -361,7 +361,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("PlayerReport")]
         [Description("Displays the Player Report for the given player.")]
-        [Aliases("Player", "DL-Player")]
+        [Aliases("Player", "DL-PlayerReport")]
         public async Task PlayerReport(CommandContext ctx,
             [Description("Name or ID of the player for which to display the report.")] string playerNameOrID)
         {
