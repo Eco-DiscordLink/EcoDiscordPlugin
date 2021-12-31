@@ -1,4 +1,5 @@
 ﻿using DSharpPlus.Entities;
+using Eco.Plugins.DiscordLink.Extensions;
 using System.IO;
 
 namespace Eco.Plugins.DiscordLink
@@ -53,6 +54,8 @@ namespace Eco.Plugins.DiscordLink
 
         public static readonly DiscordEmoji ACCEPT_EMOJI = DiscordEmoji.FromName(DiscordLink.Obj.Client.DiscordClient, ":white_check_mark:");
         public static readonly DiscordEmoji DENY_EMOJI = DiscordEmoji.FromName(DiscordLink.Obj.Client.DiscordClient, ":x:");
+
+        public static readonly DiscordLinkRole ROLE_LINKED_ACCOUNT = new DiscordLinkRole("DiscordLinked", null, DiscordColor.Cyan, false, true, "Linked Discord account to Eco Server");
 
         public static string StoragePathAbs { get { return Directory.GetCurrentDirectory() + "/Storage/Mods/DiscordLink/"; } }
     }

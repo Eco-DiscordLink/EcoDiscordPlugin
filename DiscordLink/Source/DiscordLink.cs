@@ -149,6 +149,8 @@ namespace Eco.Plugins.DiscordLink
             Election.OnElectionStarted.Add(election => HandleEvent(DLEventType.StartElection, election));
             Election.OnElectionFinished.Add(election => HandleEvent(DLEventType.StopElection, election));
             EventConverter.OnEventFired += (sender, args) => HandleEvent(args.EventType, args.Data);
+            UserLinkManager.OnLinkedUserVerified += (sender, args) => HandleEvent(DLEventType.AccountLinkVerified, args);
+            UserLinkManager.OnLinkedUserRemoved += (sender, args) => HandleEvent(DLEventType.AccountLinkRemoved, args);
 
             HandleEvent(DLEventType.ServerStarted, null);
         }
@@ -306,6 +308,7 @@ namespace Eco.Plugins.DiscordLink
             Modules.Add(new CurrencyDisplay());
             Modules.Add(new TradeTrackerDisplay());
             Modules.Add(new SnippetInput());
+            Modules.Add(new AccountLinkRoleModule());
 
             Modules.ForEach(module => module.Setup());
             Modules.ForEach(async module => await module.HandleStartOrStop());
