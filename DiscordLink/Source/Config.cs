@@ -105,7 +105,18 @@ namespace Eco.Plugins.DiscordLink
 
         public void PostConnectionInitialize()
         {
+            // Guild
             Data.Guild = DiscordLink.Obj.Client.GuildByNameOrID(Data.DiscordServer);
+            if (Data.Guild == null)
+            {
+                Logger.Error($"Failed to find Discord server with the name or ID \"{Data.DiscordServer}\"");
+            }
+
+            // Channel Links
+            foreach (ChannelLink link in _channelLinks)
+            {
+                link.Initailize();
+            }
         }
 
         public void HandleCollectionChanged(NotifyCollectionChangedEventArgs args)
@@ -279,13 +290,10 @@ namespace Eco.Plugins.DiscordLink
                     List<ChannelLink> verifiedLinks = new List<ChannelLink>();
                     foreach (ChannelLink link in _channelLinks)
                     {
-                        if (link.Verify())
+                        if (link.IsValid() && !verifiedLinks.Contains(link))
                         {
-                            if (!verifiedLinks.Contains(link))
-                            {
-                                verifiedLinks.Add(link);
-                                Logger.Info($"Channel Link Verified: {link}");
-                            }
+                            verifiedLinks.Add(link);
+                            Logger.Info($"Channel Link Verified: {link}");
                         }
                     }
 

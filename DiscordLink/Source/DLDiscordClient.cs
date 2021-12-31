@@ -169,7 +169,7 @@ namespace Eco.Plugins.DiscordLink
             Status = "Disconnected from Discord";
 
             OnDisconnected?.Invoke();
-            DiscordLink.Obj.HandleEvent(DLEventType.DiscordClientStarted);
+            DiscordLink.Obj.HandleEvent(DLEventType.DiscordClientDisconnected);
             return true;
         }
 

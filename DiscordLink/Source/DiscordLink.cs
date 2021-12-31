@@ -183,10 +183,18 @@ namespace Eco.Plugins.DiscordLink
         private void HandleClientConnected()
         {
             DLConfig.Instance.PostConnectionInitialize();
+            if(DLConfig.Data.Guild == null)
+            {
+                Status = "Discord Server connection failed";
+                CanRestart = true;
+                return;
+            }
+
             InitializeModules();
             ActionUtil.AddListener(this);
             _activityUpdateTimer = new Timer(TriggerActivityStringUpdate, null, DLConstants.DISCORD_ACTIVITY_STRING_UPDATE_INTERVAL_MS, DLConstants.DISCORD_ACTIVITY_STRING_UPDATE_INTERVAL_MS);
             Client.OnDisconnecting.Add(HandleClientDisconnecting);
+            HandleEvent(DLEventType.DiscordClientConnected);
 
             Status = "Connected and running";
             CanRestart = true;
