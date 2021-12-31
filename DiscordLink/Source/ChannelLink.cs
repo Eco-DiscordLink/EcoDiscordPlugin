@@ -243,7 +243,7 @@ namespace Eco.Plugins.DiscordLink
         [Description("Display a list of online players.")]
         public bool UsePlayerList { get; set; } = true;
 
-        [Description("Display how long the players in the playerlist has been logged in for.")]
+        [Description("Display how long the players in the player list has been logged in for.")]
         public bool UsePlayerListLoggedInTime { get; set; } = false;
 
         [Description("Display how long the players in the player list has left before they get exhausted.")]

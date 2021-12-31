@@ -38,12 +38,12 @@ namespace Eco.Plugins.DiscordLink.Modules
                 return;
 
             if (chatLink.Direction == ChatSyncDirection.EcoToDiscord || chatLink.Direction == ChatSyncDirection.Duplex)
-                ForwardMessageToDiscordChannel(message, chatLink.Guild, chatLink.Channel, chatLink.HereAndEveryoneMentionPermission);
+                ForwardMessageToDiscordChannel(message, chatLink.Channel, chatLink.HereAndEveryoneMentionPermission);
         }
 
-        private void ForwardMessageToDiscordChannel(ChatSent chatMessage, DiscordGuild guild, DiscordChannel channel, GlobalMentionPermission globalMentionPermission)
+        private void ForwardMessageToDiscordChannel(ChatSent chatMessage, DiscordChannel channel, GlobalMentionPermission globalMentionPermission)
         {
-            Logger.DebugVerbose($"Sending Eco message to Discord channel {channel.Name} in guild {guild.Name}");
+            Logger.DebugVerbose($"Sending Eco message to Discord channel {channel.Name}");
 
             bool allowGlobalMention = (globalMentionPermission == GlobalMentionPermission.AnyUser
                 || globalMentionPermission == GlobalMentionPermission.Admin && chatMessage.Citizen.IsAdmin);

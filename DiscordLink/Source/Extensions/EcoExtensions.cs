@@ -29,11 +29,13 @@ namespace Eco.Plugins.DiscordLink.Extensions
 
         public static float GetWealthInCurrency(this User user, Currency cur)
         {
-            var wealth = 0f;
+            float wealth = 0.0f;
             foreach (var account in Transfers.GetTaxableAccountsForUser(user, cur))
             {
-                var amount = account.GetCurrencyHoldingVal(cur, user);
-                if (amount < Transfers.AlmostZero) continue;
+                float amount = account.GetCurrencyHoldingVal(cur, user);
+                if (amount < Transfers.AlmostZero)
+                    continue;
+
                 wealth += amount;
             }
             return wealth;

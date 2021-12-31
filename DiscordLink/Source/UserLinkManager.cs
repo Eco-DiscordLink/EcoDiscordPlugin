@@ -119,7 +119,7 @@ namespace Eco.Plugins.DiscordLink
 
         public static void HandleEvent(DLEventType eventType, params object[] data)
         {
-            switch(eventType)
+            switch (eventType)
             {
                 case DLEventType.DiscordReactionAdded:
                     DiscordUser user = data[0] as DiscordUser;
@@ -136,7 +136,7 @@ namespace Eco.Plugins.DiscordLink
 
                     string response = string.Empty;
                     LinkedUser linkedUser = LinkedUserByDiscordUser(user, requireVerification: false);
-                    if(linkedUser != null)
+                    if (linkedUser != null)
                     {
                         if (emoji == DLConstants.DenyEmoji)
                         {
@@ -155,7 +155,7 @@ namespace Eco.Plugins.DiscordLink
                     {
                         response = "Link verification failed - No outstanding link request";
                     }
-                    
+
                     client.SendMessageAsync(channel, response).Wait();
                     _ = client.DeleteMessageAsync(message);
                     break;

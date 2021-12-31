@@ -113,7 +113,7 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (Exception e)
             {
-                Logger.Error("An error occurred while attempting to respond to command. Error message: " + e);
+                Logger.Error($"An error occurred while attempting to respond to command. Error message: {e}");
             }
         }
 
