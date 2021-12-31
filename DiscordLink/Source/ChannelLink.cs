@@ -50,20 +50,14 @@ namespace Eco.Plugins.DiscordLink
     public class ChannelLink : DiscordTarget, ICloneable
     {
         [Browsable(false), JsonIgnore]
-        public DiscordGuild Guild { get; private set; } = null;
-
-        [Browsable(false), JsonIgnore]
         public DiscordChannel Channel { get; private set; } = null;
-
-        [Description("Discord Server by name or ID.")]
-        public string DiscordServer { get; set; } = string.Empty;
 
         [Description("Discord Channel by name or ID.")]
         public string DiscordChannel { get; set; } = string.Empty;
 
         public override string ToString()
         {
-            return $"{DiscordServer} - {DiscordChannel}";
+            return DiscordChannel;
         }
 
         public object Clone()
@@ -71,22 +65,17 @@ namespace Eco.Plugins.DiscordLink
             return MemberwiseClone();
         }
 
-        public override bool IsValid() => !string.IsNullOrWhiteSpace(DiscordServer) && !string.IsNullOrWhiteSpace(DiscordChannel) && Guild != null && Channel != null;
+        public override bool IsValid() => !string.IsNullOrWhiteSpace(DiscordChannel) && Channel != null;
 
         public virtual bool Verify()
         {
-            if (string.IsNullOrWhiteSpace(DiscordServer) || string.IsNullOrWhiteSpace(DiscordChannel))
+            if (string.IsNullOrWhiteSpace(DiscordChannel))
                 return false;
 
-            DiscordGuild guild = DiscordLink.Obj.Client.GuildByNameOrID(DiscordServer);
-            if (guild == null)
-                return false; // The channel will always fail if the guild fails
-
-            DiscordChannel channel = guild.ChannelByNameOrID(DiscordChannel);
+            DiscordChannel channel = DLConfig.Data.Guild.ChannelByNameOrID(DiscordChannel);
             if (channel == null)
                 return false;
 
-            Guild = guild;
             Channel = channel;
             return true;
         }
@@ -108,18 +97,10 @@ namespace Eco.Plugins.DiscordLink
             if (DiscordChannel != original)
             {
                 correctionMade = true;
-                Logger.Info($"Corrected Discord channel name with Guild name/ID \"{DiscordServer}\" from \"{original}\" to \"{DiscordChannel}\"");
+                Logger.Info($"Corrected Discord channel name from \"{original}\" to \"{DiscordChannel}\"");
             }
 
             return correctionMade;
-        }
-
-        public bool IsGuild(DiscordGuild guild)
-        {
-            if (ulong.TryParse(DiscordServer, out ulong guildID))
-                return guildID == guild.Id;
-
-            return DiscordServer.EqualsCaseInsensitive(guild.Name);
         }
 
         public bool IsChannel(DiscordChannel channel)
@@ -128,14 +109,6 @@ namespace Eco.Plugins.DiscordLink
                 return channelID == channel.Id;
 
             return DiscordChannel.EqualsCaseInsensitive(channel.Name);
-        }
-
-        public bool HasGuildNameOrID(string guildNameOrID)
-        {
-            if (ulong.TryParse(DiscordServer, out ulong guildID) && ulong.TryParse(guildNameOrID, out ulong guildIDParam))
-                return guildID == guildIDParam;
-
-            return DiscordChannel.EqualsCaseInsensitive(guildNameOrID);
         }
 
         public bool HasChannelNameOrID(string channelNameOrID)
@@ -153,7 +126,7 @@ namespace Eco.Plugins.DiscordLink
         public string EcoChannel { get; set; } = string.Empty;
         public override string ToString()
         {
-            return $"{DiscordServer} #{DiscordChannel} <--> {EcoChannel}";
+            return $"#{DiscordChannel} <--> {EcoChannel}";
         }
 
         public override bool IsValid() => base.IsValid() && !string.IsNullOrWhiteSpace(EcoChannel);
@@ -166,7 +139,7 @@ namespace Eco.Plugins.DiscordLink
             if (EcoChannel != original)
             {
                 correctionMade = true;
-                Logger.Info($"Corrected Eco channel name with Guild name/ID \"{DiscordServer}\" and Discord Channel name/ID \"{DiscordChannel}\" from \"{original}\" to \"{EcoChannel}\"");
+                Logger.Info($"Corrected Eco channel name linked with Discord Channel name/ID \"{DiscordChannel}\" from \"{original}\" to \"{EcoChannel}\"");
             }
             return correctionMade;
         }

@@ -67,7 +67,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 if (!link.IsValid())
                     continue;
 
-                if (messageChannel.Guild.HasNameOrID(link.DiscordServer) && messageChannel.HasNameOrID(link.DiscordChannel))
+                if (messageChannel.HasNameOrID(link.DiscordChannel))
                 {
                     await ReloadSnippets();
                     break;

@@ -11,6 +11,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Description = System.ComponentModel.DescriptionAttribute;
 
@@ -46,10 +47,9 @@ namespace Eco.Plugins.DiscordLink
         public static List<ChannelLink> ChannelLinks { get { return Instance._channelLinks; } }
         public PluginConfig<DLConfigData> PluginConfig { get { return Instance._config; } }
 
-        public static ChannelLink ChannelLinkForDiscordChannel(string discordGuildName, string discordChannelName) =>
+        public static ChannelLink ChannelLinkForDiscordChannel(string discordChannelName) =>
             ChannelLinks.FirstOrDefault(link
                 => link.IsValid()
-                && link.DiscordServer.EqualsCaseInsensitive(discordGuildName)
                 && link.DiscordChannel.EqualsCaseInsensitive(discordChannelName));
 
         public static ChatChannelLink ChatLinkForEcoChannel(string ecoChannelName) => Data.ChatChannelLinks.FirstOrDefault(link
@@ -59,7 +59,6 @@ namespace Eco.Plugins.DiscordLink
         public static ChatChannelLink ChatLinkForDiscordChannel(DiscordChannel channel) =>
             Data.ChatChannelLinks.FirstOrDefault(link
                 => link.IsValid()
-                && (link.DiscordServer.EqualsCaseInsensitive(channel.Guild.Name) || link.DiscordServer.EqualsCaseInsensitive(channel.Guild.Id.ToString()))
                 && (link.DiscordChannel.EqualsCaseInsensitive(channel.Name) || link.DiscordChannel.EqualsCaseInsensitive(channel.Id.ToString())));
 
         public delegate Task OnConfigChangedDelegate(object sender, EventArgs e);
@@ -104,6 +103,11 @@ namespace Eco.Plugins.DiscordLink
             BuildChanneLinkList();
         }
 
+        public void PostConnectionInitialize()
+        {
+            Data.Guild = DiscordLink.Obj.Client.GuildByNameOrID(Data.DiscordServer);
+        }
+
         public void HandleCollectionChanged(NotifyCollectionChangedEventArgs args)
         {
             Logger.Debug("Config Changed");
@@ -123,15 +127,16 @@ namespace Eco.Plugins.DiscordLink
         public async Task HandleConfigChanged()
         {
             // Do not verify if change occurred as this function is going to be called again in that case
-            // Do not verify the config in case the bot token has been changed, as the client will be restarted and that will trigger verification
+            // Do not verify the config in case critical data has been changed, as the client will be restarted and that will trigger verification
             bool tokenChanged = Data.BotToken != _prevConfig.BotToken;
+            bool guildChanged = Data.DiscordServer != _prevConfig.DiscordServer;
             bool correctionMade = !Save();
 
             BuildChanneLinkList();
 
-            if (tokenChanged)
+            if (tokenChanged || guildChanged)
             {
-                Logger.Info("Discord Bot Token changed - Restarting");
+                Logger.Info("Critical config data changed - Restarting");
                 bool restarted = await DiscordLink.Obj.Restart();
 
                 if (!restarted)
@@ -232,15 +237,22 @@ namespace Eco.Plugins.DiscordLink
 
             if (verificationFlags.HasFlag(VerificationFlags.Static))
             {
+                // Guild
+                if(string.IsNullOrWhiteSpace(Data.ServerName))
+                {
+                    errorMessages.Add("Disocrd server not configured.");
+                }
+
                 // Bot Token
                 if (string.IsNullOrWhiteSpace(Data.BotToken))
                 {
-                    errorMessages.Add("[Bot Token] Bot token not configured. See Github page for install instructions.");
+                    errorMessages.Add("Bot token not configured. See Github page for install instructions.");
                 }
 
+                // Invite message
                 if (!string.IsNullOrWhiteSpace(Data.InviteMessage) && !Data.InviteMessage.ContainsCaseInsensitive(DLConstants.INVITE_COMMAND_TOKEN))
                 {
-                    errorMessages.Add("[Invite Message] Message does not contain the invite link token " + DLConstants.INVITE_COMMAND_TOKEN + ".");
+                    errorMessages.Add($"Invite message does not contain the invite link token {DLConstants.INVITE_COMMAND_TOKEN}.");
                 }
 
                 // Report errors
@@ -253,16 +265,16 @@ namespace Eco.Plugins.DiscordLink
                     string concatenatedMessages = "";
                     foreach (string message in errorMessages)
                     {
-                        concatenatedMessages += message + "\n";
+                        concatenatedMessages += $"{message}\n";
                     }
-                    Logger.Error("Static configuration errors detected!\n" + concatenatedMessages.Trim());
+                    Logger.Error($"Static configuration errors detected!\n{concatenatedMessages.Trim()}");
                 }
             }
 
             if (DiscordLink.Obj.Client.ConnectionStatus == DLDiscordClient.ConnectionState.Connected)
             {
                 // Discord guild and channel information isn't available the first time this function is called
-                if (verificationFlags.HasFlag(VerificationFlags.ChannelLinks) && ChannelLinks.Count > 0)
+                if (verificationFlags.HasFlag(VerificationFlags.ChannelLinks) && ChannelLinks.Count > 0 && Data.Guild != null)
                 {
                     List<ChannelLink> verifiedLinks = new List<ChannelLink>();
                     foreach (ChannelLink link in _channelLinks)
@@ -324,6 +336,7 @@ namespace Eco.Plugins.DiscordLink
         {
             return new DLConfigData
             {
+                DiscordServer = this.DiscordServer,
                 BotToken = this.BotToken,
                 EcoBotName = this.EcoBotName,
                 MinEmbedSizeForFooter = this.MinEmbedSizeForFooter,
@@ -364,6 +377,12 @@ namespace Eco.Plugins.DiscordLink
 
             return WebServerAddress.Substring(lastColonPos + 1).All(c => Char.IsDigit(c));
         }
+
+        [Browsable(false), JsonIgnore]
+        public DiscordGuild Guild { get; set; } = null;
+
+        [Description("The name or ID if the Discord Server. This setting can be changed while the server is running and will in that case trigger a reconnection to Discord."), Category("Base Configuration - Discord")]
+        public string DiscordServer { get; set; } = string.Empty;
 
         [Description("The token provided by the Discord API to allow access to the Discord bot. This setting can be changed while the server is running and will in that case trigger a reconnection to Discord."), Category("Base Configuration - Discord")]
         public string BotToken { get; set; }

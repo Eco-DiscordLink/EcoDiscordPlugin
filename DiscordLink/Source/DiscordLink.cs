@@ -138,9 +138,9 @@ namespace Eco.Plugins.DiscordLink
                 return;
             }
 
-            DLConfig.Instance.VerifyConfig(DLConfig.VerificationFlags.ChannelLinks);
-
             HandleClientConnected();
+
+            DLConfig.Instance.VerifyConfig(DLConfig.VerificationFlags.ChannelLinks);
 
             // Set up callbacks
             UserManager.OnNewUserJoined.Add(user => HandleEvent(DLEventType.Join, user));
@@ -182,6 +182,7 @@ namespace Eco.Plugins.DiscordLink
 
         private void HandleClientConnected()
         {
+            DLConfig.Instance.PostConnectionInitialize();
             InitializeModules();
             ActionUtil.AddListener(this);
             _activityUpdateTimer = new Timer(TriggerActivityStringUpdate, null, DLConstants.DISCORD_ACTIVITY_STRING_UPDATE_INTERVAL_MS, DLConstants.DISCORD_ACTIVITY_STRING_UPDATE_INTERVAL_MS);
