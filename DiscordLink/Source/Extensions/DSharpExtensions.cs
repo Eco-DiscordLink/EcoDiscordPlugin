@@ -61,6 +61,11 @@ namespace Eco.Plugins.DiscordLink.Extensions
                 : guild.ChannelByName(channelNameOrID);
         }
 
+        public static DiscordRole RoleByName(this DiscordGuild guild, string roleName)
+        {
+            return guild.Roles.Values.FirstOrDefault(role => role.Name.EqualsCaseInsensitive(roleName));
+        }
+
         #endregion
 
         #region DiscordChannel
@@ -118,6 +123,11 @@ namespace Eco.Plugins.DiscordLink.Extensions
                     topRoleName = topRole.Name;
             }
             return topRoleName;
+        }
+
+        public static bool HasRole(this DiscordMember member, DiscordRole role)
+        {
+            return member.Roles.Any(memberRole => memberRole == role);
         }
 
         #endregion

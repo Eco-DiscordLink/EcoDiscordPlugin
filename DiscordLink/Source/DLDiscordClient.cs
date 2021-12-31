@@ -627,6 +627,56 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
+        public async Task<DiscordRole> CreateRoleAsync(DiscordLinkRole dlRole)
+        {
+            try
+            {
+                return await DLConfig.Data.Guild.CreateRoleAsync(dlRole.Name, dlRole.Permissions, dlRole.Color, dlRole.Hoist, dlRole.Mentionable, dlRole.AddReason);
+            }
+            catch(Exception e)
+            {
+                Logger.Error($"Error occurred while attempting to create Discord role \"{dlRole.Name}\". Error message: {e}");
+                return await Task.FromResult<DiscordRole>(null);
+            }
+        }
+
+        public async Task AddRoleAsync(DiscordMember member, DiscordLinkRole dlRole)
+        {
+            DiscordRole role = DLConfig.Data.Guild.RoleByName(dlRole.Name);
+            if (role == null)
+                role = await CreateRoleAsync(dlRole);
+
+            await AddRoleAsync(member, role);
+        }
+
+        public async Task AddRoleAsync(DiscordMember member, DiscordRole role)
+        {
+            if (member.HasRole(role))
+                return; // Member already has the role
+
+            await member.GrantRoleAsync(role, "Added by DiscordLink");
+        }
+
+        public async Task RemoveRoleAsync(DiscordMember member, DiscordLinkRole dlRole)
+        {
+            DiscordRole role = DLConfig.Data.Guild.RoleByName(dlRole.Name);
+            if (role == null)
+            {
+                Logger.Warning($"Attempting to remove nonexistent role \"{dlRole.Name}\" from user \"{member.DisplayName}\"");
+                return;
+            }
+
+            await RemoveRoleAsync(member, role);
+        }
+
+        public async Task RemoveRoleAsync(DiscordMember member, DiscordRole role)
+        {
+            if (!member.HasRole(role))
+                return; // Member doesn't have the role
+
+            await member.RevokeRoleAsync(role, "Removed by DiscordLink");
+        }
+
         #endregion
     }
 }
