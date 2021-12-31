@@ -51,8 +51,8 @@ namespace Eco.Plugins.DiscordLink
         public const string ECO_PANEL_REPORT = "DLReport";
         public const string ECO_PANEL_DL_TRADES = "DLTrades";
 
-        public static readonly DiscordEmoji AcceptEmoji = DiscordEmoji.FromName(DiscordLink.Obj.Client.DiscordClient, ":white_check_mark:");
-        public static readonly DiscordEmoji DenyEmoji = DiscordEmoji.FromName(DiscordLink.Obj.Client.DiscordClient, ":x:");
+        public static readonly DiscordEmoji ACCEPT_EMOJI = DiscordEmoji.FromName(DiscordLink.Obj.Client.DiscordClient, ":white_check_mark:");
+        public static readonly DiscordEmoji DENY_EMOJI = DiscordEmoji.FromName(DiscordLink.Obj.Client.DiscordClient, ":x:");
 
         public static string StoragePathAbs { get { return Directory.GetCurrentDirectory() + "/Storage/Mods/DiscordLink/"; } }
     }

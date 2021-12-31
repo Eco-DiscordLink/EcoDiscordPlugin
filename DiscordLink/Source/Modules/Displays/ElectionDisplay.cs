@@ -56,7 +56,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected async override Task HandleReactionChange(DiscordUser user, DiscordMessage message, DiscordEmoji emoji, Utilities.Utils.DiscordReactionChange changeType)
         {
-            if (emoji != DLConstants.AcceptEmoji && emoji != DLConstants.DenyEmoji)
+            if (emoji != DLConstants.ACCEPT_EMOJI && emoji != DLConstants.DENY_EMOJI)
                 return;
 
             if (changeType != Utilities.Utils.DiscordReactionChange.Added)
@@ -71,7 +71,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             if (linkedUser == null)
                 return;
 
-            string choice = emoji == DLConstants.AcceptEmoji ? "Yes" : "No";
+            string choice = emoji == DLConstants.ACCEPT_EMOJI ? "Yes" : "No";
             Result result = election.Vote(new RunoffVote(linkedUser.EcoUser, election.GetChoiceByName(choice).ID));
             if (result.Failed)
                 Logger.Debug($"Failed to cast rection vote of type \"{choice}\" for Discord user \"{user.Username}\" in election {election.Id}. Message: {result.Message}");
@@ -112,8 +112,8 @@ namespace Eco.Plugins.DiscordLink.Modules
         {
             if (DiscordLink.Obj.Client.ChannelHasPermission(message.GetChannel(), DSharpPlus.Permissions.AddReactions))
             {
-                await message.CreateReactionAsync(DLConstants.AcceptEmoji);
-                await message.CreateReactionAsync(DLConstants.DenyEmoji);
+                await message.CreateReactionAsync(DLConstants.ACCEPT_EMOJI);
+                await message.CreateReactionAsync(DLConstants.DENY_EMOJI);
             }
         }
     }

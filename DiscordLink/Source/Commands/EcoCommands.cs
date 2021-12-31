@@ -585,8 +585,8 @@ namespace Eco.Plugins.DiscordLink
 
                 // Notify the Discord account that a link has been made and ask for verification
                 DiscordMessage message = plugin.Client.SendDMAsync(matchingMember, null, MessageBuilder.Discord.GetVerificationDM(callingUser)).Result;
-                _ = message.CreateReactionAsync(DLConstants.AcceptEmoji);
-                _ = message.CreateReactionAsync(DLConstants.DenyEmoji);
+                _ = message.CreateReactionAsync(DLConstants.ACCEPT_EMOJI);
+                _ = message.CreateReactionAsync(DLConstants.DENY_EMOJI);
 
                 // Notify the Eco user that the link has been created and that verification is required
                 ReportCommandInfo(callingUser, $"Your account has been linked.\nThe link requires verification before becoming active.\nInstructions have been sent to the linked Discord account.");

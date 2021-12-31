@@ -131,19 +131,19 @@ namespace Eco.Plugins.DiscordLink
                     if (channel == null || !channel.IsPrivate)
                         return;
 
-                    if (emoji != DLConstants.AcceptEmoji && emoji != DLConstants.DenyEmoji)
+                    if (emoji != DLConstants.ACCEPT_EMOJI && emoji != DLConstants.DENY_EMOJI)
                         return;
 
                     string response = string.Empty;
                     LinkedUser linkedUser = LinkedUserByDiscordUser(user, requireVerification: false);
                     if (linkedUser != null)
                     {
-                        if (emoji == DLConstants.DenyEmoji)
+                        if (emoji == DLConstants.DENY_EMOJI)
                         {
                             response = "Link removed";
                             RemoveLinkedUser(linkedUser);
                         }
-                        else if (emoji == DLConstants.AcceptEmoji)
+                        else if (emoji == DLConstants.ACCEPT_EMOJI)
                         {
                             if (VerifyLinkedUser(user.Id))
                                 response = "Link verified";
