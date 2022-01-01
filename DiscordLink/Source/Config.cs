@@ -41,6 +41,8 @@ namespace Eco.Plugins.DiscordLink
             public const int MaxTrackedTradesPerUser = 5;
             public const DiscordLinkEmbed.EmbedSize MinEmbedSizeForFooter = DiscordLinkEmbed.EmbedSize.Medium;
             public const bool UseLinkedAccountRole = true;
+            public const bool UseDemographicRoles = true;
+            public static readonly DemographicRoleReplacement[] DemographicRoleReplacements = { new DemographicRoleReplacement("everyone", "Eco Everyone"), new DemographicRoleReplacement("admins", "Eco Admins") };
         }
 
         public static readonly DLConfig Instance = new DLConfig();
@@ -360,6 +362,8 @@ namespace Eco.Plugins.DiscordLink
                 LogLevel = this.LogLevel,
                 MaxTrackedTradesPerUser = this.MaxTrackedTradesPerUser,
                 InviteMessage = this.InviteMessage,
+                UseLinkedAccountRole = this.UseLinkedAccountRole,
+                UseDemographicRoles = this.UseDemographicRoles,
                 AdminRoles = new ObservableCollection<string>(this.AdminRoles.Select(t => t.Clone()).Cast<string>()),
                 ChatChannelLinks = new ObservableCollection<ChatChannelLink>(this.ChatChannelLinks.Select(t => t.Clone()).Cast<ChatChannelLink>()),
                 TradeFeedChannels = new ObservableCollection<ChannelLink>(this.TradeFeedChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
@@ -374,6 +378,7 @@ namespace Eco.Plugins.DiscordLink
                 CurrencyDisplayChannels = new ObservableCollection<CurrencyChannelLink>(this.CurrencyDisplayChannels.Select(t => t.Clone()).Cast<CurrencyChannelLink>()),
                 SnippetInputChannels = new ObservableCollection<ChannelLink>(this.SnippetInputChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
                 DiscordCommandChannels = new ObservableCollection<ChannelLink>(this.DiscordCommandChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
+                DemographicReplacementRoles = new ObservableCollection<DemographicRoleReplacement>(this.DemographicReplacementRoles.Select(t => t.Clone()).Cast<DemographicRoleReplacement>()),
             };
         }
 
@@ -464,6 +469,12 @@ namespace Eco.Plugins.DiscordLink
 
         [Description("Determines if a Discord role will be granted to users who link their Discord accounts. This setting can be changed while the server is running."), Category("Roles")]
         public bool UseLinkedAccountRole { get; set; } = DLConfig.DefaultValues.UseLinkedAccountRole;
+
+        [Description("Determines if a Discord roles matching ingame demographics will be granted to users who have linked their accounts. This setting can be changed while the server is running."), Category("Roles")]
+        public bool UseDemographicRoles { get; set; } = DLConfig.DefaultValues.UseDemographicRoles;
+
+        [Description("Roles that will be used (and created if needed) for the given demographics. This setting can be changed while the server is running."), Category("Roles")]
+        public ObservableCollection<DemographicRoleReplacement> DemographicReplacementRoles { get; set; } = new ObservableCollection<DemographicRoleReplacement>(DLConfig.DefaultValues.DemographicRoleReplacements);
 
         [Description("Discord channels in which to allow commands. If no channels are specified, commands will be allowed in all channels. This setting can be changed while the server is running."), Category("Command Settings")]
         public ObservableCollection<ChannelLink> DiscordCommandChannels { get; set; } = new ObservableCollection<ChannelLink>();

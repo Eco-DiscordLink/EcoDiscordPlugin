@@ -35,6 +35,8 @@ namespace Eco.Plugins.DiscordLink.Events
         StartElection               = 1 << 27,
         StopElection                = 1 << 28,
         CurrencyCreated             = 1 << 29,
+        EnteredDemographic          = 1 << 30,
+        LeftDemographic             = 1 << 31,
     }
 }
 

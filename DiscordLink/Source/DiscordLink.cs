@@ -264,6 +264,13 @@ namespace Eco.Plugins.DiscordLink
                     HandleEvent(DLEventType.CurrencyCreated, createCurrency);
                     break;
 
+                case DemographicChange demographicChange:
+                    DLEventType type = demographicChange.Entered == Shared.Items.EnteredOrLeftDemographic.EnteringDemographic
+                        ? DLEventType.EnteredDemographic
+                        : DLEventType.LeftDemographic;
+                    HandleEvent(type, demographicChange);
+                    break;
+
                 default:
                     break;
             }
@@ -309,6 +316,7 @@ namespace Eco.Plugins.DiscordLink
             Modules.Add(new TradeTrackerDisplay());
             Modules.Add(new SnippetInput());
             Modules.Add(new AccountLinkRoleModule());
+            Modules.Add(new DemographicsRoleModule());
 
             Modules.ForEach(module => module.Setup());
             Modules.ForEach(async module => await module.HandleStartOrStop());

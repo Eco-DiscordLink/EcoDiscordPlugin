@@ -657,12 +657,12 @@ namespace Eco.Plugins.DiscordLink
             await member.GrantRoleAsync(role, "Added by DiscordLink");
         }
 
-        public async Task RemoveRoleAsync(DiscordMember member, DiscordLinkRole dlRole)
+        public async Task RemoveRoleAsync(DiscordMember member, string roleName)
         {
-            DiscordRole role = DLConfig.Data.Guild.RoleByName(dlRole.Name);
+            DiscordRole role = DLConfig.Data.Guild.RoleByName(roleName);
             if (role == null)
             {
-                Logger.Warning($"Attempting to remove nonexistent role \"{dlRole.Name}\" from user \"{member.DisplayName}\"");
+                Logger.Warning($"Attempting to remove nonexistent role \"{roleName}\" from user \"{member.DisplayName}\"");
                 return;
             }
 
