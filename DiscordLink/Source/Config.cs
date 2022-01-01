@@ -40,6 +40,7 @@ namespace Eco.Plugins.DiscordLink
             public const int MaxTopCurrencyHolderCount = 3;
             public const int MaxTrackedTradesPerUser = 5;
             public const DiscordLinkEmbed.EmbedSize MinEmbedSizeForFooter = DiscordLinkEmbed.EmbedSize.Medium;
+            public const bool UseLinkedAccountRole = true;
         }
 
         public static readonly DLConfig Instance = new DLConfig();
@@ -253,7 +254,7 @@ namespace Eco.Plugins.DiscordLink
                 // Guild
                 if(string.IsNullOrWhiteSpace(Data.ServerName))
                 {
-                    errorMessages.Add("Disocrd server not configured.");
+                    errorMessages.Add("Discord server not configured.");
                 }
 
                 // Bot Token
@@ -460,6 +461,9 @@ namespace Eco.Plugins.DiscordLink
 
         [Description("Discord channels in which to search for snippets for the Snippet command. This setting can be changed while the server is running."), Category("Inputs")]
         public ObservableCollection<ChannelLink> SnippetInputChannels { get; set; } = new ObservableCollection<ChannelLink>();
+
+        [Description("Determines if a Discord role will be granted to users who link their Discord accounts. This setting can be changed while the server is running."), Category("Roles")]
+        public bool UseLinkedAccountRole { get; set; } = DLConfig.DefaultValues.UseLinkedAccountRole;
 
         [Description("Discord channels in which to allow commands. If no channels are specified, commands will be allowed in all channels. This setting can be changed while the server is running."), Category("Command Settings")]
         public ObservableCollection<ChannelLink> DiscordCommandChannels { get; set; } = new ObservableCollection<ChannelLink>();

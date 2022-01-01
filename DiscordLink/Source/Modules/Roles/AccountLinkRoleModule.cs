@@ -42,16 +42,12 @@ namespace Eco.Plugins.DiscordLink.Modules
                 foreach (DiscordMember member in await client.GetGuildMembersAsync(DLConfig.Data.Guild))
                 {
                     LinkedUser linkedUser = UserLinkManager.LinkedUserByDiscordUser(member);
-                    if (linkedUser == null)
+                    if (linkedUser == null || !DLConfig.Data.UseLinkedAccountRole )
                     {
                         if (member.HasRole(LinkedAccountRole))
                         {
                             ++_opsCount;
                             await client.RemoveRoleAsync(member, LinkedAccountRole);
-                        }
-                        else
-                        {
-                            continue;
                         }
                     }
                     else if (linkedUser.Verified && !member.HasRole(LinkedAccountRole))
@@ -64,6 +60,9 @@ namespace Eco.Plugins.DiscordLink.Modules
             else
             {
                 if (!(data[0] is LinkedUser linkedUser))
+                    return;
+
+                if (!DLConfig.Data.UseLinkedAccountRole)
                     return;
 
                 if (trigger == DLEventType.AccountLinkVerified)
