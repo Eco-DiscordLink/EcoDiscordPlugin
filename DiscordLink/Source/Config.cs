@@ -110,6 +110,7 @@ namespace Eco.Plugins.DiscordLink
             if (Data.Guild == null)
             {
                 Logger.Error($"Failed to find Discord server with the name or ID \"{Data.DiscordServer}\"");
+                return;
             }
 
             // Channel Links
