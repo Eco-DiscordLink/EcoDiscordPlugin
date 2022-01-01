@@ -36,33 +36,36 @@ namespace Eco.Plugins.DiscordLink.Modules
         protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
         {
             DLDiscordClient client = DiscordLink.Obj.Client;
-            if (trigger == DLEventType.DiscordClientConnected && client.BotHasIntent(DSharpPlus.DiscordIntents.GuildMembers))
+            if (trigger == DLEventType.DiscordClientConnected)
             {
-                ++_opsCount;
-                foreach (DiscordMember member in await client.GetGuildMembersAsync(DLConfig.Data.Guild))
+                if (client.BotHasIntent(DSharpPlus.DiscordIntents.GuildMembers))
                 {
-                    LinkedUser linkedUser = UserLinkManager.LinkedUserByDiscordUser(member);
-                    if (linkedUser == null || !DLConfig.Data.UseLinkedAccountRole )
+                    ++_opsCount;
+                    foreach (DiscordMember member in await client.GetGuildMembersAsync(DLConfig.Data.Guild))
                     {
-                        if (member.HasRole(LinkedAccountRole))
+                        LinkedUser linkedUser = UserLinkManager.LinkedUserByDiscordUser(member);
+                        if (linkedUser == null || !DLConfig.Data.UseLinkedAccountRole)
+                        {
+                            if (member.HasRole(LinkedAccountRole))
+                            {
+                                ++_opsCount;
+                                await client.RemoveRoleAsync(member, LinkedAccountRole);
+                            }
+                        }
+                        else if (linkedUser.Verified && !member.HasRole(LinkedAccountRole))
                         {
                             ++_opsCount;
-                            await client.RemoveRoleAsync(member, LinkedAccountRole);
+                            await client.AddRoleAsync(member, LinkedAccountRole);
                         }
-                    }
-                    else if (linkedUser.Verified && !member.HasRole(LinkedAccountRole))
-                    {
-                        ++_opsCount;
-                        await client.AddRoleAsync(member, LinkedAccountRole);
                     }
                 }
             }
             else
             {
-                if (!(data[0] is LinkedUser linkedUser))
+                if (!DLConfig.Data.UseLinkedAccountRole)
                     return;
 
-                if (!DLConfig.Data.UseLinkedAccountRole)
+                if (!(data[0] is LinkedUser linkedUser))
                     return;
 
                 if (trigger == DLEventType.AccountLinkVerified)
