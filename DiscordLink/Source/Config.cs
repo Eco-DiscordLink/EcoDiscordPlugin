@@ -160,7 +160,8 @@ namespace Eco.Plugins.DiscordLink
             if (!correctionMade) // If a correction was made, this function will be called again
             {
                 VerifyConfig();
-                await OnConfigChanged?.Invoke(this, EventArgs.Empty);
+                if (OnConfigChanged != null)
+                    await OnConfigChanged.Invoke(this, EventArgs.Empty);
             }
         }
 
