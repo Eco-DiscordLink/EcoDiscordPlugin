@@ -480,28 +480,4 @@ namespace Eco.Plugins.DiscordLink
         [Description("Determines what backend message types will be printed to the server log. All message types below the selected one will be printed as well. This setting requires a plugin restart to take effect."), Category("Plugin Configuration")]
         public Microsoft.Extensions.Logging.LogLevel BackendLogLevel { get; set; } = DLConfig.DefaultValues.BackendLogLevel;
     }
-
-    public class DiscordPlayerConfig : ICloneable
-    {
-        public object Clone()
-        {
-            return this.MemberwiseClone();
-        }
-
-        [Description("ID of the user")]
-        public string Username { get; set; }
-
-        private DiscordChannelIdentifier _defaultChannel = new DiscordChannelIdentifier();
-        public DiscordChannelIdentifier DefaultChannel
-        {
-            get { return _defaultChannel; }
-            set { _defaultChannel = value; }
-        }
-
-        public class DiscordChannelIdentifier
-        {
-            public string Guild { get; set; } = string.Empty;
-            public string Channel { get; set; } = string.Empty;
-        }
-    }
 }
