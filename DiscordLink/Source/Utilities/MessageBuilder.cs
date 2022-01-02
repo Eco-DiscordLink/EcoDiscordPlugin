@@ -75,15 +75,17 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         private class StoreOffer
         {
-            public StoreOffer(string title, string description, bool buying)
+            public StoreOffer(string title, string description, Currency currency, bool buying)
             {
                 this.Title = title;
                 this.Description = description;
+                this.Currency = currency;
                 this.Buying = buying;
             }
 
             public string Title { get; private set; }
             public string Description { get; private set; }
+            public Currency Currency { get; private set; }
             public bool Buying { get; private set; }
         }
 
@@ -1061,23 +1063,48 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     for (int i = 0; i < Offers.Count; ++i)
                     {
                         StoreOffer currentOffer = Offers.ElementAt(i);
-                        StoreOffer nextOffer = null;
-                        if (i + 1 < Offers.Count)
-                            nextOffer = Offers.ElementAt(i + 1);
+                        StoreOffer previousOffer = null;
+                        if (i - 1 >= 0)
+                            previousOffer = Offers.ElementAt(i - 1);
 
-                        embed.AddField(currentOffer.Title, currentOffer.Description, allowAutoLineBreak: true, inline: true);
-
-                        if (currentOffer.Buying && nextOffer != null)
+                        if (currentOffer.Buying)
                         {
-                            if (nextOffer.Buying)
+                            if (previousOffer != null)
                             {
-                                embed.AddAlignmentField();
-                                embed.AddAlignmentField();
+                                if (previousOffer.Buying)
+                                {
+                                    embed.AddAlignmentField();
+                                    embed.AddAlignmentField();
+                                }
+                            }
+                            embed.AddField(currentOffer.Title, currentOffer.Description, allowAutoLineBreak: true, inline: true);
+                        }
+                        else
+                        {
+                            if (previousOffer != null)
+                            {
+                                if (previousOffer.Buying)
+                                {
+                                    embed.AddAlignmentField();
+                                    if (previousOffer.Currency != currentOffer.Currency)
+                                    {
+                                        embed.AddAlignmentField();
+                                        embed.AddAlignmentField();
+                                        embed.AddAlignmentField();
+                                    }
+                                }
+                                else
+                                {
+                                    embed.AddAlignmentField();
+                                    embed.AddAlignmentField();
+                                }
                             }
                             else
                             {
                                 embed.AddAlignmentField();
+                                embed.AddAlignmentField();
                             }
+                            embed.AddField(currentOffer.Title, currentOffer.Description, allowAutoLineBreak: true, inline: true);
                         }
                     }
                 }
@@ -1105,7 +1132,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                         fieldBodyBuilder.Append($"{offer}\n");
                     }
 
-                    buyOffers.Add(new StoreOffer($"**Buying for {group.Key}**", fieldBodyBuilder.ToString(), buying: true));
+                    buyOffers.Add(new StoreOffer($"**Buying for {group.Key}**", fieldBodyBuilder.ToString(), group.First().Item1.Currency, buying: true));
                 }
 
                 List<StoreOffer> sellOffers = new List<StoreOffer>();
@@ -1121,7 +1148,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     {
                         fieldBodyBuilder.Append($"{offer}\n");
                     }
-                    buyOffers.Add(new StoreOffer($"**Selling for {group.Key}**", fieldBodyBuilder.ToString(), buying: false));
+
+                    buyOffers.Add(new StoreOffer($"**Selling for {group.Key}**", fieldBodyBuilder.ToString(), group.First().Item1.Currency, buying: false));
                 }
 
                 List<StoreOffer> allOffers = new List<StoreOffer>();
