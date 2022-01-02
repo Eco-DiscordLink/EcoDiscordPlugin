@@ -99,26 +99,11 @@ namespace Eco.Plugins.DiscordLink
 
         #region Message Relaying
 
-        public static async Task<bool> SendServerMessage(CommandInterface source, object callContext, string message, string recipientUserNameOrID, string persistanceType)
+        public static async Task<bool> SendServerMessage(CommandInterface source, object callContext, string message, string recipientUserNameOrID)
         {
             if (string.IsNullOrWhiteSpace(message))
             {
                 await ReportCommandError(source, callContext, "Message cannot be empty.");
-                return false;
-            }
-
-            bool permanent;
-            if (persistanceType.EqualsCaseInsensitive("temporary"))
-            {
-                permanent = true;
-            }
-            else if (persistanceType.EqualsCaseInsensitive("permanent"))
-            {
-                permanent = false;
-            }
-            else
-            {
-                await ReportCommandError(source, callContext, "Persistance type must either be \"Temporary\" or \"Permanent\".");
                 return false;
             }
 
@@ -139,8 +124,8 @@ namespace Eco.Plugins.DiscordLink
 
             string formattedMessage = $"[{senderName}] {message}";
             bool sent = recipient == null
-                ? EcoUtils.SendServerMessageToAll(permanent, formattedMessage)
-                : EcoUtils.SendServerMessageToUser(recipient, permanent, formattedMessage);
+                ? EcoUtils.SendChatToDefaultChannel(formattedMessage)
+                : EcoUtils.SendChatToUser(recipient, formattedMessage);
 
             if (sent)
                 await ReportCommandInfo(source, callContext, "Message delivered.");
@@ -743,8 +728,8 @@ namespace Eco.Plugins.DiscordLink
             inviteMessage = Regex.Replace(inviteMessage, Regex.Escape(DLConstants.INVITE_COMMAND_TOKEN), serverInfo.DiscordAddress);
 
             bool sent = recipient == null
-                ? EcoUtils.SendServerMessageToAll(permanent: true, $"{DiscordLink.Obj.EcoUser.MarkedUpName}: {inviteMessage}")
-                : EcoUtils.SendServerMessageToUser(recipient, permanent: true, $"{DiscordLink.Obj.EcoUser.MarkedUpName}: {inviteMessage}");
+                ? EcoUtils.SendChatToDefaultChannel(inviteMessage)
+                : EcoUtils.SendChatToUser(recipient, inviteMessage);
 
             if (sent)
                 await ReportCommandInfo(source, callContext, "Invite sent.");
@@ -873,7 +858,7 @@ namespace Eco.Plugins.DiscordLink
                 {
                     if (target == CommandInterface.Eco)
                     {
-                        EcoUtils.SendServerMessageToAll(permanent: true, $"{userName} invoked snippet \"{snippetKey}\"\n- - -\n{snippetText}\n- - -");
+                        EcoUtils.SendChatToDefaultChannel($"{userName} invoked snippet \"{snippetKey}\"\n- - -\n{snippetText}\n- - -");
                         _ = ReportCommandInfo(source, callContext, "Snippet posted.");
                     }
                     else

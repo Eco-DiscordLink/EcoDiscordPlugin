@@ -1,4 +1,5 @@
 ﻿using Eco.Core.Systems;
+using Eco.Core.Utils;
 using Eco.EM.Framework.ChatBase;
 using Eco.Gameplay.Civics;
 using Eco.Gameplay.Civics.Demographics;
@@ -10,6 +11,7 @@ using Eco.Gameplay.Economy.WorkParties;
 using Eco.Gameplay.Players;
 using Eco.Gameplay.Property;
 using Eco.Gameplay.Skills;
+using Eco.Gameplay.Systems.Chat;
 using Eco.Shared.Items;
 using Eco.Shared.Utils;
 using System.Collections.Generic;
@@ -25,6 +27,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
             Warning,
             Error
         }
+
+        public static readonly string DefaultChatChannelTag = "#general";
 
         #region Lookups
 
@@ -91,6 +95,21 @@ namespace Eco.Plugins.DiscordLink.Utilities
         #endregion
 
         #region Message Sending
+
+        public static bool SendChatToChannel(string channel, string message)
+        {
+            return ChatManager.SendChat($"#{channel} {message}", DiscordLink.Obj.EcoUser).Success;
+        }
+
+        public static bool SendChatToDefaultChannel(string message)
+        {
+             return ChatManager.SendChat($"{DefaultChatChannelTag} {message}", DiscordLink.Obj.EcoUser).Success;
+        }
+
+        public static bool SendChatToUser(User user, string message)
+        {
+            return ChatManager.SendChat($"@{user.Name} {message}", DiscordLink.Obj.EcoUser) == Result.Succeeded;
+        }
 
         public static bool SendServerMessageToUser(User user, bool permanent, string message)
         {

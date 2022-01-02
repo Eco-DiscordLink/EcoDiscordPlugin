@@ -604,12 +604,11 @@ namespace Eco.Plugins.DiscordLink
         [Command("ServerMessageToAll")]
         [Description("Sends an Eco server message to all online users.")]
         [Aliases("DL-ServerMessage")]
-        public async Task ServerMessageToAll(CommandContext ctx, [Description("The message to send.")] string message,
-            [Description("Persistance type. Possible values are \"Temporary\" and \"Permanent\". Defaults to \"Temporary\".")] string persistanceType = "temporary")
+        public async Task ServerMessageToAll(CommandContext ctx, [Description("The message to send.")] string message)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.SendServerMessage(SharedCommands.CommandInterface.Discord, ctx, message, string.Empty, persistanceType);
+                await SharedCommands.SendServerMessage(SharedCommands.CommandInterface.Discord, ctx, message, string.Empty);
             }, ctx);
         }
 
@@ -618,12 +617,11 @@ namespace Eco.Plugins.DiscordLink
         [Aliases("DL-ServerMessageUser")]
         public async Task ServerMessageToUser(CommandContext ctx,
             [Description("The message to send.")] string message,
-            [Description("Name or ID of the recipient Eco user.")] string recipientUserNameOrID,
-            [Description("Persistance type. Possible values are \"Temporary\" and \"Permanent\". Defaults to \"Temporary\".")] string persistanceType = "Temporary")
+            [Description("Name or ID of the recipient Eco user.")] string recipientUserNameOrID)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.SendServerMessage(SharedCommands.CommandInterface.Discord, ctx, message, recipientUserNameOrID, persistanceType);
+                await SharedCommands.SendServerMessage(SharedCommands.CommandInterface.Discord, ctx, message, recipientUserNameOrID);
             }, ctx);
         }
 

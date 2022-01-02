@@ -365,20 +365,20 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [ChatSubCommand("DiscordLink", "Sends an Eco server message to all online users.", "DL-ServerMessage", ChatAuthorizationLevel.Admin)]
-        public static void ServerMessageToAll(User callingUser, string message, string persistanceType = "temporary")
+        public static void ServerMessageToAll(User callingUser, string message)
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.SendServerMessage(SharedCommands.CommandInterface.Eco, callingUser, message, string.Empty, persistanceType);
+                SharedCommands.SendServerMessage(SharedCommands.CommandInterface.Eco, callingUser, message, string.Empty);
             }, callingUser);
         }
 
         [ChatSubCommand("DiscordLink", "Sends an Eco server message to the specified user.", "DL-ServermessageUser", ChatAuthorizationLevel.Admin)]
-        public static void ServerMessageToUser(User callingUser, string message, string recipientUserNameOrID, string persistanceType = "temporary")
+        public static void ServerMessageToUser(User callingUser, string message, string recipientUserNameOrID)
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.SendServerMessage(SharedCommands.CommandInterface.Eco, callingUser, message, recipientUserNameOrID, persistanceType);
+                SharedCommands.SendServerMessage(SharedCommands.CommandInterface.Eco, callingUser, message, recipientUserNameOrID);
             }, callingUser);
         }
 
