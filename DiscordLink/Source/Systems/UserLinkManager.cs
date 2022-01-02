@@ -21,6 +21,10 @@ namespace Eco.Plugins.DiscordLink
             if (result == null && caller != null && callingReason != null)
                 ReportLinkLookupFailure(caller, callingReason);
 
+            // Ensure that the user exists both in Eco and in Discord
+            if (requireVerification && result != null && (result.EcoUser == null || result.DiscordMember == null))
+                return null;
+
             return result;
         }
 
@@ -30,6 +34,10 @@ namespace Eco.Plugins.DiscordLink
             LinkedUser result = DLStorage.PersistentData.LinkedUsers.Find(linkedUser => linkedUser.DiscordID == DiscordIdStr && (linkedUser.Verified || !requireVerification));
             if (result == null && caller != null && callingReason != null)
                 ReportLinkLookupFailure(caller, callingReason);
+
+            // Ensure that the user exists both in Eco and in Discord
+            if (requireVerification && result != null && (result.EcoUser == null || result.DiscordMember == null))
+                return null;
 
             return result;
         }
@@ -42,6 +50,10 @@ namespace Eco.Plugins.DiscordLink
             LinkedUser result = DLStorage.PersistentData.LinkedUsers.Find(linkedUser => (linkedUser.SlgID == SlgOrSteamId || linkedUser.SteamID == SlgOrSteamId) && (linkedUser.Verified || !requireVerification));
             if (result == null && caller != null && callingReason != null)
                 ReportLinkLookupFailure(caller, callingReason);
+
+            // Ensure that the user exists both in Eco and in Discord
+            if (requireVerification && result != null && (result.EcoUser == null || result.DiscordMember == null))
+                return null;
 
             return result;
         }
@@ -59,6 +71,10 @@ namespace Eco.Plugins.DiscordLink
 
             if (result == null && caller != null && callingReason != null)
                 ReportLinkLookupFailure(caller, callingReason);
+
+            // Ensure that the user exists both in Eco and in Discord
+            if (requireVerification && result != null && (result.EcoUser == null || result.DiscordMember == null))
+                return null;
 
             return result;
         }
