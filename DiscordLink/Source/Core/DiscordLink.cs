@@ -7,6 +7,7 @@ using Eco.EM.Framework.VersioningTools;
 using Eco.Gameplay.Civics.Elections;
 using Eco.Gameplay.GameActions;
 using Eco.Gameplay.Players;
+using Eco.Gameplay.Skills;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Modules;
@@ -271,6 +272,10 @@ namespace Eco.Plugins.DiscordLink
                     HandleEvent(type, demographicChange);
                     break;
 
+                case GainSpecialty gainSpecialty:
+                    HandleEvent(DLEventType.GainedSpecialty, gainSpecialty);
+                    break;
+
                 default:
                     break;
             }
@@ -317,6 +322,7 @@ namespace Eco.Plugins.DiscordLink
             Modules.Add(new SnippetInput());
             Modules.Add(new AccountLinkRoleModule());
             Modules.Add(new DemographicsRoleModule());
+            Modules.Add(new SpecialtiesRoleModule());
 
             Modules.ForEach(module => module.Setup());
             Modules.ForEach(async module => await module.HandleStartOrStop());

@@ -37,6 +37,7 @@ namespace Eco.Plugins.DiscordLink.Events
         CurrencyCreated             = 1 << 29,
         EnteredDemographic          = 1 << 30,
         LeftDemographic             = 1 << 31,
+        GainedSpecialty             = 1 << 32,
     }
 }
 

@@ -9,6 +9,7 @@ using Eco.Gameplay.Economy;
 using Eco.Gameplay.Economy.WorkParties;
 using Eco.Gameplay.Players;
 using Eco.Gameplay.Property;
+using Eco.Gameplay.Skills;
 using Eco.Shared.Items;
 using Eco.Shared.Utils;
 using System.Collections.Generic;
@@ -70,6 +71,12 @@ namespace Eco.Plugins.DiscordLink.Utilities
         public static Deed DeedByName(string deedName) => Deeds.FirstOrDefault(deed => deed.Name.EqualsCaseInsensitive(deedName));
         public static Deed DeedByID(long deedID) => Deeds.FirstOrDefault(deed => deed.Id.ToLong() == deedID);
         public static Deed DeedByNameOrID(string deedNameOrID) => long.TryParse(deedNameOrID, out long ID) ? DeedByID(ID) : DeedByName(deedNameOrID);
+
+        public static IEnumerable<Skill> Specialties => SkillTree.AllSkillTrees.SelectMany(skilltree => skilltree.Children).Select(skilltree => skilltree.StaticSkill);
+        public static Skill SpecialtyByName(string specialtyName) => Specialties.FirstOrDefault(specialty => specialty.Name.EqualsCaseInsensitive(specialtyName));
+
+        public static IEnumerable<Skill> Professions => SkillTree.ProfessionSkillTrees.Select(skilltree => skilltree.StaticSkill);
+        public static Skill ProfessionByName(string professionName) => Professions.FirstOrDefault(profession => profession.Name.EqualsCaseInsensitive(professionName));
 
         #endregion
 
