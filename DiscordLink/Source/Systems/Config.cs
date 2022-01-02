@@ -470,7 +470,7 @@ namespace Eco.Plugins.DiscordLink
         [Description("Determines if a Discord role will be granted to users who link their Discord accounts. This setting can be changed while the server is running."), Category("Roles")]
         public bool UseLinkedAccountRole { get; set; } = DLConfig.DefaultValues.UseLinkedAccountRole;
 
-        [Description("Determines if a Discord roles matching ingame demographics will be granted to users who have linked their accounts. This setting can be changed while the server is running."), Category("Roles")]
+        [Description("Determines if Discord roles matching ingame demographics will be granted to users who have linked their accounts. This setting can be changed while the server is running."), Category("Roles")]
         public bool UseDemographicRoles { get; set; } = DLConfig.DefaultValues.UseDemographicRoles;
 
         [Description("Roles that will be used (and created if needed) for the given demographics. This setting can be changed while the server is running."), Category("Roles")]

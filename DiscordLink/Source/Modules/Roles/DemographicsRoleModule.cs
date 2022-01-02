@@ -34,28 +34,28 @@ namespace Eco.Plugins.DiscordLink.Modules
             DLDiscordClient client = DiscordLink.Obj.Client;
             if (trigger == DLEventType.DiscordClientConnected)
             {
-                if (client.BotHasIntent(DSharpPlus.DiscordIntents.GuildMembers))
+                if (!client.BotHasIntent(DSharpPlus.DiscordIntents.GuildMembers))
+                    return;
+
+                ++_opsCount;
+                foreach (DiscordMember member in await client.GetGuildMembersAsync(DLConfig.Data.Guild))
                 {
-                    ++_opsCount;
-                    foreach (DiscordMember member in await client.GetGuildMembersAsync(DLConfig.Data.Guild))
+                    LinkedUser linkedUser = UserLinkManager.LinkedUserByDiscordUser(member);
+                    foreach (Demographic demographic in EcoUtils.ActiveDemographics)
                     {
-                        LinkedUser linkedUser = UserLinkManager.LinkedUserByDiscordUser(member);
-                        foreach (Demographic demographic in EcoUtils.ActiveDemographics)
+                        string demographicName = GetDemographicRoleName(demographic);
+                        if (linkedUser == null || !DLConfig.Data.UseDemographicRoles || !demographic.Contains(linkedUser.EcoUser))
                         {
-                            string demographicName = GetDemographicRoleName(demographic);
-                            if (linkedUser == null || !DLConfig.Data.UseDemographicRoles || !demographic.Contains(linkedUser.EcoUser))
-                            {
-                                if (member.HasRoleWithName(demographicName))
-                                {
-                                    ++_opsCount;
-                                    await client.RemoveRoleAsync(member, demographicName);
-                                }
-                            }
-                            else if (!member.HasRoleWithName(demographicName) && demographic.Contains(linkedUser.EcoUser))
+                            if (member.HasRoleWithName(demographicName))
                             {
                                 ++_opsCount;
-                                await AddDemographicRole(client, linkedUser.DiscordMember, demographicName);
+                                await client.RemoveRoleAsync(member, demographicName);
                             }
+                        }
+                        else if (!member.HasRoleWithName(demographicName) && demographic.Contains(linkedUser.EcoUser))
+                        {
+                            ++_opsCount;
+                            await AddDemographicRole(client, linkedUser.DiscordMember, demographicName);
                         }
                     }
                 }

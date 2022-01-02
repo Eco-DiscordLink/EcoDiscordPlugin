@@ -38,25 +38,25 @@ namespace Eco.Plugins.DiscordLink.Modules
             DLDiscordClient client = DiscordLink.Obj.Client;
             if (trigger == DLEventType.DiscordClientConnected)
             {
-                if (client.BotHasIntent(DSharpPlus.DiscordIntents.GuildMembers))
+                if (!client.BotHasIntent(DSharpPlus.DiscordIntents.GuildMembers))
+                    return;
+
+                ++_opsCount;
+                foreach (DiscordMember member in await client.GetGuildMembersAsync(DLConfig.Data.Guild))
                 {
-                    ++_opsCount;
-                    foreach (DiscordMember member in await client.GetGuildMembersAsync(DLConfig.Data.Guild))
+                    LinkedUser linkedUser = UserLinkManager.LinkedUserByDiscordUser(member);
+                    if (linkedUser == null || !DLConfig.Data.UseLinkedAccountRole)
                     {
-                        LinkedUser linkedUser = UserLinkManager.LinkedUserByDiscordUser(member);
-                        if (linkedUser == null || !DLConfig.Data.UseLinkedAccountRole)
-                        {
-                            if (member.HasRole(LinkedAccountRole))
-                            {
-                                ++_opsCount;
-                                await client.RemoveRoleAsync(member, LinkedAccountRole);
-                            }
-                        }
-                        else if (linkedUser.Verified && !member.HasRole(LinkedAccountRole))
+                        if (member.HasRole(LinkedAccountRole))
                         {
                             ++_opsCount;
-                            await client.AddRoleAsync(member, LinkedAccountRole);
+                            await client.RemoveRoleAsync(member, LinkedAccountRole);
                         }
+                    }
+                    else if (linkedUser.Verified && !member.HasRole(LinkedAccountRole))
+                    {
+                        ++_opsCount;
+                        await client.AddRoleAsync(member, LinkedAccountRole);
                     }
                 }
             }
