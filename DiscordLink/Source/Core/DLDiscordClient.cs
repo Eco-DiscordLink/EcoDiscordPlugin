@@ -667,7 +667,8 @@ namespace Eco.Plugins.DiscordLink
             if (role == null)
                 role = await CreateRoleAsync(dlRole);
 
-            await AddRoleAsync(member, role);
+            if(role != null)
+                await AddRoleAsync(member, role);
         }
 
         public async Task AddRoleAsync(DiscordMember member, DiscordRole role)
