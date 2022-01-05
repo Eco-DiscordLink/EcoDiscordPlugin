@@ -339,6 +339,20 @@ namespace Eco.Plugins.DiscordLink
             return channel.PermissionsFor(member).HasPermission(permission);
         }
 
+        public bool BotHasPermission(Permissions permission)
+        {
+            bool hasPermission = false;
+            foreach(DiscordRole role in Guild.Roles.Values)
+            {
+                if (role.CheckPermission(permission) == PermissionLevel.Allowed)
+                {
+                    hasPermission = true;
+                    break;
+                }
+            }
+            return hasPermission;
+        }
+
         public bool BotHasIntent(DiscordIntents intent)
         {
             return (DiscordClient.Intents & intent) != 0;
