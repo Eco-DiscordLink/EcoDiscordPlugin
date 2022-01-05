@@ -110,8 +110,7 @@ namespace Eco.Plugins.DiscordLink
         public void PostConnectionInitialize()
         {
             // Guild
-            Data.Guild = DiscordLink.Obj.Client.GuildByNameOrID(Data.DiscordServer);
-            if (Data.Guild == null)
+            if (DiscordLink.Obj.Client.Guild == null)
             {
                 Logger.Error($"Failed to find Discord server with the name or ID \"{Data.DiscordServer}\"");
                 return;
@@ -291,7 +290,7 @@ namespace Eco.Plugins.DiscordLink
             if (DiscordLink.Obj.Client.ConnectionStatus == DLDiscordClient.ConnectionState.Connected)
             {
                 // Discord guild and channel information isn't available the first time this function is called
-                if (verificationFlags.HasFlag(VerificationFlags.ChannelLinks) && ChannelLinks.Count > 0 && Data.Guild != null)
+                if (verificationFlags.HasFlag(VerificationFlags.ChannelLinks) && ChannelLinks.Count > 0 && DiscordLink.Obj.Client.Guild != null)
                 {
                     List<ChannelLink> verifiedLinks = new List<ChannelLink>();
                     foreach (ChannelLink link in _channelLinks)
@@ -395,9 +394,6 @@ namespace Eco.Plugins.DiscordLink
 
             return WebServerAddress.Substring(lastColonPos + 1).All(c => Char.IsDigit(c));
         }
-
-        [Browsable(false), JsonIgnore]
-        public DiscordGuild Guild { get; set; } = null;
 
         [Description("The name or ID if the Discord Server. This setting can be changed while the server is running and will in that case trigger a reconnection to Discord."), Category("Base Configuration - Discord")]
         public string DiscordServer { get; set; } = string.Empty;

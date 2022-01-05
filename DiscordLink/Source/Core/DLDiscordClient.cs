@@ -26,6 +26,7 @@ namespace Eco.Plugins.DiscordLink
         public DiscordClient DiscordClient { get; private set; }
         public DateTime LastConnectionTime { get; private set; } = DateTime.MinValue;
         public ConnectionState ConnectionStatus { get; private set; } = ConnectionState.Disconnected;
+        public DiscordGuild Guild { get; private set; } = null;
 
         public string Status
         {
@@ -84,6 +85,7 @@ namespace Eco.Plugins.DiscordLink
             Status = "Connected to Discord";
             LastConnectionTime = DateTime.Now;
 
+            Guild = GuildByNameOrID(DLConfig.Data.DiscordServer);
             RegisterEventListeners();
             OnConnected?.Invoke();
             return true;
@@ -167,6 +169,7 @@ namespace Eco.Plugins.DiscordLink
             DiscordClient = null;
             ConnectionStatus = ConnectionState.Disconnected;
             Status = "Disconnected from Discord";
+            Guild = null;
 
             OnDisconnected?.Invoke();
             DiscordLink.Obj.HandleEvent(DLEventType.DiscordClientDisconnected);
@@ -454,7 +457,7 @@ namespace Eco.Plugins.DiscordLink
 
             try
             {
-                return await guild.GetAllMembersAsync();
+                return await Guild.GetAllMembersAsync();
             }
             catch (Exception e)
             {
@@ -631,7 +634,7 @@ namespace Eco.Plugins.DiscordLink
         {
             try
             {
-                return await DLConfig.Data.Guild.CreateRoleAsync(dlRole.Name, dlRole.Permissions, dlRole.Color, dlRole.Hoist, dlRole.Mentionable, dlRole.AddReason);
+                return await Guild.CreateRoleAsync(dlRole.Name, dlRole.Permissions, dlRole.Color, dlRole.Hoist, dlRole.Mentionable, dlRole.AddReason);
             }
             catch(Exception e)
             {
@@ -642,7 +645,7 @@ namespace Eco.Plugins.DiscordLink
 
         public async Task AddRoleAsync(DiscordMember member, DiscordLinkRole dlRole)
         {
-            DiscordRole role = DLConfig.Data.Guild.RoleByName(dlRole.Name);
+            DiscordRole role = Guild.RoleByName(dlRole.Name);
             if (role == null)
                 role = await CreateRoleAsync(dlRole);
 
@@ -659,7 +662,7 @@ namespace Eco.Plugins.DiscordLink
 
         public async Task RemoveRoleAsync(DiscordMember member, string roleName)
         {
-            DiscordRole role = DLConfig.Data.Guild.RoleByName(roleName);
+            DiscordRole role = Guild.RoleByName(roleName);
             if (role == null)
             {
                 Logger.Warning($"Attempting to remove nonexistent role \"{roleName}\" from user \"{member.DisplayName}\"");

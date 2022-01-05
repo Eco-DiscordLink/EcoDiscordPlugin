@@ -21,7 +21,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         public override void Setup()
         {
-            LinkedAccountRole = DLConfig.Data.Guild.RoleByName(DLConstants.ROLE_LINKED_ACCOUNT.Name);
+            LinkedAccountRole = DiscordLink.Obj.Client.Guild.RoleByName(DLConstants.ROLE_LINKED_ACCOUNT.Name);
             if (LinkedAccountRole == null)
                 LinkedAccountRole = DiscordLink.Obj.Client.CreateRoleAsync(DLConstants.ROLE_LINKED_ACCOUNT).Result;
 

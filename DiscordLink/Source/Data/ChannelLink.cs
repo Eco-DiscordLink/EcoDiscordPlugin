@@ -72,7 +72,7 @@ namespace Eco.Plugins.DiscordLink
             if (string.IsNullOrWhiteSpace(DiscordChannel))
                 return false;
 
-            DiscordChannel channel = DLConfig.Data.Guild.ChannelByNameOrID(DiscordChannel);
+            DiscordChannel channel = DiscordLink.Obj.Client.Guild.ChannelByNameOrID(DiscordChannel);
             if (channel == null)
                 return false;
 

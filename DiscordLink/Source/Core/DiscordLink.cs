@@ -186,7 +186,7 @@ namespace Eco.Plugins.DiscordLink
         private void HandleClientConnected()
         {
             DLConfig.Instance.PostConnectionInitialize();
-            if(DLConfig.Data.Guild == null)
+            if(Client.Guild == null)
             {
                 Status = "Discord Server connection failed";
                 CanRestart = true;
