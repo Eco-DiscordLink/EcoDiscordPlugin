@@ -2,6 +2,7 @@
 using Eco.Plugins.DiscordLink.Events;
 using System.Threading.Tasks;
 using Eco.Plugins.DiscordLink.Extensions;
+using DSharpPlus;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
@@ -30,12 +31,15 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected override bool ShouldRun()
         {
-            return true;
+            return DiscordLink.Obj.Client.BotHasPermission(Permissions.ManageRoles);
         }
 
         protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
         {
             DLDiscordClient client = DiscordLink.Obj.Client;
+            if (!client.BotHasPermission(Permissions.ManageRoles))
+                return;
+
             if (trigger == DLEventType.DiscordClientConnected)
             {
                 if (!client.BotHasIntent(DSharpPlus.DiscordIntents.GuildMembers))
