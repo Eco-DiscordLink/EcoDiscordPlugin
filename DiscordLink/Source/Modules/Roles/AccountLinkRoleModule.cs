@@ -42,7 +42,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                     return;
 
                 ++_opsCount;
-                foreach (DiscordMember member in await client.GetGuildMembersAsync(DLConfig.Data.Guild))
+                foreach (DiscordMember member in await client.GetGuildMembersAsync())
                 {
                     LinkedUser linkedUser = UserLinkManager.LinkedUserByDiscordUser(member);
                     if (linkedUser == null || !DLConfig.Data.UseLinkedAccountRole)

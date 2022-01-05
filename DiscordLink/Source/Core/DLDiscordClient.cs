@@ -447,7 +447,7 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
-        public async Task<IReadOnlyCollection<DiscordMember>> GetGuildMembersAsync(DiscordGuild guild)
+        public async Task<IReadOnlyCollection<DiscordMember>> GetGuildMembersAsync()
         {
             if (!BotHasIntent(DiscordIntents.GuildMembers))
             {
