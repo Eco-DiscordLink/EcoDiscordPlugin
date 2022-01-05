@@ -1,6 +1,7 @@
 ﻿using DSharpPlus.Entities;
 using Eco.Core.Utils;
 using Eco.Plugins.DiscordLink.Extensions;
+using Eco.Plugins.Networking;
 using Eco.Shared.Utils;
 using System;
 using System.Collections.Generic;
@@ -353,6 +354,14 @@ namespace Eco.Plugins.DiscordLink.Utilities
             text = ExcessiveNewLineRegex.Replace(text, "\n\n");
             text = DiscordBoldRegex.Replace(text, Text.Color(Color.Green, Text.Bold("$1")));
             return text;
+        }
+
+        public static string GetWebserverBaseURL()
+        {
+            string webServerAddress = DLConfig.Data.WebServerAddress;
+            if (!DLConfig.Data.WebServerAddressEndsWithPort())
+                webServerAddress += $":{NetworkManager.GetServerInfo().WebPort}";
+            return webServerAddress;
         }
 
         #endregion

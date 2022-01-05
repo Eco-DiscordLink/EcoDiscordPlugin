@@ -207,8 +207,11 @@ namespace Eco.Plugins.DiscordLink
         [Description("Display the server logo.")]
         public bool UseLogo { get; set; } = true;
 
-        [Description("Display the server IP address and port.")]
+        [Description("Display the connection information for the game server.")]
         public bool UseConnectionInfo { get; set; } = true;
+
+        [Description("Display the web server address.")]
+        public bool UseWebServerAddress { get; set; } = true;
 
         [Description("Display the number of online players.")]
         public bool UsePlayerCount { get; set; } = false;

@@ -50,6 +50,8 @@ namespace Eco.Plugins.DiscordLink.Modules
                 statusFlag |= MessageBuilder.ServerInfoComponentFlag.Logo;
             if (infoChannel.UseConnectionInfo)
                 statusFlag |= MessageBuilder.ServerInfoComponentFlag.ConnectionInfo;
+            if (infoChannel.UseWebServerAddress)
+                statusFlag |= MessageBuilder.ServerInfoComponentFlag.WebServerAddress;
             if (infoChannel.UsePlayerCount)
                 statusFlag |= MessageBuilder.ServerInfoComponentFlag.PlayerCount;
             if (infoChannel.UsePlayerList)

@@ -39,20 +39,21 @@ namespace Eco.Plugins.DiscordLink.Utilities
             Description                 = 1 << 1,
             Logo                        = 1 << 2,
             ConnectionInfo              = 1 << 3,
-            PlayerCount                 = 1 << 4,
-            PlayerList                  = 1 << 5,
-            PlayerListLoginTime         = 1 << 6,
-            PlayerListExhaustionTime    = 1 << 7,
-            ExhaustionResetTime         = 1 << 8,
-            ExhaustionResetTimeLeft     = 1 << 9,
-            ExhaustedPlayerCount        = 1 << 10,
-            IngameTime                  = 1 << 11,
-            MeteorTimeRemaining         = 1 << 12,
-            ServerTime                  = 1 << 13,
-            ActiveElectionCount         = 1 << 14,
-            ActiveElectionList          = 1 << 15,
-            LawCount                    = 1 << 16,
-            LawList                     = 1 << 17,
+            WebServerAddress            = 1 << 4,
+            PlayerCount                 = 1 << 5,
+            PlayerList                  = 1 << 6,
+            PlayerListLoginTime         = 1 << 7,
+            PlayerListExhaustionTime    = 1 << 8,
+            ExhaustionResetTime         = 1 << 9,
+            ExhaustionResetTimeLeft     = 1 << 10,
+            ExhaustedPlayerCount        = 1 << 11,
+            IngameTime                  = 1 << 12,
+            MeteorTimeRemaining         = 1 << 13,
+            ServerTime                  = 1 << 14,
+            ActiveElectionCount         = 1 << 15,
+            ActiveElectionList          = 1 << 16,
+            LawCount                    = 1 << 17,
+            LawList                     = 1 << 18,
             All                         = ~0
         }
 
@@ -405,13 +406,13 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
                 if (flag.HasFlag(ServerInfoComponentFlag.Name))
                 {
-                    embed.WithTitle($"**{MessageUtils.FirstNonEmptyString(config.ServerName, MessageUtils.StripTags(serverInfo.Description), "[Server Title Missing]")} " + "Server Status" + "**\n" + DateTime.Now.ToShortDateString() + " : " + DateTime.Now.ToShortTimeString());
+                    embed.WithTitle($"**{MessageUtils.FirstNonEmptyString(config.ServerName, MessageUtils.StripTags(serverInfo.Description), "[Server Title Missing]")} Server Status**\n{DateTime.Now.ToShortDateString() + " : " + DateTime.Now.ToShortTimeString()}");
                 }
                 else
                 {
                     DateTime time = DateTime.Now;
                     int utcOffset = TimeZoneInfo.Local.GetUtcOffset(time).Hours;
-                    embed.WithTitle("**" + "Server Status" + "**\n" + "[" + DateTime.Now.ToString("yyyy-MM-dd : HH:mm", CultureInfo.InvariantCulture) + " UTC " + (utcOffset != 0 ? (utcOffset >= 0 ? "+" : "-") + utcOffset : "") + "]");
+                    embed.WithTitle($"**Server Status**\n[{DateTime.Now.ToString("yyyy-MM-dd : HH:mm", CultureInfo.InvariantCulture)} UTC {(utcOffset != 0 ? (utcOffset >= 0 ? "+" : "-") + utcOffset : "")}]");
                 }
 
                 if (flag.HasFlag(ServerInfoComponentFlag.Description))
@@ -433,6 +434,15 @@ namespace Eco.Plugins.DiscordLink.Utilities
                         fieldText = serverInfo.Address;
 
                     embed.AddField("Connection Info", fieldText);
+                }
+
+                if (flag.HasFlag(ServerInfoComponentFlag.WebServerAddress))
+                {
+                    string fieldText = "-- Webpage Address not configured --";
+                    if (!string.IsNullOrEmpty(config.WebServerAddress))
+                        fieldText = $"{MessageUtils.GetWebserverBaseURL()}/index.html";
+
+                    embed.AddField("Webpage Address", fieldText);
                 }
 
                 if (flag.HasFlag(ServerInfoComponentFlag.PlayerCount) || flag.HasFlag(ServerInfoComponentFlag.LawCount) || flag.HasFlag(ServerInfoComponentFlag.ActiveElectionCount))
@@ -822,14 +832,9 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 report.WithTitle(MessageUtils.StripTags(election.Name));
 
                 // Link
-                if (!string.IsNullOrWhiteSpace(DLConfig.Data.WebServerAddress))
-                {
-                    ServerInfo serverInfo = NetworkManager.GetServerInfo();
-                    string webServerAddress = DLConfig.Data.WebServerAddress;
-                    if (!DLConfig.Data.WebServerAddressEndsWithPort())
-                        webServerAddress += $":{serverInfo.WebPort}";
-                    report.AddField("URL", $"{webServerAddress}/elections.html?election={election.Id}");
-                }
+                string webServerURL = MessageUtils.GetWebserverBaseURL();
+                if (!string.IsNullOrWhiteSpace(webServerURL))
+                    report.AddField("URL", $"{webServerURL}/elections.html?election={election.Id}");
 
                 // Proposer name
                 report.AddField("Proposer", election.Creator.Name, inline: true);

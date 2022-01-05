@@ -426,7 +426,7 @@ namespace Eco.Plugins.DiscordLink
         [Description("The game server connection information to display to users. This setting can be changed while the server is running."), Category("Base Configuration - Eco")]
         public string ConnectionInfo { get; set; }
 
-        [Description("The address (URL or IP) of the web server to use in web server links. If the web server traffic is being routed through a different port than the configured \"Web Server Port\" fro, the Network config, also qualify this address with the rereouted port number. This setting can be changed while the server is running."), Category("Base Configuration - Eco")]
+        [Description("The base address (URL or IP) of the web server to use in web server links. If the web server traffic is being routed through a different port than the configured \"Web Server Port\" from the Network config, then also qualify this address with the rereouted port number. Do not point to any specific page on the web server. This setting can be changed while the server is running."), Category("Base Configuration - Eco")]
         [UrlValidation(ErrorMessage = "The value must start with http:// or https://. ")]
         public string WebServerAddress { get; set; }
 
