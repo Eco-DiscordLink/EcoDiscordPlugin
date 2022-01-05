@@ -27,6 +27,7 @@ namespace Eco.Plugins.DiscordLink
         public DateTime LastConnectionTime { get; private set; } = DateTime.MinValue;
         public ConnectionState ConnectionStatus { get; private set; } = ConnectionState.Disconnected;
         public DiscordGuild Guild { get; private set; } = null;
+        public DiscordMember BotMember { get; private set; } = null;
 
         public string Status
         {
@@ -86,6 +87,8 @@ namespace Eco.Plugins.DiscordLink
             LastConnectionTime = DateTime.Now;
 
             Guild = GuildByNameOrID(DLConfig.Data.DiscordServer);
+            BotMember = Guild.CurrentMember;
+
             RegisterEventListeners();
             OnConnected?.Invoke();
             return true;
@@ -170,6 +173,7 @@ namespace Eco.Plugins.DiscordLink
             ConnectionStatus = ConnectionState.Disconnected;
             Status = "Disconnected from Discord";
             Guild = null;
+            BotMember = null;
 
             OnDisconnected?.Invoke();
             DiscordLink.Obj.HandleEvent(DLEventType.DiscordClientDisconnected);
