@@ -540,19 +540,16 @@ namespace Eco.Plugins.DiscordLink
 
                 // Find the Discord user
                 DiscordMember matchingMember = null;
-                foreach (DiscordGuild guild in plugin.Client.DiscordClient.Guilds.Values)
-                {
-                    IReadOnlyCollection<DiscordMember> guildMembers = plugin.Client.GetGuildMembersAsync(guild).Result;
-                    if (guildMembers == null)
-                        continue;
+                IReadOnlyCollection<DiscordMember> guildMembers = plugin.Client.GetGuildMembersAsync().Result;
+                if (guildMembers == null)
+                    return;
 
-                    foreach (DiscordMember member in guildMembers)
+                foreach (DiscordMember member in guildMembers)
+                {
+                    if (member.HasNameOrID(discordName))
                     {
-                        if (member.HasNameOrID(discordName))
-                        {
-                            matchingMember = member;
-                            break;
-                        }
+                        matchingMember = member;
+                        break;
                     }
                 }
 
