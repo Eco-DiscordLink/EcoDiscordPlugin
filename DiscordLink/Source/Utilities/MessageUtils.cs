@@ -48,9 +48,11 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 return result;
 
             str = str.Replace("\r", null); // Remove all carrige returns so they don't cause extra newlines
+            str = str.TrimStart();
+            str = str.TrimEnd();
             string[] lines = str.Split('\n');
             string builder = lines.First();
-            foreach (string line in lines.Skip(1))
+            foreach (string line in lines)
             {
                 string test = $"{builder}\n{line}";
                 if (test.Length > chunkSize)
@@ -115,7 +117,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 DiscordLinkEmbedField field = fullEmbed.Fields[i];
                 if (needsSplitFields[i] == true)
                 {
-                    IEnumerable<string> splits = SplitStringBySize(field.Text, DLConstants.DISCORD_EMBED_FIELD_CHARACTER_LIMIT);
+                    const int PartCountCharactersMax = 6; // Space + Parenthesis + Number (No more than 999 parts)
+                    IEnumerable<string> splits = SplitStringBySize(field.Text, DLConstants.DISCORD_EMBED_FIELD_CHARACTER_LIMIT - (field.Title.Length + PartCountCharactersMax));
                     int partCount = 1;
                     foreach (string fieldSplit in splits)
                     {
