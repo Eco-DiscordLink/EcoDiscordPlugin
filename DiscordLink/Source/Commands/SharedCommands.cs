@@ -783,7 +783,7 @@ namespace Eco.Plugins.DiscordLink
             int trackedTradesCount = DLStorage.WorldData.GetTrackedTradesCountForUser(ulong.Parse(linkedUser.DiscordID));
             if (trackedTradesCount >= DLConfig.Data.MaxTrackedTradesPerUser)
             {
-                await ReportCommandError(source, callContext, $"You are already tracking {trackedTradesCount} trades and the limit is {DLConfig.Data.MaxTrackedTradesPerUser} tracked trades per user.\nUse the `\\DL-StopTrackTrades` command to remove a tracked trade to make space if you wish to add a new one.");
+                await ReportCommandError(source, callContext, $"You are already tracking {trackedTradesCount} trades and the limit is {DLConfig.Data.MaxTrackedTradesPerUser} tracked trades per user.\nUse the `/DL-StopTrackTrades` command to remove a tracked trade to make space if you wish to add a new one.");
                 return false;
             }
 
@@ -820,7 +820,7 @@ namespace Eco.Plugins.DiscordLink
             }
             else
             {
-                await ReportCommandError(source, callContext, $"Failed to stop tracking trades for {userOrItemName}.\nUse `\\DL-ListTrackedStores` to see what is currently being tracked.");
+                await ReportCommandError(source, callContext, $"Failed to stop tracking trades for {userOrItemName}.\nUse `/DL-ListTrackedStores` to see what is currently being tracked.");
                 return false;
             }
         }
