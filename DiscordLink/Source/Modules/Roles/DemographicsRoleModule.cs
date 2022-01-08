@@ -22,7 +22,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected override DLEventType GetTriggers()
         {
-            return DLEventType.DiscordClientConnected | DLEventType.EnteredDemographic | DLEventType.LeftDemographic;
+            return DLEventType.DiscordClientConnected | DLEventType.AccountLinkVerified | DLEventType.AccountLinkRemoved | DLEventType.EnteredDemographic | DLEventType.LeftDemographic;
         }
 
         protected override bool ShouldRun()
@@ -61,6 +61,30 @@ namespace Eco.Plugins.DiscordLink.Modules
                             ++_opsCount;
                             await AddDemographicRole(client, linkedUser.DiscordMember, demographicName);
                         }
+                    }
+                }
+            }
+            else if(trigger == DLEventType.AccountLinkVerified || trigger == DLEventType.AccountLinkRemoved)
+            {
+                if (!(data[0] is LinkedUser linkedUser))
+                    return;
+
+                DiscordMember member = linkedUser.DiscordMember;
+                foreach (Demographic demographic in EcoUtils.ActiveDemographics)
+                {
+                    string demographicName = GetDemographicRoleName(demographic);
+                    if (trigger == DLEventType.AccountLinkRemoved || !DLConfig.Data.UseDemographicRoles || !demographic.Contains(linkedUser.EcoUser))
+                    {
+                        if (member.HasRoleWithName(demographicName))
+                        {
+                            ++_opsCount;
+                            await client.RemoveRoleAsync(member, demographicName);
+                        }
+                    }
+                    else if (!member.HasRoleWithName(demographicName) && demographic.Contains(linkedUser.EcoUser))
+                    {
+                        ++_opsCount;
+                        await AddDemographicRole(client, linkedUser.DiscordMember, demographicName);
                     }
                 }
             }

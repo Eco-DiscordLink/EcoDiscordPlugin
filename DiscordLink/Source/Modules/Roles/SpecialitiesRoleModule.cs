@@ -24,7 +24,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected override DLEventType GetTriggers()
         {
-            return DLEventType.DiscordClientConnected | DLEventType.GainedSpecialty;
+            return DLEventType.DiscordClientConnected | DLEventType.AccountLinkVerified | DLEventType.AccountLinkRemoved | DLEventType.GainedSpecialty;
         }
 
         public override void Setup()
@@ -78,6 +78,32 @@ namespace Eco.Plugins.DiscordLink.Modules
                             ++_opsCount;
                             await AddSpecialtyRole(client, linkedUser.DiscordMember, specialty.DisplayName);
                         }
+                    }
+                }
+            }
+            else if (trigger == DLEventType.AccountLinkVerified || trigger == DLEventType.AccountLinkRemoved)
+            {
+                if (!(data[0] is LinkedUser linkedUser))
+                    return;
+
+                DiscordMember member = linkedUser.DiscordMember;
+                foreach (Skill specialty in EcoUtils.Specialties)
+                {
+                    if (IgnoredSpecialties.Contains(specialty))
+                        continue;
+
+                    if (trigger == DLEventType.AccountLinkRemoved || !DLConfig.Data.UseSpecialtyRoles || !linkedUser.EcoUser.Skillset.Skills.Contains(specialty))
+                    {
+                        if (member.HasRoleWithName(specialty.DisplayName))
+                        {
+                            ++_opsCount;
+                            await client.RemoveRoleAsync(member, specialty.DisplayName);
+                        }
+                    }
+                    else if (!member.HasRoleWithName(specialty.DisplayName) && linkedUser.EcoUser.Skillset.Skills.Contains(specialty))
+                    {
+                        ++_opsCount;
+                        await AddSpecialtyRole(client, linkedUser.DiscordMember, specialty.DisplayName);
                     }
                 }
             }
