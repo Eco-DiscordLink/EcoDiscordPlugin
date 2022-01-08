@@ -32,10 +32,14 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         #region Lookups
 
+        public static IEnumerable<User> Users => UserManager.Users;
+        public static IEnumerable<User> UsersAlphabetical => UserManager.Users.OrderBy(user => user.Name);
         public static User UserByName(string userName) => UserManager.FindUserByName(userName);
         public static User UserByEcoID(int userID) => UserManager.FindUserByID(userID);
         public static User UserByNameOrEcoID(string userNameOrID) => int.TryParse(userNameOrID, out int ID) ? UserByEcoID(ID) : UserByName(userNameOrID);
         public static User UserBySteamOrSLGID(string steamID, string slgID) => UserManager.FindUserById(steamID, slgID);
+        public static IEnumerable<User> OnlineUsers => UserManager.OnlineUsers.Where(user => user.Client.Connected);
+        public static IEnumerable<User> OnlineUsersAlphabetical => UserManager.OnlineUsers.Where(user => user.Client.Connected).OrderBy(user => user.Name);
         public static User OnlineUserByName(string userName) => UserManager.OnlineUsers.FirstOrDefault(user => user.Name.EqualsCaseInsensitive(userName));
         public static User OnlineUserByEcoID(int userID) => UserManager.OnlineUsers.FirstOrDefault(user => user.Id == userID);
         public static User OnlineUserByNameEcoID(string userNameOrID) => int.TryParse(userNameOrID, out int ID) ? OnlineUserByEcoID(ID) : OnlineUserByName(userNameOrID);
@@ -89,8 +93,9 @@ namespace Eco.Plugins.DiscordLink.Utilities
         public static double SecondsPassedOnDay => Simulation.Time.WorldTime.Seconds % DLConstants.SECONDS_PER_DAY;
         public static double SecondsLeftOnDay => DLConstants.SECONDS_PER_DAY - SecondsPassedOnDay;
 
-        public static int NumOnlinePlayers => UserManager.OnlineUsers.Where(user => user.Client.Connected).Count();
-        public static int NumExhaustedPlayers => UserManager.Users.Count(u => u.ExhaustionMonitor.IsExhausted);
+        public static int NumTotalPlayers => Users.Count();
+        public static int NumOnlinePlayers => OnlineUsers.Count();
+        public static int NumExhaustedPlayers => Users.Count(user => user.ExhaustionMonitor.IsExhausted);
 
         #endregion
 

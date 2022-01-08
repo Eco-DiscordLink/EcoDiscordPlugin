@@ -110,7 +110,7 @@ namespace Eco.Plugins.DiscordLink
             User recipient = null;
             if (!string.IsNullOrWhiteSpace(recipientUserNameOrID))
             {
-                recipient = UserManager.OnlineUsers.FirstOrDefault(x => x.Name.EqualsCaseInsensitive(recipientUserNameOrID) || x.Id.ToString().EqualsCaseInsensitive(recipientUserNameOrID));
+                recipient = EcoUtils.OnlineUsers.FirstOrDefault(user => user.Name.EqualsCaseInsensitive(recipientUserNameOrID) || user.Id.ToString().EqualsCaseInsensitive(recipientUserNameOrID));
                 if (recipient == null)
                 {
                     await ReportCommandError(source, callContext, $"No online user with the name or ID \"{recipientUserNameOrID}\" could be found.");
@@ -146,7 +146,7 @@ namespace Eco.Plugins.DiscordLink
             User recipient = null;
             if (!string.IsNullOrWhiteSpace(recipientUserNameOrID))
             {
-                recipient = UserManager.OnlineUsers.FirstOrDefault(x => x.Name.EqualsCaseInsensitive(recipientUserNameOrID) || x.Id.ToString().EqualsCaseInsensitive(recipientUserNameOrID));
+                recipient = EcoUtils.OnlineUsers.FirstOrDefault(user => user.Name.EqualsCaseInsensitive(recipientUserNameOrID) || user.Id.ToString().EqualsCaseInsensitive(recipientUserNameOrID));
                 if (recipient == null)
                 {
                     await ReportCommandError(source, callContext, $"No online user with the name or ID \"{recipientUserNameOrID}\" could be found.");
@@ -200,7 +200,7 @@ namespace Eco.Plugins.DiscordLink
             User recipient = null;
             if (!string.IsNullOrWhiteSpace(recipientUserNameOrID))
             {
-                recipient = UserManager.OnlineUsers.FirstOrDefault(x => x.Name.EqualsCaseInsensitive(recipientUserNameOrID) || x.Id.ToString().EqualsCaseInsensitive(recipientUserNameOrID));
+                recipient = EcoUtils.OnlineUsers.FirstOrDefault(user => user.Name.EqualsCaseInsensitive(recipientUserNameOrID) || user.Id.ToString().EqualsCaseInsensitive(recipientUserNameOrID));
                 if (recipient == null)
                 {
                     await ReportCommandError(source, callContext, $"No online user with the name or ID \"{recipientUserNameOrID}\" could be found.");
@@ -290,7 +290,7 @@ namespace Eco.Plugins.DiscordLink
             User recipient = null;
             if (!string.IsNullOrWhiteSpace(recipientUserNameOrID))
             {
-                recipient = UserManager.OnlineUsers.FirstOrDefault(x => x.Name.EqualsCaseInsensitive(recipientUserNameOrID) || x.Id.ToString().EqualsCaseInsensitive(recipientUserNameOrID));
+                recipient = EcoUtils.OnlineUsers.FirstOrDefault(user => user.Name.EqualsCaseInsensitive(recipientUserNameOrID) || user.Id.ToString().EqualsCaseInsensitive(recipientUserNameOrID));
                 if (recipient == null)
                 {
                     await ReportCommandError(source, callContext, $"No online user with the name or ID \"{recipientUserNameOrID}\" could be found.");

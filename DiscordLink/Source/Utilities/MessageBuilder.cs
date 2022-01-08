@@ -221,17 +221,12 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
             public static string GetPlayerCount()
             {
-                IEnumerable<User> onlineUsers = UserManager.OnlineUsers.Where(user => user.Client.Connected);
-                int numberTotal = NetworkManager.GetServerInfo().TotalPlayers;
-                int numberOnline = onlineUsers.Count();
-                return $"{numberOnline}/{numberTotal}";
+                return $"{EcoUtils.NumOnlinePlayers}/{EcoUtils.NumTotalPlayers}";
             }
 
             public static string GetOnlinePlayerList()
             {
-                IEnumerable<User> onlineUsers = UserManager.OnlineUsers.Where(user => user.Client.Connected).OrderBy(user => user.Name);
-                string playerList = string.Join("\n", onlineUsers.Select(u => MessageUtils.StripTags(u.Name)));
-
+                string playerList = string.Join("\n", EcoUtils.OnlineUsersAlphabetical.Select(u => MessageUtils.StripTags(u.Name)));
                 if (string.IsNullOrEmpty(playerList))
                     playerList = "-- No players online --";
 
@@ -266,14 +261,12 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
             public static string GetPlayerSessionTimeList()
             {
-                IEnumerable<User> onlineUsers = UserManager.OnlineUsers.OrderBy(user => user.Name);
-                return string.Join("\n", onlineUsers.Select(u => GetTimeDescription(u.GetSecondsSinceLogin(), TimespanStringComponent.Hour | TimespanStringComponent.Minute)));
+                return string.Join("\n", EcoUtils.OnlineUsersAlphabetical.Select(u => GetTimeDescription(u.GetSecondsSinceLogin(), TimespanStringComponent.Hour | TimespanStringComponent.Minute)));
             }
 
             public static string GetPlayerExhaustionTimeList()
             {
-                IEnumerable<User> onlineUsers = UserManager.OnlineUsers.OrderBy(user => user.Name);
-                return string.Join("\n", onlineUsers.Select(u => u.ExhaustionMonitor.IsExhausted ? "Exhausted" : GetTimeDescription(u.GetSecondsLeftUntilExhaustion(), TimespanStringComponent.Hour | TimespanStringComponent.Minute)));
+                return string.Join("\n", EcoUtils.OnlineUsersAlphabetical.Select(u => u.ExhaustionMonitor.IsExhausted ? "Exhausted" : GetTimeDescription(u.GetSecondsLeftUntilExhaustion(), TimespanStringComponent.Hour | TimespanStringComponent.Minute)));
             }
 
             public enum TimespanStringComponent
@@ -533,9 +526,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
                 if (flag.HasFlag(ServerInfoComponentFlag.PlayerList))
                 {
-                    IEnumerable<string> onlineUsers = UserManager.OnlineUsers.Where(user => user.Client.Connected).Select(user => user.Name);
-                    string playerCount = EcoUtils.NumOnlinePlayers.ToString();
-                    embed.AddField($"Online Players ({playerCount})", Shared.GetOnlinePlayerList(), inline: true);
+                    embed.AddField($"Online Players ({EcoUtils.NumOnlinePlayers})", Shared.GetOnlinePlayerList(), inline: true);
                     if (flag.HasFlag(ServerInfoComponentFlag.PlayerListLoginTime))
                     {
                         string sessionTimeList = Shared.GetPlayerSessionTimeList();
