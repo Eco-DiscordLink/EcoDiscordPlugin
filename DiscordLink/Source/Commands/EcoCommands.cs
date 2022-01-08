@@ -562,7 +562,9 @@ namespace Eco.Plugins.DiscordLink
                 // Make sure that the accounts aren't already linked to any account
                 foreach (LinkedUser linkedUser in DLStorage.PersistentData.LinkedUsers)
                 {
-                    if (callingUser.SlgId == linkedUser.SlgID || callingUser.SteamId == linkedUser.SteamID)
+                    bool hasSLGID = !string.IsNullOrWhiteSpace(callingUser.SlgId) && !string.IsNullOrWhiteSpace(linkedUser.SlgID);
+                    bool hasSteamID = !string.IsNullOrWhiteSpace(callingUser.SteamId) && !string.IsNullOrWhiteSpace(linkedUser.SteamID);
+                    if ((hasSLGID && callingUser.SlgId == linkedUser.SlgID) || (hasSteamID && callingUser.SteamId == linkedUser.SteamID))
                     {
                         if (linkedUser.DiscordID == matchingMember.Id.ToString())
                             ReportCommandInfo(callingUser, "Eco account is already linked to this Discord account.\nUse /DL-Unlink to remove the existing link.");
