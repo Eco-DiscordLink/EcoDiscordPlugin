@@ -1145,24 +1145,19 @@ namespace Eco.Plugins.DiscordLink.Utilities
                         fieldBodyBuilder.Append($"{offer}\n");
                     }
 
-                    buyOffers.Add(new StoreOffer($"**Selling for {group.Key}**", fieldBodyBuilder.ToString(), group.First().Item1.Currency, buying: false));
+                    sellOffers.Add(new StoreOffer($"**Selling for {group.Key}**", fieldBodyBuilder.ToString(), group.First().Item1.Currency, buying: false));
                 }
 
-                List<StoreOffer> allOffers = new List<StoreOffer>();
-                int totalOffers = buyOffers.Count + sellOffers.Count;
-                int index = 0;
-                while (allOffers.Count < totalOffers)
+                // Group offers by their currency and order them by currency popularity
+                List<StoreOffer> allOffersSorted = buyOffers.Concat(sellOffers).OrderBy(o => o.Currency != null ? o.Currency.Id : -1).OrderByDescending(o =>
                 {
-                    if (buyOffers.Count > index)
-                        allOffers.Add(buyOffers[index]);
+                    if (o.Currency == null)
+                        return -1; // Sort barters last
 
-                    if (sellOffers.Count > index)
-                        allOffers.Add(sellOffers[index]);
-
-                    ++index;
-                }
-
-                return allOffers;
+                    DLStorage.WorldData.CurrencyToTradeCountMap.TryGetValue(o.Currency.Id, out int result);
+                    return result;
+                }).ToList();
+                return allOffersSorted;
             }
 
             private static IEnumerable<string> TradeOffersToDescriptions<T>(IEnumerable<T> offers, Func<T, string> getPrice, Func<T, string> getLabel, Func<T, int?> getQuantity)
