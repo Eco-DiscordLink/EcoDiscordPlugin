@@ -47,7 +47,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             if (string.IsNullOrEmpty(str))
                 return result;
 
-            str = str.Replace("\r", null); // Remove all carrige returns so they don't cause extra newlines
+            str = str.Replace("\r", null); // Remove all carriage returns so they don't cause extra newlines
             str = str.TrimStart();
             str = str.TrimEnd();
             string[] lines = str.Split('\n');

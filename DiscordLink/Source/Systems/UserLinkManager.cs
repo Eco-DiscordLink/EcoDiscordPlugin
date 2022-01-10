@@ -5,7 +5,6 @@ using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
 using Newtonsoft.Json;
 using System;
-using System.Linq;
 
 namespace Eco.Plugins.DiscordLink
 {

@@ -38,7 +38,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
             if (trigger == DLEventType.DiscordClientConnected)
             {
-                if (!client.BotHasIntent(DSharpPlus.DiscordIntents.GuildMembers))
+                if (!client.BotHasIntent(DiscordIntents.GuildMembers))
                     return;
 
                 ++_opsCount;
@@ -64,7 +64,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                     }
                 }
             }
-            else if(trigger == DLEventType.AccountLinkVerified || trigger == DLEventType.AccountLinkRemoved)
+            else if (trigger == DLEventType.AccountLinkVerified || trigger == DLEventType.AccountLinkRemoved)
             {
                 if (!(data[0] is LinkedUser linkedUser))
                     return;

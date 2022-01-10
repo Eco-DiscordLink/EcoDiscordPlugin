@@ -42,7 +42,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
             if (trigger == DLEventType.DiscordClientConnected)
             {
-                if (!client.BotHasIntent(DSharpPlus.DiscordIntents.GuildMembers))
+                if (!client.BotHasIntent(DiscordIntents.GuildMembers))
                     return;
 
                 ++_opsCount;
