@@ -242,9 +242,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 {
                     electionList += $"{MessageUtils.StripTags(election.Name)}\n";
                     votesList += $"{election.TotalVotes} Votes\n";
-
-                    TimeSpan timeRemainingSpan = new TimeSpan(0, 0, (int)election.TimeLeft);
-                    timeRemainingList += $"{GetTimeDescription(timeRemainingSpan.TotalSeconds, TimespanStringComponent.Day | TimespanStringComponent.Hour | TimespanStringComponent.Minute, includeZeroTimes: false, annotate: true)}\n";
+                    timeRemainingList += $"{TimeFormatter.FormatSpan(election.TimeLeft)}\n";
                 }
             }
 
@@ -480,7 +478,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                         TimeSpan timeRemainingSpan = new TimeSpan(0, 0, (int)serverInfo.TimeLeft);
                         bool meteorHasHit = timeRemainingSpan.Seconds < 0;
                         timeRemainingSpan = meteorHasHit ? new TimeSpan(0, 0, 0) : timeRemainingSpan;
-                        embed.AddField("Time Left", Shared.GetTimeDescription(timeRemainingSpan.TotalSeconds, Shared.TimespanStringComponent.Day | Shared.TimespanStringComponent.Hour | Shared.TimespanStringComponent.Minute, includeZeroTimes: false, annotate: true), inline: true);
+                        embed.AddField("Time Remaining", Shared.GetTimeDescription(timeRemainingSpan.TotalSeconds, Shared.TimespanStringComponent.Day | Shared.TimespanStringComponent.Hour | Shared.TimespanStringComponent.Minute, includeZeroTimes: false, annotate: true), inline: true);
                         ++fieldsAdded;
                     }
 
@@ -833,8 +831,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 // Process
                 report.AddField("Process", MessageUtils.StripTags(election.Process.Name), inline: true);
 
-                // Time left
-                report.AddField("Time Left", TimeFormatter.FormatSpan(election.TimeLeft), inline: true);
+                // Time Remaining
+                report.AddField("Time Remaining", TimeFormatter.FormatSpan(election.TimeLeft), inline: true);
 
                 // Votes
                 string voteDesc = string.Empty;
