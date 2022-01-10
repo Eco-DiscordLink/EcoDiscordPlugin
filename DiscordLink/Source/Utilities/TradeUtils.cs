@@ -7,6 +7,7 @@ using Eco.Gameplay.Objects;
 using Eco.Gameplay.Players;
 using Eco.Shared.Utils;
 
+using LookupEntry = Eco.Plugins.DiscordLink.Utilities.Either<Eco.Gameplay.Items.Item, Eco.Gameplay.Players.User, Eco.Gameplay.Items.Tag, Eco.Gameplay.Components.StoreComponent>;
 using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
 
 namespace Eco.Plugins.DiscordLink.Utilities
@@ -16,22 +17,25 @@ namespace Eco.Plugins.DiscordLink.Utilities
         Tag,
         Item,
         User,
+        Store,
         Invalid,
     }
 
     public class TradeUtils
     {
-        private static List<Either<Item, User, Tag>> _itemLookup = null;
+        private static List<LookupEntry> _itemLookup = null;
 
-        public static List<Either<Item, User, Tag>> ItemLookup =>
-            _itemLookup ??= Item.AllItems.Select(item => new Either<Item, User, Tag>(item)).ToList();
+        public static List<LookupEntry> ItemLookup =>
+            _itemLookup ??= Item.AllItems.Select(item => new LookupEntry(item)).ToList();
 
-        private static List<Either<Item, User, Tag>> _tagLookup = null;
+        private static List<LookupEntry> _tagLookup = null;
 
-        public static List<Either<Item, User, Tag>> TagLookup =>
-            _tagLookup ??= FindTags().Select(tag => new Either<Item, User, Tag>(tag)).ToList();
+        public static List<LookupEntry> TagLookup =>
+            _tagLookup ??= FindTags().Select(tag => new LookupEntry(tag)).ToList();
 
-        public static List<Either<Item, User, Tag>> UserLookup => UserManager.Users.Select(user => new Either<Item, User, Tag>(user)).ToList();
+        public static List<LookupEntry> UserLookup => UserManager.Users.Select(user => new LookupEntry(user)).ToList();
+
+        public static List<LookupEntry> StoreLookup => Stores.Select(store => new LookupEntry(store)).ToList();
 
         public static T BestMatchOrDefault<T>(string query, IEnumerable<T> lookup, Func<T, string> getKey)
         {
@@ -65,8 +69,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
         {
             List<string> entries = new List<string>();
 
-            var lookup = ItemLookup.Concat(TagLookup).Concat(UserManager.Users.Select(user => new Either<Item, User, Tag>(user)));
-            var match = BestMatchOrDefault(searchName, lookup, o =>
+            IEnumerable<LookupEntry> lookup = ItemLookup.Concat(TagLookup).Concat(UserLookup).Concat(StoreLookup);
+            LookupEntry match = BestMatchOrDefault(searchName, lookup, o =>
             {
                 if (o.Is<Tag>())
                     return o.Get<Tag>().DisplayName;
@@ -74,6 +78,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     return o.Get<Item>().DisplayName;
                 else if (o.Is<User>())
                     return o.Get<User>().Name;
+                else if (o.Is<StoreComponent>())
+                    return o.Get<StoreComponent>().Parent.Name;
                 else
                     return string.Empty;
             });
@@ -84,7 +90,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             groupedSellOffers = null;
             if (match.Is<Tag>())
             {
-                var matchTag = match.Get<Tag>();
+                Tag matchTag = match.Get<Tag>();
                 matchedName = matchTag.Name;
 
                 bool filter(StoreComponent store, TradeOffer offer) => offer.Stack.Item.Tags().Contains(matchTag);
@@ -95,7 +101,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             }
             else if (match.Is<Item>())
             {
-                var matchItem = match.Get<Item>();
+                Item matchItem = match.Get<Item>();
                 matchedName = matchItem.DisplayName;
 
                 bool filter(StoreComponent store, TradeOffer offer) => offer.Stack.Item.TypeID == matchItem.TypeID;
@@ -106,7 +112,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             }
             else if (match.Is<User>())
             {
-                var matchUser = match.Get<User>();
+                User matchUser = match.Get<User>();
                 matchedName = matchUser.Name;
 
                 bool filter(StoreComponent store, TradeOffer offer) => store.Parent.Owners == matchUser;
@@ -114,6 +120,17 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 groupedBuyOffers = BuyOffers(filter).GroupBy(t => StoreCurrencyName(t.Item1)).OrderBy(g => g.Key);
 
                 offerType = TradeTargetType.User;
+            }
+            else if(match.Is<StoreComponent>())
+            {
+                StoreComponent matchStore = match.Get<StoreComponent>();
+                matchedName = matchStore.Parent.Name;
+
+                bool filter(StoreComponent store, TradeOffer offer) => store == matchStore;
+                groupedSellOffers = SellOffers(filter).GroupBy(t => StoreCurrencyName(t.Item1)).OrderBy(g => g.Key);
+                groupedBuyOffers = BuyOffers(filter).GroupBy(t => StoreCurrencyName(t.Item1)).OrderBy(g => g.Key);
+
+                offerType = TradeTargetType.Store;
             }
 
             return matchedName;

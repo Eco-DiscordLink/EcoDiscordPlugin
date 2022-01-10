@@ -1050,6 +1050,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                         TradeTargetType.Tag => t => $"{t.Item2.Stack.Item.DisplayName} @ *{MessageUtils.StripTags(t.Item1.Parent.Name)}*",
                         TradeTargetType.Item => t => $"@ *{MessageUtils.StripTags(t.Item1.Parent.Name)}*",
                         TradeTargetType.User => t => t.Item2.Stack.Item.DisplayName,
+                        TradeTargetType.Store => t => t.Item2.Stack.Item.DisplayName,
                         _ => t => string.Empty,
                     };
                     ICollection<StoreOffer> Offers = TradeOffersToFields(groupedBuyOffers, groupedSellOffers, getLabel);
@@ -1190,6 +1191,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                             break;
 
                         case TradeTargetType.User:
+                        case TradeTargetType.Store:
                             break;
                     }
 
@@ -1221,6 +1223,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     TradeTargetType.Tag => t => $"{t.Item2.Stack.Item.MarkedUpName} @ {t.Item1.Parent.MarkedUpName}",
                     TradeTargetType.Item => t => $"@ {t.Item1.Parent.MarkedUpName}",
                     TradeTargetType.User => t => t.Item2.Stack.Item.MarkedUpName,
+                    TradeTargetType.Store => t => t.Item2.Stack.Item.MarkedUpName,
                     _ => t => string.Empty,
                 };
 

@@ -754,7 +754,7 @@ namespace Eco.Plugins.DiscordLink
             string matchedName = TradeUtils.GetMatchAndOffers(searchName, out TradeTargetType offerType, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
             if (offerType == TradeTargetType.Invalid)
             {
-                await ReportCommandError(source, callContext, $"No item, tag or player with the name \"{searchName}\" could be found.");
+                await ReportCommandError(source, callContext, $"No item, tag, store or player with the name \"{searchName}\" could be found.");
                 return false;
             }
 
