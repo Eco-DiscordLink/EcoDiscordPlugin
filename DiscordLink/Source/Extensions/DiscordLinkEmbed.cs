@@ -90,7 +90,7 @@ namespace Eco.Plugins.DiscordLink.Extensions
                 text = builder.ToString();
             }
 
-            Fields.Add(new DiscordLinkEmbedField(name, text, inline));
+            Fields.Add(new DiscordLinkEmbedField(name, text, (bool)allowAutoLineBreak, inline));
             return this;
         }
 
@@ -141,12 +141,14 @@ namespace Eco.Plugins.DiscordLink.Extensions
     {
         public string Title { get; private set; }
         public string Text { get; private set; }
+        public bool AllowAutoLineBreak { get; private set; }
         public bool Inline { get; private set; }
 
-        public DiscordLinkEmbedField(string title, string text, bool inline = false)
+        public DiscordLinkEmbedField(string title, string text, bool allowAutoLineBreak = true, bool inline = false)
         {
             Title = title;
             Text = text;
+            AllowAutoLineBreak = allowAutoLineBreak;
             Inline = inline;
         }
 
@@ -154,6 +156,7 @@ namespace Eco.Plugins.DiscordLink.Extensions
         {
             Title = RHS.Title;
             Text = RHS.Text;
+            AllowAutoLineBreak = RHS.AllowAutoLineBreak;
             Inline = RHS.Inline;
         }
     }

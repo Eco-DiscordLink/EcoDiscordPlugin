@@ -506,20 +506,19 @@ namespace Eco.Plugins.DiscordLink
                 ICollection<string> stringParts = MessageUtils.SplitStringBySize(fullTextContent, DLConstants.DISCORD_MESSAGE_CHARACTER_LIMIT);
                 ICollection<DiscordEmbed> embedParts = MessageUtils.BuildDiscordEmbeds(embedContent);
 
-                if (stringParts.Count <= 1 && embedParts.Count <= 1)
+                if (stringParts.Count <= 1 && embedParts.Count == 1)
                 {
-                    DiscordEmbed embed = (embedParts.Count >= 1) ? embedParts.First() : null;
-                    createdMessage = await channel.SendMessageAsync(fullTextContent, embed);
+                    createdMessage = await channel.SendMessageAsync(fullTextContent, embedParts.First());
                 }
                 else
                 {
                     foreach (string textMessagePart in stringParts)
                     {
-                        createdMessage = await channel.SendMessageAsync(textMessagePart, null);
+                        createdMessage = await channel.SendMessageAsync(textMessagePart);
                     }
                     foreach (DiscordEmbed embedPart in embedParts)
                     {
-                        createdMessage = await channel.SendMessageAsync(null, embedPart);
+                        createdMessage = await channel.SendMessageAsync(embedPart);
                     }
                 }
             }
