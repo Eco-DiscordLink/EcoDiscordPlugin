@@ -52,7 +52,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             str = str.TrimEnd();
             string[] lines = str.Split('\n');
             string builder = lines.First();
-            foreach (string line in lines)
+            foreach (string line in lines.Skip(1)) // Skip the first line as it is the initial value for the builder
             {
                 string test = $"{builder}\n{line}";
                 if (test.Length > chunkSize)
