@@ -18,7 +18,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             return DLEventType.Join | DLEventType.Login | DLEventType.Logout;
         }
 
-        protected override bool ShouldRun()
+        protected override async Task<bool> ShouldRun()
         {
             foreach (ChannelLink link in DLConfig.Data.PlayerStatusFeedChannels)
             {

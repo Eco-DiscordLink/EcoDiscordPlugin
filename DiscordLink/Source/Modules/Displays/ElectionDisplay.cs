@@ -29,7 +29,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 | DLEventType.Vote | DLEventType.StartElection | DLEventType.StopElection;
         }
 
-        protected override List<DiscordTarget> GetDiscordTargets()
+        protected override async Task<List<DiscordTarget>> GetDiscordTargets()
         {
             return DLConfig.Data.ElectionDisplayChannels.Cast<DiscordTarget>().ToList();
         }

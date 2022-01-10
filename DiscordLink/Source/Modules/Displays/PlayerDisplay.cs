@@ -4,6 +4,7 @@ using Eco.Plugins.DiscordLink.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
@@ -23,7 +24,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             return base.GetTriggers() | DLEventType.DiscordClientConnected | DLEventType.Timer | DLEventType.Join | DLEventType.Login | DLEventType.Logout;
         }
 
-        protected override List<DiscordTarget> GetDiscordTargets()
+        protected override async Task<List<DiscordTarget>> GetDiscordTargets()
         {
             return DLConfig.Data.PlayerListDisplayChannels.Cast<DiscordTarget>().ToList();
         }

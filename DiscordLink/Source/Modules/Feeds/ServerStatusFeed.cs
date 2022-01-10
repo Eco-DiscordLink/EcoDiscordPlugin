@@ -17,7 +17,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             return DLEventType.ServerStarted | DLEventType.ServerStopped;
         }
 
-        protected override bool ShouldRun()
+        protected override async Task<bool> ShouldRun()
         {
             foreach (ChannelLink link in DLConfig.Data.ServerStatusFeedChannels)
             {

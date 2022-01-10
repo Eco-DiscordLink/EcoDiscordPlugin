@@ -4,6 +4,7 @@ using Eco.Plugins.DiscordLink.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
@@ -24,7 +25,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 | DLEventType.StopElection | DLEventType.Vote;
         }
 
-        protected override List<DiscordTarget> GetDiscordTargets()
+        protected override async Task<List<DiscordTarget>> GetDiscordTargets()
         {
             return DLConfig.Data.ServerInfoDisplayChannels.Cast<DiscordTarget>().ToList();
         }

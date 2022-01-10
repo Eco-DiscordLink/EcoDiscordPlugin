@@ -66,9 +66,9 @@ namespace Eco.Plugins.DiscordLink.Modules
             await base.HandleConfigChanged(sender, e);
         }
 
-        protected override bool ShouldRun()
+        protected override async Task<bool> ShouldRun()
         {
-            foreach (DiscordTarget target in GetDiscordTargets())
+            foreach (DiscordTarget target in await GetDiscordTargets())
             {
                 // If there is at least one valid target, we should run the display
                 if (target.IsValid())
@@ -93,7 +93,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             SystemUtils.StopAndDestroyTimer(ref _updateTimer);
         }
 
-        protected abstract List<DiscordTarget> GetDiscordTargets();
+        protected virtual async Task<List<DiscordTarget>> GetDiscordTargets() { throw new NotImplementedException(); }
 
         protected void ClearTargetDisplays()
         {
@@ -260,7 +260,7 @@ namespace Eco.Plugins.DiscordLink.Modules
         {
             ClearTargetDisplays();
 
-            foreach (DiscordTarget target in GetDiscordTargets())
+            foreach (DiscordTarget target in await GetDiscordTargets())
             {
                 IReadOnlyList<DiscordMessage> targetMessages = null;
 

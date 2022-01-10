@@ -57,7 +57,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         public async Task<bool> HandleStartOrStop()
         {
-            bool shouldRun = ShouldRun();
+            bool shouldRun = await ShouldRun();
             if (!IsEnabled && shouldRun)
             {
                 await Initialize();
@@ -78,7 +78,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected abstract DLEventType GetTriggers();
 
-        protected abstract bool ShouldRun();
+        protected virtual async Task<bool> ShouldRun() { throw new NotImplementedException(); }
 
         protected virtual async Task Initialize()
         {

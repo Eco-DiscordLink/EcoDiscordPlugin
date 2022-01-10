@@ -59,10 +59,10 @@ namespace Eco.Plugins.DiscordLink.Modules
             return base.GetTriggers() | DLEventType.DiscordClientConnected | DLEventType.Timer | DLEventType.TrackedTradeAdded | DLEventType.TrackedTradeRemoved;
         }
 
-        protected override List<DiscordTarget> GetDiscordTargets()
+        protected override async Task<List<DiscordTarget>> GetDiscordTargets()
         {
-            if (UserLinks.Count < DLStorage.WorldData.PlayerTrackedTrades.Keys.Count())
-                BuildUserLinkList().Wait();
+            if (UserLinks.Count != DLStorage.WorldData.PlayerTrackedTrades.Keys.Count())
+                await BuildUserLinkList();
 
             return UserLinks;
         }

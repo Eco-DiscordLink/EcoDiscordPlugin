@@ -28,7 +28,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             return DLEventType.DiscordMessageSent | DLEventType.DiscordMessageEdited | DLEventType.DiscordMessageDeleted;
         }
 
-        protected override bool ShouldRun()
+        protected override async Task<bool> ShouldRun()
         {
             foreach (ChannelLink link in DLConfig.Data.SnippetInputChannels)
             {

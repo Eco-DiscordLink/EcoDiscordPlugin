@@ -25,7 +25,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             return DLEventType.DiscordClientConnected | DLEventType.AccountLinkVerified | DLEventType.AccountLinkRemoved | DLEventType.EnteredDemographic | DLEventType.LeftDemographic;
         }
 
-        protected override bool ShouldRun()
+        protected override async Task<bool> ShouldRun()
         {
             return DiscordLink.Obj.Client.BotHasPermission(Permissions.ManageRoles);
         }

@@ -628,23 +628,26 @@ namespace Eco.Plugins.DiscordLink
             return editedMessage;
         }
 
-        public async Task DeleteMessageAsync(DiscordMessage message)
+        public async Task<bool> DeleteMessageAsync(DiscordMessage message)
         {
             DiscordChannel channel = message.GetChannel();
             if (!ChannelHasPermission(channel, Permissions.ManageMessages))
             {
                 Logger.Warning($"Attempted to delete message in channel `{channel}` but the bot user is lacking permissions for this action");
-                return;
+                return false;
             }
 
+            bool result = false;
             try
             {
                 await message.DeleteAsync("Deleted by DiscordLink");
+                result = true;
             }
             catch (Exception e)
             {
                 Logger.Error($"Error occurred while attempting to delete Discord message. Error message: {e}");
             }
+            return result;
         }
 
         public async Task<DiscordRole> CreateRoleAsync(DiscordLinkRole dlRole)

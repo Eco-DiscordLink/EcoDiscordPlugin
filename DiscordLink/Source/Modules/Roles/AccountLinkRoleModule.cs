@@ -29,7 +29,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             base.Setup();
         }
 
-        protected override bool ShouldRun()
+        protected override async Task<bool> ShouldRun()
         {
             return DiscordLink.Obj.Client.BotHasPermission(Permissions.ManageRoles);
         }

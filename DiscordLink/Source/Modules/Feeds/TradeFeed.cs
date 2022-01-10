@@ -22,7 +22,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             return DLEventType.AccumulatedTrade;
         }
 
-        protected override bool ShouldRun()
+        protected override async Task<bool> ShouldRun()
         {
             foreach (ChannelLink link in DLConfig.Data.TradeFeedChannels)
             {

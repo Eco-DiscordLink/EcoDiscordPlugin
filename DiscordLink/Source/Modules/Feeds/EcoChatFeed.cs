@@ -18,7 +18,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             return DLEventType.EcoMessageSent;
         }
 
-        protected override bool ShouldRun()
+        protected override async Task<bool> ShouldRun()
         {
             foreach (ChatChannelLink link in DLConfig.Data.ChatChannelLinks)
             {

@@ -5,6 +5,7 @@ using Eco.Plugins.DiscordLink.Events;
 using Eco.Gameplay.Economy;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Plugins.DiscordLink.Extensions;
+using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
@@ -24,7 +25,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             return base.GetTriggers() | DLEventType.DiscordClientConnected | DLEventType.Timer | DLEventType.CurrencyCreated;
         }
 
-        protected override List<DiscordTarget> GetDiscordTargets()
+        protected override async Task<List<DiscordTarget>> GetDiscordTargets()
         {
             return DLConfig.Data.CurrencyDisplayChannels.Cast<DiscordTarget>().ToList();
         }
