@@ -66,21 +66,19 @@ namespace Eco.Plugins.DiscordLink
                 ICollection<string> stringParts = MessageUtils.SplitStringBySize(textContent, DLConstants.DISCORD_MESSAGE_CHARACTER_LIMIT);
                 ICollection<DiscordEmbed> embedParts = MessageUtils.BuildDiscordEmbeds(embedContent);
 
-                if (stringParts.Count <= 1 && embedParts.Count <= 1)
+                if (stringParts.Count <= 1 && embedParts.Count == 1)
                 {
-                    DiscordEmbed embed = (embedParts.Count >= 1) ? embedParts.First() : null;
-                    await ctx.RespondAsync(textContent, embed);
+                    await ctx.RespondAsync(textContent, embedParts.First());
                 }
                 else
                 {
-                    // Either make sure we have permission to use embeds or convert the embed to text
                     foreach (string textMessagePart in stringParts)
                     {
-                        await ctx.RespondAsync(textMessagePart, null);
+                        await ctx.RespondAsync(textMessagePart);
                     }
                     foreach (DiscordEmbed embedPart in embedParts)
                     {
-                        await ctx.RespondAsync(null, embedPart);
+                        await ctx.RespondAsync(embedPart);
                     }
                 }
             }
@@ -96,7 +94,7 @@ namespace Eco.Plugins.DiscordLink
 
                 if (embedContent == null)
                 {
-                    await Respond(ctx, fullTextContent, embedContent);
+                    await Respond(ctx, fullTextContent, null);
                 }
                 else
                 {
