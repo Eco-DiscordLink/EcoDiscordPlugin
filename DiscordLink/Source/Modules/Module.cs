@@ -6,6 +6,13 @@ using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
+    public enum ModuleType
+    {
+        Display,
+        Feed,
+        Input
+    }
+
     public abstract class Module
     {
         public abstract override string ToString();

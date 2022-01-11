@@ -1,6 +1,8 @@
 ﻿using Eco.EM.Framework.FileManager;
 using Eco.Gameplay.GameActions;
 using Eco.Plugins.DiscordLink.Events;
+using Eco.Plugins.DiscordLink.Modules;
+using Eco.Shared.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,9 +22,9 @@ namespace Eco.Plugins.DiscordLink
 
         public Dictionary<string, string> Snippets = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
 
-        public delegate Task OnTrackedTradeChangedDelegate(object sender, EventArgs e, string tradeItem);
-        public static event OnTrackedTradeChangedDelegate TrackedTradeAdded;
-        public static event OnTrackedTradeChangedDelegate TrackedTradeRemoved;
+        public delegate Task OnWatchedTradeChangedDelegate(object sender, EventArgs e, PersonalTradeWatcherEntry watcher);
+        public static event OnWatchedTradeChangedDelegate PersonalTradeWatcherAdded;
+        public static event OnWatchedTradeChangedDelegate PersonalTradeWatcherRemoved;
 
         // Explicit static constructor to tell C# compiler not to mark type as beforefieldinit
         static DLStorage()
@@ -100,7 +102,7 @@ namespace Eco.Plugins.DiscordLink
 
         private void HandleLinkedUserRemoved(object sender, LinkedUser user)
         {
-            WorldData.PlayerTrackedTrades.Remove(ulong.Parse(user.DiscordID));
+            WorldData.PersonalTradeWatchers.Remove(ulong.Parse(user.DiscordID));
         }
 
         public class PersistentStorageData
@@ -111,78 +113,108 @@ namespace Eco.Plugins.DiscordLink
         public class WorldStorageData
         {
             public Dictionary<int, int> CurrencyToTradeCountMap = new Dictionary<int, int>();
-            public Dictionary<ulong, List<string>> PlayerTrackedTrades = new Dictionary<ulong, List<string>>();
+            public Dictionary<ulong, List<PersonalTradeWatcherEntry>> PersonalTradeWatchers = new Dictionary<ulong, List<PersonalTradeWatcherEntry>>();
 
-            public async Task<bool> AddTrackedTradeItem(ulong discordUserId, string tradeItem)
+            public async Task<bool> AddTradeWatcherDisplay(ulong discordUserId, PersonalTradeWatcherEntry watcherEntry)
             {
-                if (!PlayerTrackedTrades.ContainsKey(discordUserId))
-                    PlayerTrackedTrades.Add(discordUserId, new List<string>());
+                if (!PersonalTradeWatchers.ContainsKey(discordUserId))
+                    PersonalTradeWatchers.Add(discordUserId, new List<PersonalTradeWatcherEntry>());
 
-                if (PlayerTrackedTrades[discordUserId].Contains(tradeItem))
+                if (PersonalTradeWatchers[discordUserId].Contains(watcherEntry))
                     return false;
 
-                PlayerTrackedTrades[discordUserId].Add(tradeItem);
-                if (TrackedTradeAdded != null)
-                    await TrackedTradeAdded.Invoke(this, EventArgs.Empty, tradeItem);
+                PersonalTradeWatchers[discordUserId].Add(watcherEntry);
+                    await PersonalTradeWatcherAdded?.Invoke(this, EventArgs.Empty, watcherEntry);
 
                 return true;
             }
 
-            public async Task<bool> RemoveTrackedTradeItem(ulong discordUserId, string tradeItem)
+            public async Task<bool> RemoveTradeWatcherDisplay(ulong discordUserId, PersonalTradeWatcherEntry watcherEntry)
             {
-                if (!PlayerTrackedTrades.ContainsKey(discordUserId))
+                if (!PersonalTradeWatchers.ContainsKey(discordUserId))
                     return false;
 
-                bool removed = PlayerTrackedTrades[discordUserId].Remove(tradeItem);
-                if (removed && TrackedTradeRemoved != null)
-                    await TrackedTradeRemoved?.Invoke(this, EventArgs.Empty, tradeItem);
+                List<PersonalTradeWatcherEntry> watcherList = PersonalTradeWatchers[discordUserId];
+                int toRemoveIndex = watcherList.FindIndex(w => w.Equals(watcherEntry));
+                if (toRemoveIndex == -1)
+                    return false;
 
-                // Remove the user entry if the last tracked trade was remvoed
-                if (PlayerTrackedTrades[discordUserId].Count <= 0)
-                    PlayerTrackedTrades.Remove(discordUserId);
+                PersonalTradeWatcherEntry entry = watcherList[toRemoveIndex];
+                watcherList.RemoveAt(toRemoveIndex);
+                await PersonalTradeWatcherRemoved?.Invoke(this, EventArgs.Empty, entry);
 
-                return removed;
+                // Remove the user entry if the last watcher was remvoed
+                if (watcherList.Count <= 0)
+                    PersonalTradeWatchers.Remove(discordUserId);
+
+                return true;
             }
 
-            public void RemoveAllTrackedTradesForUser(ulong discordUserId)
+            public void RemoveAllTradeWatchersForUser(ulong discordUserId)
             {
-                if (!PlayerTrackedTrades.ContainsKey(discordUserId))
+                if (!PersonalTradeWatchers.ContainsKey(discordUserId))
                     return;
 
-                PlayerTrackedTrades.Remove(discordUserId);
+                PersonalTradeWatchers.Remove(discordUserId);
             }
 
-            public int GetTrackedTradesCountTotal()
+            public int GetTradeWatcherCountTotal()
             {
-                int count = 0;
-                foreach (List<string> trades in PlayerTrackedTrades.Values)
-                {
-                    count += trades.Count;
-                }
-                return count;
+                return PersonalTradeWatchers.Values.Count();
             }
 
-            public int GetTrackedTradesCountForUser(ulong discordUserID)
+            public int GetTradeWatcherCountForUser(ulong discordUserID)
             {
-                if (!PlayerTrackedTrades.ContainsKey(discordUserID))
+                if (!PersonalTradeWatchers.ContainsKey(discordUserID))
                     return 0;
 
-                return PlayerTrackedTrades[discordUserID].Count;
+                return PersonalTradeWatchers[discordUserID].Count;
             }
 
-            public string ListTrackedTrades(ulong discordUserID)
+            public string ListTradeWatchers(ulong discordUserID)
             {
-                if (!PlayerTrackedTrades.ContainsKey(discordUserID) || PlayerTrackedTrades[discordUserID].Count <= 0)
-                    return "No tracked trades exist for this user";
+                if (!PersonalTradeWatchers.ContainsKey(discordUserID) || PersonalTradeWatchers[discordUserID].Count <= 0)
+                    return "No trade watchers exist for this user";
 
                 StringBuilder builder = new StringBuilder();
-                builder.Append("Your tracked trades are:\n");
-                foreach (string trackedTrade in PlayerTrackedTrades[discordUserID])
+                builder.Append("Your trade watchers are:\n");
+                foreach (PersonalTradeWatcherEntry tradeWatcher in PersonalTradeWatchers[discordUserID])
                 {
-                    builder.AppendLine($"- {trackedTrade}");
+                    builder.AppendLine($"- {tradeWatcher}");
                 }
                 return builder.ToString();
             }
         }
+    }
+
+    public class PersonalTradeWatcherEntry
+    {
+        public PersonalTradeWatcherEntry(string key, ModuleType type)
+        {
+            Key = key;
+            Type = type;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null || GetType() != obj.GetType())
+                return false;
+
+            PersonalTradeWatcherEntry rhs = (PersonalTradeWatcherEntry)obj;
+            return Key.EqualsCaseInsensitive(rhs.Key) && Type == rhs.Type;
+        }
+
+        public override int GetHashCode()
+        {
+            return Key.GetHashCode() ^ Type.GetHashCode();
+        }
+
+        public override string ToString() 
+        {
+            return $"{Key} ({Type})";
+        }
+
+        public string Key { get; private set; }
+        public ModuleType Type { get; private set; }
     }
 }

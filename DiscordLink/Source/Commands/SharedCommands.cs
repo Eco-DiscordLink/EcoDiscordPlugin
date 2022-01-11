@@ -772,18 +772,18 @@ namespace Eco.Plugins.DiscordLink
             return true;
         }
 
-        public static async Task<bool> TrackTrades(CommandInterface source, object callContext, string userOrItemName)
+        public static async Task<bool> AddTradeWatcherDisplay(CommandInterface source, object callContext, string userOrItemName)
         {
             LinkedUser linkedUser = source == CommandInterface.Eco
-                ? UserLinkManager.LinkedUserByEcoUser(callContext as User, callContext as User, "Trade Tracking Registration")
-                : UserLinkManager.LinkedUserByDiscordUser((callContext as CommandContext).Member, (callContext as CommandContext).Member, "Trade Tracking Registration");
+                ? UserLinkManager.LinkedUserByEcoUser(callContext as User, callContext as User, "Trade Watcher Registration")
+                : UserLinkManager.LinkedUserByDiscordUser((callContext as CommandContext).Member, (callContext as CommandContext).Member, "Trade Watcher Registration");
             if (linkedUser == null)
                 return false;
 
-            int trackedTradesCount = DLStorage.WorldData.GetTrackedTradesCountForUser(ulong.Parse(linkedUser.DiscordID));
-            if (trackedTradesCount >= DLConfig.Data.MaxTrackedTradesPerUser)
+            int watchedTradesCount = DLStorage.WorldData.GetTradeWatcherCountForUser(ulong.Parse(linkedUser.DiscordID));
+            if (watchedTradesCount >= DLConfig.Data.MaxTradeWatcherDisplaysPerUser)
             {
-                await ReportCommandError(source, callContext, $"You are already tracking {trackedTradesCount} trades and the limit is {DLConfig.Data.MaxTrackedTradesPerUser} tracked trades per user.\nUse the `/DL-StopTrackTrades` command to remove a tracked trade to make space if you wish to add a new one.");
+                await ReportCommandError(source, callContext, $"You are already watching {watchedTradesCount} trades and the limit is {DLConfig.Data.MaxTradeWatcherDisplaysPerUser} trade watcher displays per user.\nUse the `/DL-RemoveTradeWatcherDisplay` command to remove a trade watcher to make space if you wish to add a new one.");
                 return false;
             }
 
@@ -791,49 +791,49 @@ namespace Eco.Plugins.DiscordLink
             if (offerType == TradeTargetType.Invalid)
                 return false;
 
-            bool added = DLStorage.WorldData.AddTrackedTradeItem(ulong.Parse(linkedUser.DiscordID), matchedName).Result;
+            bool added = DLStorage.WorldData.AddTradeWatcherDisplay(ulong.Parse(linkedUser.DiscordID), new PersonalTradeWatcherEntry(matchedName, Modules.ModuleType.Display)).Result;
             if (added)
             {
-                await ReportCommandInfo(source, callContext, $"Tracking all trades for {matchedName}.");
+                await ReportCommandInfo(source, callContext, $"Watching all trades for {matchedName}.");
                 return true;
             }
             else
             {
-                await ReportCommandError(source, callContext, $"Failed to start tracking trades for {matchedName}.");
+                await ReportCommandError(source, callContext, $"Failed to start watching trades for {matchedName}.");
                 return false;
             }
         }
 
-        public static async Task<bool> StopTrackTrades(CommandInterface source, object callContext, string userOrItemName)
+        public static async Task<bool> RemoveTradeWatcherDisplay(CommandInterface source, object callContext, string userOrItemName)
         {
             LinkedUser linkedUser = source == CommandInterface.Eco
-                ? UserLinkManager.LinkedUserByEcoUser(callContext as User, callContext as User, "Tracked Trade Unregistration")
-                : UserLinkManager.LinkedUserByDiscordUser((callContext as CommandContext).Member, (callContext as CommandContext).Member, "Tracked Trade Unregistration");
+                ? UserLinkManager.LinkedUserByEcoUser(callContext as User, callContext as User, "Trade Watcher Unregistration")
+                : UserLinkManager.LinkedUserByDiscordUser((callContext as CommandContext).Member, (callContext as CommandContext).Member, "Trade Watcher Unregistration");
             if (linkedUser == null)
                 return false;
 
-            bool removed = DLStorage.WorldData.RemoveTrackedTradeItem(ulong.Parse(linkedUser.DiscordID), userOrItemName).Result;
+            bool removed = DLStorage.WorldData.RemoveTradeWatcherDisplay(ulong.Parse(linkedUser.DiscordID), new PersonalTradeWatcherEntry(userOrItemName, Modules.ModuleType.Display)).Result;
             if (removed)
             {
-                await ReportCommandInfo(source, callContext, $"Stopped tracking trades for {userOrItemName}.");
+                await ReportCommandInfo(source, callContext, $"Stopped watching trades for {userOrItemName}.");
                 return true;
             }
             else
             {
-                await ReportCommandError(source, callContext, $"Failed to stop tracking trades for {userOrItemName}.\nUse `/DL-ListTrackedStores` to see what is currently being tracked.");
+                await ReportCommandError(source, callContext, $"Failed to stop watching trades for {userOrItemName}.\nUse `/DL-TradeWatchers` to see what is currently being watched.");
                 return false;
             }
         }
 
-        public static async Task<bool> ListTrackedTrades(CommandInterface source, object callContext)
+        public static async Task<bool> ListTradeWatchers(CommandInterface source, object callContext)
         {
             LinkedUser linkedUser = source == CommandInterface.Eco
-                ? UserLinkManager.LinkedUserByEcoUser(callContext as User, callContext as User, "Tracked Trades Listing")
-                : UserLinkManager.LinkedUserByDiscordUser((callContext as CommandContext).Member, (callContext as CommandContext).Member, "Tracked Trades Listing");
+                ? UserLinkManager.LinkedUserByEcoUser(callContext as User, callContext as User, "Trade Watchers Listing")
+                : UserLinkManager.LinkedUserByDiscordUser((callContext as CommandContext).Member, (callContext as CommandContext).Member, "Trade Watchers Listing");
             if (linkedUser == null)
                 return false;
 
-            await DisplayCommandData(source, callContext, "Tracked Trades", DLStorage.WorldData.ListTrackedTrades(ulong.Parse(linkedUser.DiscordID)));
+            await ReportCommandInfo(source, callContext, $"Watched Trades\n{DLStorage.WorldData.ListTradeWatchers(ulong.Parse(linkedUser.DiscordID))}");
             return true;
         }
 

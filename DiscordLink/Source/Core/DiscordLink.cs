@@ -318,7 +318,7 @@ namespace Eco.Plugins.DiscordLink
             Modules.Add(new PlayerDisplay());
             Modules.Add(new ElectionDisplay());
             Modules.Add(new CurrencyDisplay());
-            Modules.Add(new TradeTrackerDisplay());
+            Modules.Add(new PersonalTradeWatcherDisplay());
             Modules.Add(new SnippetInput());
             Modules.Add(new AccountLinkRoleModule());
             Modules.Add(new DemographicsRoleModule());

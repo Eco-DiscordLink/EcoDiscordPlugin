@@ -795,7 +795,7 @@ namespace Eco.Plugins.DiscordLink
         #region Trades
 
         [Command("Trades")]
-        [Description("Displays available trades by player or item.")]
+        [Description("Displays available trades by player, tag, item or store")]
         [Aliases("DL-Trades", "DL-Trade", "Trade", "DLT")]
         public async Task Trades(CommandContext ctx, [Description("The player name or item name for which to display trades.")] string userOrItemName = "")
         {
@@ -805,36 +805,36 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
-        [Command("TrackTrades")]
-        [Description("Creates a live updated display of available trades by player or item.")]
-        [Aliases("DL-Tracktrades")]
-        public async Task TrackTrades(CommandContext ctx, [Description("The player name or item name for which to display trades.")] string userOrItemName = "")
+        [Command("AddTradeWatcherDisplay")]
+        [Description("Creates a live updated display of available trades by player, tag, item or store")]
+        [Aliases("DL-WatchTradeDisplay")]
+        public async Task AddTradeWatcherDisplay(CommandContext ctx, [Description("The player, tag item or store name for which to display trades.")] string userOrItemName = "")
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.TrackTrades(SharedCommands.CommandInterface.Discord, ctx, userOrItemName);
+                await SharedCommands.AddTradeWatcherDisplay(SharedCommands.CommandInterface.Discord, ctx, userOrItemName);
             }, ctx);
         }
 
-        [Command("StopTrackTrades")]
-        [Description("Removes the live updated display of available trades for the player or item.")]
-        [Aliases("DL-StopTrackTrades")]
-        public async Task StopTrackTrades(CommandContext ctx, [Description("The player name or item name for which to display trades.")] string userOrItemName = "")
+        [Command("RemoveTradeWatcherDisplay")]
+        [Description("Removes the live updated display of available trades for the player, tag, item or store.")]
+        [Aliases("DL-UnwatchTradeDisplay")]
+        public async Task RemoveTradeWatcherDisplay(CommandContext ctx, [Description("The player, tag item or store name for which to display trades.")] string userOrItemName = "")
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.StopTrackTrades(SharedCommands.CommandInterface.Discord, ctx, userOrItemName);
+                await SharedCommands.RemoveTradeWatcherDisplay(SharedCommands.CommandInterface.Discord, ctx, userOrItemName);
             }, ctx);
         }
 
-        [Command("ListTrackedTrades")]
-        [Description("Lists all tracked trades for the calling user.")]
-        [Aliases("DL-ListTrackedTrades")]
-        public async Task ListTrackedTrades(CommandContext ctx)
+        [Command("ListTradeWatchers")]
+        [Description("Lists all trade watchers for the calling user.")]
+        [Aliases("DL-TradeWatchers")]
+        public async Task ListTradeWatchers(CommandContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.ListTrackedTrades(SharedCommands.CommandInterface.Discord, ctx);
+                await SharedCommands.ListTradeWatchers(SharedCommands.CommandInterface.Discord, ctx);
             }, ctx);
         }
 

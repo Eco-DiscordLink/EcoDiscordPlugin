@@ -11,9 +11,9 @@ using Eco.Plugins.DiscordLink.Extensions;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
-    public class TradeTrackerDisplay : Display
+    public class PersonalTradeWatcherDisplay : Display
     {
-        protected override string BaseTag { get { return "[Trade Tracker]"; } }
+        protected override string BaseTag { get { return "[Personal Trade Watcher Display]"; } }
         protected override int TimerUpdateIntervalMS { get { return 300000; } }
         protected override int TimerStartDelayMS { get { return 10000; } }
 
@@ -21,15 +21,15 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         public override string GetDisplayText(string childInfo, bool verbose)
         {
-            string info = $"Tracked Trades: {DLStorage.WorldData.GetTrackedTradesCountTotal()}";
+            string info = $"Personal Trade Watcher Displays: {DLStorage.WorldData.GetTradeWatcherCountTotal()}";
             return base.GetDisplayText($"{childInfo}{info}\r\n", verbose);
         }
 
         public override void Setup()
         {
             UserLinkManager.OnLinkedUserRemoved += HandleLinkedUserRemoved;
-            DLStorage.TrackedTradeAdded += OnTrackedTradeAdded;
-            DLStorage.TrackedTradeRemoved += OnTrackedTradeRemoved;
+            DLStorage.PersonalTradeWatcherAdded += OnPersonalTradeAdded;
+            DLStorage.PersonalTradeWatcherRemoved += OnPersonalTradeRemoved;
 
             base.Setup();
         }
@@ -37,8 +37,8 @@ namespace Eco.Plugins.DiscordLink.Modules
         public override void Destroy()
         {
             UserLinkManager.OnLinkedUserRemoved -= HandleLinkedUserRemoved;
-            DLStorage.TrackedTradeAdded -= OnTrackedTradeAdded;
-            DLStorage.TrackedTradeRemoved -= OnTrackedTradeRemoved;
+            DLStorage.PersonalTradeWatcherAdded -= OnPersonalTradeAdded;
+            DLStorage.PersonalTradeWatcherRemoved -= OnPersonalTradeRemoved;
 
             base.Destroy();
         }
@@ -51,17 +51,17 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         public override string ToString()
         {
-            return "Trade Tracker Display";
+            return "Personal Trade Watcher Display";
         }
 
         protected override DLEventType GetTriggers()
         {
-            return base.GetTriggers() | DLEventType.DiscordClientConnected | DLEventType.Timer | DLEventType.TrackedTradeAdded | DLEventType.TrackedTradeRemoved;
+            return base.GetTriggers() | DLEventType.DiscordClientConnected | DLEventType.Timer | DLEventType.TradeWatcherDisplayAdded | DLEventType.TradeWatcherDisplayRemoved;
         }
 
         protected override async Task<List<DiscordTarget>> GetDiscordTargets()
         {
-            if (UserLinks.Count != DLStorage.WorldData.PlayerTrackedTrades.Keys.Count())
+            if (UserLinks.Count != DLStorage.WorldData.PersonalTradeWatchers.Keys.Count())
                 await BuildUserLinkList();
 
             return UserLinks;
@@ -70,8 +70,8 @@ namespace Eco.Plugins.DiscordLink.Modules
         protected override void GetDisplayContent(DiscordTarget target, out List<Tuple<string, DiscordLinkEmbed>> tagAndContent)
         {
             tagAndContent = new List<Tuple<string, DiscordLinkEmbed>>();
-            List<string> trackedTrades = DLStorage.WorldData.PlayerTrackedTrades[(target as UserLink).Member.Id];
-            foreach (string trade in trackedTrades)
+            IEnumerable<string> tradeWatchers = DLStorage.WorldData.PersonalTradeWatchers[(target as UserLink).Member.Id].Where(w => w.Type == ModuleType.Display).Select(w => w.Key);
+            foreach (string trade in tradeWatchers)
             {
                 string matchedName = TradeUtils.GetMatchAndOffers(trade, out TradeTargetType offerType, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
                 if (offerType == TradeTargetType.Invalid)
@@ -88,7 +88,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             {
                 UserLinks.Clear();
 
-                foreach (ulong discordUserId in DLStorage.WorldData.PlayerTrackedTrades.Keys)
+                foreach (ulong discordUserId in DLStorage.WorldData.PersonalTradeWatchers.Keys)
                 {
                     LinkedUser linkedUser = UserLinkManager.LinkedUserByDiscordID(discordUserId);
                     if (linkedUser == null)
@@ -111,15 +111,15 @@ namespace Eco.Plugins.DiscordLink.Modules
             }
         }
 
-        private async Task OnTrackedTradeAdded(object sender, EventArgs e, string tradeItem)
+        private async Task OnPersonalTradeAdded(object sender, EventArgs e, PersonalTradeWatcherEntry watcher)
         {
             if (!await HandleStartOrStop()) // If the module wasn't started by this, there is already an update on the way
-                await Update(DiscordLink.Obj, DLEventType.TrackedTradeAdded, null);
+                await Update(DiscordLink.Obj, DLEventType.TradeWatcherDisplayAdded, watcher);
         }
 
-        private async Task OnTrackedTradeRemoved(object sender, EventArgs e, string tradeItem)
+        private async Task OnPersonalTradeRemoved(object sender, EventArgs e, PersonalTradeWatcherEntry watcher)
         {
-            await Update(DiscordLink.Obj, DLEventType.TrackedTradeRemoved, null);
+            await Update(DiscordLink.Obj, DLEventType.TradeWatcherDisplayRemoved, watcher);
             await HandleStartOrStop();
         }
     }

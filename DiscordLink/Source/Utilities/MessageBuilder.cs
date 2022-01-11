@@ -105,7 +105,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             public static string GetLinkAccountInfoMessage()
             {
                 return "By linking your Eco account to your Discord account on this server, you can enable the following features:" +
-                    "\n* Tracked Trades - An always up to date view of a /DLT command in your DMs with the DiscordLink bot." +
+                    "\n* Trade Watcher Displays - An always up to date view of a /DLT command in your DMs with the DiscordLink bot." +
                     "\n* Discord election voting - Vote in elections directly via Discord." +
                     "\n" +
                     "\nLink instructions" +
@@ -180,19 +180,19 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
                     builder.AppendLine();
                     builder.AppendLine("--- Storage - World ---");
-                    if (DLStorage.WorldData.PlayerTrackedTrades.Count > 0)
+                    if (DLStorage.WorldData.PersonalTradeWatchers.Count > 0)
                     {
-                        builder.AppendLine("Tracked Trades:");
-                        foreach (var trackedUserTrades in DLStorage.WorldData.PlayerTrackedTrades)
+                        builder.AppendLine("Trade Watchers:");
+                        foreach (var userTradeWatchers in DLStorage.WorldData.PersonalTradeWatchers)
                         {
-                            DiscordUser discordUser = await plugin.Client.GetUserAsync(trackedUserTrades.Key);
+                            DiscordUser discordUser = await plugin.Client.GetUserAsync(userTradeWatchers.Key);
                             if (discordUser == null)
                                 continue;
 
                             builder.AppendLine($"[{discordUser.Username}]");
-                            foreach (string trade in trackedUserTrades.Value)
+                            foreach (PersonalTradeWatcherEntry tradeWatcher in userTradeWatchers.Value)
                             {
-                                builder.AppendLine($"- {trade}");
+                                builder.AppendLine($"- {tradeWatcher}");
                             }
                         }
                     }

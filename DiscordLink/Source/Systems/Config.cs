@@ -202,9 +202,9 @@ namespace Eco.Plugins.DiscordLink
             }
 
             // Max tracked trades per user
-            if (Data.MaxTrackedTradesPerUser < 0)
+            if (Data.MaxTradeWatcherDisplaysPerUser < 0)
             {
-                Data.MaxTrackedTradesPerUser = DLConfig.DefaultValues.MaxTrackedTradesPerUser;
+                Data.MaxTradeWatcherDisplaysPerUser = DLConfig.DefaultValues.MaxTrackedTradesPerUser;
             }
 
             // Invite Message
@@ -360,7 +360,7 @@ namespace Eco.Plugins.DiscordLink
                 WebServerAddress = this.WebServerAddress,
                 DiscordCommandPrefix = this.DiscordCommandPrefix,
                 LogLevel = this.LogLevel,
-                MaxTrackedTradesPerUser = this.MaxTrackedTradesPerUser,
+                MaxTradeWatcherDisplaysPerUser = this.MaxTradeWatcherDisplaysPerUser,
                 InviteMessage = this.InviteMessage,
                 UseLinkedAccountRole = this.UseLinkedAccountRole,
                 UseDemographicRoles = this.UseDemographicRoles,
@@ -481,7 +481,7 @@ namespace Eco.Plugins.DiscordLink
         public ObservableCollection<ChannelLink> DiscordCommandChannels { get; set; } = new ObservableCollection<ChannelLink>();
 
         [Description("Max amount of tracked trades allowed per user. This setting can be changed while the server is running, but does not apply retroactively."), Category("Command Settings")]
-        public int MaxTrackedTradesPerUser { get; set; } = DLConfig.DefaultValues.MaxTrackedTradesPerUser;
+        public int MaxTradeWatcherDisplaysPerUser { get; set; } = DLConfig.DefaultValues.MaxTrackedTradesPerUser;
 
         [Description("The message to use for the /DiscordInvite command. The invite link is fetched from the network config and will replace the token " + DLConstants.INVITE_COMMAND_TOKEN + ". This setting can be changed while the server is running."), Category("Command Settings")]
         public string InviteMessage { get; set; } = DLConfig.DefaultValues.InviteMessage;

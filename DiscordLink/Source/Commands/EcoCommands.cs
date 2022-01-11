@@ -625,30 +625,30 @@ namespace Eco.Plugins.DiscordLink
             Trades(user, userOrItemName);
         }
 
-        [ChatSubCommand("DiscordLink", "Creates a live updated display of available trades by player, item or tag.", "DL-TrackTrades", ChatAuthorizationLevel.User)]
-        public static void TrackTrades(User callingUser, string userOrItemName)
+        [ChatSubCommand("DiscordLink", "Creates a live updated display of available trades by player, tag, item or store", "DL-WatchTradeDisplay", ChatAuthorizationLevel.User)]
+        public static void AddTradeWatcherDisplay(User callingUser, string userOrItemName)
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.TrackTrades(SharedCommands.CommandInterface.Eco, callingUser, userOrItemName);
+                SharedCommands.AddTradeWatcherDisplay(SharedCommands.CommandInterface.Eco, callingUser, userOrItemName);
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Removes the live updated display of available trades for the player or item.", "DL-StopTrackTrades", ChatAuthorizationLevel.User)]
-        public static void StopTrackTrades(User callingUser, string userOrItemName)
+        [ChatSubCommand("DiscordLink", "Removes the live updated display of available trades for the player, tag, item or store.", "DL-UnwatchTradeDisplay", ChatAuthorizationLevel.User)]
+        public static void RemoveTradeWatcherDisplay(User callingUser, string userOrItemName)
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.StopTrackTrades(SharedCommands.CommandInterface.Eco, callingUser, userOrItemName);
+                SharedCommands.RemoveTradeWatcherDisplay(SharedCommands.CommandInterface.Eco, callingUser, userOrItemName);
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Lists all tracked trades for the calling user.", "DL-ListTrackedTrades", ChatAuthorizationLevel.User)]
-        public static void ListTrackedTrades(User callingUser)
+        [ChatSubCommand("DiscordLink", "Lists all trade watchers for the calling user.", "DL-TradeWatchers", ChatAuthorizationLevel.User)]
+        public static void ListTradeWatchers(User callingUser)
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.ListTrackedTrades(SharedCommands.CommandInterface.Eco, callingUser);
+                SharedCommands.ListTradeWatchers(SharedCommands.CommandInterface.Eco, callingUser);
             }, callingUser);
         }
 
