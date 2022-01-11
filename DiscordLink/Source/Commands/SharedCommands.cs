@@ -772,7 +772,7 @@ namespace Eco.Plugins.DiscordLink
             return true;
         }
 
-        public static async Task<bool> AddTradeWatcherDisplay(CommandInterface source, object callContext, string userOrItemName)
+        public static async Task<bool> AddTradeWatcherDisplay(CommandInterface source, object callContext, string searchName)
         {
             LinkedUser linkedUser = source == CommandInterface.Eco
                 ? UserLinkManager.LinkedUserByEcoUser(callContext as User, callContext as User, "Trade Watcher Registration")
@@ -780,18 +780,19 @@ namespace Eco.Plugins.DiscordLink
             if (linkedUser == null)
                 return false;
 
-            int watchedTradesCount = DLStorage.WorldData.GetTradeWatcherCountForUser(ulong.Parse(linkedUser.DiscordID));
+            ulong discordID = ulong.Parse(linkedUser.DiscordID);
+            int watchedTradesCount = DLStorage.WorldData.GetTradeWatcherCountForUser(discordID);
             if (watchedTradesCount >= DLConfig.Data.MaxTradeWatcherDisplaysPerUser)
             {
-                await ReportCommandError(source, callContext, $"You are already watching {watchedTradesCount} trades and the limit is {DLConfig.Data.MaxTradeWatcherDisplaysPerUser} trade watcher displays per user.\nUse the `/DL-RemoveTradeWatcherDisplay` command to remove a trade watcher to make space if you wish to add a new one.");
+                await ReportCommandError(source, callContext, $"You are already watching {watchedTradesCount} trades and the limit is {DLConfig.Data.MaxTradeWatcherDisplaysPerUser} trade watcher displays per user.\nUse the `{MessageUtils.GetCommandTokenForContext(source)}DL-RemoveTradeWatcherDisplay` command to remove a trade watcher to make space if you wish to add a new one.");
                 return false;
             }
 
-            string matchedName = TradeUtils.GetMatchAndOffers(userOrItemName, out TradeTargetType offerType, out _, out _);
+            string matchedName = TradeUtils.GetMatchAndOffers(searchName, out TradeTargetType offerType, out _, out _);
             if (offerType == TradeTargetType.Invalid)
                 return false;
 
-            bool added = DLStorage.WorldData.AddTradeWatcherDisplay(ulong.Parse(linkedUser.DiscordID), new PersonalTradeWatcherEntry(matchedName, Modules.ModuleType.Display)).Result;
+            bool added = await DLStorage.WorldData.AddTradeWatcherDisplay(discordID, new PersonalTradeWatcherEntry(matchedName, Modules.ModuleType.Display));
             if (added)
             {
                 await ReportCommandInfo(source, callContext, $"Watching all trades for {matchedName}.");
@@ -799,12 +800,12 @@ namespace Eco.Plugins.DiscordLink
             }
             else
             {
-                await ReportCommandError(source, callContext, $"Failed to start watching trades for {matchedName}.");
+                await ReportCommandError(source, callContext, $"Failed to start watching trades for {matchedName}. \nUse `{MessageUtils.GetCommandTokenForContext(source)}DL-TradeWatchers` to see what is currently being watched.");
                 return false;
             }
         }
 
-        public static async Task<bool> RemoveTradeWatcherDisplay(CommandInterface source, object callContext, string userOrItemName)
+        public static async Task<bool> RemoveTradeWatcherDisplay(CommandInterface source, object callContext, string searchName)
         {
             LinkedUser linkedUser = source == CommandInterface.Eco
                 ? UserLinkManager.LinkedUserByEcoUser(callContext as User, callContext as User, "Trade Watcher Unregistration")
@@ -812,15 +813,16 @@ namespace Eco.Plugins.DiscordLink
             if (linkedUser == null)
                 return false;
 
-            bool removed = DLStorage.WorldData.RemoveTradeWatcherDisplay(ulong.Parse(linkedUser.DiscordID), new PersonalTradeWatcherEntry(userOrItemName, Modules.ModuleType.Display)).Result;
+            ulong discordID = ulong.Parse(linkedUser.DiscordID);
+            bool removed = await DLStorage.WorldData.RemoveTradeWatcherDisplay(ulong.Parse(linkedUser.DiscordID), new PersonalTradeWatcherEntry(searchName, Modules.ModuleType.Display));
             if (removed)
             {
-                await ReportCommandInfo(source, callContext, $"Stopped watching trades for {userOrItemName}.");
+                await ReportCommandInfo(source, callContext, $"Stopped watching trades for {searchName}.");
                 return true;
             }
             else
             {
-                await ReportCommandError(source, callContext, $"Failed to stop watching trades for {userOrItemName}.\nUse `/DL-TradeWatchers` to see what is currently being watched.");
+                await ReportCommandError(source, callContext, $"Failed to stop watching trades for {searchName}.\nUse `{MessageUtils.GetCommandTokenForContext(source)}DL-TradeWatchers` to see what is currently being watched.");
                 return false;
             }
         }

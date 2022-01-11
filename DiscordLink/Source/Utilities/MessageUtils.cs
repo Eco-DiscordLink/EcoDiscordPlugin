@@ -69,6 +69,11 @@ namespace Eco.Plugins.DiscordLink.Utilities
             return result;
         }
 
+        public static string GetCommandTokenForContext(SharedCommands.CommandInterface context)
+        {
+            return context == SharedCommands.CommandInterface.Eco ? "/" : DLConfig.Data.DiscordCommandPrefix;
+        }
+
         public static List<DiscordEmbed> BuildDiscordEmbeds(DiscordLinkEmbed fullEmbed)
         {
             List<DiscordEmbed> resultEmbeds = new List<DiscordEmbed>();

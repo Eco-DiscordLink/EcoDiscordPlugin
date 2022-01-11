@@ -521,7 +521,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                DisplayCommandData(callingUser, DLConstants.ECO_PANEL_DL_MESSAGE_MEDIUM, $"Eco --> Discord Account Linking", MessageBuilder.Shared.GetLinkAccountInfoMessage());
+                DisplayCommandData(callingUser, DLConstants.ECO_PANEL_DL_MESSAGE_MEDIUM, $"Eco --> Discord Account Linking", MessageBuilder.Shared.GetLinkAccountInfoMessage(SharedCommands.CommandInterface.Eco));
             }, callingUser);
         }
 
@@ -555,7 +555,7 @@ namespace Eco.Plugins.DiscordLink
 
                 if (matchingMember == null)
                 {
-                    ReportCommandError(callingUser, $"No Discord account with the name \"{discordName}\" could be found.\nUse /DL-LinkInfo for linking instructions.");
+                    ReportCommandError(callingUser, $"No Discord account with the name \"{discordName}\" could be found.\nUse {MessageUtils.GetCommandTokenForContext(SharedCommands.CommandInterface.Eco)}DL-LinkInfo for linking instructions.");
                     return;
                 }
 
@@ -567,9 +567,9 @@ namespace Eco.Plugins.DiscordLink
                     if ((hasSLGID && callingUser.SlgId == linkedUser.SlgID) || (hasSteamID && callingUser.SteamId == linkedUser.SteamID))
                     {
                         if (linkedUser.DiscordID == matchingMember.Id.ToString())
-                            ReportCommandInfo(callingUser, "Eco account is already linked to this Discord account.\nUse /DL-Unlink to remove the existing link.");
+                            ReportCommandInfo(callingUser, $"Eco account is already linked to this Discord account.\nUse {MessageUtils.GetCommandTokenForContext(SharedCommands.CommandInterface.Eco)}DL-Unlink to remove the existing link.");
                         else
-                            ReportCommandInfo(callingUser, "Eco account is already linked to a different Discord account.\nUse /DL-Unlink to remove the existing link.");
+                            ReportCommandInfo(callingUser, $"Eco account is already linked to a different Discord account.\nUse {MessageUtils.GetCommandTokenForContext(SharedCommands.CommandInterface.Eco)}DL-Unlink to remove the existing link.");
                         return;
                     }
                     else if (linkedUser.DiscordID == matchingMember.Id.ToString())

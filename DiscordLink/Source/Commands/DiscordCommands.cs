@@ -47,7 +47,7 @@ namespace Eco.Plugins.DiscordLink
                 if (ctx.Channel.IsPrivate)
                     Logger.Debug($"{ctx.User.Username} invoked Discord command \"{ctx.Prefix}{command.Method.Name}\" in DM");
                 else
-                    Logger.Debug($"{ctx.User.Username} invoked Discord command \"{ctx.Prefix}{command.Method.Name}\" in channel {ctx.Channel.Name} in guild {ctx.Guild.Name}");
+                    Logger.Debug($"{ctx.User.Username} invoked Discord command \"{ctx.Prefix}{command.Method.Name}\" in channel {ctx.Channel.Name}");
 
                 await command(ctx, parameters);
             }
@@ -322,7 +322,7 @@ namespace Eco.Plugins.DiscordLink
             {
                 DiscordLinkEmbed embed = new DiscordLinkEmbed()
                     .WithTitle("Eco --> Discord Account Linking")
-                    .WithDescription(MessageBuilder.Shared.GetLinkAccountInfoMessage());
+                    .WithDescription(MessageBuilder.Shared.GetLinkAccountInfoMessage(SharedCommands.CommandInterface.Discord));
 
                 await RespondToCommand(ctx, null, embed);
             }, ctx);

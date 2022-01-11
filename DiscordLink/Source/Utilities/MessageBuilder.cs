@@ -102,20 +102,21 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     "\n\nFor more information, visit \"www.github.com/Eco-DiscordLink/EcoDiscordPlugin\".";
             }
 
-            public static string GetLinkAccountInfoMessage()
+            public static string GetLinkAccountInfoMessage(SharedCommands.CommandInterface context )
             {
                 return "By linking your Eco account to your Discord account on this server, you can enable the following features:" +
-                    "\n* Trade Watcher Displays - An always up to date view of a /DLT command in your DMs with the DiscordLink bot." +
+                    $"\n* Trade Watcher Displays - An always up to date view of a {MessageUtils.GetCommandTokenForContext(context)}DLT command in your DMs with the DiscordLink bot." +
                     "\n* Discord election voting - Vote in elections directly via Discord." +
+                    "\n* DiscordLinked Role and roles matching your demographics and specializations." +
                     "\n" +
                     "\nLink instructions" +
-                    "\n1. Use /DL-Link <UserName> in Eco. The username parameter is your Discord account name (not nickname) with or without the #xxxx at the end. Example: /dl-link Monzun#1234" +
+                    $"\n1. Use {MessageUtils.GetCommandTokenForContext(context)}DL-Link <UserName> in Eco. The username parameter is your Discord account name (not nickname) with or without the #xxxx at the end. Example: {MessageUtils.GetCommandTokenForContext(context)}DL-Link Monzun#1234" +
                     "\n2. If your account could be found on the Discord server, the bot will send you a DM." +
                     "\n3. Click the approve button on the message to verify that you are the owner of both the Eco and Discord account." +
                     "\n4. Your account is now linked!" +
                     "\n" +
                     "\nUnlinking" +
-                    "\nIf you no longer wish to have your account linked or you need to reset it for some reason, you can use /dl-unlink." +
+                    $"\nIf you no longer wish to have your account linked or you need to reset it for some reason, you can use {MessageUtils.GetCommandTokenForContext(context)}DL-Unlink." +
                     "\n" +
                     "\nAdditional Information" +
                     "\n* Your account link is only valid for one combination of Eco and Discord servers. If you join a new server, you will need to link your account on that server as well." +
