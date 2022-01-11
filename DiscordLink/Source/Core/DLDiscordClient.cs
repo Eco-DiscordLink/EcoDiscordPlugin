@@ -2,6 +2,7 @@
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using DSharpPlus.Exceptions;
 using Eco.Core.Utils;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Extensions;
@@ -490,6 +491,9 @@ namespace Eco.Plugins.DiscordLink
 
         public async Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, string textContent, DiscordLinkEmbed embedContent = null)
         {
+            if (channel == null)
+                return null;
+
             DiscordMessage createdMessage = null;
             try
             {
@@ -522,19 +526,18 @@ namespace Eco.Plugins.DiscordLink
                     }
                 }
             }
-            catch (Newtonsoft.Json.JsonReaderException e)
-            {
-                Logger.Debug(e.ToString());
-            }
             catch (Exception e)
             {
-                Logger.Error($"Error occurred while attempting to send Discord message to channel \"{channel.Name}\". Error message: {e}");
+                Logger.Warning($"Failed to send message to channel {channel.Name}. Error message: {e}");
             }
             return createdMessage;
         }
 
         public async Task<DiscordMessage> SendDMAsync(DiscordMember targetMember, string textContent, DiscordLinkEmbed embedContent = null)
         {
+            if (targetMember == null)
+                return null;
+
             DiscordMessage createdMessage = null;
             try
             {
@@ -559,19 +562,18 @@ namespace Eco.Plugins.DiscordLink
                     }
                 }
             }
-            catch (Newtonsoft.Json.JsonReaderException e)
-            {
-                Logger.Debug(e.ToString());
-            }
             catch (Exception e)
             {
-                Logger.Error($"Error occurred while attempting to send Discord message to user \"{targetMember.DisplayName}\". Error message: {e}");
+                Logger.Debug($"Failed to send DM message to {targetMember.DisplayName}. Error message: {e}");
             }
             return createdMessage;
         }
 
         public async Task<DiscordMessage> ModifyMessageAsync(DiscordMessage message, string textContent, DiscordLinkEmbed embedContent = null)
         {
+            if (message == null)
+                return null;
+
             DiscordMessage editedMessage = null;
             try
             {
@@ -588,52 +590,40 @@ namespace Eco.Plugins.DiscordLink
                 }
                 else
                 {
-                    try
+                    // Either make sure we have permission to use embeds or convert the embed to text
+                    if (ChannelHasPermission(channel, Permissions.EmbedLinks))
                     {
-                        // Either make sure we have permission to use embeds or convert the embed to text
-                        if (ChannelHasPermission(channel, Permissions.EmbedLinks))
-                        {
-                            List<DiscordEmbed> splitEmbeds = MessageUtils.BuildDiscordEmbeds(embedContent);
-                            if (splitEmbeds.Count > 0)
-                                editedMessage = await message.ModifyAsync(textContent, splitEmbeds[0]); // TODO: Actually keep track of split messages instead of only overwriting the first one
-                        }
-                        else
-                        {
-                            await message.ModifyEmbedSuppressionAsync(true); // Remove existing embeds
-                            editedMessage = await message.ModifyAsync($"{textContent}\n{embedContent.AsText()}");
-                        }
+                        List<DiscordEmbed> splitEmbeds = MessageUtils.BuildDiscordEmbeds(embedContent);
+                        if (splitEmbeds.Count > 0)
+                            editedMessage = await message.ModifyAsync(textContent, splitEmbeds[0]); // TODO: Actually keep track of split messages instead of only overwriting the first one
                     }
-                    catch (Exception e)
+                    else
                     {
-                        Logger.Warning($"Failed to modify message. The message may be too long. Error message: {e}");
+                        await message.ModifyEmbedSuppressionAsync(true); // Remove existing embeds
+                        editedMessage = await message.ModifyAsync($"{textContent}\n{embedContent.AsText()}");
                     }
                 }
             }
-            catch (DSharpPlus.Exceptions.ServerErrorException e)
-            {
-                Logger.Debug(e.ToString());
-            }
-            catch (Newtonsoft.Json.JsonReaderException e)
-            {
-                Logger.Debug(e.ToString());
-            }
-            catch (DSharpPlus.Exceptions.NotFoundException e)
-            {
-                Logger.Debug(e.ToString());
-            }
             catch (Exception e)
             {
-                Logger.Error($"Error occurred while attempting to modify Discord message. Error message: {e}");
+                string channelName = message?.Channel?.Name;
+                if (string.IsNullOrWhiteSpace(channelName))
+                    channelName = "Unknown channel";
+
+                Logger.Warning($"Failed to modify message in channel \"{channelName}\". Error message: {e}");
             }
             return editedMessage;
         }
 
         public async Task<bool> DeleteMessageAsync(DiscordMessage message)
         {
+            if (message == null)
+                return false;
+
             DiscordChannel channel = message.GetChannel();
             if (!ChannelHasPermission(channel, Permissions.ManageMessages))
             {
-                Logger.Warning($"Attempted to delete message in channel `{channel}` but the bot user is lacking permissions for this action");
+                Logger.Warning($"Attempted to delete message in channel \"{channel}\" but the bot user is lacking permissions for this action");
                 return false;
             }
 
@@ -645,7 +635,11 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (Exception e)
             {
-                Logger.Error($"Error occurred while attempting to delete Discord message. Error message: {e}");
+                string channelName = message?.Channel?.Name;
+                if (string.IsNullOrWhiteSpace(channelName))
+                    channelName = "Unknown channel";
+
+                Logger.Warning($"Failed to delete message from channel \"{channelName}\". Error message: {e}");
             }
             return result;
         }
@@ -656,11 +650,11 @@ namespace Eco.Plugins.DiscordLink
             {
                 return await Guild.CreateRoleAsync(dlRole.Name, dlRole.Permissions, dlRole.Color, dlRole.Hoist, dlRole.Mentionable, dlRole.AddReason);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-                Logger.Error($"Error occurred while attempting to create Discord role \"{dlRole.Name}\". Error message: {e}");
-                return await Task.FromResult<DiscordRole>(null);
+                Logger.Warning($"Failed to create role \"{dlRole.Name}\". Error message: {e}");
             }
+            return await Task.FromResult<DiscordRole>(null);
         }
 
         public async Task AddRoleAsync(DiscordMember member, DiscordLinkRole dlRole)
@@ -675,10 +669,19 @@ namespace Eco.Plugins.DiscordLink
 
         public async Task AddRoleAsync(DiscordMember member, DiscordRole role)
         {
+            if (member == null || role == null)
+                return;
             if (member.HasRole(role))
                 return; // Member already has the role
 
-            await member.GrantRoleAsync(role, "Added by DiscordLink");
+            try
+            {
+                await member.GrantRoleAsync(role, "Added by DiscordLink");
+            }
+            catch (Exception e)
+            {
+                Logger.Warning($"Failed to grant role \"{role.Name}\" to member \"{member.DisplayName}\". Error message: {e}");
+            }
         }
 
         public async Task RemoveRoleAsync(DiscordMember member, string roleName)
@@ -695,10 +698,19 @@ namespace Eco.Plugins.DiscordLink
 
         public async Task RemoveRoleAsync(DiscordMember member, DiscordRole role)
         {
+            if (member == null || role == null)
+                return;
             if (!member.HasRole(role))
                 return; // Member doesn't have the role
 
-            await member.RevokeRoleAsync(role, "Removed by DiscordLink");
+            try
+            {
+                await member.RevokeRoleAsync(role, "Removed by DiscordLink");
+            }
+            catch (Exception e)
+            {
+                Logger.Warning($"Failed to revoke role \"{role.Name}\" from member \"{member.DisplayName}\". Error message: {e}");
+            }
         }
 
         #endregion
