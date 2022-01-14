@@ -7,7 +7,6 @@ using Eco.EM.Framework.VersioningTools;
 using Eco.Gameplay.Civics.Elections;
 using Eco.Gameplay.GameActions;
 using Eco.Gameplay.Players;
-using Eco.Gameplay.Skills;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Modules;
@@ -186,7 +185,7 @@ namespace Eco.Plugins.DiscordLink
         private void HandleClientConnected()
         {
             DLConfig.Instance.PostConnectionInitialize();
-            if(Client.Guild == null)
+            if (Client.Guild == null)
             {
                 Status = "Discord Server connection failed";
                 CanRestart = true;
@@ -318,7 +317,8 @@ namespace Eco.Plugins.DiscordLink
             Modules.Add(new PlayerDisplay());
             Modules.Add(new ElectionDisplay());
             Modules.Add(new CurrencyDisplay());
-            Modules.Add(new PersonalTradeWatcherDisplay());
+            Modules.Add(new TradeWatcherDisplay());
+            Modules.Add(new TradeWatcherFeed());
             Modules.Add(new SnippetInput());
             Modules.Add(new AccountLinkRoleModule());
             Modules.Add(new DemographicsRoleModule());

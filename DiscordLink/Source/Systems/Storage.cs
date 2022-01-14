@@ -22,9 +22,9 @@ namespace Eco.Plugins.DiscordLink
 
         public Dictionary<string, string> Snippets = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
 
-        public delegate Task OnWatchedTradeChangedDelegate(object sender, EventArgs e, PersonalTradeWatcherEntry watcher);
-        public static event OnWatchedTradeChangedDelegate PersonalTradeWatcherAdded;
-        public static event OnWatchedTradeChangedDelegate PersonalTradeWatcherRemoved;
+        public delegate Task OnWatchedTradeChangedDelegate(object sender, EventArgs e, TradeWatcherEntry watcher);
+        public static event OnWatchedTradeChangedDelegate TradeWatcherAdded;
+        public static event OnWatchedTradeChangedDelegate TradeWatcherRemoved;
 
         // Explicit static constructor to tell C# compiler not to mark type as beforefieldinit
         static DLStorage()
@@ -102,7 +102,7 @@ namespace Eco.Plugins.DiscordLink
 
         private void HandleLinkedUserRemoved(object sender, LinkedUser user)
         {
-            WorldData.PersonalTradeWatchers.Remove(ulong.Parse(user.DiscordID));
+            WorldData.TradeWatchers.Remove(ulong.Parse(user.DiscordID));
         }
 
         public class PersistentStorageData
@@ -113,72 +113,74 @@ namespace Eco.Plugins.DiscordLink
         public class WorldStorageData
         {
             public Dictionary<int, int> CurrencyToTradeCountMap = new Dictionary<int, int>();
-            public Dictionary<ulong, List<PersonalTradeWatcherEntry>> PersonalTradeWatchers = new Dictionary<ulong, List<PersonalTradeWatcherEntry>>();
+            public Dictionary<ulong, List<TradeWatcherEntry>> TradeWatchers = new Dictionary<ulong, List<TradeWatcherEntry>>();
 
-            public async Task<bool> AddTradeWatcherDisplay(ulong discordUserId, PersonalTradeWatcherEntry watcherEntry)
+            public IEnumerable<KeyValuePair<ulong, List<TradeWatcherEntry>>> DisplayTradeWatchers => TradeWatchers.Where(userAndWatchers => userAndWatchers.Value.Any(watcher => watcher.Type == ModuleType.Display));
+            public IEnumerable<KeyValuePair<ulong, List<TradeWatcherEntry>>> FeedTradeWatchers => TradeWatchers.Where(userAndWatchers => userAndWatchers.Value.Any(watcher => watcher.Type == ModuleType.Feed));
+
+            public int TradeWatcherCountTotal => TradeWatchers.Values.Sum(watchers => watchers.Count);
+            public int TradeWatcherDisplayCountTotal => TradeWatchers.Values.SelectMany(watchers => watchers).Where(watcher => watcher.Type == ModuleType.Display).Count();
+            public int TradeWatcherFeedCountTotal => TradeWatchers.Values.SelectMany(watchers => watchers).Where(watcher => watcher.Type == ModuleType.Feed).Count();
+
+            public async Task<bool> AddTradeWatcher(ulong discordUserId, TradeWatcherEntry watcherEntry)
             {
-                if (!PersonalTradeWatchers.ContainsKey(discordUserId))
-                    PersonalTradeWatchers.Add(discordUserId, new List<PersonalTradeWatcherEntry>());
+                if (!TradeWatchers.ContainsKey(discordUserId))
+                    TradeWatchers.Add(discordUserId, new List<TradeWatcherEntry>());
 
-                if (PersonalTradeWatchers[discordUserId].Contains(watcherEntry))
+                if (TradeWatchers[discordUserId].Contains(watcherEntry))
                     return false;
 
-                PersonalTradeWatchers[discordUserId].Add(watcherEntry);
-                    await PersonalTradeWatcherAdded?.Invoke(this, EventArgs.Empty, watcherEntry);
+                TradeWatchers[discordUserId].Add(watcherEntry);
+                await TradeWatcherAdded?.Invoke(this, EventArgs.Empty, watcherEntry);
 
                 return true;
             }
 
-            public async Task<bool> RemoveTradeWatcherDisplay(ulong discordUserId, PersonalTradeWatcherEntry watcherEntry)
+            public async Task<bool> RemoveTradeWatcher(ulong discordUserId, TradeWatcherEntry watcherEntry)
             {
-                if (!PersonalTradeWatchers.ContainsKey(discordUserId))
+                if (!TradeWatchers.ContainsKey(discordUserId))
                     return false;
 
-                List<PersonalTradeWatcherEntry> watcherList = PersonalTradeWatchers[discordUserId];
+                List<TradeWatcherEntry> watcherList = TradeWatchers[discordUserId];
                 int toRemoveIndex = watcherList.FindIndex(w => w.Equals(watcherEntry));
                 if (toRemoveIndex == -1)
                     return false;
 
-                PersonalTradeWatcherEntry entry = watcherList[toRemoveIndex];
+                TradeWatcherEntry entry = watcherList[toRemoveIndex];
                 watcherList.RemoveAt(toRemoveIndex);
-                await PersonalTradeWatcherRemoved?.Invoke(this, EventArgs.Empty, entry);
+                await TradeWatcherRemoved?.Invoke(this, EventArgs.Empty, entry);
 
                 // Remove the user entry if the last watcher was remvoed
                 if (watcherList.Count <= 0)
-                    PersonalTradeWatchers.Remove(discordUserId);
+                    TradeWatchers.Remove(discordUserId);
 
                 return true;
             }
 
             public void RemoveAllTradeWatchersForUser(ulong discordUserId)
             {
-                if (!PersonalTradeWatchers.ContainsKey(discordUserId))
+                if (!TradeWatchers.ContainsKey(discordUserId))
                     return;
 
-                PersonalTradeWatchers.Remove(discordUserId);
-            }
-
-            public int GetTradeWatcherCountTotal()
-            {
-                return PersonalTradeWatchers.Values.Count();
+                TradeWatchers.Remove(discordUserId);
             }
 
             public int GetTradeWatcherCountForUser(ulong discordUserID)
             {
-                if (!PersonalTradeWatchers.ContainsKey(discordUserID))
+                if (!TradeWatchers.ContainsKey(discordUserID))
                     return 0;
 
-                return PersonalTradeWatchers[discordUserID].Count;
+                return TradeWatchers[discordUserID].Count;
             }
 
             public string ListTradeWatchers(ulong discordUserID)
             {
-                if (!PersonalTradeWatchers.ContainsKey(discordUserID) || PersonalTradeWatchers[discordUserID].Count <= 0)
+                if (!TradeWatchers.ContainsKey(discordUserID) || TradeWatchers[discordUserID].Count <= 0)
                     return "No trade watchers exist for this user";
 
                 StringBuilder builder = new StringBuilder();
                 builder.Append("Your trade watchers are:\n");
-                foreach (PersonalTradeWatcherEntry tradeWatcher in PersonalTradeWatchers[discordUserID])
+                foreach (TradeWatcherEntry tradeWatcher in TradeWatchers[discordUserID])
                 {
                     builder.AppendLine($"- {tradeWatcher}");
                 }
@@ -187,9 +189,9 @@ namespace Eco.Plugins.DiscordLink
         }
     }
 
-    public class PersonalTradeWatcherEntry
+    public class TradeWatcherEntry
     {
-        public PersonalTradeWatcherEntry(string key, ModuleType type)
+        public TradeWatcherEntry(string key, ModuleType type)
         {
             Key = key;
             Type = type;
@@ -200,7 +202,7 @@ namespace Eco.Plugins.DiscordLink
             if (obj == null || GetType() != obj.GetType())
                 return false;
 
-            PersonalTradeWatcherEntry rhs = (PersonalTradeWatcherEntry)obj;
+            TradeWatcherEntry rhs = (TradeWatcherEntry)obj;
             return Key.EqualsCaseInsensitive(rhs.Key) && Type == rhs.Type;
         }
 
@@ -209,7 +211,7 @@ namespace Eco.Plugins.DiscordLink
             return Key.GetHashCode() ^ Type.GetHashCode();
         }
 
-        public override string ToString() 
+        public override string ToString()
         {
             return $"{Key} ({Type})";
         }

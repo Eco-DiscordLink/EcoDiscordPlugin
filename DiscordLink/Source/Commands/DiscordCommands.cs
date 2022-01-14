@@ -797,33 +797,55 @@ namespace Eco.Plugins.DiscordLink
         [Command("Trades")]
         [Description("Displays available trades by player, tag, item or store")]
         [Aliases("DL-Trades", "DL-Trade", "Trade", "DLT")]
-        public async Task Trades(CommandContext ctx, [Description("The player name or item name for which to display trades.")] string userOrItemName = "")
+        public async Task Trades(CommandContext ctx, [Description("The player name or item name for which to display trades.")] string searchName = "")
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.Trades(SharedCommands.CommandInterface.Discord, ctx, userOrItemName);
+                await SharedCommands.Trades(SharedCommands.CommandInterface.Discord, ctx, searchName);
             }, ctx);
         }
 
         [Command("AddTradeWatcherDisplay")]
         [Description("Creates a live updated display of available trades by player, tag, item or store")]
         [Aliases("DL-WatchTradeDisplay")]
-        public async Task AddTradeWatcherDisplay(CommandContext ctx, [Description("The player, tag item or store name for which to display trades.")] string userOrItemName = "")
+        public async Task AddTradeWatcherDisplay(CommandContext ctx, [Description("The player, tag, item or store name for which to display trades.")] string searchName = "")
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.AddTradeWatcherDisplay(SharedCommands.CommandInterface.Discord, ctx, userOrItemName);
+                await SharedCommands.AddTradeWatcher(SharedCommands.CommandInterface.Discord, ctx, searchName, Modules.ModuleType.Display);
             }, ctx);
         }
 
         [Command("RemoveTradeWatcherDisplay")]
-        [Description("Removes the live updated display of available trades for the player, tag, item or store.")]
+        [Description("Removes the live updated display of available trades for a player, tag, item or store.")]
         [Aliases("DL-UnwatchTradeDisplay")]
-        public async Task RemoveTradeWatcherDisplay(CommandContext ctx, [Description("The player, tag item or store name for which to display trades.")] string userOrItemName = "")
+        public async Task RemoveTradeWatcherDisplay(CommandContext ctx, [Description("The player, tag, item or store name for which to display trades.")] string searchName = "")
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.RemoveTradeWatcherDisplay(SharedCommands.CommandInterface.Discord, ctx, userOrItemName);
+                await SharedCommands.RemoveTradeWatcher(SharedCommands.CommandInterface.Discord, ctx, searchName, Modules.ModuleType.Display);
+            }, ctx);
+        }
+
+        [Command("AddTradeWatcherFeed")]
+        [Description("Creates a feed where the bot will post trades filtered by the search query, as they occur ingame. The search query can filter by player, tag, item or store.")]
+        [Aliases("DL-WatchTradeFeed")]
+        public async Task AddTradeWatcherFeed(CommandContext ctx, [Description("The player, tag item or store name for which to post trades.")] string searchName = "")
+        {
+            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
+            {
+                await SharedCommands.AddTradeWatcher(SharedCommands.CommandInterface.Discord, ctx, searchName, Modules.ModuleType.Feed);
+            }, ctx);
+        }
+
+        [Command("RemoveTradeWatcherFeed")]
+        [Description("Removes the trade watcher feed for a player, tag, item or store.")]
+        [Aliases("DL-UnwatchTradeFeed")]
+        public async Task RemoveTradeWatcherFeed(CommandContext ctx, [Description("The player, tag item or store name for which to post trades.")] string searchName = "")
+        {
+            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
+            {
+                await SharedCommands.RemoveTradeWatcher(SharedCommands.CommandInterface.Discord, ctx, searchName, Modules.ModuleType.Feed);
             }, ctx);
         }
 

@@ -1,6 +1,7 @@
 ﻿using Eco.Gameplay.Components;
 using Eco.Gameplay.Economy;
 using Eco.Gameplay.GameActions;
+using Eco.Gameplay.Items;
 using Eco.Gameplay.Objects;
 using Eco.Gameplay.Players;
 using Eco.Gameplay.Property;
@@ -46,6 +47,12 @@ namespace Eco.Plugins.DiscordLink.Extensions
         #region ChatMessage
 
         public static string FormatForLog(this ChatSent message) => $"Author: {MessageUtils.StripTags(message.Citizen.Name)}\nChannel: {message.Tag}\nMessage: {message.Message}";
+
+        #endregion
+
+        #region Item
+
+        public static bool HasTagWithName(this Item item, string name) => item.Tags().Any(tag => tag.DisplayName.ToString().EqualsCaseInsensitive(name));
 
         #endregion
 

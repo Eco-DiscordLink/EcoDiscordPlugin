@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
+using Eco.Core.Utils;
 using Eco.Gameplay.Civics.Demographics;
 using Eco.Gameplay.Civics.Elections;
 using Eco.Gameplay.Civics.Laws;
@@ -13,7 +14,9 @@ using Eco.Gameplay.Civics.Titles;
 using Eco.Gameplay.Components;
 using Eco.Gameplay.Economy;
 using Eco.Gameplay.Economy.WorkParties;
+using Eco.Gameplay.GameActions;
 using Eco.Gameplay.Items;
+using Eco.Gameplay.Objects;
 using Eco.Gameplay.Players;
 using Eco.Gameplay.Property;
 using Eco.Gameplay.Skills;
@@ -33,6 +36,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 {
     static class MessageBuilder
     {
+        #pragma warning disable format
         public enum ServerInfoComponentFlag
         {
             Name                        = 1 << 0,
@@ -73,6 +77,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             Properties      = 1 << 11,
             All             = ~0
         }
+        #pragma warning disable format
 
         private class StoreOffer
         {
@@ -93,6 +98,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         public static class Shared
         {
+            public static object Items { get; internal set; }
+
             public static string GetAboutMessage()
             {
                 return $"This server is running the DiscordLink plugin version {DiscordLink.Obj.PluginVersion}." +
@@ -181,17 +188,17 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
                     builder.AppendLine();
                     builder.AppendLine("--- Storage - World ---");
-                    if (DLStorage.WorldData.PersonalTradeWatchers.Count > 0)
+                    if (DLStorage.WorldData.TradeWatchers.Count > 0)
                     {
                         builder.AppendLine("Trade Watchers:");
-                        foreach (var userTradeWatchers in DLStorage.WorldData.PersonalTradeWatchers)
+                        foreach (var userTradeWatchers in DLStorage.WorldData.TradeWatchers)
                         {
                             DiscordUser discordUser = await plugin.Client.GetUserAsync(userTradeWatchers.Key);
                             if (discordUser == null)
                                 continue;
 
                             builder.AppendLine($"[{discordUser.Username}]");
-                            foreach (PersonalTradeWatcherEntry tradeWatcher in userTradeWatchers.Value)
+                            foreach (TradeWatcherEntry tradeWatcher in userTradeWatchers.Value)
                             {
                                 builder.AppendLine($"- {tradeWatcher}");
                             }
@@ -840,6 +847,20 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 string choiceDesc = string.Empty;
                 if (!election.Process.AnonymousVoting)
                 {
+                    foreach(ElectionChoice choice in election.Choices)
+                    {
+                        foreach(RunoffVote vote in election.Votes)
+                        {
+                            for( int i = 0; i < vote.RankedVotes.Count; ++i)
+                            {
+                                if(vote.RankedVotes[i] == choice.ID)
+                                {
+
+                                }
+                            }
+                        }
+                    }
+
                     foreach (RunoffVote vote in election.Votes)
                     {
                         string topChoiceName = null;
@@ -1014,6 +1035,65 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     report.AddField("Payment", paymentDesc);
 
                 return report;
+            }
+
+            public static DiscordLinkEmbed GetAccumulatedTradeReport(List<CurrencyTrade> tradeList)
+            {
+                if (tradeList.Count <= 0)
+                    return null;
+
+                CurrencyTrade firstTrade = tradeList[0];
+                DiscordLinkEmbed embed = new DiscordLinkEmbed();
+                string leftName = firstTrade.Citizen.Name;
+                string rightName = (firstTrade.WorldObject as WorldObject).Name;
+                embed.WithTitle($"{leftName} traded at {MessageUtils.StripTags(rightName)}");
+
+                // Go through all acumulated trade events and create a summary
+                string boughtItemsDesc = string.Empty;
+                float boughtTotal = 0;
+                string soldItemsDesc = string.Empty;
+                float soldTotal = 0;
+                foreach (CurrencyTrade trade in tradeList)
+                {
+                    if (trade.BoughtOrSold == BoughtOrSold.Buying)
+                    {
+                        boughtItemsDesc += $"{trade.NumberOfItems} X {trade.ItemUsed.DisplayName} * {MathF.Round(trade.CurrencyAmount / trade.NumberOfItems, 2)} = {MathF.Round(trade.CurrencyAmount, 2)}\n";
+                        boughtTotal += trade.CurrencyAmount;
+                    }
+                    else if (trade.BoughtOrSold == BoughtOrSold.Selling)
+                    {
+                        soldItemsDesc += $"{trade.NumberOfItems} X {trade.ItemUsed.DisplayName} * {MathF.Round(trade.CurrencyAmount / trade.NumberOfItems, 2)} = {MathF.Round(trade.CurrencyAmount, 2)}\n";
+                        soldTotal += trade.CurrencyAmount;
+                    }
+                }
+
+                if (!boughtItemsDesc.IsEmpty())
+                {
+                    boughtItemsDesc += $"\nTotal = {boughtTotal.ToString("n2")}";
+                    embed.AddField("Bought", boughtItemsDesc, inline: true);
+                }
+
+                if (!soldItemsDesc.IsEmpty())
+                {
+                    soldItemsDesc += $"\nTotal = {soldTotal.ToString("n2")}";
+                    embed.AddField("Sold", soldItemsDesc, inline: true);
+                }
+
+                // Currency transfer description
+                string resultDesc;
+                float subTotal = MathF.Round( soldTotal, 2) - Mathf.Round(boughtTotal, 2);
+                if (Math.Abs(subTotal) <= 0.00f)
+                {
+                    resultDesc = "No curreny was exchanged.";
+                }
+                else
+                {
+                    string paidOrGained = subTotal < 0.0f ? "paid" : "gained";
+                    resultDesc = $"*{leftName}* {paidOrGained} {MathF.Round(Math.Abs(subTotal), 2)} *{MessageUtils.StripTags(firstTrade.Currency.Name)}*.";
+                }
+
+                embed.AddField("Result", resultDesc, allowAutoLineBreak: true);
+                return embed;
             }
 
             public static DiscordLinkEmbed GetVerificationDM(User ecoUser)

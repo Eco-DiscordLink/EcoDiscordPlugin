@@ -609,37 +609,55 @@ namespace Eco.Plugins.DiscordLink
 
         #region Trades
 
-        [ChatSubCommand("DiscordLink", "Displays available trades by player, item or tag.", "DL-Trades", ChatAuthorizationLevel.User)]
-        public static void Trades(User callingUser, string userOrItemName)
+        [ChatSubCommand("DiscordLink", "Displays available trades by player, tag, item or store.", "DL-Trades", ChatAuthorizationLevel.User)]
+        public static void Trades(User callingUser, string searchName)
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.Trades(SharedCommands.CommandInterface.Eco, callingUser, userOrItemName);
+                SharedCommands.Trades(SharedCommands.CommandInterface.Eco, callingUser, searchName);
             }, callingUser);
         }
 
         // Wrapper for the Trades command in order to facilitate more command aliases
-        [ChatSubCommand("DiscordLink", "Displays available trades by player, item or tag.", "DLT", ChatAuthorizationLevel.User)]
-        public static void Trade(User user, string userOrItemName)
+        [ChatSubCommand("DiscordLink", "Displays available trades by player, tag, item or store.", "DLT", ChatAuthorizationLevel.User)]
+        public static void Trade(User user, string searchName)
         {
-            Trades(user, userOrItemName);
+            Trades(user, searchName);
         }
 
         [ChatSubCommand("DiscordLink", "Creates a live updated display of available trades by player, tag, item or store", "DL-WatchTradeDisplay", ChatAuthorizationLevel.User)]
-        public static void AddTradeWatcherDisplay(User callingUser, string userOrItemName)
+        public static void AddTradeWatcherDisplay(User callingUser, string searchName)
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.AddTradeWatcherDisplay(SharedCommands.CommandInterface.Eco, callingUser, userOrItemName);
+                SharedCommands.AddTradeWatcher(SharedCommands.CommandInterface.Eco, callingUser, searchName, Modules.ModuleType.Display);
             }, callingUser);
         }
 
         [ChatSubCommand("DiscordLink", "Removes the live updated display of available trades for the player, tag, item or store.", "DL-UnwatchTradeDisplay", ChatAuthorizationLevel.User)]
-        public static void RemoveTradeWatcherDisplay(User callingUser, string userOrItemName)
+        public static void RemoveTradeWatcherDisplay(User callingUser, string searchName)
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.RemoveTradeWatcherDisplay(SharedCommands.CommandInterface.Eco, callingUser, userOrItemName);
+                SharedCommands.RemoveTradeWatcher(SharedCommands.CommandInterface.Eco, callingUser, searchName, Modules.ModuleType.Display);
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Creates a feed where the bot will post trades filtered by the search query, as they occur ingame. The search query can filter by player, tag, item or store.", "DL-WatchTradeFeed", ChatAuthorizationLevel.User)]
+        public static void AddTradeWatcherFeed(User callingUser, string searchName)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.AddTradeWatcher(SharedCommands.CommandInterface.Eco, callingUser, searchName, Modules.ModuleType.Feed);
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Removes the trade watcher feed for a player, tag, item or store.", "DL-UnwatchTradeFeed", ChatAuthorizationLevel.User)]
+        public static void RemoveTradeWatcherFeed(User callingUser, string searchName)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.RemoveTradeWatcher(SharedCommands.CommandInterface.Eco, callingUser, searchName, Modules.ModuleType.Feed);
             }, callingUser);
         }
 
