@@ -15,7 +15,6 @@ namespace Eco.Plugins.DiscordLink.Modules
         private static readonly DiscordColor SpecialtyColor = DiscordColor.Green;
 
         private static readonly string[] IgnoredSpecialtyNames = { "SelfImprovementSkill" };
-        private static Skill[] IgnoredSpecialties = new Skill[IgnoredSpecialtyNames.Length];
 
         public override string ToString()
         {
@@ -25,19 +24,6 @@ namespace Eco.Plugins.DiscordLink.Modules
         protected override DLEventType GetTriggers()
         {
             return DLEventType.DiscordClientConnected | DLEventType.AccountLinkVerified | DLEventType.AccountLinkRemoved | DLEventType.GainedSpecialty;
-        }
-
-        public override void Setup()
-        {
-            foreach (Skill specialty in EcoUtils.Specialties)
-            {
-                if (IgnoredSpecialtyNames.Contains(specialty.Name))
-                {
-                    IgnoredSpecialties.Append(specialty);
-                }
-            }
-
-            base.Setup();
         }
 
         protected override async Task<bool> ShouldRun()
@@ -62,7 +48,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                     LinkedUser linkedUser = UserLinkManager.LinkedUserByDiscordUser(member);
                     foreach (Skill specialty in EcoUtils.Specialties)
                     {
-                        if (IgnoredSpecialties.Contains(specialty))
+                        if (IgnoredSpecialtyNames.Contains(specialty.Name))
                             continue;
 
                         if (linkedUser == null || !DLConfig.Data.UseSpecialtyRoles || !linkedUser.EcoUser.Skillset.Skills.Contains(specialty))
@@ -89,7 +75,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 DiscordMember member = linkedUser.DiscordMember;
                 foreach (Skill specialty in EcoUtils.Specialties)
                 {
-                    if (IgnoredSpecialties.Contains(specialty))
+                    if (IgnoredSpecialtyNames.Contains(specialty.Name))
                         continue;
 
                     if (trigger == DLEventType.AccountLinkRemoved || !DLConfig.Data.UseSpecialtyRoles || !linkedUser.EcoUser.Skillset.Skills.Contains(specialty))
@@ -115,7 +101,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 if (!(data[0] is GainSpecialty gainSpecialty))
                     return;
 
-                if (IgnoredSpecialties.Contains(gainSpecialty.Specialty))
+                if (IgnoredSpecialtyNames.Contains(gainSpecialty.Specialty.Name))
                     return;
 
                 LinkedUser linkedUser = UserLinkManager.LinkedUserByEcoUser(gainSpecialty.Citizen);
