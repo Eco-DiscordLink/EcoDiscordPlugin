@@ -7,6 +7,7 @@ using Eco.Gameplay.GameActions;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Gameplay.Skills;
 using DSharpPlus;
+using System;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
@@ -51,7 +52,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                         if (IgnoredSpecialtyNames.Contains(specialty.Name))
                             continue;
 
-                        if (linkedUser == null || !DLConfig.Data.UseSpecialtyRoles || !linkedUser.EcoUser.Skillset.Skills.Contains(specialty))
+                        if (linkedUser == null || !DLConfig.Data.UseSpecialtyRoles || !linkedUser.EcoUser.HasSpecialization(specialty.Type))
                         {
                             if (member.HasRoleWithName(specialty.DisplayName))
                             {
@@ -59,7 +60,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                                 await client.RemoveRoleAsync(member, specialty.DisplayName);
                             }
                         }
-                        else if (!member.HasRoleWithName(specialty.DisplayName) && linkedUser.EcoUser.Skillset.Skills.Contains(specialty))
+                        else if (!member.HasRoleWithName(specialty.DisplayName) && linkedUser.EcoUser.HasSpecialization(specialty.Type))
                         {
                             ++_opsCount;
                             await AddSpecialtyRole(client, linkedUser.DiscordMember, specialty.DisplayName);
@@ -78,7 +79,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                     if (IgnoredSpecialtyNames.Contains(specialty.Name))
                         continue;
 
-                    if (trigger == DLEventType.AccountLinkRemoved || !DLConfig.Data.UseSpecialtyRoles || !linkedUser.EcoUser.Skillset.Skills.Contains(specialty))
+                    if (trigger == DLEventType.AccountLinkRemoved || !DLConfig.Data.UseSpecialtyRoles || !linkedUser.EcoUser.HasSpecialization(specialty.Type))
                     {
                         if (member.HasRoleWithName(specialty.DisplayName))
                         {
@@ -86,7 +87,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                             await client.RemoveRoleAsync(member, specialty.DisplayName);
                         }
                     }
-                    else if (!member.HasRoleWithName(specialty.DisplayName) && linkedUser.EcoUser.Skillset.Skills.Contains(specialty))
+                    else if (!member.HasRoleWithName(specialty.DisplayName) && linkedUser.EcoUser.HasSpecialization(specialty.Type))
                     {
                         ++_opsCount;
                         await AddSpecialtyRole(client, linkedUser.DiscordMember, specialty.DisplayName);
