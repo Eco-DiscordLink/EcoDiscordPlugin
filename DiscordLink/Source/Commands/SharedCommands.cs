@@ -782,7 +782,7 @@ namespace Eco.Plugins.DiscordLink
 
             LinkedUser linkedUser = source == CommandInterface.Eco
                 ? UserLinkManager.LinkedUserByEcoUser(callContext as User, callContext as User, "Trade Watcher Registration")
-                : UserLinkManager.LinkedUserByDiscordUser((callContext as CommandContext).Member, (callContext as CommandContext).Member, "Trade Watcher Registration");
+                : UserLinkManager.LinkedUserByDiscordUser((callContext as CommandContext).User, (callContext as CommandContext).Member, "Trade Watcher Registration");
             if (linkedUser == null)
                 return false;
 
@@ -824,7 +824,7 @@ namespace Eco.Plugins.DiscordLink
 
             LinkedUser linkedUser = source == CommandInterface.Eco
                 ? UserLinkManager.LinkedUserByEcoUser(callContext as User, callContext as User, "Trade Watcher Unregistration")
-                : UserLinkManager.LinkedUserByDiscordUser((callContext as CommandContext).Member, (callContext as CommandContext).Member, "Trade Watcher Unregistration");
+                : UserLinkManager.LinkedUserByDiscordUser((callContext as CommandContext).User, (callContext as CommandContext).Member, "Trade Watcher Unregistration");
             if (linkedUser == null)
                 return false;
 
@@ -846,7 +846,7 @@ namespace Eco.Plugins.DiscordLink
         {
             LinkedUser linkedUser = source == CommandInterface.Eco
                 ? UserLinkManager.LinkedUserByEcoUser(callContext as User, callContext as User, "Trade Watchers Listing")
-                : UserLinkManager.LinkedUserByDiscordUser((callContext as CommandContext).Member, (callContext as CommandContext).Member, "Trade Watchers Listing");
+                : UserLinkManager.LinkedUserByDiscordUser((callContext as CommandContext).User, (callContext as CommandContext).Member, "Trade Watchers Listing");
             if (linkedUser == null)
                 return false;
 
