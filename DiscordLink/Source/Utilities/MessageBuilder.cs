@@ -1084,7 +1084,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 float subTotal = MathF.Round( soldTotal, 2) - Mathf.Round(boughtTotal, 2);
                 if (Math.Abs(subTotal) <= 0.00f)
                 {
-                    resultDesc = "No curreny was exchanged.";
+                    resultDesc = "No currency was exchanged.";
                 }
                 else
                 {
