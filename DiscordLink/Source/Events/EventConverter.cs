@@ -30,6 +30,7 @@ namespace Eco.Plugins.DiscordLink.Events
         private readonly Dictionary<Tuple<int, int>, List<CurrencyTrade>> _accumulatedTrades = new Dictionary<Tuple<int, int>, List<CurrencyTrade>>();
         private Timer _tradePostingTimer = null;
         private readonly AsyncLock _overlapLock = new AsyncLock();
+        private readonly AsyncLock _accumulatedTradesLock = new AsyncLock();
 
         // Explicit static constructor to tell C# compiler not to mark type as beforefieldinit
         static EventConverter()
@@ -49,8 +50,14 @@ namespace Eco.Plugins.DiscordLink.Events
                     if (_accumulatedTrades.Count > 0)
                     {
                         // Fire the accumulated event
-                        FireEvent(DLEventType.AccumulatedTrade, _accumulatedTrades.Values);
-                        _accumulatedTrades.Clear();
+                        List<CurrencyTrade>[] trades = null;
+                        using (_accumulatedTradesLock.Lock())
+                        {
+                            trades = new List<CurrencyTrade>[_accumulatedTrades.Values.Count]; 
+                            _accumulatedTrades.Values.CopyTo(trades, 0);
+                            _accumulatedTrades.Clear();
+                        }
+                        FireEvent(DLEventType.AccumulatedTrade, trades);
                     }
                 }
 
@@ -76,10 +83,15 @@ namespace Eco.Plugins.DiscordLink.Events
                     if (trades == null)
                     {
                         trades = new List<CurrencyTrade>();
-                        _accumulatedTrades.Add(IDTuple, trades);
+                        using (_accumulatedTradesLock.Lock())
+                        {
+                            _accumulatedTrades.Add(IDTuple, trades);
+                        }
                     }
-
-                    trades.Add(tradeEvent);
+                    using (_accumulatedTradesLock.Lock())
+                    {
+                        trades.Add(tradeEvent);
+                    }
                     break;
 
                 default:
