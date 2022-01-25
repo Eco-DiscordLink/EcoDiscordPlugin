@@ -47,17 +47,24 @@ namespace Eco.Plugins.DiscordLink.Events
             {
                 using (_overlapLock.Lock()) // Make sure this code isn't entered multiple times simultaniously
                 {
-                    if (_accumulatedTrades.Count > 0)
+                    try
                     {
-                        // Fire the accumulated event
-                        List<CurrencyTrade>[] trades = null;
-                        using (_accumulatedTradesLock.Lock())
+                        if (_accumulatedTrades.Count > 0)
                         {
-                            trades = new List<CurrencyTrade>[_accumulatedTrades.Values.Count]; 
-                            _accumulatedTrades.Values.CopyTo(trades, 0);
-                            _accumulatedTrades.Clear();
+                            // Fire the accumulated event
+                            List<CurrencyTrade>[] trades = null;
+                            using (_accumulatedTradesLock.Lock())
+                            {
+                                trades = new List<CurrencyTrade>[_accumulatedTrades.Values.Count];
+                                _accumulatedTrades.Values.CopyTo(trades, 0);
+                                _accumulatedTrades.Clear();
+                            }
+                            FireEvent(DLEventType.AccumulatedTrade, trades);
                         }
-                        FireEvent(DLEventType.AccumulatedTrade, trades);
+                    }
+                    catch(Exception e)
+                    {
+                        Logger.Error($"Failed to accumulate trade events. Error: {e}");
                     }
                 }
 
