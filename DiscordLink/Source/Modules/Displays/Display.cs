@@ -195,14 +195,14 @@ namespace Eco.Plugins.DiscordLink.Modules
                     {
                         if (message.Content.Contains(tagAndContent.Item1))
                         {
-                            DiscordMessage editedMessage = await plugin.Client.ModifyMessageAsync(message, tagAndContent.Item1, tagAndContent.Item2);
-                            if (editedMessage == null)
-                                continue;
-
-                            matchedTags.Add(tagAndContent.Item1);
-                            await PostDisplayEdited(editedMessage);
                             found = true;
+                            matchedTags.Add(tagAndContent.Item1);
+
                             ++_opsCount;
+                            DiscordMessage editedMessage = await plugin.Client.ModifyMessageAsync(message, tagAndContent.Item1, tagAndContent.Item2);
+                            if (editedMessage != null)
+                                await PostDisplayEdited(editedMessage);
+
                             break;
                         }
                     }
