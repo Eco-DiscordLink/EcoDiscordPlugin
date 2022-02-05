@@ -162,6 +162,7 @@ namespace Eco.Plugins.DiscordLink
         public void GetCommands(Dictionary<string, Action> nameToFunction)
         {
             nameToFunction.Add("Verify Config", () => { Logger.Info($"Config Verification Report:\n{MessageBuilder.Shared.GetConfigVerificationReport()}"); });
+            nameToFunction.Add("Verify Permissions", () => { Logger.Info($"Permission Verification Report:\n{MessageBuilder.Shared.GetPermissionsReport(MessageBuilder.PermissionReportComponentFlag.All)}"); });
         }
 
         public async Task<bool> Restart()
