@@ -163,6 +163,18 @@ namespace Eco.Plugins.DiscordLink
         {
             nameToFunction.Add("Verify Config", () => { Logger.Info($"Config Verification Report:\n{MessageBuilder.Shared.GetConfigVerificationReport()}"); });
             nameToFunction.Add("Verify Permissions", () => { Logger.Info($"Permission Verification Report:\n{MessageBuilder.Shared.GetPermissionsReport(MessageBuilder.PermissionReportComponentFlag.All)}"); });
+            nameToFunction.Add("Restart Plugin", () =>
+            {
+                if (CanRestart)
+                {
+                    Logger.Info("DiscordLink Restarting...");
+                    _ = Restart();
+                }
+                else
+                {
+                    Logger.Info("Could not restart - The plugin is not in a ready state.");
+                }
+            });
         }
 
         public async Task<bool> Restart()
