@@ -49,11 +49,17 @@ namespace Eco.Plugins.DiscordLink
 
         public static readonly DLConfig Instance = new DLConfig();
         public static DLConfigData Data { get { return Instance._config.Config; } }
-        public static List<ChannelLink> ChannelLinks { get { return Instance._channelLinks; } }
         public PluginConfig<DLConfigData> PluginConfig { get { return Instance._config; } }
 
+        public static List<ChannelLink> GetChannelLinks(bool verifiedLinksOnly = true)
+        {
+            return verifiedLinksOnly
+                ? Instance._verifiedChannelLinks
+                : Instance._allChannelLinks;
+        }
+
         public static ChannelLink ChannelLinkForDiscordChannel(string discordChannelName) =>
-            ChannelLinks.FirstOrDefault(link
+            GetChannelLinks().FirstOrDefault(link
                 => link.IsValid()
                 && link.DiscordChannel.EqualsCaseInsensitive(discordChannelName));
 
@@ -75,7 +81,8 @@ namespace Eco.Plugins.DiscordLink
         private DLConfigData _prevConfig; // Used to detect differences when the config is saved
 
         private PluginConfig<DLConfigData> _config;
-        private readonly List<ChannelLink> _channelLinks = new List<ChannelLink>();
+        private readonly List<ChannelLink> _allChannelLinks = new List<ChannelLink>();
+        private readonly List<ChannelLink> _verifiedChannelLinks = new List<ChannelLink>();
 
         // Explicit static constructor to tell C# compiler not to mark type as beforefieldinit
         static DLConfig()
@@ -118,9 +125,10 @@ namespace Eco.Plugins.DiscordLink
             }
 
             // Channel Links
-            foreach (ChannelLink link in _channelLinks)
+            foreach (ChannelLink link in _allChannelLinks)
             {
-                link.Initailize();
+                if (link.Initailize())
+                    _verifiedChannelLinks.Add(link);
             }
         }
 
@@ -194,7 +202,7 @@ namespace Eco.Plugins.DiscordLink
             }
 
             // Channel Links
-            foreach (ChannelLink link in _channelLinks)
+            foreach (ChannelLink link in _allChannelLinks)
             {
                 if (link.MakeCorrections())
                 {
@@ -291,10 +299,10 @@ namespace Eco.Plugins.DiscordLink
             if (DiscordLink.Obj.Client.ConnectionStatus == DLDiscordClient.ConnectionState.Connected)
             {
                 // Discord guild and channel information isn't available the first time this function is called
-                if (verificationFlags.HasFlag(VerificationFlags.ChannelLinks) && ChannelLinks.Count > 0 && DiscordLink.Obj.Client.Guild != null)
+                if (verificationFlags.HasFlag(VerificationFlags.ChannelLinks) && GetChannelLinks(verifiedLinksOnly: false).Count > 0 && DiscordLink.Obj.Client.Guild != null)
                 {
                     List<ChannelLink> verifiedLinks = new List<ChannelLink>();
-                    foreach (ChannelLink link in _channelLinks)
+                    foreach (ChannelLink link in _allChannelLinks)
                     {
                         if (link.IsValid() && !verifiedLinks.Contains(link))
                         {
@@ -303,14 +311,14 @@ namespace Eco.Plugins.DiscordLink
                         }
                     }
 
-                    if (verifiedLinks.Count >= _channelLinks.Count)
+                    if (verifiedLinks.Count >= _allChannelLinks.Count)
                     {
                         Logger.Info("All channel links sucessfully verified");
                     }
                     else
                     {
                         List<ChannelLink> unverifiedLinks = new List<ChannelLink>();
-                        foreach (ChannelLink link in _channelLinks)
+                        foreach (ChannelLink link in _allChannelLinks)
                         {
                             if (!link.IsValid()) continue;
 
@@ -327,20 +335,20 @@ namespace Eco.Plugins.DiscordLink
 
         private void BuildChanneLinkList()
         {
-            _channelLinks.Clear();
-            _channelLinks.AddRange(_config.Config.ChatChannelLinks);
-            _channelLinks.AddRange(_config.Config.TradeFeedChannels);
-            _channelLinks.AddRange(_config.Config.CraftingFeedChannels);
-            _channelLinks.AddRange(_config.Config.ServerStatusFeedChannels);
-            _channelLinks.AddRange(_config.Config.PlayerStatusFeedChannels);
-            _channelLinks.AddRange(_config.Config.ElectionFeedChannels);
-            _channelLinks.AddRange(_config.Config.ServerInfoDisplayChannels);
-            _channelLinks.AddRange(_config.Config.WorkPartyDisplayChannels);
-            _channelLinks.AddRange(_config.Config.PlayerListDisplayChannels);
-            _channelLinks.AddRange(_config.Config.ElectionDisplayChannels);
-            _channelLinks.AddRange(_config.Config.CurrencyDisplayChannels);
-            _channelLinks.AddRange(_config.Config.SnippetInputChannels);
-            _channelLinks.AddRange(_config.Config.DiscordCommandChannels);
+            _allChannelLinks.Clear();
+            _allChannelLinks.AddRange(_config.Config.ChatChannelLinks);
+            _allChannelLinks.AddRange(_config.Config.TradeFeedChannels);
+            _allChannelLinks.AddRange(_config.Config.CraftingFeedChannels);
+            _allChannelLinks.AddRange(_config.Config.ServerStatusFeedChannels);
+            _allChannelLinks.AddRange(_config.Config.PlayerStatusFeedChannels);
+            _allChannelLinks.AddRange(_config.Config.ElectionFeedChannels);
+            _allChannelLinks.AddRange(_config.Config.ServerInfoDisplayChannels);
+            _allChannelLinks.AddRange(_config.Config.WorkPartyDisplayChannels);
+            _allChannelLinks.AddRange(_config.Config.PlayerListDisplayChannels);
+            _allChannelLinks.AddRange(_config.Config.ElectionDisplayChannels);
+            _allChannelLinks.AddRange(_config.Config.CurrencyDisplayChannels);
+            _allChannelLinks.AddRange(_config.Config.SnippetInputChannels);
+            _allChannelLinks.AddRange(_config.Config.DiscordCommandChannels);
         }
     }
 
