@@ -360,6 +360,39 @@ namespace Eco.Plugins.DiscordLink
             return false;
         }
 
+        public IEnumerable<Permissions> FindMissingGuildPermissions()
+        {
+            List<Permissions> missingPermissions = new List<Permissions>();
+            foreach (Permissions permission in DLConstants.REQUESTED_GUILD_PERMISSIONS)
+            {
+                if (!BotHasPermission(permission))
+                    missingPermissions.Add(permission);
+            }
+            return missingPermissions;
+        }
+
+        public IEnumerable<Permissions> FindMissingChannelPermissions(DiscordChannel channel)
+        {
+            List<Permissions> missingPermissions = new List<Permissions>();
+            foreach (Permissions permission in DLConstants.REQUESTED_CHANNEL_PERMISSIONS)
+            {
+                if (!ChannelHasPermission(channel, permission))
+                    missingPermissions.Add(permission);
+            }
+            return missingPermissions;
+        }
+
+        public IEnumerable<DiscordIntents> FindMissingIntents()
+        {
+            List<DiscordIntents> missingIntents = new List<DiscordIntents>();
+            foreach (DiscordIntents intent in DLConstants.REQUESTED_INTENTS)
+            {
+                if (!BotHasIntent(intent))
+                    missingIntents.Add(intent);
+            }
+            return missingIntents;
+        }
+
         public async Task<DiscordUser> GetUserAsync(string userID)
         {
             if (!Utilities.Utils.TryParseSnowflakeID(userID, out ulong ID))

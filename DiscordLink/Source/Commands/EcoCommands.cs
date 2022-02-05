@@ -127,6 +127,51 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
+        [ChatSubCommand("DiscordLink", "Checks all permissions and intents needed for the current configuration and reports any missing ones.", "DL-PermissionTest", ChatAuthorizationLevel.Admin)]
+        public static void PermissionTest(User callingUser)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.CheckPermissions(SharedCommands.CommandInterface.Eco, callingUser, MessageBuilder.PermissionReportComponentFlag.All);
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Checks all intents needed and reports any missing ones.", "DL-CheckIntents", ChatAuthorizationLevel.Admin)]
+        public static void CheckIntents(User callingUser)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.CheckPermissions(SharedCommands.CommandInterface.Eco, callingUser, MessageBuilder.PermissionReportComponentFlag.Intents);
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Checks all server permissions needed and reports any missing ones.", "DL-ServerPermissions", ChatAuthorizationLevel.Admin)]
+        public static void CheckServerPermissions(User callingUser)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.CheckPermissions(SharedCommands.CommandInterface.Eco, callingUser, MessageBuilder.PermissionReportComponentFlag.ServerPermissions);
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Checks all permissions needed for the given channel and reports any missing ones.", "DL-ChannelPermissions", ChatAuthorizationLevel.Admin)]
+        public static void CheckChannelPermissions(User callingUser, string channelNameOrID)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.CheckPermissionsForChannel(SharedCommands.CommandInterface.Eco, callingUser, channelNameOrID);
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Presents a list of all channel links.", "DL-ListChannels", ChatAuthorizationLevel.Admin)]
+        public static void ListLinkedChannels(User callingUser)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.ListChannelLinks(SharedCommands.CommandInterface.Eco, callingUser);
+            }, callingUser);
+        }
+
         #endregion
 
         #region Lookups
@@ -140,26 +185,6 @@ namespace Eco.Plugins.DiscordLink
                 string joinedGuildNames = string.Join("\n", plugin.Client.DiscordClient.GuildNames());
 
                 DisplayCommandData(callingUser, DLConstants.ECO_PANEL_SIMPLE_LIST, "Connected Discord Servers", joinedGuildNames);
-            }, callingUser);
-        }
-
-        [ChatSubCommand("DiscordLink", "Lists channels available to the bot in a specific server.", ChatAuthorizationLevel.Admin)]
-        public static void ListChannels(User callingUser, string guildNameOrID)
-        {
-            ExecuteCommand<object>((lUser, args) =>
-            {
-                var plugin = Plugins.DiscordLink.DiscordLink.Obj;
-
-                DiscordGuild guild = string.IsNullOrEmpty(guildNameOrID)
-                    ? plugin.Client.DiscordClient.DefaultGuild()
-                    : plugin.Client.GuildByNameOrID(guildNameOrID);
-
-                // Can happen if DefaultGuild is not configured.
-                if (guild == null)
-                    ReportCommandError(callingUser, $"Failed to find guild with name \"{guildNameOrID}\"");
-
-                string joinedChannelNames = string.Join("\n", guild.TextChannelNames());
-                DisplayCommandData(callingUser, DLConstants.ECO_PANEL_SIMPLE_LIST, "Connected Discord Servers", joinedChannelNames);
             }, callingUser);
         }
 
@@ -340,23 +365,16 @@ namespace Eco.Plugins.DiscordLink
         #region Message Relaying
 
         [ChatSubCommand("DiscordLink", "Sends a message to a specific server and channel.", ChatAuthorizationLevel.Admin)]
-        public static void SendMessageToDiscordChannel(User callingUser, string guildNameOrID, string channelNameOrID, string message)
+        public static void SendMessageToDiscordChannel(User callingUser, string channelNameOrID, string message)
         {
             ExecuteCommand<object>((lUser, args) =>
             {
                 var plugin = Plugins.DiscordLink.DiscordLink.Obj;
 
-                DiscordGuild guild = plugin.Client.GuildByNameOrID(guildNameOrID);
-                if (guild == null)
-                {
-                    ReportCommandError(callingUser, $"No guild with the name or ID \"{guildNameOrID}\" could be found.");
-                    return;
-                }
-
-                DiscordChannel channel = guild.ChannelByNameOrID(channelNameOrID);
+                DiscordChannel channel = plugin.Client.ChannelByNameOrID(channelNameOrID);
                 if (channel == null)
                 {
-                    ReportCommandError(callingUser, $"No channel with the name or ID \"{channelNameOrID}\" could be found in the guild \"{guild.Name}\".");
+                    ReportCommandError(callingUser, $"No channel with the name or ID \"{channelNameOrID}\" could be found.");
                     return;
                 }
 

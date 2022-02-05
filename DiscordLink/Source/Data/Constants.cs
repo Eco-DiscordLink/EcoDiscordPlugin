@@ -1,4 +1,5 @@
-﻿using DSharpPlus.Entities;
+﻿using DSharpPlus;
+using DSharpPlus.Entities;
 using Eco.Plugins.DiscordLink.Extensions;
 using System.IO;
 
@@ -6,6 +7,10 @@ namespace Eco.Plugins.DiscordLink
 {
     public static class DLConstants
     {
+        public static readonly Permissions[] REQUESTED_GUILD_PERMISSIONS = { Permissions.AccessChannels, Permissions.ManageRoles };
+        public static readonly Permissions[] REQUESTED_CHANNEL_PERMISSIONS = { Permissions.AccessChannels, Permissions.SendMessages, Permissions.EmbedLinks, Permissions.AddReactions, Permissions.MentionEveryone, Permissions.ManageMessages, Permissions.ReadMessageHistory };
+        public static readonly DiscordIntents[] REQUESTED_INTENTS = { DiscordIntents.AllUnprivileged, DiscordIntents.GuildMembers };
+
         public static readonly DiscordColor DISCORD_EMBED_COLOR = DiscordColor.Green;
         public const string ECO_NAME_TAG_COLOR = "7289DAFF";
 

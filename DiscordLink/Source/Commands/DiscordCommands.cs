@@ -250,6 +250,64 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
+        [Command("PermissionTest")]
+        [Description("Checks all permissions and intents needed for the current configuration and reports any missing ones.")]
+        [Aliases("DL-CheckAllPermissions", "CheckAllPermissions", "DL-PermissionReport", "PermissionReport", "DL-PermissionTest")]
+        public async Task CheckPermissions(CommandContext ctx)
+        {
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
+            {
+                await SharedCommands.CheckPermissions(SharedCommands.CommandInterface.Discord, ctx, MessageBuilder.PermissionReportComponentFlag.All);
+            }, ctx);
+        }
+
+        [Command("CheckIntents")]
+        [Description("Checks all intents needed and reports any missing ones.")]
+        [Aliases("DL-CheckIntents")]
+        public async Task CheckIntents(CommandContext ctx)
+        {
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
+            {
+                await SharedCommands.CheckPermissions(SharedCommands.CommandInterface.Discord, ctx, MessageBuilder.PermissionReportComponentFlag.Intents);
+            }, ctx);
+        }
+
+        [Command("CheckServerPermissions")]
+        [Description("Checks all server permissions needed and reports any missing ones.")]
+        [Aliases("DL-CheckServerPermissions", "ServerPermissions", "DL-ServerPermissions")]
+        public async Task CheckServerPermissions(CommandContext ctx)
+        {
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
+            {
+                await SharedCommands.CheckPermissions(SharedCommands.CommandInterface.Discord, ctx, MessageBuilder.PermissionReportComponentFlag.ServerPermissions);
+            }, ctx);
+        }
+
+        [Command("CheckChannelPermissions")]
+        [Description("Checks all permissions needed for the given channel and reports any missing ones.")]
+        [Aliases("DL-CheckChannelPermissions", "ChannelPermissions", "DL-ChannelPermissions")]
+        public async Task CheckChannelPermissions(CommandContext ctx, [Description("Name or ID of the channel to check permissions for. The current channel will be used if this parameter is omitted.")] string channelNameOrID = "")
+        {
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
+            {
+                if(string.IsNullOrWhiteSpace(channelNameOrID))
+                    await SharedCommands.CheckPermissionsForChannel(SharedCommands.CommandInterface.Discord, ctx, ctx.Channel);
+                else
+                    await SharedCommands.CheckPermissionsForChannel(SharedCommands.CommandInterface.Discord, ctx, channelNameOrID);
+            }, ctx);
+        }
+
+        [Command("ListLinkedChannels")]
+        [Description("Presents a list of all channel links.")]
+        [Aliases("DL-ListLinkedChannels", "ListChannels", "DL-ListChannels")]
+        public async Task ListLinkedChannels(CommandContext ctx)
+        {
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
+            {
+                await SharedCommands.ListChannelLinks(SharedCommands.CommandInterface.Discord, ctx);
+            }, ctx);
+        }
+
         [Command("Print")]
         [Description("Reposts the inputted message. Can be used to create tags for ordering display tags within a channel.")]
         public async Task Print(CommandContext ctx, [Description("The message to print.")] string message)

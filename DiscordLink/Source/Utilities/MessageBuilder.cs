@@ -34,7 +34,7 @@ using StoreOfferGroup = System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.
 
 namespace Eco.Plugins.DiscordLink.Utilities
 {
-    static class MessageBuilder
+    public static class MessageBuilder
     {
         #pragma warning disable format
         public enum ServerInfoComponentFlag
@@ -77,7 +77,16 @@ namespace Eco.Plugins.DiscordLink.Utilities
             Properties      = 1 << 11,
             All             = ~0
         }
-        #pragma warning disable format
+
+        public enum PermissionReportComponentFlag
+        {
+            Intents             = 1 << 0,
+            ServerPermissions   = 1 << 1,
+            ChannelPermissions  = 1 << 2,
+            All                 = ~0
+        }
+
+        #pragma warning restore format
 
         private class StoreOffer
         {
@@ -169,7 +178,6 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     builder.AppendLine();
                     builder.AppendLine("--- Config ---");
                     builder.AppendLine($"Name: {plugin.Client.DiscordClient.CurrentUser.Username}");
-                    builder.AppendLine($"Has GuildMembers Intent: {plugin.Client.BotHasIntent(DiscordIntents.GuildMembers)}");
 
                     builder.AppendLine();
                     builder.AppendLine("--- Storage - Persistent ---");
@@ -204,27 +212,26 @@ namespace Eco.Plugins.DiscordLink.Utilities
                             }
                         }
                     }
+                }
+                return builder.ToString();
+            }
 
+            public static string GetChannelLinkList()
+            {
+                StringBuilder builder = new StringBuilder();
+                foreach(ChannelLink link in DLConfig.GetChannelLinks(verifiedLinksOnly: false))
+                {
+                    builder.Append(link.ToString());
+                    if (!link.IsValid())
+                        builder.Append(" (Unverified)");
                     builder.AppendLine();
-                    builder.AppendLine("Cached Guilds:");
-                    foreach (DiscordGuild guild in plugin.Client.DiscordClient.Guilds.Values)
-                    {
-                        builder.AppendLine($"- {guild.Name} ({guild.Id})");
-                        builder.AppendLine("   Cached Channels");
-                        foreach (DiscordChannel channel in guild.Channels.Values)
-                        {
-                            builder.AppendLine($"  - {channel.Name} ({channel.Id})");
-                            builder.AppendLine($"      Permissions:");
-                            builder.AppendLine($"          Read Messages:          {plugin.Client.ChannelHasPermission(channel, Permissions.ReadMessageHistory)}");
-                            builder.AppendLine($"          Send Messages:          {plugin.Client.ChannelHasPermission(channel, Permissions.SendMessages)}");
-                            builder.AppendLine($"          Manage Messages:        {plugin.Client.ChannelHasPermission(channel, Permissions.ManageMessages)}");
-                            builder.AppendLine($"          Embed Links:            {plugin.Client.ChannelHasPermission(channel, Permissions.EmbedLinks)}");
-                            builder.AppendLine($"          Mention Everyone/Here:  {plugin.Client.ChannelHasPermission(channel, Permissions.MentionEveryone)}");
-                        }
-                    }
                 }
 
-                return builder.ToString();
+                if(builder.Length == 0)
+                {
+                    builder.AppendLine("No channel links found in configuration");
+                }
+                return builder.ToString().TrimEnd();
             }
 
             public static string GetPlayerCount()
@@ -263,6 +270,76 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     lawList += $"{MessageUtils.StripTags(law.Name)}\n";
                     creatorList += law.Creator != null ? $"{MessageUtils.StripTags(law.Creator.Name)}\n" : "Unknown\n";
                 }
+            }
+
+            public static string GetPermissionsReport(PermissionReportComponentFlag flag)
+            {
+                if (flag == 0)
+                    return "Permission Check Failed";
+
+                DLDiscordClient client = DiscordLink.Obj.Client;
+                StringBuilder builder = new StringBuilder();
+                if (flag.HasFlag(PermissionReportComponentFlag.Intents))
+                {
+                    foreach (DiscordIntents intent in DLConstants.REQUESTED_INTENTS)
+                    {
+                        if (!client.BotHasIntent(intent))
+                        {
+                            builder.AppendLine($"Missing Intent \"{Enum.GetName(intent)}\".");
+                        }
+                    }
+                }
+
+                if (flag.HasFlag(PermissionReportComponentFlag.ServerPermissions))
+                {
+                    foreach (Permissions permission in DLConstants.REQUESTED_GUILD_PERMISSIONS)
+                    {
+                        if (!client.BotHasPermission(permission))
+                        {
+                            builder.AppendLine($"Missing Server Permission \"{Enum.GetName(permission)}\".");
+                        }
+                    }
+                }
+
+                if (flag.HasFlag(PermissionReportComponentFlag.ChannelPermissions))
+                {
+                    foreach (ChannelLink link in DLConfig.GetChannelLinks().GroupBy(link => link.Channel.Id).Select(group => group.First())) // Only perform the check once per link
+                    {
+                        foreach (Permissions permission in DLConstants.REQUESTED_CHANNEL_PERMISSIONS)
+                        {
+                            if (!client.ChannelHasPermission(link.Channel, permission))
+                            {
+                                builder.AppendLine($"Missing Channel Permission \"{permission}\" in channel \"{link.Channel.Name}\".");
+                            }
+                        }
+                    }
+                }
+
+                if (builder.Length == 0)
+                {
+                    builder.AppendLine("Permission Check Passed!");
+                }
+
+                return builder.ToString();
+            }
+
+            public static string GetPermissionsReportForChannel(DiscordChannel channel)
+            {
+                StringBuilder builder = new StringBuilder();
+                foreach (Permissions permission in DLConstants.REQUESTED_CHANNEL_PERMISSIONS)
+                {
+                    if (!DiscordLink.Obj.Client.ChannelHasPermission(channel, permission))
+                    {
+                        builder.AppendLine($"- Missing Channel Permission \"{permission}\".");
+                    }
+                }
+
+                if (builder.Length == 0)
+                {
+                    builder.AppendLine("Permission Check Passed!");
+                }
+
+                return builder.ToString();
             }
 
             public static string GetPlayerSessionTimeList()

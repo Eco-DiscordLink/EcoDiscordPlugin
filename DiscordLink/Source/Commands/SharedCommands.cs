@@ -1,4 +1,5 @@
 ﻿using DSharpPlus.CommandsNext;
+using DSharpPlus.Entities;
 using Eco.Gameplay.Civics.Elections;
 using Eco.Gameplay.Economy;
 using Eco.Gameplay.Economy.WorkParties;
@@ -11,7 +12,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-
 using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
 
 namespace Eco.Plugins.DiscordLink
@@ -315,6 +315,41 @@ namespace Eco.Plugins.DiscordLink
                 await ReportCommandError(source, callContext, "Failed to send message.");
 
             return sent;
+        }
+
+        #endregion
+
+        #region Troubleshooting
+
+        public static async Task<bool> ListChannelLinks(CommandInterface source, object callContext)
+        {
+            await DisplayCommandData(source, callContext, "List of Linked Channels", MessageBuilder.Shared.GetChannelLinkList());
+            return true;
+        }
+
+        public static async Task<bool> CheckPermissions(CommandInterface source, object callContext, MessageBuilder.PermissionReportComponentFlag flag)
+        {
+            await DisplayCommandData(source, callContext, "Permission Report", MessageBuilder.Shared.GetPermissionsReport(flag));
+            return true;
+        }
+
+        public static async Task<bool> CheckPermissionsForChannel(CommandInterface source, object callContext, string channelNameOrID)
+        {
+            DiscordChannel channel = DiscordLink.Obj.Client.ChannelByNameOrID(channelNameOrID);
+            if(channel == null)
+            {
+                await ReportCommandError(source, callContext, $"No channel with the named \"{channelNameOrID}\" could be found.");
+                return false;
+            }
+
+            await CheckPermissionsForChannel(source, callContext, channel);
+            return true;
+        }
+
+        public static async Task<bool> CheckPermissionsForChannel(CommandInterface source, object callContext, DiscordChannel channel)
+        {
+            await DisplayCommandData(source, callContext, $"Permission Report for {channel.Name}", MessageBuilder.Shared.GetPermissionsReportForChannel(channel));
+            return true;
         }
 
         #endregion
