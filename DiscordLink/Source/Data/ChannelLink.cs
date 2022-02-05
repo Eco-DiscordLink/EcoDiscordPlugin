@@ -57,7 +57,8 @@ namespace Eco.Plugins.DiscordLink
 
         public override string ToString()
         {
-            return DiscordChannel;
+            string channelName = IsValid() ? Channel.Name : DiscordChannel;
+            return $"#{channelName}";
         }
 
         public object Clone()
@@ -126,6 +127,7 @@ namespace Eco.Plugins.DiscordLink
         public string EcoChannel { get; set; } = string.Empty;
         public override string ToString()
         {
+            string discordChannelName = IsValid() ? Channel.Name : DiscordChannel;
             return $"#{DiscordChannel} <--> {EcoChannel}";
         }
 
