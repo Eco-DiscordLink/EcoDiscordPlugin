@@ -179,7 +179,7 @@ namespace Eco.Plugins.DiscordLink
 
         public async Task<bool> Restart()
         {
-            Logger.Debug("Plugin restarting");
+            Logger.Debug("Attempting plugin restart");
 
             bool result = false;
             if (CanRestart)
