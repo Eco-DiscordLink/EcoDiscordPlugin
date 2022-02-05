@@ -24,7 +24,7 @@ using Module = Eco.Plugins.DiscordLink.Modules.Module;
 namespace Eco.Plugins.DiscordLink
 {
     [Priority(PriorityAttribute.High)] // Need to start before WorldGenerator in order to listen for world generation finished event
-    public class DiscordLink : IModKitPlugin, IInitializablePlugin, IShutdownablePlugin, IConfigurablePlugin, IDisplayablePlugin, IGameActionAware
+    public class DiscordLink : IModKitPlugin, IInitializablePlugin, IShutdownablePlugin, IConfigurablePlugin, IDisplayablePlugin, IGameActionAware, ICommandablePlugin
     {
         public readonly Version PluginVersion = Assembly.GetExecutingAssembly().GetName().Version;
 
@@ -157,6 +157,11 @@ namespace Eco.Plugins.DiscordLink
             EventConverter.Instance.Shutdown();
             DLStorage.Instance.Shutdown();
             return Task.CompletedTask;
+        }
+
+        public void GetCommands(Dictionary<string, Action> nameToFunction)
+        {
+            nameToFunction.Add("Verify Config", () => { Logger.Info($"Config Verification Report:\n{MessageBuilder.Shared.GetConfigVerificationReport()}"); });
         }
 
         public async Task<bool> Restart()
