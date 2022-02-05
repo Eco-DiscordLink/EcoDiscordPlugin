@@ -298,31 +298,18 @@ namespace Eco.Plugins.DiscordLink
                 : DiscordClient.Guilds.Values.FirstOrDefault(guild => guild.Name.EqualsCaseInsensitive(guildNameOrID));
         }
 
-        public DiscordChannel ChannelByNameOrID(string guildNameOrID, string channelNameOrID)
+        public DiscordChannel ChannelByNameOrID(string channelNameOrID)
         {
-            DiscordGuild guild = GuildByNameOrID(guildNameOrID);
-            if (guild == null)
-                return null;
-
             return Utilities.Utils.TryParseSnowflakeID(channelNameOrID, out ulong ID)
-                ? guild.Channels.Values.FirstOrDefault(channel => channel.Id == ID)
-                : guild.Channels.Values.FirstOrDefault(guild => guild.Name.EqualsCaseInsensitive(guildNameOrID));
+                ? Guild.Channels.Values.FirstOrDefault(channel => channel.Id == ID)
+                : Guild.Channels.Values.FirstOrDefault(guild => guild.Name.EqualsCaseInsensitive(channelNameOrID));
         }
 
-        public DiscordMember MemberByNameOrID(string guildNameOrID, string memberNameOrID)
-        {
-            DiscordGuild guild = GuildByNameOrID(guildNameOrID);
-            if (guild == null)
-                return null;
-
-            return MemberByNameOrID(guild, memberNameOrID);
-        }
-
-        public DiscordMember MemberByNameOrID(DiscordGuild guild, string memberNameOrID)
+        public DiscordMember MemberByNameOrID(string memberNameOrID)
         {
             return Utilities.Utils.TryParseSnowflakeID(memberNameOrID, out ulong ID)
-                ? guild.Members[ID]
-                : guild.Members.Values.FirstOrDefault(member => member.DisplayName.EqualsCaseInsensitive(memberNameOrID));
+                ? Guild.Members[ID]
+                : Guild.Members.Values.FirstOrDefault(member => member.DisplayName.EqualsCaseInsensitive(memberNameOrID));
         }
 
         public bool ChannelHasPermission(DiscordChannel channel, Permissions permission)

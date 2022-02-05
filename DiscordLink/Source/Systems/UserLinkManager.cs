@@ -187,7 +187,7 @@ namespace Eco.Plugins.DiscordLink
         public User EcoUser { get { return EcoUtils.UserBySteamOrSLGID(SteamID, SlgID); } }
 
         [JsonIgnore]
-        public DiscordMember DiscordMember { get { return !string.IsNullOrEmpty(DiscordID) ? DiscordLink.Obj.Client.GuildByNameOrID(GuildID)?.GetMemberAsync(ulong.Parse(DiscordID)).Result : null; } }
+        public DiscordMember DiscordMember { get { return !string.IsNullOrEmpty(DiscordID) ? DiscordLink.Obj.Client.Guild.GetMemberAsync(ulong.Parse(DiscordID)).Result : null; } }
 
         public LinkedUser(string slgID, string steamID, string discordID, string guildID)
         {

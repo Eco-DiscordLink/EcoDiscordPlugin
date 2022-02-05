@@ -439,7 +439,7 @@ namespace Eco.Plugins.DiscordLink
                 }
 
                 // Discord member
-                DiscordMember member = DiscordLink.Obj.Client.MemberByNameOrID(ctx.Guild, userNameOrID);
+                DiscordMember member = DiscordLink.Obj.Client.MemberByNameOrID(userNameOrID);
                 if (ecoUser == null && member == null)
                 {
                     await ReportCommandError(ctx, $"No Eco or Discord User with the name or ID {userNameOrID} could be found.");
