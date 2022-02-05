@@ -250,50 +250,61 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
-        [Command("PermissionTest")]
-        [Description("Checks all permissions and intents needed for the current configuration and reports any missing ones.")]
-        [Aliases("DL-CheckAllPermissions", "CheckAllPermissions", "DL-PermissionReport", "PermissionReport", "DL-PermissionTest")]
-        public async Task CheckPermissions(CommandContext ctx)
+        [Command("VerifyConfig")]
+        [Description("Checks configuration setup and reports any errors.")]
+        [Aliases("DL-VerifyConfig", "DL-ConfigReport", "ConfigReport")]
+        public async Task VerifyConfig(CommandContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.CheckPermissions(SharedCommands.CommandInterface.Discord, ctx, MessageBuilder.PermissionReportComponentFlag.All);
+                await SharedCommands.VerifyConfig(SharedCommands.CommandInterface.Discord, ctx);
             }, ctx);
         }
 
-        [Command("CheckIntents")]
+        [Command("VerifyPermissions")]
+        [Description("Checks all permissions and intents needed for the current configuration and reports any missing ones.")]
+        [Aliases("DL-VerifyPermissions", "DL-PermissionReport", "PermissionReport")]
+        public async Task VerifyPermissions(CommandContext ctx)
+        {
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
+            {
+                await SharedCommands.VerifyPermissions(SharedCommands.CommandInterface.Discord, ctx, MessageBuilder.PermissionReportComponentFlag.All);
+            }, ctx);
+        }
+
+        [Command("VerifyIntents")]
         [Description("Checks all intents needed and reports any missing ones.")]
-        [Aliases("DL-CheckIntents")]
+        [Aliases("DL-VerifyIntents")]
         public async Task CheckIntents(CommandContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.CheckPermissions(SharedCommands.CommandInterface.Discord, ctx, MessageBuilder.PermissionReportComponentFlag.Intents);
+                await SharedCommands.VerifyPermissions(SharedCommands.CommandInterface.Discord, ctx, MessageBuilder.PermissionReportComponentFlag.Intents);
             }, ctx);
         }
 
-        [Command("CheckServerPermissions")]
+        [Command("VerifyServerPermissions")]
         [Description("Checks all server permissions needed and reports any missing ones.")]
-        [Aliases("DL-CheckServerPermissions", "ServerPermissions", "DL-ServerPermissions")]
+        [Aliases("DL-VerifyServerPermissions", "ServerPermissions", "DL-ServerPermissions")]
         public async Task CheckServerPermissions(CommandContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.CheckPermissions(SharedCommands.CommandInterface.Discord, ctx, MessageBuilder.PermissionReportComponentFlag.ServerPermissions);
+                await SharedCommands.VerifyPermissions(SharedCommands.CommandInterface.Discord, ctx, MessageBuilder.PermissionReportComponentFlag.ServerPermissions);
             }, ctx);
         }
 
-        [Command("CheckChannelPermissions")]
+        [Command("VerifyChannelPermissions")]
         [Description("Checks all permissions needed for the given channel and reports any missing ones.")]
-        [Aliases("DL-CheckChannelPermissions", "ChannelPermissions", "DL-ChannelPermissions")]
+        [Aliases("DL-VerifyChannelPermissions", "ChannelPermissions", "DL-ChannelPermissions")]
         public async Task CheckChannelPermissions(CommandContext ctx, [Description("Name or ID of the channel to check permissions for. The current channel will be used if this parameter is omitted.")] string channelNameOrID = "")
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
                 if(string.IsNullOrWhiteSpace(channelNameOrID))
-                    await SharedCommands.CheckPermissionsForChannel(SharedCommands.CommandInterface.Discord, ctx, ctx.Channel);
+                    await SharedCommands.VerifyPermissionsForChannel(SharedCommands.CommandInterface.Discord, ctx, ctx.Channel);
                 else
-                    await SharedCommands.CheckPermissionsForChannel(SharedCommands.CommandInterface.Discord, ctx, channelNameOrID);
+                    await SharedCommands.VerifyPermissionsForChannel(SharedCommands.CommandInterface.Discord, ctx, channelNameOrID);
             }, ctx);
         }
 

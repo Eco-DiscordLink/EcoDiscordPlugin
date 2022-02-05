@@ -57,7 +57,7 @@ namespace Eco.Plugins.DiscordLink
             bool BotTokenIsNull = string.IsNullOrWhiteSpace(DLConfig.Data.BotToken);
             if (BotTokenIsNull)
             {
-                DLConfig.Instance.VerifyConfig(DLConfig.VerificationFlags.Static); // Make the user aware of the empty bot token
+                Logger.Info("Bot token not configured - See Github page for install instructions.");
                 return false; // Do not attempt to initialize if the bot token is empty
             }
 

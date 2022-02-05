@@ -11,7 +11,6 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Description = System.ComponentModel.DescriptionAttribute;
 
@@ -19,13 +18,6 @@ namespace Eco.Plugins.DiscordLink
 {
     public sealed class DLConfig
     {
-        public enum VerificationFlags
-        {
-            Static          = 1 << 0,
-            ChannelLinks    = 1 << 1,
-            All             = ~0
-        }
-
         public static class DefaultValues
         {
             public static Logger.LogLevel PluginLogLevel = Logger.LogLevel.Information;
@@ -166,12 +158,11 @@ namespace Eco.Plugins.DiscordLink
                 if (!restarted)
                     Logger.Info("Restart failed or a restart was already in progress");
 
-                return; // The token changing will trigger a reset
+                return; // Critical data changing will trigger a reset, we wait for that instead of continuing now
             }
 
             if (!correctionMade) // If a correction was made, this function will be called again
             {
-                VerifyConfig();
                 if (OnConfigChanged != null)
                     await OnConfigChanged.Invoke(this, EventArgs.Empty);
             }
@@ -250,87 +241,6 @@ namespace Eco.Plugins.DiscordLink
             _prevConfig = (DLConfigData)Data.Clone();
 
             return !correctionMade;
-        }
-
-        public void VerifyConfig(VerificationFlags verificationFlags = VerificationFlags.All)
-        {
-            List<string> errorMessages = new List<string>();
-            if (DiscordLink.Obj.Client.ConnectionStatus != DLDiscordClient.ConnectionState.Connected)
-            {
-                errorMessages.Add("[General Verification] Discord Client not connected.");
-            }
-
-            if (verificationFlags.HasFlag(VerificationFlags.Static))
-            {
-                // Guild
-                if(string.IsNullOrWhiteSpace(Data.ServerName))
-                {
-                    errorMessages.Add("Discord server not configured.");
-                }
-
-                // Bot Token
-                if (string.IsNullOrWhiteSpace(Data.BotToken))
-                {
-                    errorMessages.Add("Bot token not configured. See Github page for install instructions.");
-                }
-
-                // Invite message
-                if (!string.IsNullOrWhiteSpace(Data.InviteMessage) && !Data.InviteMessage.ContainsCaseInsensitive(DLConstants.INVITE_COMMAND_TOKEN))
-                {
-                    errorMessages.Add($"Invite message does not contain the invite link token {DLConstants.INVITE_COMMAND_TOKEN}.");
-                }
-
-                // Report errors
-                if (errorMessages.Count <= 0)
-                {
-                    Logger.Info("Static configuration verification completed without errors");
-                }
-                else
-                {
-                    string concatenatedMessages = "";
-                    foreach (string message in errorMessages)
-                    {
-                        concatenatedMessages += $"{message}\n";
-                    }
-                    Logger.Error($"Static configuration errors detected!\n{concatenatedMessages.Trim()}");
-                }
-            }
-
-            if (DiscordLink.Obj.Client.ConnectionStatus == DLDiscordClient.ConnectionState.Connected)
-            {
-                // Discord guild and channel information isn't available the first time this function is called
-                if (verificationFlags.HasFlag(VerificationFlags.ChannelLinks) && GetChannelLinks(verifiedLinksOnly: false).Count > 0 && DiscordLink.Obj.Client.Guild != null)
-                {
-                    List<ChannelLink> verifiedLinks = new List<ChannelLink>();
-                    foreach (ChannelLink link in _allChannelLinks)
-                    {
-                        if (link.IsValid() && !verifiedLinks.Contains(link))
-                        {
-                            verifiedLinks.Add(link);
-                            Logger.Info($"Channel Link Verified: {link}");
-                        }
-                    }
-
-                    if (verifiedLinks.Count >= _allChannelLinks.Count)
-                    {
-                        Logger.Info("All channel links sucessfully verified");
-                    }
-                    else
-                    {
-                        List<ChannelLink> unverifiedLinks = new List<ChannelLink>();
-                        foreach (ChannelLink link in _allChannelLinks)
-                        {
-                            if (!link.IsValid()) continue;
-
-                            if (!verifiedLinks.Contains(link))
-                                unverifiedLinks.Add(link);
-                        }
-
-                        if (unverifiedLinks.Count > 0)
-                            Logger.Info($"Unverified channels detected:\n * " + string.Join("\n * ", unverifiedLinks));
-                    }
-                }
-            }
         }
 
         private void BuildChanneLinkList()

@@ -127,39 +127,48 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Checks all permissions and intents needed for the current configuration and reports any missing ones.", "DL-PermissionTest", ChatAuthorizationLevel.Admin)]
-        public static void PermissionTest(User callingUser)
+        [ChatSubCommand("DiscordLink", "Checks configuration setup and reports any errors.", "DL-VerifyConfig", ChatAuthorizationLevel.Admin)]
+        public static void VerifyConfig(User callingUser)
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.CheckPermissions(SharedCommands.CommandInterface.Eco, callingUser, MessageBuilder.PermissionReportComponentFlag.All);
+                SharedCommands.VerifyConfig(SharedCommands.CommandInterface.Eco, callingUser);
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Checks all intents needed and reports any missing ones.", "DL-CheckIntents", ChatAuthorizationLevel.Admin)]
-        public static void CheckIntents(User callingUser)
+        [ChatSubCommand("DiscordLink", "Checks all permissions and intents needed for the current configuration and reports any missing ones.", "DL-VerifyPermissions", ChatAuthorizationLevel.Admin)]
+        public static void VerifyPermissions(User callingUser)
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.CheckPermissions(SharedCommands.CommandInterface.Eco, callingUser, MessageBuilder.PermissionReportComponentFlag.Intents);
+                SharedCommands.VerifyPermissions(SharedCommands.CommandInterface.Eco, callingUser, MessageBuilder.PermissionReportComponentFlag.All);
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Checks all server permissions needed and reports any missing ones.", "DL-ServerPermissions", ChatAuthorizationLevel.Admin)]
-        public static void CheckServerPermissions(User callingUser)
+        [ChatSubCommand("DiscordLink", "Checks all intents needed and reports any missing ones.", "DL-VerifyIntents", ChatAuthorizationLevel.Admin)]
+        public static void VerifyIntents(User callingUser)
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.CheckPermissions(SharedCommands.CommandInterface.Eco, callingUser, MessageBuilder.PermissionReportComponentFlag.ServerPermissions);
+                SharedCommands.VerifyPermissions(SharedCommands.CommandInterface.Eco, callingUser, MessageBuilder.PermissionReportComponentFlag.Intents);
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Checks all permissions needed for the given channel and reports any missing ones.", "DL-ChannelPermissions", ChatAuthorizationLevel.Admin)]
-        public static void CheckChannelPermissions(User callingUser, string channelNameOrID)
+        [ChatSubCommand("DiscordLink", "Checks all server permissions needed and reports any missing ones.", "DL-VerifyServerPermissions", ChatAuthorizationLevel.Admin)]
+        public static void VerifyServerPermissions(User callingUser)
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.CheckPermissionsForChannel(SharedCommands.CommandInterface.Eco, callingUser, channelNameOrID);
+                SharedCommands.VerifyPermissions(SharedCommands.CommandInterface.Eco, callingUser, MessageBuilder.PermissionReportComponentFlag.ServerPermissions);
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Checks all permissions needed for the given channel and reports any missing ones.", "DL-VerifyChannelPermissions", ChatAuthorizationLevel.Admin)]
+        public static void VerifyChannelPermissions(User callingUser, string channelNameOrID)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.VerifyPermissionsForChannel(SharedCommands.CommandInterface.Eco, callingUser, channelNameOrID);
             }, callingUser);
         }
 

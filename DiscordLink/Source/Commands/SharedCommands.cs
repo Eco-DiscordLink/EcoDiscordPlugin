@@ -327,13 +327,19 @@ namespace Eco.Plugins.DiscordLink
             return true;
         }
 
-        public static async Task<bool> CheckPermissions(CommandInterface source, object callContext, MessageBuilder.PermissionReportComponentFlag flag)
+        public static async Task<bool> VerifyConfig(CommandInterface source, object callContext)
+        {
+            await DisplayCommandData(source, callContext, "Config Verification Report", MessageBuilder.Shared.GetConfigVerificationReport());
+            return true;
+        }
+
+        public static async Task<bool> VerifyPermissions(CommandInterface source, object callContext, MessageBuilder.PermissionReportComponentFlag flag)
         {
             await DisplayCommandData(source, callContext, "Permission Report", MessageBuilder.Shared.GetPermissionsReport(flag));
             return true;
         }
 
-        public static async Task<bool> CheckPermissionsForChannel(CommandInterface source, object callContext, string channelNameOrID)
+        public static async Task<bool> VerifyPermissionsForChannel(CommandInterface source, object callContext, string channelNameOrID)
         {
             DiscordChannel channel = DiscordLink.Obj.Client.ChannelByNameOrID(channelNameOrID);
             if(channel == null)
@@ -342,11 +348,11 @@ namespace Eco.Plugins.DiscordLink
                 return false;
             }
 
-            await CheckPermissionsForChannel(source, callContext, channel);
+            await VerifyPermissionsForChannel(source, callContext, channel);
             return true;
         }
 
-        public static async Task<bool> CheckPermissionsForChannel(CommandInterface source, object callContext, DiscordChannel channel)
+        public static async Task<bool> VerifyPermissionsForChannel(CommandInterface source, object callContext, DiscordChannel channel)
         {
             await DisplayCommandData(source, callContext, $"Permission Report for {channel.Name}", MessageBuilder.Shared.GetPermissionsReportForChannel(channel));
             return true;
