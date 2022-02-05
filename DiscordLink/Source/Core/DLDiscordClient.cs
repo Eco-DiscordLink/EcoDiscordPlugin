@@ -320,7 +320,7 @@ namespace Eco.Plugins.DiscordLink
             DiscordMember member = channel.Guild.CurrentMember;
             if (member == null)
             {
-                Logger.Debug($"CurrentMember was null when evaluating channel permissions for channel {channel.Name} ");
+                Logger.Error($"CurrentMember was null when evaluating channel permissions for channel {channel.Name} ");
                 return false;
             }
 
@@ -448,12 +448,12 @@ namespace Eco.Plugins.DiscordLink
             {
                 return await channel.GetMessageAsync(messageID);
             }
-            catch (DSharpPlus.Exceptions.ServerErrorException e)
+            catch (ServerErrorException e)
             {
                 Logger.Debug(e.ToString());
                 return null;
             }
-            catch (DSharpPlus.Exceptions.NotFoundException e)
+            catch (NotFoundException e)
             {
                 Logger.Debug(e.ToString());
                 return null;
@@ -474,7 +474,7 @@ namespace Eco.Plugins.DiscordLink
             {
                 return await channel.GetMessagesAsync();
             }
-            catch (DSharpPlus.Exceptions.ServerErrorException e)
+            catch (ServerErrorException e)
             {
                 Logger.Debug(e.ToString());
                 return null;

@@ -261,7 +261,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 }
             }
 
-            public static void GetActiveElectionsList(out string lawList, out string creatorList)
+            public static void GetActiveLawsList(out string lawList, out string creatorList)
             {
                 lawList = string.Empty;
                 creatorList = string.Empty;
@@ -656,7 +656,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
                 if (flag.HasFlag(ServerInfoComponentFlag.LawList))
                 {
-                    Shared.GetActiveElectionsList(out string lawList, out string creatorList);
+                    Shared.GetActiveLawsList(out string lawList, out string creatorList);
                     if (!string.IsNullOrEmpty(lawList))
                     {
                         embed.AddField("Active Laws", lawList, inline: true);
@@ -1147,13 +1147,13 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 if (!boughtItemsDesc.IsEmpty())
                 {
                     boughtItemsDesc += $"\nTotal = {boughtTotal.ToString("n2")}";
-                    embed.AddField("Bought", boughtItemsDesc, inline: true);
+                    embed.AddField("Bought", boughtItemsDesc, allowAutoLineBreak: true, inline: true);
                 }
 
                 if (!soldItemsDesc.IsEmpty())
                 {
                     soldItemsDesc += $"\nTotal = {soldTotal.ToString("n2")}";
-                    embed.AddField("Sold", soldItemsDesc, inline: true);
+                    embed.AddField("Sold", soldItemsDesc, allowAutoLineBreak: true, inline: true);
                 }
 
                 // Currency transfer description
