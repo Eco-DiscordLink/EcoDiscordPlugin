@@ -30,6 +30,7 @@ namespace Eco.Plugins.DiscordLink
         {
             public static Logger.LogLevel PluginLogLevel = Logger.LogLevel.Information;
             public static Microsoft.Extensions.Logging.LogLevel BackendLogLevel = Microsoft.Extensions.Logging.LogLevel.None;
+            public static bool UseVerboseDisplay = false;
             public static readonly string[] AdminRoles = { "Admin", "Administrator", "Moderator" };
             public const string DiscordCommandPrefix = "?";
             public const string EcoCommandOutputChannel = "General";
@@ -491,5 +492,8 @@ namespace Eco.Plugins.DiscordLink
 
         [Description("Determines what backend message types will be printed to the server log. All message types below the selected one will be printed as well. This setting requires a plugin restart to take effect."), Category("Plugin Configuration")]
         public Microsoft.Extensions.Logging.LogLevel BackendLogLevel { get; set; } = DLConfig.DefaultValues.BackendLogLevel;
+
+        [Description("Determines if the output in the display tab of the server GUI should be verbose or not. This setting can be changed while the server is running."), Category("Plugin Configuration")]
+        public bool UseVerboseDisplay { get; set; } = DLConfig.DefaultValues.UseVerboseDisplay;
     }
 }

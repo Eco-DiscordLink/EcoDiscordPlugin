@@ -88,13 +88,7 @@ namespace Eco.Plugins.DiscordLink
 
         public string GetDisplayText()
         {
-#if DEBUG
-            bool debug = true;
-#else
-            bool debug = false;
-#endif
-            string displayText = MessageBuilder.Shared.GetDisplayStringAsync(verbose: debug).Result;
-            return displayText;
+            return MessageBuilder.Shared.GetDisplayStringAsync(DLConfig.Data.UseVerboseDisplay).Result;
         }
 
         public void Initialize(TimedTask timer)
