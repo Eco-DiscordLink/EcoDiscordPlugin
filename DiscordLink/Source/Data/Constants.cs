@@ -57,6 +57,6 @@ namespace Eco.Plugins.DiscordLink
 
         public static readonly DiscordLinkRole ROLE_LINKED_ACCOUNT = new DiscordLinkRole("DiscordLinked", null, DiscordColor.Cyan, false, true, "Linked Discord account to Eco Server");
 
-        public static string StoragePathAbs { get { return Directory.GetCurrentDirectory() + "/Storage/Mods/DiscordLink/"; } }
+        public static string STORAGE_PATH_ABS { get { return Directory.GetCurrentDirectory() + "/Storage/Mods/DiscordLink/"; } }
     }
 }
