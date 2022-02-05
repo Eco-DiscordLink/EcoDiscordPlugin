@@ -49,8 +49,10 @@ namespace Eco.Plugins.DiscordLink
         {
             if (source == CommandInterface.Eco)
                 EcoCommands.DisplayCommandData(callContext as User, panelInstance, title, data as string);
-            else
-                await DiscordCommands.DisplayCommandData(callContext as CommandContext, title, data as DiscordLinkEmbed);
+            else if(data is DiscordLinkEmbed embed)
+                await DiscordCommands.DisplayCommandData(callContext as CommandContext, title, embed);
+            else if (data is string content)
+                await DiscordCommands.DisplayCommandData(callContext as CommandContext, title, content);
         }
 
         #endregion
@@ -880,7 +882,7 @@ namespace Eco.Plugins.DiscordLink
                     }
                     else
                     {
-                        await DiscordCommands.DisplayCommandData((CommandContext)callContext, $"[{snippetKey}]\n```{snippetText}```");
+                        await DiscordCommands.DisplayCommandData((CommandContext)callContext, snippetKey, snippetText);
                     }
                 }
                 else

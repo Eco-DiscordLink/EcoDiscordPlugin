@@ -163,9 +163,13 @@ namespace Eco.Plugins.DiscordLink
             await RespondToCommand(ctx, message);
         }
 
-        public static async Task DisplayCommandData(CommandContext ctx, string text, DiscordLinkEmbed embed = null)
+        public static async Task DisplayCommandData(CommandContext ctx, string title, DiscordLinkEmbed embed)
         {
-            await RespondToCommand(ctx, text, embed);
+            await RespondToCommand(ctx, title, embed);
+        }
+        public static async Task DisplayCommandData(CommandContext ctx, string title, string content)
+        {
+            await RespondToCommand(ctx,  $"**{title}**\n```{content}```");
         }
 
         #endregion
