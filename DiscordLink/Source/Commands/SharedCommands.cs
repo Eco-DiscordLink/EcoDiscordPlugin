@@ -335,7 +335,7 @@ namespace Eco.Plugins.DiscordLink
 
         public static async Task<bool> VerifyPermissions(CommandInterface source, object callContext, MessageBuilder.PermissionReportComponentFlag flag)
         {
-            await DisplayCommandData(source, callContext, "Permission Report", MessageBuilder.Shared.GetPermissionsReport(flag));
+            await DisplayCommandData(source, callContext, "Permission Verification Report", MessageBuilder.Shared.GetPermissionsReport(flag));
             return true;
         }
 
@@ -354,7 +354,7 @@ namespace Eco.Plugins.DiscordLink
 
         public static async Task<bool> VerifyPermissionsForChannel(CommandInterface source, object callContext, DiscordChannel channel)
         {
-            await DisplayCommandData(source, callContext, $"Permission Report for {channel.Name}", MessageBuilder.Shared.GetPermissionsReportForChannel(channel));
+            await DisplayCommandData(source, callContext, $"Permission Verification Report for {channel.Name}", MessageBuilder.Shared.GetPermissionsReportForChannel(channel));
             return true;
         }
 
