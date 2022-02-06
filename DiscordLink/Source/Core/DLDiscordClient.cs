@@ -524,7 +524,7 @@ namespace Eco.Plugins.DiscordLink
                 }
 
                 // Either make sure we have permission to use embeds or convert the embed to text
-                string fullTextContent = ChannelHasPermission(channel, Permissions.EmbedLinks) ? textContent : $"{textContent}\n{embedContent.AsText()}";
+                string fullTextContent = (embedContent == null || ChannelHasPermission(channel, Permissions.EmbedLinks)) ? textContent : $"{textContent}\n{embedContent.AsText()}";
 
                 // If needed; split the message into multiple parts
                 ICollection<string> stringParts = MessageUtils.SplitStringBySize(fullTextContent, DLConstants.DISCORD_MESSAGE_CHARACTER_LIMIT);
