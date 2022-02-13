@@ -28,7 +28,7 @@ namespace Eco.Plugins.DiscordLink
         public const int DISCORD_EMBED_FOOTER_CHARACTER_LIMIT = 2048;
         public const int DISCORD_EMBED_FOOTER_DESCRIPTION_LIMIT = 2048;
         public const int DISCORD_EMBED_FIELD_CHARACTER_LIMIT = 1024;
-        public const int DISCORD_EMBED_FIELD_CHARACTER_PER_LINE_LIMIT = 30;
+        public const int DISCORD_EMBED_FIELD_CHARACTER_PER_LINE_LIMIT = 25;
         public const int DISCORD_EMBED_FIELD_COUNT_LIMIT = 25;
         public const int DISCORD_EMBED_FIELD_ALIGNED_COUNT_LIMIT = 24; // Discord embed fields align when there are three fields per row
         public const int DISCORD_EMBED_SIZE_SMALL_FIELD_LIMIT = 3;

@@ -4,6 +4,7 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using Eco.Gameplay.Players;
 using Eco.Gameplay.Systems.Chat;
+using Eco.Gameplay.Systems.Messaging.Chat;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Utils;
@@ -335,8 +336,6 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                var plugin = DiscordLink.Obj;
-
                 if (string.IsNullOrWhiteSpace(message))
                 {
                     Random rnd = new Random();
@@ -367,8 +366,7 @@ namespace Eco.Plugins.DiscordLink
                 if (string.IsNullOrWhiteSpace(ecoChannel))
                     ecoChannel = DLConstants.DEFAULT_CHAT_CHANNEL;
 
-                string formattedMessage = $"#{ecoChannel} {DLConstants.ECHO_COMMAND_TOKEN} {message}";
-                ChatManager.SendChat(formattedMessage, plugin.EcoUser);
+                EcoUtils.SendChatToChannel(ecoChannel, $"{DLConstants.ECHO_COMMAND_TOKEN} {message}");
             }, ctx);
         }
 

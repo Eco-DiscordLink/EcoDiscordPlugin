@@ -1,5 +1,4 @@
 ﻿using Eco.Core.Systems;
-using Eco.Core.Utils;
 using Eco.EM.Framework.ChatBase;
 using Eco.Gameplay.Civics;
 using Eco.Gameplay.Civics.Demographics;
@@ -11,7 +10,9 @@ using Eco.Gameplay.Economy.WorkParties;
 using Eco.Gameplay.Players;
 using Eco.Gameplay.Property;
 using Eco.Gameplay.Skills;
-using Eco.Gameplay.Systems.Chat;
+using Eco.Gameplay.Systems;
+using Eco.Gameplay.Systems.Messaging.Chat;
+using Eco.Gameplay.Systems.Messaging.Chat.Channels;
 using Eco.Shared.Items;
 using Eco.Shared.Utils;
 using System.Collections.Generic;
@@ -28,7 +29,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             Error
         }
 
-        public static readonly string DefaultChatChannelTag = "#general";
+        public static readonly string DefaultChatChannelName = "#general";
 
         #region Lookups
 
@@ -45,22 +46,22 @@ namespace Eco.Plugins.DiscordLink.Utilities
         public static User OnlineUserByNameEcoID(string userNameOrID) => int.TryParse(userNameOrID, out int ID) ? OnlineUserByEcoID(ID) : OnlineUserByName(userNameOrID);
         public static User OnlineUserBySteamOrSLGDID(string steamID, string slgID) => UserManager.OnlineUsers.FirstOrDefault(user => user.SteamId.Equals(steamID) || user.SlgId.Equals(slgID));
 
-        public static IEnumerable<Election> ActiveElections => ElectionManager.Obj.CurrentElections.Where(election => election.Valid() && election.State == Shared.Items.ProposableState.Active);
+        public static IEnumerable<Election> ActiveElections => ElectionManager.Obj.CurrentElections(null).Where(election => election.Valid() && election.State == Shared.Items.ProposableState.Active);
         public static Election ActiveElectionByName(string electionName) => ActiveElections.FirstOrDefault(election => election.Name.EqualsCaseInsensitive(electionName));
         public static Election ActiveElectionByID(int electionID) => ActiveElections.FirstOrDefault(election => election.Id == electionID);
         public static Election ActiveElectionByNameOrID(string electionNameOrID) => int.TryParse(electionNameOrID, out int ID) ? ActiveElectionByID(ID) : ActiveElectionByName(electionNameOrID);
 
-        public static IEnumerable<Law> ActiveLaws => CivicsData.Obj.Laws.All<Law>().Where(law => law.State == ProposableState.Active);
+        public static IEnumerable<Law> ActiveLaws => CivicsData.Obj.Laws.NonNull().Where(law => law.State == ProposableState.Active);
         public static Law ActiveLawByName(string lawName) => ActiveLaws.FirstOrDefault(law => law.Name.EqualsCaseInsensitive(lawName));
         public static Law ActiveLawByID(int lawID) => ActiveLaws.FirstOrDefault(law => law.Id == lawID);
         public static Law ActiveLawByNameByNameOrID(string lawNameOrID) => int.TryParse(lawNameOrID, out int ID) ? ActiveLawByID(ID) : ActiveLawByName(lawNameOrID);
 
-        public static IEnumerable<WorkParty> ActiveWorkParties => Registrars.Get<WorkParty>().All<WorkParty>().NonNull().Where(wp => wp.State == ProposableState.Active);
+        public static IEnumerable<WorkParty> ActiveWorkParties => Registrars.Get<WorkParty>().NonNull().Where(wp => wp.State == ProposableState.Active);
         public static WorkParty ActiveWorkPartyByName(string workPartyName) => ActiveWorkParties.FirstOrDefault(wp => wp.Name.EqualsCaseInsensitive(workPartyName));
         public static WorkParty ActiveWorkPartyByID(int workPartyID) => ActiveWorkParties.FirstOrDefault(wp => wp.Id == workPartyID);
         public static WorkParty ActiveWorkPartyByNameOrID(string workPartyNameOrID) => int.TryParse(workPartyNameOrID, out int ID) ? ActiveWorkPartyByID(ID) : ActiveWorkPartyByName(workPartyNameOrID);
 
-        public static IEnumerable<Demographic> ActiveDemographics => DemographicManager.Obj.ActiveAndValidDemographics;
+        public static IEnumerable<Demographic> ActiveDemographics => DemographicManager.Obj.ActiveAndValidDemographics(null);
         public static Demographic ActiveDemographicByName(string demographicName) => ActiveDemographics.FirstOrDefault(demographic => demographic.Name.EqualsCaseInsensitive(demographicName));
         public static Demographic ActiveDemographicByID(int demographicID) => ActiveDemographics.FirstOrDefault(demographic => demographic.Id == demographicID);
         public static Demographic ActiveDemographicByNameOrID(string demographicNameOrID) => int.TryParse(demographicNameOrID, out int ID) ? ActiveDemographicByID(ID) : ActiveDemographicByName(demographicNameOrID);
@@ -80,7 +81,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
         public static Deed DeedByID(long deedID) => Deeds.FirstOrDefault(deed => deed.Id.ToLong() == deedID);
         public static Deed DeedByNameOrID(string deedNameOrID) => long.TryParse(deedNameOrID, out long ID) ? DeedByID(ID) : DeedByName(deedNameOrID);
 
-        public static IEnumerable<Skill> Specialties => SkillTree.AllSkillTrees.SelectMany(skilltree => skilltree.Children).Select(skilltree => skilltree.StaticSkill);
+        public static IEnumerable<Skill> Specialties => SkillTree.AllSkillTrees.SelectMany(skilltree => skilltree.ProfessionChildren).Select(skilltree => skilltree.StaticSkill);
         public static Skill SpecialtyByName(string specialtyName) => Specialties.FirstOrDefault(specialty => specialty.Name.EqualsCaseInsensitive(specialtyName));
 
         public static IEnumerable<Skill> Professions => SkillTree.ProfessionSkillTrees.Select(skilltree => skilltree.StaticSkill);
@@ -101,31 +102,68 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         #region Message Sending
 
+        public static void EnsureChatChannelExists(string channelName)
+        {
+            if (!ChatChannelExists(channelName))
+            {
+                CreateChannel(channelName);
+            }
+        }
+
+        public static bool ChatChannelExists(string channelName)
+        {
+            return ChannelManager.Obj.Registrar.GetByName(channelName) != null;
+        }
+
+        public static Channel CreateChannel(string channelName)
+        {
+            Channel newChannel = new Channel();
+            newChannel.Managers.Add(DemographicManager.Obj.Get(SpecialDemographics.Admins));
+            newChannel.Users.Add(DemographicManager.Obj.Get(SpecialDemographics.Everyone));
+            newChannel.Name = channelName;
+            ChannelManager.Obj.Registrar.Insert(newChannel);
+
+            var channelUsers = newChannel.ChatRecipients;
+            foreach (User user in channelUsers)
+            {
+                var tabSettings = GlobalData.Obj.ChatSettings(user).ChatTabSettings;
+                var chatTab = tabSettings.OfType<ChatTabSettingsCommon>().First(tabSettings => tabSettings.Channels.Contains(ChannelManager.Obj.Get(SpecialChannel.General)));
+                chatTab.Channels.Add(newChannel);
+            }
+
+            return newChannel;
+        }
+
+        public static bool SendChatRaw(string targetAndMessage)
+        {
+            return ChatBaseExtended.CBChat(targetAndMessage, DiscordLink.Obj.EcoUser, ChatBase.MessageType.Permanent, forServer: true);
+        }
+
         public static bool SendChatToChannel(string channel, string message)
         {
-            return ChatManager.SendChat($"#{channel} {message}", DiscordLink.Obj.EcoUser).Success;
+            return ChatBaseExtended.CBChat($"#{channel} {message}", DiscordLink.Obj.EcoUser, ChatBase.MessageType.Permanent);
         }
 
         public static bool SendChatToDefaultChannel(string message)
         {
-             return ChatManager.SendChat($"{DefaultChatChannelTag} {message}", DiscordLink.Obj.EcoUser).Success;
+            return ChatBaseExtended.CBChat($"#{DefaultChatChannelName} {message}", DiscordLink.Obj.EcoUser, ChatBase.MessageType.Permanent);
         }
 
         public static bool SendChatToUser(User user, string message)
         {
-            return ChatManager.SendChat($"@{user.Name} {message}", DiscordLink.Obj.EcoUser) == Result.Succeeded;
+            return ChatBaseExtended.CBChat($"@{user.Name} {message}", DiscordLink.Obj.EcoUser, ChatBase.MessageType.Permanent);
         }
 
         public static bool SendServerMessageToUser(User user, bool permanent, string message)
         {
             ChatBase.MessageType messageType = permanent ? ChatBase.MessageType.Permanent : ChatBase.MessageType.Temporary;
-            return ChatBaseExtended.CBChat(message, user, messageType);
+            return ChatBaseExtended.CBMessage(message, user, messageType);
         }
 
         public static bool SendServerMessageToAll(bool permanent, string message)
         {
             ChatBase.MessageType messageType = permanent ? ChatBase.MessageType.Permanent : ChatBase.MessageType.Temporary;
-            return ChatBaseExtended.CBChat(message, messageType);
+            return ChatBaseExtended.CBMessage(message, messageType);
         }
 
         public static bool SendOKBoxToUser(User user, string message)

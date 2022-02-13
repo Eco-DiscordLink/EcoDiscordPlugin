@@ -44,7 +44,7 @@ namespace Eco.Plugins.DiscordLink.Modules
         private async Task ForwardMessageToEcoChannel(DiscordLink plugin, DiscordMessage message, string ecoChannel)
         {
             Logger.DebugVerbose($"Sending Discord message to Eco channel: {ecoChannel}");
-            ChatManager.SendChat(await MessageUtils.FormatMessageForEco(message, ecoChannel), plugin.EcoUser);
+            EcoUtils.SendChatRaw(await MessageUtils.FormatMessageForEco(message, ecoChannel));
             ++_opsCount;
         }
     }

@@ -37,8 +37,7 @@ namespace Eco.Plugins.DiscordLink.Modules
         protected override void GetDisplayContent(DiscordTarget target, out List<Tuple<string, DiscordLinkEmbed>> tagAndContent)
         {
             tagAndContent = new List<Tuple<string, DiscordLinkEmbed>>();
-            List<WorkParty> workParties = Registrars.Get<WorkParty>().All<WorkParty>().NonNull().Where(x => x.State == ProposableState.Active).ToList();
-            foreach (WorkParty workParty in workParties)
+            foreach (WorkParty workParty in EcoUtils.ActiveWorkParties)
             {
                 string tag = $"{BaseTag} [{workParty.Id}]";
                 DiscordLinkEmbed report = MessageBuilder.Discord.GetWorkPartyReport(workParty);

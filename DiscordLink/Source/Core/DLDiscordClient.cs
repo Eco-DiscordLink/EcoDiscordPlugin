@@ -600,7 +600,7 @@ namespace Eco.Plugins.DiscordLink
                 DiscordChannel channel = message.GetChannel();
                 if (!ChannelHasPermission(channel, Permissions.ManageMessages))
                 {
-                    Logger.Warning($"Attempted to modify message in channel `{channel}` but the bot user is lacking permissions for this action");
+                    Logger.Error($"Attempted to modify message in channel `{channel}` but the bot user is lacking permissions for this action");
                     return null;
                 }
 
@@ -630,7 +630,7 @@ namespace Eco.Plugins.DiscordLink
                 if (string.IsNullOrWhiteSpace(channelName))
                     channelName = "Unknown channel";
 
-                Logger.Warning($"Failed to modify message in channel \"{channelName}\". Error message: {e}");
+                Logger.Error($"Failed to modify message in channel \"{channelName}\". Error message: {e}");
             }
             return editedMessage;
         }

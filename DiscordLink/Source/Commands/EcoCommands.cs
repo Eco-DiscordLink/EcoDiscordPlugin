@@ -1,7 +1,7 @@
 using DSharpPlus;
 using DSharpPlus.Entities;
 using Eco.Gameplay.Players;
-using Eco.Gameplay.Systems.Chat;
+using Eco.Gameplay.Systems.Messaging.Chat.Commands;
 using Eco.Shared.Localization;
 using Eco.Plugins.DiscordLink.Utilities;
 using System;
@@ -34,7 +34,7 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (Exception e)
             {
-                ChatManager.ServerMessageToPlayer(new LocString($"Error occurred while attempting to run that command. Error message: {e}"), callingUser);
+                EcoUtils.SendInfoBoxToUser(callingUser, $"Error occurred while attempting to run that command. Error message: {e}");
                 Logger.Error($"An exception occured while attempting to execute a command.\nCommand name: \"{commandName}\"\nCalling user: \"{MessageUtils.StripTags(callingUser.Name)}\"\nError message: {e}");
             }
         }

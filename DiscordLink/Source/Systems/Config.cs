@@ -117,11 +117,8 @@ namespace Eco.Plugins.DiscordLink
             }
 
             // Channel Links
-            foreach (ChannelLink link in _allChannelLinks)
-            {
-                if (link.Initailize())
-                    _verifiedChannelLinks.Add(link);
-            }
+            VerifyLinks();
+            InitChatLinks();
         }
 
         public void HandleCollectionChanged(NotifyCollectionChangedEventArgs args)
@@ -149,6 +146,8 @@ namespace Eco.Plugins.DiscordLink
             bool correctionMade = !Save();
 
             BuildChanneLinkList();
+            VerifyLinks();
+            InitChatLinks();
 
             if (tokenChanged || guildChanged)
             {
@@ -241,6 +240,25 @@ namespace Eco.Plugins.DiscordLink
             _prevConfig = (DLConfigData)Data.Clone();
 
             return !correctionMade;
+        }
+
+        private void VerifyLinks()
+        {
+            _verifiedChannelLinks.Clear();
+            foreach (ChannelLink link in _allChannelLinks)
+            {
+                if (link.Initailize())
+                    _verifiedChannelLinks.Add(link);
+            }
+        }
+
+        private void InitChatLinks()
+        {
+            foreach (ChatChannelLink chatLink in Data.ChatChannelLinks)
+            {
+                if (chatLink.IsValid())
+                    EcoUtils.EnsureChatChannelExists(chatLink.EcoChannel);
+            }
         }
 
         private void BuildChanneLinkList()

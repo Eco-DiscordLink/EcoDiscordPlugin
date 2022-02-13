@@ -839,7 +839,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 if (flag.HasFlag(PlayerReportComponentFlag.Demographics))
                 {
                     StringBuilder demographicDesc = new StringBuilder();
-                    IEnumerable<Demographic> userDemographics = EcoUtils.ActiveDemographics.Where(demographic => demographic.Contains(user)).OrderBy(demographic => demographic.Name);
+                    IEnumerable<Demographic> userDemographics = EcoUtils.ActiveDemographics.Where(demographic => demographic.ContainsUser(user)).OrderBy(demographic => demographic.Name);
                     foreach (Demographic demographic in userDemographics)
                     {
                         demographicDesc.AppendLine(demographic.Name + (demographic.Creator == user ? " (Creator)" : string.Empty));
@@ -867,7 +867,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     StringBuilder propertiessSizeOrVehicleDesc = new StringBuilder();
                     StringBuilder propertiessLocationDesc = new StringBuilder();
 
-                    IEnumerable<Deed> userDeeds = EcoUtils.Deeds.Where(deed => deed.ContainsOwners(user)).OrderByDescending(deed => deed.GetTotalPlotSize());
+                    IEnumerable<Deed> userDeeds = EcoUtils.Deeds.Where(deed => deed.ContainsOwner(user)).OrderByDescending(deed => deed.GetTotalPlotSize());
                     foreach (Deed deed in userDeeds)
                     {
                         propertiessDesc.AppendLine(deed.Name.TrimEndString(" Deed"));
