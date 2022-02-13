@@ -1,6 +1,7 @@
 ﻿using Eco.Gameplay.GameActions;
 using Eco.Gameplay.Objects;
 using Eco.Plugins.DiscordLink.Utilities;
+using Eco.Shared.Utils;
 using Nito.AsyncEx;
 using System;
 using System.Collections.Generic;
@@ -106,7 +107,30 @@ namespace Eco.Plugins.DiscordLink.Events
             }
         }
 
-        private void FireEvent(DLEventType evetType, object data)
+        public void ConvertServerLogEvent(string logEventText)
+        {
+            string strippedEventText = MessageUtils.StripTags(logEventText);
+            Logger.LogLevel eventLevel = Logger.LogLevel.Silent;
+            string[] parts = strippedEventText.Split(':');
+            if (parts.Length == 0)
+            {
+                Logger.Warning($"Ignored non delimited log event: \"{strippedEventText}\"");
+                return;
+            }
+
+            if (parts[0].ContainsCaseInsensitive("Log"))
+                eventLevel = Logger.LogLevel.Information;
+            else if (parts[0].ContainsCaseInsensitive("Error"))
+                eventLevel = Logger.LogLevel.Error;
+            else if (parts[0].ContainsCaseInsensitive("Warning"))
+                eventLevel = Logger.LogLevel.Warning;
+            else if (parts[0].ContainsCaseInsensitive("Debug"))
+                eventLevel = Logger.LogLevel.Debug;
+
+            FireEvent(DLEventType.ServerLogWritten, eventLevel, parts[1].Trim());
+        }
+
+        private void FireEvent(DLEventType evetType, params object[] data)
         {
             if (OnEventFired != null)
                 OnEventFired.Invoke(this, new DLEventArgs(evetType, data));

@@ -60,6 +60,11 @@ namespace Eco.Plugins.DiscordLink
         public static readonly DiscordEmoji ACCEPT_EMOJI = DiscordEmoji.FromName(DiscordLink.Obj.Client.DiscordClient, ":white_check_mark:");
         public static readonly DiscordEmoji DENY_EMOJI = DiscordEmoji.FromName(DiscordLink.Obj.Client.DiscordClient, ":x:");
 
+        public static readonly DiscordEmoji DEBUG_LOG_EMOJI = DiscordEmoji.FromName(DiscordLink.Obj.Client.DiscordClient, ":exclamation:");
+        public static readonly DiscordEmoji WARNING_LOG_EMOJI = DiscordEmoji.FromName(DiscordLink.Obj.Client.DiscordClient, ":small_orange_diamond:");
+        public static readonly DiscordEmoji INFO_LOG_EMOJI = DiscordEmoji.FromName(DiscordLink.Obj.Client.DiscordClient, ":white_small_square:");
+        public static readonly DiscordEmoji ERROR_LOG_EMOJI = DiscordEmoji.FromName(DiscordLink.Obj.Client.DiscordClient, ":small_red_triangle:");
+
         public static readonly DiscordLinkRole ROLE_LINKED_ACCOUNT = new DiscordLinkRole("DiscordLinked", null, DiscordColor.Cyan, false, true, "Linked Discord account to Eco Server");
 
         public static string STORAGE_PATH_ABS { get { return Directory.GetCurrentDirectory() + "/Storage/Mods/DiscordLink/"; } }

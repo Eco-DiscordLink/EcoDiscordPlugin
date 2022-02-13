@@ -3,6 +3,7 @@ using Eco.Core;
 using Eco.Core.Plugins;
 using Eco.Core.Plugins.Interfaces;
 using Eco.Core.Utils;
+using Eco.Core.Utils.Logging;
 using Eco.EM.Framework.VersioningTools;
 using Eco.Gameplay.Civics.Elections;
 using Eco.Gameplay.GameActions;
@@ -143,6 +144,7 @@ namespace Eco.Plugins.DiscordLink
             EventConverter.OnEventFired += (sender, args) => HandleEvent(args.EventType, args.Data);
             UserLinkManager.OnLinkedUserVerified += (sender, args) => HandleEvent(DLEventType.AccountLinkVerified, args);
             UserLinkManager.OnLinkedUserRemoved += (sender, args) => HandleEvent(DLEventType.AccountLinkRemoved, args);
+            ClientLogEventTrigger.OnLogWritten += (message) => EventConverter.Instance.ConvertServerLogEvent(message);
 
             HandleEvent(DLEventType.ServerStarted, null);
         }
@@ -333,6 +335,7 @@ namespace Eco.Plugins.DiscordLink
             Modules.Add(new AccountLinkRoleModule());
             Modules.Add(new DemographicsRoleModule());
             Modules.Add(new SpecialtiesRoleModule());
+            Modules.Add(new ServerLogFeed());
 
             Modules.ForEach(module => module.Setup());
             Modules.ForEach(async module => await module.HandleStartOrStop());
