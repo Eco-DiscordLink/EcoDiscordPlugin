@@ -10,14 +10,14 @@ namespace Eco.Plugins.DiscordLink.Events
 {
     public class DLEventArgs : EventArgs
     {
-        public DLEventArgs(DLEventType eventType, object data)
+        public DLEventArgs(DLEventType eventType, object[] data)
         {
             EventType = eventType;
             Data = data;
         }
 
         public DLEventType EventType { get; set; }
-        public object Data { get; set; }
+        public object[] Data { get; set; }
     }
 
     public sealed class EventConverter
