@@ -63,17 +63,27 @@ namespace Eco.Plugins.DiscordLink
         {
             DiscordLink plugin = DiscordLink.Obj;
             Logger.Info("Restart command executed - Restarting");
+            await ReportCommandInfo(source, callContext, "Attempting Restart!");
             bool restarted = plugin.Restart().Result;
 
             string result;
             if (restarted)
             {
-                result = "Restarting...";
-                await ReportCommandInfo(source, callContext, result);
+                result = "Restarted!";
+                if (source == CommandInterface.Eco)
+                {
+                    await ReportCommandInfo(source, callContext, result);
+                }
+                else if (source == CommandInterface.Discord)
+                {
+                    // Special handling since the call context is broken by the restart and can't be used to respond to the command
+                    DiscordChannel channel = plugin.Client.ChannelByNameOrID(((CommandContext)callContext).Channel.Id.ToString());
+                    _ = plugin.Client.SendMessageAsync(channel, result);
+                }
             }
             else
             {
-                result = "Restart failed or a restart was already in progress";
+                result = "Restart failed or a restart was already in progress.";
                 await ReportCommandError(source, callContext, result);
             }
 
