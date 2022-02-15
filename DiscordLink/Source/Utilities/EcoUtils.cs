@@ -29,7 +29,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             Error
         }
 
-        public static readonly string DefaultChatChannelName = "#general";
+        public static readonly string DefaultChatChannelName = "general";
 
         #region Lookups
 
@@ -141,17 +141,17 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         public static bool SendChatToChannel(string channel, string message)
         {
-            return ChatBaseExtended.CBChat($"#{channel} {message}", DiscordLink.Obj.EcoUser, ChatBase.MessageType.Permanent);
+            return SendChatRaw($"#{channel} {message}");
         }
 
         public static bool SendChatToDefaultChannel(string message)
         {
-            return ChatBaseExtended.CBChat($"#{DefaultChatChannelName} {message}", DiscordLink.Obj.EcoUser, ChatBase.MessageType.Permanent);
+            return SendChatRaw($"#{DefaultChatChannelName} {message}");
         }
 
         public static bool SendChatToUser(User user, string message)
         {
-            return ChatBaseExtended.CBChat($"@{user.Name} {message}", DiscordLink.Obj.EcoUser, ChatBase.MessageType.Permanent);
+            return SendChatRaw($"@{user.Name} {message}");
         }
 
         public static bool SendServerMessageToUser(User user, bool permanent, string message)
