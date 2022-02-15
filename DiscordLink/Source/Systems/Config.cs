@@ -26,7 +26,7 @@ namespace Eco.Plugins.DiscordLink
             public static readonly string[] AdminRoles = { "Admin", "Administrator", "Moderator" };
             public const string DiscordCommandPrefix = "?";
             public const string EcoCommandOutputChannel = "General";
-            public const string InviteMessage = "Join us on Discord!\n" + DLConstants.INVITE_COMMAND_TOKEN;
+            public const string InviteMessage = "Join us on Discord!\\n" + DLConstants.INVITE_COMMAND_TOKEN;
             public const string EcoBotName = "DiscordLink";
             public const int MaxMintedCurrencies = 1;
             public const int MaxPersonalCurrencies = 3;
