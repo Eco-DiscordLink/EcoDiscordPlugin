@@ -34,7 +34,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             if (DLConfig.Data.TradeFeedChannels.Count <= 0)
                 return;
 
-            if (!(data[0] is IEnumerable<List<CurrencyTrade>> accumulatedTrades))
+            if (!(data[0] is List<CurrencyTrade>[] accumulatedTrades))
                 return;
 
             // Each entry is the summarized trade events for a player and a store

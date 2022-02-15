@@ -60,7 +60,7 @@ namespace Eco.Plugins.DiscordLink.Events
                                 _accumulatedTrades.Values.CopyTo(trades, 0);
                                 _accumulatedTrades.Clear();
                             }
-                            FireEvent(DLEventType.AccumulatedTrade, trades);
+                            FireEvent(DLEventType.AccumulatedTrade, (object)trades);
                         }
                     }
                     catch(Exception e)
