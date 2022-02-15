@@ -111,7 +111,7 @@ namespace Eco.Plugins.DiscordLink.Events
         {
             string strippedEventText = MessageUtils.StripTags(logEventText);
             Logger.LogLevel eventLevel = Logger.LogLevel.Silent;
-            string[] parts = strippedEventText.Split(':');
+            string[] parts = strippedEventText.Split( ':', 2);
             if (parts.Length == 0)
             {
                 Logger.Warning($"Ignored non delimited log event: \"{strippedEventText}\"");
