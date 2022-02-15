@@ -227,7 +227,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 DLConfigData config = DLConfig.Data;
 
                 // Guild
-                if (string.IsNullOrWhiteSpace(config.ServerName))
+                if (string.IsNullOrWhiteSpace(config.DiscordServer))
                 {
                     builder.AppendLine("- Discord server not configured.");
                 }
