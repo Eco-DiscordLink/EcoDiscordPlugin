@@ -145,9 +145,17 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (Exception e)
             {
+                if(e.InnerException is UnauthorizedException)
+                {
+                    Logger.Error($"An authentication error occurred while connecting to Discord using token \"{DLConfig.Data.BotToken}\". Please verify that your token is valid. See Github page for install instructions.");
+                }
+                else
+                {
+                    Logger.Error($"An error occurred while connecting to Discord. Error message: {e}");
+                }
+
                 DiscordClient = null;
                 _commands = null;
-                Logger.Error($"Error occurred while connecting to Discord. Error message: {e}");
                 ConnectionStatus = ConnectionState.Disconnected;
                 Status = "Discord connection failed";
                 return false;
