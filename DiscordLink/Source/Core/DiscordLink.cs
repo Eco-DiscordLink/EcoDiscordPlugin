@@ -164,7 +164,13 @@ namespace Eco.Plugins.DiscordLink
         public void GetCommands(Dictionary<string, Action> nameToFunction)
         {
             nameToFunction.Add("Verify Config", () => { Logger.Info($"Config Verification Report:\n{MessageBuilder.Shared.GetConfigVerificationReport()}"); });
-            nameToFunction.Add("Verify Permissions", () => { Logger.Info($"Permission Verification Report:\n{MessageBuilder.Shared.GetPermissionsReport(MessageBuilder.PermissionReportComponentFlag.All)}"); });
+            nameToFunction.Add("Verify Permissions", () =>
+            {
+                if (Client.ConnectionStatus == DLDiscordClient.ConnectionState.Connected)
+                    Logger.Info($"Permission Verification Report:\n{MessageBuilder.Shared.GetPermissionsReport(MessageBuilder.PermissionReportComponentFlag.All)}");
+                else
+                    Logger.Error("Failed to verify permissions - Discord client not connected");
+            });
             nameToFunction.Add("Restart Plugin", () =>
             {
                 if (CanRestart)
