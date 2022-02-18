@@ -147,8 +147,6 @@ namespace Eco.Plugins.DiscordLink
             bool correctionMade = !Save();
 
             BuildChanneLinkList();
-            VerifyLinks();
-            InitChatLinks();
 
             if (tokenChanged || guildChanged)
             {
@@ -160,6 +158,9 @@ namespace Eco.Plugins.DiscordLink
 
                 return; // Critical data changing will trigger a reset, we wait for that instead of continuing now
             }
+
+            VerifyLinks();
+            InitChatLinks();
 
             if (!correctionMade) // If a correction was made, this function will be called again
             {
