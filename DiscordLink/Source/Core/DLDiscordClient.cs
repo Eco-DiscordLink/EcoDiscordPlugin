@@ -92,9 +92,6 @@ namespace Eco.Plugins.DiscordLink
             Status = "Connected to Discord";
             LastConnectionTime = DateTime.Now;
 
-            Guild = GuildByNameOrID(DLConfig.Data.DiscordServer);
-            BotMember = Guild.CurrentMember;
-
             RegisterEventListeners();
             OnConnected?.Invoke();
             return true;
@@ -158,8 +155,34 @@ namespace Eco.Plugins.DiscordLink
                 _commands = null;
                 ConnectionStatus = ConnectionState.Disconnected;
                 Status = "Discord connection failed";
+
                 return false;
             }
+
+            // Discord Server
+            Status = "Resolving Discord server...";
+            Guild = GuildByNameOrID(DLConfig.Data.DiscordServer);
+            if (Guild == null)
+            {
+                try
+                {
+                    await DiscordClient.DisconnectAsync();
+                    DiscordClient.Dispose();
+                }
+                catch (Exception e)
+                {
+                    Logger.Error($"An error occurred when disconnecting from Discord after failing to resolve Discord server: Error message: {e.Message}");
+                }
+                
+                DiscordClient = null;
+                _commands = null;
+                ConnectionStatus = ConnectionState.Disconnected;
+                Status = "Failed to find configured Discord server";
+                Logger.Error($"Failed to find Discord server \"{DLConfig.Data.DiscordServer}\"");
+                return false;
+            }
+
+            BotMember = Guild.CurrentMember;
 
             return true;
         }
