@@ -973,19 +973,19 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 string choiceDesc = string.Empty;
                 if (!election.Process.AnonymousVoting)
                 {
-                    foreach(ElectionChoice choice in election.Choices)
-                    {
-                        foreach(RunoffVote vote in election.Votes)
-                        {
-                            for( int i = 0; i < vote.RankedVotes.Count; ++i)
-                            {
-                                if(vote.RankedVotes[i] == choice.ID)
-                                {
+                    //foreach(ElectionChoice choice in election.Choices)
+                    //{
+                    //    foreach(RunoffVote vote in election.Votes)
+                    //    {
+                    //        for( int i = 0; i < vote.RankedVotes.Count; ++i)
+                    //        {
+                    //            if(vote.RankedVotes[i] == choice.ID)
+                    //            {
 
-                                }
-                            }
-                        }
-                    }
+                    //            }
+                    //        }
+                    //    }
+                    //}
 
                     foreach (RunoffVote vote in election.Votes)
                     {

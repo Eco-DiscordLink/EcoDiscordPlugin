@@ -69,7 +69,7 @@ namespace Eco.Plugins.DiscordLink
             string result;
             if (restarted)
             {
-                result = "Restarted!";
+                result = "Restart Successful!";
                 if (source == CommandInterface.Eco)
                 {
                     await ReportCommandInfo(source, callContext, result);

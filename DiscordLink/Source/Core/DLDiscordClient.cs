@@ -201,7 +201,7 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (Exception e)
             {
-                Logger.Error($"An Error occurred when disconnecting from Discord: Error message: {e.Message}");
+                Logger.Error($"An error occurred when disconnecting from Discord: Error message: {e.Message}");
                 Status = "Discord disconnection failed";
                 return false;
             }
