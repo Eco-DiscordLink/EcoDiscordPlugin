@@ -54,11 +54,16 @@ namespace Eco.Plugins.DiscordLink
         {
             Logger.Debug("Client Starting");
 
-            bool BotTokenIsNull = string.IsNullOrWhiteSpace(DLConfig.Data.BotToken);
-            if (BotTokenIsNull)
+            if (string.IsNullOrWhiteSpace(DLConfig.Data.BotToken))
             {
                 Logger.Error("Bot token not configured - See Github page for install instructions.");
                 return false; // Do not attempt to initialize if the bot token is empty
+            }
+
+            if(string.IsNullOrWhiteSpace(DLConfig.Data.DiscordServer))
+            {
+                Logger.Error("Discord Server not configured - See Github page for install instructions.");
+                return false; // Do not attempt to initialize if the server name is empty
             }
 
             if (!await CreateAndConnectClient(useFullIntents: true))
