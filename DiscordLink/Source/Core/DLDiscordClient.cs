@@ -64,7 +64,7 @@ namespace Eco.Plugins.DiscordLink
                 return false; // Do not attempt to initialize if the bot token is empty
             }
 
-            if(string.IsNullOrWhiteSpace(DLConfig.Data.DiscordServer))
+            if(!DLConfig.Data.DiscordServers.Any(g => !string.IsNullOrWhiteSpace(g)))
             {
                 Logger.Error("Discord Server not configured - See Github page for install instructions.");
                 return false; // Do not attempt to initialize if the server name is empty
@@ -166,31 +166,35 @@ namespace Eco.Plugins.DiscordLink
                 return false;
             }
 
-            // Discord Server
-            Status = "Resolving Discord server...";
-            Guild = GuildByNameOrID(DLConfig.Data.DiscordServer);
-            if (Guild == null)
+            // Discord Servers
+            Status = "Resolving Discord server(s)...";
+
+            foreach (var discordServer in DLConfig.Data.DiscordServers)
             {
-                try
+                var guild = GuildByNameOrID(discordServer);
+                if (guild == null)
                 {
-                    await DiscordClient.DisconnectAsync();
-                    DiscordClient.Dispose();
+                    try
+                    {
+                        await DiscordClient.DisconnectAsync();
+                        DiscordClient.Dispose();
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Error($"An error occurred when disconnecting from Discord after failing to resolve Discord server: Error message: {e.Message}");
+                    }
+
+                    DiscordClient = null;
+                    _commands = null;
+                    ConnectionStatus = ConnectionState.Disconnected;
+                    Status = "Failed to find configured Discord server";
+                    Logger.Error($"Failed to find Discord server \"{discordServer}\"");
+                    return false;
                 }
-                catch (Exception e)
-                {
-                    Logger.Error($"An error occurred when disconnecting from Discord after failing to resolve Discord server: Error message: {e.Message}");
-                }
-                
-                DiscordClient = null;
-                _commands = null;
-                ConnectionStatus = ConnectionState.Disconnected;
-                Status = "Failed to find configured Discord server";
-                Logger.Error($"Failed to find Discord server \"{DLConfig.Data.DiscordServer}\"");
-                return false;
+
+                Guilds.Add(guild);
+                BotMembers.Add(guild.CurrentMember);
             }
-
-            BotMember = Guild.CurrentMember;
-
             return true;
         }
 

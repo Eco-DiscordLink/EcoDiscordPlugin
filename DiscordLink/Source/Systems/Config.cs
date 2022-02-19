@@ -1,23 +1,19 @@
-﻿using DSharpPlus.Entities;
+﻿using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.Entities;
 using Eco.Core.Plugins;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Utils;
-using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Linq;
-using System.Threading.Tasks;
-    using DSharpPlus.CommandsNext.Attributes;
-using Eco.Plugins.DiscordLink.Extensions;
-using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Validation;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 using Description = System.ComponentModel.DescriptionAttribute;
+
 namespace Eco.Plugins.DiscordLink
 {
     public sealed class DLConfig
@@ -120,7 +116,9 @@ namespace Eco.Plugins.DiscordLink
             {
                 if (DiscordLink.Obj.Client.Guilds.SingleOrDefault(g =>
                 {
+#pragma warning disable CA1806 // Do not ignore method results
                     Utilities.Utils.TryParseSnowflakeID(guildNameOrID, out ulong ID);
+#pragma warning restore CA1806 // Do not ignore method results
                     return g.Name == guildNameOrID || g.Id == ID;
                 })
                     == null)
@@ -296,7 +294,6 @@ namespace Eco.Plugins.DiscordLink
         }
     }
 
-{
     public class DLConfigData : ICloneable
     {
         public object Clone() // Be careful not to change the original object here as that will trigger endless recursion.
