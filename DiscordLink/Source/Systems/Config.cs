@@ -300,8 +300,8 @@ namespace Eco.Plugins.DiscordLink
         {
             return new DLConfigData
             {
-                //DiscordServer = this.DiscordServer,
-                DiscordServers = this.DiscordServers,
+                DiscordServer = this.DiscordServer,
+                DiscordServers = this.DiscordServers.Any() ? new ObservableCollection<string>(this.DiscordServers.Select(t => t.Clone()).Cast<string>()) : new ObservableCollection<string>() { this.DiscordServer },
                 BotToken = this.BotToken,
                 EcoBotName = this.EcoBotName,
                 MinEmbedSizeForFooter = this.MinEmbedSizeForFooter,
@@ -348,12 +348,10 @@ namespace Eco.Plugins.DiscordLink
             return WebServerAddress.Substring(lastColonPos + 1).All(c => Char.IsDigit(c));
         }
 
-        // TODO Single-Server mode als default, multiple nur als hidden feature
-        [Obsolete("work with DiscordServers string[] instead")]
         [Description("The name or ID of the Discord Server. This setting can be changed while the server is running and will in that case trigger a reconnection to Discord."), Category("Base Configuration - Discord")]
         public string DiscordServer { get; set; } = string.Empty;
-        [Description("The names or IDs of the Discord Servers. This setting can be changed while the server is running and will in that case trigger a reconnection to Discord."), Category("Base Configuration - Discord")]
-        public List<string> DiscordServers { get; set; } = new List<string>();
+        [Description("optional: If you want to connect to multiple Guilds, set this instead of the singular DiscordServer option. Apart from being a collection, this is analogous to DiscordServer."), Category("Base Configuration - Discord")]
+        public Collection<string> DiscordServers { get; set; } = new ObservableCollection<string>();
 
         [Description("The token provided by the Discord API to allow access to the Discord bot. This setting can be changed while the server is running and will in that case trigger a reconnection to Discord."), Category("Base Configuration - Discord")]
         public string BotToken { get; set; }
