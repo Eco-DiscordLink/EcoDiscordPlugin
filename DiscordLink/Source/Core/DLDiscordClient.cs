@@ -64,10 +64,10 @@ namespace Eco.Plugins.DiscordLink
                 return false; // Do not attempt to initialize if the bot token is empty
             }
 
-            if (!DLConfig.Data.DiscordServers.Any(g => !string.IsNullOrWhiteSpace(g)))
+            if (!DLConfig.Data.DiscordServers.Any() || DLConfig.Data.DiscordServers.Any(g => string.IsNullOrWhiteSpace(g)))
             {
                 Logger.Error("Discord Server not configured - See Github page for install instructions.");
-                return false; // Do not attempt to initialize if the server name is empty
+                return false; // Do not attempt to initialize if any server name is empty or none is set at all
             }
 
             if (!await CreateAndConnectClient(useFullIntents: true))
