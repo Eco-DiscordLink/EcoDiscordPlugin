@@ -64,7 +64,7 @@ namespace Eco.Plugins.DiscordLink
                 return false; // Do not attempt to initialize if the bot token is empty
             }
 
-            if(!DLConfig.Data.DiscordServers.Any(g => !string.IsNullOrWhiteSpace(g)))
+            if (!DLConfig.Data.DiscordServers.Any(g => !string.IsNullOrWhiteSpace(g)))
             {
                 Logger.Error("Discord Server not configured - See Github page for install instructions.");
                 return false; // Do not attempt to initialize if the server name is empty
@@ -96,8 +96,8 @@ namespace Eco.Plugins.DiscordLink
             Status = "Connected to Discord";
             LastConnectionTime = DateTime.Now;
 
-            //Guilds = DLConfig.Data.DiscordServers.Select(ds => GuildByNameOrID(ds)).ToList();
-            //BotMembers = Guilds.Select(g => g.CurrentMember).ToList();
+            Guilds = DLConfig.Data.DiscordServers.Select(ds => GuildByNameOrID(ds)).ToList();
+            BotMembers = Guilds.Select(g => g.CurrentMember).ToList();
 
             RegisterEventListeners();
             OnConnected?.Invoke();
@@ -166,8 +166,15 @@ namespace Eco.Plugins.DiscordLink
                 return false;
             }
 
+            /*
             // Discord Servers
             Status = "Resolving Discord server(s)...";
+
+            // find a better way to async wait until DiscordClient.Guilds are filled
+            while (DiscordClient.Guilds.Count == 0)
+            {
+                ; 
+            }
 
             foreach (var discordServer in DLConfig.Data.DiscordServers)
             {
@@ -188,7 +195,7 @@ namespace Eco.Plugins.DiscordLink
                     DiscordClient = null;
                     _commands = null;
                     ConnectionStatus = ConnectionState.Disconnected;
-                    Status = "Failed to find configured Discord server \"{discordServer}\"";
+                    Status = $"Failed to find configured Discord server \"{discordServer}\"";
                     Logger.Error($"Failed to find Discord server \"{discordServer}\"");
                     return false;
                 }
@@ -196,6 +203,7 @@ namespace Eco.Plugins.DiscordLink
                 Guilds.Add(guild);
                 BotMembers.Add(guild.CurrentMember);
             }
+            */
             return true;
         }
 
@@ -342,7 +350,7 @@ namespace Eco.Plugins.DiscordLink
         public DiscordGuild GuildByNameOrID(string guildNameOrID)
         {
             return Utilities.Utils.TryParseSnowflakeID(guildNameOrID, out ulong ID)
-                ? DiscordClient.Guilds.Values.FirstOrDefault(guild => guild.Id == ID)
+                ? DiscordClient.Guilds.GetValueOrDefault(ID)
                 : DiscordClient.Guilds.Values.FirstOrDefault(guild => guild.Name.EqualsCaseInsensitive(guildNameOrID));
         }
 
@@ -364,7 +372,7 @@ namespace Eco.Plugins.DiscordLink
         public DiscordChannel ChannelByNameOrID(string channelNameOrID, DiscordGuild guild)
         {
             return Utilities.Utils.TryParseSnowflakeID(channelNameOrID, out ulong ID)
-                ? guild.Channels.Values.FirstOrDefault(channel => channel.Id == ID)
+                ? guild.Channels.GetValueOrDefault(ID)
                 : guild.Channels.Values.FirstOrDefault(guild => guild.Name.EqualsCaseInsensitive(channelNameOrID));
         }
 
@@ -423,6 +431,8 @@ namespace Eco.Plugins.DiscordLink
         {
             if (channel.IsPrivate)
                 return true; // Assume permission is given for DMs
+
+            Logger.Info($"[ChannelHasPermission] channel is '{channel.Name}', channel.Guild is '{channel.Guild?.Id}' and CurrentMember is '{channel.Guild?.CurrentMember?.Id}'");
 
             DiscordMember member = channel.Guild.CurrentMember;
             if (member == null)
@@ -795,7 +805,7 @@ namespace Eco.Plugins.DiscordLink
             return result;
         }
 
-        [Obsolete("prefer an overload compatible with multiple Guilds")]
+        [Obsolete("prefer an overload compatible with multiple Guilds", true)]
         public async Task<DiscordRole> CreateRoleAsync(DiscordLinkRole dlRole)
         {
             return await CreateRoleAsync(dlRole, Guilds.First());
@@ -814,7 +824,7 @@ namespace Eco.Plugins.DiscordLink
             return await Task.FromResult<DiscordRole>(null);
         }
 
-        [Obsolete("prefer an overload compatible with multiple Guilds")]
+        [Obsolete("prefer an overload compatible with multiple Guilds", true)]
         public async Task AddRoleAsync(DiscordMember member, DiscordLinkRole dlRole)
         {
             await AddRoleAsync(member, dlRole, Guilds.First());
