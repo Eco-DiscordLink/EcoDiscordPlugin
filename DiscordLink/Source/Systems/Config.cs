@@ -154,12 +154,13 @@ namespace Eco.Plugins.DiscordLink
             // Do not verify if change occurred as this function is going to be called again in that case
             // Do not verify the config in case critical data has been changed, as the client will be restarted and that will trigger verification
             bool tokenChanged = Data.BotToken != _prevConfig.BotToken;
+            bool guildChanged = Data.DiscordServer != _prevConfig.DiscordServer;
             bool guildsChanged = !Data.DiscordServers.SequenceEqual(_prevConfig.DiscordServers);
             bool correctionMade = !Save();
 
             BuildChanneLinkList();
 
-            if (tokenChanged || guildsChanged)
+            if (tokenChanged || guildChanged || guildsChanged)
             {
                 Logger.Info("Critical config data changed - Restarting");
                 bool restarted = await DiscordLink.Obj.Restart();
@@ -300,8 +301,12 @@ namespace Eco.Plugins.DiscordLink
         {
             return new DLConfigData
             {
-                DiscordServer = this.DiscordServer,
-                DiscordServers = this.DiscordServers.Any() ? new ObservableCollection<string>(this.DiscordServers.Select(t => t.Clone()).Cast<string>()) : new ObservableCollection<string>() { this.DiscordServer },
+                DiscordServer = string.IsNullOrWhiteSpace(this.DiscordServer) && this.DiscordServers.Count == 1
+                    ? this.DiscordServers.Single()
+                    : this.DiscordServer,
+                DiscordServers = this.DiscordServers.Count > 1
+                    ? new ObservableCollection<string>(this.DiscordServers.Select(t => t.Clone()).Cast<string>())
+                    : new ObservableCollection<string>() { this.DiscordServer },
                 BotToken = this.BotToken,
                 EcoBotName = this.EcoBotName,
                 MinEmbedSizeForFooter = this.MinEmbedSizeForFooter,
@@ -352,7 +357,7 @@ namespace Eco.Plugins.DiscordLink
         public string DiscordServer { get; set; } = string.Empty;
         
         [Browsable(false)]
-        [Description("optional: If you want to connect to multiple Guilds, set this instead of the singular DiscordServer option. Apart from being a collection, this is analogous to DiscordServer."), Category("Base Configuration - Discord")]
+        [Description("optional: If you want to connect to multiple Guilds, set this to override the singular DiscordServer option. Apart from being a collection, this is analogous to DiscordServer."), Category("Base Configuration - Discord")]
         public Collection<string> DiscordServers { get; set; } = new ObservableCollection<string>();
 
         [Description("The token provided by the Discord API to allow access to the Discord bot. This setting can be changed while the server is running and will in that case trigger a reconnection to Discord."), Category("Base Configuration - Discord")]

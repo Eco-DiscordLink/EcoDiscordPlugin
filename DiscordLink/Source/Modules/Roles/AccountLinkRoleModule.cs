@@ -33,7 +33,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                     {
                         linkedAccountRole = DiscordLink.Obj.Client.CreateRoleAsync(DLConstants.ROLE_LINKED_ACCOUNT, guild).Result;
                     }
-                    LinkedAccountRolePerGuild.Add(guild, linkedAccountRole);
+                    LinkedAccountRolePerGuild[guild] = linkedAccountRole;
                 }
             }
 
