@@ -574,9 +574,7 @@ namespace Eco.Plugins.DiscordLink
                 // Find the Discord member
                 IReadOnlyCollection<DiscordMember> guildMembers =
                     string.IsNullOrWhiteSpace(discordServer)
-#pragma warning disable CS0618 // Type or member is obsolete: expecting multiples
                     ? plugin.Client.GetGuildMembersAsync().Result
-#pragma warning restore CS0618 // Type or member is obsolete
                     : plugin.Client.GetGuildMembersAsync(plugin.Client.GuildByNameOrID(discordServer)).Result;
                 if (!guildMembers.Any())
                 {
