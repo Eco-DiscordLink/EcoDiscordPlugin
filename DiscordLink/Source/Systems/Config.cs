@@ -349,10 +349,9 @@ namespace Eco.Plugins.DiscordLink
         }
 
         // TODO Single-Server mode als default, multiple nur als hidden feature
-        [Description("The name or ID of the Discord Server. This setting can be changed while the server is running and will in that case trigger a reconnection to Discord."), Category("Base Configuration - Discord")]
         [Obsolete("work with DiscordServers string[] instead")]
+        [Description("The name or ID of the Discord Server. This setting can be changed while the server is running and will in that case trigger a reconnection to Discord."), Category("Base Configuration - Discord")]
         public string DiscordServer { get; set; } = string.Empty;
-
         [Description("The names or IDs of the Discord Servers. This setting can be changed while the server is running and will in that case trigger a reconnection to Discord."), Category("Base Configuration - Discord")]
         public List<string> DiscordServers { get; set; } = new List<string>();
 
