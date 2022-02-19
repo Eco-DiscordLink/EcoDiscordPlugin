@@ -260,7 +260,7 @@ namespace Eco.Plugins.DiscordLink
             _verifiedChannelLinks.Clear();
             foreach (ChannelLink link in _allChannelLinks)
             {
-                if (link.Initailize())
+                if (link.Initialize())
                     _verifiedChannelLinks.Add(link);
             }
         }

@@ -1,11 +1,11 @@
-﻿using DSharpPlus.Entities;
+﻿using System;
+using System.ComponentModel;
+using System.Linq;
+using DSharpPlus.Entities;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Serialization;
 using Eco.Shared.Utils;
-using System;
-using System.ComponentModel;
-using System.Linq;
 
 namespace Eco.Plugins.DiscordLink
 {
@@ -56,13 +56,16 @@ namespace Eco.Plugins.DiscordLink
         [Description("Discord Channel by name or ID.")]
         public string DiscordChannel { get; set; } = string.Empty;
 
-        [Description("Discord Server by name or ID.")]
         public string DiscordServer { get; set; } = string.Empty;
 
         public override string ToString()
         {
-            string channelName = IsValid() ? Channel.Name : DiscordChannel;
-            return $"{DiscordServer} - #{channelName}";
+            string channelName = $"#{(IsValid() ? Channel.Name : DiscordChannel)}";
+            if (DLConfig.Data.DiscordServers.Count > 1)
+            {
+                channelName += $"{(IsValid() ? Channel.Guild.Name : DiscordServer)}";
+            }
+            return channelName;
         }
 
         public object Clone()
@@ -71,19 +74,19 @@ namespace Eco.Plugins.DiscordLink
         }
 
         public override bool IsValid() =>
-            !string.IsNullOrWhiteSpace(DiscordServer)
-            && !string.IsNullOrWhiteSpace(DiscordChannel)
+            !string.IsNullOrWhiteSpace(DiscordChannel)
+            && (!string.IsNullOrWhiteSpace(DiscordServer) || DLConfig.Data.DiscordServers.Count != 1)
             && Channel != null;
 
-        public virtual bool Initailize()
+        public virtual bool Initialize()
         {
-            if (string.IsNullOrWhiteSpace(DiscordServer))
+            if (string.IsNullOrWhiteSpace(DiscordServer) && DLConfig.Data.DiscordServers.Count != 1)
                 return false;
 
             if (string.IsNullOrWhiteSpace(DiscordChannel))
                 return false;
 
-            DiscordGuild guild = DiscordLink.Obj.Client.Guilds.Count() == 1
+            DiscordGuild guild = DLConfig.Data.DiscordServers.Count == 1
                 ? DiscordLink.Obj.Client.Guilds.Single()
                 : DiscordLink.Obj.Client.GuildByNameOrID(DiscordServer);
 
@@ -141,8 +144,8 @@ namespace Eco.Plugins.DiscordLink
         public string EcoChannel { get; set; } = string.Empty;
         public override string ToString()
         {
-            string discordChannelName = IsValid() ? Channel.Name : DiscordChannel;
-            return $"#{DiscordChannel} <--> {EcoChannel}";
+            string discordChannelName = base.ToString();
+            return $"{discordChannelName} <--> {EcoChannel}";
         }
 
         public override bool IsValid() => base.IsValid() && !string.IsNullOrWhiteSpace(EcoChannel);
