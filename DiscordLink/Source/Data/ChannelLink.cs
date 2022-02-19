@@ -56,6 +56,8 @@ namespace Eco.Plugins.DiscordLink
         [Description("Discord Channel by name or ID.")]
         public string DiscordChannel { get; set; } = string.Empty;
 
+        [Browsable(false)]
+        [Description("Discord Server by name or ID. only needed if connected to more that one Discord server.")]
         public string DiscordServer { get; set; } = string.Empty;
 
         public override string ToString()

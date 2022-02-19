@@ -350,6 +350,8 @@ namespace Eco.Plugins.DiscordLink
 
         [Description("The name or ID of the Discord Server. This setting can be changed while the server is running and will in that case trigger a reconnection to Discord."), Category("Base Configuration - Discord")]
         public string DiscordServer { get; set; } = string.Empty;
+        
+        [Browsable(false)]
         [Description("optional: If you want to connect to multiple Guilds, set this instead of the singular DiscordServer option. Apart from being a collection, this is analogous to DiscordServer."), Category("Base Configuration - Discord")]
         public Collection<string> DiscordServers { get; set; } = new ObservableCollection<string>();
 
