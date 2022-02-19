@@ -22,19 +22,25 @@
   </PropertyGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy /Y &quot;$(SolutionDir)Dependencies\System.Threading.Timer.dll&quot; &quot;$(OutDir)&quot;&#xD;&#xA;xcopy /Y &quot;$(SolutionDir)Dependencies\System.Threading.Tasks.Extensions.dll&quot; &quot;$(OutDir)&quot;&#xD;&#xA;&#xD;&#xA;set server_dir=$(SolutionDir)..\Eco\Server\&#xD;&#xA;set server_mod_dir=$(SolutionDir)..\Eco\Server\Mods\DiscordLink\&#xD;&#xA;for /f &quot;tokens=*&quot; %25%25i in ($(SolutionDir)DLLCopyList.txt) DO (&#xD;&#xA;    xcopy /Y &quot;$(OutDir)%25%25i&quot; &quot;%25server_mod_dir%25&quot;&#xD;&#xA;)&#xD;&#xA;&#xD;&#xA;xcopy /Y &quot;$(OutDir)DiscordLink.pdb&quot; &quot;%25server_dir%25&quot;&#xD;&#xA;xcopy /Y &quot;$(OutDir)Eco.EM.Framework.dll&quot; &quot;%25server_dir%25\Mods\Elixr Mods&quot;" />
+    <Exec Command="xcopy /Y &quot;$(SolutionDir)Dependencies\System.Threading.Timer.dll&quot; &quot;$(OutDir)&quot;" />
+    <!--<Exec Command="xcopy /Y &quot;$(SolutionDir)Dependencies\System.Threading.Tasks.Extensions.dll&quot; &quot;$(OutDir)&quot;" />-->
+    <Exec Command="for /f &quot;tokens=*&quot; %25%25i in ($(SolutionDir)DLLCopyList.txt) DO (xcopy /Y &quot;$(OutDir)%25%25i&quot; &quot;$(SolutionDir)..\EcoServer\Mods\DiscordLink\&quot;)" />
+    <Exec Command="xcopy /Y &quot;$(OutDir)DiscordLink.pdb&quot; &quot;$(SolutionDir)..\EcoServer\&quot;" />
+    <Exec Command="xcopy /Y &quot;$(OutDir)Eco.EM.Framework.dll&quot; &quot;$(SolutionDir)..\EcoServer\Mods\Elixr Mods\&quot;" />
   </Target>
 
   <ItemGroup>
-
-    <PackageReference Include="ElixrMods.Framework" Version="3.1.0-rc.1" />
     <PackageReference Include="DSharpPlus" Version="4.1.0" />
     <PackageReference Include="DSharpPlus.CommandsNext" Version="4.1.0" />
+    <!--<PackageReference Include="ElixrMods.Framework" Version="3.1.6" />-->
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="Nito.AsyncEx.Coordination" Version="5.1.2" />
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="Eco.EM.Framework">
+      <HintPath>..\Dependencies\Eco.EM.Framework.dll</HintPath>
+    </Reference>
     <Reference Include="Eco.Core">
       <HintPath Condition="Exists('..\..\Eco\Server\Eco.Core\bin\Release\netstandard2.1\ref\Eco.Core.dll')">..\..\Eco\Server\Eco.Core\bin\Release\netstandard2.1\ref\Eco.Core.dll</HintPath>
       <HintPath Condition="Exists('..\Dependencies\Eco.Core.dll')">..\Dependencies\Eco.Core.dll</HintPath>

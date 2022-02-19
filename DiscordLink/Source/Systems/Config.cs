@@ -1,19 +1,23 @@
-﻿using DSharpPlus.CommandsNext.Attributes;
-using DSharpPlus.Entities;
+﻿using DSharpPlus.Entities;
 using Eco.Core.Plugins;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Utils;
+using System;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Linq;
+using System.Threading.Tasks;
+    using DSharpPlus.CommandsNext.Attributes;
+using Eco.Plugins.DiscordLink.Extensions;
+using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Validation;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
-using System.Threading.Tasks;
 using Description = System.ComponentModel.DescriptionAttribute;
-
 namespace Eco.Plugins.DiscordLink
 {
     public sealed class DLConfig
@@ -50,17 +54,18 @@ namespace Eco.Plugins.DiscordLink
                 : Instance._allChannelLinks;
         }
 
-        public static ChannelLink ChannelLinkForDiscordChannel(string discordChannelName) =>
-            GetChannelLinks().FirstOrDefault(link
+        public static IEnumerable<ChannelLink> ChannelLinksForDiscordChannel(string discordChannelName) =>
+            GetChannelLinks().Where(link
                 => link.IsValid()
                 && link.DiscordChannel.EqualsCaseInsensitive(discordChannelName));
 
-        public static ChatChannelLink ChatLinkForEcoChannel(string ecoChannelName) => Data.ChatChannelLinks.FirstOrDefault(link
+        public static IEnumerable<ChatChannelLink> ChatLinksForEcoChannel(string ecoChannelName) =>
+            Data.ChatChannelLinks.Where(link
                 => link.IsValid()
                 && link.EcoChannel.EqualsCaseInsensitive(ecoChannelName));
 
-        public static ChatChannelLink ChatLinkForDiscordChannel(DiscordChannel channel) =>
-            Data.ChatChannelLinks.FirstOrDefault(link
+        public static IEnumerable<ChatChannelLink> ChatLinksForDiscordChannel(DiscordChannel channel) =>
+            Data.ChatChannelLinks.Where(link
                 => link.IsValid()
                 && (link.DiscordChannel.EqualsCaseInsensitive(channel.Name) || link.DiscordChannel.EqualsCaseInsensitive(channel.Id.ToString())));
 
@@ -110,11 +115,19 @@ namespace Eco.Plugins.DiscordLink
 
         public void PostConnectionInitialize()
         {
-            // Guild
-            if (DiscordLink.Obj.Client.Guild == null)
+            // Guilds
+            foreach (string guildNameOrID in Data.DiscordServers)
             {
-                Logger.Error($"Failed to find Discord server with the name or ID \"{Data.DiscordServer}\"");
-                return;
+                if (DiscordLink.Obj.Client.Guilds.SingleOrDefault(g =>
+                {
+                    Utilities.Utils.TryParseSnowflakeID(guildNameOrID, out ulong ID);
+                    return g.Name == guildNameOrID || g.Id == ID;
+                })
+                    == null)
+                {
+                    Logger.Error($"Failed to find Discord server with the name or ID \"{guildNameOrID}\"");
+                    return;
+                }
             }
 
             // Channel Links
@@ -143,12 +156,12 @@ namespace Eco.Plugins.DiscordLink
             // Do not verify if change occurred as this function is going to be called again in that case
             // Do not verify the config in case critical data has been changed, as the client will be restarted and that will trigger verification
             bool tokenChanged = Data.BotToken != _prevConfig.BotToken;
-            bool guildChanged = Data.DiscordServer != _prevConfig.DiscordServer;
+            bool guildsChanged = !Data.DiscordServers.SequenceEqual(_prevConfig.DiscordServers);
             bool correctionMade = !Save();
 
             BuildChanneLinkList();
 
-            if (tokenChanged || guildChanged)
+            if (tokenChanged || guildsChanged)
             {
                 Logger.Info("Critical config data changed - Restarting");
                 bool restarted = await DiscordLink.Obj.Restart();
@@ -283,13 +296,15 @@ namespace Eco.Plugins.DiscordLink
         }
     }
 
+{
     public class DLConfigData : ICloneable
     {
         public object Clone() // Be careful not to change the original object here as that will trigger endless recursion.
         {
             return new DLConfigData
             {
-                DiscordServer = this.DiscordServer,
+                //DiscordServer = this.DiscordServer,
+                DiscordServers = this.DiscordServers,
                 BotToken = this.BotToken,
                 EcoBotName = this.EcoBotName,
                 MinEmbedSizeForFooter = this.MinEmbedSizeForFooter,
@@ -336,8 +351,13 @@ namespace Eco.Plugins.DiscordLink
             return WebServerAddress.Substring(lastColonPos + 1).All(c => Char.IsDigit(c));
         }
 
-        [Description("The name or ID if the Discord Server. This setting can be changed while the server is running and will in that case trigger a reconnection to Discord."), Category("Base Configuration - Discord")]
+        // TODO Single-Server mode als default, multiple nur als hidden feature
+        [Description("The name or ID of the Discord Server. This setting can be changed while the server is running and will in that case trigger a reconnection to Discord."), Category("Base Configuration - Discord")]
+        [Obsolete("work with DiscordServers string[] instead")]
         public string DiscordServer { get; set; } = string.Empty;
+
+        [Description("The names or IDs of the Discord Servers. This setting can be changed while the server is running and will in that case trigger a reconnection to Discord."), Category("Base Configuration - Discord")]
+        public List<string> DiscordServers { get; set; } = new List<string>();
 
         [Description("The token provided by the Discord API to allow access to the Discord bot. This setting can be changed while the server is running and will in that case trigger a reconnection to Discord."), Category("Base Configuration - Discord")]
         public string BotToken { get; set; }

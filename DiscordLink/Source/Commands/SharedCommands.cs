@@ -8,6 +8,7 @@ using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Networking;
 using Eco.Shared.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -49,7 +50,7 @@ namespace Eco.Plugins.DiscordLink
         {
             if (source == CommandInterface.Eco)
                 EcoCommands.DisplayCommandData(callContext as User, panelInstance, title, data as string);
-            else if(data is DiscordLinkEmbed embed)
+            else if (data is DiscordLinkEmbed embed)
                 await DiscordCommands.DisplayCommandData(callContext as CommandContext, title, embed);
             else if (data is string content)
                 await DiscordCommands.DisplayCommandData(callContext as CommandContext, title, content);
@@ -77,7 +78,9 @@ namespace Eco.Plugins.DiscordLink
                 else if (source == CommandInterface.Discord)
                 {
                     // Special handling since the call context is broken by the restart and can't be used to respond to the command
-                    DiscordChannel channel = plugin.Client.ChannelByNameOrID(((CommandContext)callContext).Channel.Id.ToString());
+                    DiscordChannel channel = plugin.Client.ChannelByNameOrID(
+                        ((CommandContext)callContext).Channel.Id.ToString(),
+                        ((CommandContext)callContext).Guild.Id.ToString());
                     _ = plugin.Client.SendMessageAsync(channel, result);
                 }
             }
@@ -351,14 +354,20 @@ namespace Eco.Plugins.DiscordLink
 
         public static async Task<bool> VerifyPermissionsForChannel(CommandInterface source, object callContext, string channelNameOrID)
         {
-            DiscordChannel channel = DiscordLink.Obj.Client.ChannelByNameOrID(channelNameOrID);
-            if(channel == null)
+            IReadOnlyCollection<DiscordChannel> channels = DiscordLink.Obj.Client.ChannelsByNameOrID(channelNameOrID);
+            if (!channels.Any())
             {
-                await ReportCommandError(source, callContext, $"No channel with the named \"{channelNameOrID}\" could be found.");
+                await ReportCommandError(source, callContext, $"No channel with the name or ID \"{channelNameOrID}\" could be found.");
                 return false;
             }
 
-            await VerifyPermissionsForChannel(source, callContext, channel);
+            if (channels.Count > 1)
+            {
+                await ReportCommandError(source, callContext, $"Multiple channels with the name or ID \"{channelNameOrID}\" were found. Please specify as server#channel !");
+                return false;
+            }
+
+            await VerifyPermissionsForChannel(source, callContext, channels.Single());
             return true;
         }
 

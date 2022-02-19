@@ -3,6 +3,7 @@ using Eco.Plugins.DiscordLink.Events;
 using System.Threading.Tasks;
 using Eco.Plugins.DiscordLink.Extensions;
 using DSharpPlus;
+using System.Linq;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
@@ -22,7 +23,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         public override void Setup()
         {
-            LinkedAccountRole = DiscordLink.Obj.Client.Guild.RoleByName(DLConstants.ROLE_LINKED_ACCOUNT.Name);
+            LinkedAccountRole = DiscordLink.Obj.Client.Guilds.Single().RoleByName(DLConstants.ROLE_LINKED_ACCOUNT.Name);
             if (LinkedAccountRole == null)
                 LinkedAccountRole = DiscordLink.Obj.Client.CreateRoleAsync(DLConstants.ROLE_LINKED_ACCOUNT).Result;
 

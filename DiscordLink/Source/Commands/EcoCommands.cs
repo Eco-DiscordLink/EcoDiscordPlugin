@@ -2,11 +2,11 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using Eco.Gameplay.Players;
 using Eco.Gameplay.Systems.Messaging.Chat.Commands;
-using Eco.Shared.Localization;
 using Eco.Plugins.DiscordLink.Utilities;
 using System;
 using System.Collections.Generic;
 using Eco.Plugins.DiscordLink.Extensions;
+using System.Linq;
 
 namespace Eco.Plugins.DiscordLink
 {
@@ -380,14 +380,20 @@ namespace Eco.Plugins.DiscordLink
             {
                 var plugin = Plugins.DiscordLink.DiscordLink.Obj;
 
-                DiscordChannel channel = plugin.Client.ChannelByNameOrID(channelNameOrID);
-                if (channel == null)
+                IReadOnlyCollection<DiscordChannel> channels = plugin.Client.ChannelsByNameOrID(channelNameOrID);
+                if (!channels.Any())
                 {
                     ReportCommandError(callingUser, $"No channel with the name or ID \"{channelNameOrID}\" could be found.");
                     return;
                 }
 
-                _ = plugin.Client.SendMessageAsync(channel, $"**{callingUser.Name.Replace("@", "")}**: {message}");
+                if (channels.Count > 1)
+                {
+                    ReportCommandError(callingUser, $"Multiple channels with the name or ID \"{channelNameOrID}\" were found. Please specify as server#channel !");
+                    return;
+                }
+
+                _ = plugin.Client.SendMessageAsync(channels.Single(), $"**{callingUser.Name.Replace("@", "")}**: {message}");
             }, callingUser);
         }
 
@@ -553,7 +559,7 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [ChatSubCommand("DiscordLink", "Links the calling user account to a Discord account.", "DL-Link", ChatAuthorizationLevel.User)]
-        public static void LinkDiscordAccount(User callingUser, string discordName)
+        public static void LinkDiscordAccount(User callingUser, string discordName, string discordServer)
         {
             ExecuteCommand<object>((lUser, args) =>
             {
@@ -565,24 +571,28 @@ namespace Eco.Plugins.DiscordLink
                     return;
                 }
 
-                // Find the Discord user
-                DiscordMember matchingMember = null;
-                IReadOnlyCollection<DiscordMember> guildMembers = plugin.Client.GetGuildMembersAsync().Result;
-                if (guildMembers == null)
-                    return;
-
-                foreach (DiscordMember member in guildMembers)
+                // Find the Discord member
+                IReadOnlyCollection<DiscordMember> guildMembers =
+                    string.IsNullOrWhiteSpace(discordServer)
+#pragma warning disable CS0618 // Type or member is obsolete: expecting multiples
+                    ? plugin.Client.GetGuildMembersAsync().Result
+#pragma warning restore CS0618 // Type or member is obsolete
+                    : plugin.Client.GetGuildMembersAsync(plugin.Client.GuildByNameOrID(discordServer)).Result;
+                if (!guildMembers.Any())
                 {
-                    if (member.HasNameOrID(discordName))
-                    {
-                        matchingMember = member;
-                        break;
-                    }
+                    return;
                 }
 
-                if (matchingMember == null)
+                IEnumerable<DiscordMember> matchingMembers = guildMembers.Where(m => m.HasNameOrID(discordName));
+
+                if (!matchingMembers.Any())
                 {
                     ReportCommandError(callingUser, $"No Discord account with the name \"{discordName}\" could be found.\nUse {MessageUtils.GetCommandTokenForContext(SharedCommands.CommandInterface.Eco)}DL-LinkInfo for linking instructions.");
+                    return;
+                }
+                if (matchingMembers.Count() > 1)
+                {
+                    ReportCommandError(callingUser, $"Multiple Discord accounts with the name \"{discordName}\" were found. Please specify as the Server as additional parameter!");
                     return;
                 }
 
@@ -593,13 +603,13 @@ namespace Eco.Plugins.DiscordLink
                     bool hasSteamID = !string.IsNullOrWhiteSpace(callingUser.SteamId) && !string.IsNullOrWhiteSpace(linkedUser.SteamID);
                     if ((hasSLGID && callingUser.SlgId == linkedUser.SlgID) || (hasSteamID && callingUser.SteamId == linkedUser.SteamID))
                     {
-                        if (linkedUser.DiscordID == matchingMember.Id.ToString())
+                        if (linkedUser.DiscordID == matchingMembers.Single().Id.ToString())
                             ReportCommandInfo(callingUser, $"Eco account is already linked to this Discord account.\nUse {MessageUtils.GetCommandTokenForContext(SharedCommands.CommandInterface.Eco)}DL-Unlink to remove the existing link.");
                         else
                             ReportCommandInfo(callingUser, $"Eco account is already linked to a different Discord account.\nUse {MessageUtils.GetCommandTokenForContext(SharedCommands.CommandInterface.Eco)}DL-Unlink to remove the existing link.");
                         return;
                     }
-                    else if (linkedUser.DiscordID == matchingMember.Id.ToString())
+                    else if (linkedUser.DiscordID == matchingMembers.Single().Id.ToString())
                     {
                         ReportCommandError(callingUser, "Discord account is already linked to a different Eco account.");
                         return;
@@ -607,10 +617,10 @@ namespace Eco.Plugins.DiscordLink
                 }
 
                 // Create a linked user from the combined Eco and Discord info
-                UserLinkManager.AddLinkedUser(callingUser, matchingMember.Id.ToString(), matchingMember.Guild.Id.ToString());
+                UserLinkManager.AddLinkedUser(callingUser, matchingMembers.Single().Id.ToString(), matchingMembers.Single().Guild.Id.ToString());
 
                 // Notify the Discord account that a link has been made and ask for verification
-                DiscordMessage message = plugin.Client.SendDMAsync(matchingMember, null, MessageBuilder.Discord.GetVerificationDM(callingUser)).Result;
+                DiscordMessage message = plugin.Client.SendDMAsync(matchingMembers.Single(), null, MessageBuilder.Discord.GetVerificationDM(callingUser)).Result;
                 _ = message.CreateReactionAsync(DLConstants.ACCEPT_EMOJI);
                 _ = message.CreateReactionAsync(DLConstants.DENY_EMOJI);
 

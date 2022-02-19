@@ -5,6 +5,7 @@ using Eco.Shared.Serialization;
 using Eco.Shared.Utils;
 using System;
 using System.ComponentModel;
+using System.Linq;
 
 namespace Eco.Plugins.DiscordLink
 {
@@ -55,10 +56,13 @@ namespace Eco.Plugins.DiscordLink
         [Description("Discord Channel by name or ID.")]
         public string DiscordChannel { get; set; } = string.Empty;
 
+        [Description("Discord Server by name or ID.")]
+        public string DiscordServer { get; set; } = string.Empty;
+
         public override string ToString()
         {
             string channelName = IsValid() ? Channel.Name : DiscordChannel;
-            return $"#{channelName}";
+            return $"{DiscordServer} - #{channelName}";
         }
 
         public object Clone()
@@ -66,14 +70,24 @@ namespace Eco.Plugins.DiscordLink
             return MemberwiseClone();
         }
 
-        public override bool IsValid() => !string.IsNullOrWhiteSpace(DiscordChannel) && Channel != null;
+        public override bool IsValid() =>
+            !string.IsNullOrWhiteSpace(DiscordServer)
+            && !string.IsNullOrWhiteSpace(DiscordChannel)
+            && Channel != null;
 
         public virtual bool Initailize()
         {
+            if (string.IsNullOrWhiteSpace(DiscordServer))
+                return false;
+
             if (string.IsNullOrWhiteSpace(DiscordChannel))
                 return false;
 
-            DiscordChannel channel = DiscordLink.Obj.Client.Guild.ChannelByNameOrID(DiscordChannel);
+            DiscordGuild guild = DiscordLink.Obj.Client.Guilds.Count() == 1
+                ? DiscordLink.Obj.Client.Guilds.Single()
+                : DiscordLink.Obj.Client.GuildByNameOrID(DiscordServer);
+
+            DiscordChannel channel = guild?.ChannelByNameOrID(DiscordChannel);
             if (channel == null)
                 return false;
 
@@ -98,7 +112,7 @@ namespace Eco.Plugins.DiscordLink
             if (DiscordChannel != original)
             {
                 correctionMade = true;
-                Logger.Info($"Corrected Discord channel name from \"{original}\" to \"{DiscordChannel}\"");
+                Logger.Info($"Corrected Discord channel name with Guild name/ID \"{DiscordServer}\" from \"{original}\" to \"{DiscordChannel}\"");
             }
 
             return correctionMade;

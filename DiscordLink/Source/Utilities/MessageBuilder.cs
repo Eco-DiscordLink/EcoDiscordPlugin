@@ -226,10 +226,10 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
                 DLConfigData config = DLConfig.Data;
 
-                // Guild
-                if (string.IsNullOrWhiteSpace(config.DiscordServer))
+                // Guilds
+                if (config.DiscordServers.Any(s => !string.IsNullOrWhiteSpace(s)))
                 {
-                    builder.AppendLine("- Discord server not configured.");
+                    builder.AppendLine("- Discord server(s) not configured.");
                 }
 
                 // Bot Token
@@ -247,7 +247,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 if (DiscordLink.Obj.Client.ConnectionStatus == DLDiscordClient.ConnectionState.Connected)
                 {
                     // Discord guild and channel information isn't available the first time this function is called
-                    if (DiscordLink.Obj.Client.Guild != null && DLConfig.GetChannelLinks(verifiedLinksOnly: false).Count > 0)
+                    if (DiscordLink.Obj.Client.Guilds.Any(g => g != null) && DLConfig.GetChannelLinks(verifiedLinksOnly: false).Count > 0)
                     {
                         foreach (ChannelLink link in DLConfig.GetChannelLinks(verifiedLinksOnly: false))
                         {
@@ -285,13 +285,16 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
                 if (flag.HasFlag(PermissionReportComponentFlag.ServerPermissions))
                 {
-                    foreach (Permissions permission in DLConstants.REQUESTED_GUILD_PERMISSIONS)
-                    {
-                        if (!client.BotHasPermission(permission))
+                    foreach (DiscordGuild guild in client.Guilds)
+                        foreach (Permissions permission in DLConstants.REQUESTED_GUILD_PERMISSIONS)
                         {
-                            builder.AppendLine($"- Missing Server Permission \"{Enum.GetName(permission)}\".");
+                            {
+                                if (!client.BotHasPermission(permission, guild))
+                                {
+                                    builder.AppendLine($"- Missing Server Permission \"{Enum.GetName(permission)}\" on server \"{guild.Name}\".");
+                                }
+                            }
                         }
-                    }
                 }
 
                 if (flag.HasFlag(PermissionReportComponentFlag.ChannelPermissions))

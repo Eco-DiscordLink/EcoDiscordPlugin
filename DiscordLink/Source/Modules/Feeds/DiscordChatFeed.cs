@@ -3,6 +3,8 @@ using Eco.Gameplay.Systems.Chat;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink.Modules
@@ -33,12 +35,13 @@ namespace Eco.Plugins.DiscordLink.Modules
         {
             if (!(data[0] is DiscordMessage message))
                 return;
-            ChatChannelLink channelLink = DLConfig.ChatLinkForDiscordChannel(message.GetChannel());
-            if (channelLink == null)
-                return;
+            IEnumerable<ChatChannelLink> chatLinks = DLConfig.ChatLinksForDiscordChannel(message.GetChannel());
 
-            if (channelLink.Direction == ChatSyncDirection.DiscordToEco || channelLink.Direction == ChatSyncDirection.Duplex)
-                await ForwardMessageToEcoChannel(plugin, message, channelLink.EcoChannel);
+            foreach (ChatChannelLink chatLink in chatLinks
+                .Where(link => link.Direction == ChatSyncDirection.EcoToDiscord || link.Direction == ChatSyncDirection.Duplex))
+            {
+                await ForwardMessageToEcoChannel(plugin, message, chatLink.EcoChannel);
+            }
         }
 
         private async Task ForwardMessageToEcoChannel(DiscordLink plugin, DiscordMessage message, string ecoChannel)

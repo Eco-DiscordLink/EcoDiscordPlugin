@@ -2,6 +2,8 @@
 using Eco.Gameplay.GameActions;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Utilities;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink.Modules
@@ -33,22 +35,30 @@ namespace Eco.Plugins.DiscordLink.Modules
             if (!(data[0] is ChatSent message))
                 return;
 
-            ChatChannelLink chatLink = DLConfig.ChatLinkForEcoChannel(message.Tag.Substring(1)); // Remove the # character from the start.
-            if (chatLink == null)
-                return;
+            string ecoChannel = message.Tag.Substring(1); // Remove the # character from the start.
+            IEnumerable<ChatChannelLink> chatLinks = DLConfig.ChatLinksForEcoChannel(ecoChannel);
 
-            if (chatLink.Direction == ChatSyncDirection.EcoToDiscord || chatLink.Direction == ChatSyncDirection.Duplex)
-                ForwardMessageToDiscordChannel(message, chatLink.Channel, chatLink.HereAndEveryoneMentionPermission);
+            foreach (ChatChannelLink chatLink in chatLinks
+                .Where(link => link.Direction == ChatSyncDirection.EcoToDiscord || link.Direction == ChatSyncDirection.Duplex))
+            {
+                ChannelLinkMentionPermissions chatlinkPermissions = new()
+                {
+                    AllowRoleMentions = chatLink.AllowRoleMentions,
+                    AllowMemberMentions = chatLink.AllowUserMentions,
+                    AllowChannelMentions = chatLink.AllowChannelMentions,
+                };
+                ForwardMessageToDiscordChannel(message, chatLink.Channel, chatLink.HereAndEveryoneMentionPermission, chatlinkPermissions);
+            }
         }
 
-        private void ForwardMessageToDiscordChannel(ChatSent chatMessage, DiscordChannel channel, GlobalMentionPermission globalMentionPermission)
+        private void ForwardMessageToDiscordChannel(ChatSent chatMessage, DiscordChannel channel, GlobalMentionPermission globalMentionPermission, ChannelLinkMentionPermissions chatlinkPermissions = null)
         {
             Logger.DebugVerbose($"Sending Eco message to Discord channel {channel.Name}");
 
-            bool allowGlobalMention = (globalMentionPermission == GlobalMentionPermission.AnyUser
-                || globalMentionPermission == GlobalMentionPermission.Admin && chatMessage.Citizen.IsAdmin);
+            bool allowGlobalMention = globalMentionPermission == GlobalMentionPermission.AnyUser
+                || globalMentionPermission == GlobalMentionPermission.Admin && chatMessage.Citizen.IsAdmin;
 
-            _ = DiscordLink.Obj.Client.SendMessageAsync(channel, MessageUtils.FormatMessageForDiscord(chatMessage.Message, channel, chatMessage.Citizen.Name, allowGlobalMention));
+            _ = DiscordLink.Obj.Client.SendMessageAsync(channel, MessageUtils.FormatMessageForDiscord(chatMessage.Message, channel, chatMessage.Citizen.Name, allowGlobalMention, chatlinkPermissions));
             ++_opsCount;
         }
     }

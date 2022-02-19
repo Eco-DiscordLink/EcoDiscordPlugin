@@ -3,8 +3,6 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using Eco.Gameplay.Players;
-using Eco.Gameplay.Systems.Chat;
-using Eco.Gameplay.Systems.Messaging.Chat;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Utils;
@@ -128,7 +126,7 @@ namespace Eco.Plugins.DiscordLink
 
         private static bool IsCommandAllowedInChannel(CommandContext ctx)
         {
-            var commandChannels = DLConfig.Data.DiscordCommandChannels;
+           var commandChannels = DLConfig.Data.DiscordCommandChannels;
             bool allowed =
                 ctx.Channel.IsPrivate
                 || DiscordLink.Obj.Client.MemberIsAdmin(ctx.Member) // Allow admins to override channel requirements
@@ -505,15 +503,15 @@ namespace Eco.Plugins.DiscordLink
                     return;
                 }
 
-                // Discord member
-                DiscordMember member = DiscordLink.Obj.Client.MemberByNameOrID(userNameOrID);
-                if (ecoUser == null && member == null)
+                // Discord user
+                DiscordUser discordUser = DiscordLink.Obj.Client.UserByNameOrID(userNameOrID);
+                if (ecoUser == null && discordUser == null) // ecoUser != null already assured in if above
                 {
                     await ReportCommandError(ctx, $"No Eco or Discord User with the name or ID {userNameOrID} could be found.");
                     return;
                 }
 
-                LinkedUser linkedUser = UserLinkManager.LinkedUserByDiscordUser(member, ctx.Member, "Player Discord Report Generation");
+                LinkedUser linkedUser = UserLinkManager.LinkedUserByDiscordUser(discordUser, ctx.Member, "Player Discord Report Generation");
                 if (linkedUser == null)
                     return;
 

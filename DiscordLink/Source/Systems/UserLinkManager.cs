@@ -5,6 +5,7 @@ using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
 using Newtonsoft.Json;
 using System;
+using System.Linq;
 
 namespace Eco.Plugins.DiscordLink
 {
@@ -187,20 +188,32 @@ namespace Eco.Plugins.DiscordLink
         public User EcoUser { get { return EcoUtils.UserBySteamOrSLGID(SteamID, SlgID); } }
 
         [JsonIgnore]
-        public DiscordMember DiscordMember { get { return !string.IsNullOrEmpty(DiscordID) ? DiscordLink.Obj.Client.Guild.GetMemberAsync(ulong.Parse(DiscordID)).Result : null; } }
+        public DiscordMember DiscordMember
+        {
+            get
+            {
+                return !string.IsNullOrEmpty(DiscordID)
+                    ? DiscordLink.Obj.Client.Guilds.Single(g => g.Id == numericGuildID).GetMemberAsync(numericDiscordID).Result
+                    : null;
+            }
+        }
 
         public LinkedUser(string slgID, string steamID, string discordID, string guildID)
         {
             this.SlgID = slgID;
             this.SteamID = steamID;
             this.DiscordID = discordID;
+            this.numericDiscordID = ulong.Parse(DiscordID);
             this.GuildID = guildID;
+            this.numericGuildID = ulong.Parse(GuildID);
         }
 
         public readonly string SlgID = string.Empty;
         public readonly string SteamID = string.Empty;
         public readonly string DiscordID = string.Empty;
+        private readonly ulong numericDiscordID;
         public readonly string GuildID = string.Empty;
+        private readonly ulong numericGuildID;
         public bool Verified = false;
     }
 }

@@ -203,7 +203,7 @@ namespace Eco.Plugins.DiscordLink
         private void HandleClientConnected()
         {
             DLConfig.Instance.PostConnectionInitialize();
-            if (Client.Guild == null)
+            if (!Client.Guilds.Any()) // TODO check all guilds separately
             {
                 Status = "Discord Server connection failed";
                 CanRestart = true;

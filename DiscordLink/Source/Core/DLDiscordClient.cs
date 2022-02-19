@@ -27,8 +27,12 @@ namespace Eco.Plugins.DiscordLink
         public DiscordClient DiscordClient { get; private set; }
         public DateTime LastConnectionTime { get; private set; } = DateTime.MinValue;
         public ConnectionState ConnectionStatus { get; private set; } = ConnectionState.Disconnected;
+        [Obsolete("use Guilds instead to support multiple guilds", true)]
         public DiscordGuild Guild { get; private set; } = null;
+        public List<DiscordGuild> Guilds { get; private set; } = null;
+        [Obsolete("use BotMembers instead to support multiple guilds", true)]
         public DiscordMember BotMember { get; private set; } = null;
+        public List<DiscordMember> BotMembers { get; private set; } = null;
 
         public string Status
         {
@@ -91,6 +95,9 @@ namespace Eco.Plugins.DiscordLink
             ConnectionStatus = ConnectionState.Connected;
             Status = "Connected to Discord";
             LastConnectionTime = DateTime.Now;
+
+            Guilds = DLConfig.Data.DiscordServers.Select(ds => GuildByNameOrID(ds)).ToList();
+            BotMembers = Guilds.Select(g => g.CurrentMember).ToList();
 
             RegisterEventListeners();
             OnConnected?.Invoke();
@@ -209,8 +216,8 @@ namespace Eco.Plugins.DiscordLink
             DiscordClient = null;
             ConnectionStatus = ConnectionState.Disconnected;
             Status = "Disconnected from Discord";
-            Guild = null;
-            BotMember = null;
+            Guilds = new();
+            BotMembers = new();
 
             OnDisconnected?.Invoke();
             DiscordLink.Obj.HandleEvent(DLEventType.DiscordClientDisconnected);
@@ -334,18 +341,77 @@ namespace Eco.Plugins.DiscordLink
                 : DiscordClient.Guilds.Values.FirstOrDefault(guild => guild.Name.EqualsCaseInsensitive(guildNameOrID));
         }
 
+        [Obsolete("prefer an overload compatible with multiple Guilds", true)]
         public DiscordChannel ChannelByNameOrID(string channelNameOrID)
         {
-            return Utilities.Utils.TryParseSnowflakeID(channelNameOrID, out ulong ID)
-                ? Guild.Channels.Values.FirstOrDefault(channel => channel.Id == ID)
-                : Guild.Channels.Values.FirstOrDefault(guild => guild.Name.EqualsCaseInsensitive(channelNameOrID));
+            return ChannelByNameOrID(channelNameOrID, Guilds.Single());
         }
 
+        public DiscordChannel ChannelByNameOrID(string channelNameOrID, string guildNameOrId)
+        {
+            DiscordGuild guild = Utilities.Utils.TryParseSnowflakeID(guildNameOrId, out ulong gID)
+                ? Guilds.SingleOrDefault(g => g.Id == gID)
+                : Guilds.SingleOrDefault(g => g.Name == guildNameOrId);
+
+            return ChannelByNameOrID(channelNameOrID, guild);
+        }
+
+        public DiscordChannel ChannelByNameOrID(string channelNameOrID, DiscordGuild guild)
+        {
+            return Utilities.Utils.TryParseSnowflakeID(channelNameOrID, out ulong ID)
+                ? guild.Channels.Values.FirstOrDefault(channel => channel.Id == ID)
+                : guild.Channels.Values.FirstOrDefault(guild => guild.Name.EqualsCaseInsensitive(channelNameOrID));
+        }
+
+        public IReadOnlyCollection<DiscordChannel> ChannelsByNameOrID(string channelNameOrID)
+        {
+            List<DiscordChannel> channels = new();
+            var splitServerAndChannelName = channelNameOrID.Split('#', 2, StringSplitOptions.RemoveEmptyEntries);
+            if (splitServerAndChannelName.Length == 1)
+            {
+                foreach (var guild in Guilds)
+                {
+                    channels.Add(ChannelByNameOrID(channelNameOrID, guild));
+                }
+            }
+            else
+            {
+                channels.Add(ChannelByNameOrID(splitServerAndChannelName[1], splitServerAndChannelName[0]));
+            }
+            return channels;
+        }
+
+        [Obsolete("prefer an overload compatible with multiple Guilds")]
         public DiscordMember MemberByNameOrID(string memberNameOrID)
         {
+            return MemberByNameOrID(memberNameOrID, Guilds.Single());
+        }
+
+        public DiscordMember MemberByNameOrID(string memberNameOrID, string guildNameOrId)
+        {
+            DiscordGuild guild = Utilities.Utils.TryParseSnowflakeID(guildNameOrId, out ulong gID)
+                ? Guilds.SingleOrDefault(g => g.Id == gID)
+                : Guilds.SingleOrDefault(g => g.Name == guildNameOrId);
+
+            return MemberByNameOrID(memberNameOrID, guild);
+        }
+
+        public DiscordMember MemberByNameOrID(string memberNameOrID, DiscordGuild guild)
+        {
             return Utilities.Utils.TryParseSnowflakeID(memberNameOrID, out ulong ID)
-                ? Guild.Members[ID]
-                : Guild.Members.Values.FirstOrDefault(member => member.DisplayName.EqualsCaseInsensitive(memberNameOrID));
+                ? guild.Members[ID] ?? default
+                // TODO don't assumes memberName unique on Server
+                : guild.Members.Values.FirstOrDefault(member => member.DisplayName.EqualsCaseInsensitive(memberNameOrID));
+        }
+
+        public DiscordUser UserByNameOrID(string userNameOrId)
+        {
+            foreach (var guild in Guilds)
+            {
+                var foo = MemberByNameOrID(userNameOrId, guild);
+                if (foo != null) return foo;
+            }
+            return default;
         }
 
         public bool ChannelHasPermission(DiscordChannel channel, Permissions permission)
@@ -363,10 +429,16 @@ namespace Eco.Plugins.DiscordLink
             return channel.PermissionsFor(member).HasPermission(permission);
         }
 
+        [Obsolete("prefer an overload compatible with multiple Guilds")]
         public bool BotHasPermission(Permissions permission)
         {
+            return BotHasPermission(permission, Guilds.Single());
+        }
+
+        public bool BotHasPermission(Permissions permission, DiscordGuild guild)
+        {
             bool hasPermission = false;
-            foreach(DiscordRole role in Guild.Roles.Values)
+            foreach (DiscordRole role in guild.Roles.Values)
             {
                 if (role.CheckPermission(permission) == PermissionLevel.Allowed)
                 {
@@ -396,15 +468,22 @@ namespace Eco.Plugins.DiscordLink
             return false;
         }
 
+        [Obsolete("prefer an overload compatible with multiple Guilds")]
         public IEnumerable<Permissions> FindMissingGuildPermissions()
+        {
+            return FindMissingGuildPermissions(Guilds.Single());
+        }
+
+        public IEnumerable<Permissions> FindMissingGuildPermissions(DiscordGuild guild)
         {
             List<Permissions> missingPermissions = new List<Permissions>();
             foreach (Permissions permission in DLConstants.REQUESTED_GUILD_PERMISSIONS)
             {
-                if (!BotHasPermission(permission))
+                if (!BotHasPermission(permission, guild))
                     missingPermissions.Add(permission);
             }
             return missingPermissions;
+
         }
 
         public IEnumerable<Permissions> FindMissingChannelPermissions(DiscordChannel channel)
@@ -522,7 +601,18 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
+        [Obsolete("may return the same user twice. Prefer an overload compatible with multiple Guilds or adust Caller accordingly!")]
         public async Task<IReadOnlyCollection<DiscordMember>> GetGuildMembersAsync()
+        {
+            List<DiscordMember> members = new();
+            foreach (DiscordGuild guild in Guilds)
+            {
+                members.AddRange(await GetGuildMembersAsync(guild) ?? Enumerable.Empty<DiscordMember>());
+            }
+            return members;
+        }
+
+        public async Task<IReadOnlyCollection<DiscordMember>> GetGuildMembersAsync(DiscordGuild guild)
         {
             if (!BotHasIntent(DiscordIntents.GuildMembers))
             {
@@ -532,7 +622,7 @@ namespace Eco.Plugins.DiscordLink
 
             try
             {
-                return await Guild.GetAllMembersAsync();
+                return await guild.GetAllMembersAsync();
             }
             catch (Exception e)
             {
@@ -700,11 +790,17 @@ namespace Eco.Plugins.DiscordLink
             return result;
         }
 
+        [Obsolete("prefer an overload compatible with multiple Guilds")]
         public async Task<DiscordRole> CreateRoleAsync(DiscordLinkRole dlRole)
+        {
+            return await CreateRoleAsync(dlRole, Guilds.Single());
+        }
+
+        public async Task<DiscordRole> CreateRoleAsync(DiscordLinkRole dlRole, DiscordGuild guild)
         {
             try
             {
-                return await Guild.CreateRoleAsync(dlRole.Name, dlRole.Permissions, dlRole.Color, dlRole.Hoist, dlRole.Mentionable, dlRole.AddReason);
+                return await guild.CreateRoleAsync(dlRole.Name, dlRole.Permissions, dlRole.Color, dlRole.Hoist, dlRole.Mentionable, dlRole.AddReason);
             }
             catch (Exception e)
             {
@@ -713,13 +809,19 @@ namespace Eco.Plugins.DiscordLink
             return await Task.FromResult<DiscordRole>(null);
         }
 
+        [Obsolete("prefer an overload compatible with multiple Guilds")]
         public async Task AddRoleAsync(DiscordMember member, DiscordLinkRole dlRole)
         {
-            DiscordRole role = Guild.RoleByName(dlRole.Name);
-            if (role == null)
-                role = await CreateRoleAsync(dlRole);
+            await AddRoleAsync(member, dlRole, Guilds.Single());
+        }
 
-            if(role != null)
+        public async Task AddRoleAsync(DiscordMember member, DiscordLinkRole dlRole, DiscordGuild guild)
+        {
+            DiscordRole role = guild.RoleByName(dlRole.Name);
+            if (role == null)
+                role = await CreateRoleAsync(dlRole, guild);
+
+            if (role != null)
                 await AddRoleAsync(member, role);
         }
 
@@ -742,7 +844,7 @@ namespace Eco.Plugins.DiscordLink
 
         public async Task RemoveRoleAsync(DiscordMember member, string roleName)
         {
-            DiscordRole role = Guild.RoleByName(roleName);
+            DiscordRole role = member.Guild.RoleByName(roleName);
             if (role == null)
             {
                 Logger.Warning($"Attempting to remove nonexistent role \"{roleName}\" from user \"{member.DisplayName}\"");
