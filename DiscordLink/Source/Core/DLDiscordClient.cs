@@ -344,7 +344,7 @@ namespace Eco.Plugins.DiscordLink
         [Obsolete("prefer an overload compatible with multiple Guilds", true)]
         public DiscordChannel ChannelByNameOrID(string channelNameOrID)
         {
-            return ChannelByNameOrID(channelNameOrID, Guilds.Single());
+            return ChannelByNameOrID(channelNameOrID, Guilds.First());
         }
 
         public DiscordChannel ChannelByNameOrID(string channelNameOrID, string guildNameOrId)
@@ -384,7 +384,7 @@ namespace Eco.Plugins.DiscordLink
         [Obsolete("prefer an overload compatible with multiple Guilds")]
         public DiscordMember MemberByNameOrID(string memberNameOrID)
         {
-            return MemberByNameOrID(memberNameOrID, Guilds.Single());
+            return MemberByNameOrID(memberNameOrID, Guilds.First());
         }
 
         public DiscordMember MemberByNameOrID(string memberNameOrID, string guildNameOrId)
@@ -432,7 +432,7 @@ namespace Eco.Plugins.DiscordLink
         [Obsolete("prefer an overload compatible with multiple Guilds")]
         public bool BotHasPermission(Permissions permission)
         {
-            return BotHasPermission(permission, Guilds.Single());
+            return BotHasPermission(permission, Guilds.First());
         }
 
         public bool BotHasPermission(Permissions permission, DiscordGuild guild)
@@ -471,7 +471,7 @@ namespace Eco.Plugins.DiscordLink
         [Obsolete("prefer an overload compatible with multiple Guilds")]
         public IEnumerable<Permissions> FindMissingGuildPermissions()
         {
-            return FindMissingGuildPermissions(Guilds.Single());
+            return FindMissingGuildPermissions(Guilds.First());
         }
 
         public IEnumerable<Permissions> FindMissingGuildPermissions(DiscordGuild guild)
@@ -793,7 +793,7 @@ namespace Eco.Plugins.DiscordLink
         [Obsolete("prefer an overload compatible with multiple Guilds")]
         public async Task<DiscordRole> CreateRoleAsync(DiscordLinkRole dlRole)
         {
-            return await CreateRoleAsync(dlRole, Guilds.Single());
+            return await CreateRoleAsync(dlRole, Guilds.First());
         }
 
         public async Task<DiscordRole> CreateRoleAsync(DiscordLinkRole dlRole, DiscordGuild guild)
@@ -812,7 +812,7 @@ namespace Eco.Plugins.DiscordLink
         [Obsolete("prefer an overload compatible with multiple Guilds")]
         public async Task AddRoleAsync(DiscordMember member, DiscordLinkRole dlRole)
         {
-            await AddRoleAsync(member, dlRole, Guilds.Single());
+            await AddRoleAsync(member, dlRole, Guilds.First());
         }
 
         public async Task AddRoleAsync(DiscordMember member, DiscordLinkRole dlRole, DiscordGuild guild)
