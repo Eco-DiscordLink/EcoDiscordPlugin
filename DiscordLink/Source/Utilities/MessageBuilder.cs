@@ -292,7 +292,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                         foreach (Permissions permission in DLConstants.REQUESTED_GUILD_PERMISSIONS)
                         {
                             {
-                                if (!client.BotHasPermission(permission, guild))
+                                if (!client.BotHasPermission(permission, guild.Id))
                                 {
                                     builder.AppendLine($"- Missing Server Permission \"{Enum.GetName(permission)}\" on server \"{guild.Name}\".");
                                 }

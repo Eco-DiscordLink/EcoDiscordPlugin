@@ -15,6 +15,7 @@ namespace Eco.Plugins.DiscordLink.Modules
     public class DemographicsRoleModule : Module
     {
         private static readonly DiscordColor DemographicColor = DiscordColor.Wheat;
+        // TODO Ienumerable<ulong> GuildIds reicht
         private IEnumerable<DiscordGuild> Guilds = Enumerable.Empty<DiscordGuild>();
 
         public override string ToString()
@@ -29,14 +30,14 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         public override void Setup()
         {
-            Guilds = DiscordLink.Obj.Client.Guilds.Where(guild => DiscordLink.Obj.Client.BotHasPermission(Permissions.ManageRoles, guild));
+            Guilds = DiscordLink.Obj.Client.Guilds.Where(guild => DiscordLink.Obj.Client.BotHasPermission(Permissions.ManageRoles, guild.Id));
 
             base.Setup();
         }
 
         protected override async Task<bool> ShouldRun()
         {
-            return DiscordLink.Obj.Client.Guilds.Any(guild => DiscordLink.Obj.Client.BotHasPermission(Permissions.ManageRoles, guild));
+            return DiscordLink.Obj.Client.Guilds.Select(g => g.Id).Any(guildId => DiscordLink.Obj.Client.BotHasPermission(Permissions.ManageRoles, guildId));
         }
 
         protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
@@ -44,7 +45,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             DLDiscordClient client = DiscordLink.Obj.Client;
             foreach (var guild in Guilds)
             {
-                if (!client.BotHasPermission(Permissions.ManageRoles, guild))
+                if (!client.BotHasPermission(Permissions.ManageRoles, guild.Id))
                     return;
 
                 if (trigger == DLEventType.DiscordClientConnected)

@@ -426,10 +426,11 @@ namespace Eco.Plugins.DiscordLink
             return channel.PermissionsFor(member).HasPermission(permission);
         }
 
-        public bool BotHasPermission(Permissions permission, DiscordGuild guild)
+        public bool BotHasPermission(Permissions permission, ulong guildId)
         {
             bool hasPermission = false;
-            foreach (DiscordRole role in guild.Roles.Values)
+            var member = BotMembers.SingleOrDefault(m => m.Guild.Id == guildId);
+            foreach (DiscordRole role in member.Roles)
             {
                 if (role.CheckPermission(permission) == PermissionLevel.Allowed)
                 {
@@ -479,7 +480,7 @@ namespace Eco.Plugins.DiscordLink
             List<Permissions> missingPermissions = new List<Permissions>();
             foreach (Permissions permission in DLConstants.REQUESTED_GUILD_PERMISSIONS)
             {
-                if (!BotHasPermission(permission, guild))
+                if (!BotHasPermission(permission, guild.Id))
                     missingPermissions.Add(permission);
             }
             return missingPermissions;
@@ -628,6 +629,11 @@ namespace Eco.Plugins.DiscordLink
                 Logger.Error($"Error occured when attempting to fetch all guild members. Error message: {e}");
                 return null;
             }
+        }
+
+        public async Task<IReadOnlyCollection<DiscordMember>> GetGuildMembersAsync(ulong guildId)
+        {
+            return await GetGuildMembersAsync(Guilds.SingleOrDefault(guild => guild.Id == guildId));
         }
 
         #endregion

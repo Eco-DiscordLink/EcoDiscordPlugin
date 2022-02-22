@@ -5,12 +5,13 @@ using Eco.Plugins.DiscordLink.Extensions;
 using DSharpPlus;
 using System.Linq;
 using System.Collections.Generic;
+using System;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
     public class AccountLinkRoleModule : Module
     {
-        private Dictionary<DiscordGuild, DiscordRole> LinkedAccountRolePerGuild = new();
+        private readonly Dictionary<ulong, DiscordRole> LinkedAccountRolePerGuildId = new();
 
         public override string ToString()
         {
@@ -26,14 +27,14 @@ namespace Eco.Plugins.DiscordLink.Modules
         {
             foreach (var guild in DiscordLink.Obj.Client.Guilds)
             {
-                if (DiscordLink.Obj.Client.BotHasPermission(Permissions.ManageRoles, guild))
+                if (DiscordLink.Obj.Client.BotHasPermission(Permissions.ManageRoles, guild.Id))
                 {
                     var linkedAccountRole = guild.RoleByName(DLConstants.ROLE_LINKED_ACCOUNT.Name);
                     if (linkedAccountRole == null)
                     {
                         linkedAccountRole = DiscordLink.Obj.Client.CreateRoleAsync(DLConstants.ROLE_LINKED_ACCOUNT, guild).Result;
                     }
-                    LinkedAccountRolePerGuild[guild] = linkedAccountRole;
+                    LinkedAccountRolePerGuildId[guild.Id] = linkedAccountRole;
                 }
             }
 
@@ -42,13 +43,13 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected override async Task<bool> ShouldRun()
         {
-            return DiscordLink.Obj.Client.Guilds.Any(guild => DiscordLink.Obj.Client.BotHasPermission(Permissions.ManageRoles, guild));
+            return DiscordLink.Obj.Client.Guilds.Select(g => g.Id).Any(guildId => DiscordLink.Obj.Client.BotHasPermission(Permissions.ManageRoles, guildId));
         }
 
         protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
         {
             DLDiscordClient client = DiscordLink.Obj.Client;
-            foreach (var linkedAccountRole in LinkedAccountRolePerGuild)
+            foreach (var linkedAccountRole in LinkedAccountRolePerGuildId)
             {
                 if (!client.BotHasPermission(Permissions.ManageRoles, linkedAccountRole.Key))
                     return;
