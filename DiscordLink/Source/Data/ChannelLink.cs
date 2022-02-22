@@ -56,7 +56,6 @@ namespace Eco.Plugins.DiscordLink
         [Description("Discord Channel by name or ID.")]
         public string DiscordChannel { get; set; } = string.Empty;
 
-        [Browsable(false)]
         [Description("Discord Server by name or ID. only needed if connected to more that one Discord server.")]
         public string DiscordServer { get; set; } = string.Empty;
 
@@ -65,8 +64,9 @@ namespace Eco.Plugins.DiscordLink
             string channelName = $"#{(IsValid() ? Channel.Name : DiscordChannel)}";
             if (DLConfig.Data.DiscordServers.Count > 1)
             {
-                channelName += $"{(IsValid() ? Channel.Guild.Name : DiscordServer)}";
+                channelName = $"{(IsValid() ? Channel.Guild.Name : DiscordServer)}{channelName}";
             }
+
             return channelName;
         }
 
@@ -140,7 +140,7 @@ namespace Eco.Plugins.DiscordLink
         }
     }
 
-    public class RelayChannelLink : ChannelLink
+    public class RelayChannelLink : ChannelLink, ICloneable
     {
         [Browsable(false), JsonIgnore]
         public DiscordChannel SecondChannel { get; private set; } = null;
@@ -148,10 +148,9 @@ namespace Eco.Plugins.DiscordLink
         [Description("Second Discord Channel by name or ID.")]
         public string SecondDiscordChannel { get; set; } = string.Empty;
 
-        [Browsable(false)]
         [Description("Discord Server by name or ID. only needed if connected to more that one Discord server.")]
         public string SecondDiscordServer { get; set; } = string.Empty;
-
+ 
         [Description("Allow mentions of usernames to be forwarded.")]
         public bool AllowUserMentions { get; set; } = true;
 
@@ -170,7 +169,7 @@ namespace Eco.Plugins.DiscordLink
             string secondChannelName = $"#{(IsValid() ? SecondChannel.Name : SecondDiscordChannel)}";
             if (DLConfig.Data.DiscordServers.Count > 1)
             {
-                secondChannelName += $"{(IsValid() ? SecondChannel.Guild.Name : SecondDiscordServer)}";
+                secondChannelName = $"{(IsValid() ? Channel.Guild.Name : DiscordServer)}{secondChannelName}";
             }
             return $"{discordChannelName} <--> {secondChannelName}";
         }
@@ -186,7 +185,7 @@ namespace Eco.Plugins.DiscordLink
             if (!initialized) return false;
 
             if (string.IsNullOrWhiteSpace(SecondDiscordServer) && DLConfig.Data.DiscordServers.Count != 1)
-                return false;
+            return false;
 
             if (string.IsNullOrWhiteSpace(SecondDiscordChannel))
                 return false;
@@ -208,7 +207,7 @@ namespace Eco.Plugins.DiscordLink
             bool correctionMade = base.MakeCorrections();
 
             if (string.IsNullOrWhiteSpace(SecondDiscordChannel))
-                return false || correctionMade;
+                    return false || correctionMade;
 
             string original = SecondDiscordChannel;
             string channelNameLower = SecondDiscordChannel.ToLower();
@@ -221,7 +220,7 @@ namespace Eco.Plugins.DiscordLink
             if (SecondDiscordChannel != original)
             {
                 correctionMade = true;
-                Logger.Info($"Corrected Discord channel name with Guild name/ID \"{SecondDiscordServer}\" from \"{original}\" to \"{SecondDiscordChannel}\"");
+                Logger.Info($"Corrected Discord channel name {(string.IsNullOrWhiteSpace(DiscordServer) ? string.Empty : $"with Guild name/ID {DiscordServer}")} from \"{original}\" to \"{DiscordChannel}\"");
             }
 
             return correctionMade;

@@ -28,6 +28,11 @@ namespace Eco.Plugins.DiscordLink.Modules
                 if (link.IsValid() && (link.Direction == ChatSyncDirection.DiscordToEco || link.Direction == ChatSyncDirection.Duplex))
                     return true;
             }
+            foreach (RelayChannelLink link in DLConfig.Data.RelayChannelLinks)
+            {
+                if (link.IsValid())
+                    return true;
+            }
             return false;
         }
 
@@ -35,19 +40,58 @@ namespace Eco.Plugins.DiscordLink.Modules
         {
             if (!(data[0] is DiscordMessage message))
                 return;
-            IEnumerable<ChatChannelLink> chatLinks = DLConfig.ChatLinksForDiscordChannel(message.GetChannel());
 
-            foreach (ChatChannelLink chatLink in chatLinks
-                .Where(link => link.Direction == ChatSyncDirection.EcoToDiscord || link.Direction == ChatSyncDirection.Duplex))
+            // to Eco
+            IEnumerable<ChatChannelLink> chatLinks = DLConfig.ChatLinksForDiscordChannel(message.GetChannel())
+                .Where(link => link.Direction == ChatSyncDirection.EcoToDiscord || link.Direction == ChatSyncDirection.Duplex);
+            foreach (ChatChannelLink chatLink in chatLinks)
             {
-                await ForwardMessageToEcoChannel(plugin, message, chatLink.EcoChannel);
+                await ForwardMessageToEcoChannel(message, chatLink.EcoChannel);
+            }
+
+            // Relay to other Discord channel
+            IEnumerable<RelayChannelLink> relayLinks = DLConfig.GetRelayChannelLinks(message.GetChannel());
+            var originId = message.GetChannel().Id;
+            Logger.DebugVerbose($"[Relay-Module] message origin: {originId}");
+
+            Logger.DebugVerbose($"[Relay-Module] number of RelayChannelLinks: {relayLinks.Count()}");
+            foreach (RelayChannelLink relayLink in relayLinks)
+            {
+                ChannelLinkMentionPermissions chatlinkPermissions = new()
+                {
+                    AllowRoleMentions = relayLink.AllowRoleMentions,
+                    AllowMemberMentions = relayLink.AllowUserMentions,
+                    AllowChannelMentions = relayLink.AllowChannelMentions,
+                };
+
+                if (originId != relayLink.Channel.Id)
+                {
+                    Logger.DebugVerbose($"[Relay-Module] should relay to channel: {relayLink.Channel.Name}");
+                    ForwardMessageToDiscordChannel(plugin, message, relayLink.Channel, relayLink.HereAndEveryoneMentionPermission, chatlinkPermissions);
+                }
+                else if (originId != relayLink.SecondChannel.Id)
+                {
+                    Logger.DebugVerbose($"[Relay-Module] should relay to channel: {relayLink.Channel.Name}");
+                    ForwardMessageToDiscordChannel(plugin, message, relayLink.SecondChannel, relayLink.HereAndEveryoneMentionPermission, chatlinkPermissions);
+                }
             }
         }
 
-        private async Task ForwardMessageToEcoChannel(DiscordLink plugin, DiscordMessage message, string ecoChannel)
+        private async Task ForwardMessageToEcoChannel(DiscordMessage message, string ecoChannel)
         {
             Logger.DebugVerbose($"Sending Discord message to Eco channel: {ecoChannel}");
             EcoUtils.SendChatRaw(await MessageUtils.FormatMessageForEco(message, ecoChannel));
+            ++_opsCount;
+        }
+
+        private async void ForwardMessageToDiscordChannel(DiscordLink plugin, DiscordMessage message, DiscordChannel channel, GlobalMentionPermission globalMentionPermission, ChannelLinkMentionPermissions chatlinkPermissions)
+        {
+            Logger.DebugVerbose($"Relaying message from Discord channel {message.Channel.Name} to Discord channel {channel.Name}");
+
+            bool allowGlobalMention = globalMentionPermission == GlobalMentionPermission.AnyUser
+                || globalMentionPermission == GlobalMentionPermission.Admin && await plugin.Client.UserIsAdmin(message.Author, channel.Guild);
+
+            _ = plugin.Client.SendMessageAsync(channel, MessageUtils.FormatMessageForDiscord(message.Content, channel, message.Author.Username, allowGlobalMention, chatlinkPermissions));
             ++_opsCount;
         }
     }
