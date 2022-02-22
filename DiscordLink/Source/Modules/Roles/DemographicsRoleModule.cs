@@ -15,8 +15,8 @@ namespace Eco.Plugins.DiscordLink.Modules
     public class DemographicsRoleModule : Module
     {
         private static readonly DiscordColor DemographicColor = DiscordColor.Wheat;
-        // TODO Ienumerable<ulong> GuildIds reicht
-        private IEnumerable<DiscordGuild> Guilds = Enumerable.Empty<DiscordGuild>();
+        private IEnumerable<ulong> GuildIds = Enumerable.Empty<ulong>();
+
 
         public override string ToString()
         {
@@ -30,7 +30,9 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         public override void Setup()
         {
-            Guilds = DiscordLink.Obj.Client.Guilds.Where(guild => DiscordLink.Obj.Client.BotHasPermission(Permissions.ManageRoles, guild.Id));
+            GuildIds = DiscordLink.Obj.Client.Guilds
+                .Select(guild => guild.Id)
+                .Where(guildId => DiscordLink.Obj.Client.BotHasPermission(Permissions.ManageRoles, guildId));
 
             base.Setup();
         }
@@ -43,9 +45,9 @@ namespace Eco.Plugins.DiscordLink.Modules
         protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
         {
             DLDiscordClient client = DiscordLink.Obj.Client;
-            foreach (var guild in Guilds)
+            foreach (var guildId in GuildIds)
             {
-                if (!client.BotHasPermission(Permissions.ManageRoles, guild.Id))
+                if (!client.BotHasPermission(Permissions.ManageRoles, guildId))
                     return;
 
                 if (trigger == DLEventType.DiscordClientConnected)
@@ -54,7 +56,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                         return;
 
                     ++_opsCount;
-                    foreach (DiscordMember member in await client.GetGuildMembersAsync(guild))
+                    foreach (DiscordMember member in await client.GetGuildMembersAsync(guildId))
                     {
                         LinkedUser linkedUser = UserLinkManager.LinkedUserByDiscordUser(member);
                         foreach (Demographic demographic in EcoUtils.ActiveDemographics)
