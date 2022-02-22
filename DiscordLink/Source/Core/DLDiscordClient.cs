@@ -459,6 +459,21 @@ namespace Eco.Plugins.DiscordLink
             return false;
         }
 
+        public async Task<bool> UserIsAdmin(DiscordUser user, DiscordGuild guild)
+        {
+            var member = await guild.GetMemberAsync(user.Id);
+            foreach (string adminRole in DLConfig.Data.AdminRoles)
+            {
+                if (Utilities.Utils.TryParseSnowflakeID(adminRole, out ulong adminRoleID) && member.Roles.Any(role => role.Id == adminRoleID))
+                    return true;
+
+                if (member.Roles.Any(role => role.Name.EqualsCaseInsensitive(adminRole)))
+                    return true;
+            }
+
+            return false;
+        }
+
         public IEnumerable<Permissions> FindMissingGuildPermissions(DiscordGuild guild)
         {
             List<Permissions> missingPermissions = new List<Permissions>();

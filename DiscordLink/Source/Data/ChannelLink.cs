@@ -123,7 +123,7 @@ namespace Eco.Plugins.DiscordLink
             return correctionMade;
         }
 
-        public bool IsChannel(DiscordChannel channel)
+        public virtual bool IsChannel(DiscordChannel channel)
         {
             if (ulong.TryParse(DiscordChannel, out ulong channelID))
                 return channelID == channel.Id;
@@ -131,12 +131,127 @@ namespace Eco.Plugins.DiscordLink
             return DiscordChannel.EqualsCaseInsensitive(channel.Name);
         }
 
-        public bool HasChannelNameOrID(string channelNameOrID)
+        public virtual bool HasChannelNameOrID(string channelNameOrID)
         {
             if (ulong.TryParse(DiscordChannel, out ulong channelID) && ulong.TryParse(channelNameOrID, out ulong channelIDParam))
                 return channelID == channelIDParam;
 
             return DiscordChannel.EqualsCaseInsensitive(channelNameOrID);
+        }
+    }
+
+    public class RelayChannelLink : ChannelLink
+    {
+        [Browsable(false), JsonIgnore]
+        public DiscordChannel SecondChannel { get; private set; } = null;
+
+        [Description("Second Discord Channel by name or ID.")]
+        public string SecondDiscordChannel { get; set; } = string.Empty;
+
+        [Browsable(false)]
+        [Description("Discord Server by name or ID. only needed if connected to more that one Discord server.")]
+        public string SecondDiscordServer { get; set; } = string.Empty;
+
+        [Description("Allow mentions of usernames to be forwarded.")]
+        public bool AllowUserMentions { get; set; } = true;
+
+        [Description("Allow mentions of roles to be forwarded.")]
+        public bool AllowRoleMentions { get; set; } = true;
+
+        [Description("Allow mentions of channels to be forwarded.")]
+        public bool AllowChannelMentions { get; set; } = true;
+
+        [Description("Permissions for who is allowed to forward mentions of @here or @everyone.")]
+        public GlobalMentionPermission HereAndEveryoneMentionPermission { get; set; } = GlobalMentionPermission.Forbidden;
+
+        public override string ToString()
+        {
+            string discordChannelName = base.ToString();
+            string secondChannelName = $"#{(IsValid() ? SecondChannel.Name : SecondDiscordChannel)}";
+            if (DLConfig.Data.DiscordServers.Count > 1)
+            {
+                secondChannelName += $"{(IsValid() ? SecondChannel.Guild.Name : SecondDiscordServer)}";
+            }
+            return $"{discordChannelName} <--> {secondChannelName}";
+        }
+
+        public override bool IsValid() => base.IsValid()
+            && !string.IsNullOrWhiteSpace(SecondDiscordChannel)
+            && (!string.IsNullOrWhiteSpace(SecondDiscordServer) || DLConfig.Data.DiscordServers.Count != 1)
+            && SecondChannel != null;
+
+        public override bool Initialize()
+        {
+            bool initialized = base.Initialize();
+            if (!initialized) return false;
+
+            if (string.IsNullOrWhiteSpace(SecondDiscordServer) && DLConfig.Data.DiscordServers.Count != 1)
+                return false;
+
+            if (string.IsNullOrWhiteSpace(SecondDiscordChannel))
+                return false;
+
+            DiscordGuild guild = DLConfig.Data.DiscordServers.Count == 1
+                ? DiscordLink.Obj.Client.Guilds.Single()
+                : DiscordLink.Obj.Client.GuildByNameOrID(SecondDiscordServer);
+
+            DiscordChannel channel = guild?.ChannelByNameOrID(SecondDiscordChannel);
+            if (channel == null)
+                return false;
+
+            SecondChannel = channel;
+            return true;
+        }
+
+        public override bool MakeCorrections()
+        {
+            bool correctionMade = base.MakeCorrections();
+
+            if (string.IsNullOrWhiteSpace(SecondDiscordChannel))
+                return false || correctionMade;
+
+            string original = SecondDiscordChannel;
+            string channelNameLower = SecondDiscordChannel.ToLower();
+            if (SecondDiscordChannel != channelNameLower) // Discord channels are always lowercase
+                SecondDiscordChannel = channelNameLower;
+
+            if (SecondDiscordChannel.Contains(" "))
+                SecondDiscordChannel = SecondDiscordChannel.Replace(' ', '-'); // Discord channels always replace spaces with dashes
+
+            if (SecondDiscordChannel != original)
+            {
+                correctionMade = true;
+                Logger.Info($"Corrected Discord channel name with Guild name/ID \"{SecondDiscordServer}\" from \"{original}\" to \"{SecondDiscordChannel}\"");
+            }
+
+            return correctionMade;
+        }
+
+        public override bool IsChannel(DiscordChannel channel)
+        {
+            if (ulong.TryParse(DiscordChannel, out ulong channelID) && channelID == channel.Id)
+                return true;
+            if (ulong.TryParse(SecondDiscordChannel, out channelID) && channelID == channel.Id)
+                return true;
+
+            return DiscordChannel.EqualsCaseInsensitive(channel.Name) || SecondDiscordChannel.EqualsCaseInsensitive(channel.Name);
+        }
+
+        public override bool HasChannelNameOrID(string channelNameOrID)
+        {
+            if (ulong.TryParse(channelNameOrID, out ulong channelIDParam))
+            {
+                if (ulong.TryParse(DiscordChannel, out ulong channelID))
+                {
+                    return channelID == channelIDParam;
+                }
+                if (ulong.TryParse(SecondDiscordChannel, out channelID))
+                {
+                    return channelID == channelIDParam;
+                }
+            }
+
+            return DiscordChannel.EqualsCaseInsensitive(channelNameOrID) || SecondDiscordChannel.EqualsCaseInsensitive(channelNameOrID);
         }
     }
 

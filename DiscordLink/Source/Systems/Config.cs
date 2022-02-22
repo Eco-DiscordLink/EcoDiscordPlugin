@@ -65,6 +65,15 @@ namespace Eco.Plugins.DiscordLink
                 => link.IsValid()
                 && (link.DiscordChannel.EqualsCaseInsensitive(channel.Name) || link.DiscordChannel.EqualsCaseInsensitive(channel.Id.ToString())));
 
+        public static IEnumerable<RelayChannelLink> GetRelayChannelLinks(DiscordChannel channel) =>
+            Data.RelayChannelLinks.Where(link =>
+                link.IsValid() &&
+                    (link.DiscordChannel.EqualsCaseInsensitive(channel.Name)
+                    || link.DiscordChannel.EqualsCaseInsensitive(channel.Id.ToString())
+                    || link.SecondDiscordChannel.EqualsCaseInsensitive(channel.Name)
+                    || link.SecondDiscordChannel.EqualsCaseInsensitive(channel.Id.ToString())
+                    ));
+
         public delegate Task OnConfigChangedDelegate(object sender, EventArgs e);
         public event OnConfigChangedDelegate OnConfigChanged;
         public event EventHandler OnConfigSaved;
@@ -92,6 +101,7 @@ namespace Eco.Plugins.DiscordLink
             _prevConfig = (DLConfigData)Data.Clone();
 
             Data.ChatChannelLinks.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
+            Data.RelayChannelLinks.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.TradeFeedChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.CraftingFeedChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.ServerStatusFeedChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
@@ -279,6 +289,7 @@ namespace Eco.Plugins.DiscordLink
         {
             _allChannelLinks.Clear();
             _allChannelLinks.AddRange(_config.Config.ChatChannelLinks);
+            _allChannelLinks.AddRange(_config.Config.RelayChannelLinks);
             _allChannelLinks.AddRange(_config.Config.TradeFeedChannels);
             _allChannelLinks.AddRange(_config.Config.CraftingFeedChannels);
             _allChannelLinks.AddRange(_config.Config.ServerStatusFeedChannels);
@@ -324,6 +335,7 @@ namespace Eco.Plugins.DiscordLink
                 UseSpecialtyRoles = this.UseSpecialtyRoles,
                 AdminRoles = new ObservableCollection<string>(this.AdminRoles.Select(t => t.Clone()).Cast<string>()),
                 ChatChannelLinks = new ObservableCollection<ChatChannelLink>(this.ChatChannelLinks.Select(t => t.Clone()).Cast<ChatChannelLink>()),
+                RelayChannelLinks= new ObservableCollection<RelayChannelLink>(this.RelayChannelLinks.Select(t => t.Clone()).Cast<RelayChannelLink>()),
                 TradeFeedChannels = new ObservableCollection<ChannelLink>(this.TradeFeedChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
                 CraftingFeedChannels = new ObservableCollection<ChannelLink>(this.CraftingFeedChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
                 ServerStatusFeedChannels = new ObservableCollection<ChannelLink>(this.ServerStatusFeedChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
@@ -393,6 +405,10 @@ namespace Eco.Plugins.DiscordLink
 
         [Description("Discord and Eco Channels to connect together for chat crossposting. This setting can be changed while the server is running."), Category("Feeds")]
         public ObservableCollection<ChatChannelLink> ChatChannelLinks { get; set; } = new ObservableCollection<ChatChannelLink>();
+
+        [Browsable(false)]
+        [Description("Two Discord Channels to connect together for chat crossposting. This setting can be changed while the server is running."), Category("Feeds")]
+        public ObservableCollection<RelayChannelLink> RelayChannelLinks { get; set; } = new ObservableCollection<RelayChannelLink>();
 
         [Description("Discord Channels in which trade events will be posted. This setting can be changed while the server is running."), Category("Feeds")]
         public ObservableCollection<ChannelLink> TradeFeedChannels { get; set; } = new ObservableCollection<ChannelLink>();
