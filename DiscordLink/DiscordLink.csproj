@@ -11,6 +11,11 @@
     <Version>3.0.0</Version>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <RefAssemlyDir>EcoModKit_v0.9.5.0-beta-staging-2228\ReferenceAssemblies</RefAssemlyDir>
+    <!--<RefAssemlyDir>EcoModKit_v0.9.4.6-beta\ReferenceAssemblies</RefAssemlyDir>-->
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <Optimize>false</Optimize>
     <NoWarn>1701;1702;1998</NoWarn>
@@ -43,36 +48,43 @@
     </Reference>
     <Reference Include="Eco.Core">
       <HintPath Condition="Exists('..\..\Eco\Server\Eco.Core\bin\Release\netstandard2.1\ref\Eco.Core.dll')">..\..\Eco\Server\Eco.Core\bin\Release\netstandard2.1\ref\Eco.Core.dll</HintPath>
+      <HintPath Condition="Exists('..\Dependencies\$(RefAssemlyDir)\Eco.Core.dll')">..\Dependencies\$(RefAssemlyDir)\Eco.Core.dll</HintPath>
       <HintPath Condition="Exists('..\Dependencies\Eco.Core.dll')">..\Dependencies\Eco.Core.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Eco.Gameplay">
       <HintPath Condition="Exists('..\..\Eco\Server\Eco.Gameplay\bin\Release\netcoreapp3.1\ref\Eco.Gameplay.dll')">..\..\Eco\Server\Eco.Gameplay\bin\Release\netcoreapp3.1\ref\Eco.Gameplay.dll</HintPath>
+      <HintPath Condition="Exists('..\Dependencies\$(RefAssemlyDir)\Eco.Gameplay.dll')">..\Dependencies\$(RefAssemlyDir)\Eco.Gameplay.dll</HintPath>
       <HintPath Condition="Exists('..\Dependencies\Eco.Gameplay.dll')">..\Dependencies\Eco.Gameplay.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Eco.ModKit">
       <HintPath Condition="Exists('..\..\Eco\Server\Eco.ModKit\bin\Release\netcoreapp3.1\ref\Eco.ModKit.dll')">..\..\Eco\Server\Eco.ModKit\bin\Release\netcoreapp3.1\ref\Eco.ModKit.dll</HintPath>
+      <HintPath Condition="Exists('..\Dependencies\$(RefAssemlyDir)\Eco.ModKit.dll')">..\Dependencies\$(RefAssemlyDir)\Eco.ModKit.dll</HintPath>
       <HintPath Condition="Exists('..\Dependencies\Eco.ModKit.dll')">..\Dependencies\Eco.ModKit.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Eco.Plugins">
       <HintPath Condition="Exists('..\..\Eco\Server\Eco.Plugins\bin\Release\netcoreapp3.1\ref\Eco.Plugins.dll')">..\..\Eco\Server\Eco.Plugins\bin\Release\netcoreapp3.1\ref\Eco.Plugins.dll</HintPath>
+      <HintPath Condition="Exists('..\Dependencies\$(RefAssemlyDir)\Eco.Plugins.dll')">..\Dependencies\$(RefAssemlyDir)\Eco.Plugins.dll</HintPath>
       <HintPath Condition="Exists('..\Dependencies\Eco.Plugins.dll')">..\Dependencies\Eco.Plugins.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Eco.Shared">
       <HintPath Condition="Exists('..\..\Eco\Server\Eco.Shared\bin\Release\netstandard2.1\ref\Eco.Shared.dll')">..\..\Eco\Server\Eco.Shared\bin\Release\netstandard2.1\ref\Eco.Shared.dll</HintPath>
+      <HintPath Condition="Exists('..\Dependencies\$(RefAssemlyDir)\Eco.Shared.dll')">..\Dependencies\$(RefAssemlyDir)\Eco.Shared.dll</HintPath>
       <HintPath Condition="Exists('..\Dependencies\Eco.Shared.dll')">..\Dependencies\Eco.Shared.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Eco.Simulation">
       <HintPath Condition="Exists('..\..\Eco\Server\Eco.Simulation\bin\Release\netcoreapp3.1\ref\Eco.Simulation.dll')">..\..\Eco\Server\Eco.Simulation\bin\Release\netcoreapp3.1\ref\Eco.Simulation.dll</HintPath>
+      <HintPath Condition="Exists('..\Dependencies\$(RefAssemlyDir)\Eco.Simulation.dll')">..\Dependencies\$(RefAssemlyDir)\Eco.Simulation.dll</HintPath>
       <HintPath Condition="Exists('..\Dependencies\Eco.Simulation.dll')">..\Dependencies\Eco.Simulation.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Eco.WorldGenerator">
       <HintPath Condition="Exists('..\..\Eco\Server\Eco.WorldGenerator\bin\Release\netcoreapp3.1\ref\Eco.WorldGenerator.dll')">..\..\Eco\Server\Eco.WorldGenerator\bin\Release\netcoreapp3.1\ref\Eco.WorldGenerator.dll</HintPath>
+      <HintPath Condition="Exists('..\Dependencies\$(RefAssemlyDir)\Eco.WorldGenerator.dll')">..\Dependencies\$(RefAssemlyDir)\Eco.WorldGenerator.dll</HintPath>
       <HintPath Condition="Exists('..\Dependencies\Eco.WorldGenerator.dll')">..\Dependencies\Eco.WorldGenerator.dll</HintPath>
     </Reference>
   </ItemGroup>
