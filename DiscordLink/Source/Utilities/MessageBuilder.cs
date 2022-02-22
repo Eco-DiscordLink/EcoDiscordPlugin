@@ -37,7 +37,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
     public static class MessageBuilder
     {
         #pragma warning disable format
-        public enum ServerInfoComponentFlag
+       [Flags]
+       public enum ServerInfoComponentFlag
         {
             Name                        = 1 << 0,
             Description                 = 1 << 1,
@@ -61,7 +62,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
             All                         = ~0
         }
 
-        public enum PlayerReportComponentFlag
+       [Flags]
+       public enum PlayerReportComponentFlag
         {
             OnlineStatus    = 1 << 0,
             PlayTime        = 1 << 1,
@@ -78,6 +80,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             All             = ~0
         }
 
+        [Flags]
         public enum PermissionReportComponentFlag
         {
             Intents             = 1 << 0,
@@ -118,7 +121,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     "\n\nFor more information, visit \"www.github.com/Eco-DiscordLink/EcoDiscordPlugin\".";
             }
 
-            public static string GetLinkAccountInfoMessage(SharedCommands.CommandInterface context )
+            public static string GetLinkAccountInfoMessage(SharedCommands.CommandInterface context)
             {
                 return "By linking your Eco account to your Discord account on this server, you can enable the following features:" +
                     $"\n* Trade Watcher Displays - An always up to date view of a {MessageUtils.GetCommandTokenForContext(context)}DLT command in your DMs with the DiscordLink bot." +
@@ -341,7 +344,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             public static string GetChannelLinkList()
             {
                 StringBuilder builder = new StringBuilder();
-                foreach(ChannelLink link in DLConfig.GetChannelLinks(verifiedLinksOnly: false))
+                foreach (ChannelLink link in DLConfig.GetChannelLinks(verifiedLinksOnly: false))
                 {
                     builder.Append(link.ToString());
                     if (!link.IsValid())
@@ -349,7 +352,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     builder.AppendLine();
                 }
 
-                if(builder.Length == 0)
+                if (builder.Length == 0)
                 {
                     builder.AppendLine("No channel links found in configuration");
                 }
@@ -675,7 +678,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                         embed.AddAlignmentField();
                     }
 
-                    if(flag.HasFlag(ServerInfoComponentFlag.PlayerListExhaustionTime) && BalancePlugin.Obj.Config.IsLimitingHours)
+                    if (flag.HasFlag(ServerInfoComponentFlag.PlayerListExhaustionTime) && BalancePlugin.Obj.Config.IsLimitingHours)
                     {
                         string exhaustTimeList = Shared.GetPlayerExhaustionTimeList();
                         if (!string.IsNullOrWhiteSpace(exhaustTimeList))
@@ -925,7 +928,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 // Build message
                 if (useTradeCount)
                     embed.AddField("Total trades", tradesCount.ToString("n0"), inline: true);
-                
+
                 embed.AddField("Amount in circulation", currency.Circulation.ToString("n0"), inline: true);
                 embed.AddAlignmentField();
                 if (!useTradeCount)
@@ -1210,7 +1213,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
                 // Currency transfer description
                 string resultDesc;
-                float subTotal = MathF.Round( soldTotal, 2) - Mathf.Round(boughtTotal, 2);
+                float subTotal = MathF.Round(soldTotal, 2) - Mathf.Round(boughtTotal, 2);
                 if (Math.Abs(subTotal) <= 0.00f)
                 {
                     resultDesc = "No currency was exchanged.";
