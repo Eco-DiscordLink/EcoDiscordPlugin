@@ -850,7 +850,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     {
                         demographicDesc.AppendLine(demographic.Name + (demographic.Creator == user ? " (Creator)" : string.Empty));
                     }
-                    report.AddField("Demographics", userDemographics.Count() > 0 ? demographicDesc.ToString() : "No Demographics", inline: true);
+                    report.AddField("Demographics", userDemographics.Any() ? demographicDesc.ToString() : "No Demographics", inline: true);
                 }
 
                 // Titles
@@ -862,7 +862,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     {
                         titlesDesc.AppendLine(title.Name + (title.Creator == user ? " (Creator)" : string.Empty));
                     }
-                    report.AddField("Titles", userTitles.Count() > 0 ? titlesDesc.ToString() : "No Titles", inline: true);
+                    report.AddField("Titles", userTitles.Any() ? titlesDesc.ToString() : "No Titles", inline: true);
                     report.AddAlignmentField();
                 }
 
@@ -881,7 +881,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                         propertiessLocationDesc.AppendLine(deed.IsVehicle() ? deed.GetVehicle().Parent.Position3i.ToString() : deed.Position3i.ToString());
                     }
 
-                    bool hasProperty = userDeeds.Count() > 0;
+                    bool hasProperty = userDeeds.Any();
                     report.AddField("Property", hasProperty ? propertiessDesc.ToString() : "No Owned Property", inline: true);
                     report.AddField("Size/Vehicle", hasProperty ? propertiessSizeOrVehicleDesc.ToString() : "N/A", inline: true);
                     report.AddField("Location", hasProperty ? propertiessLocationDesc.ToString() : "N/A", inline: true);
@@ -1256,7 +1256,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 DiscordLinkEmbed embed = new DiscordLinkEmbed()
                     .WithTitle($"Trade offers for {matchedName}");
 
-                if (groupedSellOffers.Count() > 0 || groupedBuyOffers.Count() > 0)
+                if (groupedSellOffers.Any() || groupedBuyOffers.Any())
                 {
                     Func<Tuple<StoreComponent, TradeOffer>, string> getLabel = tradeType switch
                     {
@@ -1393,7 +1393,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             {
                 // Format message
                 StringBuilder builder = new StringBuilder();
-                if (groupedSellOffers.Count() > 0 || groupedBuyOffers.Count() > 0)
+                if (groupedSellOffers.Any() || groupedBuyOffers.Any())
                 {
                     switch (tradeType)
                     {
