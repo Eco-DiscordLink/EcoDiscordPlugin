@@ -1,11 +1,11 @@
-﻿using System;
-using System.ComponentModel;
-using System.Linq;
-using DSharpPlus.Entities;
+﻿using DSharpPlus.Entities;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Serialization;
 using Eco.Shared.Utils;
+using System;
+using System.ComponentModel;
+using System.Linq;
 
 namespace Eco.Plugins.DiscordLink
 {
@@ -150,7 +150,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Description("Discord Server by name or ID. only needed if connected to more that one Discord server.")]
         public string SecondDiscordServer { get; set; } = string.Empty;
- 
+
         [Description("Allow mentions of usernames to be forwarded.")]
         public bool AllowUserMentions { get; set; } = true;
 
@@ -185,7 +185,7 @@ namespace Eco.Plugins.DiscordLink
             if (!initialized) return false;
 
             if (string.IsNullOrWhiteSpace(SecondDiscordServer) && DLConfig.Data.DiscordServers.Count != 1)
-            return false;
+                return false;
 
             if (string.IsNullOrWhiteSpace(SecondDiscordChannel))
                 return false;
@@ -207,7 +207,7 @@ namespace Eco.Plugins.DiscordLink
             bool correctionMade = base.MakeCorrections();
 
             if (string.IsNullOrWhiteSpace(SecondDiscordChannel))
-                    return false || correctionMade;
+                return false || correctionMade;
 
             string original = SecondDiscordChannel;
             string channelNameLower = SecondDiscordChannel.ToLower();

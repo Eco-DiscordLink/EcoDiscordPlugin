@@ -145,7 +145,7 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (Exception e)
             {
-                if(e.InnerException is UnauthorizedException)
+                if (e.InnerException is UnauthorizedException)
                 {
                     Logger.Error($"An authentication error occurred while connecting to Discord using token \"{DLConfig.Data.BotToken}\". Please verify that your token is valid. See Github page for install instructions.");
                 }

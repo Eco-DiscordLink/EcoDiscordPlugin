@@ -126,7 +126,7 @@ namespace Eco.Plugins.DiscordLink
 
         private static bool IsCommandAllowedInChannel(CommandContext ctx)
         {
-           var commandChannels = DLConfig.Data.DiscordCommandChannels;
+            var commandChannels = DLConfig.Data.DiscordCommandChannels;
             bool allowed =
                 ctx.Channel.IsPrivate
                 || DiscordLink.Obj.Client.MemberIsAdmin(ctx.Member) // Allow admins to override channel requirements
@@ -168,7 +168,7 @@ namespace Eco.Plugins.DiscordLink
         }
         public static async Task DisplayCommandData(CommandContext ctx, string title, string content)
         {
-            await RespondToCommand(ctx,  $"**{title}**\n```{content}```");
+            await RespondToCommand(ctx, $"**{title}**\n```{content}```");
         }
 
         #endregion
@@ -300,7 +300,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                if(string.IsNullOrWhiteSpace(channelNameOrID))
+                if (string.IsNullOrWhiteSpace(channelNameOrID))
                     await SharedCommands.VerifyPermissionsForChannel(SharedCommands.CommandInterface.Discord, ctx, ctx.Channel);
                 else
                     await SharedCommands.VerifyPermissionsForChannel(SharedCommands.CommandInterface.Discord, ctx, channelNameOrID);

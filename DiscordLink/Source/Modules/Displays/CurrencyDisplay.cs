@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Eco.Gameplay.Economy;
+using Eco.Plugins.DiscordLink.Events;
+using Eco.Plugins.DiscordLink.Extensions;
+using Eco.Plugins.DiscordLink.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Eco.Plugins.DiscordLink.Events;
-using Eco.Gameplay.Economy;
-using Eco.Plugins.DiscordLink.Utilities;
-using Eco.Plugins.DiscordLink.Extensions;
 using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink.Modules

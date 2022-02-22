@@ -335,7 +335,7 @@ namespace Eco.Plugins.DiscordLink
                 UseSpecialtyRoles = this.UseSpecialtyRoles,
                 AdminRoles = new ObservableCollection<string>(this.AdminRoles.Select(t => t.Clone()).Cast<string>()),
                 ChatChannelLinks = new ObservableCollection<ChatChannelLink>(this.ChatChannelLinks.Select(t => t.Clone()).Cast<ChatChannelLink>()),
-                RelayChannelLinks= new ObservableCollection<RelayChannelLink>(this.RelayChannelLinks.Select(t => t.Clone()).Cast<RelayChannelLink>()),
+                RelayChannelLinks = new ObservableCollection<RelayChannelLink>(this.RelayChannelLinks.Select(t => t.Clone()).Cast<RelayChannelLink>()),
                 TradeFeedChannels = new ObservableCollection<ChannelLink>(this.TradeFeedChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
                 CraftingFeedChannels = new ObservableCollection<ChannelLink>(this.CraftingFeedChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
                 ServerStatusFeedChannels = new ObservableCollection<ChannelLink>(this.ServerStatusFeedChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
@@ -367,7 +367,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Description("The name or ID of the Discord Server. This setting can be changed while the server is running and will in that case trigger a reconnection to Discord."), Category("Base Configuration - Discord")]
         public string DiscordServer { get; set; } = string.Empty;
-        
+
         [Description("optional: If you want to connect to multiple Guilds, set this to override the singular DiscordServer option. Apart from being a collection, this is analogous to DiscordServer."), Category("Base Configuration - Discord")]
         public Collection<string> DiscordServers { get; set; } = new ObservableCollection<string>();
 

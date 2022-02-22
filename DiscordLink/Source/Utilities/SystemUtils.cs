@@ -1,6 +1,6 @@
-﻿using System.Threading;
+﻿using System;
 using System.IO;
-using System;
+using System.Threading;
 
 namespace Eco.Plugins.DiscordLink.Utilities
 {

@@ -2,10 +2,10 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using Eco.Gameplay.Players;
 using Eco.Gameplay.Systems.Messaging.Chat.Commands;
+using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
 using System;
 using System.Collections.Generic;
-using Eco.Plugins.DiscordLink.Extensions;
 using System.Linq;
 
 namespace Eco.Plugins.DiscordLink

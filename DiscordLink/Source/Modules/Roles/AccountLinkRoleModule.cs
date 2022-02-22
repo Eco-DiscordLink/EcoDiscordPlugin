@@ -1,11 +1,10 @@
-﻿using DSharpPlus.Entities;
+﻿using DSharpPlus;
+using DSharpPlus.Entities;
 using Eco.Plugins.DiscordLink.Events;
-using System.Threading.Tasks;
 using Eco.Plugins.DiscordLink.Extensions;
-using DSharpPlus;
-using System.Linq;
 using System.Collections.Generic;
-using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {

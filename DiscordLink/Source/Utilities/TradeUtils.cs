@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Eco.Gameplay.Components;
+﻿using Eco.Gameplay.Components;
 using Eco.Gameplay.Items;
 using Eco.Gameplay.Objects;
 using Eco.Gameplay.Players;
 using Eco.Shared.Utils;
-
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using LookupEntry = Eco.Plugins.DiscordLink.Utilities.Either<Eco.Gameplay.Items.Item, Eco.Gameplay.Players.User, Eco.Gameplay.Items.Tag, Eco.Gameplay.Components.StoreComponent>;
 using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
 
@@ -121,7 +120,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
                 offerType = TradeTargetType.User;
             }
-            else if(match.Is<StoreComponent>())
+            else if (match.Is<StoreComponent>())
             {
                 StoreComponent matchStore = match.Get<StoreComponent>();
                 matchedName = matchStore.Parent.Name;

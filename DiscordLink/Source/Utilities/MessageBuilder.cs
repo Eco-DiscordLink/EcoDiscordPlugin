@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DSharpPlus;
+﻿using DSharpPlus;
 using DSharpPlus.Entities;
 using Eco.Core.Utils;
 using Eco.Gameplay.Civics.Demographics;
@@ -23,14 +17,19 @@ using Eco.Gameplay.Skills;
 using Eco.Gameplay.Systems.Balance;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.Networking;
-using Eco.Simulation.Types;
-using Eco.Shared.Networking;
-using Eco.Shared.Utils;
 using Eco.Shared;
 using Eco.Shared.Items;
-
-using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
+using Eco.Shared.Networking;
+using Eco.Shared.Utils;
+using Eco.Simulation.Types;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using StoreOfferGroup = System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.StoreComponent, Eco.Gameplay.Components.TradeOffer>>;
+using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
 
 namespace Eco.Plugins.DiscordLink.Utilities
 {
