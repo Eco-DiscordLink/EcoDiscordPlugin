@@ -453,7 +453,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     if (includeZeroTimes || hoursCount > 0)
                     {
                         if (!annotate && builder.Length != 0)
-                            builder.Append(":");
+                            builder.Append(':');
                         builder.Append(hoursCount.ToString("00"));
                         if (annotate)
                             builder.Append("H ");
@@ -466,7 +466,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     if (includeZeroTimes || minutesCount > 0)
                     {
                         if (!annotate && builder.Length != 0)
-                            builder.Append(":");
+                            builder.Append(':');
                         builder.Append(minutesCount.ToString("00"));
                         if (annotate)
                             builder.Append("M ");
@@ -479,10 +479,10 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     if (includeZeroTimes || secondsCount > 0)
                     {
                         if (!annotate && builder.Length != 0)
-                            builder.Append(":");
+                            builder.Append(':');
                         builder.Append(secondsCount.ToString("00"));
                         if (annotate)
-                            builder.Append("S");
+                            builder.Append('S');
                     }
                 }
                 return builder.ToString().Trim();
