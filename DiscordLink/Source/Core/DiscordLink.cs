@@ -360,11 +360,18 @@ namespace Eco.Plugins.DiscordLink
 
         private void UpdateActivityString(DLEventType trigger)
         {
-            if (Client.ConnectionStatus != DLDiscordClient.ConnectionState.Connected
-                || (trigger & (DLEventType.Join | DLEventType.Login | DLEventType.Logout | DLEventType.Timer)) == 0)
-                return;
+            try
+            {
+                if (Client.ConnectionStatus != DLDiscordClient.ConnectionState.Connected
+                    || (trigger & (DLEventType.Join | DLEventType.Login | DLEventType.Logout | DLEventType.Timer)) == 0)
+                    return;
 
-            Client.DiscordClient.UpdateStatusAsync(new DiscordActivity(MessageBuilder.Discord.GetActivityString(), ActivityType.Watching));
+                Client.DiscordClient.UpdateStatusAsync(new DiscordActivity(MessageBuilder.Discord.GetActivityString(), ActivityType.Watching));
+            }
+            catch(Exception e)
+            {
+                Logger.Error($"An error occured while attempting to update the activity string. Error: {e}");
+            }
         }
 
         #endregion
