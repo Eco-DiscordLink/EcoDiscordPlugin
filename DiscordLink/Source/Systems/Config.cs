@@ -124,22 +124,16 @@ namespace Eco.Plugins.DiscordLink
 
         public void HandleCollectionChanged(NotifyCollectionChangedEventArgs args)
         {
-            Logger.Debug("Config Changed");
+            if (args.Action == NotifyCollectionChangedAction.Add)
+                return; // When we add, we also trigger reset and we don't want duplicate triggers
 
-            if (args.Action == NotifyCollectionChangedAction.Add
-                || args.Action == NotifyCollectionChangedAction.Remove
-                || args.Action == NotifyCollectionChangedAction.Replace)
-            {
-                _ = HandleConfigChanged();
-            }
-            else
-            {
-                Save(); // Remove isn't reported properly so we should save on other events to make sure the changes are saved
-            }
+            _ = HandleConfigChanged();
         }
 
         public async Task HandleConfigChanged()
         {
+            Logger.Debug("Config Changed");
+
             // Do not verify if change occurred as this function is going to be called again in that case
             // Do not verify the config in case critical data has been changed, as the client will be restarted and that will trigger verification
             bool tokenChanged = Data.BotToken != _prevConfig.BotToken;
