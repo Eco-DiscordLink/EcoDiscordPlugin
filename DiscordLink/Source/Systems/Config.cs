@@ -99,7 +99,6 @@ namespace Eco.Plugins.DiscordLink
             Data.ServerLogFeedChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.ServerInfoDisplayChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.WorkPartyDisplayChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
-            Data.PlayerListDisplayChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.ElectionDisplayChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.CurrencyDisplayChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.SnippetInputChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
@@ -269,7 +268,6 @@ namespace Eco.Plugins.DiscordLink
             _allChannelLinks.AddRange(_config.Config.ServerLogFeedChannels);
             _allChannelLinks.AddRange(_config.Config.ServerInfoDisplayChannels);
             _allChannelLinks.AddRange(_config.Config.WorkPartyDisplayChannels);
-            _allChannelLinks.AddRange(_config.Config.PlayerListDisplayChannels);
             _allChannelLinks.AddRange(_config.Config.ElectionDisplayChannels);
             _allChannelLinks.AddRange(_config.Config.CurrencyDisplayChannels);
             _allChannelLinks.AddRange(_config.Config.SnippetInputChannels);
@@ -309,7 +307,6 @@ namespace Eco.Plugins.DiscordLink
                 ServerLogFeedChannels = new ObservableCollection<ServerLogFeedChannelLink>(this.ServerLogFeedChannels.Select(t => t.Clone()).Cast<ServerLogFeedChannelLink>()),
                 ServerInfoDisplayChannels = new ObservableCollection<ServerInfoChannel>(this.ServerInfoDisplayChannels.Select(t => t.Clone()).Cast<ServerInfoChannel>()),
                 WorkPartyDisplayChannels = new ObservableCollection<ChannelLink>(this.WorkPartyDisplayChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
-                PlayerListDisplayChannels = new ObservableCollection<PlayerListChannelLink>(this.PlayerListDisplayChannels.Select(t => t.Clone()).Cast<PlayerListChannelLink>()),
                 ElectionDisplayChannels = new ObservableCollection<ChannelLink>(this.ElectionDisplayChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
                 CurrencyDisplayChannels = new ObservableCollection<CurrencyChannelLink>(this.CurrencyDisplayChannels.Select(t => t.Clone()).Cast<CurrencyChannelLink>()),
                 SnippetInputChannels = new ObservableCollection<ChannelLink>(this.SnippetInputChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
@@ -390,9 +387,6 @@ namespace Eco.Plugins.DiscordLink
 
         [Description("Discord channels in which to keep ongoing work parties. DiscordLink will post messages in these channel and keep them updated through edits. This setting can be changed while the server is running."), Category("Displays")]
         public ObservableCollection<ChannelLink> WorkPartyDisplayChannels { get; set; } = new ObservableCollection<ChannelLink>();
-
-        [Description("Discord channels in which to keep the Player List display. DiscordLink will post one Player List message in these channel and keep it updated through edits. This setting can be changed while the server is running."), Category("Displays")]
-        public ObservableCollection<PlayerListChannelLink> PlayerListDisplayChannels { get; set; } = new ObservableCollection<PlayerListChannelLink>();
 
         [Description("Discord channels in which to keep the Election display. DiscordLink will post election messages in these channel and keep it updated through edits. This setting can be changed while the server is running."), Category("Displays")]
         public ObservableCollection<ChannelLink> ElectionDisplayChannels { get; set; } = new ObservableCollection<ChannelLink>();

@@ -325,7 +325,6 @@ namespace Eco.Plugins.DiscordLink
             Modules.Add(new ElectionFeed());
             Modules.Add(new ServerInfoDisplay());
             Modules.Add(new WorkPartyDisplay());
-            Modules.Add(new PlayerDisplay());
             Modules.Add(new ElectionDisplay());
             Modules.Add(new CurrencyDisplay());
             Modules.Add(new TradeWatcherDisplay());
