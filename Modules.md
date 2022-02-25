@@ -52,7 +52,7 @@ Sends Discord messages to Eco and vice versa. Can be configured to only feed mes
 ![Chat Feed](images/features/feeds/chat.png)
 
 ### Player Status
-Sends notifications when a player logs in/out or joins the server.
+Sends notifications when a player logs in/out or joins the server.  
 ![Chat Feed](images/features/feeds/player_status.png)
 
 ### Trade
@@ -60,11 +60,11 @@ Displays trade events in Discord as they occur in Eco.
 ![Trade Feed](images/features/feeds/trade.png)
 
 ### Server Log
-Forwards Eco server log messages to Discord.
+Forwards Eco server log messages to Discord.  
 ![Server Log Feed](images/features/feeds/server_log.png)
 
 ### Server Status
-Sends notifications when the server comes online or goes offline.
+Sends notifications when the server comes online or goes offline.  
 ![Server Status Feed](images/features/feeds/server_status.png)
 
 ### Crafting
@@ -89,11 +89,11 @@ Gives linked users a role in Discord to show that they have linked theur account
 ![Account Link Role](images/features/roles/account_link.png)  
 
 ### Demographics
-Gives linked users roles matching their ingame demographics.
+Gives linked users roles matching their ingame demographics.  
 ![Demographic Role](images/features/roles/demographic.png)
 
 ### Specializations
-Gives linked users roles matching their ingame specializations.
+Gives linked users roles matching their ingame specializations.  
 ![Specialization Role](images/features/roles/specialization.png)
 
 ## Inputs

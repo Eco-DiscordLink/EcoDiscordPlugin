@@ -46,41 +46,43 @@ If you are not using the server GUI, you instead need to fill out this field in 
 
 ![Discord Server Name](images/installation/server_name.png)
 
+### 11 Restart the DiscordLink plugin to make the changes take effect.
+
 ![Plugin Restart](images/installation/plugin_restart.png)
 
-### 11. Navigate back to the bot's page and the "General Information" tab on the Discord website (see above). Copy the "Application ID" - you will need it in the next section.
+### 12. Navigate back to the bot's page and the "General Information" tab on the Discord website (see above). Copy the "Application ID" - you will need it in the next section.
 
 ![Discord application id](images/installation/application_id.png)
 
-### 12. Before you leave the bot's page, enable the "Server Members Intent" and "Message Content Intent" for your bot.
+### 13. Before you leave the bot's page, enable the "Server Members Intent" and "Message Content Intent" for your bot.
 * The Server members intent allows DiscordLink to search for users in your Discord server when trying to link an Eco account to a Discord account.
 * The Message Content Intent will be needed for DiscordLink to function past 2022-04-30.
 
 ![Intents](images/installation/intents.png)
 
-### 13. Go to <https://discordapi.com/permissions.html#268659776>. Paste the Application ID in the bottom left field labelled "Client ID", and add any extra permissions you want the bot to have. Click the link at the bottom.
+### 14. Go to <https://discordapi.com/permissions.html#268659776>. Paste the Application ID in the bottom left field labelled "Client ID", and add any extra permissions you want the bot to have. Click the link at the bottom.
 
 ![Setting permissions](images/installation/permissions_setup.png)
 
-### 14. Set the server you want to invite the bot to, then click "Continue".
+### 15. Set the server you want to invite the bot to, then click "Continue".
 
 ![Invite to server](images/installation/invite_bot.png)
 
-### 15. Check your Discord server to see that the bot is online when the server is running.
+### 16. Check your Discord server to see that the bot is online when the server is running.
 **Offline**
 ![Offline bot](images/installation/offline_bot.png)
 **Online**
 ![Online bot](images/installation/online_bot.png)
 
-### 16 Set up a [Chat Channel Link](ConfigurationGUI.md).
+### 17 Set up a [Chat Channel Link](ConfigurationGUI.md).
 
-### 17 Verify that the config is correct by running the [VerifyConfig](#Commands.md) command or by selecting it in the DiscordLink dropdown in the server GUI.
+### 18 Verify that the config is correct by running the [VerifyConfig](#Commands.md) command or by selecting it in the DiscordLink dropdown in the server GUI.
 
-### 18 Make sure that the bot has the required permissions by running the [VerifyPermissions](#Commands.md) command or by selecting it in the DiscordLink dropdown in the server GUI.
+### 19 Make sure that the bot has the required permissions by running the [VerifyPermissions](#Commands.md) command or by selecting it in the DiscordLink dropdown in the server GUI.
 
-### 19 Run the _"Echo"_ [command](#Commands.md) in the Discord channel specified in the Chat Channel Link to see that it is properly sending message to Eco and receiving messages back. 
+### 20 Run the _"Echo"_ [command](#Commands.md) in the Discord channel specified in the Chat Channel Link to see that it is properly sending message to Eco and receiving messages back. 
 
-**Echo command**
+**Echo command**  
 ![Echo Command](images/installation/echo_command.png)  
 
 **Discord server GUI chat display showing that the message reached the Eco server.**  
@@ -89,4 +91,4 @@ If you are not using the server GUI, you instead need to fill out this field in 
 **Crosspost back to Discord showing that DiscordLink caught the message and forwarded it as configured in the Chat Channel Link cofiguration.**  
 ![Echo command Response Discord](images/installation/echo_discord.png)  
 
-### 20. You're done! [Configure](ConfigurationGUI.md) any other options and features you want and enjoy using DiscordLink!  
+### 21. You're done! [Configure](ConfigurationGUI.md) any other options and features you want and enjoy using DiscordLink!  
