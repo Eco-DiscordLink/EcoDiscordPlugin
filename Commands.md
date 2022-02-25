@@ -1,93 +1,96 @@
 # Commands
-When using commands:
-- All Eco and Discord commands are case insensitive.
-- [] indicates a command alias.
-These are short forms of the command name and can be used to remove the need of preceding the command with /DiscordLink for Eco commands.
-- () Indicates a parameter.
-For Eco commands, the first parameter does not require a comma to separate it from the command name.
 
-## Eco Commands
+## Invoking Eco Commands
 Eco commands are invoked by typing /DiscordLink [CommandName] into the Eco chat.
 Typing only /DiscordLink or the alias /DL will invoke the help message and provide you with information about the available commands.
 
-#### Admin commands
-* <b>Restart [DL-Restart]</b> - Restarts the plugin.
-* <b>ResetWorldData [DL-ResetData]</b> - Resets world data as if a new world had been created.
-* <b>SendMessageToDiscordChannel (Server, Channel, Message)</b> - Sends a message to a specific server and channel.
-* <b>ListGuilds</b> - Lists Discord servers the bot is in.
-* <b>ListChannels</b> - Lists channels available to the bot in a specific server.
-* <b>SendServerMessage [DL-ServerMessage] (message, Target Username, optional:temporary/permanent)</b> - Sends a server message to the target user.
-* <b>BroadcastServerMessage [DL-BroadcastServerMessage] (message, optional:temporary/permanent)</b> - Sends a server message to all online users.  
-[Example](https://github.com/Eco-DiscordLink/EcoDiscordPlugin/blob/develop/images/features/commands/servermessage.png?raw=true)
-
-* <b>SendPopup [DL-Popup] (message, Target Username)</b> - Sends a popup to the target user.  
-* <b>BroadcastPopup [DL-BroadcastPopup] (message)</b> - Sends a popup to all online users.  
-[Example](https://github.com/Eco-DiscordLink/EcoDiscordPlugin/blob/develop/images/features/commands/popupmessage.png)
-
-* <b>SendAnnouncement [DL-Announcement] (title, message, Target Username)</b> - Sends an announcement message box to the target user.
-* <b>BroadcastAnnouncement [DL-BroadcastAnnouncement] (title, message)</b> - Sends an announcement message box to all online users.  
-[Example](https://github.com/Eco-DiscordLink/EcoDiscordPlugin/blob/develop/images/features/commands/announcementmessage.png?raw=true)
-
-* <b>PluginStatus [DL-Status]</b> - Shows the plugin status.
-* <b>PluginStatusVerbose [DL-StatusVerbose]</b> - Shows the plugin status including verbose debug level information.
-
-#### User Commands
-* <b>About [DL-About]</b> - Displays information about the DiscordLink plugin.
-* <b>Invite [DL-Invite]</b> - Displays the Discord invite message.
-* <b>Snippet [DL-Snippet] (Optional: Snippet Key)</b> - Post a predefined snippet from Discord. Will display a list of available snippets if no Snippet Key is supplied.
-* <b>LinkDiscordAccount [DL-Link] (Discord User name)</b> - Initiates the process for linking thecalling Eco user to the supplied Discord account. Will trigger a confirmation request from the Discord bot in a Discord DM.
-<details>
-  <summary>Account Linking Process</summary>
-  1. Run _dl-Link_ command from Eco and receive the verification message from the bot.  
-  2. Run _dl-VerifyLink_ command as a response to the verification message.  
-  ![Account Linking Verification](https://github.com/Eco-DiscordLink/EcoDiscordPlugin/blob/develop/images/features/commands/accountverification.png?raw=true)
-  
-</details>
-
-* <b>UnlinkDiscordAccount [DL-Unlink]</b> - Removes any existing link between the calling Eco account and Discord. Can be used to abort an unfinished linking process.
-* <b>Trades [DL-Trades] [Trade] [dlt] (Item Name or Username)</b> - Displays available trades by person or by item.  
-[Example](https://github.com/Eco-DiscordLink/EcoDiscordPlugin/blob/develop/images/features/commands/ecotrades.png?raw=true)
-
-* <b>TrackTrades [DL-TrackTrades] (Item name or Username)</b> - Configures a Trade Tracker Display showing up to date information on the requested item in a Discord DM with the calling user. Requires the calling user having linked their Eco account to Discord using _/dl-link_. Note that there may be a limit to how many tracked trades each user is allowed to have.  
-[Example](https://github.com/Eco-DiscordLink/EcoDiscordPlugin/blob/develop/images/features/commands/discordtrades.png?raw=true)
-
-* <b>StopTrackTrades [DL-StopTrackTrades] (Item Name or Username)</b> - Removes the Trade Tracker Display for the requested item for the calling user.
-* <b>ListTrackedTrades [DL-ListTrackedTrades]</b> - Lists all Trade Tracker Displays registered for the calling user.
-
-## Discord Commands
+## Invoking Discord Commands
 Discord commands are invoked by typing the command prefix character (default '?') followed by a command name.
 Command Parameters that contain spaces need to be enclosed in quotes (Example: "Basic Upgrade 1")
+If the command is not written correctly, no response will be generated.
 
-#### Admin commands
-* <b>Restart [DL-Restart]</b> - Restarts the plugin.
-* <b>ResetWorldData [DL-ResetData]</b> - Resets world data as if a new world had been created.
-* <b>Print (Message)</b> - Reposts the inputted message. Can be used to create tags for ordering display tags within a channel.
-* <b>Echo (Optional: Message )</b> - Tests message forwarding by sending a message to Eco to be picked up by the Chat Links.
-* <b>SendServerMessage [DL-ServerMessage] (message, Target Username, optional:temporary/permanent)</b> - Sends a server message to the target user.
-* <b>BroadcastServerMessage [DL-BroadcastServerMessage] (message, optional:temporary/permanent)</b> - Sends a server message to all online users.  
-[Example](https://github.com/Eco-DiscordLink/EcoDiscordPlugin/blob/develop/images/features/commands/servermessage.png?raw=true)
+## Commads
+All Eco and Discord commands are case insensitive.
 
-* <b>SendPopup [DL-Popup] (message, Target Username)</b> - Sends a popup to the target user.
-* <b>BroadcastPopup [DL-BroadcastPopup] (message)</b> - Sends a popup to all online users.  
-[Example](https://github.com/Eco-DiscordLink/EcoDiscordPlugin/blob/develop/images/features/commands/popupmessage.png)
+# **Plugin Management**
+| **Name**                   | **Alias**                                                              | **Discord/Eco**   | **Parameters**                                                          | **Permissions** | **Description**                                                                                                      |
+|----------------------------|------------------------------------------------------------------------|-------------------|-------------------------------------------------------------------------|-----------------|----------------------------------------------------------------------------------------------------------------------|
+| DiscordLink                | DL                                                                     | Eco               |                                                                         | User            | Displays a list of all available DiscordLink commands. This is the parent command of all other DiscordLink commands. |
+| Restart                    | DL-Restart                                                             | Both              |                                                                         | Admin           | Restarts the plugin.                                                                                                 |
+| ResetPersistentData        | DL-ResetPersistentdata                                                 | Both              |                                                                         | Admin           | Removes all persistent storage data.                                                                                 |
+| ResetWorldData             | DL-ResetWorldData                                                      | Both              |                                                                         | Admin           | Resets world data as if a new world had been created.                                                                |
 
-* <b>SendAnnouncement [DL-Announcement] (title, message, Target Username)</b> - Sends an announcement message box to the target user.
-* <b>BroadcastAnnouncement [DL-BroadcastAnnouncement] (title, message)</b> - Sends an announcement message box to all online users.  
-[Example](https://github.com/Eco-DiscordLink/EcoDiscordPlugin/blob/develop/images/features/commands/announcementmessage.png?raw=true)
 
-* <b>PluginStatus [DL-Status] [Status]</b> - Shows the plugin status.
-* <b>PluginStatusVerbose [DL-StatusVerbose] [StatusVerbose]</b> - Shows the plugin status including verbose debug level information.
+# **Setup and Troubleshooting**
+| **Name**                   | **Alias**                                                              | **Discord/Eco**   | **Parameters**                                                          | **Permissions** | **Description**                                                                                                      |
+|----------------------------|------------------------------------------------------------------------|-------------------|-------------------------------------------------------------------------|-----------------|----------------------------------------------------------------------------------------------------------------------|
+| VerifyConfig               | DL-VerifyConfig, DL-ConfigReport, ConfigReport                         | Both              |                                                                         | Admin           | Checks configuration setup and reports any errors.                                                                   |
+| VerifyPermissions          | DL-VerifyPermissions, DL-PermissionReport, PermissionReport            | Both              |                                                                         | Admin           | Checks all permissions and intents needed for the current configuration and reports any missing ones.                |
+| VerifyIntents              | DL-VerifyIntents                                                       | Both              |                                                                         | Admin           | Checks all intents needed and reports any missing ones.                                                              |
+| VerifyServerPermissions    | DL-VerifyServerPermissions, ServerPermissions, DL-ServerPermissions    | Both              |                                                                         | Admin           | Checks all server permissions needed and reports any missing ones.                                                   |
+| VerifyChannelPermissions   | DL-VerifyChannelPermissions, ChannelPermissions, DL-ChannelPermissions | Both              | ChannelNameOrID                                                         | Admin           | Checks all permissions needed for the given channel and reports any missing ones.                                    |
+| Print                      |                                                                        | Discord           | Message                                                                 | Admin           | Reposts the inputted message. Can be used to create tags for ordering display tags within a channel.                 |
+| Echo                       |                                                                        | Discord           | Message                                                                 | Admin           | Sends the provided message to Eco and back to Discord again if a chat link is configured for the channel.            |
+| Ping                       |                                                                        | Discord           |                                                                         | Admin           | Prompts the bot to respond with "Pong". Can ge used to check if the bot is online.                                   |
 
-#### User Commands
-* <b>Ping</b> - Checks if the bot is online.
-* <b>ServerStatus [DL-EcoStatus] [DL-ServerInfo] [EcoStatus]</b> - Prints the Server Info status.
-* <b>PlayerList [players] [DL-Players]</b> - Prints the list of online players.
-* <b>DiscordInvite [DL-Invite]</b> - Posts the Discord invite message to the Eco chat.
-* <b>DiscordLinkAbout [DL-About]</b> - Posts a message describing what the DiscordLink plugin is.
-* <b>VerifyLink [DL-VerifyLink]</b> - Accepts an account linking request sent via /DL-Link.
-* <b>Trades [Trade] [DL-Trades] [DL-Trade] [dlt] (Item name or Username)</b> - Displays available trades by person or by item.
-* <b>TrackTrades [DL-TrackTrades] (Item name or Username)</b> - Configures a Trade Tracker Display showing up to date information on the requested item in a Discord DM with the calling user. Requires the calling user having linked their Eco account to Discord using _/dl-link_ from inside the game.  
-[Example](https://github.com/Eco-DiscordLink/EcoDiscordPlugin/blob/develop/images/features/commands/discordtrades.png?raw=true)
+# **Info**
+| **Name**                   | **Alias**                                                              | **Discord/Eco**   | **Parameters**                                                          | **Permissions** | **Description**                                                                                                      |
+|----------------------------|------------------------------------------------------------------------|-------------------|-------------------------------------------------------------------------|-----------------|----------------------------------------------------------------------------------------------------------------------|
+| DiscordLinkAbout           | DL-About                                                               | Both              |                                                                         | User            | Displays a message describing what the DiscordLink plugin is.                                                        |
+| LinkInformation            | DL-LinkInfo                                                            | Both              |                                                                         | User            | Presents information about account linking.                                                                          |
+| PluginStatus               | DL-Status, Status                                                      | Both              |                                                                         | Admin           | Displays the plugin status.                                                                                          |
+| PluginStatusVerbose        | DL-StatusBVerbose, StatusVerbose                                       | Both              |                                                                         | Admin           | Shows the plugin status including verbose debug level information.                                                   |
+| ListLinkedChannels         | DL-ListLinkedChannels, ListChannels, DL-ListChannels                   | Both              |                                                                         | Admin           | Presents a list of all channel links.                                                                                |
+| ServerStatus               | DL-EcoStatus, DL-ServerInfo, EcoStatus                                 | Both              |                                                                         | User            | Displays the Server Info status.                                                                                     |
+| PlayerList                 | DL-Players, Players                                                    | Both              |                                                                         | User            | Lists the players currently online on the server.                                                                    |
 
-* <b>StopTrackTrades [DL-StopTrackTrades] (Item name or Username)</b> - Removes the Trade Tracker Display for the requested item for the calling user.
-* <b>ListTrackedTrades [DL-ListTrackedTrades]</b> - Lists all Trade Tracker Displays registered for the calling user.
+# **Account Linking**
+| **Name**                   | **Alias**                                                              | **Discord/Eco**   | **Parameters**                                                          | **Permissions** | **Description**                                                                                                      |
+|----------------------------|------------------------------------------------------------------------|-------------------|-------------------------------------------------------------------------|-----------------|----------------------------------------------------------------------------------------------------------------------|
+| LinkDiscordAccount         | DL-Link                                                                | Eco               | DiscordName                                                             | User            | Links the calling user account to a Discord account. DiscordName is qualified or unqualified name. No nicknames.     |
+| UnlinkDiscordAccount       | DL-Unlink                                                              | Eco               |                                                                         | User            | Unlinks the Eco account from a linked Discord account.                                                      |
+
+# **Invites**
+| **Name**                   | **Alias**                                                              | **Discord/Eco**   | **Parameters**                                                          | **Permissions** | **Description**                                                                                                      |
+|----------------------------|------------------------------------------------------------------------|-------------------|-------------------------------------------------------------------------|-----------------|----------------------------------------------------------------------------------------------------------------------|
+| Invite                     | DL-Invite                                                              | Both              | TargetUserName                                                          | User            | Posts the Discord invite message to the target user. The invite will be broadcasted if no target user is specified.  |
+| BroadcastInvite            | DL-Broadcastinvite                                                     | Both              | TargetUserName                                                          | User            | Posts the Discord invite message to the Eco chat.                                                                    |
+
+# **Trades**
+| **Name**                   | **Alias**                                                              | **Discord/Eco**   | **Parameters**                                                          | **Permissions** | **Description**                                                                                                      |
+| Trades                     | DL-Trades, DL-Trade, DLT                                               | Both              | SearchName                                                              | User            | Displays available trades by player, tag, item or store. The search name is case insensitive and will auto complete. |
+| AddTradeWatcherDisplay     | DL-WatchTradeDisplay                                                   | Both              | SearchName                                                              | User            | Creates a live updated display of available trades by player, tag, item or store.                                    |
+| RemoveTradeWatcherDisplay  | DL-UnatchTradeDisplay                                                  | Both              | SearchName                                                              | User            | Removes the live updated display of available trades for a player, tag, item or store.                               |
+| AddTradeWatcherFeed        | DL-WatchTradeFeed                                                      | Both              | SearchName                                                              | User            | Creates a feed where the bot will post trade reports filtered by the search query, as they occur ingame.             |
+| RemoveTradeWatcherFeed     | DL-UnwatchTradeFeed                                                    | Both              | SearchName                                                              | User            | Removes the trade watcher feed for a player, tag, item or store.                                                     |
+| ListTradeWatchers          | DL-TradeWatchers                                                       | Both              |                                                                         | User            | Lists all trade watchers for the calling user.                                                                       |
+
+# **Reports**
+| **Name**                   | **Alias**                                                              | **Discord/Eco**   | **Parameters**                                                          | **Permissions** | **Description**                                                                                                      |
+|----------------------------|------------------------------------------------------------------------|-------------------|-------------------------------------------------------------------------|-----------------|----------------------------------------------------------------------------------------------------------------------|
+| PlayerReport               | DL-PlayerReport, DL-Player                                             | Both              | PlayerNameOrID                                                          | User            | Displays the Player Report for the given player.                                                                     |
+| PlayerOnlineReport         | DL-PlayerOnline                                                        | Both              | PlayerNameOrID                                                          | User            | Displays the Player Online Status Report for the given player.                                                       |
+| PlayerTimeReport           | DL-PlayerTime                                                          | Both              | PlayerNameOrID                                                          | User            | Displays the Player Time Report for the given player.                                                                |
+| PlayerPermissionsReport    | DL-PlayerPermissions                                                   | Both              | PlayerNameOrID                                                          | User            | Displays the Player Permissions Report for the given player.                                                         |
+| PlayerAccessReport         | DL-PlayerAccess, DL-PlayerWhiteListed, DL-PlayerBanned, DL-PlayerMuted | Both              | PlayerNameOrID                                                          | User            | Displays the Player WhiteList/Ban/Mute Report for the given player.                                                  |
+| PlayerAccessReport         | DL-PlayerAccess, DL-PlayerWhiteListed, DL-PlayerBanned, DL-PlayerMuted | Both              | PlayerNameOrID                                                          | User            | Displays the Player WhiteList/Ban/Mute Report for the given player.                                                  |
+| PlayerDiscordReport        | DL-PlayerDiscord                                                       | Both              | PlayerNameOrID                                                          | User            | Displays the Player Discord Report for the given user.                                                               |
+| PlayerReputationReport     | DL-PlayerDiscord                                                       | Both              | PlayerNameOrID                                                          | User            | Displays the Player Reputation Report for the given player.                                                          |
+| PlayerReputationReport     | DL-PlayerReputation                                                    | Both              | PlayerNameOrID                                                          | User            | Displays the Player Reputation Report for the given player.                                                          |
+| PlayerXPReport             | DL-PlayerXP                                                            | Both              | PlayerNameOrID                                                          | User            | Displays the Player XP Report for the given player.                                                                  |
+| PlayerSkillsReport         | DL-PlayerSkills                                                        | Both              | PlayerNameOrID                                                          | User            | Displays the Player Skills Report for the given player.                                                              |
+| PlayerDemographicsReport   | DL-PlayerSkills                                                        | Both              | PlayerNameOrID                                                          | User            | Displays the Player Demographics Report for the given player.                                                        |
+| PlayerTitlesReport         | DL-PlayerTitles                                                        | Both              | PlayerNameOrID                                                          | User            | Displays the Player Titles Report for the given player.                                                              |
+| PlayerPropertyReport       | DL-PlayerProperty                                                      | Both              | PlayerNameOrID                                                          | User            | Displays the Player Property Report for the given player.                                                            |
+| CurrencyReport             | DL-Currency                                                            | Both              | CurrencyNameOrID                                                        | User            | Displays the Currency Report for the given currency.                                                                 |
+| CurrenciesReport           | DL-Currencies                                                          | Both              | CurrencyType, MaxCurrenciesPerType, HoldersPerCurrency                  | User            | Displays a report for the top used currencies.                                                                       |
+| ElectionReport             | DL-Election                                                            | Both              | ElectionNameOrID                                                        | User            | Displays the Election Report for the given election.                                                                 |
+| ElectionsReport            | DL-Elections                                                           | Both              |                                                                         | User            | Displays a report for the currently active elections.                                                                |
+| WorkPartyReport            | DL-WorkParty                                                           | Both              | WorkPartyNameOrID                                                       | User            | Displays the Work Party Report for the given work party.                                                             |
+| WorkPartiesReport          | DL-WorkParties                                                         | Both              |                                                                         | User            | Displays a report for the currently active work parties.                                                             |
+
+# **Snippets**
+| **Name**                   | **Alias**                                                              | **Discord/Eco**   | **Parameters**                                                          | **Permissions** | **Description**                                                                                                      |
+| Snippet                    | DL-Snippet                                                             | Eco               | SnippetKey                                                              | User            | Post a predefined snippet to Eco.                                                                                    |
+| DiscordSnippet             | DL-DiscordSnippet, DL-SnippetToDiscord, DL-Snippet                     | Discord           | SnippetKey                                                              | User            | Post a predefined snippet to Discord.                                                                                |
+| EcoSnippet                 | DL-EcoSnippet, DL-SnippetToEco,                                        | Discord           | SnippetKey                                                              | User            | Post a predefined snippet to Eco.                                                                                    |

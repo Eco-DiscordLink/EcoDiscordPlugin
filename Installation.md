@@ -4,77 +4,89 @@ Note: If you do _*not*_ have access to the server GUI, you can still use this qu
 
 ### 1. Download the latest DiscordLink release .zip file from <https://github.com/Eco-DiscordLink/EcoDiscordPlugin/releases>.
 
-![Download page](images/installation/1.png)
+![Download page](images/installation/download_page.png)
 
 ### 2. Go to your server's main folder (The one with the .exe), extract the .zip there and start your server.
 
-![Unzip dialog](images/installation/2.png)
+![Unzip dialog](images/installation/unzip.png)
 
 ### 3. When the server has loaded, navigate to the DiscordLink configuration tab. You'll see a configuration box labelled "BotToken". We need to go create one.
 
-![Config box](images/installation/3_1.png)
+![Config box](images/installation/bot_token.png)
 
 If you are not using the server GUI, you instead need to fill out this field in the _"DiscordLink.eco"_ config file.
 
-![Config field](images/installation/3_2.png)
+![Config field](images/installation/config_field.png)
 
-### 4. Navigate to <https://discordapp.com/developers/applications/me>. Login to Discord and click "New App".
+### 4. Navigate to <https://discordapp.com/developers/applications/me>. Login to Discord and click "New Application".
 
-![Discord app page](images/installation/4.png)
+![Discord app page](images/installation/discord_app.png)
 
 ### 5. Name your bot appropriately (this will be the bot's name on your Discord server).
 
-![Discord new app page](images/installation/5.png)
+![Discord new app page](images/installation/new_app.png)
 
 ### 6. Click the section labelled "Bot". Click "Create a Bot User".
 
-![Create bot user](images/installation/6.png)
+![Create bot user](images/installation/create_bot_user.png)
 
 ### 7. Click "Add Bot"
 
-![Add bot](images/installation/7.png)
+![Add bot](images/installation/add_bot.png)
 
 ### 8. This section will now contain the token we need. Click the copy button to get the token into your clipboard.
 
-![Discord token](images/installation/8.png)
+![Discord token](images/installation/token.png)
 
-### 9. Paste the token into the "BotToken" section of the server GUI. If you check the server's console, you should see "Connected to Discord". If you don't, double check your token. Note that if you are not using the GUI, you will need to restart the server manually.
+### 9. Go back to the Eco server configuration and paste the token into the "BotToken" field.
 
-![Token installation message](images/installation/9.png)
+![Config box](images/installation/bot_token.png)
 
-### 10. Navigate back to the bot's page on the Discord website (see above). Copy the "Application ID" that appears at the top - you will need it in the next section.
+### 10. Enter the name or ID of your Discord server into the "Discord Server" field.
 
-![Discord application id](images/installation/10.png)
+![Discord Server Name](images/installation/server_name.png)
 
-### 11. Before you leave the bot's page, enable the "Server Members Intent" for your bot. This allows DiscordLink to read the full member list of Discord Servers. This is needed for linking Eco and Discord accounts.
+![Plugin Restart](images/installation/plugin_restart.png)
 
-![Discord application id](images/installation/11.png)
+### 11. Navigate back to the bot's page and the "General Information" tab on the Discord website (see above). Copy the "Application ID" - you will need it in the next section.
 
-### 12. Go to <https://discordapi.com/permissions.html#216064>. Paste the Application ID in the bottom left field labelled "Client ID", and add any extra permissions you want the bot to have. Click the link at the bottom.
+![Discord application id](images/installation/application_id.png)
 
-![Setting permissions](images/installation/12.png)
+### 12. Before you leave the bot's page, enable the "Server Members Intent" and "Message Content Intent" for your bot.
+* The Server members intent allows DiscordLink to search for users in your Discord server when trying to link an Eco account to a Discord account.
+* The Message Content Intent will be needed for DiscordLink to function past 2022-04-30.
 
-### 13. Set the server you want to invite the bot to, then click "Continue".
+![Intents](images/installation/intents.png)
 
-![Invite to server](images/installation/13.png)
+### 13. Go to <https://discordapi.com/permissions.html#268659776>. Paste the Application ID in the bottom left field labelled "Client ID", and add any extra permissions you want the bot to have. Click the link at the bottom.
 
-### 14. Check your Discord server to see that the bot is online when the server is running.
+![Setting permissions](images/installation/permissions_setup.png)
+
+### 14. Set the server you want to invite the bot to, then click "Continue".
+
+![Invite to server](images/installation/invite_bot.png)
+
+### 15. Check your Discord server to see that the bot is online when the server is running.
 **Offline**
-![Invite to server](images/installation/14_1.png)
+![Offline bot](images/installation/offline_bot.png)
 **Online**
-![Invite to server](images/installation/14_2.png)
+![Online bot](images/installation/online_bot.png)
 
-### 15 Set up a [Chat Channel Link](ConfigurationGUI.md)
+### 16 Set up a [Chat Channel Link](ConfigurationGUI.md).
 
-### 16 Run the _"Echo"_ command in the Discord channel specified in the Chat Channel Link to see that it is working properly. Make sure that the bot has permissions to read and send messages.
+### 17 Verify that the config is correct by running the [VerifyConfig](#Commands.md) command or by selecting it in the DiscordLink dropdown in the server GUI.
+
+### 18 Make sure that the bot has the required permissions by running the [VerifyPermissions](#Commands.md) command or by selecting it in the DiscordLink dropdown in the server GUI.
+
+### 19 Run the _"Echo"_ [command](#Commands.md) in the Discord channel specified in the Chat Channel Link to see that it is properly sending message to Eco and receiving messages back. 
 
 **Echo command**
-![Invite to server](images/installation/16_1.png)
+![Echo Command](images/installation/echo_command.png)  
 
-**Discord server GUI chat display showing that the message reached the Eco server**
-![Invite to server](images/installation/16_2.png)
+**Discord server GUI chat display showing that the message reached the Eco server.**  
+![Echo Command Response Eco](images/installation/echo_eco.png)  
 
-**Discord bot crosspost if a [Channel Link](ConfigurationGUI.md) has been set up**
-![Invite to server](images/installation/16_3.png)
+**Crosspost back to Discord showing that DiscordLink caught the message and forwarded it as configured in the Chat Channel Link cofiguration.**  
+![Echo command Response Discord](images/installation/echo_discord.png)  
 
-### 17. You're done! [Configure](ConfigurationGUI.md) any other options you want in server GUI, or change the Bot's permissions as if they're any other user in Discord.
+### 20. You're done! [Configure](ConfigurationGUI.md) any other options and features you want and enjoy using DiscordLink!  
