@@ -3,6 +3,7 @@ using DSharpPlus.Entities;
 using Eco.Core.Plugins;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
+using Eco.Plugins.Networking;
 using Eco.Shared.Utils;
 using Eco.Shared.Validation;
 using System;
@@ -352,7 +353,7 @@ namespace Eco.Plugins.DiscordLink
         public string ServerLogo { get; set; }
 
         [Description("The game server connection information to display to users. This setting can be changed while the server is running."), Category("Base Configuration - Eco")]
-        public string ConnectionInfo { get; set; }
+        public string ConnectionInfo { get; set; } = $"<eco://connect/{NetworkManager.GetServerInfo().Id.ToString()}>";
 
         [Description("The base address (URL or IP) of the web server to use in web server links. If the web server traffic is being routed through a different port than the configured \"Web Server Port\" from the Network config, then also qualify this address with the rereouted port number. Do not point to any specific page on the web server. This setting can be changed while the server is running."), Category("Base Configuration - Eco")]
         [UrlValidation(ErrorMessage = "The value must start with http:// or https://. ")]
