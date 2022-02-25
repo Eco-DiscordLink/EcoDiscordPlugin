@@ -3,8 +3,6 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using Eco.Gameplay.Players;
-using Eco.Gameplay.Systems.Chat;
-using Eco.Gameplay.Systems.Messaging.Chat;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Utils;
@@ -170,7 +168,7 @@ namespace Eco.Plugins.DiscordLink
         }
         public static async Task DisplayCommandData(CommandContext ctx, string title, string content)
         {
-            await RespondToCommand(ctx,  $"**{title}**\n```{content}```");
+            await RespondToCommand(ctx, $"**{title}**\n```{content}```");
         }
 
         #endregion
@@ -215,7 +213,7 @@ namespace Eco.Plugins.DiscordLink
         #region Meta
 
         [Command("DiscordLinkAbout")]
-        [Description("Posts a message describing what the DiscordLink plugin is.")]
+        [Description("Displays a message describing what the DiscordLink plugin is.")]
         [Aliases("DL-About")]
         public async Task About(CommandContext ctx)
         {
@@ -230,7 +228,7 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [Command("PluginStatus")]
-        [Description("Shows the plugin status.")]
+        [Description("Displays the plugin status.")]
         [Aliases("DL-Status", "Status")]
         public async Task PluginStatus(CommandContext ctx)
         {
@@ -302,7 +300,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                if(string.IsNullOrWhiteSpace(channelNameOrID))
+                if (string.IsNullOrWhiteSpace(channelNameOrID))
                     await SharedCommands.VerifyPermissionsForChannel(SharedCommands.CommandInterface.Discord, ctx, ctx.Channel);
                 else
                     await SharedCommands.VerifyPermissionsForChannel(SharedCommands.CommandInterface.Discord, ctx, channelNameOrID);
@@ -331,7 +329,7 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [Command("Echo")]
-        [Description("Sends the provided message to Eco and back to Discord again.")]
+        [Description("Sends the provided message to Eco and back to Discord again if a chat link is configured for the channel.")]
         public async Task Echo(CommandContext ctx, [Description("The message to send and then receive back again. A random message will be sent if this parameter is omitted.")] string message = "", [Description("The eco channel you want to test.")] string ecoChannel = "")
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
@@ -371,7 +369,7 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [Command("Ping")]
-        [Description("Checks if the bot is online.")]
+        [Description("Prompts the bot to respond with \"Pong\". Can ge used to check if the bot is online.")]
         public async Task Ping(CommandContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
@@ -430,7 +428,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("PlayerReport")]
         [Description("Displays the Player Report for the given player.")]
-        [Aliases("Player", "DL-PlayerReport")]
+        [Aliases("DL-PlayerReport", "DL-Player")]
         public async Task PlayerReport(CommandContext ctx,
             [Description("Name or ID of the player for which to display the report.")] string playerNameOrID)
         {
@@ -442,7 +440,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("PlayerOnlineReport")]
         [Description("Displays the Player Online Status Report for the given player.")]
-        [Aliases("PlayerOnline", "DL-PlayerOnline")]
+        [Aliases("DL-PlayerOnline", "PlayerOnline")]
         public async Task PlayerOnlineReport(CommandContext ctx,
             [Description("Name or ID of the player for which to display the report.")] string playerNameOrID)
         {
@@ -454,7 +452,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("PlayerTimeReport")]
         [Description("Displays the Player Time Report for the given player.")]
-        [Aliases("PlayerTime", "DL-PlayerTime")]
+        [Aliases("DL-PlayerTime")]
         public async Task PlayerTimeReport(CommandContext ctx,
             [Description("Name or ID of the player for which to display the report.")] string playerNameOrID)
         {
@@ -466,7 +464,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("PlayerPermissionsReport")]
         [Description("Displays the Player Permissions Report for the given player.")]
-        [Aliases("PlayerPermissions", "DL-PlayerPermissions")]
+        [Aliases("DL-PlayerPermissions")]
         public async Task PlayerPermissionsReport(CommandContext ctx,
             [Description("Name or ID of the player for which to display the report.")] string playerNameOrID)
         {
@@ -478,7 +476,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("PlayerAccessReport")]
         [Description("Displays the Player WhiteList/Ban/Mute Report for the given player.")]
-        [Aliases("PlayerAccess", "DL-PlayerAccess", "PlayerWhiteListed", "PlayerBanned", "PlayerMuted")]
+        [Aliases("DL-PlayerAccess", "DL-PlayerWhiteListed", "DL-PlayerBanned", "DL-PlayerMuted")]
         public async Task PlayerAccessReport(CommandContext ctx,
             [Description("Name or ID of the player for which to display the report.")] string playerNameOrID)
         {
@@ -489,8 +487,8 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [Command("PlayerDiscordReport")]
-        [Description("Displays the Discord Report for the given user.")]
-        [Aliases("DiscordReport", "DL-PlayerDiscord")]
+        [Description("Displays the Player Discord Report for the given user.")]
+        [Aliases("DL-PlayerDiscord")]
         public async Task DiscordReport(CommandContext ctx,
             [Description("Name or ID of the player or linked Discord user for which to display the report.")] string userNameOrID)
         {
@@ -524,7 +522,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("PlayerReputationReport")]
         [Description("Displays the Player Reputation Report for the given player.")]
-        [Aliases("PlayerReputation", "DL-PlayerReputation")]
+        [Aliases("DL-PlayerReputation")]
         public async Task PlayerReputationReport(CommandContext ctx,
             [Description("Name or ID of the player for which to display the report.")] string playerNameOrID)
         {
@@ -536,7 +534,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("PlayerXPReport")]
         [Description("Displays the Player XP Report for the given player.")]
-        [Aliases("PlayerXP", "DL-PlayerXP")]
+        [Aliases("PlayerXP")]
         public async Task PlayerXPReport(CommandContext ctx,
             [Description("Name or ID of the player for which to display the report.")] string playerNameOrID)
         {
@@ -548,7 +546,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("PlayerSkillsReport")]
         [Description("Displays the Player Skills Report for the given player.")]
-        [Aliases("PlayerSkills", "DL-PlayerSkills")]
+        [Aliases("DL-PlayerSkills")]
         public async Task PlayerSkillsReport(CommandContext ctx,
             [Description("Name or ID of the player for which to display the report.")] string playerNameOrID)
         {
@@ -560,7 +558,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("PlayerDemographicsReport")]
         [Description("Displays the Player Demographics Report for the given player.")]
-        [Aliases("PlayerDemographics", "DL-PlayerDemographics")]
+        [Aliases("DL-PlayerDemographics")]
         public async Task PlayerDemographicsReport(CommandContext ctx,
             [Description("Name or ID of the player for which to display the report.")] string playerNameOrID)
         {
@@ -572,7 +570,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("PlayerTitlesReport")]
         [Description("Displays the Player Titles Report for the given player.")]
-        [Aliases("PlayerTitles", "DL-PlayerTitles")]
+        [Aliases("DL-PlayerTitles")]
         public async Task PlayerTitlesReport(CommandContext ctx,
             [Description("Name or ID of the player for which to display the report.")] string playerNameOrID)
         {
@@ -584,7 +582,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("PlayerPropertyReport")]
         [Description("Displays the Player Property Report for the given player.")]
-        [Aliases("PlayerProperty", "DL-PlayerProperty")]
+        [Aliases("DL-PlayerProperty")]
         public async Task PlayerPropertyReport(CommandContext ctx,
             [Description("Name or ID of the player for which to display the report.")] string playerNameOrID)
         {
@@ -596,7 +594,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("CurrencyReport")]
         [Description("Displays the Currency Report for the given currency.")]
-        [Aliases("Currency", "DL-Currency")]
+        [Aliases("DL-Currency")]
         public async Task CurrencyReport(CommandContext ctx,
             [Description("Name or ID of the currency for which to display a report.")] string currencyNameOrID)
         {
@@ -608,7 +606,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("CurrenciesReport")]
         [Description("Displays a report for the top used currencies.")]
-        [Aliases("Currencies", "DL-Currencies")]
+        [Aliases("DL-Currencies")]
         public async Task CurrenciesReport(CommandContext ctx,
             [Description("The type of currencies to include in the report (all, minted or personal).")] string currencyType = "all",
             [Description("How many currencies per type to display reports for.")] string maxCurrenciesPerType = DLConstants.CURRENCY_REPORT_COMMAND_MAX_CURRENCIES_PER_TYPE_DEFAULT,
@@ -622,7 +620,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("ElectionReport")]
         [Description("Displays the Election Report for the given election.")]
-        [Aliases("Election", "DL-Election")]
+        [Aliases("DL-Election")]
         public async Task ElectionReport(CommandContext ctx,
             [Description("Name or ID of the election for which to display a report.")] string electionNameOrID)
         {
@@ -634,7 +632,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("ElectionsReport")]
         [Description("Displays a report for the currently active elections.")]
-        [Aliases("Elections", "DL-Elections")]
+        [Aliases("DL-Elections")]
         public async Task ElectionsReport(CommandContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
@@ -645,7 +643,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("WorkPartyReport")]
         [Description("Displays the Work Party Report for the given work party.")]
-        [Aliases("WorkParty", "DL-WorkParty")]
+        [Aliases("DL-WorkParty")]
         public async Task WorkPartyReport(CommandContext ctx,
             [Description("Name or ID of the work party for which to display a report.")] string workPartyNameOrID)
         {
@@ -657,12 +655,134 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("WorkPartiesReport")]
         [Description("Displays a report for the currently active work parties.")]
-        [Aliases("WorkParties", "DL-WorkParties")]
+        [Aliases("DL-WorkParties")]
         public async Task WorkPartiesReport(CommandContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
                 await SharedCommands.WorkPartiesReport(SharedCommands.CommandInterface.Discord, ctx);
+            }, ctx);
+        }
+
+        #endregion
+
+        #region Invites
+
+        [Command("Invite")]
+        [Description("Posts the Discord invite message to the target user. The invite will be broadcasted if no target user is specified.")]
+        [Aliases("DL-Invite")]
+        public async Task Invite(CommandContext ctx, [Description("The Eco username of the user receiving the invite")] string targetUserName)
+        {
+            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
+            {
+                await SharedCommands.PostDiscordInvite(SharedCommands.CommandInterface.Discord, ctx, targetUserName);
+            }, ctx);
+        }
+
+        [Command("BroadcastInvite")]
+        [Description("Posts the Discord invite message to the Eco chat.")]
+        [Aliases("DL-Broadcastinvite")]
+        public async Task BroadcastInvite(CommandContext ctx)
+        {
+            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
+            {
+                await SharedCommands.PostDiscordInvite(SharedCommands.CommandInterface.Discord, ctx, string.Empty);
+            }, ctx);
+        }
+
+        #endregion
+
+        #region Trades
+
+        [Command("Trades")]
+        [Description("Displays available trades by player, tag, item or store. The search name is case insensitive and will auto complete.")]
+        [Aliases("DL-Trades", "DL-Trade", "DLT")]
+        public async Task Trades(CommandContext ctx, [Description("The player name or item name for which to display trades.")] string searchName = "")
+        {
+            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
+            {
+                await SharedCommands.Trades(SharedCommands.CommandInterface.Discord, ctx, searchName);
+            }, ctx);
+        }
+
+        [Command("AddTradeWatcherDisplay")]
+        [Description("Creates a live updated display of available trades by player, tag, item or store.")]
+        [Aliases("DL-WatchTradeDisplay")]
+        public async Task AddTradeWatcherDisplay(CommandContext ctx, [Description("The player, tag, item or store name for which to display trades.")] string searchName = "")
+        {
+            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
+            {
+                await SharedCommands.AddTradeWatcher(SharedCommands.CommandInterface.Discord, ctx, searchName, Modules.ModuleType.Display);
+            }, ctx);
+        }
+
+        [Command("RemoveTradeWatcherDisplay")]
+        [Description("Removes the live updated display of available trades for a player, tag, item or store.")]
+        [Aliases("DL-UnwatchTradeDisplay")]
+        public async Task RemoveTradeWatcherDisplay(CommandContext ctx, [Description("The player, tag, item or store name for which to display trades.")] string searchName = "")
+        {
+            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
+            {
+                await SharedCommands.RemoveTradeWatcher(SharedCommands.CommandInterface.Discord, ctx, searchName, Modules.ModuleType.Display);
+            }, ctx);
+        }
+
+        [Command("AddTradeWatcherFeed")]
+        [Description("Creates a feed where the bot will post trades filtered by the search query, as they occur ingame. The search query can filter by player, tag, item or store.")]
+        [Aliases("DL-WatchTradeFeed")]
+        public async Task AddTradeWatcherFeed(CommandContext ctx, [Description("The player, tag item or store name for which to post trades.")] string searchName = "")
+        {
+            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
+            {
+                await SharedCommands.AddTradeWatcher(SharedCommands.CommandInterface.Discord, ctx, searchName, Modules.ModuleType.Feed);
+            }, ctx);
+        }
+
+        [Command("RemoveTradeWatcherFeed")]
+        [Description("Removes the trade watcher feed for a player, tag, item or store.")]
+        [Aliases("DL-UnwatchTradeFeed")]
+        public async Task RemoveTradeWatcherFeed(CommandContext ctx, [Description("The player, tag item or store name for which to post trades.")] string searchName = "")
+        {
+            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
+            {
+                await SharedCommands.RemoveTradeWatcher(SharedCommands.CommandInterface.Discord, ctx, searchName, Modules.ModuleType.Feed);
+            }, ctx);
+        }
+
+        [Command("ListTradeWatchers")]
+        [Description("Lists all trade watchers for the calling user.")]
+        [Aliases("DL-TradeWatchers")]
+        public async Task ListTradeWatchers(CommandContext ctx)
+        {
+            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
+            {
+                await SharedCommands.ListTradeWatchers(SharedCommands.CommandInterface.Discord, ctx);
+            }, ctx);
+        }
+
+        #endregion
+
+        #region Snippets
+
+        [Command("DiscordSnippet")]
+        [Description("Post a predefined snippet to Discord.")]
+        [Aliases("DL-DiscordSnippet", "DL-SnippetToDiscord", "DL-Snippet")]
+        public async Task DiscordSnippet(CommandContext ctx, string snippetKey = "")
+        {
+            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
+            {
+                await SharedCommands.Snippet(SharedCommands.CommandInterface.Discord, ctx, SharedCommands.CommandInterface.Discord, ctx.GetSenderName(), snippetKey);
+            }, ctx);
+        }
+
+        [Command("EcoSnippet")]
+        [Description("Post a predefined snippet to Eco.")]
+        [Aliases("DL-EcoSnippet", "DL-SnippetToEco")]
+        public async Task EcoSnippet(CommandContext ctx, string snippetKey = "")
+        {
+            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
+            {
+                await SharedCommands.Snippet(SharedCommands.CommandInterface.Discord, ctx, SharedCommands.CommandInterface.Eco, ctx.GetSenderName(), snippetKey);
             }, ctx);
         }
 
@@ -832,128 +952,6 @@ namespace Eco.Plugins.DiscordLink
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
                 await SharedCommands.SendInfoPanel(SharedCommands.CommandInterface.Discord, ctx, DLConstants.ECO_PANEL_NOTIFICATION, title, message, recipientUserNameOrID);
-            }, ctx);
-        }
-
-        #endregion
-
-        #region Invites
-
-        [Command("Invite")]
-        [Description("Posts the Discord invite message to the target user. The invite will be broadcasted if no target user is specified.")]
-        [Aliases("DL-Invite")]
-        public async Task Invite(CommandContext ctx, [Description("The Eco username of the user receiving the invite")] string targetUserName)
-        {
-            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
-            {
-                await SharedCommands.DiscordInvite(SharedCommands.CommandInterface.Discord, ctx, targetUserName);
-            }, ctx);
-        }
-
-        [Command("BroadcastInvite")]
-        [Description("Posts the Discord invite message to the Eco chat.")]
-        [Aliases("DL-Broadcastinvite")]
-        public async Task BroadcastInvite(CommandContext ctx)
-        {
-            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
-            {
-                await SharedCommands.DiscordInvite(SharedCommands.CommandInterface.Discord, ctx, string.Empty);
-            }, ctx);
-        }
-
-        #endregion
-
-        #region Trades
-
-        [Command("Trades")]
-        [Description("Displays available trades by player, tag, item or store")]
-        [Aliases("DL-Trades", "DL-Trade", "Trade", "DLT")]
-        public async Task Trades(CommandContext ctx, [Description("The player name or item name for which to display trades.")] string searchName = "")
-        {
-            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
-            {
-                await SharedCommands.Trades(SharedCommands.CommandInterface.Discord, ctx, searchName);
-            }, ctx);
-        }
-
-        [Command("AddTradeWatcherDisplay")]
-        [Description("Creates a live updated display of available trades by player, tag, item or store")]
-        [Aliases("DL-WatchTradeDisplay")]
-        public async Task AddTradeWatcherDisplay(CommandContext ctx, [Description("The player, tag, item or store name for which to display trades.")] string searchName = "")
-        {
-            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
-            {
-                await SharedCommands.AddTradeWatcher(SharedCommands.CommandInterface.Discord, ctx, searchName, Modules.ModuleType.Display);
-            }, ctx);
-        }
-
-        [Command("RemoveTradeWatcherDisplay")]
-        [Description("Removes the live updated display of available trades for a player, tag, item or store.")]
-        [Aliases("DL-UnwatchTradeDisplay")]
-        public async Task RemoveTradeWatcherDisplay(CommandContext ctx, [Description("The player, tag, item or store name for which to display trades.")] string searchName = "")
-        {
-            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
-            {
-                await SharedCommands.RemoveTradeWatcher(SharedCommands.CommandInterface.Discord, ctx, searchName, Modules.ModuleType.Display);
-            }, ctx);
-        }
-
-        [Command("AddTradeWatcherFeed")]
-        [Description("Creates a feed where the bot will post trades filtered by the search query, as they occur ingame. The search query can filter by player, tag, item or store.")]
-        [Aliases("DL-WatchTradeFeed")]
-        public async Task AddTradeWatcherFeed(CommandContext ctx, [Description("The player, tag item or store name for which to post trades.")] string searchName = "")
-        {
-            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
-            {
-                await SharedCommands.AddTradeWatcher(SharedCommands.CommandInterface.Discord, ctx, searchName, Modules.ModuleType.Feed);
-            }, ctx);
-        }
-
-        [Command("RemoveTradeWatcherFeed")]
-        [Description("Removes the trade watcher feed for a player, tag, item or store.")]
-        [Aliases("DL-UnwatchTradeFeed")]
-        public async Task RemoveTradeWatcherFeed(CommandContext ctx, [Description("The player, tag item or store name for which to post trades.")] string searchName = "")
-        {
-            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
-            {
-                await SharedCommands.RemoveTradeWatcher(SharedCommands.CommandInterface.Discord, ctx, searchName, Modules.ModuleType.Feed);
-            }, ctx);
-        }
-
-        [Command("ListTradeWatchers")]
-        [Description("Lists all trade watchers for the calling user.")]
-        [Aliases("DL-TradeWatchers")]
-        public async Task ListTradeWatchers(CommandContext ctx)
-        {
-            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
-            {
-                await SharedCommands.ListTradeWatchers(SharedCommands.CommandInterface.Discord, ctx);
-            }, ctx);
-        }
-
-        #endregion
-
-        #region Snippets
-
-        [Command("DiscordSnippet")]
-        [Description("Post a predefined snippet.")]
-        [Aliases("DL-DiscordSnippet", "DL-SnippetToDiscord", "DL-Snippet")]
-        public async Task DiscordSnippet(CommandContext ctx, string snippetKey = "")
-        {
-            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
-            {
-                await SharedCommands.Snippet(SharedCommands.CommandInterface.Discord, ctx, SharedCommands.CommandInterface.Discord, ctx.GetSenderName(), snippetKey);
-            }, ctx);
-        }
-
-        [Command("EcoSnippet")]
-        [Description("Post a predefined snippet.")]
-        [Aliases("DL-EcoSnippet", "DL-SnippetToEco")]
-        public async Task EcoSnippet(CommandContext ctx, string snippetKey = "")
-        {
-            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
-            {
-                await SharedCommands.Snippet(SharedCommands.CommandInterface.Discord, ctx, SharedCommands.CommandInterface.Eco, ctx.GetSenderName(), snippetKey);
             }, ctx);
         }
 
