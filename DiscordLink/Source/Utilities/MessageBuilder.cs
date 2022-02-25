@@ -142,27 +142,31 @@ namespace Eco.Plugins.DiscordLink.Utilities
             public static async Task<string> GetDisplayStringAsync(bool verbose)
             {
                 DiscordLink plugin = DiscordLink.Obj;
+                DLDiscordClient client = plugin.Client;
                 StringBuilder builder = new StringBuilder();
                 builder.AppendLine($"DiscordLink {plugin.PluginVersion}");
                 if (verbose)
                 {
                     builder.AppendLine($"Server Name: {MessageUtils.FirstNonEmptyString(DLConfig.Data.ServerName, MessageUtils.StripTags(NetworkManager.GetServerInfo().Description), "[Server Title Missing]")}");
                     builder.AppendLine($"Server Version: {EcoVersion.VersionNumber}");
-                    if (DiscordLink.Obj.Client.ConnectionStatus == DLDiscordClient.ConnectionState.Connected)
-                        builder.AppendLine($"D# Version: {plugin.Client.DiscordClient.VersionString}");
+                    if (client.ConnectionStatus == DLDiscordClient.ConnectionState.Connected)
+                        builder.AppendLine($"D# Version: {client.DiscordClient.VersionString}");
                 }
                 builder.AppendLine($"Plugin Status: {plugin.GetStatus()}");
-                builder.AppendLine($"Discord Client Status: {plugin.Client.Status}");
+                builder.AppendLine($"Discord Client Status: {client.Status}");
+                if (client.LastConnectionError != DLDiscordClient.ConnectionError.None)
+                    builder.AppendLine($"Discord Client Error: {client.LastConnectionError}");
+
                 TimeSpan elapssedTime = DateTime.Now.Subtract(plugin.InitTime);
                 if (verbose)
                     builder.AppendLine($"Start Time: {plugin.InitTime:yyyy-MM-dd HH:mm}");
                 builder.AppendLine($"Running Time: {(int)elapssedTime.TotalDays}:{elapssedTime.Hours}:{elapssedTime.Minutes}");
 
-                if (DiscordLink.Obj.Client.ConnectionStatus != DLDiscordClient.ConnectionState.Connected)
+                if (client.ConnectionStatus != DLDiscordClient.ConnectionState.Connected)
                     return builder.ToString();
 
                 if (verbose)
-                    builder.AppendLine($"Connection Time: {plugin.Client.LastConnectionTime:yyyy-MM-dd HH:mm}");
+                    builder.AppendLine($"Connection Time: {client.LastConnectionTime:yyyy-MM-dd HH:mm}");
 
                 builder.AppendLine();
                 builder.AppendLine("--- User Data ---");
@@ -177,7 +181,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 {
                     builder.AppendLine();
                     builder.AppendLine("--- Config ---");
-                    builder.AppendLine($"Name: {plugin.Client.DiscordClient.CurrentUser.Username}");
+                    builder.AppendLine($"Name: {client.DiscordClient.CurrentUser.Username}");
 
                     builder.AppendLine();
                     builder.AppendLine("--- Storage - Persistent ---");
@@ -201,7 +205,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                         builder.AppendLine("Trade Watchers:");
                         foreach (var userTradeWatchers in DLStorage.WorldData.TradeWatchers)
                         {
-                            DiscordUser discordUser = await plugin.Client.GetUserAsync(userTradeWatchers.Key);
+                            DiscordUser discordUser = await client.GetUserAsync(userTradeWatchers.Key);
                             if (discordUser == null)
                                 continue;
 
