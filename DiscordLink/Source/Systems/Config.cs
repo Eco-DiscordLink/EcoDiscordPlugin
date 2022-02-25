@@ -153,8 +153,11 @@ namespace Eco.Plugins.DiscordLink
                 Logger.Info("Critical config data changed - Please restart the plugin for these changes to take effect");
             }
 
-            VerifyLinks();
-            InitChatLinks();
+            if (DiscordLink.Obj.Client.ConnectionStatus == DLDiscordClient.ConnectionState.Connected)
+            {
+                VerifyLinks();
+                InitChatLinks();
+            }
 
             if (!correctionMade) // If a correction was made, this function will be called again
             {
