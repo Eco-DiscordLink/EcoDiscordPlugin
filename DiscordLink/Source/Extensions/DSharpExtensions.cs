@@ -59,6 +59,11 @@ namespace Eco.Plugins.DiscordLink.Extensions
             return guild.Roles.Values.FirstOrDefault(role => role.Name.EqualsCaseInsensitive(roleName));
         }
 
+        public static DiscordRole RoleByID(this DiscordGuild guild, ulong ID)
+        {
+            return guild.Roles.Values.FirstOrDefault(role => role.Id == ID);
+        }
+
         #endregion
 
         #region DiscordChannel

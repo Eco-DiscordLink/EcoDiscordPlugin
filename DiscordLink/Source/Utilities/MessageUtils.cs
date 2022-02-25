@@ -264,9 +264,10 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 {
                     if (allowRoleMentions)
                     {
-                        foreach (var role in channel.Guild.Roles.Values) // Checking roles first in case a user has a name identiacal to that of a role
+                        foreach (var role in channel.Guild.Roles.Values) // Checking roles first in case a user has a name identical to that of a role
                         {
-                            if (!role.IsMentionable) continue;
+                            if (!role.IsMentionable)
+                                continue;
 
                             string name = role.Name;
                             if (match.ContainsCaseInsensitive(name))

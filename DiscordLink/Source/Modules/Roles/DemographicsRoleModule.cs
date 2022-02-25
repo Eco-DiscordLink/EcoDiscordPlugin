@@ -114,17 +114,17 @@ namespace Eco.Plugins.DiscordLink.Modules
             }
         }
 
-        private async Task AddDemographicRole(DLDiscordClient client, DiscordMember member, string demographicName)
-        {
-            await client.AddRoleAsync(member, new DiscordLinkRole(demographicName, null, DemographicColor, false, true, $"User is in the {demographicName} demographic"));
-        }
-
-        private string GetDemographicRoleName(Demographic demographic)
+        public static string GetDemographicRoleName(Demographic demographic)
         {
             DemographicRoleReplacement replacement = DLConfig.Data.DemographicReplacementRoles.FirstOrDefault(s => s.DemographicName.EqualsCaseInsensitive(demographic.Name));
             return replacement != null
                 ? replacement.RoleName
                 : demographic.Name;
+        }
+
+        private async Task AddDemographicRole(DLDiscordClient client, DiscordMember member, string demographicName)
+        {
+            await client.AddRoleAsync(member, new DiscordLinkRole(demographicName, null, DemographicColor, false, true, $"User is in the {demographicName} demographic"));
         }
     }
 }

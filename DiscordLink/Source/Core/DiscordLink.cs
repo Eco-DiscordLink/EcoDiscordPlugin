@@ -41,6 +41,8 @@ namespace Eco.Plugins.DiscordLink
         private const string ModIOAppID = "77";
         private const string ModIODeveloperToken = ""; // This will always be empty for all but actual release builds.
 
+        private bool _triggerWorldResetEvent = false;
+
         public string Status
         {
             get { return _status; }
@@ -139,6 +141,12 @@ namespace Eco.Plugins.DiscordLink
             UserLinkManager.OnLinkedUserRemoved += (sender, args) => HandleEvent(DLEventType.AccountLinkRemoved, args);
             ClientLogEventTrigger.OnLogWritten += (message) => EventConverter.Instance.ConvertServerLogEvent(message);
 
+            if(_triggerWorldResetEvent)
+            {
+                HandleEvent(DLEventType.WorldReset, null);
+                _triggerWorldResetEvent = false;
+            }
+
             HandleEvent(DLEventType.ServerStarted, null);
         }
 
@@ -210,6 +218,7 @@ namespace Eco.Plugins.DiscordLink
             HandleEvent(DLEventType.DiscordClientConnected);
 
             Status = "Connected and running";
+            Logger.Info("Connection Successful - DiscordLink Running");
             CanRestart = true;
         }
 
@@ -306,6 +315,7 @@ namespace Eco.Plugins.DiscordLink
         {
             Logger.Info("New world generated - Removing storage data for previous world");
             DLStorage.Instance.ResetWorldData();
+            _triggerWorldResetEvent = true;
         }
 
         #endregion
@@ -330,6 +340,7 @@ namespace Eco.Plugins.DiscordLink
             Modules.Add(new TradeWatcherDisplay());
             Modules.Add(new TradeWatcherFeed());
             Modules.Add(new SnippetInput());
+            Modules.Add(new RoleCleanupModule());
             Modules.Add(new AccountLinkRoleModule());
             Modules.Add(new DemographicsRoleModule());
             Modules.Add(new SpecialtiesRoleModule());

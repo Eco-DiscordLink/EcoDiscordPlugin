@@ -108,6 +108,7 @@ namespace Eco.Plugins.DiscordLink
         public class PersistentStorageData
         {
             public List<LinkedUser> LinkedUsers = new List<LinkedUser>();
+            public List<ulong> RoleIDs = new List<ulong>();
         }
 
         public class WorldStorageData

@@ -729,7 +729,9 @@ namespace Eco.Plugins.DiscordLink
         {
             try
             {
-                return await Guild.CreateRoleAsync(dlRole.Name, dlRole.Permissions, dlRole.Color, dlRole.Hoist, dlRole.Mentionable, dlRole.AddReason);
+                DiscordRole role = await Guild.CreateRoleAsync(dlRole.Name, dlRole.Permissions, dlRole.Color, dlRole.Hoist, dlRole.Mentionable, dlRole.AddReason);
+                if (role != null)
+                    DLStorage.PersistentData.RoleIDs.Add(role.Id);
             }
             catch (Exception e)
             {
