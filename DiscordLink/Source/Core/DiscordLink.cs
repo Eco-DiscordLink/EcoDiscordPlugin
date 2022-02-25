@@ -77,14 +77,7 @@ namespace Eco.Plugins.DiscordLink
 
         public void OnEditObjectChanged(object o, string param)
         {
-            // Hack to avoid deadlocks with async and the GUI thread.
-            Thread configChangeThread = new Thread(() =>
-            {
-                DLConfig.Instance.HandleConfigChanged().Wait();
-            });
-            configChangeThread.Start();
-            configChangeThread.Join();
-            ParamChanged?.Invoke(o, param);
+            _ = DLConfig.Instance.HandleConfigChanged();
         }
 
         public string GetDisplayText()

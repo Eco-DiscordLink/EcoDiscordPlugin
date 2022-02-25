@@ -150,13 +150,7 @@ namespace Eco.Plugins.DiscordLink
 
             if (tokenChanged || guildChanged)
             {
-                Logger.Info("Critical config data changed - Restarting");
-                bool restarted = await DiscordLink.Obj.Restart();
-
-                if (!restarted)
-                    Logger.Info("Restart failed or a restart was already in progress");
-
-                return; // Critical data changing will trigger a reset, we wait for that instead of continuing now
+                Logger.Info("Critical config data changed - Please restart the plugin for these changes to take effect");
             }
 
             VerifyLinks();
@@ -336,10 +330,10 @@ namespace Eco.Plugins.DiscordLink
             return WebServerAddress.Substring(lastColonPos + 1).All(c => Char.IsDigit(c));
         }
 
-        [Description("The name or ID if the Discord Server. This setting can be changed while the server is running and will in that case trigger a reconnection to Discord."), Category("Base Configuration - Discord")]
+        [Description("The name or ID if the Discord Server. This setting can be changed while the server is running but will require a plugin restart to take effect."), Category("Base Configuration - Discord")]
         public string DiscordServer { get; set; } = string.Empty;
 
-        [Description("The token provided by the Discord API to allow access to the Discord bot. This setting can be changed while the server is running and will in that case trigger a reconnection to Discord."), Category("Base Configuration - Discord")]
+        [Description("The token provided by the Discord API to allow access to the Discord bot. This setting can be changed while the server is running but will require a plugin restart to take effect."), Category("Base Configuration - Discord")]
         public string BotToken { get; set; }
 
         [Description("The name of the bot user in Eco. This setting can be changed while the server is running, but changes will only take effect after a world reset."), Category("Base Configuration - Discord")]
