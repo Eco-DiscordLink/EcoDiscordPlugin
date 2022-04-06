@@ -28,8 +28,8 @@
   <ItemGroup>
 
     <PackageReference Include="ElixrMods.Framework" Version="3.2.0-RC.3" />
-    <PackageReference Include="DSharpPlus" Version="4.1.0" />
-    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.1.0" />
+    <PackageReference Include="DSharpPlus" Version="4.2.0-nightly-01107" />
+    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.2.0-nightly-01107" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="Nito.AsyncEx.Coordination" Version="5.1.2" />
   </ItemGroup>
