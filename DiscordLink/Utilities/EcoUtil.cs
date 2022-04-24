@@ -22,12 +22,12 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         public static void SendPopupMessage(string message, User user = null)
         {
-            SendMessageOfType(null, message, ChatBase.MessageType.Popup, user);
+            SendMessageOfType(null, message, ChatBase.MessageType.InfoPanel, user);
         }
 
         public static void SendAnnouncementMessage(string title, string message, User user = null)
         {
-            SendMessageOfType(title, message, ChatBase.MessageType.Announcement, user);
+            SendMessageOfType(title, message, ChatBase.MessageType.GlobalAnnoucement, user);
         }
 
         private static void SendMessageOfType(string title, string message, ChatBase.MessageType messageType, User user )
@@ -36,7 +36,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             {
                 case ChatBase.MessageType.Temporary:
                 case ChatBase.MessageType.Permanent:
-                case ChatBase.MessageType.Popup:
+                case ChatBase.MessageType.InfoPanel:
                     if (user == null)
                     {
                         ChatBase.Send(new ChatBase.Message(message, messageType));
@@ -47,7 +47,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     }
                     break;
 
-                case ChatBase.MessageType.Announcement:
+                case ChatBase.MessageType.GlobalAnnoucement:
                     if (user == null)
                     {
                         ChatBase.Send(new ChatBase.Message(title, message));

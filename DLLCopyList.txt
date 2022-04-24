@@ -11,3 +11,4 @@ Nito.Collections.Deque.dll
 Nito.Disposables.dll
 System.Threading.Timer.dll
 System.Threading.Tasks.Extensions.dll
+Newtonsoft.Json.dll

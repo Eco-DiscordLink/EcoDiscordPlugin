@@ -72,10 +72,10 @@ namespace Eco.Plugins.DiscordLink.Modules
                     {
                         case LaborWork laborWork:
                             {
-                                if (!string.IsNullOrEmpty(laborWork.ShortDescriptionRemainingWork))
+                                if (!string.IsNullOrEmpty(laborWork.ShortDescriptionRemaining))
                                 {
                                     workType = $"Labor for {laborWork.Order.Recipe.RecipeName}";
-                                    workEntries.Add(MessageUtil.StripTags(laborWork.ShortDescriptionRemainingWork));
+                                    workEntries.Add(MessageUtil.StripTags(laborWork.ShortDescriptionRemaining));
                                 }
                                 break;
                             }

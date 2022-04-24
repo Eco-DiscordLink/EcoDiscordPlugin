@@ -506,6 +506,11 @@ namespace Eco.Plugins.DiscordLink
 
             UpdateModules(DLEventType.DiscordMessage, message);
         }
+
+        public Task ShutdownAsync()
+        {
+            throw new NotImplementedException();
+        }
         #endregion
     }
 }
