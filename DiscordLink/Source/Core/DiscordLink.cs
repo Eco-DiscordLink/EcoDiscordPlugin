@@ -67,9 +67,9 @@ namespace Eco.Plugins.DiscordLink
             return Status;
         }
 
-        public Result ShouldOverrideAuth(GameAction action)
+        public LazyResult ShouldOverrideAuth(GameAction action)
         {
-            return new Result(ResultType.None);
+            return LazyResult.FailedNoMessage;
         }
 
         public object GetEditObject()
