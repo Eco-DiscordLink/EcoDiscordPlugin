@@ -73,7 +73,7 @@ The config data needs to match your Eco server, Discord server and Discord bot.
   ],  
   "ServerLogFeedChannels": [  
     {  
-      "LogLevel": "Info",  
+      "LogLevel": "Information",  
       "DiscordChannel": "server-log"  
     }  
   ],  
