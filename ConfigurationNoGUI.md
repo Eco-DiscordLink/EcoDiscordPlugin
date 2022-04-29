@@ -148,7 +148,7 @@ The config data needs to match your Eco server, Discord server and Discord bot.
     }  
   ],  
   "MaxTradeWatcherDisplaysPerUser": 5,
-  "InviteMessage": "Join us on Discord!\n[LINK]"  
+  "InviteMessage": "Join us on Discord!\n[LINK]",
   "LogLevel": "Information",  
   "BackendLogLevel": "Error",  
 }  
