@@ -101,17 +101,17 @@ The config data needs to match your Eco server, Discord server and Discord bot.
       "DiscordChannel": "server-info"  
     }  
   ],  
-  "WorkPartyChannels": [  
+  "WorkPartyDisplayChannels": [  
     {  
       "DiscordChannel": "work-parties"  
     }  
   ],  
-  "ElectionChannels": [  
+  "ElectionDisplayChannels": [  
     {  
       "DiscordChannel": "elections"  
     }  
   ],  
-  "CurrencyChannels": [  
+  "CurrencyDisplayChannels": [  
     {  
       "UseMintedCurrency": "MintedExists",  
       "UsePersonalCurrency": "NoMintedExists",  
@@ -124,7 +124,7 @@ The config data needs to match your Eco server, Discord server and Discord bot.
       "DiscordChannel": "currency"  
     }  
   ],  
-  "SnippetChannels": [  
+  "SnippetDisplayChannels": [  
     {  
       "DiscordChannel": "snippets"  
     }  
