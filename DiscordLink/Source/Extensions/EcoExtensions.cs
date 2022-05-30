@@ -10,6 +10,7 @@ using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Utils;
 using System;
 using System.Linq;
+using System.Reflection;
 
 namespace Eco.Plugins.DiscordLink.Extensions
 {
@@ -24,8 +25,6 @@ namespace Eco.Plugins.DiscordLink.Extensions
 
         public static double GetSecondsSinceLogin(this User user) => user.IsOnline ? Simulation.Time.WorldTime.Seconds - user.LoginTime : 0.0;
         public static double GetSecondsSinceLogout(this User user) => user.IsOnline ? 0.0 : Simulation.Time.WorldTime.Seconds - user.LogoutTime;
-        public static double GetSecondsLeftUntilExhaustion(this User user) => TimeUtil.HoursToSeconds(BalancePlugin.Obj.Config.ExhaustionAfterHours) - user.OnlineTimeLog.SecondsPlayedToday();
-
         public static float GetTotalXPMultiplier(this User user) => user.GetNutritionXP() + user.GetHousingXP();
         public static float GetNutritionXP(this User user) => user.Stomach.NutrientSkillRate();
         public static float GetHousingXP(this User user) => user.HomePropertyValue != null ? user.HomePropertyValue.TotalSkillPoints : 0;
@@ -42,6 +41,16 @@ namespace Eco.Plugins.DiscordLink.Extensions
                 wealth += amount;
             }
             return wealth;
+        }
+
+        public static double GetSecondsLeftUntilExhaustion(this User user)
+        {
+            // The needed Property is private, so we get the Value with reflection
+            PropertyInfo remainingPlaytimeProperty =
+                    typeof(ExhaustionMonitor).GetProperty("RemainingPlaytime", BindingFlags.NonPublic | BindingFlags.Instance);
+
+            MethodInfo remainingPlaytimePropertyGetter = remainingPlaytimeProperty.GetGetMethod(nonPublic: true);
+            return (double)remainingPlaytimePropertyGetter.Invoke(user.ExhaustionMonitor, null);
         }
 
         #endregion
