@@ -26,8 +26,7 @@
   </Target>
 
   <ItemGroup>
-
-    <PackageReference Include="ElixrMods.Framework" Version="3.2.0-RC.7" />
+    <PackageReference Include="ElixrMods.Framework" Version="3.2.1" />
     <PackageReference Include="Nito.AsyncEx.Coordination" Version="5.1.2" />
   </ItemGroup>
 
@@ -35,8 +34,8 @@
   <Choose>
     <When Condition="Exists('..\..\DSharpPlus\DSharpPlus\DSharpPlus.csproj') AND Exists('..\..\DSharpPlus\DSharpPlus.CommandsNext\DSharpPlus.CommandsNext.csproj')">
       <ItemGroup>
-        <ProjectReference Include="..\..\DSharpPlus\DSharpPlus\DSharpPlus.csproj"/>
-        <ProjectReference Include="..\..\DSharpPlus\DSharpPlus.CommandsNext\DSharpPlus.CommandsNext.csproj"/>
+        <ProjectReference Include="..\..\DSharpPlus\DSharpPlus\DSharpPlus.csproj" />
+        <ProjectReference Include="..\..\DSharpPlus\DSharpPlus.CommandsNext\DSharpPlus.CommandsNext.csproj" />
       </ItemGroup>
     </When>
     <Otherwise>
@@ -48,10 +47,6 @@
   </Choose>
   
   <ItemGroup>
-    <Reference Include="Eco.EM.Framework">
-      <HintPath>..\Dependencies\Eco.EM.Framework.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
     <Reference Include="NetFabric.Hyperlinq">
       <HintPath>..\Dependencies\NetFabric.Hyperlinq.dll</HintPath>
       <Private>false</Private>
