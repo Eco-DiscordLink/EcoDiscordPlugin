@@ -81,6 +81,7 @@ For information on how to set up the development environment, see the [project s
 **Phlo** - DiscordLink logo.  
 **demodude4u** - Original author of the Discord ?trades command.  
 **bozoweed** - Eco 8.0 update compatibility.  
+**Lord-Helmchen** - Fixed support for multiple chat links.  
 
 
 
