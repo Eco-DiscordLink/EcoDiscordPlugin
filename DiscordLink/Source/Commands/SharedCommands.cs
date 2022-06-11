@@ -59,6 +59,14 @@ namespace Eco.Plugins.DiscordLink
 
         #region Plugin Management
 
+        public static async Task<bool> Update(CommandInterface source, object callContext)
+        {
+            DiscordLink plugin = DiscordLink.Obj;
+            plugin.HandleEvent(Events.DLEventType.ForceUpdate);
+            await ReportCommandInfo(source, callContext, "Forced update");
+            return true;
+        }
+
         public static async Task<bool> Restart(CommandInterface source, object callContext)
         {
             DiscordLink plugin = DiscordLink.Obj;

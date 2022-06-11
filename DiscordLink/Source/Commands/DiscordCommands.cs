@@ -175,6 +175,17 @@ namespace Eco.Plugins.DiscordLink
 
         #region Plugin Management
 
+        [Command("Update")]
+        [Description("Forces an update.")]
+        [Aliases("DL-Updated")]
+        public async Task Updated(CommandContext ctx)
+        {
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
+            {
+                await SharedCommands.Update(SharedCommands.CommandInterface.Discord, ctx);
+            }, ctx);
+        }
+
         [Command("Restart")]
         [Description("Restarts the plugin.")]
         [Aliases("DL-Restart")]

@@ -69,6 +69,15 @@ namespace Eco.Plugins.DiscordLink
 
         #region Plugin Management
 
+        [ChatSubCommand("DiscordLink", "Forces an update.", "DL-Update", ChatAuthorizationLevel.Admin)]
+        public static void Update(User callingUser)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.Update(SharedCommands.CommandInterface.Eco, callingUser);
+            }, callingUser);
+        }
+
         [ChatSubCommand("DiscordLink", "Restarts the plugin.", "DL-Restart", ChatAuthorizationLevel.Admin)]
         public static void Restart(User callingUser)
         {

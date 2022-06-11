@@ -42,7 +42,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected override DLEventType GetTriggers()
         {
-            return DLEventType.DiscordMessageDeleted | DLEventType.DiscordReactionAdded | DLEventType.DiscordReactionRemoved;
+            return DLEventType.ForceUpdate | DLEventType.DiscordMessageDeleted | DLEventType.DiscordReactionAdded | DLEventType.DiscordReactionRemoved;
         }
 
         protected override async Task Initialize()
