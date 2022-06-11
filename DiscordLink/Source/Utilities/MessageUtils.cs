@@ -222,16 +222,18 @@ namespace Eco.Plugins.DiscordLink.Utilities
             return DiscordGlobalMentionRegex.Replace(toStrip, "$1");
         }
 
-        public static string FormatMessageForDiscord(string message, DiscordChannel channel, string username = "", bool allowGlobalMentions = false, ChannelLinkMentionPermissions linkMentionPermissions = null)
+        public static string FormatMessageForDiscord(string message, DiscordChannel channel, string username, bool useTimestamp, bool allowGlobalMentions, ChatLinkMentionPermissions linkMentionPermissions)
         {
             string formattedMessage = (username.IsEmpty() ? "" : $"**{username.Replace("@", "")}**: ") + StripTags(message); // All @ characters are removed from the name in order to avoid unintended mentions of the sender
             if (!allowGlobalMentions)
                 formattedMessage = StripGlobalMentions(formattedMessage);
+            if (useTimestamp)
+                formattedMessage = $"{DateTime.Now.ToDiscordTimeStamp('t')} {formattedMessage}";
 
             return FormatDiscordMentions(formattedMessage, channel, linkMentionPermissions);
         }
 
-        private static string FormatDiscordMentions(string message, DiscordChannel channel, ChannelLinkMentionPermissions linkMentionPermissions = null)
+        private static string FormatDiscordMentions(string message, DiscordChannel channel, ChatLinkMentionPermissions linkMentionPermissions)
         {
             return DiscordMentionRegex.Replace(message, capture =>
             {
@@ -255,7 +257,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     return beforeMatch + mention + afterMatch; // Add whatever characters came before or after the username when replacing the match in order to avoid changing the message context
                 }
 
-                linkMentionPermissions = (channel.IsPrivate || linkMentionPermissions == null) ? new ChannelLinkMentionPermissions() : linkMentionPermissions;
+                linkMentionPermissions = (channel.IsPrivate || linkMentionPermissions == null) ? new ChatLinkMentionPermissions() : linkMentionPermissions;
 
                 if (capture.ToString()[0] == '@')
                 {
