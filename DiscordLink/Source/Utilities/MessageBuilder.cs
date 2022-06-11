@@ -397,12 +397,12 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
             public static string GetPlayerSessionTimeList()
             {
-                return string.Join("\n", EcoUtils.OnlineUsersAlphabetical.Select(u => GetTimeDescription(u.GetSecondsSinceLogin(), TimespanStringComponent.Hour | TimespanStringComponent.Minute)));
+                return string.Join("\n", EcoUtils.OnlineUsersAlphabetical.Select(u => GetTimeDescription(u.GetSecondsSinceLogin(), TimespanStringComponent.Day | TimespanStringComponent.Hour | TimespanStringComponent.Minute, TimespanStringComponent.Hour | TimespanStringComponent.Minute)));
             }
 
             public static string GetPlayerExhaustionTimeList()
             {
-                return string.Join("\n", EcoUtils.OnlineUsersAlphabetical.Select(u => u.ExhaustionMonitor.IsExhausted ? "Exhausted" : GetTimeDescription(u.GetSecondsLeftUntilExhaustion(), TimespanStringComponent.Hour | TimespanStringComponent.Minute)));
+                return string.Join("\n", EcoUtils.OnlineUsersAlphabetical.Select(u => u.ExhaustionMonitor.IsExhausted ? "Exhausted" : GetTimeDescription(u.GetSecondsLeftUntilExhaustion(), TimespanStringComponent.Day | TimespanStringComponent.Hour | TimespanStringComponent.Minute, TimespanStringComponent.Hour | TimespanStringComponent.Minute)));
             }
 
             public enum TimespanStringComponent
@@ -432,56 +432,60 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 return flag ? "Yes" : "No";
             }
 
-            public static string GetTimeDescription(double seconds, TimespanStringComponent flag = TimespanStringComponent.Day | TimespanStringComponent.Hour | TimespanStringComponent.Minute | TimespanStringComponent.Second, bool includeZeroTimes = true, bool annotate = false)
+            public static string GetTimeDescription(double seconds, TimespanStringComponent includeComponents = (TimespanStringComponent)~0, TimespanStringComponent includeZeroValues = TimespanStringComponent.None, bool annotate = false)
             {
                 StringBuilder builder = new StringBuilder();
-                if ((flag & TimespanStringComponent.Day) != 0)
+                if ((includeComponents & TimespanStringComponent.Day) != 0)
                 {
                     int daysCount = (int)TimeUtil.SecondsToDays(seconds);
-                    if (includeZeroTimes || daysCount > 0)
+                    if (((includeZeroValues & TimespanStringComponent.Day) != 0) || daysCount > 0)
                     {
-                        builder.Append(daysCount.ToString("00"));
                         if (annotate)
-                            builder.Append("D ");
+                            builder.Append(daysCount.ToString() + "D ");
+                        else
+                            builder.Append(daysCount.ToString("00"));
                     }
                 }
 
-                if ((flag & TimespanStringComponent.Hour) != 0)
+                if ((includeComponents & TimespanStringComponent.Hour) != 0)
                 {
                     int hoursCount = (int)TimeUtil.SecondsToHours(seconds) % 24;
-                    if (includeZeroTimes || hoursCount > 0)
+                    if (((includeZeroValues & TimespanStringComponent.Hour) != 0) || hoursCount > 0)
                     {
                         if (!annotate && builder.Length != 0)
                             builder.Append(":");
-                        builder.Append(hoursCount.ToString("00"));
                         if (annotate)
-                            builder.Append("H ");
+                            builder.Append(hoursCount.ToString() + "H ");
+                        else
+                            builder.Append(hoursCount.ToString("00"));
                     }
                 }
 
-                if ((flag & TimespanStringComponent.Minute) != 0)
+                if ((includeComponents & TimespanStringComponent.Minute) != 0)
                 {
                     int minutesCount = (int)TimeUtil.SecondsToMinutes(seconds) % 60;
-                    if (includeZeroTimes || minutesCount > 0)
+                    if (((includeZeroValues & TimespanStringComponent.Minute) != 0) || minutesCount > 0)
                     {
                         if (!annotate && builder.Length != 0)
                             builder.Append(":");
-                        builder.Append(minutesCount.ToString("00"));
                         if (annotate)
-                            builder.Append("M ");
+                            builder.Append(minutesCount.ToString() + "M ");
+                        else
+                            builder.Append(minutesCount.ToString("00"));
                     }
                 }
 
-                if ((flag & TimespanStringComponent.Second) != 0)
+                if ((includeComponents & TimespanStringComponent.Second) != 0)
                 {
                     int secondsCount = (int)seconds % 60;
-                    if (includeZeroTimes || secondsCount > 0)
+                    if (((includeZeroValues & TimespanStringComponent.Second) != 0) || secondsCount > 0)
                     {
                         if (!annotate && builder.Length != 0)
                             builder.Append(":");
-                        builder.Append(secondsCount.ToString("00"));
                         if (annotate)
-                            builder.Append("S");
+                            builder.Append(secondsCount.ToString() + "S ");
+                        else
+                            builder.Append(secondsCount.ToString("00"));
                     }
                 }
                 return builder.ToString().Trim();
@@ -736,24 +740,24 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 {
                     report.AddField("Online", Shared.GetYesNo(user.IsOnline), inline: true);
                     if (user.IsOnline)
-                        report.AddField("Session Time", Shared.GetTimeDescription(user.GetSecondsSinceLogin(), Shared.TimespanStringComponent.Hour | Shared.TimespanStringComponent.Minute), inline: true);
+                        report.AddField("Session Time", Shared.GetTimeDescription(user.GetSecondsSinceLogin(), Shared.TimespanStringComponent.Day | Shared.TimespanStringComponent.Hour | Shared.TimespanStringComponent.Minute, Shared.TimespanStringComponent.Hour | Shared.TimespanStringComponent.Minute), inline: true);
                     else
-                        report.AddField("Last Online", $"{Shared.GetTimeDescription(user.GetSecondsSinceLogout(), includeZeroTimes: false, annotate: true)} ago", inline: true);
+                        report.AddField("Last Online", $"{Shared.GetTimeDescription(user.GetSecondsSinceLogout(), annotate: true)} ago", inline: true);
                     report.AddAlignmentField();
                 }
 
                 // Play time
                 if (flag.HasFlag(PlayerReportComponentFlag.PlayTime))
                 {
-                    report.AddField("Playtime Total", Shared.GetTimeDescription(user.OnlineTimeLog.SecondsOnline(0.0)), inline: true);
-                    report.AddField("Playtime last 24 hours", Shared.GetTimeDescription(user.OnlineTimeLog.SecondsOnline(DLConstants.SECONDS_PER_DAY), Shared.TimespanStringComponent.Hour | Shared.TimespanStringComponent.Minute | Shared.TimespanStringComponent.Second), inline: true);
-                    report.AddField("Playtime Last 7 days", Shared.GetTimeDescription(user.OnlineTimeLog.SecondsOnline(DLConstants.SECONDS_PER_WEEK)), inline: true);
+                    report.AddField("Playtime Total", Shared.GetTimeDescription(user.OnlineTimeLog.SecondsOnline(0.0), annotate: true), inline: true);
+                    report.AddField("Playtime last 24 hours", Shared.GetTimeDescription(user.OnlineTimeLog.SecondsOnline(DLConstants.SECONDS_PER_DAY), Shared.TimespanStringComponent.Hour | Shared.TimespanStringComponent.Minute | Shared.TimespanStringComponent.Second, annotate: true), inline: true);
+                    report.AddField("Playtime Last 7 days", Shared.GetTimeDescription(user.OnlineTimeLog.SecondsOnline(DLConstants.SECONDS_PER_WEEK), annotate: true), inline: true);
                 }
 
                 // Exhaustion
                 if (flag.HasFlag(PlayerReportComponentFlag.Exhaustion) && BalancePlugin.Obj.Config.IsLimitingHours)
                 {
-                    report.AddField("Exhaustion Countdown", user.ExhaustionMonitor.IsExhausted ? "Exhausted" : Shared.GetTimeDescription(user.GetSecondsLeftUntilExhaustion(), Shared.TimespanStringComponent.Hour | Shared.TimespanStringComponent.Minute | Shared.TimespanStringComponent.Second), inline: true);
+                    report.AddField("Exhaustion Countdown", user.ExhaustionMonitor.IsExhausted ? "Exhausted" : Shared.GetTimeDescription(user.GetSecondsLeftUntilExhaustion(), includeZeroValues: Shared.TimespanStringComponent.Hour | Shared.TimespanStringComponent.Minute | Shared.TimespanStringComponent.Second), inline: true);
                     report.AddAlignmentField();
                     report.AddAlignmentField();
                 }
