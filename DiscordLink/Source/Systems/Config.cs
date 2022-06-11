@@ -3,6 +3,7 @@ using DSharpPlus.Entities;
 using Eco.Core.Plugins;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
+using Eco.Plugins.Networking;
 using Eco.Shared.Utils;
 using Eco.Shared.Validation;
 using System;
@@ -26,7 +27,7 @@ namespace Eco.Plugins.DiscordLink
             public static readonly string[] AdminRoles = { "Admin", "Administrator", "Moderator" };
             public const string DiscordCommandPrefix = "?";
             public const string EcoCommandOutputChannel = "General";
-            public const string InviteMessage = "Join us on Discord!\n" + DLConstants.INVITE_COMMAND_TOKEN;
+            public const string InviteMessage = "Join us on Discord!\\n" + DLConstants.INVITE_COMMAND_TOKEN;
             public const string EcoBotName = "DiscordLink";
             public const int MaxMintedCurrencies = 1;
             public const int MaxPersonalCurrencies = 3;
@@ -114,9 +115,9 @@ namespace Eco.Plugins.DiscordLink
             Data.ServerStatusFeedChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.PlayerStatusFeedChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.ElectionFeedChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
+            Data.ServerLogFeedChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.ServerInfoDisplayChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.WorkPartyDisplayChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
-            Data.PlayerListDisplayChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.ElectionDisplayChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.CurrencyDisplayChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.SnippetInputChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
@@ -135,31 +136,22 @@ namespace Eco.Plugins.DiscordLink
             }
 
             // Channel Links
-            foreach (ChannelLink link in _allChannelLinks)
-            {
-                if (link.Initailize())
-                    _verifiedChannelLinks.Add(link);
-            }
+            VerifyLinks();
+            InitChatLinks();
         }
 
         public void HandleCollectionChanged(NotifyCollectionChangedEventArgs args)
         {
-            Logger.Debug("Config Changed");
+            if (args.Action == NotifyCollectionChangedAction.Add)
+                return; // When we add, we also trigger reset and we don't want duplicate triggers
 
-            if (args.Action == NotifyCollectionChangedAction.Add
-                || args.Action == NotifyCollectionChangedAction.Remove
-                || args.Action == NotifyCollectionChangedAction.Replace)
-            {
-                _ = HandleConfigChanged();
-            }
-            else
-            {
-                Save(); // Remove isn't reported properly so we should save on other events to make sure the changes are saved
-            }
+            _ = HandleConfigChanged();
         }
 
         public async Task HandleConfigChanged()
         {
+            Logger.Debug("Config Changed");
+
             // Do not verify if change occurred as this function is going to be called again in that case
             // Do not verify the config in case critical data has been changed, as the client will be restarted and that will trigger verification
             bool tokenChanged = Data.BotToken != _prevConfig.BotToken;
@@ -170,13 +162,13 @@ namespace Eco.Plugins.DiscordLink
 
             if (tokenChanged || guildChanged)
             {
-                Logger.Info("Critical config data changed - Restarting");
-                bool restarted = await DiscordLink.Obj.Restart();
+                Logger.Info("Critical config data changed - Please restart the plugin for these changes to take effect");
+            }
 
-                if (!restarted)
-                    Logger.Info("Restart failed or a restart was already in progress");
-
-                return; // Critical data changing will trigger a reset, we wait for that instead of continuing now
+            if (DiscordLink.Obj.Client.ConnectionStatus == DLDiscordClient.ConnectionState.Connected)
+            {
+                VerifyLinks();
+                InitChatLinks();
             }
 
             if (!correctionMade) // If a correction was made, this function will be called again
@@ -261,6 +253,25 @@ namespace Eco.Plugins.DiscordLink
             return !correctionMade;
         }
 
+        private void VerifyLinks()
+        {
+            _verifiedChannelLinks.Clear();
+            foreach (ChannelLink link in _allChannelLinks)
+            {
+                if (link.Initailize())
+                    _verifiedChannelLinks.Add(link);
+            }
+        }
+
+        private void InitChatLinks()
+        {
+            foreach (ChatChannelLink chatLink in Data.ChatChannelLinks)
+            {
+                if (chatLink.IsValid())
+                    EcoUtils.EnsureChatChannelExists(chatLink.EcoChannel);
+            }
+        }
+
         private void BuildChanneLinkList()
         {
             _allChannelLinks.Clear();
@@ -270,9 +281,9 @@ namespace Eco.Plugins.DiscordLink
             _allChannelLinks.AddRange(_config.Config.ServerStatusFeedChannels);
             _allChannelLinks.AddRange(_config.Config.PlayerStatusFeedChannels);
             _allChannelLinks.AddRange(_config.Config.ElectionFeedChannels);
+            _allChannelLinks.AddRange(_config.Config.ServerLogFeedChannels);
             _allChannelLinks.AddRange(_config.Config.ServerInfoDisplayChannels);
             _allChannelLinks.AddRange(_config.Config.WorkPartyDisplayChannels);
-            _allChannelLinks.AddRange(_config.Config.PlayerListDisplayChannels);
             _allChannelLinks.AddRange(_config.Config.ElectionDisplayChannels);
             _allChannelLinks.AddRange(_config.Config.CurrencyDisplayChannels);
             _allChannelLinks.AddRange(_config.Config.SnippetInputChannels);
@@ -309,9 +320,9 @@ namespace Eco.Plugins.DiscordLink
                 ServerStatusFeedChannels = new ObservableCollection<ChannelLink>(this.ServerStatusFeedChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
                 PlayerStatusFeedChannels = new ObservableCollection<ChannelLink>(this.PlayerStatusFeedChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
                 ElectionFeedChannels = new ObservableCollection<ChannelLink>(this.ElectionFeedChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
+                ServerLogFeedChannels = new ObservableCollection<ServerLogFeedChannelLink>(this.ServerLogFeedChannels.Select(t => t.Clone()).Cast<ServerLogFeedChannelLink>()),
                 ServerInfoDisplayChannels = new ObservableCollection<ServerInfoChannel>(this.ServerInfoDisplayChannels.Select(t => t.Clone()).Cast<ServerInfoChannel>()),
                 WorkPartyDisplayChannels = new ObservableCollection<ChannelLink>(this.WorkPartyDisplayChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
-                PlayerListDisplayChannels = new ObservableCollection<PlayerListChannelLink>(this.PlayerListDisplayChannels.Select(t => t.Clone()).Cast<PlayerListChannelLink>()),
                 ElectionDisplayChannels = new ObservableCollection<ChannelLink>(this.ElectionDisplayChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
                 CurrencyDisplayChannels = new ObservableCollection<CurrencyChannelLink>(this.CurrencyDisplayChannels.Select(t => t.Clone()).Cast<CurrencyChannelLink>()),
                 SnippetInputChannels = new ObservableCollection<ChannelLink>(this.SnippetInputChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
@@ -332,10 +343,10 @@ namespace Eco.Plugins.DiscordLink
             return WebServerAddress.Substring(lastColonPos + 1).All(c => Char.IsDigit(c));
         }
 
-        [Description("The name or ID if the Discord Server. This setting can be changed while the server is running and will in that case trigger a reconnection to Discord."), Category("Base Configuration - Discord")]
+        [Description("The name or ID if the Discord Server. This setting can be changed while the server is running but will require a plugin restart to take effect."), Category("Base Configuration - Discord")]
         public string DiscordServer { get; set; } = string.Empty;
 
-        [Description("The token provided by the Discord API to allow access to the Discord bot. This setting can be changed while the server is running and will in that case trigger a reconnection to Discord."), Category("Base Configuration - Discord")]
+        [Description("The token provided by the Discord API to allow access to the Discord bot. This setting can be changed while the server is running but will require a plugin restart to take effect."), Category("Base Configuration - Discord")]
         public string BotToken { get; set; }
 
         [Description("The name of the bot user in Eco. This setting can be changed while the server is running, but changes will only take effect after a world reset."), Category("Base Configuration - Discord")]
@@ -357,7 +368,7 @@ namespace Eco.Plugins.DiscordLink
         public string ServerLogo { get; set; }
 
         [Description("The game server connection information to display to users. This setting can be changed while the server is running."), Category("Base Configuration - Eco")]
-        public string ConnectionInfo { get; set; }
+        public string ConnectionInfo { get; set; } = $"<eco://connect/{NetworkManager.GetServerInfo().Id.ToString()}>";
 
         [Description("The base address (URL or IP) of the web server to use in web server links. If the web server traffic is being routed through a different port than the configured \"Web Server Port\" from the Network config, then also qualify this address with the rereouted port number. Do not point to any specific page on the web server. This setting can be changed while the server is running."), Category("Base Configuration - Eco")]
         [UrlValidation(ErrorMessage = "The value must start with http:// or https://. ")]
@@ -384,14 +395,14 @@ namespace Eco.Plugins.DiscordLink
         [Description("Discord channels in which election events will be posted. This setting can be changed while the server is running."), Category("Feeds")]
         public ObservableCollection<ChannelLink> ElectionFeedChannels { get; set; } = new ObservableCollection<ChannelLink>();
 
+        [Description("Discord channels in which server log entries will be posted. This setting can be changed while the server is running."), Category("Feeds")]
+        public ObservableCollection<ServerLogFeedChannelLink> ServerLogFeedChannels { get; set; } = new ObservableCollection<ServerLogFeedChannelLink>();
+
         [Description("Discord channels in which to keep the Server Info display. DiscordLink will post one server info message in these channel and keep it updated through edits. This setting can be changed while the server is running."), Category("Displays")]
         public ObservableCollection<ServerInfoChannel> ServerInfoDisplayChannels { get; set; } = new ObservableCollection<ServerInfoChannel>();
 
         [Description("Discord channels in which to keep ongoing work parties. DiscordLink will post messages in these channel and keep them updated through edits. This setting can be changed while the server is running."), Category("Displays")]
         public ObservableCollection<ChannelLink> WorkPartyDisplayChannels { get; set; } = new ObservableCollection<ChannelLink>();
-
-        [Description("Discord channels in which to keep the Player List display. DiscordLink will post one Player List message in these channel and keep it updated through edits. This setting can be changed while the server is running."), Category("Displays")]
-        public ObservableCollection<PlayerListChannelLink> PlayerListDisplayChannels { get; set; } = new ObservableCollection<PlayerListChannelLink>();
 
         [Description("Discord channels in which to keep the Election display. DiscordLink will post election messages in these channel and keep it updated through edits. This setting can be changed while the server is running."), Category("Displays")]
         public ObservableCollection<ChannelLink> ElectionDisplayChannels { get; set; } = new ObservableCollection<ChannelLink>();

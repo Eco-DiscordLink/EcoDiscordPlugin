@@ -3,6 +3,7 @@ using Eco.Core;
 using Eco.Core.Plugins;
 using Eco.Core.Plugins.Interfaces;
 using Eco.Core.Utils;
+using Eco.Core.Utils.Logging;
 using Eco.EM.Framework.VersioningTools;
 using Eco.Gameplay.Civics.Elections;
 using Eco.Gameplay.GameActions;
@@ -40,6 +41,8 @@ namespace Eco.Plugins.DiscordLink
         private const string ModIOAppID = "77";
         private const string ModIODeveloperToken = ""; // This will always be empty for all but actual release builds.
 
+        private bool _triggerWorldResetEvent = false;
+
         public string Status
         {
             get { return _status; }
@@ -64,9 +67,9 @@ namespace Eco.Plugins.DiscordLink
             return Status;
         }
 
-        public Result ShouldOverrideAuth(GameAction action)
+        public LazyResult ShouldOverrideAuth(GameAction action)
         {
-            return new Result(ResultType.None);
+            return LazyResult.FailedNoMessage;
         }
 
         public object GetEditObject()
@@ -76,14 +79,7 @@ namespace Eco.Plugins.DiscordLink
 
         public void OnEditObjectChanged(object o, string param)
         {
-            // Hack to avoid deadlocks with async and the GUI thread.
-            Thread configChangeThread = new Thread(() =>
-            {
-                DLConfig.Instance.HandleConfigChanged().Wait();
-            });
-            configChangeThread.Start();
-            configChangeThread.Join();
-            ParamChanged?.Invoke(o, param);
+            _ = DLConfig.Instance.HandleConfigChanged();
         }
 
         public string GetDisplayText()
@@ -119,7 +115,7 @@ namespace Eco.Plugins.DiscordLink
             // Ensure that the bot Eco user exists (Needs to be done after Initialize() as it runs before the UserManager is initialized)
             EcoUser = UserManager.Users.FirstOrDefault(u => u.SlgId == DLConstants.ECO_USER_SLG_ID && u.SteamId == DLConstants.ECO_USER_STEAM_ID);
             if (EcoUser == null)
-                EcoUser = UserManager.CreateNewUser(DLConstants.ECO_USER_STEAM_ID, DLConstants.ECO_USER_SLG_ID, !string.IsNullOrWhiteSpace(DLConfig.Data.EcoBotName) ? DLConfig.Data.EcoBotName : DLConfig.DefaultValues.EcoBotName);
+                EcoUser = UserManager.GetOrCreateUser(DLConstants.ECO_USER_STEAM_ID, DLConstants.ECO_USER_SLG_ID, !string.IsNullOrWhiteSpace(DLConfig.Data.EcoBotName) ? DLConfig.Data.EcoBotName : DLConfig.DefaultValues.EcoBotName);
 
             if (string.IsNullOrEmpty(DLConfig.Data.BotToken) || Client.ConnectionStatus != DLDiscordClient.ConnectionState.Connected)
             {
@@ -143,6 +139,13 @@ namespace Eco.Plugins.DiscordLink
             EventConverter.OnEventFired += (sender, args) => HandleEvent(args.EventType, args.Data);
             UserLinkManager.OnLinkedUserVerified += (sender, args) => HandleEvent(DLEventType.AccountLinkVerified, args);
             UserLinkManager.OnLinkedUserRemoved += (sender, args) => HandleEvent(DLEventType.AccountLinkRemoved, args);
+            ClientLogEventTrigger.OnLogWritten += (message) => EventConverter.Instance.ConvertServerLogEvent(message);
+
+            if(_triggerWorldResetEvent)
+            {
+                HandleEvent(DLEventType.WorldReset, null);
+                _triggerWorldResetEvent = false;
+            }
 
             HandleEvent(DLEventType.ServerStarted, null);
         }
@@ -162,7 +165,13 @@ namespace Eco.Plugins.DiscordLink
         public void GetCommands(Dictionary<string, Action> nameToFunction)
         {
             nameToFunction.Add("Verify Config", () => { Logger.Info($"Config Verification Report:\n{MessageBuilder.Shared.GetConfigVerificationReport()}"); });
-            nameToFunction.Add("Verify Permissions", () => { Logger.Info($"Permission Verification Report:\n{MessageBuilder.Shared.GetPermissionsReport(MessageBuilder.PermissionReportComponentFlag.All)}"); });
+            nameToFunction.Add("Verify Permissions", () =>
+            {
+                if (Client.ConnectionStatus == DLDiscordClient.ConnectionState.Connected)
+                    Logger.Info($"Permission Verification Report:\n{MessageBuilder.Shared.GetPermissionsReport(MessageBuilder.PermissionReportComponentFlag.All)}");
+                else
+                    Logger.Error("Failed to verify permissions - Discord client not connected");
+            });
             nameToFunction.Add("Restart Plugin", () =>
             {
                 if (CanRestart)
@@ -209,6 +218,7 @@ namespace Eco.Plugins.DiscordLink
             HandleEvent(DLEventType.DiscordClientConnected);
 
             Status = "Connected and running";
+            Logger.Info("Connection Successful - DiscordLink Running");
             CanRestart = true;
         }
 
@@ -305,6 +315,7 @@ namespace Eco.Plugins.DiscordLink
         {
             Logger.Info("New world generated - Removing storage data for previous world");
             DLStorage.Instance.ResetWorldData();
+            _triggerWorldResetEvent = true;
         }
 
         #endregion
@@ -324,15 +335,16 @@ namespace Eco.Plugins.DiscordLink
             Modules.Add(new ElectionFeed());
             Modules.Add(new ServerInfoDisplay());
             Modules.Add(new WorkPartyDisplay());
-            Modules.Add(new PlayerDisplay());
             Modules.Add(new ElectionDisplay());
             Modules.Add(new CurrencyDisplay());
             Modules.Add(new TradeWatcherDisplay());
             Modules.Add(new TradeWatcherFeed());
             Modules.Add(new SnippetInput());
+            Modules.Add(new RoleCleanupModule());
             Modules.Add(new AccountLinkRoleModule());
             Modules.Add(new DemographicsRoleModule());
             Modules.Add(new SpecialtiesRoleModule());
+            Modules.Add(new ServerLogFeed());
 
             Modules.ForEach(module => module.Setup());
             Modules.ForEach(async module => await module.HandleStartOrStop());
@@ -359,11 +371,18 @@ namespace Eco.Plugins.DiscordLink
 
         private void UpdateActivityString(DLEventType trigger)
         {
-            if (Client.ConnectionStatus != DLDiscordClient.ConnectionState.Connected
-                || (trigger & (DLEventType.Join | DLEventType.Login | DLEventType.Logout | DLEventType.Timer)) == 0)
-                return;
+            try
+            {
+                if (Client.ConnectionStatus != DLDiscordClient.ConnectionState.Connected
+                    || (trigger & (DLEventType.Join | DLEventType.Login | DLEventType.Logout | DLEventType.Timer)) == 0)
+                    return;
 
-            Client.DiscordClient.UpdateStatusAsync(new DiscordActivity(MessageBuilder.Discord.GetActivityString(), ActivityType.Watching));
+                Client.DiscordClient.UpdateStatusAsync(new DiscordActivity(MessageBuilder.Discord.GetActivityString(), ActivityType.Watching));
+            }
+            catch(Exception e)
+            {
+                Logger.Error($"An error occured while attempting to update the activity string. Error: {e}");
+            }
         }
 
         #endregion

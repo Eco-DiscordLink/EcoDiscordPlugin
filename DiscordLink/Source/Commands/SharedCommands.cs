@@ -49,7 +49,7 @@ namespace Eco.Plugins.DiscordLink
         {
             if (source == CommandInterface.Eco)
                 EcoCommands.DisplayCommandData(callContext as User, panelInstance, title, data as string);
-            else if(data is DiscordLinkEmbed embed)
+            else if (data is DiscordLinkEmbed embed)
                 await DiscordCommands.DisplayCommandData(callContext as CommandContext, title, embed);
             else if (data is string content)
                 await DiscordCommands.DisplayCommandData(callContext as CommandContext, title, content);
@@ -63,17 +63,27 @@ namespace Eco.Plugins.DiscordLink
         {
             DiscordLink plugin = DiscordLink.Obj;
             Logger.Info("Restart command executed - Restarting");
+            await ReportCommandInfo(source, callContext, "Attempting Restart!");
             bool restarted = plugin.Restart().Result;
 
             string result;
             if (restarted)
             {
-                result = "Restarting...";
-                await ReportCommandInfo(source, callContext, result);
+                result = "Restart Successful!";
+                if (source == CommandInterface.Eco)
+                {
+                    await ReportCommandInfo(source, callContext, result);
+                }
+                else if (source == CommandInterface.Discord)
+                {
+                    // Special handling since the call context is broken by the restart and can't be used to respond to the command
+                    DiscordChannel channel = plugin.Client.ChannelByNameOrID(((CommandContext)callContext).Channel.Id.ToString());
+                    _ = plugin.Client.SendMessageAsync(channel, result);
+                }
             }
             else
             {
-                result = "Restart failed or a restart was already in progress";
+                result = "Restart failed or a restart was already in progress.";
                 await ReportCommandError(source, callContext, result);
             }
 
@@ -95,226 +105,6 @@ namespace Eco.Plugins.DiscordLink
             DLStorage.Instance.ResetWorldData();
             await ReportCommandInfo(source, callContext, "World storage data has been reset.");
             return true;
-        }
-
-        #endregion
-
-        #region Message Relaying
-
-        public static async Task<bool> SendServerMessage(CommandInterface source, object callContext, string message, string recipientUserNameOrID)
-        {
-            if (string.IsNullOrWhiteSpace(message))
-            {
-                await ReportCommandError(source, callContext, "Message cannot be empty.");
-                return false;
-            }
-
-            User recipient = null;
-            if (!string.IsNullOrWhiteSpace(recipientUserNameOrID))
-            {
-                recipient = EcoUtils.OnlineUsers.FirstOrDefault(user => user.Name.EqualsCaseInsensitive(recipientUserNameOrID) || user.Id.ToString().EqualsCaseInsensitive(recipientUserNameOrID));
-                if (recipient == null)
-                {
-                    await ReportCommandError(source, callContext, $"No online user with the name or ID \"{recipientUserNameOrID}\" could be found.");
-                    return false;
-                }
-            }
-
-            string senderName = source == CommandInterface.Eco
-                ? (callContext as User).Name
-                : (callContext as CommandContext).Member.DisplayName;
-
-            string formattedMessage = $"[{senderName}] {message}";
-            bool sent = recipient == null
-                ? EcoUtils.SendChatToDefaultChannel(formattedMessage)
-                : EcoUtils.SendChatToUser(recipient, formattedMessage);
-
-            if (sent)
-                await ReportCommandInfo(source, callContext, "Message delivered.");
-            else
-                await ReportCommandError(source, callContext, "Failed to send message.");
-
-            return sent;
-        }
-
-        public static async Task<bool> SendBoxMessage(EcoUtils.BoxMessageType type, CommandInterface source, object callContext, string message, string recipientUserNameOrID)
-        {
-            if (string.IsNullOrWhiteSpace(message))
-            {
-                await ReportCommandError(source, callContext, "Message cannot be empty.");
-                return false;
-            }
-
-            User recipient = null;
-            if (!string.IsNullOrWhiteSpace(recipientUserNameOrID))
-            {
-                recipient = EcoUtils.OnlineUsers.FirstOrDefault(user => user.Name.EqualsCaseInsensitive(recipientUserNameOrID) || user.Id.ToString().EqualsCaseInsensitive(recipientUserNameOrID));
-                if (recipient == null)
-                {
-                    await ReportCommandError(source, callContext, $"No online user with the name or ID \"{recipientUserNameOrID}\" could be found.");
-                    return false;
-                }
-            }
-
-            string senderName = source == CommandInterface.Eco
-                ? (callContext as User).Name
-                : (callContext as CommandContext).Member.DisplayName;
-
-            bool sent = false;
-            string formattedMessage = $"[{senderName}]\n\n{message}";
-            switch (type)
-            {
-                case EcoUtils.BoxMessageType.Info:
-                    sent = recipient == null
-                        ? EcoUtils.SendInfoBoxToAll(message)
-                        : EcoUtils.SendInfoBoxToUser(recipient, formattedMessage);
-                    break;
-
-                case EcoUtils.BoxMessageType.Warning:
-                    sent = recipient == null
-                        ? EcoUtils.SendWarningBoxToAll(message)
-                        : EcoUtils.SendWarningBoxToUser(recipient, formattedMessage);
-                    break;
-
-                case EcoUtils.BoxMessageType.Error:
-                    sent = recipient == null
-                        ? EcoUtils.SendErrorBoxToAll(message)
-                        : EcoUtils.SendErrorBoxToUser(recipient, formattedMessage);
-                    break;
-            }
-
-            if (sent)
-                await ReportCommandInfo(source, callContext, "Message delivered.");
-            else
-                await ReportCommandError(source, callContext, "Failed to send message.");
-
-            return sent;
-        }
-
-        public static async Task<bool> SendPopup(CommandInterface source, object callContext, string message, string recipientUserNameOrID)
-        {
-            if (string.IsNullOrWhiteSpace(message))
-            {
-                await ReportCommandError(source, callContext, "Message cannot be empty.");
-                return false;
-            }
-
-            User recipient = null;
-            if (!string.IsNullOrWhiteSpace(recipientUserNameOrID))
-            {
-                recipient = EcoUtils.OnlineUsers.FirstOrDefault(user => user.Name.EqualsCaseInsensitive(recipientUserNameOrID) || user.Id.ToString().EqualsCaseInsensitive(recipientUserNameOrID));
-                if (recipient == null)
-                {
-                    await ReportCommandError(source, callContext, $"No online user with the name or ID \"{recipientUserNameOrID}\" could be found.");
-                    return false;
-                }
-            }
-
-            string senderName = source == CommandInterface.Eco
-                ? (callContext as User).Name
-                : (callContext as CommandContext).Member.DisplayName;
-
-            string formattedMessage = $"[{senderName}]\n\n{message}";
-            bool sent = recipient == null
-                ? EcoUtils.SendOKBoxToAll(formattedMessage)
-                : EcoUtils.SendOKBoxToUser(recipient, formattedMessage);
-
-            if (sent)
-                await ReportCommandInfo(source, callContext, "Message delivered.");
-            else
-                await ReportCommandError(source, callContext, "Failed to send message.");
-
-            return sent;
-        }
-
-        public static async Task<bool> SendNotification(CommandInterface source, object callContext, string message, string recipientUserNameOrID, bool includeOfflineUsers)
-        {
-            if (string.IsNullOrWhiteSpace(message))
-            {
-                await ReportCommandError(source, callContext, "Message cannot be empty.");
-                return false;
-            }
-
-            User recipient = null;
-            if (!string.IsNullOrWhiteSpace(recipientUserNameOrID))
-            {
-                recipient = UserManager.Users.FirstOrDefault(x => x.Name.EqualsCaseInsensitive(recipientUserNameOrID) || x.Id.ToString().EqualsCaseInsensitive(recipientUserNameOrID));
-                if (recipient == null)
-                {
-                    await ReportCommandError(source, callContext, $"No online user with the name or ID \"{recipientUserNameOrID}\" could be found.");
-                    return false;
-                }
-            }
-
-            string senderName = source == CommandInterface.Eco
-                ? (callContext as User).Name
-                : (callContext as CommandContext).Member.DisplayName;
-
-            string formattedMessage = $"[{senderName}]\n\n{message}";
-            bool sent = true;
-            if (includeOfflineUsers)
-            {
-                sent = recipient == null
-                    ? EcoUtils.SendNotificationToAll(formattedMessage)
-                    : EcoUtils.SendNotificationToUser(recipient, formattedMessage);
-            }
-            else
-            {
-                foreach (User user in UserManager.Users)
-                {
-                    if (!EcoUtils.SendNotificationToUser(user, formattedMessage))
-                        sent = false;
-                }
-            }
-
-            if (sent)
-                await ReportCommandInfo(source, callContext, "Message delivered.");
-            else
-                await ReportCommandError(source, callContext, "Failed to send message.");
-
-            return sent;
-        }
-
-        public static async Task<bool> SendInfoPanel(CommandInterface source, object callContext, string instance, string title, string message, string recipientUserNameOrID)
-        {
-            if (string.IsNullOrWhiteSpace(title))
-            {
-                await ReportCommandError(source, callContext, "Title cannot be empty.");
-                return false;
-            }
-
-            if (string.IsNullOrWhiteSpace(message))
-            {
-                await ReportCommandError(source, callContext, "Message cannot be empty.");
-                return false;
-            }
-
-            User recipient = null;
-            if (!string.IsNullOrWhiteSpace(recipientUserNameOrID))
-            {
-                recipient = EcoUtils.OnlineUsers.FirstOrDefault(user => user.Name.EqualsCaseInsensitive(recipientUserNameOrID) || user.Id.ToString().EqualsCaseInsensitive(recipientUserNameOrID));
-                if (recipient == null)
-                {
-                    await ReportCommandError(source, callContext, $"No online user with the name or ID \"{recipientUserNameOrID}\" could be found.");
-                    return false;
-                }
-            }
-
-            string senderName = source == CommandInterface.Eco
-                ? (callContext as User).Name
-                : (callContext as CommandContext).Member.DisplayName;
-
-            string formattedMessage = $"{message}\n\n[{senderName}]";
-            bool sent = recipient == null
-                ? EcoUtils.SendInfoPanelToAll(instance, title, formattedMessage)
-                : EcoUtils.SendInfoPanelToUser(recipient, instance, title, formattedMessage);
-
-            if (sent)
-                await ReportCommandInfo(source, callContext, "Message delivered.");
-            else
-                await ReportCommandError(source, callContext, "Failed to send message.");
-
-            return sent;
         }
 
         #endregion
@@ -342,7 +132,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task<bool> VerifyPermissionsForChannel(CommandInterface source, object callContext, string channelNameOrID)
         {
             DiscordChannel channel = DiscordLink.Obj.Client.ChannelByNameOrID(channelNameOrID);
-            if(channel == null)
+            if (channel == null)
             {
                 await ReportCommandError(source, callContext, $"No channel with the named \"{channelNameOrID}\" could be found.");
                 return false;
@@ -741,7 +531,7 @@ namespace Eco.Plugins.DiscordLink
 
         #region Invites
 
-        public static async Task<bool> DiscordInvite(CommandInterface source, object callContext, string targetUserName)
+        public static async Task<bool> PostDiscordInvite(CommandInterface source, object callContext, string targetUserName)
         {
             DLConfigData config = DLConfig.Data;
             ServerInfo serverInfo = Networking.NetworkManager.GetServerInfo();
@@ -931,6 +721,226 @@ namespace Eco.Plugins.DiscordLink
                     await ReportCommandError(source, callContext, $"No snippet with key \"{snippetKey}\" could be found.");
                 }
             }
+        }
+
+        #endregion
+
+        #region Message Relaying
+
+        public static async Task<bool> SendServerMessage(CommandInterface source, object callContext, string message, string recipientUserNameOrID)
+        {
+            if (string.IsNullOrWhiteSpace(message))
+            {
+                await ReportCommandError(source, callContext, "Message cannot be empty.");
+                return false;
+            }
+
+            User recipient = null;
+            if (!string.IsNullOrWhiteSpace(recipientUserNameOrID))
+            {
+                recipient = EcoUtils.OnlineUsers.FirstOrDefault(user => user.Name.EqualsCaseInsensitive(recipientUserNameOrID) || user.Id.ToString().EqualsCaseInsensitive(recipientUserNameOrID));
+                if (recipient == null)
+                {
+                    await ReportCommandError(source, callContext, $"No online user with the name or ID \"{recipientUserNameOrID}\" could be found.");
+                    return false;
+                }
+            }
+
+            string senderName = source == CommandInterface.Eco
+                ? (callContext as User).Name
+                : (callContext as CommandContext).Member.DisplayName;
+
+            string formattedMessage = $"[{senderName}] {message}";
+            bool sent = recipient == null
+                ? EcoUtils.SendChatToDefaultChannel(formattedMessage)
+                : EcoUtils.SendChatToUser(recipient, formattedMessage);
+
+            if (sent)
+                await ReportCommandInfo(source, callContext, "Message delivered.");
+            else
+                await ReportCommandError(source, callContext, "Failed to send message.");
+
+            return sent;
+        }
+
+        public static async Task<bool> SendBoxMessage(EcoUtils.BoxMessageType type, CommandInterface source, object callContext, string message, string recipientUserNameOrID)
+        {
+            if (string.IsNullOrWhiteSpace(message))
+            {
+                await ReportCommandError(source, callContext, "Message cannot be empty.");
+                return false;
+            }
+
+            User recipient = null;
+            if (!string.IsNullOrWhiteSpace(recipientUserNameOrID))
+            {
+                recipient = EcoUtils.OnlineUsers.FirstOrDefault(user => user.Name.EqualsCaseInsensitive(recipientUserNameOrID) || user.Id.ToString().EqualsCaseInsensitive(recipientUserNameOrID));
+                if (recipient == null)
+                {
+                    await ReportCommandError(source, callContext, $"No online user with the name or ID \"{recipientUserNameOrID}\" could be found.");
+                    return false;
+                }
+            }
+
+            string senderName = source == CommandInterface.Eco
+                ? (callContext as User).Name
+                : (callContext as CommandContext).Member.DisplayName;
+
+            bool sent = false;
+            string formattedMessage = $"[{senderName}]\n\n{message}";
+            switch (type)
+            {
+                case EcoUtils.BoxMessageType.Info:
+                    sent = recipient == null
+                        ? EcoUtils.SendInfoBoxToAll(message)
+                        : EcoUtils.SendInfoBoxToUser(recipient, formattedMessage);
+                    break;
+
+                case EcoUtils.BoxMessageType.Warning:
+                    sent = recipient == null
+                        ? EcoUtils.SendWarningBoxToAll(message)
+                        : EcoUtils.SendWarningBoxToUser(recipient, formattedMessage);
+                    break;
+
+                case EcoUtils.BoxMessageType.Error:
+                    sent = recipient == null
+                        ? EcoUtils.SendErrorBoxToAll(message)
+                        : EcoUtils.SendErrorBoxToUser(recipient, formattedMessage);
+                    break;
+            }
+
+            if (sent)
+                await ReportCommandInfo(source, callContext, "Message delivered.");
+            else
+                await ReportCommandError(source, callContext, "Failed to send message.");
+
+            return sent;
+        }
+
+        public static async Task<bool> SendPopup(CommandInterface source, object callContext, string message, string recipientUserNameOrID)
+        {
+            if (string.IsNullOrWhiteSpace(message))
+            {
+                await ReportCommandError(source, callContext, "Message cannot be empty.");
+                return false;
+            }
+
+            User recipient = null;
+            if (!string.IsNullOrWhiteSpace(recipientUserNameOrID))
+            {
+                recipient = EcoUtils.OnlineUsers.FirstOrDefault(user => user.Name.EqualsCaseInsensitive(recipientUserNameOrID) || user.Id.ToString().EqualsCaseInsensitive(recipientUserNameOrID));
+                if (recipient == null)
+                {
+                    await ReportCommandError(source, callContext, $"No online user with the name or ID \"{recipientUserNameOrID}\" could be found.");
+                    return false;
+                }
+            }
+
+            string senderName = source == CommandInterface.Eco
+                ? (callContext as User).Name
+                : (callContext as CommandContext).Member.DisplayName;
+
+            string formattedMessage = $"[{senderName}]\n\n{message}";
+            bool sent = recipient == null
+                ? EcoUtils.SendOKBoxToAll(formattedMessage)
+                : EcoUtils.SendOKBoxToUser(recipient, formattedMessage);
+
+            if (sent)
+                await ReportCommandInfo(source, callContext, "Message delivered.");
+            else
+                await ReportCommandError(source, callContext, "Failed to send message.");
+
+            return sent;
+        }
+
+        public static async Task<bool> SendNotification(CommandInterface source, object callContext, string message, string recipientUserNameOrID, bool includeOfflineUsers)
+        {
+            if (string.IsNullOrWhiteSpace(message))
+            {
+                await ReportCommandError(source, callContext, "Message cannot be empty.");
+                return false;
+            }
+
+            User recipient = null;
+            if (!string.IsNullOrWhiteSpace(recipientUserNameOrID))
+            {
+                recipient = UserManager.Users.FirstOrDefault(x => x.Name.EqualsCaseInsensitive(recipientUserNameOrID) || x.Id.ToString().EqualsCaseInsensitive(recipientUserNameOrID));
+                if (recipient == null)
+                {
+                    await ReportCommandError(source, callContext, $"No online user with the name or ID \"{recipientUserNameOrID}\" could be found.");
+                    return false;
+                }
+            }
+
+            string senderName = source == CommandInterface.Eco
+                ? (callContext as User).Name
+                : (callContext as CommandContext).Member.DisplayName;
+
+            string formattedMessage = $"[{senderName}]\n\n{message}";
+            bool sent = true;
+            if (includeOfflineUsers)
+            {
+                sent = recipient == null
+                    ? EcoUtils.SendNotificationToAll(formattedMessage)
+                    : EcoUtils.SendNotificationToUser(recipient, formattedMessage);
+            }
+            else
+            {
+                foreach (User user in UserManager.Users)
+                {
+                    if (!EcoUtils.SendNotificationToUser(user, formattedMessage))
+                        sent = false;
+                }
+            }
+
+            if (sent)
+                await ReportCommandInfo(source, callContext, "Message delivered.");
+            else
+                await ReportCommandError(source, callContext, "Failed to send message.");
+
+            return sent;
+        }
+
+        public static async Task<bool> SendInfoPanel(CommandInterface source, object callContext, string instance, string title, string message, string recipientUserNameOrID)
+        {
+            if (string.IsNullOrWhiteSpace(title))
+            {
+                await ReportCommandError(source, callContext, "Title cannot be empty.");
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(message))
+            {
+                await ReportCommandError(source, callContext, "Message cannot be empty.");
+                return false;
+            }
+
+            User recipient = null;
+            if (!string.IsNullOrWhiteSpace(recipientUserNameOrID))
+            {
+                recipient = EcoUtils.OnlineUsers.FirstOrDefault(user => user.Name.EqualsCaseInsensitive(recipientUserNameOrID) || user.Id.ToString().EqualsCaseInsensitive(recipientUserNameOrID));
+                if (recipient == null)
+                {
+                    await ReportCommandError(source, callContext, $"No online user with the name or ID \"{recipientUserNameOrID}\" could be found.");
+                    return false;
+                }
+            }
+
+            string senderName = source == CommandInterface.Eco
+                ? (callContext as User).Name
+                : (callContext as CommandContext).Member.DisplayName;
+
+            string formattedMessage = $"{message}\n\n[{senderName}]";
+            bool sent = recipient == null
+                ? EcoUtils.SendInfoPanelToAll(instance, title, formattedMessage)
+                : EcoUtils.SendInfoPanelToUser(recipient, instance, title, formattedMessage);
+
+            if (sent)
+                await ReportCommandInfo(source, callContext, "Message delivered.");
+            else
+                await ReportCommandError(source, callContext, "Failed to send message.");
+
+            return sent;
         }
 
         #endregion

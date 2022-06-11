@@ -24,9 +24,22 @@ namespace Eco.Plugins.DiscordLink
             Connected
         }
 
+        public enum ConnectionError
+        {
+            None,
+            InvalidToken,
+            InvalidGuild,
+            CreateClientFailed,
+            DiscordConnectionFailed,
+            GuildConnectionFailed,
+            ConnectionAbortedMissingIntents,
+            ConnectionAborted,
+        }
+
         public DiscordClient DiscordClient { get; private set; }
         public DateTime LastConnectionTime { get; private set; } = DateTime.MinValue;
         public ConnectionState ConnectionStatus { get; private set; } = ConnectionState.Disconnected;
+        public ConnectionError LastConnectionError { get; private set; } = ConnectionError.None;
         public DiscordGuild Guild { get; private set; } = null;
         public DiscordMember BotMember { get; private set; } = null;
 
@@ -50,49 +63,51 @@ namespace Eco.Plugins.DiscordLink
         public ThreadSafeAction OnDisconnecting = new ThreadSafeAction();
         public ThreadSafeAction OnDisconnected = new ThreadSafeAction();
 
-        public async Task<bool> Start()
+        public async Task Start()
         {
             Logger.Debug("Client Starting");
 
-            bool BotTokenIsNull = string.IsNullOrWhiteSpace(DLConfig.Data.BotToken);
-            if (BotTokenIsNull)
+            LastConnectionError = ConnectionError.None;
+
+            if (string.IsNullOrWhiteSpace(DLConfig.Data.BotToken))
             {
-                Logger.Info("Bot token not configured - See Github page for install instructions.");
-                return false; // Do not attempt to initialize if the bot token is empty
+                Logger.Error("Bot token not configured - See Github page for install instructions.");
+                LastConnectionError = ConnectionError.InvalidToken;
+                return; // Do not attempt to initialize if the bot token is empty
+            }
+
+            if (string.IsNullOrWhiteSpace(DLConfig.Data.DiscordServer))
+            {
+                Logger.Error("Discord Server not configured - See Github page for install instructions.");
+                LastConnectionError = ConnectionError.InvalidGuild;
+                return; // Do not attempt to initialize if the server name/id is empty
             }
 
             if (!await CreateAndConnectClient(useFullIntents: true))
-                return false;
+                return;
 
             await Task.Delay(DLConstants.POST_SERVER_CONNECTION_WAIT_MS);
-            DiscordClient.SocketClosed -= HandleSocketClosedOnConnection; // Stop waiting for aborted connections caused by faulty connection attempts
-            if (ConnectionStatus == ConnectionState.Disconnected)
+            if (DiscordClient != null)
+                DiscordClient.SocketClosed -= HandleSocketClosedOnConnection; // Stop waiting for aborted connections caused by faulty connection attempts
+            if (ConnectionStatus == ConnectionState.Disconnected && LastConnectionError == ConnectionError.ConnectionAbortedMissingIntents)
             {
                 // Make another connection attempt without privileged intents
                 if (!await CreateAndConnectClient(useFullIntents: false))
-                    return false;
+                    return;
             }
 
             await Task.Delay(DLConstants.POST_SERVER_CONNECTION_WAIT_MS);
-            DiscordClient.SocketClosed -= HandleSocketClosedOnConnection;
+            if (DiscordClient != null)
+                DiscordClient.SocketClosed -= HandleSocketClosedOnConnection;
             if (ConnectionStatus == ConnectionState.Disconnected)
             {
                 DiscordClient = null;
                 _commands = null;
                 Status = "Discord connection failed";
-                return false; // If the second connection attempt also fails we give up
+                return; // If the second connection attempt also fails we give up
             }
 
-            ConnectionStatus = ConnectionState.Connected;
-            Status = "Connected to Discord";
-            LastConnectionTime = DateTime.Now;
-
-            Guild = GuildByNameOrID(DLConfig.Data.DiscordServer);
-            BotMember = Guild.CurrentMember;
-
-            RegisterEventListeners();
-            OnConnected?.Invoke();
-            return true;
+            // Connection process continues when GuildDownloadCompleted is invoked.
         }
 
         private async Task<bool> CreateAndConnectClient(bool useFullIntents)
@@ -124,6 +139,7 @@ namespace Eco.Plugins.DiscordLink
                 DiscordClient = null;
                 _commands = null;
                 ConnectionStatus = ConnectionState.Disconnected;
+                LastConnectionError = ConnectionError.CreateClientFailed;
                 Status = "Failed to create Discord Client";
                 Logger.Error($"Error occurred while creating the Discord client. Error message: {e}");
                 return false;
@@ -140,15 +156,55 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (Exception e)
             {
+                if (e.InnerException is UnauthorizedException)
+                {
+                    Logger.Error($"An authentication error occurred while connecting to Discord using token \"{DLConfig.Data.BotToken}\". Please verify that your token is valid. See Github page for install instructions.");
+                }
+                else
+                {
+                    Logger.Error($"An error occurred while connecting to Discord. Error message: {e}");
+                }
+
                 DiscordClient = null;
                 _commands = null;
-                Logger.Error($"Error occurred while connecting to Discord. Error message: {e}");
                 ConnectionStatus = ConnectionState.Disconnected;
+                LastConnectionError = ConnectionError.DiscordConnectionFailed;
                 Status = "Discord connection failed";
+
                 return false;
             }
 
+            DiscordClient.GuildDownloadCompleted += HandleGuildDownloadCompleted;
+
             return true;
+        }
+
+        private async Task HandleGuildDownloadCompleted(DiscordClient client, GuildDownloadCompletedEventArgs args)
+        {
+            Status = "Resolving Discord server...";
+            string guildNameOrID = DLConfig.Data.DiscordServer;
+            Guild = Utilities.Utils.TryParseSnowflakeID(guildNameOrID, out ulong ID)
+                    ? DiscordClient.Guilds.Values.FirstOrDefault(guild => guild.Id == ID)
+                    : DiscordClient.Guilds.Values.FirstOrDefault(guild => guild.Name.EqualsCaseInsensitive(guildNameOrID));
+
+            if (Guild == null)
+            {
+                DiscordClient = null;
+                _commands = null;
+                ConnectionStatus = ConnectionState.Disconnected;
+                LastConnectionError = ConnectionError.GuildConnectionFailed;
+                Status = "Failed to find configured Discord server";
+                Logger.Error($"Failed to find Discord server \"{DLConfig.Data.DiscordServer}\"");
+                return;
+            }
+
+            BotMember = Guild.CurrentMember;
+            ConnectionStatus = ConnectionState.Connected;
+            Status = "Connected to Discord";
+            LastConnectionTime = DateTime.Now;
+
+            RegisterEventListeners();
+            OnConnected?.Invoke();
         }
 
         public async Task<bool> Stop()
@@ -165,7 +221,7 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (Exception e)
             {
-                Logger.Error($"An Error occurred when disconnecting from Discord: Error message: {e.Message}");
+                Logger.Error($"An error occurred when disconnecting from Discord: Error message: {e.Message}");
                 Status = "Discord disconnection failed";
                 return false;
             }
@@ -283,6 +339,11 @@ namespace Eco.Plugins.DiscordLink
             if (args.CloseCode == 4014) // Application does not have the requested privileged intents
             {
                 Logger.Warning("Bot application is not configured to allow reading of full server member list as it lacks the Server Members Intent. Some features will be unavailable. See install instructions for help with adding intents.");
+                LastConnectionError = ConnectionError.ConnectionAbortedMissingIntents;
+            }
+            else
+            {
+                LastConnectionError = ConnectionError.ConnectionAborted;
             }
             ConnectionStatus = ConnectionState.Disconnected;
         }
@@ -330,7 +391,7 @@ namespace Eco.Plugins.DiscordLink
         public bool BotHasPermission(Permissions permission)
         {
             bool hasPermission = false;
-            foreach(DiscordRole role in Guild.Roles.Values)
+            foreach (DiscordRole role in Guild.Roles.Values)
             {
                 if (role.CheckPermission(permission) == PermissionLevel.Allowed)
                 {
@@ -600,7 +661,7 @@ namespace Eco.Plugins.DiscordLink
                 DiscordChannel channel = message.GetChannel();
                 if (!ChannelHasPermission(channel, Permissions.ManageMessages))
                 {
-                    Logger.Warning($"Attempted to modify message in channel `{channel}` but the bot user is lacking permissions for this action");
+                    Logger.Error($"Attempted to modify message in channel `{channel}` but the bot user is lacking permissions for this action");
                     return null;
                 }
 
@@ -630,7 +691,7 @@ namespace Eco.Plugins.DiscordLink
                 if (string.IsNullOrWhiteSpace(channelName))
                     channelName = "Unknown channel";
 
-                Logger.Warning($"Failed to modify message in channel \"{channelName}\". Error message: {e}");
+                Logger.Error($"Failed to modify message in channel \"{channelName}\". Error message: {e}");
             }
             return editedMessage;
         }
@@ -668,7 +729,9 @@ namespace Eco.Plugins.DiscordLink
         {
             try
             {
-                return await Guild.CreateRoleAsync(dlRole.Name, dlRole.Permissions, dlRole.Color, dlRole.Hoist, dlRole.Mentionable, dlRole.AddReason);
+                DiscordRole role = await Guild.CreateRoleAsync(dlRole.Name, dlRole.Permissions, dlRole.Color, dlRole.Hoist, dlRole.Mentionable, dlRole.AddReason);
+                if (role != null)
+                    DLStorage.PersistentData.RoleIDs.Add(role.Id);
             }
             catch (Exception e)
             {
@@ -683,7 +746,7 @@ namespace Eco.Plugins.DiscordLink
             if (role == null)
                 role = await CreateRoleAsync(dlRole);
 
-            if(role != null)
+            if (role != null)
                 await AddRoleAsync(member, role);
         }
 

@@ -1,6 +1,7 @@
 ﻿using Eco.Gameplay.GameActions;
 using Eco.Gameplay.Objects;
 using Eco.Plugins.DiscordLink.Utilities;
+using Eco.Shared.Utils;
 using Nito.AsyncEx;
 using System;
 using System.Collections.Generic;
@@ -10,14 +11,14 @@ namespace Eco.Plugins.DiscordLink.Events
 {
     public class DLEventArgs : EventArgs
     {
-        public DLEventArgs(DLEventType eventType, object data)
+        public DLEventArgs(DLEventType eventType, object[] data)
         {
             EventType = eventType;
             Data = data;
         }
 
         public DLEventType EventType { get; set; }
-        public object Data { get; set; }
+        public object[] Data { get; set; }
     }
 
     public sealed class EventConverter
@@ -59,7 +60,7 @@ namespace Eco.Plugins.DiscordLink.Events
                                 _accumulatedTrades.Values.CopyTo(trades, 0);
                                 _accumulatedTrades.Clear();
                             }
-                            FireEvent(DLEventType.AccumulatedTrade, trades);
+                            FireEvent(DLEventType.AccumulatedTrade, (object)trades);
                         }
                     }
                     catch(Exception e)
@@ -106,7 +107,30 @@ namespace Eco.Plugins.DiscordLink.Events
             }
         }
 
-        private void FireEvent(DLEventType evetType, object data)
+        public void ConvertServerLogEvent(string logEventText)
+        {
+            string strippedEventText = MessageUtils.StripTags(logEventText);
+            Logger.LogLevel eventLevel = Logger.LogLevel.Silent;
+            string[] parts = strippedEventText.Split( ':', 2);
+            if (parts.Length == 0)
+            {
+                Logger.Warning($"Ignored non delimited log event: \"{strippedEventText}\"");
+                return;
+            }
+
+            if (parts[0].ContainsCaseInsensitive("Log"))
+                eventLevel = Logger.LogLevel.Information;
+            else if (parts[0].ContainsCaseInsensitive("Error"))
+                eventLevel = Logger.LogLevel.Error;
+            else if (parts[0].ContainsCaseInsensitive("Warning"))
+                eventLevel = Logger.LogLevel.Warning;
+            else if (parts[0].ContainsCaseInsensitive("Debug"))
+                eventLevel = Logger.LogLevel.Debug;
+
+            FireEvent(DLEventType.ServerLogWritten, eventLevel, parts[1].Trim());
+        }
+
+        private void FireEvent(DLEventType evetType, params object[] data)
         {
             if (OnEventFired != null)
                 OnEventFired.Invoke(this, new DLEventArgs(evetType, data));

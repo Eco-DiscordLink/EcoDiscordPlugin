@@ -126,7 +126,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     "\n* DiscordLinked Role and roles matching your demographics and specializations." +
                     "\n" +
                     "\nLink instructions" +
-                    $"\n1. Use /DL-Link <UserName> in Eco. The username parameter is your Discord account name (not nickname) with or without the #xxxx at the end. Example: {MessageUtils.GetCommandTokenForContext(context)}DL-Link Monzun#1234" +
+                    $"\n1. Use /DL-Link <UserName> in Eco. The username parameter is your Discord account name (not nickname) with or without the #xxxx at the end. Example: /DL-Link Monzun#1234" +
                     "\n2. If your account could be found on the Discord server, the bot will send you a DM." +
                     "\n3. Click the approve button on the message to verify that you are the owner of both the Eco and Discord account." +
                     "\n4. Your account is now linked!" +
@@ -142,27 +142,31 @@ namespace Eco.Plugins.DiscordLink.Utilities
             public static async Task<string> GetDisplayStringAsync(bool verbose)
             {
                 DiscordLink plugin = DiscordLink.Obj;
+                DLDiscordClient client = plugin.Client;
                 StringBuilder builder = new StringBuilder();
                 builder.AppendLine($"DiscordLink {plugin.PluginVersion}");
                 if (verbose)
                 {
                     builder.AppendLine($"Server Name: {MessageUtils.FirstNonEmptyString(DLConfig.Data.ServerName, MessageUtils.StripTags(NetworkManager.GetServerInfo().Description), "[Server Title Missing]")}");
                     builder.AppendLine($"Server Version: {EcoVersion.VersionNumber}");
-                    if (DiscordLink.Obj.Client.ConnectionStatus == DLDiscordClient.ConnectionState.Connected)
-                        builder.AppendLine($"D# Version: {plugin.Client.DiscordClient.VersionString}");
+                    if (client.ConnectionStatus == DLDiscordClient.ConnectionState.Connected)
+                        builder.AppendLine($"D# Version: {client.DiscordClient.VersionString}");
                 }
                 builder.AppendLine($"Plugin Status: {plugin.GetStatus()}");
-                builder.AppendLine($"Discord Client Status: {plugin.Client.Status}");
+                builder.AppendLine($"Discord Client Status: {client.Status}");
+                if (client.LastConnectionError != DLDiscordClient.ConnectionError.None)
+                    builder.AppendLine($"Discord Client Error: {client.LastConnectionError}");
+
                 TimeSpan elapssedTime = DateTime.Now.Subtract(plugin.InitTime);
                 if (verbose)
                     builder.AppendLine($"Start Time: {plugin.InitTime:yyyy-MM-dd HH:mm}");
                 builder.AppendLine($"Running Time: {(int)elapssedTime.TotalDays}:{elapssedTime.Hours}:{elapssedTime.Minutes}");
 
-                if (DiscordLink.Obj.Client.ConnectionStatus != DLDiscordClient.ConnectionState.Connected)
+                if (client.ConnectionStatus != DLDiscordClient.ConnectionState.Connected)
                     return builder.ToString();
 
                 if (verbose)
-                    builder.AppendLine($"Connection Time: {plugin.Client.LastConnectionTime:yyyy-MM-dd HH:mm}");
+                    builder.AppendLine($"Connection Time: {client.LastConnectionTime:yyyy-MM-dd HH:mm}");
 
                 builder.AppendLine();
                 builder.AppendLine("--- User Data ---");
@@ -177,7 +181,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 {
                     builder.AppendLine();
                     builder.AppendLine("--- Config ---");
-                    builder.AppendLine($"Name: {plugin.Client.DiscordClient.CurrentUser.Username}");
+                    builder.AppendLine($"Name: {client.DiscordClient.CurrentUser.Username}");
 
                     builder.AppendLine();
                     builder.AppendLine("--- Storage - Persistent ---");
@@ -201,7 +205,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                         builder.AppendLine("Trade Watchers:");
                         foreach (var userTradeWatchers in DLStorage.WorldData.TradeWatchers)
                         {
-                            DiscordUser discordUser = await plugin.Client.GetUserAsync(userTradeWatchers.Key);
+                            DiscordUser discordUser = await client.GetUserAsync(userTradeWatchers.Key);
                             if (discordUser == null)
                                 continue;
 
@@ -227,7 +231,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 DLConfigData config = DLConfig.Data;
 
                 // Guild
-                if (string.IsNullOrWhiteSpace(config.ServerName))
+                if (string.IsNullOrWhiteSpace(config.DiscordServer))
                 {
                     builder.AppendLine("- Discord server not configured.");
                 }
@@ -839,7 +843,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 if (flag.HasFlag(PlayerReportComponentFlag.Demographics))
                 {
                     StringBuilder demographicDesc = new StringBuilder();
-                    IEnumerable<Demographic> userDemographics = EcoUtils.ActiveDemographics.Where(demographic => demographic.Contains(user)).OrderBy(demographic => demographic.Name);
+                    IEnumerable<Demographic> userDemographics = EcoUtils.ActiveDemographics.Where(demographic => demographic.ContainsUser(user)).OrderBy(demographic => demographic.Name);
                     foreach (Demographic demographic in userDemographics)
                     {
                         demographicDesc.AppendLine(demographic.Name + (demographic.Creator == user ? " (Creator)" : string.Empty));
@@ -867,7 +871,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     StringBuilder propertiessSizeOrVehicleDesc = new StringBuilder();
                     StringBuilder propertiessLocationDesc = new StringBuilder();
 
-                    IEnumerable<Deed> userDeeds = EcoUtils.Deeds.Where(deed => deed.ContainsOwners(user)).OrderByDescending(deed => deed.GetTotalPlotSize());
+                    IEnumerable<Deed> userDeeds = EcoUtils.Deeds.Where(deed => deed.ContainsOwner(user)).OrderByDescending(deed => deed.GetTotalPlotSize());
                     foreach (Deed deed in userDeeds)
                     {
                         propertiessDesc.AppendLine(deed.Name.TrimEndString(" Deed"));
@@ -973,19 +977,19 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 string choiceDesc = string.Empty;
                 if (!election.Process.AnonymousVoting)
                 {
-                    foreach(ElectionChoice choice in election.Choices)
-                    {
-                        foreach(RunoffVote vote in election.Votes)
-                        {
-                            for( int i = 0; i < vote.RankedVotes.Count; ++i)
-                            {
-                                if(vote.RankedVotes[i] == choice.ID)
-                                {
+                    //foreach(ElectionChoice choice in election.Choices)
+                    //{
+                    //    foreach(RunoffVote vote in election.Votes)
+                    //    {
+                    //        for( int i = 0; i < vote.RankedVotes.Count; ++i)
+                    //        {
+                    //            if(vote.RankedVotes[i] == choice.ID)
+                    //            {
 
-                                }
-                            }
-                        }
-                    }
+                    //            }
+                    //        }
+                    //    }
+                    //}
 
                     foreach (RunoffVote vote in election.Votes)
                     {

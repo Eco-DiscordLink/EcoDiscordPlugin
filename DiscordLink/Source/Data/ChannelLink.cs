@@ -165,6 +165,12 @@ namespace Eco.Plugins.DiscordLink
         public GlobalMentionPermission HereAndEveryoneMentionPermission { get; set; } = GlobalMentionPermission.Forbidden;
     }
 
+    public class ServerLogFeedChannelLink : ChannelLink
+    {
+        [Description("Determines what log message types will be printed to the channel log. All message types below the selected one will be printed as well.")]
+        public Logger.LogLevel LogLevel { get; set; } = Logger.LogLevel.Information;
+    }
+
     public class PlayerListChannelLink : ChannelLink
     {
         [Description("Display the number of online players in the message.")]

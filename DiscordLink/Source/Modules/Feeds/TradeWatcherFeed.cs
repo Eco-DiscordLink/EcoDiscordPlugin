@@ -35,7 +35,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
         {
-            if (!(data[0] is IEnumerable<List<CurrencyTrade>> accumulatedTrades))
+            if (!(data[0] is List<CurrencyTrade>[] accumulatedTrades))
                 return;
 
             foreach (var userAndWatcher in DLStorage.WorldData.TradeWatchers)

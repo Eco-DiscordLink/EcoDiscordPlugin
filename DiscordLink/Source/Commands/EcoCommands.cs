@@ -1,12 +1,12 @@
 using DSharpPlus;
 using DSharpPlus.Entities;
 using Eco.Gameplay.Players;
-using Eco.Gameplay.Systems.Chat;
-using Eco.Shared.Localization;
+using Eco.Gameplay.Systems.Messaging.Chat.Commands;
 using Eco.Plugins.DiscordLink.Utilities;
 using System;
 using System.Collections.Generic;
 using Eco.Plugins.DiscordLink.Extensions;
+using Eco.Shared.Networking;
 
 namespace Eco.Plugins.DiscordLink
 {
@@ -34,7 +34,7 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (Exception e)
             {
-                ChatManager.ServerMessageToPlayer(new LocString($"Error occurred while attempting to run that command. Error message: {e}"), callingUser);
+                EcoUtils.SendInfoBoxToUser(callingUser, $"Error occurred while attempting to run that command. Error message: {e}");
                 Logger.Error($"An exception occured while attempting to execute a command.\nCommand name: \"{commandName}\"\nCalling user: \"{MessageUtils.StripTags(callingUser.Name)}\"\nError message: {e}");
             }
         }
@@ -184,18 +184,6 @@ namespace Eco.Plugins.DiscordLink
         #endregion
 
         #region Lookups
-
-        [ChatSubCommand("DiscordLink", "Lists Discord servers the bot is in.", ChatAuthorizationLevel.Admin)]
-        public static void ListGuilds(User callingUser)
-        {
-            ExecuteCommand<object>((lUser, args) =>
-            {
-                var plugin = Plugins.DiscordLink.DiscordLink.Obj;
-                string joinedGuildNames = string.Join("\n", plugin.Client.DiscordClient.GuildNames());
-
-                DisplayCommandData(callingUser, DLConstants.ECO_PANEL_SIMPLE_LIST, "Connected Discord Servers", joinedGuildNames);
-            }, callingUser);
-        }
 
         [ChatSubCommand("DiscordLink", "Displays the Player Report for the given player.", "DL-PlayerReport", ChatAuthorizationLevel.User)]
         public static void PlayerReport(User callingUser, string playerNameOrID)
@@ -371,6 +359,199 @@ namespace Eco.Plugins.DiscordLink
 
         #endregion
 
+        #region Invites
+
+        [ChatSubCommand("DiscordLink", "Posts the Discord invite message to the target user. The invite will be broadcasted if no target user is specified.", "DL-Invite", ChatAuthorizationLevel.User)]
+        public static void Invite(User callingUser, string targetUserName = "")
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.PostDiscordInvite(SharedCommands.CommandInterface.Eco, callingUser, targetUserName);
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Posts the Discord invite message to the Eco chat.", "DL-BroadcastInvite", ChatAuthorizationLevel.User)]
+        public static void BroadcastInvite(User callingUser)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.PostDiscordInvite(SharedCommands.CommandInterface.Eco, callingUser, string.Empty);
+            }, callingUser);
+        }
+
+        #endregion
+
+        #region Account Linking
+
+        [ChatSubCommand("DiscordLink", "Presents information about account linking.", "DL-LinkInfo", ChatAuthorizationLevel.User)]
+        public static void LinkInformation(User callingUser)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                DisplayCommandData(callingUser, DLConstants.ECO_PANEL_DL_MESSAGE_MEDIUM, $"Eco --> Discord Account Linking", MessageBuilder.Shared.GetLinkAccountInfoMessage(SharedCommands.CommandInterface.Eco));
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Links the calling user account to a Discord account.", "DL-Link", ChatAuthorizationLevel.User)]
+        public static void LinkDiscordAccount(User callingUser, string discordName)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                var plugin = Plugins.DiscordLink.DiscordLink.Obj;
+
+                if (!plugin.Client.BotHasIntent(DiscordIntents.GuildMembers))
+                {
+                    ReportCommandError(callingUser, $"This server is not configured to use account linking as the bot lacks the elevated Guild Members Intent.");
+                    return;
+                }
+
+                // Find the Discord user
+                DiscordMember matchingMember = null;
+                IReadOnlyCollection<DiscordMember> guildMembers = plugin.Client.GetGuildMembersAsync().Result;
+                if (guildMembers == null)
+                    return;
+
+                foreach (DiscordMember member in guildMembers)
+                {
+                    if (member.HasNameOrID(discordName))
+                    {
+                        matchingMember = member;
+                        break;
+                    }
+                }
+
+                if (matchingMember == null)
+                {
+                    ReportCommandError(callingUser, $"No Discord account with the name \"{discordName}\" could be found.\nUse {MessageUtils.GetCommandTokenForContext(SharedCommands.CommandInterface.Eco)}DL-LinkInfo for linking instructions.");
+                    return;
+                }
+
+                // Make sure that the accounts aren't already linked to any account
+                foreach (LinkedUser linkedUser in DLStorage.PersistentData.LinkedUsers)
+                {
+                    bool hasSLGID = !string.IsNullOrWhiteSpace(callingUser.SlgId) && !string.IsNullOrWhiteSpace(linkedUser.SlgID);
+                    bool hasSteamID = !string.IsNullOrWhiteSpace(callingUser.SteamId) && !string.IsNullOrWhiteSpace(linkedUser.SteamID);
+                    if ((hasSLGID && callingUser.SlgId == linkedUser.SlgID) || (hasSteamID && callingUser.SteamId == linkedUser.SteamID))
+                    {
+                        if (linkedUser.DiscordID == matchingMember.Id.ToString())
+                            ReportCommandInfo(callingUser, $"Eco account is already linked to this Discord account.\nUse {MessageUtils.GetCommandTokenForContext(SharedCommands.CommandInterface.Eco)}DL-Unlink to remove the existing link.");
+                        else
+                            ReportCommandInfo(callingUser, $"Eco account is already linked to a different Discord account.\nUse {MessageUtils.GetCommandTokenForContext(SharedCommands.CommandInterface.Eco)}DL-Unlink to remove the existing link.");
+                        return;
+                    }
+                    else if (linkedUser.DiscordID == matchingMember.Id.ToString())
+                    {
+                        ReportCommandError(callingUser, "Discord account is already linked to a different Eco account.");
+                        return;
+                    }
+                }
+
+                // Create a linked user from the combined Eco and Discord info
+                UserLinkManager.AddLinkedUser(callingUser, matchingMember.Id.ToString(), matchingMember.Guild.Id.ToString());
+
+                // Notify the Discord account that a link has been made and ask for verification
+                DiscordMessage message = plugin.Client.SendDMAsync(matchingMember, null, MessageBuilder.Discord.GetVerificationDM(callingUser)).Result;
+                _ = message.CreateReactionAsync(DLConstants.ACCEPT_EMOJI);
+                _ = message.CreateReactionAsync(DLConstants.DENY_EMOJI);
+
+                // Notify the Eco user that the link has been created and that verification is required
+                ReportCommandInfo(callingUser, $"Your account has been linked.\nThe link requires verification before becoming active.\nInstructions have been sent to the linked Discord account.");
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Unlinks the Eco account from a linked Discord account.", "DL-Unlink", ChatAuthorizationLevel.User)]
+        public static void UnlinkDiscordAccount(User callingUser)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                bool result = UserLinkManager.RemoveLinkedUser(callingUser);
+                if (result)
+                    ReportCommandInfo(callingUser, $"Discord account unlinked.");
+                else
+                    ReportCommandError(callingUser, $"No linked Discord account could be found.");
+            }, callingUser);
+        }
+
+        #endregion
+
+        #region Trades
+
+        [ChatSubCommand("DiscordLink", "Displays available trades by player, tag, item or store.", "DL-Trades", ChatAuthorizationLevel.User)]
+        public static void Trades(User callingUser, string searchName)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.Trades(SharedCommands.CommandInterface.Eco, callingUser, searchName);
+            }, callingUser);
+        }
+
+        // Wrapper for the Trades command in order to facilitate more command aliases
+        [ChatSubCommand("DiscordLink", "Displays available trades by player, tag, item or store.", "DLT", ChatAuthorizationLevel.User)]
+        public static void Trade(User user, string searchName)
+        {
+            Trades(user, searchName);
+        }
+
+        [ChatSubCommand("DiscordLink", "Creates a live updated display of available trades by player, tag, item or store", "DL-WatchTradeDisplay", ChatAuthorizationLevel.User)]
+        public static void AddTradeWatcherDisplay(User callingUser, string searchName)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.AddTradeWatcher(SharedCommands.CommandInterface.Eco, callingUser, searchName, Modules.ModuleType.Display);
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Removes the live updated display of available trades for the player, tag, item or store.", "DL-UnwatchTradeDisplay", ChatAuthorizationLevel.User)]
+        public static void RemoveTradeWatcherDisplay(User callingUser, string searchName)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.RemoveTradeWatcher(SharedCommands.CommandInterface.Eco, callingUser, searchName, Modules.ModuleType.Display);
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Creates a feed where the bot will post trades filtered by the search query, as they occur ingame. The search query can filter by player, tag, item or store.", "DL-WatchTradeFeed", ChatAuthorizationLevel.User)]
+        public static void AddTradeWatcherFeed(User callingUser, string searchName)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.AddTradeWatcher(SharedCommands.CommandInterface.Eco, callingUser, searchName, Modules.ModuleType.Feed);
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Removes the trade watcher feed for a player, tag, item or store.", "DL-UnwatchTradeFeed", ChatAuthorizationLevel.User)]
+        public static void RemoveTradeWatcherFeed(User callingUser, string searchName)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.RemoveTradeWatcher(SharedCommands.CommandInterface.Eco, callingUser, searchName, Modules.ModuleType.Feed);
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Lists all trade watchers for the calling user.", "DL-TradeWatchers", ChatAuthorizationLevel.User)]
+        public static void ListTradeWatchers(User callingUser)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.ListTradeWatchers(SharedCommands.CommandInterface.Eco, callingUser);
+            }, callingUser);
+        }
+
+        #endregion
+
+        #region Snippets
+
+        [ChatSubCommand("DiscordLink", "Post a predefined snippet from Discord to Eco.", "DL-Snippet", ChatAuthorizationLevel.User)]
+        public static void Snippet(User callingUser, string snippetKey = "")
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.Snippet(SharedCommands.CommandInterface.Eco, callingUser, SharedCommands.CommandInterface.Eco, callingUser.Name, snippetKey);
+            }, callingUser);
+        }
+
+        #endregion
+
         #region Message Relaying
 
         [ChatSubCommand("DiscordLink", "Sends a message to a specific server and channel.", ChatAuthorizationLevel.Admin)]
@@ -514,199 +695,6 @@ namespace Eco.Plugins.DiscordLink
             ExecuteCommand<object>((lUser, args) =>
             {
                 SharedCommands.SendInfoPanel(SharedCommands.CommandInterface.Eco, callingUser, DLConstants.ECO_PANEL_NOTIFICATION, title, message, recipientUserNameOrID);
-            }, callingUser);
-        }
-
-        #endregion
-
-        #region Invites
-
-        [ChatSubCommand("DiscordLink", "Posts the Discord invite message to the target user. The invite will be broadcasted if no target user is specified.", "DL-Invite", ChatAuthorizationLevel.User)]
-        public static void Invite(User callingUser, string targetUserName = "")
-        {
-            ExecuteCommand<object>((lUser, args) =>
-            {
-                SharedCommands.DiscordInvite(SharedCommands.CommandInterface.Eco, callingUser, targetUserName);
-            }, callingUser);
-        }
-
-        [ChatSubCommand("DiscordLink", "Posts the Discord invite message to the Eco chat.", "DL-BroadcastInvite", ChatAuthorizationLevel.User)]
-        public static void BroadcastInvite(User callingUser)
-        {
-            ExecuteCommand<object>((lUser, args) =>
-            {
-                SharedCommands.DiscordInvite(SharedCommands.CommandInterface.Eco, callingUser, string.Empty);
-            }, callingUser);
-        }
-
-        #endregion
-
-        #region Account Linking
-
-        [ChatSubCommand("DiscordLink", "Presents information about account linking.", "DL-LinkInfo", ChatAuthorizationLevel.User)]
-        public static void LinkInformation(User callingUser)
-        {
-            ExecuteCommand<object>((lUser, args) =>
-            {
-                DisplayCommandData(callingUser, DLConstants.ECO_PANEL_DL_MESSAGE_MEDIUM, $"Eco --> Discord Account Linking", MessageBuilder.Shared.GetLinkAccountInfoMessage(SharedCommands.CommandInterface.Eco));
-            }, callingUser);
-        }
-
-        [ChatSubCommand("DiscordLink", "Links the calling user account to a Discord account.", "DL-Link", ChatAuthorizationLevel.User)]
-        public static void LinkDiscordAccount(User callingUser, string discordName)
-        {
-            ExecuteCommand<object>((lUser, args) =>
-            {
-                var plugin = Plugins.DiscordLink.DiscordLink.Obj;
-
-                if (!plugin.Client.BotHasIntent(DiscordIntents.GuildMembers))
-                {
-                    ReportCommandError(callingUser, $"This server is not configured to use account linking as the bot lacks the elevated Guild Members Intent.");
-                    return;
-                }
-
-                // Find the Discord user
-                DiscordMember matchingMember = null;
-                IReadOnlyCollection<DiscordMember> guildMembers = plugin.Client.GetGuildMembersAsync().Result;
-                if (guildMembers == null)
-                    return;
-
-                foreach (DiscordMember member in guildMembers)
-                {
-                    if (member.HasNameOrID(discordName))
-                    {
-                        matchingMember = member;
-                        break;
-                    }
-                }
-
-                if (matchingMember == null)
-                {
-                    ReportCommandError(callingUser, $"No Discord account with the name \"{discordName}\" could be found.\nUse {MessageUtils.GetCommandTokenForContext(SharedCommands.CommandInterface.Eco)}DL-LinkInfo for linking instructions.");
-                    return;
-                }
-
-                // Make sure that the accounts aren't already linked to any account
-                foreach (LinkedUser linkedUser in DLStorage.PersistentData.LinkedUsers)
-                {
-                    bool hasSLGID = !string.IsNullOrWhiteSpace(callingUser.SlgId) && !string.IsNullOrWhiteSpace(linkedUser.SlgID);
-                    bool hasSteamID = !string.IsNullOrWhiteSpace(callingUser.SteamId) && !string.IsNullOrWhiteSpace(linkedUser.SteamID);
-                    if ((hasSLGID && callingUser.SlgId == linkedUser.SlgID) || (hasSteamID && callingUser.SteamId == linkedUser.SteamID))
-                    {
-                        if (linkedUser.DiscordID == matchingMember.Id.ToString())
-                            ReportCommandInfo(callingUser, $"Eco account is already linked to this Discord account.\nUse {MessageUtils.GetCommandTokenForContext(SharedCommands.CommandInterface.Eco)}DL-Unlink to remove the existing link.");
-                        else
-                            ReportCommandInfo(callingUser, $"Eco account is already linked to a different Discord account.\nUse {MessageUtils.GetCommandTokenForContext(SharedCommands.CommandInterface.Eco)}DL-Unlink to remove the existing link.");
-                        return;
-                    }
-                    else if (linkedUser.DiscordID == matchingMember.Id.ToString())
-                    {
-                        ReportCommandError(callingUser, "Discord account is already linked to a different Eco account.");
-                        return;
-                    }
-                }
-
-                // Create a linked user from the combined Eco and Discord info
-                UserLinkManager.AddLinkedUser(callingUser, matchingMember.Id.ToString(), matchingMember.Guild.Id.ToString());
-
-                // Notify the Discord account that a link has been made and ask for verification
-                DiscordMessage message = plugin.Client.SendDMAsync(matchingMember, null, MessageBuilder.Discord.GetVerificationDM(callingUser)).Result;
-                _ = message.CreateReactionAsync(DLConstants.ACCEPT_EMOJI);
-                _ = message.CreateReactionAsync(DLConstants.DENY_EMOJI);
-
-                // Notify the Eco user that the link has been created and that verification is required
-                ReportCommandInfo(callingUser, $"Your account has been linked.\nThe link requires verification before becoming active.\nInstructions have been sent to the linked Discord account.");
-            }, callingUser);
-        }
-
-        [ChatSubCommand("DiscordLink", "Unlinks the calling user account from a linked Discord account.", "DL-Unlink", ChatAuthorizationLevel.User)]
-        public static void UnlinkDiscordAccount(User callingUser)
-        {
-            ExecuteCommand<object>((lUser, args) =>
-            {
-                bool result = UserLinkManager.RemoveLinkedUser(callingUser);
-                if (result)
-                    ReportCommandInfo(callingUser, $"Discord account unlinked.");
-                else
-                    ReportCommandError(callingUser, $"No linked Discord account could be found.");
-            }, callingUser);
-        }
-
-        #endregion
-
-        #region Trades
-
-        [ChatSubCommand("DiscordLink", "Displays available trades by player, tag, item or store.", "DL-Trades", ChatAuthorizationLevel.User)]
-        public static void Trades(User callingUser, string searchName)
-        {
-            ExecuteCommand<object>((lUser, args) =>
-            {
-                SharedCommands.Trades(SharedCommands.CommandInterface.Eco, callingUser, searchName);
-            }, callingUser);
-        }
-
-        // Wrapper for the Trades command in order to facilitate more command aliases
-        [ChatSubCommand("DiscordLink", "Displays available trades by player, tag, item or store.", "DLT", ChatAuthorizationLevel.User)]
-        public static void Trade(User user, string searchName)
-        {
-            Trades(user, searchName);
-        }
-
-        [ChatSubCommand("DiscordLink", "Creates a live updated display of available trades by player, tag, item or store", "DL-WatchTradeDisplay", ChatAuthorizationLevel.User)]
-        public static void AddTradeWatcherDisplay(User callingUser, string searchName)
-        {
-            ExecuteCommand<object>((lUser, args) =>
-            {
-                SharedCommands.AddTradeWatcher(SharedCommands.CommandInterface.Eco, callingUser, searchName, Modules.ModuleType.Display);
-            }, callingUser);
-        }
-
-        [ChatSubCommand("DiscordLink", "Removes the live updated display of available trades for the player, tag, item or store.", "DL-UnwatchTradeDisplay", ChatAuthorizationLevel.User)]
-        public static void RemoveTradeWatcherDisplay(User callingUser, string searchName)
-        {
-            ExecuteCommand<object>((lUser, args) =>
-            {
-                SharedCommands.RemoveTradeWatcher(SharedCommands.CommandInterface.Eco, callingUser, searchName, Modules.ModuleType.Display);
-            }, callingUser);
-        }
-
-        [ChatSubCommand("DiscordLink", "Creates a feed where the bot will post trades filtered by the search query, as they occur ingame. The search query can filter by player, tag, item or store.", "DL-WatchTradeFeed", ChatAuthorizationLevel.User)]
-        public static void AddTradeWatcherFeed(User callingUser, string searchName)
-        {
-            ExecuteCommand<object>((lUser, args) =>
-            {
-                SharedCommands.AddTradeWatcher(SharedCommands.CommandInterface.Eco, callingUser, searchName, Modules.ModuleType.Feed);
-            }, callingUser);
-        }
-
-        [ChatSubCommand("DiscordLink", "Removes the trade watcher feed for a player, tag, item or store.", "DL-UnwatchTradeFeed", ChatAuthorizationLevel.User)]
-        public static void RemoveTradeWatcherFeed(User callingUser, string searchName)
-        {
-            ExecuteCommand<object>((lUser, args) =>
-            {
-                SharedCommands.RemoveTradeWatcher(SharedCommands.CommandInterface.Eco, callingUser, searchName, Modules.ModuleType.Feed);
-            }, callingUser);
-        }
-
-        [ChatSubCommand("DiscordLink", "Lists all trade watchers for the calling user.", "DL-TradeWatchers", ChatAuthorizationLevel.User)]
-        public static void ListTradeWatchers(User callingUser)
-        {
-            ExecuteCommand<object>((lUser, args) =>
-            {
-                SharedCommands.ListTradeWatchers(SharedCommands.CommandInterface.Eco, callingUser);
-            }, callingUser);
-        }
-
-        #endregion
-
-        #region Snippets
-
-        [ChatSubCommand("DiscordLink", "Post a predefined snippet from Discord.", "DL-Snippet", ChatAuthorizationLevel.User)]
-        public static void Snippet(User callingUser, string snippetKey = "")
-        {
-            ExecuteCommand<object>((lUser, args) =>
-            {
-                SharedCommands.Snippet(SharedCommands.CommandInterface.Eco, callingUser, SharedCommands.CommandInterface.Eco, callingUser.Name, snippetKey);
             }, callingUser);
         }
 

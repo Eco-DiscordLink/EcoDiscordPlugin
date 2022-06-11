@@ -28,7 +28,7 @@ namespace Eco.Plugins.DiscordLink
         public const int DISCORD_EMBED_FOOTER_CHARACTER_LIMIT = 2048;
         public const int DISCORD_EMBED_FOOTER_DESCRIPTION_LIMIT = 2048;
         public const int DISCORD_EMBED_FIELD_CHARACTER_LIMIT = 1024;
-        public const int DISCORD_EMBED_FIELD_CHARACTER_PER_LINE_LIMIT = 30;
+        public const int DISCORD_EMBED_FIELD_CHARACTER_PER_LINE_LIMIT = 25;
         public const int DISCORD_EMBED_FIELD_COUNT_LIMIT = 25;
         public const int DISCORD_EMBED_FIELD_ALIGNED_COUNT_LIMIT = 24; // Discord embed fields align when there are three fields per row
         public const int DISCORD_EMBED_SIZE_SMALL_FIELD_LIMIT = 3;
@@ -59,6 +59,11 @@ namespace Eco.Plugins.DiscordLink
 
         public static readonly DiscordEmoji ACCEPT_EMOJI = DiscordEmoji.FromName(DiscordLink.Obj.Client.DiscordClient, ":white_check_mark:");
         public static readonly DiscordEmoji DENY_EMOJI = DiscordEmoji.FromName(DiscordLink.Obj.Client.DiscordClient, ":x:");
+
+        public static readonly DiscordEmoji DEBUG_LOG_EMOJI = DiscordEmoji.FromName(DiscordLink.Obj.Client.DiscordClient, ":exclamation:");
+        public static readonly DiscordEmoji WARNING_LOG_EMOJI = DiscordEmoji.FromName(DiscordLink.Obj.Client.DiscordClient, ":small_orange_diamond:");
+        public static readonly DiscordEmoji INFO_LOG_EMOJI = DiscordEmoji.FromName(DiscordLink.Obj.Client.DiscordClient, ":white_small_square:");
+        public static readonly DiscordEmoji ERROR_LOG_EMOJI = DiscordEmoji.FromName(DiscordLink.Obj.Client.DiscordClient, ":small_red_triangle:");
 
         public static readonly DiscordLinkRole ROLE_LINKED_ACCOUNT = new DiscordLinkRole("DiscordLinked", null, DiscordColor.Cyan, false, true, "Linked Discord account to Eco Server");
 
