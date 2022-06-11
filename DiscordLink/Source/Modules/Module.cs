@@ -22,7 +22,6 @@ namespace Eco.Plugins.DiscordLink.Modules
         // These events may fire very frequently and may trigger rate limitations and therefore some special handling is done based on this field.
         public const DLEventType HighFrequencyTriggerFlags = DLEventType.EcoMessageSent | DLEventType.DiscordMessageSent | DLEventType.Trade | DLEventType.WorkedWorkParty | DLEventType.WorkOrderCreated;
         protected readonly AsyncLock _overlapLock = new AsyncLock();
-        protected bool _isShuttingDown = false;
         protected string _status = "Off";
         protected DateTime _startTime = DateTime.MinValue;
         protected int _opsCount = 0;
@@ -100,7 +99,6 @@ namespace Eco.Plugins.DiscordLink.Modules
         {
             Logger.Debug($"Stopping {this}");
 
-            _isShuttingDown = true;
             IsEnabled = false;
             _status = "Off";
             _startTime = DateTime.MinValue;
@@ -125,7 +123,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             // Make sure that the Update function doesn't get overlapping executions
             using (await _overlapLock.LockAsync())
             {
-                if (_isShuttingDown)
+                if (!IsEnabled)
                     return;
 
                 try
