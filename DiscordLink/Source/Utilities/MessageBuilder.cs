@@ -540,13 +540,11 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
                 if (flag.HasFlag(ServerInfoComponentFlag.Name))
                 {
-                    embed.WithTitle($"**{MessageUtils.FirstNonEmptyString(config.ServerName, MessageUtils.StripTags(serverInfo.Description), "[Server Title Missing]")} Server Status**\n{DateTime.Now.ToShortDateString() + " : " + DateTime.Now.ToShortTimeString()}");
+                    embed.WithTitle($"**{MessageUtils.FirstNonEmptyString(config.ServerName, MessageUtils.StripTags(serverInfo.Description), "[Server Title Missing]")} Server Status**");
                 }
                 else
                 {
-                    DateTime time = DateTime.Now;
-                    int utcOffset = TimeZoneInfo.Local.GetUtcOffset(time).Hours;
-                    embed.WithTitle($"**Server Status**\n[{DateTime.Now.ToString("yyyy-MM-dd : HH:mm", CultureInfo.InvariantCulture)} UTC {(utcOffset != 0 ? (utcOffset >= 0 ? "+" : "-") + utcOffset : "")}]");
+                    embed.WithTitle($"**Server Status**");
                 }
 
                 if (flag.HasFlag(ServerInfoComponentFlag.Description))
