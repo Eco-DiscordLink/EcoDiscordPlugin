@@ -67,8 +67,6 @@ namespace Eco.Plugins.DiscordLink.Modules
                 statusFlag |= MessageBuilder.ServerInfoComponentFlag.MeteorTimeRemaining;
             if (infoChannel.UseServerTime)
                 statusFlag |= MessageBuilder.ServerInfoComponentFlag.ServerTime;
-            if (infoChannel.UseExhaustionResetServerTime)
-                statusFlag |= MessageBuilder.ServerInfoComponentFlag.ExhaustionResetTime;
             if (infoChannel.UseExhaustionResetTimeLeft)
                 statusFlag |= MessageBuilder.ServerInfoComponentFlag.ExhaustionResetTimeLeft;
             if (infoChannel.UseExhaustedPlayerCount)

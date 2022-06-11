@@ -31,6 +31,7 @@ using Eco.Shared.Items;
 
 using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
 using StoreOfferGroup = System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.StoreComponent, Eco.Gameplay.Components.TradeOffer>>;
+using static Eco.Plugins.DiscordLink.Utilities.Utils;
 
 namespace Eco.Plugins.DiscordLink.Utilities
 {
@@ -48,16 +49,15 @@ namespace Eco.Plugins.DiscordLink.Utilities
             PlayerList                  = 1 << 6,
             PlayerListLoginTime         = 1 << 7,
             PlayerListExhaustionTime    = 1 << 8,
-            ExhaustionResetTime         = 1 << 9,
-            ExhaustionResetTimeLeft     = 1 << 10,
-            ExhaustedPlayerCount        = 1 << 11,
-            IngameTime                  = 1 << 12,
-            MeteorTimeRemaining         = 1 << 13,
-            ServerTime                  = 1 << 14,
-            ActiveElectionCount         = 1 << 15,
-            ActiveElectionList          = 1 << 16,
-            LawCount                    = 1 << 17,
-            LawList                     = 1 << 18,
+            ExhaustionResetTimeLeft     = 1 << 9,
+            ExhaustedPlayerCount        = 1 << 10,
+            IngameTime                  = 1 << 11,
+            MeteorTimeRemaining         = 1 << 12,
+            ServerTime                  = 1 << 13,
+            ActiveElectionCount         = 1 << 14,
+            ActiveElectionList          = 1 << 15,
+            LawCount                    = 1 << 16,
+            LawList                     = 1 << 17,
             All                         = ~0
         }
 
@@ -407,6 +407,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
             public enum TimespanStringComponent
             {
+                None = 0,
                 Day = 1 << 0,
                 Hour = 1 << 1,
                 Minute = 1 << 2,
@@ -421,9 +422,9 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     $":{((int)seconds % 60).ToString("00")}";
             }
 
-            public static string GetServerTimeStamp()
+            public static string GetServerTimeStamp(CallerType caller)
             {
-                return DateTime.Now.ToString("yyyy-MM-dd HH:mm");
+                return caller == CallerType.Discord ? DateTime.Now.ToDiscordTimeStamp() : DateTime.Now.ToString("yyyy-MM-dd HH:mm");
             }
 
             public static string GetYesNo(bool flag)
@@ -613,17 +614,15 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
                     if (flag.HasFlag(ServerInfoComponentFlag.MeteorTimeRemaining))
                     {
-                        TimeSpan timeRemainingSpan = new TimeSpan(0, 0, (int)serverInfo.TimeLeft);
-                        bool meteorHasHit = timeRemainingSpan.Seconds < 0;
-                        timeRemainingSpan = meteorHasHit ? new TimeSpan(0, 0, 0) : timeRemainingSpan;
-                        embed.AddField("Time Remaining", Shared.GetTimeDescription(timeRemainingSpan.TotalSeconds, Shared.TimespanStringComponent.Day | Shared.TimespanStringComponent.Hour | Shared.TimespanStringComponent.Minute, includeZeroTimes: false, annotate: true), inline: true);
+                        bool meteorHasHit = (int)serverInfo.TimeLeft < 0.0;
+                        embed.AddField("Meteor", DateTime.Now.AddSeconds(serverInfo.TimeLeft).ToDiscordTimeStamp('R'), inline: true);
                         ++fieldsAdded;
                     }
 
                     if (flag.HasFlag(ServerInfoComponentFlag.ServerTime))
                     {
                         TimeSpan timeSinceStartSpan = new TimeSpan(0, 0, (int)serverInfo.TimeSinceStart);
-                        embed.AddField("Server Time", Shared.GetServerTimeStamp(), inline: true);
+                        embed.AddField("Server Time", Shared.GetServerTimeStamp(CallerType.Discord), inline: true);
                         ++fieldsAdded;
                     }
 
@@ -633,18 +632,12 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     }
                 }
 
-                if (BalancePlugin.Obj.Config.IsLimitingHours && flag.HasFlag(ServerInfoComponentFlag.ExhaustionResetTime) || flag.HasFlag(ServerInfoComponentFlag.ExhaustionResetTimeLeft) || flag.HasFlag(ServerInfoComponentFlag.ExhaustedPlayerCount))
+                if (BalancePlugin.Obj.Config.IsLimitingHours && flag.HasFlag(ServerInfoComponentFlag.ExhaustionResetTimeLeft) || flag.HasFlag(ServerInfoComponentFlag.ExhaustedPlayerCount))
                 {
                     int fieldsAdded = 0;
-                    if (flag.HasFlag(ServerInfoComponentFlag.ExhaustionResetTime))
-                    {
-                        embed.AddField("Exhaustion Reset Time", DateTime.Now.AddSeconds(EcoUtils.SecondsLeftOnDay).ToString("yyyy-MM-dd HH:mm"), inline: true);
-                        ++fieldsAdded;
-                    }
-
                     if (flag.HasFlag(ServerInfoComponentFlag.ExhaustionResetTimeLeft))
                     {
-                        embed.AddField("Exhaustion Reset Countdown", Shared.GetTimeDescription(EcoUtils.SecondsLeftOnDay, Shared.TimespanStringComponent.Hour | Shared.TimespanStringComponent.Minute, includeZeroTimes: true, annotate: true), inline: true);
+                        embed.AddField("Exhaustion Reset", DateTime.Now.AddSeconds(EcoUtils.SecondsLeftOnDay).ToDiscordTimeStamp('R'), inline: true);
                         ++fieldsAdded;
                     }
 
@@ -1244,7 +1237,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             public static string GetStandardEmbedFooter()
             {
                 string serverName = MessageUtils.FirstNonEmptyString(DLConfig.Data.ServerName, MessageUtils.StripTags(NetworkManager.GetServerInfo().Description), "[Server Title Missing]");
-                string timestamp = Shared.GetServerTimeStamp();
+                string timestamp = Shared.GetServerTimeStamp(CallerType.Other); // Embed footers do not support Discord timestamps
                 return $"Message sent by DiscordLink @ {serverName} [{timestamp}]";
             }
 
