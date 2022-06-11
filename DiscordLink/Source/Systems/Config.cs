@@ -122,8 +122,6 @@ namespace Eco.Plugins.DiscordLink
             Data.CurrencyDisplayChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.SnippetInputChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.DiscordCommandChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
-
-            BuildChanneLinkList();
         }
 
         public void PostConnectionInitialize()
@@ -136,15 +134,13 @@ namespace Eco.Plugins.DiscordLink
             }
 
             // Channel Links
+            BuildChanneLinkList();
             VerifyLinks();
             InitChatLinks();
         }
 
         public void HandleCollectionChanged(NotifyCollectionChangedEventArgs args)
         {
-            if (args.Action == NotifyCollectionChangedAction.Add)
-                return; // When we add, we also trigger reset and we don't want duplicate triggers
-
             _ = HandleConfigChanged();
         }
 
@@ -167,6 +163,7 @@ namespace Eco.Plugins.DiscordLink
 
             if (DiscordLink.Obj.Client.ConnectionStatus == DLDiscordClient.ConnectionState.Connected)
             {
+                BuildChanneLinkList();
                 VerifyLinks();
                 InitChatLinks();
             }
