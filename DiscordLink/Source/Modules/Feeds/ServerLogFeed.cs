@@ -8,7 +8,7 @@ namespace Eco.Plugins.DiscordLink.Modules
     {
         public override string ToString()
         {
-            return "Server Status Feed";
+            return "Server Log Feed";
         }
 
         protected override DLEventType GetTriggers()
