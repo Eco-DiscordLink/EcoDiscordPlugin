@@ -62,6 +62,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task<bool> Update(CommandInterface source, object callContext)
         {
             DiscordLink plugin = DiscordLink.Obj;
+            plugin.Modules.ForEach(async module => await module.HandleStartOrStop());
             plugin.HandleEvent(Events.DLEventType.ForceUpdate);
             await ReportCommandInfo(source, callContext, "Forced update");
             return true;
