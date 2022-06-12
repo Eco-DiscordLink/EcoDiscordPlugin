@@ -219,6 +219,17 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
+        [Command("ClearRoles")]
+        [Description("Deletes all Discord roles created and tracked by DiscordLink.")]
+        [Aliases("DL-ClearRoles")]
+        public async Task ClearRoles(CommandContext ctx)
+        {
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
+            {
+                await SharedCommands.ClearRoles(SharedCommands.CommandInterface.Discord, ctx);
+            }, ctx);
+        }
+
         #endregion
 
         #region Meta

@@ -115,6 +115,22 @@ namespace Eco.Plugins.DiscordLink
             return true;
         }
 
+        public static async Task<bool> ClearRoles(CommandInterface source, object callContext)
+        {
+            Logger.Info("ClearRoles command invoked - Deleting all created roles");
+            DiscordLink plugin = DiscordLink.Obj;
+            DLDiscordClient client = plugin.Client;
+            foreach(ulong roleID in DLStorage.PersistentData.RoleIDs)
+            {
+                DiscordRole role = client.Guild.RoleByID(roleID);
+                await client.DeleteRoleAsync(role);
+            }
+            DLStorage.PersistentData.RoleIDs.Clear();
+            DLStorage.Instance.Write();
+            await ReportCommandInfo(source, callContext, "Deleted all tracked roles.");
+            return true;
+        }
+
         #endregion
 
         #region Troubleshooting

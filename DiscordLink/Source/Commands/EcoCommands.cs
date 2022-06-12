@@ -105,6 +105,15 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
+        [ChatSubCommand("DiscordLink", "Deletes all Discord roles created and tracked by DiscordLink.", "DL-ClearRoles", ChatAuthorizationLevel.Admin)]
+        public static void ClearRoles(User callingUser)
+        {
+            ExecuteCommand<object>((lUser, args) =>
+            {
+                SharedCommands.ClearRoles(SharedCommands.CommandInterface.Eco, callingUser);
+            }, callingUser);
+        }
+
         #endregion
 
         #region Meta

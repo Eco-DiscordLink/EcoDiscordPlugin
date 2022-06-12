@@ -805,6 +805,21 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
+        public async Task DeleteRoleAsync(DiscordRole role)
+        {
+            if (role == null)
+                return;
+
+            try
+            {
+                await role.DeleteAsync("Delete by DiscordLink via command");
+            }
+            catch(Exception e)
+            {
+                Logger.Warning($"Failed to delete role \"{role.Name}\". Error message: {e}");
+            }
+        }
+
         #endregion
     }
 }
