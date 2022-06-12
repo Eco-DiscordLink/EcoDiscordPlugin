@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
-    public class DiscordChatFeed : Feed
+    public class DiscordChatFeed : FeedModule
     {
         public override string ToString()
         {

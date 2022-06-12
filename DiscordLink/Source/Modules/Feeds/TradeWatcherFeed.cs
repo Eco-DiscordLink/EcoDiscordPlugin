@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
-    public class TradeWatcherFeed : Feed
+    public class TradeWatcherFeed : FeedModule
     {
         public override string GetDisplayText(string childInfo, bool verbose)
         {

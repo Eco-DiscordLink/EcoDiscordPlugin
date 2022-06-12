@@ -11,7 +11,7 @@ using Eco.Plugins.DiscordLink.Extensions;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
-    public class TradeWatcherDisplay : Display
+    public class TradeWatcherDisplay : DisplayModule
     {
         protected override string BaseTag { get { return "[Trade Watcher Display]"; } }
         protected override int TimerUpdateIntervalMS { get { return 300000; } }

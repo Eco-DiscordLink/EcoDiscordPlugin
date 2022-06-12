@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
-    public class ServerInfoDisplay : Display
+    public class ServerInfoDisplay : DisplayModule
     {
         protected override int TimerUpdateIntervalMS { get { return 60000; } }
         protected override string BaseTag { get { return "[Server Info]"; } }

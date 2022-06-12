@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
-    public class SnippetInput : Input
+    public class SnippetInput : InputModule
     {
         public override string ToString()
         {

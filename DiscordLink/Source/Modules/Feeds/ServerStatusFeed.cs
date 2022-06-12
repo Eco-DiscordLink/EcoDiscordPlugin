@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
-    class ServerStatusFeed : Feed
+    class ServerStatusFeed : FeedModule
     {
         public override string ToString()
         {

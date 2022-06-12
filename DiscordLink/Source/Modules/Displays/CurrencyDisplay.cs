@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
-    public class CurrencyDisplay : Display
+    public class CurrencyDisplay : DisplayModule
     {
         protected override string BaseTag { get { return "[Currencies]"; } }
         protected override int TimerUpdateIntervalMS { get { return 60000; } }

@@ -1,5 +1,5 @@
 ﻿namespace Eco.Plugins.DiscordLink.Modules
 {
-    public abstract class Input : Module
+    public abstract class FeedModule : Module
     { }
 }

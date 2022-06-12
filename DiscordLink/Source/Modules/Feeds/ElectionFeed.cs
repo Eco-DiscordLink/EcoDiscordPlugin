@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
-    class ElectionFeed : Feed
+    class ElectionFeed : FeedModule
     {
         public override string ToString()
         {

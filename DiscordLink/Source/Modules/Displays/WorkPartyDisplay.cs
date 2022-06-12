@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
-    public class WorkPartyDisplay : Display
+    public class WorkPartyDisplay : DisplayModule
     {
         protected override string BaseTag { get { return "[Work Party]"; } }
         protected override int TimerUpdateIntervalMS { get { return 60000; } }

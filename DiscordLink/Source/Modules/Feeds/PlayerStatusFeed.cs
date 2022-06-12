@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
-    class PlayerStatusFeed : Feed
+    class PlayerStatusFeed : FeedModule
     {
         public override string ToString()
         {

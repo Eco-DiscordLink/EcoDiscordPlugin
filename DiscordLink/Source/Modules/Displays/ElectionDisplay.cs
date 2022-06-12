@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
-    class ElectionDisplay : Display
+    class ElectionDisplay : DisplayModule
     {
         protected override int TimerUpdateIntervalMS { get { return 60000; } }
         protected override string BaseTag { get { return "[Election]"; } }
