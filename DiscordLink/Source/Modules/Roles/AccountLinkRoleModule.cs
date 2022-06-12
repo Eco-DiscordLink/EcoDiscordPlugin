@@ -8,7 +8,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 {
     public class AccountLinkRoleModule : RoleModule
     {
-        private DiscordRole LinkedAccountRole = null;
+        private DiscordRole _linkedAccountRole = null;
 
         public override string ToString()
         {
@@ -22,9 +22,9 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         public override void Setup()
         {
-            LinkedAccountRole = DiscordLink.Obj.Client.Guild.RoleByName(DLConstants.ROLE_LINKED_ACCOUNT.Name);
-            if (LinkedAccountRole == null)
-                LinkedAccountRole = DiscordLink.Obj.Client.CreateRoleAsync(DLConstants.ROLE_LINKED_ACCOUNT).Result;
+            _linkedAccountRole = DiscordLink.Obj.Client.Guild.RoleByName(DLConstants.ROLE_LINKED_ACCOUNT.Name);
+            if (_linkedAccountRole == null)
+                SetupLinkRole();
 
             base.Setup();
         }
@@ -35,7 +35,12 @@ namespace Eco.Plugins.DiscordLink.Modules
             if (!client.BotHasPermission(Permissions.ManageRoles))
                 return;
 
-            if (trigger == DLEventType.DiscordClientConnected)
+            if (_linkedAccountRole == null || client.Guild.RoleByID(_linkedAccountRole.Id) == null)
+                SetupLinkRole();
+
+            if (_linkedAccountRole == null)
+                return;
+
             if (trigger == DLEventType.DiscordClientConnected || trigger == DLEventType.ForceUpdate)
             {
                 if (!client.BotHasIntent(DiscordIntents.GuildMembers))
@@ -47,16 +52,16 @@ namespace Eco.Plugins.DiscordLink.Modules
                     LinkedUser linkedUser = UserLinkManager.LinkedUserByDiscordUser(member);
                     if (linkedUser == null || !DLConfig.Data.UseLinkedAccountRole)
                     {
-                        if (member.HasRole(LinkedAccountRole))
+                        if (member.HasRole(_linkedAccountRole))
                         {
                             ++_opsCount;
-                            await client.RemoveRoleAsync(member, LinkedAccountRole);
+                            await client.RemoveRoleAsync(member, _linkedAccountRole);
                         }
                     }
-                    else if (linkedUser.Verified && !member.HasRole(LinkedAccountRole))
+                    else if (linkedUser.Verified && !member.HasRole(_linkedAccountRole))
                     {
                         ++_opsCount;
-                        await client.AddRoleAsync(member, LinkedAccountRole);
+                        await client.AddRoleAsync(member, _linkedAccountRole);
                     }
                 }
             }
@@ -71,14 +76,20 @@ namespace Eco.Plugins.DiscordLink.Modules
                 if (trigger == DLEventType.AccountLinkVerified)
                 {
                     ++_opsCount;
-                    await client.AddRoleAsync(linkedUser.DiscordMember, LinkedAccountRole);
+                    await client.AddRoleAsync(linkedUser.DiscordMember, _linkedAccountRole);
                 }
                 else if (trigger == DLEventType.AccountLinkRemoved)
                 {
                     ++_opsCount;
-                    await client.RemoveRoleAsync(linkedUser.DiscordMember, LinkedAccountRole);
+                    await client.RemoveRoleAsync(linkedUser.DiscordMember, _linkedAccountRole);
                 }
             }
+        }
+
+        private void SetupLinkRole()
+        {
+            ++_opsCount;
+            _linkedAccountRole = DiscordLink.Obj.Client.CreateRoleAsync(DLConstants.ROLE_LINKED_ACCOUNT).Result;
         }
     }
 }
