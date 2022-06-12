@@ -11,7 +11,7 @@ using Eco.Shared.Utils;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
-    public class RoleCleanupModule : Module
+    public class RoleCleanupModule : RoleModule
     {
         private bool _hasRun = false;
 
@@ -22,7 +22,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected override DLEventType GetTriggers()
         {
-            return DLEventType.WorldReset | DLEventType.ServerStarted;
+            return base.GetTriggers() | DLEventType.WorldReset | DLEventType.ServerStarted;
         }
 
         protected override async Task<bool> ShouldRun()

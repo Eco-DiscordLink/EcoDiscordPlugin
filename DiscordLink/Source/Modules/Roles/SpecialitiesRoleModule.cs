@@ -11,7 +11,7 @@ using System;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
-    public class SpecialtiesRoleModule : Module
+    public class SpecialtiesRoleModule : RoleModule
     {
         private static readonly DiscordColor SpecialtyColor = DiscordColor.Green;
 
@@ -24,12 +24,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected override DLEventType GetTriggers()
         {
-            return DLEventType.DiscordClientConnected | DLEventType.AccountLinkVerified | DLEventType.AccountLinkRemoved | DLEventType.GainedSpecialty;
-        }
-
-        protected override async Task<bool> ShouldRun()
-        {
-            return DiscordLink.Obj.Client.BotHasPermission(Permissions.ManageRoles);
+            return base.GetTriggers() | DLEventType.DiscordClientConnected | DLEventType.AccountLinkVerified | DLEventType.AccountLinkRemoved | DLEventType.GainedSpecialty;
         }
 
         protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)

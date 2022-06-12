@@ -6,7 +6,7 @@ using DSharpPlus;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
-    public class AccountLinkRoleModule : Module
+    public class AccountLinkRoleModule : RoleModule
     {
         private DiscordRole LinkedAccountRole = null;
 
@@ -17,7 +17,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected override DLEventType GetTriggers()
         {
-            return DLEventType.DiscordClientConnected | DLEventType.AccountLinkVerified | DLEventType.AccountLinkRemoved;
+            return base.GetTriggers() | DLEventType.DiscordClientConnected | DLEventType.AccountLinkVerified | DLEventType.AccountLinkRemoved;
         }
 
         public override void Setup()
@@ -27,11 +27,6 @@ namespace Eco.Plugins.DiscordLink.Modules
                 LinkedAccountRole = DiscordLink.Obj.Client.CreateRoleAsync(DLConstants.ROLE_LINKED_ACCOUNT).Result;
 
             base.Setup();
-        }
-
-        protected override async Task<bool> ShouldRun()
-        {
-            return DiscordLink.Obj.Client.BotHasPermission(Permissions.ManageRoles);
         }
 
         protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)

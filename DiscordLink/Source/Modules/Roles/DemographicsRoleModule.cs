@@ -11,7 +11,7 @@ using DSharpPlus;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
-    public class DemographicsRoleModule : Module
+    public class DemographicsRoleModule : RoleModule
     {
         private static readonly DiscordColor DemographicColor = DiscordColor.Wheat;
 
@@ -22,12 +22,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected override DLEventType GetTriggers()
         {
-            return DLEventType.DiscordClientConnected | DLEventType.AccountLinkVerified | DLEventType.AccountLinkRemoved | DLEventType.EnteredDemographic | DLEventType.LeftDemographic;
-        }
-
-        protected override async Task<bool> ShouldRun()
-        {
-            return DiscordLink.Obj.Client.BotHasPermission(Permissions.ManageRoles);
+            return base.GetTriggers() | DLEventType.DiscordClientConnected | DLEventType.AccountLinkVerified | DLEventType.AccountLinkRemoved | DLEventType.EnteredDemographic | DLEventType.LeftDemographic;
         }
 
         protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
