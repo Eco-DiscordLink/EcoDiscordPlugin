@@ -203,6 +203,8 @@ namespace Eco.Plugins.DiscordLink
 
         private void HandleClientConnected()
         {
+            Client.OnConnected.Remove(HandleClientConnected);
+
             DLConfig.Instance.PostConnectionInitialize();
             if (Client.Guild == null)
             {
