@@ -731,7 +731,10 @@ namespace Eco.Plugins.DiscordLink
             {
                 DiscordRole role = await Guild.CreateRoleAsync(dlRole.Name, dlRole.Permissions, dlRole.Color, dlRole.Hoist, dlRole.Mentionable, dlRole.AddReason);
                 if (role != null)
+                {
                     DLStorage.PersistentData.RoleIDs.Add(role.Id);
+                    DLStorage.Instance.Write(); // Save immediately after creating so that we don't lose track of the roles in case of an ungraceful exit
+                }
                 else
                 {
                     Logger.Warning($"Failed to create role \"{dlRole.Name}\".");
