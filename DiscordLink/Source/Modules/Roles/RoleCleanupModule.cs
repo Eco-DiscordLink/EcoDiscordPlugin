@@ -84,12 +84,12 @@ namespace Eco.Plugins.DiscordLink.Modules
                 // Remove the obsolete roles
                 foreach (DiscordRole role in removeRoles)
                 {
-                    await role.DeleteAsync("DiscordLink removing obsolete role");
                     ++_opsCount;
+                    await client.DeleteRoleAsync(role);
+                    DLStorage.PersistentData.RoleIDs.Remove(role.Id);
                 }
 
-                // Clean up and turn ourselves off
-                DLStorage.PersistentData.RoleIDs.Clear();
+                // Turn ourselves off
                 _hasRun = true;
                 await HandleStartOrStop();
             }
