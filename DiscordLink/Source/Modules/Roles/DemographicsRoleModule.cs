@@ -31,7 +31,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             if (!client.BotHasPermission(Permissions.ManageRoles))
                 return;
 
-            if (trigger == DLEventType.DiscordClientConnected)
+            if (trigger == DLEventType.DiscordClientConnected || trigger == DLEventType.ForceUpdate)
             {
                 if (!client.BotHasIntent(DiscordIntents.GuildMembers))
                     return;
