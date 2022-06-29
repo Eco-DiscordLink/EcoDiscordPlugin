@@ -177,7 +177,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Command("Update")]
         [Description("Forces an update.")]
-        [Aliases("DL-Updated")]
+        [Aliases("DL-Update")]
         public async Task Updated(CommandContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
