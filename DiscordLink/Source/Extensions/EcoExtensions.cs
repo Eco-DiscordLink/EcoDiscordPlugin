@@ -24,7 +24,7 @@ namespace Eco.Plugins.DiscordLink.Extensions
 
         public static double GetSecondsSinceLogin(this User user) => user.IsOnline ? Simulation.Time.WorldTime.Seconds - user.LoginTime : 0.0;
         public static double GetSecondsSinceLogout(this User user) => user.IsOnline ? 0.0 : Simulation.Time.WorldTime.Seconds - user.LogoutTime;
-        public static double GetSecondsLeftUntilExhaustion(this User user) => TimeUtil.HoursToSeconds(BalancePlugin.Obj.Config.ExhaustionAfterHours) - user.OnlineTimeLog.SecondsPlayedToday();
+        public static double GetSecondsLeftUntilExhaustion(this User user) => user.ExhaustionMonitor?.RemainingPlaytime ?? -1.0;
 
         public static float GetTotalXPMultiplier(this User user) => user.GetNutritionXP() + user.GetHousingXP();
         public static float GetNutritionXP(this User user) => user.Stomach.NutrientSkillRate();

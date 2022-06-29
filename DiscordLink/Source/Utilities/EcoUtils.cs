@@ -96,7 +96,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         public static int NumTotalPlayers => Users.Count();
         public static int NumOnlinePlayers => OnlineUsers.Count();
-        public static int NumExhaustedPlayers => Users.Count(user => user.ExhaustionMonitor.IsExhausted);
+        public static int NumExhaustedPlayers => Users.Count(user => user.ExhaustionMonitor?.IsExhausted ?? false);
 
         #endregion
 

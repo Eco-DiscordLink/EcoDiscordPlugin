@@ -402,7 +402,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
             public static string GetPlayerExhaustionTimeList()
             {
-                return string.Join("\n", EcoUtils.OnlineUsersAlphabetical.Select(u => u.ExhaustionMonitor.IsExhausted ? "Exhausted" : GetTimeDescription(u.GetSecondsLeftUntilExhaustion(), TimespanStringComponent.Day | TimespanStringComponent.Hour | TimespanStringComponent.Minute, TimespanStringComponent.Hour | TimespanStringComponent.Minute)));
+                return string.Join("\n", EcoUtils.OnlineUsersAlphabetical.Select(u => (u.ExhaustionMonitor?.IsExhausted ?? false) ? "Exhausted" : GetTimeDescription(u.GetSecondsLeftUntilExhaustion(), TimespanStringComponent.Day | TimespanStringComponent.Hour | TimespanStringComponent.Minute, TimespanStringComponent.Hour | TimespanStringComponent.Minute)));
             }
 
             public enum TimespanStringComponent
@@ -752,7 +752,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 // Exhaustion
                 if (flag.HasFlag(PlayerReportComponentFlag.Exhaustion) && BalancePlugin.Obj.Config.IsLimitingHours)
                 {
-                    report.AddField("Exhaustion Countdown", user.ExhaustionMonitor.IsExhausted ? "Exhausted" : Shared.GetTimeDescription(user.GetSecondsLeftUntilExhaustion(), includeZeroValues: Shared.TimespanStringComponent.Hour | Shared.TimespanStringComponent.Minute | Shared.TimespanStringComponent.Second), inline: true);
+                    report.AddField("Exhaustion Countdown", (user.ExhaustionMonitor?.IsExhausted ?? false) ? "Exhausted" : Shared.GetTimeDescription(user.GetSecondsLeftUntilExhaustion(), includeZeroValues: Shared.TimespanStringComponent.Hour | Shared.TimespanStringComponent.Minute | Shared.TimespanStringComponent.Second), inline: true);
                     report.AddAlignmentField();
                     report.AddAlignmentField();
                 }
