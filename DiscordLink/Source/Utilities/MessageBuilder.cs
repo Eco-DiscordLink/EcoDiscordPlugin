@@ -32,6 +32,8 @@ using Eco.Shared.Items;
 using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
 using StoreOfferGroup = System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.StoreComponent, Eco.Gameplay.Components.TradeOffer>>;
 using static Eco.Plugins.DiscordLink.Utilities.Utils;
+using Eco.Gameplay.Auth;
+using Eco.Shared.IoC;
 
 namespace Eco.Plugins.DiscordLink.Utilities
 {
@@ -1429,6 +1431,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     _ => t => string.Empty,
                 };
 
+                IAuthManager AuthManager = ServiceHolder<IAuthManager>.Obj;
+
                 StringBuilder NormalOffers = new StringBuilder();
                 StringBuilder NoQuantityOffers = new StringBuilder();
                 StringBuilder DisabledOffers = new StringBuilder();
@@ -1458,7 +1462,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     var line = $"{quantityString} - ${price} {getLabel(storeAndoffer)}";
 
                     // Apply color and sort
-                    if (!store.OnOff.Enabled)
+                    if (!store.OnOff.Enabled || !AuthManager.IsAuthorized(store.Parent, user, AccessType.ConsumerAccess, null))
                     {
                         line = Text.Color(Color.Red, line);
                         DisabledOffers.AppendLine(line);
