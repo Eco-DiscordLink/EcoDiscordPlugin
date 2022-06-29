@@ -364,14 +364,6 @@ namespace Eco.Plugins.DiscordLink.Utilities
             return text;
         }
 
-        public static string GetWebserverBaseURL()
-        {
-            string webServerAddress = DLConfig.Data.WebServerAddress;
-            if (!DLConfig.Data.WebServerAddressEndsWithPort())
-                webServerAddress += $":{NetworkManager.GetServerInfo().WebPort}";
-            return webServerAddress;
-        }
-
         #endregion
     }
 }

@@ -302,7 +302,6 @@ namespace Eco.Plugins.DiscordLink
                 ServerDescription = this.ServerDescription,
                 ServerLogo = this.ServerLogo,
                 ConnectionInfo = this.ConnectionInfo,
-                WebServerAddress = this.WebServerAddress,
                 DiscordCommandPrefix = this.DiscordCommandPrefix,
                 LogLevel = this.LogLevel,
                 MaxTradeWatcherDisplaysPerUser = this.MaxTradeWatcherDisplaysPerUser,
@@ -326,18 +325,6 @@ namespace Eco.Plugins.DiscordLink
                 DiscordCommandChannels = new ObservableCollection<ChannelLink>(this.DiscordCommandChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
                 DemographicReplacementRoles = new ObservableCollection<DemographicRoleReplacement>(this.DemographicReplacementRoles.Select(t => t.Clone()).Cast<DemographicRoleReplacement>()),
             };
-        }
-
-        public bool WebServerAddressEndsWithPort()
-        {
-            if (string.IsNullOrEmpty(WebServerAddress))
-                return false;
-
-            int lastColonPos = WebServerAddress.LastIndexOf(":");
-            if (lastColonPos == -1 || lastColonPos >= WebServerAddress.Length)
-                return false;
-
-            return WebServerAddress.Substring(lastColonPos + 1).All(c => Char.IsDigit(c));
         }
 
         [Description("The name or ID if the Discord Server. This setting can be changed while the server is running but will require a plugin restart to take effect."), Category("Base Configuration - Discord")]
@@ -366,10 +353,6 @@ namespace Eco.Plugins.DiscordLink
 
         [Description("The game server connection information to display to users. This setting can be changed while the server is running."), Category("Base Configuration - Eco")]
         public string ConnectionInfo { get; set; } = $"<eco://connect/{NetworkManager.GetServerInfo().Id.ToString()}>";
-
-        [Description("The base address (URL or IP) of the web server to use in web server links. If the web server traffic is being routed through a different port than the configured \"Web Server Port\" from the Network config, then also qualify this address with the rereouted port number. Do not point to any specific page on the web server. This setting can be changed while the server is running."), Category("Base Configuration - Eco")]
-        [UrlValidation(ErrorMessage = "The value must start with http:// or https://. ")]
-        public string WebServerAddress { get; set; }
 
         [Description("The prefix to put before commands in order for the Discord bot to recognize them as such. This setting requires a plugin restart to take effect."), Category("Command Settings")]
         public string DiscordCommandPrefix { get; set; } = DLConfig.DefaultValues.DiscordCommandPrefix;
