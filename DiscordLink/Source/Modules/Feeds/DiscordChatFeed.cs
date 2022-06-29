@@ -35,8 +35,8 @@ namespace Eco.Plugins.DiscordLink.Modules
         {
             if (!(data[0] is DiscordMessage message))
                 return;
-            IEnumerable<ChatChannelLink> chatLinks = DLConfig.ChatLinksForDiscordChannel(message.GetChannel());
 
+            IEnumerable<ChatChannelLink> chatLinks = DLConfig.ChatLinksForDiscordChannel(message.GetChannel());
             foreach (ChatChannelLink chatLink in chatLinks
                 .Where(link => link.Direction == ChatSyncDirection.EcoToDiscord || link.Direction == ChatSyncDirection.Duplex))
             {
