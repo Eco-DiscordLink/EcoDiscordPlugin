@@ -559,6 +559,11 @@ namespace Eco.Plugins.DiscordLink
             {
                 return await Guild.GetAllMembersAsync();
             }
+            catch (ServerErrorException e)
+            {
+                Logger.Debug(e.ToString());
+                return null;
+            }
             catch (Exception e)
             {
                 Logger.Error($"Error occured when attempting to fetch all guild members. Error message: {e}");
@@ -607,6 +612,10 @@ namespace Eco.Plugins.DiscordLink
                     }
                 }
             }
+            catch (ServerErrorException e)
+            {
+                Logger.Debug(e.ToString());
+            }
             catch (Exception e)
             {
                 Logger.Warning($"Failed to send message to channel {channel.Name}. Error message: {e}");
@@ -642,6 +651,10 @@ namespace Eco.Plugins.DiscordLink
                         createdMessage = await targetMember.SendMessageAsync(null, embedPart);
                     }
                 }
+            }
+            catch (ServerErrorException e)
+            {
+                Logger.Debug(e.ToString());
             }
             catch (Exception e)
             {
@@ -685,6 +698,10 @@ namespace Eco.Plugins.DiscordLink
                     }
                 }
             }
+            catch (ServerErrorException e)
+            {
+                Logger.Debug(e.ToString());
+            }
             catch (Exception e)
             {
                 string channelName = message?.Channel?.Name;
@@ -714,6 +731,10 @@ namespace Eco.Plugins.DiscordLink
                 await message.DeleteAsync("Deleted by DiscordLink");
                 result = true;
             }
+            catch (ServerErrorException e)
+            {
+                Logger.Debug(e.ToString());
+            }
             catch (Exception e)
             {
                 string channelName = message?.Channel?.Name;
@@ -742,6 +763,10 @@ namespace Eco.Plugins.DiscordLink
 
                 return role;
             }
+            catch (ServerErrorException e)
+            {
+                Logger.Debug(e.ToString());
+            }
             catch (Exception e)
             {
                 Logger.Warning($"Failed to create role \"{dlRole.Name}\". Error message: {e}");
@@ -769,6 +794,10 @@ namespace Eco.Plugins.DiscordLink
             try
             {
                 await member.GrantRoleAsync(role, "Added by DiscordLink");
+            }
+            catch (ServerErrorException e)
+            {
+                Logger.Debug(e.ToString());
             }
             catch (Exception e)
             {
@@ -799,6 +828,10 @@ namespace Eco.Plugins.DiscordLink
             {
                 await member.RevokeRoleAsync(role, "Removed by DiscordLink");
             }
+            catch (ServerErrorException e)
+            {
+                Logger.Debug(e.ToString());
+            }
             catch (Exception e)
             {
                 Logger.Warning($"Failed to revoke role \"{role.Name}\" from member \"{member.DisplayName}\". Error message: {e}");
@@ -814,7 +847,11 @@ namespace Eco.Plugins.DiscordLink
             {
                 await role.DeleteAsync("Delete by DiscordLink via command");
             }
-            catch(Exception e)
+            catch (ServerErrorException e)
+            {
+                Logger.Debug(e.ToString());
+            }
+            catch (Exception e)
             {
                 Logger.Warning($"Failed to delete role \"{role.Name}\". Error message: {e}");
             }
