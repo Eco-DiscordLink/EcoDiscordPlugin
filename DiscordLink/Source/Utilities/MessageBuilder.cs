@@ -34,6 +34,7 @@ using StoreOfferGroup = System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.
 using static Eco.Plugins.DiscordLink.Utilities.Utils;
 using Eco.Gameplay.Auth;
 using Eco.Shared.IoC;
+using Eco.Gameplay.Disasters;
 
 namespace Eco.Plugins.DiscordLink.Utilities
 {
@@ -613,10 +614,12 @@ namespace Eco.Plugins.DiscordLink.Utilities
                         ++fieldsAdded;
                     }
 
-                    if (flag.HasFlag(ServerInfoComponentFlag.MeteorTimeRemaining))
+                    if (flag.HasFlag(ServerInfoComponentFlag.MeteorTimeRemaining) && serverInfo.HasMeteor)
                     {
-                        bool meteorHasHit = (int)serverInfo.TimeLeft < 0.0;
-                        embed.AddField("Meteor", DateTime.Now.AddSeconds(serverInfo.TimeLeft).ToDiscordTimeStamp('R'), inline: true);
+                        string meteorContent = DisasterPlugin.MeteorDestroyed
+                            ? "Destroyed!"
+                            : DateTime.Now.AddSeconds(serverInfo.TimeLeft).ToDiscordTimeStamp('R');
+                        embed.AddField("Meteor", meteorContent, inline: true);
                         ++fieldsAdded;
                     }
 
