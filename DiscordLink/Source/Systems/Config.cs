@@ -24,7 +24,7 @@ namespace Eco.Plugins.DiscordLink
             public static Logger.LogLevel PluginLogLevel = Logger.LogLevel.Information;
             public static Microsoft.Extensions.Logging.LogLevel BackendLogLevel = Microsoft.Extensions.Logging.LogLevel.None;
             public static bool UseVerboseDisplay = false;
-            public static readonly string[] AdminRoles = { "Admin", "Administrator", "Moderator" };
+            public static readonly string[] AdminRoles = { "Admin", "Eco Admins", "Administrator", "Moderator" };
             public const string DiscordCommandPrefix = "?";
             public const string EcoCommandOutputChannel = "General";
             public const string InviteMessage = "Join us on Discord!\\n" + DLConstants.INVITE_COMMAND_TOKEN;
