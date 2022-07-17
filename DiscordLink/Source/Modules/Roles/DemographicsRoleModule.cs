@@ -111,7 +111,8 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         public static string GetDemographicRoleName(Demographic demographic)
         {
-            DemographicRoleReplacement replacement = DLConfig.Data.DemographicReplacementRoles.FirstOrDefault(s => s.DemographicName.EqualsCaseInsensitive(demographic.Name));
+            DemographicRoleReplacement replacement = DLConfig.Data.DemographicReplacementRoles.FirstOrDefault(s  => !string.IsNullOrEmpty(s.DemographicName)
+                && !string.IsNullOrEmpty(s.RoleName) && s.DemographicName.EqualsCaseInsensitive(demographic.Name));
             return replacement != null
                 ? replacement.RoleName
                 : demographic.Name;

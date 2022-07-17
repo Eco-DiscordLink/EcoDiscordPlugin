@@ -5,6 +5,8 @@ namespace Eco.Plugins.DiscordLink
 {
     public class DemographicRoleReplacement : ICloneable
     {
+        public DemographicRoleReplacement() { }
+
         public DemographicRoleReplacement(string demographicName, string roleName)
         {
             this.DemographicName = demographicName;
