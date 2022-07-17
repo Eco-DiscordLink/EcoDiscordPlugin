@@ -35,6 +35,7 @@ namespace Eco.Plugins.DiscordLink
         public User EcoUser { get; private set; } = null;
         public IPluginConfig PluginConfig { get { return DLConfig.Instance.PluginConfig; } }
         public ThreadSafeAction<object, string> ParamChanged { get; set; }
+        public string GetCategory() => "DiscordLink";
         public DateTime InitTime { get; private set; } = DateTime.MinValue;
         public bool CanRestart { get; private set; } = false; // False to start with as we cannot restart while the initial startup is in progress
 
