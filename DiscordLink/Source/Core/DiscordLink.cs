@@ -132,11 +132,11 @@ namespace Eco.Plugins.DiscordLink
             HandleClientConnected();
 
             // Set up callbacks
-            UserManager.OnNewUserJoined.Add(user => HandleEvent(DLEventType.Join, user));
+            UserManager.NewUserJoinedEvent.Add(user => HandleEvent(DLEventType.Join, user));
             UserManager.OnUserLoggedIn.Add(user => HandleEvent(DLEventType.Login, user));
             UserManager.OnUserLoggedOut.Add(user => HandleEvent(DLEventType.Logout, user));
-            Election.OnElectionStarted.Add(election => HandleEvent(DLEventType.StartElection, election));
-            Election.OnElectionFinished.Add(election => HandleEvent(DLEventType.StopElection, election));
+            Election.ElectionStartedEvent.Add(election => HandleEvent(DLEventType.StartElection, election));
+            Election.ElectionFinishedEvent.Add(election => HandleEvent(DLEventType.StopElection, election));
             EventConverter.OnEventFired += (sender, args) => HandleEvent(args.EventType, args.Data);
             UserLinkManager.OnLinkedUserVerified += (sender, args) => HandleEvent(DLEventType.AccountLinkVerified, args);
             UserLinkManager.OnLinkedUserRemoved += (sender, args) => HandleEvent(DLEventType.AccountLinkRemoved, args);
