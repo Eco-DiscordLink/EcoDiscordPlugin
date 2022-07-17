@@ -647,12 +647,23 @@ namespace Eco.Plugins.DiscordLink
             ulong discordID = ulong.Parse(linkedUser.DiscordID);
             if (type == Modules.ModuleType.Display)
             {
+                if(DLConfig.Data.MaxTradeWatcherDisplaysPerUser <= 0)
+                {
+                    await ReportCommandError(source, callContext, "Trade watcher displays are not enabled on this server.");
+                    return false;
+                }
+
                 int watchedTradesCount = DLStorage.WorldData.GetTradeWatcherCountForUser(discordID);
                 if (watchedTradesCount >= DLConfig.Data.MaxTradeWatcherDisplaysPerUser)
                 {
                     await ReportCommandError(source, callContext, $"You are already watching {watchedTradesCount} trades and the limit is {DLConfig.Data.MaxTradeWatcherDisplaysPerUser} trade watcher displays per user.\nUse the `{MessageUtils.GetCommandTokenForContext(source)}DL-RemoveTradeWatcherDisplay` command to remove a trade watcher to make space if you wish to add a new one.");
                     return false;
                 }
+            }
+            else if(!DLConfig.Data.UseTradeWatcherFeeds)
+            {
+                await ReportCommandError(source, callContext, "Trade watcher feeds are not enabled on this server.");
+                return false;
             }
 
             string matchedName = TradeUtils.GetMatchAndOffers(searchName, out TradeTargetType offerType, out _, out _);

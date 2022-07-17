@@ -59,6 +59,11 @@ namespace Eco.Plugins.DiscordLink.Modules
             return base.GetTriggers() | DLEventType.DiscordClientConnected | DLEventType.Timer | DLEventType.TradeWatcherDisplayAdded | DLEventType.TradeWatcherDisplayRemoved;
         }
 
+        protected override async Task<bool> ShouldRun()
+        {
+            return await base.ShouldRun() && (DLConfig.Data.MaxTradeWatcherDisplaysPerUser > 0);
+        }
+
         protected override async Task<List<DiscordTarget>> GetDiscordTargets()
         {
             if (UserLinks.Count != DLStorage.WorldData.TradeWatcherDisplayCountTotal)

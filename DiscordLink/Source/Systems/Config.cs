@@ -32,8 +32,9 @@ namespace Eco.Plugins.DiscordLink
             public const int MaxMintedCurrencies = 1;
             public const int MaxPersonalCurrencies = 3;
             public const int MaxTopCurrencyHolderCount = 3;
-            public const int MaxTrackedTradesPerUser = 5;
+            public const int MaxTradeWatcherDisplaysPerUser = 5;
             public const DiscordLinkEmbed.EmbedSize MinEmbedSizeForFooter = DiscordLinkEmbed.EmbedSize.Medium;
+            public const bool UseTradeWatcherFeeds = true;
             public const bool UseLinkedAccountRole = true;
             public const bool UseDemographicRoles = true;
             public const bool UseSpecialtyRoles = true;
@@ -211,7 +212,7 @@ namespace Eco.Plugins.DiscordLink
             // Max tracked trades per user
             if (Data.MaxTradeWatcherDisplaysPerUser < 0)
             {
-                Data.MaxTradeWatcherDisplaysPerUser = DLConfig.DefaultValues.MaxTrackedTradesPerUser;
+                Data.MaxTradeWatcherDisplaysPerUser = DLConfig.DefaultValues.MaxTradeWatcherDisplaysPerUser;
             }
 
             // Invite Message
@@ -378,6 +379,9 @@ namespace Eco.Plugins.DiscordLink
         [Description("Discord channels in which server log entries will be posted. This setting can be changed while the server is running."), Category("Feeds")]
         public ObservableCollection<ServerLogFeedChannelLink> ServerLogFeedChannels { get; set; } = new ObservableCollection<ServerLogFeedChannelLink>();
 
+        [Description("Determines if users can use trade watcher feeds. This setting can be changed while the server is running."), Category("Feeds")]
+        public bool UseTradeWatcherFeeds { get; set; } = DLConfig.DefaultValues.UseTradeWatcherFeeds;
+
         [Description("Discord channels in which to keep the Server Info display. DiscordLink will post one server info message in these channel and keep it updated through edits. This setting can be changed while the server is running."), Category("Displays")]
         public ObservableCollection<ServerInfoChannel> ServerInfoDisplayChannels { get; set; } = new ObservableCollection<ServerInfoChannel>();
 
@@ -408,8 +412,8 @@ namespace Eco.Plugins.DiscordLink
         [Description("Discord channels in which to allow commands. If no channels are specified, commands will be allowed in all channels. This setting can be changed while the server is running."), Category("Command Settings")]
         public ObservableCollection<ChannelLink> DiscordCommandChannels { get; set; } = new ObservableCollection<ChannelLink>();
 
-        [Description("Max amount of tracked trades allowed per user. This setting can be changed while the server is running, but does not apply retroactively."), Category("Command Settings")]
-        public int MaxTradeWatcherDisplaysPerUser { get; set; } = DLConfig.DefaultValues.MaxTrackedTradesPerUser;
+        [Description("Max amount of tracked trades allowed per user. Set to 0 to disable trade watchers. This setting can be changed while the server is running, but does not apply retroactively."), Category("Command Settings")]
+        public int MaxTradeWatcherDisplaysPerUser { get; set; } = DLConfig.DefaultValues.MaxTradeWatcherDisplaysPerUser;
 
         [Description("The message to use for the /DiscordInvite command. The invite link is fetched from the network config and will replace the token " + DLConstants.INVITE_COMMAND_TOKEN + ". This setting can be changed while the server is running."), Category("Command Settings")]
         public string InviteMessage { get; set; } = DLConfig.DefaultValues.InviteMessage;
