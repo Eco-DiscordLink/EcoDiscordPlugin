@@ -22,9 +22,9 @@
   </PropertyGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy /Y &quot;$(SolutionDir)Dependencies\Eco.EM.Framework.dll&quot; &quot;$(SolutionDir)..\EcoServer\Mods\Elixr Mods\&quot;" />
-    <Exec Command="for /f &quot;tokens=*&quot; %25%25i in ($(SolutionDir)DLLCopyList.txt) DO (xcopy /Y &quot;$(OutDir)%25%25i&quot; &quot;$(SolutionDir)..\EcoServer\Mods\DiscordLink\&quot;)" />
-    <Exec Command="xcopy /Y &quot;$(OutDir)DiscordLink.pdb&quot; &quot;$(SolutionDir)..\EcoServer\&quot;" />
+    <Exec Command="xcopy /Y &quot;$(OutDir)\Eco.EM.Framework.dll&quot; &quot;$(SolutionDir)..\Eco\Server\Mods\Elixr Mods\&quot;" />
+    <Exec Command="for /f &quot;tokens=*&quot; %25%25i in ($(SolutionDir)DLLCopyList.txt) DO (xcopy /Y &quot;$(OutDir)%25%25i&quot; &quot;$(SolutionDir)..\Eco\Server\Mods\DiscordLink\&quot;)" />
+    <Exec Command="xcopy /Y &quot;$(OutDir)DiscordLink.pdb&quot; &quot;$(SolutionDir)..\Eco\Server\&quot;" />
   </Target>
 
   <ItemGroup>
