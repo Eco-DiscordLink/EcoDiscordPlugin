@@ -10,7 +10,8 @@ using Eco.Shared.Networking;
 
 namespace Eco.Plugins.DiscordLink
 {
-    public class EcoCommands : IChatCommandHandler
+    [ChatCommandHandler]
+    public class EcoCommands
     {
 #pragma warning disable CS4014 // Call not awaited (Shared commands are async but Eco commands can't be)
 
