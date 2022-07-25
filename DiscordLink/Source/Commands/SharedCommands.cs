@@ -6,6 +6,7 @@ using Eco.Gameplay.Economy.WorkParties;
 using Eco.Gameplay.Players;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
+using Eco.Plugins.Networking;
 using Eco.Shared.Networking;
 using Eco.Shared.Utils;
 using System.Collections.Generic;
@@ -559,10 +560,9 @@ namespace Eco.Plugins.DiscordLink
         public static async Task<bool> PostDiscordInvite(CommandInterface source, object callContext, string targetUserName)
         {
             DLConfigData config = DLConfig.Data;
-            ServerInfo serverInfo = Networking.NetworkManager.GetServerInfo();
-
+            string discordAddress = NetworkManager.Config.DiscordAddress;
             string inviteMessage = config.InviteMessage;
-            if (!inviteMessage.ContainsCaseInsensitive(DLConstants.INVITE_COMMAND_TOKEN) || string.IsNullOrEmpty(serverInfo.DiscordAddress))
+            if (!inviteMessage.ContainsCaseInsensitive(DLConstants.INVITE_COMMAND_TOKEN) || string.IsNullOrEmpty(discordAddress))
             {
                 await ReportCommandError(source, callContext, "This server is not configured for using Invite commands.");
                 return false;
@@ -583,7 +583,7 @@ namespace Eco.Plugins.DiscordLink
                 }
             }
 
-            inviteMessage = Regex.Replace(inviteMessage, Regex.Escape(DLConstants.INVITE_COMMAND_TOKEN), serverInfo.DiscordAddress);
+            inviteMessage = Regex.Replace(inviteMessage, Regex.Escape(DLConstants.INVITE_COMMAND_TOKEN), discordAddress);
 
             bool sent = recipient == null
                 ? EcoUtils.SendChatToDefaultChannel(inviteMessage)
