@@ -353,7 +353,7 @@ namespace Eco.Plugins.DiscordLink
         public string ServerLogo { get; set; }
 
         [Description("The game server connection information to display to users. This setting can be changed while the server is running."), Category("Base Configuration - Eco")]
-        public string ConnectionInfo { get; set; } = $"<eco://connect/{NetworkManager.GetServerInfo().Id.ToString()}>";
+        public string ConnectionInfo { get; set; } = $"<eco://connect/{NetworkManager.Config.ID.ToString()}>";
 
         [Description("The prefix to put before commands in order for the Discord bot to recognize them as such. This setting requires a plugin restart to take effect."), Category("Command Settings")]
         public string DiscordCommandPrefix { get; set; } = DLConfig.DefaultValues.DiscordCommandPrefix;
