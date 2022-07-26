@@ -3,8 +3,10 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using Eco.Gameplay.Players;
+using Eco.Gameplay.Systems.Messaging.Chat;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
+using Eco.Shared.IoC;
 using Eco.Shared.Utils;
 using System;
 using System.Collections.Generic;
@@ -146,6 +148,22 @@ namespace Eco.Plugins.DiscordLink
             }
 
             return allowed;
+        }
+
+        #endregion
+
+        #region Eco Commands
+
+        [Command("ExecuteEcoCommand")]
+        [Description("Runs the inputted eco command")]
+        [Aliases("DL-EcoCommand", "EC")]
+        public async Task EcoCommand(CommandContext ctx, [Description("The Eco command to execute, including parameters and styled as in ingame command.")] string command)
+        {
+            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
+            {
+                RemoteEcoCommandClient Client = new RemoteEcoCommandClient(ctx);
+                await ServiceHolder<IChatManager>.Obj.ExecuteCommandAsync(Client, command);
+            }, ctx);
         }
 
         #endregion
