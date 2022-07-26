@@ -94,9 +94,4 @@
       <HintPath Condition="Exists('..\..\Eco\Server\Eco.WorldGenerator\bin\Release\net6.0-windows\Eco.WorldGenerator.dll')">..\..\Eco\Server\Eco.WorldGenerator\bin\Release\net6.0-windows\Eco.WorldGenerator.dll</HintPath>
     </Reference>
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Source\Core\" />
-    <Folder Include="Source\Systems\" />
-  </ItemGroup>
 </Project>

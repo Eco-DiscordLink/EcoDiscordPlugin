@@ -5,7 +5,6 @@ using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Plugins.Networking;
 using Eco.Shared.Utils;
-using Eco.Shared.Validation;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
