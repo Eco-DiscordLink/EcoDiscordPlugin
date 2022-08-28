@@ -1,0 +1,47 @@
+{
+  "DiscordServer": "",
+  "BotToken": "",
+  "EcoBotName": "DiscordLink",
+  "AdminRoles": [
+    "Admin",
+    "Administrator",
+    "Moderator",
+    "Eco Admins"
+  ],
+  "ServerName": "",
+  "ServerDescription": "",
+  "MinEmbedSizeForFooter": "Medium",
+  "ConnectionInfo": "",
+  "DiscordCommandPrefix": "?",
+  "ChatChannelLinks": [],
+  "TradeFeedChannels": [],
+  "CraftingFeedChannels": [],
+  "ServerStatusFeedChannels": [],
+  "PlayerStatusFeedChannels": [],
+  "ElectionFeedChannels": [],
+  "ServerLogFeedChannels": [],
+  "ServerInfoDisplayChannels": [],
+  "WorkPartyDisplayChannels": [],
+  "ElectionDisplayChannels": [],
+  "CurrencyDisplayChannels": [],
+  "SnippetInputChannels": [],
+  "UseLinkedAccountRole": true,
+  "UseDemographicRoles": true,
+  "DemographicReplacementRoles": [
+    {
+      "DemographicName": "everyone",
+      "RoleName": "Eco Everyone"
+    },
+    {
+      "DemographicName": "admins",
+      "RoleName": "Eco Admins"
+    }
+  ],
+  "UseSpecialtyRoles": true,
+  "DiscordCommandChannels": [],
+  "MaxTradeWatcherDisplaysPerUser": 5,
+  "InviteMessage": "Join us on Discord!\\n[LINK]",
+  "LogLevel": "Information",
+  "BackendLogLevel": "None",
+  "UseVerboseDisplay": false
+}
