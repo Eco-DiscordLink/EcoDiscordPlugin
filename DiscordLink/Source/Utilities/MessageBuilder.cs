@@ -957,7 +957,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
                 // Link
                 string webServerURL = NetworkManager.Config.WebServerUrl;
-                report.AddField("URL", $"{webServerURL}/elections.html?election={election.Id}");
+                report.AddField("URL", $"{webServerURL}/election/{election.Id}");
 
                 // Proposer name
                 report.AddField("Proposer", election.Creator.Name, inline: true);
