@@ -1,6 +1,10 @@
 # How to install the DiscordLink plugin on your Eco Server.
 
-Note: If you do _*not*_ have access to the server GUI, you can still use this quide, but will need to input the required values manuelly. Copy the config template file in the _config_ folder of your server, name it _"DiscordLink.eco"_ and fill in the values directly in the file. Documentation for doing this can be found in the [configuration guide](ConfigurationNoGUI.md).
+Note: If you do _*not*_ have access to the server GUI, you can still use this quide, but will need to input the required values manually. Copy the config template file in the _config_ folder of your server, name it _"DiscordLink.eco"_ and fill in the values directly in the file. Documentation for doing this can be found in the [configuration guide](ConfigurationNoGUI.md).
+
+If you encounter problems, remember that Discordlink has [troubleshooting commands](Commands.md#Setup_and_Troubleshooting) and that you can get support in the [Eco Modding Discord](https://discord.gg/pCkWfzQ), just scroll down to the *DiscordLink* section and post in the *help* channel!
+
+---------------
 
 ### 1. Download the latest DiscordLink release .zip file from <https://github.com/Eco-DiscordLink/EcoDiscordPlugin/releases>.
 

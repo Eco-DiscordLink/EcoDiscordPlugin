@@ -19,6 +19,8 @@ All Eco and Discord commands are case insensitive.
 | Restart                    | DL-Restart                                                             | Both              |                                                                         | Admin           | Restarts the plugin.                                                                                                 |
 | ResetPersistentData        | DL-ResetPersistentdata                                                 | Both              |                                                                         | Admin           | Removes all persistent storage data.                                                                                 |
 | ResetWorldData             | DL-ResetWorldData                                                      | Both              |                                                                         | Admin           | Resets world data as if a new world had been created.                                                                |
+| Update                     | DL-Update                                                              | Both              |                                                                         | Admin           | Forces an update of all modules.                                                                |
+| ClearRoles                 | DL-ClearRoles                                                          | Both              |                                                                         | Admin           | Deletes all Discord roles created and tracked by DiscordLink.                                                                |
 
 
 # **Setup and Troubleshooting**
@@ -32,6 +34,12 @@ All Eco and Discord commands are case insensitive.
 | Print                      |                                                                        | Discord           | Message                                                                 | Admin           | Reposts the inputted message. Can be used to create tags for ordering display tags within a channel.                 |
 | Echo                       |                                                                        | Discord           | Message                                                                 | Admin           | Sends the provided message to Eco and back to Discord again if a chat link is configured for the channel.            |
 | Ping                       |                                                                        | Discord           |                                                                         | Admin           | Prompts the bot to respond with "Pong". Can ge used to check if the bot is online.                                   |
+
+# **Utility**
+| **Name**                   | **Alias**                                                              | **Discord/Eco**   | **Parameters**                                                          | **Permissions** | **Description**                                                                                                      |
+|----------------------------|------------------------------------------------------------------------|-------------------|-------------------------------------------------------------------------|-----------------|----------------------------------------------------------------------------------------------------------------------|
+| ExecuteEcoCommand          | DL-EcoCommand, EC                                                      | Discord           | Eco Command                                                             | Dynamic         | Executes the inputted eco command. The parameter should be styled as a full ingame Eco command.                                                                    
+|
 
 # **Info**
 | **Name**                   | **Alias**                                                              | **Discord/Eco**   | **Parameters**                                                          | **Permissions** | **Description**                                                                                                      |

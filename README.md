@@ -20,12 +20,14 @@ For a full list of all supported input modules, see the [input module list](Modu
 * `Discord Roles`  
 Automatically assign roles to users based on their ingame specializations and demograhics.    
 For a full list of all supported role modules, see the [role module list](Modules.md#roles).  
-* `Assisted Configuration`  
-DiscordLink will run verification passes on your configuration upon startup and configuration changes and output the result in the server log, helping you diagnose configuration errors.
+* `Troubleshooting Tools`  
+DiscordLink comes with [troubleshooting commands](Commands.md#Setup_and_Troubleshooting) that you can use both in Eco and in Discord, to help diagnose configuration errors.
 * `Helpful Commands`  
 DiscordLink features a number of helpful commands both from within the game and from Discord.  
-_/DiscordLink Invite_ will help you invite players ingame to your Discord server, while _?Trade_ will help you figure out who has the best deal on your favorite dish!  
-For a full list of commands, see the [command list](Commands.md).
+Here's the full [command list](Commands.md) and below is a sneak peek on some of the more prominent ones!  
+	* *?ExecuteEcoCommand* - Execute any ingame Eco command straight from Discord! Don't worry, only you and your admins get access to the privileged commands :)  
+	* */dlt* - The DiscordLink Trades command will help you find where you can buy and sell everything you need to run your profession! Search by item, tag, player or store name!  
+	* */snippet* - Post a prepared text snippet in Discord, straight into Eco! Tired of answering the same questions over and over? Make a snippet!  
 
 ## Usage
 

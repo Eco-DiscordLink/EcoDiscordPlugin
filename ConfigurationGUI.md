@@ -38,9 +38,6 @@ The logo of the server as a URL, to use when the bot posts embed messages.
 **Connection Info**  
 The text to display when showing connection information for the game server. It is recommended to use the Server ID or an IP for this field.
 
-**Web Server Address**  
-The base address (URL or IP) of the web server to use in web server links. If the web server traffic is being routed through a different port than the configured \"Web Server Port\" from the Network config, then also qualify this address with the rereouted port number. Do not point this field to any specific page on the web server.
-
 ## Linking Chat Channels
 
 1. The box you're interested in is called "Chat Channel Links" and it is located in the subcategory "Feeds". Click on the three dots next to the box saying "(Collection)". This may be hidden until you mouse over it.

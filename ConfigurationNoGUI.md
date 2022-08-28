@@ -1,3 +1,4 @@
+
 # DiscordLink Configuration
 As we don't have access to the eco server GUI, we will need to do the configuration via the DiscordLink config file.
 The config file is named "DiscordLink.eco" is generated inside the _"Config"_ directory of the Eco Server after having started the server once with the mod loaded.
@@ -28,7 +29,8 @@ The config data needs to match your Eco server, Discord server and Discord bot.
     "AdminRoles": [  
     "admin",  
     "administrator",  
-    "moderator"  
+    "moderator",  
+    "Eco Admins"  
   ],  
   "MinEmbedSizeForFooter": "Medium",
   "ServerName": "TheEcoServer",  
@@ -42,8 +44,9 @@ The config data needs to match your Eco server, Discord server and Discord bot.
     "AllowChannelMentions": true,  
     "Direction": "Duplex",  
     "HereAndEveryoneMentionPermission": "Forbidden",  
-    "EcoChannel": "generala",  
-    "DiscordChannel": "general"  
+    "EcoChannel": "General",  
+    "DiscordChannel": "general",  
+    "UseTimestamp": true  
    }  
   ],  
   "TradeFeedChannels": [  
@@ -83,7 +86,6 @@ The config data needs to match your Eco server, Discord server and Discord bot.
       "UseDescription": false,  
       "UseLogo": true,  
       "UseConnectionInfo": true,  
-      "UseWebServerAddress": true,  
       "UsePlayerCount": false,  
       "UsePlayerList": true,  
       "UsePlayerListLoggedInTime": false,  
@@ -184,15 +186,13 @@ The logo of the server as a URL, to use when the bot posts embed messages.
 **Connection Info**  
 The text to display when showing connection information for the game server. It is recommended to use the Server ID or an IP for this field.
 
-**Web Server Address**  
-The base address (URL or IP) of the web server to use in web server links. If the web server traffic is being routed through a different port than the configured \"Web Server Port\" from the Network config, then also qualify this address with the rereouted port number. Do not point this field to any specific page on the web server.
-
 ## Linking Chat Channels
 1. Copy the _"ChatChannelLinks"_ section of the sample config into your config file.
 2. Set the _"DiscordChannel"_ field to the name or ID of the Discord channel you wish to synchronize with a channel in Eco.
 3. Set the _"EcoChannel"_ field to the name of the Eco channel you wish to synchronize with the Discord channel in the previous step.
-5. **Optional**: Configure the three flags for Discord mention tag permissions according to your preference of allowing role, user and Channel mentions to be used from Eco.
+4. **Optional**: Configure the three flags for Discord mention tag permissions according to your preference of allowing role, user and Channel mentions to be used from Eco.
 5. **Optional** Configure the _"Direction"_ field to only allow messages to be forwarded in one direction.
+6. **Optional** Configure the _"UseTimestamp"_ field to set if a Discord timestamp should be added to the start of each chat message DiscordLink posts to the Discord channel.
 
 ## Command Settings
 **Discord Command Prefix**  
@@ -201,13 +201,10 @@ In all command examples `?` is used as Discord command prefix as this is the def
 Eco commands always use `/` as command prefix as this is hard coded into the game client.
 
 **Admin Roles**  
-The Discord roles for which to allow the use of admin commands. Role names are case insensitive.
-
-**Eco Command Channel**  
-The Eco chat channel to use for commands that outputs public messages, excluding the initial # character.
+The Discord roles (case sensitive!) for which to allow the use of admin commands. Note that users with these roles will also be able to use ingame admin commands via the `ExecuteEcoCommand` command.
 
 **Max Trade Watcher Displays Per User**  
-The maximum amount of Trade Watcher Displays allowed for each user.
+The maximum amount of Trade Watcher Displays allowed for each user.  
 Note that lowering this will not remove any existing watchers.
 
 **Invite Message**  
