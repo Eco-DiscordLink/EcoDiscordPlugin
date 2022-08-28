@@ -21,7 +21,7 @@ For a full list of all supported input modules, see the [input module list](Modu
 Automatically assign roles to users based on their ingame specializations and demograhics.    
 For a full list of all supported role modules, see the [role module list](Modules.md#roles).  
 * `Troubleshooting Tools`  
-DiscordLink comes with [troubleshooting commands](Commands.md#Setup_and_Troubleshooting) that you can use both in Eco and in Discord, to help diagnose configuration errors.
+DiscordLink comes with [troubleshooting commands](Commands.md#SAT) that you can use both in Eco and in Discord, to help diagnose configuration errors.
 * `Helpful Commands`  
 DiscordLink features a number of helpful commands both from within the game and from Discord.  
 Here's the full [command list](Commands.md) and below is a sneak peek on some of the more prominent ones!  

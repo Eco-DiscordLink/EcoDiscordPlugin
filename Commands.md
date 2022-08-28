@@ -23,7 +23,7 @@ All Eco and Discord commands are case insensitive.
 | ClearRoles                 | DL-ClearRoles                                                          | Both              |                                                                         | Admin           | Deletes all Discord roles created and tracked by DiscordLink.                                                                |
 
 
-# **Setup and Troubleshooting**
+# <a id="SAT"></a>**Setup and Troubleshooting**
 | **Name**                   | **Alias**                                                              | **Discord/Eco**   | **Parameters**                                                          | **Permissions** | **Description**                                                                                                      |
 |----------------------------|------------------------------------------------------------------------|-------------------|-------------------------------------------------------------------------|-----------------|----------------------------------------------------------------------------------------------------------------------|
 | VerifyConfig               | DL-VerifyConfig, DL-ConfigReport, ConfigReport                         | Both              |                                                                         | Admin           | Checks configuration setup and reports any errors.                                                                   |
