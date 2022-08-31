@@ -5,9 +5,11 @@ using Eco.Core.Plugins.Interfaces;
 using Eco.Core.Utils;
 using Eco.Core.Utils.Logging;
 using Eco.EM.Framework.VersioningTools;
+using Eco.Gameplay.Aliases;
 using Eco.Gameplay.Civics.Elections;
 using Eco.Gameplay.GameActions;
 using Eco.Gameplay.Players;
+using Eco.Gameplay.Property;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Modules;
@@ -68,7 +70,7 @@ namespace Eco.Plugins.DiscordLink
             return Status;
         }
 
-        public LazyResult ShouldOverrideAuth(GameAction action)
+        public LazyResult ShouldOverrideAuth(IAlias alias, IOwned property, GameAction action)
         {
             return LazyResult.FailedNoMessage;
         }
