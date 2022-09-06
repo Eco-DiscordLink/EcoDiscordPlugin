@@ -464,14 +464,25 @@ namespace Eco.Plugins.DiscordLink
                         return;
                     }
                 }
+               
+                // Try to Notify the Discord account, that a link has been made and ask for verification
+                DiscordMessage message = plugin.Client.SendDMAsync(matchingMember, null, MessageBuilder.Discord.GetVerificationDM(callingUser)).Result;
+
+                // This message can be null, when the target user has blocked direct messages from guild members.
+                if(message != null)
+                {
+                   _ = message.CreateReactionAsync(DLConstants.ACCEPT_EMOJI);
+                   _ = message.CreateReactionAsync(DLConstants.DENY_EMOJI);
+                }
+                else
+                {
+                    ReportCommandError(callingUser, $"Can't send direct message to {matchingMember.Username}.\nPlease check your Privacy Settings and verify, that Members of your Guild are allowed to send you a Direct Message.");
+                    return;
+                }
 
                 // Create a linked user from the combined Eco and Discord info
                 UserLinkManager.AddLinkedUser(callingUser, matchingMember.Id.ToString(), matchingMember.Guild.Id.ToString());
 
-                // Notify the Discord account that a link has been made and ask for verification
-                DiscordMessage message = plugin.Client.SendDMAsync(matchingMember, null, MessageBuilder.Discord.GetVerificationDM(callingUser)).Result;
-                _ = message.CreateReactionAsync(DLConstants.ACCEPT_EMOJI);
-                _ = message.CreateReactionAsync(DLConstants.DENY_EMOJI);
 
                 // Notify the Eco user that the link has been created and that verification is required
                 ReportCommandInfo(callingUser, $"Your account has been linked.\nThe link requires verification before becoming active.\nInstructions have been sent to the linked Discord account.");
