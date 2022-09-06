@@ -476,7 +476,7 @@ namespace Eco.Plugins.DiscordLink
                 }
                 else
                 {
-                    ReportCommandError(callingUser, $"Can't send direct message to {matchingMember.Username}.\nPlease check your Privacy Settings and verify, that Members of your Guild are allowed to send you a Direct Message.");
+                    ReportCommandError(callingUser, $"Failed to send direct message to {matchingMember.Username}.\nPlease check your privacy settings and verify, that members of your server are allowed to send you direct messages.");
                     return;
                 }
 
