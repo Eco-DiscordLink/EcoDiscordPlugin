@@ -425,9 +425,9 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     $":{((int)seconds % 60).ToString("00")}";
             }
 
-            public static string GetServerTimeStamp(CallerType caller)
+            public static string GetServerTimeStamp()
             {
-                return caller == CallerType.Discord ? DateTime.Now.ToDiscordTimeStamp() : DateTime.Now.ToString("yyyy-MM-dd HH:mm");
+                return DateTime.Now.ToString("yyyy-MM-dd HH:mm");
             }
 
             public static string GetYesNo(bool flag)
@@ -626,7 +626,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     if (flag.HasFlag(ServerInfoComponentFlag.ServerTime))
                     {
                         TimeSpan timeSinceStartSpan = new TimeSpan(0, 0, (int)serverInfo.TimeSinceStart);
-                        embed.AddField("Server Time", Shared.GetServerTimeStamp(CallerType.Discord), inline: true);
+                        embed.AddField("Server Time", Shared.GetServerTimeStamp(), inline: true);
                         ++fieldsAdded;
                     }
 
@@ -1226,7 +1226,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             public static string GetStandardEmbedFooter()
             {
                 string serverName = MessageUtils.FirstNonEmptyString(DLConfig.Data.ServerName, MessageUtils.StripTags(NetworkManager.GetServerInfo().Description), "[Server Title Missing]");
-                string timestamp = Shared.GetServerTimeStamp(CallerType.Other); // Embed footers do not support Discord timestamps
+                string timestamp = Shared.GetServerTimeStamp();
                 return $"Message sent by DiscordLink @ {serverName} [{timestamp}]";
             }
 
