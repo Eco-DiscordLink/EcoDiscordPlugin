@@ -28,7 +28,7 @@
   </Target>
 
   <ItemGroup>
-    <PackageReference Include="ElixrMods.Framework" Version="3.3.0" />
+    <PackageReference Include="ElixrMods.Framework" Version="3.3.2" />
     <PackageReference Include="Nito.AsyncEx.Coordination" Version="5.1.2" />
   </ItemGroup>
 
