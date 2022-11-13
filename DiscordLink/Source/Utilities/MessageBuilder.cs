@@ -573,7 +573,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
                 if (flag.HasFlag(ServerInfoComponentFlag.WebServerAddress))
                 {
-                    string fieldText = $"{NetworkManager.Config.WebServerUrl}/index.html";
+                    string WebServerUrl = NetworkManager.Config.WebServerUrl;
+                    string fieldText = !string.IsNullOrEmpty(WebServerUrl) ? WebServerUrl : "Webserver URL not configured";
                     embed.AddField("Webpage Address", fieldText);
                 }
 
@@ -957,7 +958,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
                 // Link
                 string webServerURL = NetworkManager.Config.WebServerUrl;
-                report.AddField("URL", $"{webServerURL}/election/{election.Id}");
+                string fieldText = !string.IsNullOrEmpty(webServerURL) ? $"{webServerURL}/election/{election.Id}" : "Webserver URL not configured";
+                report.AddField("URL", fieldText);
 
                 // Proposer name
                 report.AddField("Proposer", election.Creator.Name, inline: true);
