@@ -178,32 +178,32 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         public static bool SendInfoBoxToUser(User user, string message)
         {
-            return ChatBaseExtended.CBInfoBox(message, user);
+            return ChatBaseExtended.CBInfoBox(message, user, sendToChat: true);
         }
 
         public static bool SendInfoBoxToAll(string message)
         {
-            return ChatBaseExtended.CBInfoBox(message);
+            return ChatBaseExtended.CBInfoBox(message, sendToChat: true);
         }
 
         public static bool SendWarningBoxToAll(string message)
         {
-            return ChatBaseExtended.CBWarning(message);
+            return ChatBaseExtended.CBWarning(message, sendToChat: true);
         }
 
         public static bool SendWarningBoxToUser(User user, string message)
         {
-            return ChatBaseExtended.CBWarning(message, user);
+            return ChatBaseExtended.CBWarning(message, user, sendToChat: true);
         }
 
         public static bool SendErrorBoxToUser(User user, string message)
         {
-            return ChatBaseExtended.CBError(message, user);
+            return ChatBaseExtended.CBError(message, user, sendToChat: true);
         }
 
         public static bool SendErrorBoxToAll(string message)
         {
-            return ChatBaseExtended.CBError(message);
+            return ChatBaseExtended.CBError(message, sendToChat: true);
         }
 
         public static bool SendNotificationToUser(User user, string message)
