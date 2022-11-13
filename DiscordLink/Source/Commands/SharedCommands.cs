@@ -629,7 +629,7 @@ namespace Eco.Plugins.DiscordLink
             return true;
         }
 
-        public static async Task<bool> AddTradeWatcher(CommandInterface source, object callContext, string searchName, Modules.ModuleType type)
+        public static async Task<bool> AddTradeWatcher(CommandInterface source, object callContext, string searchName, Modules.ModuleArchetype type)
         {
             if (string.IsNullOrWhiteSpace(searchName))
             {
@@ -644,7 +644,7 @@ namespace Eco.Plugins.DiscordLink
                 return false;
 
             ulong discordID = ulong.Parse(linkedUser.DiscordID);
-            if (type == Modules.ModuleType.Display)
+            if (type == Modules.ModuleArchetype.Display)
             {
                 if(DLConfig.Data.MaxTradeWatcherDisplaysPerUser <= 0)
                 {
@@ -682,7 +682,7 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
-        public static async Task<bool> RemoveTradeWatcher(CommandInterface source, object callContext, string searchName, Modules.ModuleType type)
+        public static async Task<bool> RemoveTradeWatcher(CommandInterface source, object callContext, string searchName, Modules.ModuleArchetype type)
         {
             if (string.IsNullOrWhiteSpace(searchName))
             {

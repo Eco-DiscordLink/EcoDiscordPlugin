@@ -47,7 +47,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 foreach (List<CurrencyTrade> accumulatedTradeList in accumulatedTrades)
                 {
                     CurrencyTrade firstTrade = accumulatedTradeList[0];
-                    foreach (TradeWatcherEntry tradeWatcherEntry in userAndWatcher.Value.Where(entry => entry.Type == ModuleType.Feed
+                    foreach (TradeWatcherEntry tradeWatcherEntry in userAndWatcher.Value.Where(entry => entry.Type == ModuleArchetype.Feed
                     && (entry.Key.EqualsCaseInsensitive(firstTrade.Buyer.Name) || entry.Key.EqualsCaseInsensitive(firstTrade.Seller.Name) // Player name
                 || entry.Key.EqualsCaseInsensitive((firstTrade.WorldObject as WorldObject).Name) // Store name
                 || accumulatedTrades.SelectMany(tradeList => tradeList).Any(trade => entry.Key.EqualsCaseInsensitive(trade.ItemUsed.DisplayName))) // Item name

@@ -8,6 +8,29 @@ namespace Eco.Plugins.DiscordLink.Modules
 {
     public enum ModuleType
     {
+        CurrencyDisplay,
+        ElectionDisplay,
+        ServerInfoDisplay,
+        TradeWatcherDisplay,
+        WorkPartyDisplay,
+        CraftingFeed,
+        DiscordChatFeed,
+        EcoChatFeed,
+        ElectionFeed,
+        PlayerStatusFeed,
+        ServerLogFeed,
+        ServerStatusFeed,
+        TradeFeed,
+        TradeWatcherFeed,
+        AccountLinkRoleModule,
+        DemographicRoleModule,
+        RoleCleanupModule,
+        SpecialitiesRoleModule,
+        SnippetInput
+    }
+
+    public enum ModuleArchetype
+    {
         Display,
         Feed,
         Input

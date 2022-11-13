@@ -116,12 +116,12 @@ namespace Eco.Plugins.DiscordLink
             public Dictionary<int, int> CurrencyToTradeCountMap = new Dictionary<int, int>();
             public Dictionary<ulong, List<TradeWatcherEntry>> TradeWatchers = new Dictionary<ulong, List<TradeWatcherEntry>>();
 
-            public IEnumerable<KeyValuePair<ulong, List<TradeWatcherEntry>>> DisplayTradeWatchers => TradeWatchers.Where(userAndWatchers => userAndWatchers.Value.Any(watcher => watcher.Type == ModuleType.Display));
-            public IEnumerable<KeyValuePair<ulong, List<TradeWatcherEntry>>> FeedTradeWatchers => TradeWatchers.Where(userAndWatchers => userAndWatchers.Value.Any(watcher => watcher.Type == ModuleType.Feed));
+            public IEnumerable<KeyValuePair<ulong, List<TradeWatcherEntry>>> DisplayTradeWatchers => TradeWatchers.Where(userAndWatchers => userAndWatchers.Value.Any(watcher => watcher.Type == ModuleArchetype.Display));
+            public IEnumerable<KeyValuePair<ulong, List<TradeWatcherEntry>>> FeedTradeWatchers => TradeWatchers.Where(userAndWatchers => userAndWatchers.Value.Any(watcher => watcher.Type == ModuleArchetype.Feed));
 
             public int TradeWatcherCountTotal => TradeWatchers.Values.Sum(watchers => watchers.Count);
-            public int TradeWatcherDisplayCountTotal => TradeWatchers.Values.SelectMany(watchers => watchers).Where(watcher => watcher.Type == ModuleType.Display).Count();
-            public int TradeWatcherFeedCountTotal => TradeWatchers.Values.SelectMany(watchers => watchers).Where(watcher => watcher.Type == ModuleType.Feed).Count();
+            public int TradeWatcherDisplayCountTotal => TradeWatchers.Values.SelectMany(watchers => watchers).Where(watcher => watcher.Type == ModuleArchetype.Display).Count();
+            public int TradeWatcherFeedCountTotal => TradeWatchers.Values.SelectMany(watchers => watchers).Where(watcher => watcher.Type == ModuleArchetype.Feed).Count();
 
             public async Task<bool> AddTradeWatcher(ulong discordUserId, TradeWatcherEntry watcherEntry)
             {
@@ -192,7 +192,7 @@ namespace Eco.Plugins.DiscordLink
 
     public class TradeWatcherEntry
     {
-        public TradeWatcherEntry(string key, ModuleType type)
+        public TradeWatcherEntry(string key, ModuleArchetype type)
         {
             Key = key;
             Type = type;
@@ -218,6 +218,6 @@ namespace Eco.Plugins.DiscordLink
         }
 
         public string Key { get; private set; }
-        public ModuleType Type { get; private set; }
+        public ModuleArchetype Type { get; private set; }
     }
 }

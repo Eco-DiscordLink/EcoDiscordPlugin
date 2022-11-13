@@ -33,7 +33,7 @@ namespace Eco.Plugins.DiscordLink
 
         public static DiscordLink Obj { get { return PluginManager.GetPlugin<DiscordLink>(); } }
         public DLDiscordClient Client { get; private set; } = new DLDiscordClient();
-        public List<Module> Modules { get; private set; } = new List<Module>();
+        public Module[] Modules { get; private set; } = new Module[Enum.GetNames(typeof(ModuleType)).Length];
         public User EcoUser { get; private set; } = null;
         public IPluginConfig PluginConfig { get { return DLConfig.Instance.PluginConfig; } }
         public ThreadSafeAction<object, string> ParamChanged { get; set; }
@@ -42,7 +42,7 @@ namespace Eco.Plugins.DiscordLink
         public bool CanRestart { get; private set; } = false; // False to start with as we cannot restart while the initial startup is in progress
 
         private const string ModIOAppID = "77";
-        private const string ModIODeveloperToken = ""; // This will always be empty for all but actual release builds.
+        private const string ModIODeveloperToken = "050fa09c552b80b8c99189f4621c2ff1"; // This will always be empty for all but actual release builds.
 
         private bool _triggerWorldResetEvent = false;
 
@@ -327,46 +327,61 @@ namespace Eco.Plugins.DiscordLink
 
         #region Module Management
 
-        private void InitializeModules()
+        private async void InitializeModules()
         {
             Status = "Initializing modules";
 
-            Modules.Add(new DiscordChatFeed());   // Discord -> Eco
-            Modules.Add(new EcoChatFeed());       // Eco -> Discord
-            Modules.Add(new TradeFeed());
-            Modules.Add(new CraftingFeed());
-            Modules.Add(new ServerStatusFeed());
-            Modules.Add(new PlayerStatusFeed());
-            Modules.Add(new ElectionFeed());
-            Modules.Add(new ServerInfoDisplay());
-            Modules.Add(new WorkPartyDisplay());
-            Modules.Add(new ElectionDisplay());
-            Modules.Add(new CurrencyDisplay());
-            Modules.Add(new TradeWatcherDisplay());
-            Modules.Add(new TradeWatcherFeed());
-            Modules.Add(new SnippetInput());
-            Modules.Add(new RoleCleanupModule());
-            Modules.Add(new AccountLinkRoleModule());
-            Modules.Add(new DemographicsRoleModule());
-            Modules.Add(new SpecialtiesRoleModule());
-            Modules.Add(new ServerLogFeed());
+            Modules[(int)ModuleType.CurrencyDisplay] = new CurrencyDisplay();
+            Modules[(int)ModuleType.ElectionDisplay] = new ElectionDisplay();
+            Modules[(int)ModuleType.ServerInfoDisplay] = new ServerInfoDisplay();
+            Modules[(int)ModuleType.TradeWatcherDisplay] = new TradeWatcherDisplay();
+            Modules[(int)ModuleType.WorkPartyDisplay] = new WorkPartyDisplay();
+            Modules[(int)ModuleType.CraftingFeed] = new CraftingFeed();
+            Modules[(int)ModuleType.DiscordChatFeed] = new DiscordChatFeed();
+            Modules[(int)ModuleType.EcoChatFeed] = new EcoChatFeed();
+            Modules[(int)ModuleType.ElectionFeed] = new ElectionFeed();
+            Modules[(int)ModuleType.PlayerStatusFeed] = new PlayerStatusFeed();
+            Modules[(int)ModuleType.ServerLogFeed] = new ServerLogFeed();
+            Modules[(int)ModuleType.ServerStatusFeed] = new ServerStatusFeed();
+            Modules[(int)ModuleType.TradeFeed] = new TradeFeed();
+            Modules[(int)ModuleType.TradeWatcherFeed] = new TradeWatcherFeed();
+            Modules[(int)ModuleType.AccountLinkRoleModule] = new AccountLinkRoleModule();
+            Modules[(int)ModuleType.DemographicRoleModule] = new DemographicsRoleModule();
+            Modules[(int)ModuleType.RoleCleanupModule] = new RoleCleanupModule();
+            Modules[(int)ModuleType.SpecialitiesRoleModule] = new SpecialtiesRoleModule();
+            Modules[(int)ModuleType.SnippetInput] = new SnippetInput();
 
-            Modules.ForEach(module => module.Setup());
-            Modules.ForEach(async module => await module.HandleStartOrStop());
+            foreach(Module module in Modules)
+            {
+                module.Setup();
+            }
+            foreach(Module module in Modules)
+            {
+                await module.HandleStartOrStop();
+            }
         }
 
-        private void ShutdownModules()
+        private async void ShutdownModules()
         {
             Status = "Shutting down modules";
 
-            Modules.ForEach(async module => await module.Stop());
-            Modules.ForEach(module => module.Destroy());
-            Modules.Clear();
+            foreach(Module module in Modules)
+            {
+                await module.Stop();
+            }
+            foreach(Module module in Modules)
+            {
+                module.Destroy();
+            }
+            Modules = new Module[Enum.GetNames(typeof(ModuleType)).Length];
         }
 
-        private void UpdateModules(DLEventType trigger, params object[] data)
+        private async void UpdateModules(DLEventType trigger, params object[] data)
         {
-            Modules.ForEach(async module => await module.Update(this, trigger, data));
+            foreach(Module module in Modules)
+            {
+                await module.Update(this, trigger, data);
+            }
         }
 
         private void TriggerActivityStringUpdate(object stateInfo)

@@ -527,7 +527,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.AddTradeWatcher(SharedCommands.CommandInterface.Eco, callingUser, searchName, Modules.ModuleType.Display);
+                SharedCommands.AddTradeWatcher(SharedCommands.CommandInterface.Eco, callingUser, searchName, Modules.ModuleArchetype.Display);
             }, callingUser);
         }
 
@@ -536,7 +536,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.RemoveTradeWatcher(SharedCommands.CommandInterface.Eco, callingUser, searchName, Modules.ModuleType.Display);
+                SharedCommands.RemoveTradeWatcher(SharedCommands.CommandInterface.Eco, callingUser, searchName, Modules.ModuleArchetype.Display);
             }, callingUser);
         }
 
@@ -545,7 +545,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.AddTradeWatcher(SharedCommands.CommandInterface.Eco, callingUser, searchName, Modules.ModuleType.Feed);
+                SharedCommands.AddTradeWatcher(SharedCommands.CommandInterface.Eco, callingUser, searchName, Modules.ModuleArchetype.Feed);
             }, callingUser);
         }
 
@@ -554,7 +554,7 @@ namespace Eco.Plugins.DiscordLink
         {
             ExecuteCommand<object>((lUser, args) =>
             {
-                SharedCommands.RemoveTradeWatcher(SharedCommands.CommandInterface.Eco, callingUser, searchName, Modules.ModuleType.Feed);
+                SharedCommands.RemoveTradeWatcher(SharedCommands.CommandInterface.Eco, callingUser, searchName, Modules.ModuleArchetype.Feed);
             }, callingUser);
         }
 

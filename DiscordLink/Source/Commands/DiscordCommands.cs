@@ -752,7 +752,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.AddTradeWatcher(SharedCommands.CommandInterface.Discord, ctx, searchName, Modules.ModuleType.Display);
+                await SharedCommands.AddTradeWatcher(SharedCommands.CommandInterface.Discord, ctx, searchName, Modules.ModuleArchetype.Display);
             }, ctx);
         }
 
@@ -763,7 +763,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.RemoveTradeWatcher(SharedCommands.CommandInterface.Discord, ctx, searchName, Modules.ModuleType.Display);
+                await SharedCommands.RemoveTradeWatcher(SharedCommands.CommandInterface.Discord, ctx, searchName, Modules.ModuleArchetype.Display);
             }, ctx);
         }
 
@@ -774,7 +774,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.AddTradeWatcher(SharedCommands.CommandInterface.Discord, ctx, searchName, Modules.ModuleType.Feed);
+                await SharedCommands.AddTradeWatcher(SharedCommands.CommandInterface.Discord, ctx, searchName, Modules.ModuleArchetype.Feed);
             }, ctx);
         }
 
@@ -785,7 +785,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.RemoveTradeWatcher(SharedCommands.CommandInterface.Discord, ctx, searchName, Modules.ModuleType.Feed);
+                await SharedCommands.RemoveTradeWatcher(SharedCommands.CommandInterface.Discord, ctx, searchName, Modules.ModuleArchetype.Feed);
             }, ctx);
         }
 
