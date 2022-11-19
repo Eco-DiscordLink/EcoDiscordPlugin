@@ -29,6 +29,8 @@ using Eco.Shared.Utils;
 using Eco.Shared;
 using Eco.Shared.Items;
 
+using static Eco.Shared.Mathf; // Avoiding collisions with system mathf 
+
 using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
 using StoreOfferGroup = System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.StoreComponent, Eco.Gameplay.Components.TradeOffer>>;
 using static Eco.Plugins.DiscordLink.Utilities.Utils;
@@ -874,7 +876,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     {
                         propertiessDesc.AppendLine(deed.Name.TrimEndString(" Deed"));
                         propertiessSizeOrVehicleDesc.AppendLine(deed.IsVehicle() ? deed.GetVehicle().Parent.CreatingItem.DisplayName : $"{deed.GetTotalPlotSize()}m²");
-                        propertiessLocationDesc.AppendLine(deed.IsVehicle() ? deed.GetVehicle().Parent.Position3i.ToString() : deed.Position3i.ToString());
+                        propertiessLocationDesc.AppendLine(deed.IsVehicle() ? deed.GetVehicle().Parent.Position3i.ToString() : deed.CenterPos == null ? deed.CenterPos.ToString() : "Unknown");
                     }
 
                     bool hasProperty = userDeeds.Count() > 0;
@@ -1171,12 +1173,12 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 {
                     if (trade.BoughtOrSold == BoughtOrSold.Buying)
                     {
-                        boughtItemsDesc += $"{trade.NumberOfItems} X {trade.ItemUsed.DisplayName} * {MathF.Round(trade.CurrencyAmount / trade.NumberOfItems, 2)} = {MathF.Round(trade.CurrencyAmount, 2)}\n";
+                        boughtItemsDesc += $"{trade.NumberOfItems} X {trade.ItemUsed.DisplayName} * {RoundToAcceptedDigits(trade.CurrencyAmount / trade.NumberOfItems)} = {RoundToAcceptedDigits(trade.CurrencyAmount)}\n";
                         boughtTotal += trade.CurrencyAmount;
                     }
                     else if (trade.BoughtOrSold == BoughtOrSold.Selling)
                     {
-                        soldItemsDesc += $"{trade.NumberOfItems} X {trade.ItemUsed.DisplayName} * {MathF.Round(trade.CurrencyAmount / trade.NumberOfItems, 2)} = {MathF.Round(trade.CurrencyAmount, 2)}\n";
+                        soldItemsDesc += $"{trade.NumberOfItems} X {trade.ItemUsed.DisplayName} * {RoundToAcceptedDigits(trade.CurrencyAmount / trade.NumberOfItems)} = {RoundToAcceptedDigits(trade.CurrencyAmount)}\n";
                         soldTotal += trade.CurrencyAmount;
                     }
                 }
@@ -1195,7 +1197,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
                 // Currency transfer description
                 string resultDesc;
-                float subTotal = MathF.Round( soldTotal, 2) - Mathf.Round(boughtTotal, 2);
+                float subTotal = RoundToAcceptedDigits(soldTotal) - RoundToAcceptedDigits(boughtTotal);
+                
                 if (Math.Abs(subTotal) <= 0.00f)
                 {
                     resultDesc = "No currency was exchanged.";
@@ -1436,7 +1439,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     int quantity = offer.Stack.Quantity;
                     Currency currency = store.Currency;
                     float availableCurrency = offer.Buying ? store.BankAccount.GetCurrencyHoldingVal(currency) : user.GetWealthInCurrency(currency);
-                    int maxTradeCount = price > 0f && !float.IsInfinity(availableCurrency) ? (int)Mathf.Floor(availableCurrency / price) : Int32.MaxValue; // Calculate how many items can be traded using the available money
+                    int maxTradeCount = price > 0f && !float.IsInfinity(availableCurrency) ? FloorToInt(availableCurrency / price) : Int32.MaxValue; // Calculate how many items can be traded using the available money
                     if (offer.Buying)
                     {
                         if (offer.ShouldLimit && offer.MaxNumWanted < maxTradeCount) // If there is a buy limit that is lower than what can be afforded, lower to that limit

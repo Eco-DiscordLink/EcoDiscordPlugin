@@ -78,8 +78,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         public static IEnumerable<Deed> Deeds => PropertyManager.Obj.Deeds;
         public static Deed DeedByName(string deedName) => Deeds.FirstOrDefault(deed => deed.Name.EqualsCaseInsensitive(deedName));
-        public static Deed DeedByID(long deedID) => Deeds.FirstOrDefault(deed => deed.Id.ToLong() == deedID);
-        public static Deed DeedByNameOrID(string deedNameOrID) => long.TryParse(deedNameOrID, out long ID) ? DeedByID(ID) : DeedByName(deedNameOrID);
+        public static Deed DeedByID(int deedID) => Deeds.FirstOrDefault(deed => deed.Id == deedID);
+        public static Deed DeedByNameOrID(string deedNameOrID) => int.TryParse(deedNameOrID, out int ID) ? DeedByID(ID) : DeedByName(deedNameOrID);
 
         public static IEnumerable<Skill> Specialties => SkillTree.AllSkillTrees.SelectMany(skilltree => skilltree.ProfessionChildren).Select(skilltree => skilltree.StaticSkill);
         public static Skill SpecialtyByName(string specialtyName) => Specialties.FirstOrDefault(specialty => specialty.Name.EqualsCaseInsensitive(specialtyName));
