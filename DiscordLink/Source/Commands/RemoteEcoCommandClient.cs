@@ -57,6 +57,12 @@ namespace Eco.Plugins.DiscordLink
 
         public async void ErrorLocStr(string msg) => await SendMessage(Localizer.DoStr(msg).ToString(), NotificationStyle.Error);
 
+        public async void OkBox(LocString msg) => await SendMessage(msg.ToString(), NotificationStyle.Info);
+
+        public async void OkBoxLoc(FormattableString msg) => await SendMessage(msg.ToString(), NotificationStyle.Info);
+
+        public async void OkBoxLocStr(string msg) => await SendMessage(Localizer.DoStr(msg).ToString(), NotificationStyle.Info);
+
         public void TempServerMessage(LocString message, NotificationCategory category = NotificationCategory.Notifications, NotificationStyle style = NotificationStyle.Chat) => Msg(message, style);
 
         private async Task SendMessage(string msg, NotificationStyle style)
