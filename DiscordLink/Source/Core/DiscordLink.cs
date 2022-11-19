@@ -380,7 +380,14 @@ namespace Eco.Plugins.DiscordLink
         {
             foreach(Module module in Modules)
             {
-                await module.Update(this, trigger, data);
+                try
+                {
+                    await module.Update(this, trigger, data);
+                }
+                catch(Exception e)
+                {
+                    Logger.Error($"An error occurred while updating module: {module}. Error: {e}");
+                }
             }
         }
 
