@@ -13,6 +13,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Description = System.ComponentModel.DescriptionAttribute;
+using CategoryAttribute = System.ComponentModel.CategoryAttribute;
 
 namespace Eco.Plugins.DiscordLink
 {
