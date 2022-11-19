@@ -83,22 +83,13 @@ namespace Eco.Plugins.DiscordLink
                 return; // Do not attempt to initialize if the server name/id is empty
             }
 
-            if (!await CreateAndConnectClient(useFullIntents: true))
+            if (!await CreateAndConnectClient())
                 return;
 
             await Task.Delay(DLConstants.POST_SERVER_CONNECTION_WAIT_MS);
             if (DiscordClient != null)
                 DiscordClient.SocketClosed -= HandleSocketClosedOnConnection; // Stop waiting for aborted connections caused by faulty connection attempts
-            if (ConnectionStatus == ConnectionState.Disconnected && LastConnectionError == ConnectionError.ConnectionAbortedMissingIntents)
-            {
-                // Make another connection attempt without privileged intents
-                if (!await CreateAndConnectClient(useFullIntents: false))
-                    return;
-            }
 
-            await Task.Delay(DLConstants.POST_SERVER_CONNECTION_WAIT_MS);
-            if (DiscordClient != null)
-                DiscordClient.SocketClosed -= HandleSocketClosedOnConnection;
             if (ConnectionStatus == ConnectionState.Disconnected)
             {
                 DiscordClient = null;
@@ -110,7 +101,7 @@ namespace Eco.Plugins.DiscordLink
             // Connection process continues when GuildDownloadCompleted is invoked.
         }
 
-        private async Task<bool> CreateAndConnectClient(bool useFullIntents)
+        private async Task<bool> CreateAndConnectClient()
         {
             Status = "Creating Discord Client";
             ConnectionStatus = ConnectionState.Connecting;
@@ -124,7 +115,9 @@ namespace Eco.Plugins.DiscordLink
                     Token = DLConfig.Data.BotToken,
                     TokenType = TokenType.Bot,
                     MinimumLogLevel = DLConfig.Data.BackendLogLevel,
-                    Intents = useFullIntents ? DiscordIntents.GuildMembers | DiscordIntents.AllUnprivileged : DiscordIntents.AllUnprivileged
+                    Intents = DiscordIntents.AllUnprivileged |
+                    DiscordIntents.GuildMembers |
+                    DiscordIntents.MessageContents
                 });
 
                 // Register Discord commands
@@ -338,7 +331,7 @@ namespace Eco.Plugins.DiscordLink
         {
             if (args.CloseCode == 4014) // Application does not have the requested privileged intents
             {
-                Logger.Warning("Bot application is not configured to allow reading of full server member list as it lacks the Server Members Intent. Some features will be unavailable. See install instructions for help with adding intents.");
+                Logger.Error("Bot application is not configured to have the required intents. See install instructions for help with adding intents.");
                 LastConnectionError = ConnectionError.ConnectionAbortedMissingIntents;
             }
             else
