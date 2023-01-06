@@ -43,8 +43,8 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <PackageReference Include="DSharpPlus" Version="4.2.0" />
-        <PackageReference Include="DSharpPlus.CommandsNext" Version="4.2.0" />
+        <PackageReference Include="DSharpPlus" Version="4.3.0" />
+        <PackageReference Include="DSharpPlus.CommandsNext" Version="4.3.0" />
       </ItemGroup>
     </Otherwise>
   </Choose>
