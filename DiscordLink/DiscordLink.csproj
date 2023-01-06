@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <PackageLicenseExpression>Gnu Affero</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/Eco-DiscordLink/EcoDiscordPlugin</PackageProjectUrl>
     <RepositoryUrl>https://github.com/Eco-DiscordLink/EcoDiscordPlugin</RepositoryUrl>
