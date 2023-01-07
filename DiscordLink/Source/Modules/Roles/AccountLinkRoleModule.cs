@@ -88,6 +88,9 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         private void SetupLinkRole()
         {
+            if (!DLConfig.Data.UseLinkedAccountRole)
+                return;
+
             ++_opsCount;
             _linkedAccountRole = DiscordLink.Obj.Client.CreateRoleAsync(DLConstants.ROLE_LINKED_ACCOUNT).Result;
         }
