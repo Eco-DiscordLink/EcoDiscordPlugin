@@ -409,7 +409,7 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [Command("Ping")]
-        [Description("Prompts the bot to respond with \"Pong\". Can ge used to check if the bot is online.")]
+        [Description("Prompts the bot to respond with \"Pong\". Can be used to check if the bot is online.")]
         public async Task Ping(CommandContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
