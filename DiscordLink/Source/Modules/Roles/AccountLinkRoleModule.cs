@@ -58,7 +58,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                             await client.RemoveRoleAsync(member, _linkedAccountRole);
                         }
                     }
-                    else if (linkedUser.Verified && !member.HasRole(_linkedAccountRole))
+                    else if (linkedUser.Valid && !member.HasRole(_linkedAccountRole))
                     {
                         ++_opsCount;
                         await client.AddRoleAsync(member, _linkedAccountRole);

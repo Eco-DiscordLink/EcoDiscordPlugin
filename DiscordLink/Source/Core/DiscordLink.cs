@@ -216,6 +216,7 @@ namespace Eco.Plugins.DiscordLink
                 return;
             }
 
+            UserLinkManager.Initialize();
             InitializeModules();
             ActionUtil.AddListener(this);
             _activityUpdateTimer = new Timer(TriggerActivityStringUpdate, null, DLConstants.DISCORD_ACTIVITY_STRING_UPDATE_INTERVAL_MS, DLConstants.DISCORD_ACTIVITY_STRING_UPDATE_INTERVAL_MS);

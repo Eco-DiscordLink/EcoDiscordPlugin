@@ -194,13 +194,33 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     foreach (LinkedUser linkedUser in DLStorage.PersistentData.LinkedUsers)
                     {
                         User ecoUser = linkedUser.EcoUser;
-                        string ecoUserName = (ecoUser != null) ? MessageUtils.StripTags(ecoUser.Name) : "[Uknown Eco User]";
+                        string ecoUserName = (ecoUser != null) ? MessageUtils.StripTags(ecoUser.Name) : "[Unknown Eco User]";
 
                         DiscordUser discordUser = linkedUser.DiscordMember;
                         string discordUserName = (discordUser != null) ? discordUser.Username : "[Unknown Discord User]";
+                        string valididty;
+                        if (linkedUser.Valid)
+                        {
+                            valididty = "Valid";
+                        }
+                        else if (linkedUser.Verified)
+                        {
+                            if (linkedUser.DiscordMember == null && linkedUser.EcoUser == null)
+                                valididty = "Failed lookup (Eco & Discord)";
+                            else if (linkedUser.DiscordMember == null)
+                                valididty = "Failed lookup (Discord)";
+                            else if (linkedUser.EcoUser == null)
+                                valididty = "Failed lookup (Eco)";
+                            else
+                                valididty = "Verified but invalid";
 
-                        string verified = (linkedUser.Verified) ? "Verified" : "Unverified";
-                        builder.AppendLine($"{ecoUserName} <--> {discordUserName} - {verified}");
+                        }
+                        else
+                        {
+                            valididty = "Unverified";
+                        }
+
+                        builder.AppendLine($"{ecoUserName} <--> {discordUserName} - {valididty}");
                     }
 
                     builder.AppendLine();
