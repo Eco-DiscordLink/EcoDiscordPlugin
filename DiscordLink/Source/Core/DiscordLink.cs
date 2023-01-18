@@ -1,4 +1,5 @@
 ﻿using DSharpPlus.Entities;
+using DSharpPlus.Exceptions;
 using Eco.Core;
 using Eco.Core.Plugins;
 using Eco.Core.Plugins.Interfaces;
@@ -87,7 +88,20 @@ namespace Eco.Plugins.DiscordLink
 
         public string GetDisplayText()
         {
-            return MessageBuilder.Shared.GetDisplayStringAsync(DLConfig.Data.UseVerboseDisplay).Result;
+            try
+            {
+                return MessageBuilder.Shared.GetDisplayStringAsync(DLConfig.Data.UseVerboseDisplay).Result;
+            }
+            catch (ServerErrorException e)
+            {
+                Logger.Error($"Failed to get status display string. Error: {e}");
+                return "Failed to generate status string";
+            }
+            catch (Exception e)
+            {
+                Logger.Error($"Failed to get status display string. Error: {e}");
+                return "Failed to generate status string";
+            }
         }
 
         public void Initialize(TimedTask timer)
