@@ -148,6 +148,18 @@ namespace Eco.Plugins.DiscordLink
 
         #endregion
 
+        #region Server Management
+
+        public static async Task<bool> ServerShutdown(CommandInterface source, object callContext)
+        {
+            Logger.Info("Server shutdown command issued");
+            await ReportCommandInfo(source, callContext, "Shutdown command issued");
+            PluginManager.Controller.FireShutdown(ApplicationExitCodes.NormalShutdown);
+            return true;
+        }
+
+        #endregion
+
         #region Troubleshooting
 
         public static async Task<bool> ListChannelLinks(CommandInterface source, object callContext)

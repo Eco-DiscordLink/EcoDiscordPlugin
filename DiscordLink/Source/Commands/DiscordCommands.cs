@@ -243,6 +243,19 @@ namespace Eco.Plugins.DiscordLink
 
         #endregion
 
+        #region Server Management
+
+        [SlashCommand("ServerShutdown", "Shuts the server down.")]
+        public async Task ServerShutdown(InteractionContext ctx)
+        {
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
+            {
+                await SharedCommands.ServerShutdown(CommandInterface.Discord, ctx);
+            }, ctx);
+        }
+
+        #endregion
+
         #region Meta
 
         [SlashCommand("About", "\"Displays a message describing what the DiscordLink plugin is.\"")]

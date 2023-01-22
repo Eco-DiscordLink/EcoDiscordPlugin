@@ -119,6 +119,19 @@ namespace Eco.Plugins.DiscordLink
 
         #endregion
 
+        #region Server Management
+
+        [ChatSubCommand("DiscordLink", "Shuts the server down.", "DL-Servershutdown", ChatAuthorizationLevel.Admin)]
+        public static async Task ServerShutdown(User callingUser)
+        {
+            await ExecuteCommand<object>(async (lUser, args) =>
+            {
+                await SharedCommands.ServerShutdown(CommandInterface.Eco, callingUser);
+            }, callingUser);
+        }
+
+        #endregion
+
         #region Meta
 
         [ChatSubCommand("DiscordLink", "Displays information about the DiscordLink plugin.", "DL-About", ChatAuthorizationLevel.User)]
