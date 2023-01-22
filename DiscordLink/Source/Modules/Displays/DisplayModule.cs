@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using static Eco.Plugins.DiscordLink.Enums;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
@@ -132,7 +133,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             }
             else if (trigger == DLEventType.DiscordReactionAdded || trigger == DLEventType.DiscordReactionRemoved)
             {
-                Utilities.Utils.DiscordReactionChange changeType = (trigger == DLEventType.DiscordReactionAdded ? Utilities.Utils.DiscordReactionChange.Added : Utilities.Utils.DiscordReactionChange.Removed);
+                DiscordReactionChange changeType = (trigger == DLEventType.DiscordReactionAdded ? DiscordReactionChange.Added : DiscordReactionChange.Removed);
                 await HandleReactionChange(data[0] as DiscordUser, data[1] as DiscordMessage, data[2] as DiscordEmoji, changeType);
                 return;
             }
@@ -254,7 +255,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected async virtual Task PostDisplayEdited(DiscordMessage message) { }
 
-        protected async virtual Task HandleReactionChange(DiscordUser user, DiscordMessage message, DiscordEmoji reaction, Utilities.Utils.DiscordReactionChange changeType) { }
+        protected async virtual Task HandleReactionChange(DiscordUser user, DiscordMessage message, DiscordEmoji reaction, DiscordReactionChange changeType) { }
 
         private async Task FindMessages(DiscordLink plugin)
         {

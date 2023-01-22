@@ -28,15 +28,14 @@ using Eco.Shared.Networking;
 using Eco.Shared.Utils;
 using Eco.Shared;
 using Eco.Shared.Items;
+using Eco.Gameplay.Auth;
+using Eco.Shared.IoC;
+using Eco.Gameplay.Disasters;
 
 using static Eco.Shared.Mathf; // Avoiding collisions with system mathf 
 
 using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
 using StoreOfferGroup = System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.StoreComponent, Eco.Gameplay.Components.TradeOffer>>;
-using static Eco.Plugins.DiscordLink.Utilities.Utils;
-using Eco.Gameplay.Auth;
-using Eco.Shared.IoC;
-using Eco.Gameplay.Disasters;
 
 namespace Eco.Plugins.DiscordLink.Utilities
 {

@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink.Extensions
 {
-    public static class SystemExtensions
+    public static class PlatformExtensions
     {
+        public static bool TryParseSnowflakeID(this string StringID, out ulong ID) => ulong.TryParse(StringID, out ID) && ID > 0xFFFFFFFFFFFFFUL;
+
         public static Int64 ToUnixTime(this DateTime time) => (Int64)time.ToUniversalTime().Subtract(DateTime.UnixEpoch).TotalSeconds;
 
         /// <summary>

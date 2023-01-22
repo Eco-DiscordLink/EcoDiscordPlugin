@@ -341,21 +341,21 @@ namespace Eco.Plugins.DiscordLink
 
         public DiscordGuild GuildByNameOrID(string guildNameOrID)
         {
-            return Utilities.Utils.TryParseSnowflakeID(guildNameOrID, out ulong ID)
+            return guildNameOrID.TryParseSnowflakeID(out ulong ID)
                 ? DiscordClient.Guilds.Values.FirstOrDefault(guild => guild.Id == ID)
                 : DiscordClient.Guilds.Values.FirstOrDefault(guild => guild.Name.EqualsCaseInsensitive(guildNameOrID));
         }
 
         public DiscordChannel ChannelByNameOrID(string channelNameOrID)
         {
-            return Utilities.Utils.TryParseSnowflakeID(channelNameOrID, out ulong ID)
+            return channelNameOrID.TryParseSnowflakeID(out ulong ID)
                 ? Guild.Channels.Values.FirstOrDefault(channel => channel.Id == ID)
                 : Guild.Channels.Values.FirstOrDefault(guild => guild.Name.EqualsCaseInsensitive(channelNameOrID));
         }
 
         public DiscordMember MemberByNameOrID(string memberNameOrID)
         {
-            return Utilities.Utils.TryParseSnowflakeID(memberNameOrID, out ulong ID)
+            return memberNameOrID.TryParseSnowflakeID(out ulong ID)
                 ? Guild.Members[ID]
                 : Guild.Members.Values.FirstOrDefault(member => member.DisplayName.EqualsCaseInsensitive(memberNameOrID));
         }
@@ -398,7 +398,7 @@ namespace Eco.Plugins.DiscordLink
         {
             foreach (string adminRole in DLConfig.Data.AdminRoles)
             {
-                if (Utilities.Utils.TryParseSnowflakeID(adminRole, out ulong adminRoleID) && member.Roles.Any(role => role.Id == adminRoleID))
+                if (adminRole.TryParseSnowflakeID(out ulong adminRoleID) && member.Roles.Any(role => role.Id == adminRoleID))
                     return true;
 
                 if (member.Roles.Any(role => role.Name.EqualsCaseInsensitive(adminRole)))
@@ -443,7 +443,7 @@ namespace Eco.Plugins.DiscordLink
 
         public async Task<DiscordUser> GetUserAsync(string userID)
         {
-            if (!Utilities.Utils.TryParseSnowflakeID(userID, out ulong ID))
+            if (!userID.TryParseSnowflakeID(out ulong ID))
                 return null;
 
             return await GetUserAsync(ID);
@@ -456,10 +456,10 @@ namespace Eco.Plugins.DiscordLink
 
         public async Task<DiscordMember> GetMemberAsync(string guildID, string userID)
         {
-            if (!Utilities.Utils.TryParseSnowflakeID(userID, out ulong userSnowflakeID))
+            if (!userID.TryParseSnowflakeID(out ulong userSnowflakeID))
                 return null;
 
-            if (!Utilities.Utils.TryParseSnowflakeID(guildID, out ulong guildSnowflakeID))
+            if (!guildID.TryParseSnowflakeID(out ulong guildSnowflakeID))
                 return null;
 
             return await GetMemberAsync(guildSnowflakeID, userSnowflakeID);
@@ -476,7 +476,7 @@ namespace Eco.Plugins.DiscordLink
 
         public async Task<DiscordMember> GetMemberAsync(DiscordGuild guild, string userID)
         {
-            if (!Utilities.Utils.TryParseSnowflakeID(userID, out ulong ID))
+            if (!userID.TryParseSnowflakeID(out ulong ID))
                 return null;
 
             return await GetMemberAsync(guild, ID);

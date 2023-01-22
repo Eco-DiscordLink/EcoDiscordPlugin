@@ -49,7 +49,7 @@ namespace Eco.Plugins.DiscordLink.Extensions
 
         public static DiscordChannel ChannelByNameOrID(this DiscordGuild guild, string channelNameOrID)
         {
-            return Utilities.Utils.TryParseSnowflakeID(channelNameOrID, out ulong ID)
+            return channelNameOrID.TryParseSnowflakeID(out ulong ID)
                 ? guild.GetChannel(ID)
                 : guild.ChannelByName(channelNameOrID);
         }
@@ -70,7 +70,7 @@ namespace Eco.Plugins.DiscordLink.Extensions
 
         public static bool HasNameOrID(this DiscordChannel channel, string nameOrID)
         {
-            if (Utilities.Utils.TryParseSnowflakeID(nameOrID, out ulong ID))
+            if (nameOrID.TryParseSnowflakeID(out ulong ID))
                 return channel.Id == ID;
 
             return channel.Name.EqualsCaseInsensitive(nameOrID);
@@ -84,7 +84,7 @@ namespace Eco.Plugins.DiscordLink.Extensions
 
         public static bool HasNameOrID(this DiscordUser user, string nameOrID)
         {
-            if (Utilities.Utils.TryParseSnowflakeID(nameOrID, out ulong ID))
+            if (nameOrID.TryParseSnowflakeID(out ulong ID))
                 return user.Id == ID;
 
             return user.Username.EqualsCaseInsensitive(nameOrID);
@@ -96,7 +96,7 @@ namespace Eco.Plugins.DiscordLink.Extensions
 
         public static bool HasNameOrID(this DiscordMember member, string nameOrID)
         {
-            if (Utilities.Utils.TryParseSnowflakeID(nameOrID, out ulong ID))
+            if (nameOrID.TryParseSnowflakeID(out ulong ID))
                 return member.Id == ID;
 
             return member.UniqueUsername().EqualsCaseInsensitive(nameOrID) || member.Username.EqualsCaseInsensitive(nameOrID);
@@ -139,7 +139,7 @@ namespace Eco.Plugins.DiscordLink.Extensions
 
         public static bool HasNameOrID(this DiscordRole role, string nameOrID)
         {
-            if (Utilities.Utils.TryParseSnowflakeID(nameOrID, out ulong roleID))
+            if (nameOrID.TryParseSnowflakeID(out ulong roleID))
                 return role.Id == roleID;
 
             return role.Name.EqualsCaseInsensitive(nameOrID);

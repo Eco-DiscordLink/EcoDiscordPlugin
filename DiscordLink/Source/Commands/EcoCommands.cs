@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using Eco.Plugins.DiscordLink.Extensions;
 using System.Threading.Tasks;
 using static Eco.Plugins.DiscordLink.SharedCommands;
-using static Eco.Plugins.DiscordLink.Utilities.Utils;
+using static Eco.Plugins.DiscordLink.Enums;
 
 namespace Eco.Plugins.DiscordLink
 {

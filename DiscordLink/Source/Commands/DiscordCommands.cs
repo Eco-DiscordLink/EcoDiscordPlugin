@@ -8,12 +8,11 @@ using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.IoC;
 using Eco.Shared.Utils;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using static Eco.Plugins.DiscordLink.Enums;
 using static Eco.Plugins.DiscordLink.SharedCommands;
-using static Eco.Plugins.DiscordLink.Utilities.Utils;
 
 namespace Eco.Plugins.DiscordLink
 {

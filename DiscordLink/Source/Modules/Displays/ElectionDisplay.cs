@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using static Eco.Plugins.DiscordLink.Enums;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
@@ -54,12 +55,12 @@ namespace Eco.Plugins.DiscordLink.Modules
                 await CreateVoteReactions(message);
         }
 
-        protected async override Task HandleReactionChange(DiscordUser user, DiscordMessage message, DiscordEmoji emoji, Utilities.Utils.DiscordReactionChange changeType)
+        protected async override Task HandleReactionChange(DiscordUser user, DiscordMessage message, DiscordEmoji emoji, DiscordReactionChange changeType)
         {
             if (emoji != DLConstants.ACCEPT_EMOJI && emoji != DLConstants.DENY_EMOJI)
                 return;
 
-            if (changeType != Utilities.Utils.DiscordReactionChange.Added)
+            if (changeType != DiscordReactionChange.Added)
                 return;
 
             Election election = GetElectionFromMessage(message);

@@ -1,8 +1,8 @@
 ﻿using DSharpPlus.SlashCommands;
 
-namespace Eco.Plugins.DiscordLink.Utilities
+namespace Eco.Plugins.DiscordLink
 {
-    public static class Utils
+    public static class Enums
     {
         public enum DiscordReactionChange
         {
@@ -25,11 +25,6 @@ namespace Eco.Plugins.DiscordLink.Utilities
             Personal,
             [ChoiceName("Minted")]
             Minted
-        }
-
-        public static bool TryParseSnowflakeID(string nameOrID, out ulong ID)
-        {
-            return ulong.TryParse(nameOrID, out ID) && ID > 0xFFFFFFFFFFFFFUL;
         }
     }
 }
