@@ -9,12 +9,14 @@ using Eco.EM.Framework.VersioningTools;
 using Eco.Gameplay.Aliases;
 using Eco.Gameplay.Civics.Elections;
 using Eco.Gameplay.GameActions;
+using Eco.Gameplay.Modules;
 using Eco.Gameplay.Players;
 using Eco.Gameplay.Property;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Modules;
 using Eco.Plugins.DiscordLink.Utilities;
+using Eco.Shared.Utils;
 using Eco.WorldGenerator;
 using System;
 using System.Collections.Generic;
@@ -188,6 +190,18 @@ namespace Eco.Plugins.DiscordLink
                     Logger.Info($"Permission Verification Report:\n{MessageBuilder.Shared.GetPermissionsReport(MessageBuilder.PermissionReportComponentFlag.All)}");
                 else
                     Logger.Error("Failed to verify permissions - Discord client not connected");
+            });
+            nameToFunction.Add("Force Update", () =>
+            {
+                if(Client.ConnectionStatus != DLDiscordClient.ConnectionState.Connected)
+                {
+                    Logger.Info("Failed to force update - Disoord client not connected");
+                    return;
+                }
+
+                Modules.ForEach(async module => await module.HandleStartOrStop());
+                HandleEvent(DLEventType.ForceUpdate);
+                Logger.Info("Forced update");
             });
             nameToFunction.Add("Restart Plugin", () =>
             {
