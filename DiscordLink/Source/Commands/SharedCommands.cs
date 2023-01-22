@@ -69,6 +69,12 @@ namespace Eco.Plugins.DiscordLink
 
         public static async Task<bool> Update(CommandInterface source, object callContext)
         {
+            if(DiscordLink.Obj.Client.ConnectionStatus != DLDiscordClient.ConnectionState.Connected)
+            {
+                await ReportCommandError(source, callContext, "Failed to force update - Disoord client not connected");
+                return false;
+            }
+
             DiscordLink plugin = DiscordLink.Obj;
             plugin.Modules.ForEach(async module => await module.HandleStartOrStop());
             plugin.HandleEvent(Events.DLEventType.ForceUpdate);
