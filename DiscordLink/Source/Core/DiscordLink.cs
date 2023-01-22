@@ -407,7 +407,7 @@ namespace Eco.Plugins.DiscordLink
 
         private async void UpdateModules(DLEventType trigger, params object[] data)
         {
-            foreach(Module module in Modules)
+            foreach(Module module in Modules.NonNull())
             {
                 try
                 {
