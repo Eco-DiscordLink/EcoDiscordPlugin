@@ -59,6 +59,8 @@ namespace Eco.Plugins.DiscordLink
                 await DiscordCommands.DisplayCommandData(callContext as InteractionContext, title, embeds);
             else if (data is string content)
                 await DiscordCommands.DisplayCommandData(callContext as InteractionContext, title, content);
+            else
+                Logger.Error($"Attempted to display command data of unhandled type \"{data.GetType()}\"");
         }
 
         #endregion
