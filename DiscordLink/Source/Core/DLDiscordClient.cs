@@ -76,7 +76,7 @@ namespace Eco.Plugins.DiscordLink
                 return; // Do not attempt to initialize if the bot token is empty
             }
 
-            if (string.IsNullOrWhiteSpace(DLConfig.Data.DiscordServer))
+            if (DLConfig.Data.DiscordServerID == 0)
             {
                 Logger.Error("Discord Server not configured - See Github page for install instructions.");
                 LastConnectionError = ConnectionError.InvalidGuild;
@@ -122,7 +122,7 @@ namespace Eco.Plugins.DiscordLink
 
                 // Register Discord commands
                 _commands = DiscordClient.UseSlashCommands(new SlashCommandsConfiguration());
-                _commands.RegisterCommands<DiscordCommands>();
+                _commands.RegisterCommands<DiscordCommands>(DLConfig.Data.DiscordServerID);
             }
             catch (Exception e)
             {
@@ -172,10 +172,7 @@ namespace Eco.Plugins.DiscordLink
         private async Task HandleGuildDownloadCompleted(DiscordClient client, GuildDownloadCompletedEventArgs args)
         {
             Status = "Resolving Discord server...";
-            string guildNameOrID = DLConfig.Data.DiscordServer;
-            Guild = Utilities.Utils.TryParseSnowflakeID(guildNameOrID, out ulong ID)
-                    ? DiscordClient.Guilds.Values.FirstOrDefault(guild => guild.Id == ID)
-                    : DiscordClient.Guilds.Values.FirstOrDefault(guild => guild.Name.EqualsCaseInsensitive(guildNameOrID));
+            Guild = DiscordClient.Guilds.Values.FirstOrDefault(guild => guild.Id == DLConfig.Data.DiscordServerID);
 
             if (Guild == null)
             {
@@ -184,7 +181,7 @@ namespace Eco.Plugins.DiscordLink
                 ConnectionStatus = ConnectionState.Disconnected;
                 LastConnectionError = ConnectionError.GuildConnectionFailed;
                 Status = "Failed to find configured Discord server";
-                Logger.Error($"Failed to find Discord server \"{DLConfig.Data.DiscordServer}\"");
+                Logger.Error($"Failed to find Discord server \"{DLConfig.Data.DiscordServerID}\"");
                 return;
             }
 

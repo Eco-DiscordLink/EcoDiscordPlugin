@@ -127,7 +127,7 @@ namespace Eco.Plugins.DiscordLink
             // Guild
             if (DiscordLink.Obj.Client.Guild == null)
             {
-                Logger.Error($"Failed to find Discord server with the name or ID \"{Data.DiscordServer}\"");
+                Logger.Error($"Failed to find a Discord server with the ID \"{Data.DiscordServerID}\"");
                 return;
             }
 
@@ -149,7 +149,7 @@ namespace Eco.Plugins.DiscordLink
             // Do not verify if change occurred as this function is going to be called again in that case
             // Do not verify the config in case critical data has been changed, as the client will be restarted and that will trigger verification
             bool tokenChanged = Data.BotToken != _prevConfig.BotToken;
-            bool guildChanged = Data.DiscordServer != _prevConfig.DiscordServer;
+            bool guildChanged = Data.DiscordServerID != _prevConfig.DiscordServerID;
             bool correctionMade = !Save();
 
             BuildChanneLinkList();
@@ -166,7 +166,9 @@ namespace Eco.Plugins.DiscordLink
                 InitChatLinks();
             }
 
-            if (!correctionMade) // If a correction was made, this function will be called again
+            // If a correction was made, this function will be called again.
+            // If the guild becomes null, this check is unstable and will be performed on plugin restart anyway.
+            if (!correctionMade && !guildChanged)
             {
                 if (OnConfigChanged != null)
                     await OnConfigChanged.Invoke(this, EventArgs.Empty);
@@ -292,7 +294,7 @@ namespace Eco.Plugins.DiscordLink
         {
             return new DLConfigData
             {
-                DiscordServer = this.DiscordServer,
+                DiscordServerID = this.DiscordServerID,
                 BotToken = this.BotToken,
                 EcoBotName = this.EcoBotName,
                 MinEmbedSizeForFooter = this.MinEmbedSizeForFooter,
@@ -325,8 +327,8 @@ namespace Eco.Plugins.DiscordLink
             };
         }
 
-        [Description("The name or ID if the Discord Server. This setting can be changed while the server is running but will require a plugin restart to take effect."), Category("Base Configuration - Discord")]
-        public string DiscordServer { get; set; } = string.Empty;
+        [Description("The ID if the Discord Server. This setting can be changed while the server is running but will require a plugin restart to take effect."), Category("Base Configuration - Discord")]
+        public ulong DiscordServerID { get; set; }
 
         [Description("The token provided by the Discord API to allow access to the Discord bot. This setting can be changed while the server is running but will require a plugin restart to take effect."), Category("Base Configuration - Discord")]
         public string BotToken { get; set; }

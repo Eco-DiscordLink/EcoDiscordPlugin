@@ -256,9 +256,9 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 DLConfigData config = DLConfig.Data;
 
                 // Guild
-                if (string.IsNullOrWhiteSpace(config.DiscordServer))
+                if (config.DiscordServerID == 0)
                 {
-                    builder.AppendLine("- Discord server not configured.");
+                    builder.AppendLine("- Discord server ID not configured.");
                 }
 
                 // Bot Token
