@@ -258,7 +258,7 @@ namespace Eco.Plugins.DiscordLink
 
         #region Meta
 
-        [SlashCommand("About", "\"Displays a message describing what the DiscordLink plugin is.\"")]
+        [SlashCommand("About", "Displays a message describing what the DiscordLink plugin is.")]
         public async Task About(InteractionContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
