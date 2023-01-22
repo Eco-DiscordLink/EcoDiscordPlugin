@@ -1,5 +1,4 @@
 ﻿using DSharpPlus;
-using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
@@ -12,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DSharpPlus.SlashCommands;
 
 namespace Eco.Plugins.DiscordLink
 {
@@ -53,7 +53,7 @@ namespace Eco.Plugins.DiscordLink
             }
         }
         private string _status = "Uninitialized";
-        private CommandsNextExtension _commands = null;
+        private SlashCommandsExtension _commands = null;
 
         #region Connection Handling
 
@@ -121,10 +121,7 @@ namespace Eco.Plugins.DiscordLink
                 });
 
                 // Register Discord commands
-                _commands = DiscordClient.UseCommandsNext(new CommandsNextConfiguration
-                {
-                    StringPrefixes = DLConfig.Data.DiscordCommandPrefix.SingleItemAsEnumerable()
-                });
+                _commands = DiscordClient.UseSlashCommands(new SlashCommandsConfiguration());
                 _commands.RegisterCommands<DiscordCommands>();
             }
             catch (Exception e)

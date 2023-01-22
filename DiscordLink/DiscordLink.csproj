@@ -30,16 +30,16 @@
 
   <!-- Use project references if the projects are installed and package references otherwise -->
   <Choose>
-    <When Condition="Exists('..\..\DSharpPlus\DSharpPlus\DSharpPlus.csproj') AND Exists('..\..\DSharpPlus\DSharpPlus.CommandsNext\DSharpPlus.CommandsNext.csproj')">
+    <When Condition="Exists('..\..\DSharpPlus\DSharpPlus\DSharpPlus.csproj') AND Exists('..\..\DSharpPlus\DSharpPlus.SlashCommands\DSharpPlus.SlashCommands.csproj')">
       <ItemGroup>
         <ProjectReference Include="..\..\DSharpPlus\DSharpPlus\DSharpPlus.csproj" />
-        <ProjectReference Include="..\..\DSharpPlus\DSharpPlus.CommandsNext\DSharpPlus.CommandsNext.csproj" />
+        <ProjectReference Include="..\..\DSharpPlus\DSharpPlus.SlashCommands\DSharpPlus.SlashCommands.csproj" />
       </ItemGroup>
     </When>
     <Otherwise>
       <ItemGroup>
         <PackageReference Include="DSharpPlus" Version="4.3.0" />
-        <PackageReference Include="DSharpPlus.CommandsNext" Version="4.3.0" />
+        <PackageReference Include="DSharpPlus.SlashCommands" Version="4.3.0" />
       </ItemGroup>
     </Otherwise>
   </Choose>

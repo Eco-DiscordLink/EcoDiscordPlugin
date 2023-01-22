@@ -1,5 +1,4 @@
-﻿using DSharpPlus.CommandsNext.Attributes;
-using DSharpPlus.Entities;
+﻿using DSharpPlus.Entities;
 using Eco.Core.Plugins;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
@@ -12,8 +11,6 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
-using Description = System.ComponentModel.DescriptionAttribute;
-using CategoryAttribute = System.ComponentModel.CategoryAttribute;
 
 namespace Eco.Plugins.DiscordLink
 {

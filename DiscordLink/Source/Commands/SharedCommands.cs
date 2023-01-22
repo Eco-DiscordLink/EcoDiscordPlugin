@@ -1,5 +1,5 @@
-﻿using DSharpPlus.CommandsNext;
-using DSharpPlus.Entities;
+﻿using DSharpPlus.Entities;
+using DSharpPlus.SlashCommands;
 using Eco.Gameplay.Civics.Elections;
 using Eco.Gameplay.Economy;
 using Eco.Gameplay.Economy.WorkParties;
@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using static Eco.Plugins.DiscordLink.Utilities.Utils;
 using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
 
 namespace Eco.Plugins.DiscordLink
@@ -25,16 +26,19 @@ namespace Eco.Plugins.DiscordLink
 
         public enum CommandInterface
         {
+            [ChoiceName("Eco")]
             Eco,
+            [ChoiceName("Discord")]
             Discord
         }
+
 
         private static async Task ReportCommandError(CommandInterface source, object callContext, string message)
         {
             if (source == CommandInterface.Eco)
                 EcoCommands.ReportCommandError(callContext as User, message);
             else
-                await DiscordCommands.ReportCommandError(callContext as CommandContext, message);
+                await DiscordCommands.ReportCommandError(callContext as InteractionContext, message);
         }
 
         private static async Task ReportCommandInfo(CommandInterface source, object callContext, string message)
@@ -42,7 +46,7 @@ namespace Eco.Plugins.DiscordLink
             if (source == CommandInterface.Eco)
                 EcoCommands.ReportCommandInfo(callContext as User, message);
             else
-                await DiscordCommands.ReportCommandInfo(callContext as CommandContext, message);
+                await DiscordCommands.ReportCommandInfo(callContext as InteractionContext, message);
         }
 
         private static async Task DisplayCommandData(CommandInterface source, object callContext, string title, object data, string panelInstance = "")
@@ -50,9 +54,11 @@ namespace Eco.Plugins.DiscordLink
             if (source == CommandInterface.Eco)
                 EcoCommands.DisplayCommandData(callContext as User, panelInstance, title, data as string);
             else if (data is DiscordLinkEmbed embed)
-                await DiscordCommands.DisplayCommandData(callContext as CommandContext, title, embed);
+                await DiscordCommands.DisplayCommandData(callContext as InteractionContext, title, embed);
+            else if (data is IEnumerable<DiscordLinkEmbed> embeds)
+                await DiscordCommands.DisplayCommandData(callContext as InteractionContext, title, embeds);
             else if (data is string content)
-                await DiscordCommands.DisplayCommandData(callContext as CommandContext, title, content);
+                await DiscordCommands.DisplayCommandData(callContext as InteractionContext, title, content);
         }
 
         #endregion
@@ -86,7 +92,7 @@ namespace Eco.Plugins.DiscordLink
                 else if (source == CommandInterface.Discord)
                 {
                     // Special handling since the call context is broken by the restart and can't be used to respond to the command
-                    DiscordChannel channel = plugin.Client.ChannelByNameOrID(((CommandContext)callContext).Channel.Id.ToString());
+                    DiscordChannel channel = plugin.Client.ChannelByNameOrID(((InteractionContext)callContext).Channel.Id.ToString());
                     _ = plugin.Client.SendMessageAsync(channel, result);
                 }
             }
@@ -382,26 +388,21 @@ namespace Eco.Plugins.DiscordLink
             return true;
         }
 
-        public static async Task<bool> CurrenciesReport(CommandInterface source, object callContext, string currencyType, string maxCurrenciesPerTypeStr, string holdersPerCurrencyStr)
+        public static async Task<bool> CurrenciesReport(CommandInterface source, object callContext, CurrencyType currencyType, int maxCurrenciesPerType, int holdersPerCurrency)
         {
-            if (!currencyType.EqualsCaseInsensitive("all") && !currencyType.EqualsCaseInsensitive("minted") && !currencyType.EqualsCaseInsensitive("personal"))
-            {
-                await ReportCommandError(source, callContext, "The CurrencyType parameter must be \"All\", \"Personal\" or \"Minted\".");
-                return false;
-            }
-            if (int.TryParse(maxCurrenciesPerTypeStr, out int maxCurrenciesPerType) || maxCurrenciesPerType <= 0)
+            if (maxCurrenciesPerType <= 0)
             {
                 await ReportCommandError(source, callContext, "The MaxCurrenciesPerType parameter must be a positive number.");
                 return false;
             }
-            if (int.TryParse(holdersPerCurrencyStr, out int holdersPerCurrency) || holdersPerCurrency <= 0)
+            if (holdersPerCurrency <= 0)
             {
                 await ReportCommandError(source, callContext, "The HoldersPerCurrency parameter must be a positive number.");
                 return false;
             }
 
-            bool useMinted = currencyType.EqualsCaseInsensitive("all") || currencyType.EqualsCaseInsensitive("minted");
-            bool usePersonal = currencyType.EqualsCaseInsensitive("all") || currencyType.EqualsCaseInsensitive("personal");
+            bool useMinted = currencyType == CurrencyType.All || currencyType == CurrencyType.Minted;
+            bool usePersonal = currencyType == CurrencyType.All || currencyType == CurrencyType.Personal;
 
             IEnumerable<Currency> currencies = EcoUtils.Currencies;
             var currencyTradesMap = DLStorage.WorldData.CurrencyToTradeCountMap;
@@ -441,10 +442,10 @@ namespace Eco.Plugins.DiscordLink
             }
             else
             {
-                foreach (DiscordLinkEmbed report in reports)
-                {
-                    await DisplayCommandData(source, callContext, $"Currency report for {report.Title}", report);
-                }
+                if (reports.Count > 0)
+                    await DisplayCommandData(source, callContext, $"Currencies Report", reports);
+                else
+                    await ReportCommandError(source, callContext, "No matching currencies found.");
             }
 
             return true;
@@ -491,17 +492,10 @@ namespace Eco.Plugins.DiscordLink
             }
 
             if (source == CommandInterface.Eco)
-            {
-                string fullReport = string.Join("\n\n", reports.Select(r => r.AsText()));
-                await DisplayCommandData(source, callContext, $"Elections Report", fullReport, DLConstants.ECO_PANEL_REPORT);
-            }
+                await DisplayCommandData(source, callContext, $"Elections Report", string.Join("\n\n", reports.Select(r => r.AsText())), DLConstants.ECO_PANEL_REPORT);
             else
-            {
-                foreach (DiscordLinkEmbed report in reports)
-                {
-                    await DisplayCommandData(source, callContext, $"Election report for {report.Title}", report);
-                }
-            }
+                await DisplayCommandData(source, callContext, $"Elections Report", reports);
+
             return true;
         }
 
@@ -519,6 +513,7 @@ namespace Eco.Plugins.DiscordLink
                 await DisplayCommandData(source, callContext, $"Work party report for {workParty}", MessageUtils.FormatEmbedForEco(report), DLConstants.ECO_PANEL_REPORT);
             else
                 await DisplayCommandData(source, callContext, $"Work party report for {workParty}", report);
+
             return true;
         }
 
@@ -538,17 +533,10 @@ namespace Eco.Plugins.DiscordLink
             }
 
             if (source == CommandInterface.Eco)
-            {
-                string fullReport = string.Join("\n\n", reports.Select(r => r.AsText()));
-                await DisplayCommandData(source, callContext, $"Work Parties Report", fullReport, DLConstants.ECO_PANEL_REPORT);
-            }
+                await DisplayCommandData(source, callContext, $"Work Parties Report", string.Join("\n\n", reports.Select(r => r.AsText())), DLConstants.ECO_PANEL_REPORT);
             else
-            {
-                foreach (DiscordLinkEmbed report in reports)
-                {
-                    await DisplayCommandData(source, callContext, $"Work Party report for {report.Title}", report);
-                }
-            }
+                await DisplayCommandData(source, callContext, "Work Parties Report", reports);
+
             return true;
         }
 
@@ -639,7 +627,7 @@ namespace Eco.Plugins.DiscordLink
 
             LinkedUser linkedUser = source == CommandInterface.Eco
                 ? UserLinkManager.LinkedUserByEcoUser(callContext as User, callContext as User, "Trade Watcher Registration")
-                : UserLinkManager.LinkedUserByDiscordUser((callContext as CommandContext).User, (callContext as CommandContext).Member, "Trade Watcher Registration");
+                : UserLinkManager.LinkedUserByDiscordUser((callContext as InteractionContext).User, (callContext as InteractionContext).Member, "Trade Watcher Registration");
             if (linkedUser == null)
                 return false;
 
@@ -692,7 +680,7 @@ namespace Eco.Plugins.DiscordLink
 
             LinkedUser linkedUser = source == CommandInterface.Eco
                 ? UserLinkManager.LinkedUserByEcoUser(callContext as User, callContext as User, "Trade Watcher Unregistration")
-                : UserLinkManager.LinkedUserByDiscordUser((callContext as CommandContext).User, (callContext as CommandContext).Member, "Trade Watcher Unregistration");
+                : UserLinkManager.LinkedUserByDiscordUser((callContext as InteractionContext).User, (callContext as InteractionContext).Member, "Trade Watcher Unregistration");
             if (linkedUser == null)
                 return false;
 
@@ -714,7 +702,7 @@ namespace Eco.Plugins.DiscordLink
         {
             LinkedUser linkedUser = source == CommandInterface.Eco
                 ? UserLinkManager.LinkedUserByEcoUser(callContext as User, callContext as User, "Trade Watchers Listing")
-                : UserLinkManager.LinkedUserByDiscordUser((callContext as CommandContext).User, (callContext as CommandContext).Member, "Trade Watchers Listing");
+                : UserLinkManager.LinkedUserByDiscordUser((callContext as InteractionContext).User, (callContext as InteractionContext).Member, "Trade Watchers Listing");
             if (linkedUser == null)
                 return false;
 
@@ -748,7 +736,7 @@ namespace Eco.Plugins.DiscordLink
                     }
                     else
                     {
-                        await DiscordCommands.DisplayCommandData((CommandContext)callContext, snippetKey, snippetText);
+                        await DiscordCommands.DisplayCommandData((InteractionContext)callContext, snippetKey, snippetText);
                     }
                 }
                 else
@@ -783,7 +771,7 @@ namespace Eco.Plugins.DiscordLink
 
             string senderName = source == CommandInterface.Eco
                 ? (callContext as User).Name
-                : (callContext as CommandContext).Member.DisplayName;
+                : (callContext as InteractionContext).Member.DisplayName;
 
             string formattedMessage = $"[{senderName}] {message}";
             bool sent = recipient == null
@@ -819,7 +807,7 @@ namespace Eco.Plugins.DiscordLink
 
             string senderName = source == CommandInterface.Eco
                 ? (callContext as User).Name
-                : (callContext as CommandContext).Member.DisplayName;
+                : (callContext as InteractionContext).Member.DisplayName;
 
             bool sent = false;
             string formattedMessage = $"[{senderName}]\n\n{message}";
@@ -873,7 +861,7 @@ namespace Eco.Plugins.DiscordLink
 
             string senderName = source == CommandInterface.Eco
                 ? (callContext as User).Name
-                : (callContext as CommandContext).Member.DisplayName;
+                : (callContext as InteractionContext).Member.DisplayName;
 
             string formattedMessage = $"[{senderName}]\n\n{message}";
             bool sent = recipient == null
@@ -909,7 +897,7 @@ namespace Eco.Plugins.DiscordLink
 
             string senderName = source == CommandInterface.Eco
                 ? (callContext as User).Name
-                : (callContext as CommandContext).Member.DisplayName;
+                : (callContext as InteractionContext).Member.DisplayName;
 
             string formattedMessage = $"[{senderName}]\n\n{message}";
             bool sent = true;
@@ -963,7 +951,7 @@ namespace Eco.Plugins.DiscordLink
 
             string senderName = source == CommandInterface.Eco
                 ? (callContext as User).Name
-                : (callContext as CommandContext).Member.DisplayName;
+                : (callContext as InteractionContext).Member.DisplayName;
 
             string formattedMessage = $"{message}\n\n[{senderName}]";
             bool sent = recipient == null

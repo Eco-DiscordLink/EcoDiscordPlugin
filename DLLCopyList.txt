@@ -1,6 +1,7 @@
 DiscordLink.dll
 DSharpPlus.dll
 DSharpPlus.CommandsNext.dll
+DSharpPlus.SlashCommands.dll
 Emzi0767.Common.dll
 Nito.AsyncEx.Coordination.dll
 Nito.AsyncEx.Tasks.dll

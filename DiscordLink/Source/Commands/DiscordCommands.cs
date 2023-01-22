@@ -1,7 +1,6 @@
 ﻿using DSharpPlus;
-using DSharpPlus.CommandsNext;
-using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using DSharpPlus.SlashCommands;
 using Eco.Gameplay.Players;
 using Eco.Gameplay.Systems.Messaging.Chat;
 using Eco.Plugins.DiscordLink.Extensions;
@@ -9,13 +8,16 @@ using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.IoC;
 using Eco.Shared.Utils;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using static Eco.Plugins.DiscordLink.SharedCommands;
+using static Eco.Plugins.DiscordLink.Utilities.Utils;
 
 namespace Eco.Plugins.DiscordLink
 {
-    public class DiscordCommands : BaseCommandModule
+    public class DiscordCommands : ApplicationCommandModule
     {
         #region Commands Base
 
@@ -25,9 +27,9 @@ namespace Eco.Plugins.DiscordLink
             Admin
         }
 
-        public delegate Task DiscordCommand(CommandContext ctx, params string[] parameters);
+        public delegate Task DiscordCommand(InteractionContext ctx, params string[] parameters);
 
-        private static async Task ExecuteCommand<TRet>(PermissionType requiredPermission, DiscordCommand command, CommandContext ctx, params string[] parameters)
+        private static async Task ExecuteCommand<TRet>(PermissionType requiredPermission, DiscordCommand command, InteractionContext ctx, params string[] parameters)
         {
             try
             {
@@ -46,9 +48,9 @@ namespace Eco.Plugins.DiscordLink
                 }
 
                 if (ctx.Channel.IsPrivate)
-                    Logger.Debug($"{ctx.User.Username} invoked Discord command \"{ctx.Prefix}{command.Method.Name}\" in DM");
+                    Logger.Debug($"{ctx.User.Username} invoked Discord command \"/{command.Method.Name}\" in DM");
                 else
-                    Logger.Debug($"{ctx.User.Username} invoked Discord command \"{ctx.Prefix}{command.Method.Name}\" in channel {ctx.Channel.Name}");
+                    Logger.Debug($"{ctx.User.Username} invoked Discord command \"/{command.Method.Name}\" in channel {ctx.Channel.Name}");
 
                 await command(ctx, parameters);
             }
@@ -59,29 +61,30 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
-        private static async Task RespondToCommand(CommandContext ctx, string fullTextContent, DiscordLinkEmbed embedContent = null)
-        {
-            async static Task Respond(CommandContext ctx, string textContent, DiscordLinkEmbed embedContent)
-            {
-                // If needed; split the message into multiple parts
-                ICollection<string> stringParts = MessageUtils.SplitStringBySize(textContent, DLConstants.DISCORD_MESSAGE_CHARACTER_LIMIT);
-                ICollection<DiscordEmbed> embedParts = MessageUtils.BuildDiscordEmbeds(embedContent);
+        private static async Task RespondToCommand(InteractionContext ctx, string fullTextContent, DiscordLinkEmbed embedContent) => await RespondToCommand(ctx, fullTextContent, embedContent.SingleItemAsEnumerable());
 
-                if (stringParts.Count <= 1 && embedParts.Count == 1)
+        private static async Task RespondToCommand(InteractionContext ctx, string fullTextContent, IEnumerable<DiscordLinkEmbed> embedContent = null)
+        {
+            async static Task Respond(InteractionContext ctx, string textContent, IEnumerable<DiscordLinkEmbed> embedContent)
+            {
+                DiscordInteractionResponseBuilder Builder = new DiscordInteractionResponseBuilder();
+                if (!string.IsNullOrWhiteSpace(textContent))
                 {
-                    await ctx.RespondAsync(textContent, embedParts.First());
+                    if (textContent.Length < DLConstants.DISCORD_MESSAGE_CHARACTER_LIMIT)
+                        Builder.Content = textContent;
+                    else
+                        Builder.Content = $"{textContent.Substring(0, DLConstants.DISCORD_MESSAGE_CHARACTER_LIMIT - 4)}...";
                 }
-                else
+
+                if (embedContent != null)
                 {
-                    foreach (string textMessagePart in stringParts)
+                    foreach (DiscordLinkEmbed embed in embedContent)
                     {
-                        await ctx.RespondAsync(textMessagePart);
-                    }
-                    foreach (DiscordEmbed embedPart in embedParts)
-                    {
-                        await ctx.RespondAsync(embedPart);
+                        Builder.AddEmbeds(MessageUtils.BuildDiscordEmbeds(embed));
                     }
                 }
+
+                await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, Builder);
             }
 
             try
@@ -89,7 +92,7 @@ namespace Eco.Plugins.DiscordLink
                 DLDiscordClient client = DiscordLink.Obj.Client;
                 if (!client.ChannelHasPermission(ctx.Channel, Permissions.SendMessages) || !client.ChannelHasPermission(ctx.Channel, Permissions.ReadMessageHistory))
                 {
-                    Logger.Error($"Failed to respond to command \"{ctx.Command.Name}\" in channel \"{ctx.Channel}\" as the bot lacks permissions for sending and/or reading messages in this channel.");
+                    Logger.Error($"Failed to respond to command \"{ctx.CommandName}\" in channel \"{ctx.Channel}\" as the bot lacks permissions for sending and/or reading messages in this channel.");
                     return;
                 }
 
@@ -106,7 +109,7 @@ namespace Eco.Plugins.DiscordLink
                     }
                     else
                     {
-                        await Respond(ctx, $"{fullTextContent}\n{embedContent.AsText()}", null);
+                        await Respond(ctx, $"{fullTextContent}\n{string.Join("\n\n", embedContent.Select(embed => embed.AsText()))}", null);
                     }
                 }
             }
@@ -116,7 +119,7 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
-        private static bool IsCommandAllowedForUser(CommandContext ctx, PermissionType requiredPermission)
+        private static bool IsCommandAllowedForUser(InteractionContext ctx, PermissionType requiredPermission)
         {
             return requiredPermission switch
             {
@@ -126,7 +129,7 @@ namespace Eco.Plugins.DiscordLink
             };
         }
 
-        private static bool IsCommandAllowedInChannel(CommandContext ctx)
+        private static bool IsCommandAllowedInChannel(InteractionContext ctx)
         {
             var commandChannels = DLConfig.Data.DiscordCommandChannels;
             bool allowed =
@@ -152,12 +155,36 @@ namespace Eco.Plugins.DiscordLink
 
         #endregion
 
+        #region User Feedback
+
+        public static async Task ReportCommandError(InteractionContext ctx, string message)
+        {
+            await RespondToCommand(ctx, message);
+        }
+
+        public static async Task ReportCommandInfo(InteractionContext ctx, string message)
+        {
+            await RespondToCommand(ctx, message);
+        }
+
+        public static async Task DisplayCommandData(InteractionContext ctx, string title, DiscordLinkEmbed embed) => await DisplayCommandData(ctx, title, embed.SingleItemAsEnumerable());
+
+        public static async Task DisplayCommandData(InteractionContext ctx, string title, IEnumerable<DiscordLinkEmbed> embeds)
+        {
+            await RespondToCommand(ctx, title, embeds);
+        }
+
+        public static async Task DisplayCommandData(InteractionContext ctx, string title, string content)
+        {
+            await RespondToCommand(ctx, $"**{title}**\n```{content}```");
+        }
+
+        #endregion
+
         #region Eco Commands
 
-        [Command("ExecuteEcoCommand")]
-        [Description("Runs the inputted eco command")]
-        [Aliases("DL-EcoCommand", "EC")]
-        public async Task EcoCommand(CommandContext ctx, [Description("The Eco command to execute, including parameters and styled as in ingame command.")] string command)
+        [SlashCommand("EcoCommand", "Runs an ingame command.")]
+        public async Task EcoCommanda(InteractionContext ctx, [Option("Command", "The Eco command to run.")] string command)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
@@ -168,83 +195,50 @@ namespace Eco.Plugins.DiscordLink
 
         #endregion
 
-        #region User Feedback
-
-        public static async Task ReportCommandError(CommandContext ctx, string message)
-        {
-            await RespondToCommand(ctx, message);
-        }
-
-        public static async Task ReportCommandInfo(CommandContext ctx, string message)
-        {
-            await RespondToCommand(ctx, message);
-        }
-
-        public static async Task DisplayCommandData(CommandContext ctx, string title, DiscordLinkEmbed embed)
-        {
-            await RespondToCommand(ctx, title, embed);
-        }
-        public static async Task DisplayCommandData(CommandContext ctx, string title, string content)
-        {
-            await RespondToCommand(ctx, $"**{title}**\n```{content}```");
-        }
-
-        #endregion
-
         #region Plugin Management
 
-        [Command("Update")]
-        [Description("Forces an update.")]
-        [Aliases("DL-Update")]
-        public async Task Updated(CommandContext ctx)
+        [SlashCommand("Update", "Forces an update of most internal systems.")]
+        public async Task Update(InteractionContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.Update(SharedCommands.CommandInterface.Discord, ctx);
+                await SharedCommands.Update(CommandInterface.Discord, ctx);
             }, ctx);
         }
 
-        [Command("Restart")]
-        [Description("Restarts the plugin.")]
-        [Aliases("DL-Restart")]
-        public async Task Restart(CommandContext ctx)
+        [SlashCommand("Restart", "Restarts the plugin.")]
+        public async Task Restart(InteractionContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.Restart(SharedCommands.CommandInterface.Discord, ctx);
+                await SharedCommands.Restart(CommandInterface.Discord, ctx);
             }, ctx);
         }
 
-        [Command("ResetPersistentData")]
-        [Description("Removes all persistent storage data.")]
-        [Aliases("DL-ResetPersistentdata")]
-        public async Task ResetPersistentData(CommandContext ctx)
+        [SlashCommand("ResetPersistentData", "Removes all persistent storage data.")]
+        public async Task ResetPersistentData(InteractionContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.ResetPersistentData(SharedCommands.CommandInterface.Discord, ctx);
+                await SharedCommands.ResetPersistentData(CommandInterface.Discord, ctx);
             }, ctx);
         }
 
-        [Command("ResetWorldData")]
-        [Description("Resets world data as if a new world had been created.")]
-        [Aliases("DL-ResetWorldData")]
-        public async Task ResetWorldData(CommandContext ctx)
+        [SlashCommand("ResetWorldData", "Resets world data as if a new world had been created.")]
+        public async Task ResetWorldData(InteractionContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.ResetWorldData(SharedCommands.CommandInterface.Discord, ctx);
+                await SharedCommands.ResetWorldData(CommandInterface.Discord, ctx);
             }, ctx);
         }
 
-        [Command("ClearRoles")]
-        [Description("Deletes all Discord roles created and tracked by DiscordLink.")]
-        [Aliases("DL-ClearRoles")]
-        public async Task ClearRoles(CommandContext ctx)
+        [SlashCommand("ClearRoles", "Deletes all Discord roles created and tracked by DiscordLink.")]
+        public async Task ClearRoles(InteractionContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.ClearRoles(SharedCommands.CommandInterface.Discord, ctx);
+                await SharedCommands.ClearRoles(CommandInterface.Discord, ctx);
             }, ctx);
         }
 
@@ -252,10 +246,8 @@ namespace Eco.Plugins.DiscordLink
 
         #region Meta
 
-        [Command("DiscordLinkAbout")]
-        [Description("Displays a message describing what the DiscordLink plugin is.")]
-        [Aliases("DL-About")]
-        public async Task About(CommandContext ctx)
+        [SlashCommand("About", "\"Displays a message describing what the DiscordLink plugin is.\"")]
+        public async Task About(InteractionContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
@@ -267,110 +259,74 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
-        [Command("PluginStatus")]
-        [Description("Displays the plugin status.")]
-        [Aliases("DL-Status", "Status")]
-        public async Task PluginStatus(CommandContext ctx)
+        [SlashCommand("PluginStatus", "Displays the current plugin status.")]
+        public async Task PluginStatus(InteractionContext ctx, [Option("Verbose", "Use verbose output with extra information.")] bool verbose = false)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await RespondToCommand(ctx, await MessageBuilder.Shared.GetDisplayStringAsync(verbose: false));
+                await RespondToCommand(ctx, await MessageBuilder.Shared.GetDisplayStringAsync(verbose));
             }, ctx);
         }
 
-        [Command("PluginStatusVerbose")]
-        [Description("Shows the plugin status including verbose debug level information.")]
-        [Aliases("DL-StatusVerbose", "StatusVerbose")]
-        public async Task PluginStatusVerbose(CommandContext ctx)
+        [SlashCommand("VerifyConfig", "Checks configuration setup and reports any errors.")]
+        public async Task VerifyConfig(InteractionContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await RespondToCommand(ctx, await MessageBuilder.Shared.GetDisplayStringAsync(verbose: true));
+                await SharedCommands.VerifyConfig(CommandInterface.Discord, ctx);
             }, ctx);
         }
 
-        [Command("VerifyConfig")]
-        [Description("Checks configuration setup and reports any errors.")]
-        [Aliases("DL-VerifyConfig", "DL-ConfigReport", "ConfigReport")]
-        public async Task VerifyConfig(CommandContext ctx)
+        [SlashCommand("VerifyPermissions", "Checks all permissions and intents needed and reports any missing ones.")]
+        public async Task VerifyPermissions(InteractionContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.VerifyConfig(SharedCommands.CommandInterface.Discord, ctx);
+                await SharedCommands.VerifyPermissions(CommandInterface.Discord, ctx, MessageBuilder.PermissionReportComponentFlag.All);
             }, ctx);
         }
 
-        [Command("VerifyPermissions")]
-        [Description("Checks all permissions and intents needed for the current configuration and reports any missing ones.")]
-        [Aliases("DL-VerifyPermissions", "DL-PermissionReport", "PermissionReport")]
-        public async Task VerifyPermissions(CommandContext ctx)
+        [SlashCommand("VerifyIntents", "Checks all intents needed and reports any missing ones.")]
+        public async Task CheckIntents(InteractionContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.VerifyPermissions(SharedCommands.CommandInterface.Discord, ctx, MessageBuilder.PermissionReportComponentFlag.All);
+                await SharedCommands.VerifyPermissions(CommandInterface.Discord, ctx, MessageBuilder.PermissionReportComponentFlag.Intents);
             }, ctx);
         }
 
-        [Command("VerifyIntents")]
-        [Description("Checks all intents needed and reports any missing ones.")]
-        [Aliases("DL-VerifyIntents")]
-        public async Task CheckIntents(CommandContext ctx)
+        [SlashCommand("VerifyServerPermissions", "Checks all server permissions needed and reports any missing ones.")]
+        public async Task VerifyServerPermissions(InteractionContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.VerifyPermissions(SharedCommands.CommandInterface.Discord, ctx, MessageBuilder.PermissionReportComponentFlag.Intents);
+                await SharedCommands.VerifyPermissions(CommandInterface.Discord, ctx, MessageBuilder.PermissionReportComponentFlag.ServerPermissions);
             }, ctx);
         }
 
-        [Command("VerifyServerPermissions")]
-        [Description("Checks all server permissions needed and reports any missing ones.")]
-        [Aliases("DL-VerifyServerPermissions", "ServerPermissions", "DL-ServerPermissions")]
-        public async Task CheckServerPermissions(CommandContext ctx)
-        {
-            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
-            {
-                await SharedCommands.VerifyPermissions(SharedCommands.CommandInterface.Discord, ctx, MessageBuilder.PermissionReportComponentFlag.ServerPermissions);
-            }, ctx);
-        }
-
-        [Command("VerifyChannelPermissions")]
-        [Description("Checks all permissions needed for the given channel and reports any missing ones.")]
-        [Aliases("DL-VerifyChannelPermissions", "ChannelPermissions", "DL-ChannelPermissions")]
-        public async Task CheckChannelPermissions(CommandContext ctx, [Description("Name or ID of the channel to check permissions for. The current channel will be used if this parameter is omitted.")] string channelNameOrID = "")
+        [SlashCommand("VerifyChannelPermissions", "Checks all permissions needed for the given channel and reports any missing ones.")]
+        public async Task CheckChannelPermissions(InteractionContext ctx, [Option("Channel", "Name or ID of the channel to check permissions for. Defaults to the current channel.")] string channelNameOrID = "")
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
                 if (string.IsNullOrWhiteSpace(channelNameOrID))
-                    await SharedCommands.VerifyPermissionsForChannel(SharedCommands.CommandInterface.Discord, ctx, ctx.Channel);
+                    await SharedCommands.VerifyPermissionsForChannel(CommandInterface.Discord, ctx, ctx.Channel);
                 else
-                    await SharedCommands.VerifyPermissionsForChannel(SharedCommands.CommandInterface.Discord, ctx, channelNameOrID);
+                    await SharedCommands.VerifyPermissionsForChannel(CommandInterface.Discord, ctx, channelNameOrID);
             }, ctx);
         }
 
-        [Command("ListLinkedChannels")]
-        [Description("Presents a list of all channel links.")]
-        [Aliases("DL-ListLinkedChannels", "ListChannels", "DL-ListChannels")]
-        public async Task ListLinkedChannels(CommandContext ctx)
+        [SlashCommand("ListLinkedChannels", "Presents a list of all channel links.")]
+        public async Task ListLinkedChannels(InteractionContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.ListChannelLinks(SharedCommands.CommandInterface.Discord, ctx);
+                await SharedCommands.ListChannelLinks(CommandInterface.Discord, ctx);
             }, ctx);
         }
 
-        [Command("Print")]
-        [Description("Reposts the inputted message. Can be used to create tags for ordering display tags within a channel.")]
-        public async Task Print(CommandContext ctx, [Description("The message to print.")] string message)
-        {
-            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
-            {
-                await RespondToCommand(ctx, message);
-            }, ctx);
-        }
-
-        [Command("Echo")]
-        [Description("Sends the provided message to Eco and back to Discord again if a chat link is configured for the channel.")]
-        public async Task Echo(CommandContext ctx, [Description("The message to send and then receive back again. A random message will be sent if this parameter is omitted.")] string message = "", [Description("The eco channel you want to test.")] string ecoChannel = "")
+        [SlashCommand("Echo", "Sends a message to Eco and back to Discord again if a chat link is configured for the channel.")]
+        public async Task Echo(InteractionContext ctx, [Option("Message", "The message to send. Defaults to a random message.")] string message = "", [Option("EcoChannel", "The eco channel you want to test.")] string ecoChannel = "")
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
@@ -405,16 +361,7 @@ namespace Eco.Plugins.DiscordLink
                     ecoChannel = DLConstants.DEFAULT_CHAT_CHANNEL;
 
                 EcoUtils.SendChatToChannel(ecoChannel, $"{DLConstants.ECHO_COMMAND_TOKEN} {message}");
-            }, ctx);
-        }
-
-        [Command("Ping")]
-        [Description("Prompts the bot to respond with \"Pong\". Can be used to check if the bot is online.")]
-        public async Task Ping(CommandContext ctx)
-        {
-            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
-            {
-                await RespondToCommand(ctx, $"Pong {ctx.User.Mention}");
+                await RespondToCommand(ctx, "Message sent");
             }, ctx);
         }
 
@@ -422,16 +369,14 @@ namespace Eco.Plugins.DiscordLink
 
         #region Account Linking
 
-        [Command("LinkInformation")]
-        [Description("Presents information about account linking.")]
-        [Aliases("DL-LinkInfo")]
-        public async Task LinkInformation(CommandContext ctx)
+        [SlashCommand("LinkInformation", "Presents information about account linking.")]
+        public async Task LinkInformation(InteractionContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
                 DiscordLinkEmbed embed = new DiscordLinkEmbed()
                     .WithTitle("Eco --> Discord Account Linking")
-                    .WithDescription(MessageBuilder.Shared.GetLinkAccountInfoMessage(SharedCommands.CommandInterface.Discord));
+                    .WithDescription(MessageBuilder.Shared.GetLinkAccountInfoMessage(CommandInterface.Discord));
 
                 await RespondToCommand(ctx, null, embed);
             }, ctx);
@@ -441,10 +386,8 @@ namespace Eco.Plugins.DiscordLink
 
         #region Lookups
 
-        [Command("ServerStatus")]
-        [Description("Displays the Server Info status.")]
-        [Aliases("DL-EcoStatus", "DL-ServerInfo", "EcoStatus")]
-        public async Task ServerStatus(CommandContext ctx)
+        [SlashCommand("ServerStatus", "Displays the Server Info status.")]
+        public async Task ServerStatus(InteractionContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
@@ -452,10 +395,8 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
-        [Command("PlayerList")]
-        [Description("Lists the players currently online on the server.")]
-        [Aliases("Players", "DL-Players")]
-        public async Task PlayerList(CommandContext ctx)
+        [SlashCommand("PlayerList", "Lists the players currently online on the server.")]
+        public async Task PlayerList(InteractionContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
@@ -466,71 +407,59 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
-        [Command("PlayerReport")]
-        [Description("Displays the Player Report for the given player.")]
-        [Aliases("DL-PlayerReport", "DL-Player")]
-        public async Task PlayerReport(CommandContext ctx,
-            [Description("Name or ID of the player for which to display the report.")] string playerNameOrID)
+        [SlashCommand("PlayerReport", "Displays the Player Report for the given player.")]
+        public async Task PlayerReport(InteractionContext ctx,
+            [Option("Player", "Name or ID of the player for which to display the report.")] string playerNameOrID)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.PlayerReport(SharedCommands.CommandInterface.Discord, ctx, playerNameOrID);
+                await SharedCommands.PlayerReport(CommandInterface.Discord, ctx, playerNameOrID);
             }, ctx);
         }
 
-        [Command("PlayerOnlineReport")]
-        [Description("Displays the Player Online Status Report for the given player.")]
-        [Aliases("DL-PlayerOnline", "PlayerOnline")]
-        public async Task PlayerOnlineReport(CommandContext ctx,
-            [Description("Name or ID of the player for which to display the report.")] string playerNameOrID)
+        [SlashCommand("PlayerOnlineReport", "Displays the Player Online Status Report for the given player.")]
+        public async Task PlayerOnlineReport(InteractionContext ctx,
+            [Option("Player", "Name or ID of the player for which to display the report.")] string playerNameOrID)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.PlayerOnlineReport(SharedCommands.CommandInterface.Discord, ctx, playerNameOrID);
+                await SharedCommands.PlayerOnlineReport(CommandInterface.Discord, ctx, playerNameOrID);
             }, ctx);
         }
 
-        [Command("PlayerTimeReport")]
-        [Description("Displays the Player Time Report for the given player.")]
-        [Aliases("DL-PlayerTime")]
-        public async Task PlayerTimeReport(CommandContext ctx,
-            [Description("Name or ID of the player for which to display the report.")] string playerNameOrID)
+        [SlashCommand("PlayerTimeReport", "Displays the Player Time Report for the given player.")]
+        public async Task PlayerTimeReport(InteractionContext ctx,
+            [Option("Player", "Name or ID of the player for which to display the report.")] string playerNameOrID)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.PlayerTimeReport(SharedCommands.CommandInterface.Discord, ctx, playerNameOrID);
+                await SharedCommands.PlayerTimeReport(CommandInterface.Discord, ctx, playerNameOrID);
             }, ctx);
         }
 
-        [Command("PlayerPermissionsReport")]
-        [Description("Displays the Player Permissions Report for the given player.")]
-        [Aliases("DL-PlayerPermissions")]
-        public async Task PlayerPermissionsReport(CommandContext ctx,
-            [Description("Name or ID of the player for which to display the report.")] string playerNameOrID)
+        [SlashCommand("PlayerPermissionReport", "Displays the Player Permissions Report for the given player.")]
+        public async Task PlayerPermissionReport(InteractionContext ctx,
+            [Option("Player", "Name or ID of the player for which to display the report.")] string playerNameOrID)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.PlayerPermissionsReport(SharedCommands.CommandInterface.Discord, ctx, playerNameOrID);
+                await SharedCommands.PlayerPermissionsReport(CommandInterface.Discord, ctx, playerNameOrID);
             }, ctx);
         }
 
-        [Command("PlayerAccessReport")]
-        [Description("Displays the Player WhiteList/Ban/Mute Report for the given player.")]
-        [Aliases("DL-PlayerAccess", "DL-PlayerWhiteListed", "DL-PlayerBanned", "DL-PlayerMuted")]
-        public async Task PlayerAccessReport(CommandContext ctx,
-            [Description("Name or ID of the player for which to display the report.")] string playerNameOrID)
+        [SlashCommand("PlayerAccessReport", "Displays the Player WhiteList/Ban/Mute Report for the given player.")]
+        public async Task PlayerAccessReport(InteractionContext ctx,
+            [Option("Player", "Name or ID of the player for which to display the report.")] string playerNameOrID)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.PlayerAccessReport(SharedCommands.CommandInterface.Discord, ctx, playerNameOrID);
+                await SharedCommands.PlayerAccessReport(CommandInterface.Discord, ctx, playerNameOrID);
             }, ctx);
         }
 
-        [Command("PlayerDiscordReport")]
-        [Description("Displays the Player Discord Report for the given user.")]
-        [Aliases("DL-PlayerDiscord")]
-        public async Task DiscordReport(CommandContext ctx,
-            [Description("Name or ID of the player or linked Discord user for which to display the report.")] string userNameOrID)
+        [SlashCommand("PlayerDiscordReport", "Displays the Player Discord Report for the given user.")]
+        public async Task DiscordReport(InteractionContext ctx,
+            [Option("User", "Name or ID of the player for which to display the report.")] string userNameOrID)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
@@ -547,7 +476,7 @@ namespace Eco.Plugins.DiscordLink
                 DiscordMember member = DiscordLink.Obj.Client.MemberByNameOrID(userNameOrID);
                 if (ecoUser == null && member == null)
                 {
-                    await ReportCommandError(ctx, $"No Eco or Discord User with the name or ID {userNameOrID} could be found.");
+                    await ReportCommandError(ctx, $"No Eco or Discord User with the name or ID \"{userNameOrID}\" could be found.");
                     return;
                 }
 
@@ -560,147 +489,123 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
-        [Command("PlayerReputationReport")]
-        [Description("Displays the Player Reputation Report for the given player.")]
-        [Aliases("DL-PlayerReputation")]
-        public async Task PlayerReputationReport(CommandContext ctx,
-            [Description("Name or ID of the player for which to display the report.")] string playerNameOrID)
+        [SlashCommand("PlayerReputationReport", "Displays the Player Reputation Report for the given player.")]
+        public async Task PlayerReputationReport(InteractionContext ctx,
+            [Option("Player", "Name or ID of the player for which to display the report.")] string playerNameOrID)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.PlayerReputationReport(SharedCommands.CommandInterface.Discord, ctx, playerNameOrID);
+                await SharedCommands.PlayerReputationReport(CommandInterface.Discord, ctx, playerNameOrID);
             }, ctx);
         }
 
-        [Command("PlayerXPReport")]
-        [Description("Displays the Player XP Report for the given player.")]
-        [Aliases("PlayerXP")]
-        public async Task PlayerXPReport(CommandContext ctx,
-            [Description("Name or ID of the player for which to display the report.")] string playerNameOrID)
+        [SlashCommand("PlayerXPReport", "Displays the Player XP Report for the given player.")]
+        public async Task PlayerXPReport(InteractionContext ctx,
+            [Option("Player", "Name or ID of the player for which to display the report.")] string playerNameOrID)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.PlayerXPReport(SharedCommands.CommandInterface.Discord, ctx, playerNameOrID);
+                await SharedCommands.PlayerXPReport(CommandInterface.Discord, ctx, playerNameOrID);
             }, ctx);
         }
 
-        [Command("PlayerSkillsReport")]
-        [Description("Displays the Player Skills Report for the given player.")]
-        [Aliases("DL-PlayerSkills")]
-        public async Task PlayerSkillsReport(CommandContext ctx,
-            [Description("Name or ID of the player for which to display the report.")] string playerNameOrID)
+        [SlashCommand("PlayerSkillsReport", "Displays the Player Skills Report for the given player.")]
+        public async Task PlayerSkillsReport(InteractionContext ctx,
+            [Option("Player", "Name or ID of the player for which to display the report.")] string playerNameOrID)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.PlayerSkillsReport(SharedCommands.CommandInterface.Discord, ctx, playerNameOrID);
+                await SharedCommands.PlayerSkillsReport(CommandInterface.Discord, ctx, playerNameOrID);
             }, ctx);
         }
 
-        [Command("PlayerDemographicsReport")]
-        [Description("Displays the Player Demographics Report for the given player.")]
-        [Aliases("DL-PlayerDemographics")]
-        public async Task PlayerDemographicsReport(CommandContext ctx,
-            [Description("Name or ID of the player for which to display the report.")] string playerNameOrID)
+        [SlashCommand("PlayerDemographicsReport", "Displays the Player Demographics Report for the given player.")]
+        public async Task PlayerDemographicsReport(InteractionContext ctx,
+            [Option("Player", "Name or ID of the player for which to display the report.")] string playerNameOrID)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.PlayerDemographicsReport(SharedCommands.CommandInterface.Discord, ctx, playerNameOrID);
+                await SharedCommands.PlayerDemographicsReport(CommandInterface.Discord, ctx, playerNameOrID);
             }, ctx);
         }
 
-        [Command("PlayerTitlesReport")]
-        [Description("Displays the Player Titles Report for the given player.")]
-        [Aliases("DL-PlayerTitles")]
-        public async Task PlayerTitlesReport(CommandContext ctx,
-            [Description("Name or ID of the player for which to display the report.")] string playerNameOrID)
+        [SlashCommand("PlayerTitlesReport", "Displays the Player Titles Report for the given player.")]
+        public async Task PlayerTitlesReport(InteractionContext ctx,
+            [Option("Player", "Name or ID of the player for which to display the report.")] string playerNameOrID)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.PlayerTitlesReport(SharedCommands.CommandInterface.Discord, ctx, playerNameOrID);
+                await SharedCommands.PlayerTitlesReport(CommandInterface.Discord, ctx, playerNameOrID);
             }, ctx);
         }
 
-        [Command("PlayerPropertyReport")]
-        [Description("Displays the Player Property Report for the given player.")]
-        [Aliases("DL-PlayerProperty")]
-        public async Task PlayerPropertyReport(CommandContext ctx,
-            [Description("Name or ID of the player for which to display the report.")] string playerNameOrID)
+        [SlashCommand("PlayerPropertyReport", "Displays the Player Property Report for the given player.")]
+        public async Task PlayerPropertyReport(InteractionContext ctx,
+            [Option("Player", "Name or ID of the player for which to display the report.")] string playerNameOrID)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.PlayerPropertiesReport(SharedCommands.CommandInterface.Discord, ctx, playerNameOrID);
+                await SharedCommands.PlayerPropertiesReport(CommandInterface.Discord, ctx, playerNameOrID);
             }, ctx);
         }
 
-        [Command("CurrencyReport")]
-        [Description("Displays the Currency Report for the given currency.")]
-        [Aliases("DL-Currency")]
-        public async Task CurrencyReport(CommandContext ctx,
-            [Description("Name or ID of the currency for which to display a report.")] string currencyNameOrID)
+        [SlashCommand("CurrencyReport", "Displays the Currency Report for the given currency.")]
+        public async Task CurrencyReport(InteractionContext ctx,
+            [Option("Currency", "Name or ID of the currency for which to display a report.")] string currencyNameOrID)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.CurrencyReport(SharedCommands.CommandInterface.Discord, ctx, currencyNameOrID);
+                await SharedCommands.CurrencyReport(CommandInterface.Discord, ctx, currencyNameOrID);
             }, ctx);
         }
 
-        [Command("CurrenciesReport")]
-        [Description("Displays a report for the top used currencies.")]
-        [Aliases("DL-Currencies")]
-        public async Task CurrenciesReport(CommandContext ctx,
-            [Description("The type of currencies to include in the report (all, minted or personal).")] string currencyType = "all",
-            [Description("How many currencies per type to display reports for.")] string maxCurrenciesPerType = DLConstants.CURRENCY_REPORT_COMMAND_MAX_CURRENCIES_PER_TYPE_DEFAULT,
-            [Description("How many top account holders per currency to include in the report.")] string holdersPerCurrency = DLConstants.CURRENCY_REPORT_COMMAND_MAX_TOP_HOLDERS_PER_CURRENCY_DEFAULT)
+        [SlashCommand("CurrenciesReport", "Displays a report for the top used currencies.")]
+        public async Task CurrenciesReport(InteractionContext ctx,
+            [Option("Type", "The type of currencies to include in the report.")] CurrencyType currencyType = CurrencyType.All,
+            [Option("MaxPerType", "How many currencies per type to display reports for.")] long maxCurrenciesPerType = DLConstants.CURRENCY_REPORT_COMMAND_MAX_CURRENCIES_PER_TYPE_DEFAULT,
+            [Option("HolderCount", "How many top account holders per currency to include in the report.")] long holdersPerCurrency = DLConstants.CURRENCY_REPORT_COMMAND_MAX_TOP_HOLDERS_PER_CURRENCY_DEFAULT)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.CurrenciesReport(SharedCommands.CommandInterface.Discord, ctx, currencyType, maxCurrenciesPerType, holdersPerCurrency);
+                await SharedCommands.CurrenciesReport(CommandInterface.Discord, ctx, currencyType, (int)maxCurrenciesPerType, (int)holdersPerCurrency);
             }, ctx);
         }
 
-        [Command("ElectionReport")]
-        [Description("Displays the Election Report for the given election.")]
-        [Aliases("DL-Election")]
-        public async Task ElectionReport(CommandContext ctx,
-            [Description("Name or ID of the election for which to display a report.")] string electionNameOrID)
+        [SlashCommand("ElectionReport", "Displays the Election Report for the given election.")]
+        public async Task ElectionReport(InteractionContext ctx,
+            [Option("Election", "Name or ID of the election for which to display a report.")] string electionNameOrID)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.ElectionReport(SharedCommands.CommandInterface.Discord, ctx, electionNameOrID);
+                await SharedCommands.ElectionReport(CommandInterface.Discord, ctx, electionNameOrID);
             }, ctx);
         }
 
-        [Command("ElectionsReport")]
-        [Description("Displays a report for the currently active elections.")]
-        [Aliases("DL-Elections")]
-        public async Task ElectionsReport(CommandContext ctx)
+        [SlashCommand("ElectionsReport", "Displays a report for the currently active elections.")]
+        public async Task ElectionsReport(InteractionContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.ElectionsReport(SharedCommands.CommandInterface.Discord, ctx);
+                await SharedCommands.ElectionsReport(CommandInterface.Discord, ctx);
             }, ctx);
         }
 
-        [Command("WorkPartyReport")]
-        [Description("Displays the Work Party Report for the given work party.")]
-        [Aliases("DL-WorkParty")]
-        public async Task WorkPartyReport(CommandContext ctx,
-            [Description("Name or ID of the work party for which to display a report.")] string workPartyNameOrID)
+        [SlashCommand("WorkPartyReport", "Displays the Work Party Report for the given work party.")]
+        public async Task WorkPartyReport(InteractionContext ctx,
+            [Option("WorkParty", "Name or ID of the work party for which to display a report.")] string workPartyNameOrID)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.WorkPartyReport(SharedCommands.CommandInterface.Discord, ctx, workPartyNameOrID);
+                await SharedCommands.WorkPartyReport(CommandInterface.Discord, ctx, workPartyNameOrID);
             }, ctx);
         }
 
-        [Command("WorkPartiesReport")]
-        [Description("Displays a report for the currently active work parties.")]
-        [Aliases("DL-WorkParties")]
-        public async Task WorkPartiesReport(CommandContext ctx)
+        [SlashCommand("WorkPartiesReport", "Displays a report for the currently active work parties.")]
+        public async Task WorkPartiesReport(InteractionContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.WorkPartiesReport(SharedCommands.CommandInterface.Discord, ctx);
+                await SharedCommands.WorkPartiesReport(CommandInterface.Discord, ctx);
             }, ctx);
         }
 
@@ -708,25 +613,12 @@ namespace Eco.Plugins.DiscordLink
 
         #region Invites
 
-        [Command("Invite")]
-        [Description("Posts the Discord invite message to the target user. The invite will be broadcasted if no target user is specified.")]
-        [Aliases("DL-Invite")]
-        public async Task Invite(CommandContext ctx, [Description("The Eco username of the user receiving the invite")] string targetUserName)
+        [SlashCommand("Invite", "Posts the Discord invite message to the target user. Defaults to sending the invite to all users.")]
+        public async Task Invite(InteractionContext ctx, [Option("User", "The Eco username of the user receiving the invite")] string targetUserName = "")
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.PostDiscordInvite(SharedCommands.CommandInterface.Discord, ctx, targetUserName);
-            }, ctx);
-        }
-
-        [Command("BroadcastInvite")]
-        [Description("Posts the Discord invite message to the Eco chat.")]
-        [Aliases("DL-Broadcastinvite")]
-        public async Task BroadcastInvite(CommandContext ctx)
-        {
-            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
-            {
-                await SharedCommands.PostDiscordInvite(SharedCommands.CommandInterface.Discord, ctx, string.Empty);
+                await SharedCommands.PostDiscordInvite(CommandInterface.Discord, ctx, targetUserName);
             }, ctx);
         }
 
@@ -734,69 +626,57 @@ namespace Eco.Plugins.DiscordLink
 
         #region Trades
 
-        [Command("Trades")]
-        [Description("Displays available trades by player, tag, item or store. The search name is case insensitive and will auto complete.")]
-        [Aliases("DL-Trades", "DL-Trade", "DLT")]
-        public async Task Trades(CommandContext ctx, [Description("The player name or item name for which to display trades.")] string searchName = "")
+        [SlashCommand("Trades", "Displays available trades by player, tag, item or store.")]
+        public async Task Trades(InteractionContext ctx, [Option("SearchName", "The player name or item name for which to display trades. Case insensitive and auto completed.")] string searchName)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.Trades(SharedCommands.CommandInterface.Discord, ctx, searchName);
+                await SharedCommands.Trades(CommandInterface.Discord, ctx, searchName);
             }, ctx);
         }
 
-        [Command("AddTradeWatcherDisplay")]
-        [Description("Creates a live updated display of available trades by player, tag, item or store.")]
-        [Aliases("DL-WatchTradeDisplay")]
-        public async Task AddTradeWatcherDisplay(CommandContext ctx, [Description("The player, tag, item or store name for which to display trades.")] string searchName = "")
+        [SlashCommand("AddTradeWatcherDisplay", "Creates a live updated display of available trades by player, tag, item or store.")]
+        public async Task AddTradeWatcherDisplay(InteractionContext ctx, [Option("SearchName", "The player name or item name for which to display trades.")] string searchName)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.AddTradeWatcher(SharedCommands.CommandInterface.Discord, ctx, searchName, Modules.ModuleArchetype.Display);
+                await SharedCommands.AddTradeWatcher(CommandInterface.Discord, ctx, searchName, Modules.ModuleArchetype.Display);
             }, ctx);
         }
 
-        [Command("RemoveTradeWatcherDisplay")]
-        [Description("Removes the live updated display of available trades for a player, tag, item or store.")]
-        [Aliases("DL-UnwatchTradeDisplay")]
-        public async Task RemoveTradeWatcherDisplay(CommandContext ctx, [Description("The player, tag, item or store name for which to display trades.")] string searchName = "")
+        [SlashCommand("RemoveTradeWatcherDisplay", "Removes the live updated display of available trades for a player, tag, item or store.")]
+        public async Task RemoveTradeWatcherDisplay(InteractionContext ctx, [Option("SearchName", "The player, tag, item or store name for which to display trades.")] string searchName)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.RemoveTradeWatcher(SharedCommands.CommandInterface.Discord, ctx, searchName, Modules.ModuleArchetype.Display);
+                await SharedCommands.RemoveTradeWatcher(CommandInterface.Discord, ctx, searchName, Modules.ModuleArchetype.Display);
             }, ctx);
         }
 
-        [Command("AddTradeWatcherFeed")]
-        [Description("Creates a feed where the bot will post trades filtered by the search query, as they occur ingame. The search query can filter by player, tag, item or store.")]
-        [Aliases("DL-WatchTradeFeed")]
-        public async Task AddTradeWatcherFeed(CommandContext ctx, [Description("The player, tag item or store name for which to post trades.")] string searchName = "")
+        [SlashCommand("AddTradeWatcherFeed", "Creates a trade feed filtered by a search query.")]
+        public async Task AddTradeWatcherFeed(InteractionContext ctx, [Option("SearchName", "The player, tag, item or store name for which to post trades.")] string searchName)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.AddTradeWatcher(SharedCommands.CommandInterface.Discord, ctx, searchName, Modules.ModuleArchetype.Feed);
+                await SharedCommands.AddTradeWatcher(CommandInterface.Discord, ctx, searchName, Modules.ModuleArchetype.Feed);
             }, ctx);
         }
 
-        [Command("RemoveTradeWatcherFeed")]
-        [Description("Removes the trade watcher feed for a player, tag, item or store.")]
-        [Aliases("DL-UnwatchTradeFeed")]
-        public async Task RemoveTradeWatcherFeed(CommandContext ctx, [Description("The player, tag item or store name for which to post trades.")] string searchName = "")
+        [SlashCommand("RemoveTradeWatcherFeed", "Removes the trade watcher feed for a player, tag, item or store.")]
+        public async Task RemoveTradeWatcherFeed(InteractionContext ctx, [Option("SearchName", "The player, tag item or store name for which to remove trades.")] string searchName)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.RemoveTradeWatcher(SharedCommands.CommandInterface.Discord, ctx, searchName, Modules.ModuleArchetype.Feed);
+                await SharedCommands.RemoveTradeWatcher(CommandInterface.Discord, ctx, searchName, Modules.ModuleArchetype.Feed);
             }, ctx);
         }
 
-        [Command("ListTradeWatchers")]
-        [Description("Lists all trade watchers for the calling user.")]
-        [Aliases("DL-TradeWatchers")]
-        public async Task ListTradeWatchers(CommandContext ctx)
+        [SlashCommand("ListTradeWatchers", "Lists all trade watchers for the calling user.")]
+        public async Task ListTradeWatchers(InteractionContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.ListTradeWatchers(SharedCommands.CommandInterface.Discord, ctx);
+                await SharedCommands.ListTradeWatchers(CommandInterface.Discord, ctx);
             }, ctx);
         }
 
@@ -804,25 +684,12 @@ namespace Eco.Plugins.DiscordLink
 
         #region Snippets
 
-        [Command("DiscordSnippet")]
-        [Description("Post a predefined snippet to Discord.")]
-        [Aliases("DL-DiscordSnippet", "DL-SnippetToDiscord", "DL-Snippet")]
-        public async Task DiscordSnippet(CommandContext ctx, string snippetKey = "")
+        [SlashCommand("DiscordSnippet", "Post a predefined snippet to Discord.")]
+        public async Task Snippet(InteractionContext ctx, [Option("Key", "Key of the snippet to post. Displays the key list if omitted.")] string snippetKey = "", [Option("Context", "Where the snippet should be sent.")] CommandInterface commandTarget = CommandInterface.Discord )
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.Snippet(SharedCommands.CommandInterface.Discord, ctx, SharedCommands.CommandInterface.Discord, ctx.GetSenderName(), snippetKey);
-            }, ctx);
-        }
-
-        [Command("EcoSnippet")]
-        [Description("Post a predefined snippet to Eco.")]
-        [Aliases("DL-EcoSnippet", "DL-SnippetToEco")]
-        public async Task EcoSnippet(CommandContext ctx, string snippetKey = "")
-        {
-            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
-            {
-                await SharedCommands.Snippet(SharedCommands.CommandInterface.Discord, ctx, SharedCommands.CommandInterface.Eco, ctx.GetSenderName(), snippetKey);
+                await SharedCommands.Snippet(CommandInterface.Discord, ctx, commandTarget, ctx.GetSenderName(), snippetKey);
             }, ctx);
         }
 
@@ -830,168 +697,140 @@ namespace Eco.Plugins.DiscordLink
 
         #region Message Relaying
 
-        [Command("ServerMessageToAll")]
-        [Description("Sends an Eco server message to all online users.")]
-        [Aliases("DL-ServerMessage")]
-        public async Task ServerMessageToAll(CommandContext ctx, [Description("The message to send.")] string message)
+        [SlashCommand("ServerMessageToAll", "Sends an Eco server message to all online users.")]
+        public async Task ServerMessageToAll(InteractionContext ctx, [Option("Message", "The message to send.")] string message)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.SendServerMessage(SharedCommands.CommandInterface.Discord, ctx, message, string.Empty);
+                await SharedCommands.SendServerMessage(CommandInterface.Discord, ctx, message, string.Empty);
             }, ctx);
         }
 
-        [Command("ServerMessageToUser")]
-        [Description("Sends an Eco server message to the specified user.")]
-        [Aliases("DL-ServerMessageUser")]
-        public async Task ServerMessageToUser(CommandContext ctx,
-            [Description("The message to send.")] string message,
-            [Description("Name or ID of the recipient Eco user.")] string recipientUserNameOrID)
+        [SlashCommand("ServerMessageToUser", "Sends an Eco server message to the specified user.")]
+        public async Task ServerMessageToUser(InteractionContext ctx,
+            [Option("Message", "The message to send.")] string message,
+            [Option("Recipient", "Name or ID of the recipient Eco user.")] string recipientUserNameOrID)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.SendServerMessage(SharedCommands.CommandInterface.Discord, ctx, message, recipientUserNameOrID);
+                await SharedCommands.SendServerMessage(CommandInterface.Discord, ctx, message, recipientUserNameOrID);
             }, ctx);
         }
 
-        [Command("AnnouncementToAll")]
-        [Description("Sends an Eco info box message to all online users.")]
-        [Aliases("DL-Announce")]
-        public async Task AnnouncementToAll(CommandContext ctx, [Description("The message to send.")] string message)
+        [SlashCommand("AnnouncementToAll", "Sends an Eco info box message to all online users.")]
+        public async Task AnnouncementToAll(InteractionContext ctx, [Option("Message", "The message to send.")] string message)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Info, SharedCommands.CommandInterface.Discord, ctx, message, string.Empty);
+                await SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Info, CommandInterface.Discord, ctx, message, string.Empty);
             }, ctx);
         }
 
-        [Command("AnnouncementToUser")]
-        [Description("Sends an Eco info box message to the specified user.")]
-        [Aliases("DL-AnnounceUser")]
-        public async Task AnnounceToAll(CommandContext ctx, [Description("The message to send.")] string message,
-            [Description("Name or ID of the recipient Eco user.")] string recipientUserNameOrID)
+        [SlashCommand("AnnouncementToUser", "Sends an Eco info box message to the specified user.")]
+        public async Task AnnounceToAll(InteractionContext ctx, [Option("Message", "The message to send.")] string message,
+            [Option("Recipient", "Name or ID of the recipient Eco user.")] string recipientUserNameOrID)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Info, SharedCommands.CommandInterface.Discord, ctx, message, recipientUserNameOrID);
+                await SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Info, CommandInterface.Discord, ctx, message, recipientUserNameOrID);
             }, ctx);
         }
 
-        [Command("WarningToAll")]
-        [Description("Sends an Eco warning box message to all online users.")]
-        [Aliases("DL-Warning", "DL-Warn")]
-        public async Task WarningToAll(CommandContext ctx, [Description("The message to send.")] string message)
+        [SlashCommand("WarningToAll", "Sends an Eco warning box message to all online users.")]
+        public async Task WarningToAll(InteractionContext ctx, [Option("Message", "The message to send.")] string message)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Warning, SharedCommands.CommandInterface.Discord, ctx, message, string.Empty);
+                await SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Warning, CommandInterface.Discord, ctx, message, string.Empty);
             }, ctx);
         }
 
-        [Command("WarningToUser")]
-        [Description("Sends an Eco warning box message to the specified user.")]
-        [Aliases("DL-WarningUser", "DL-WarnUser")]
-        public async Task WarningToUser(CommandContext ctx, [Description("The message to send.")] string message,
-            [Description("Name or ID of the recipient Eco user.")] string recipientUserNameOrID)
+        [SlashCommand("WarningToUser", "Sends an Eco warning box message to the specified user.")]
+        public async Task WarningToUser(InteractionContext ctx, [Option("Message", "The message to send.")] string message,
+            [Option("Recipient", "Name or ID of the recipient Eco user.")] string recipientUserNameOrID)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Warning, SharedCommands.CommandInterface.Discord, ctx, message, recipientUserNameOrID);
+                await SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Warning, CommandInterface.Discord, ctx, message, recipientUserNameOrID);
             }, ctx);
         }
 
-        [Command("ErrorToAll")]
-        [Description("Sends an Eco error box message to all online users.")]
-        [Aliases("DL-Error")]
-        public async Task ErrorToAll(CommandContext ctx, [Description("The message to send.")] string message)
+        [SlashCommand("ErrorToAll", "Sends an Eco error box message to all online users.")]
+        public async Task ErrorToAll(InteractionContext ctx, [Option("Message", "The message to send.")] string message)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Error, SharedCommands.CommandInterface.Discord, ctx, message, string.Empty);
+                await SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Error, CommandInterface.Discord, ctx, message, string.Empty);
             }, ctx);
         }
 
-        [Command("ErrorToUser")]
-        [Description("Sends an Eco error box message to the specified user.")]
-        [Aliases("DL-ErrorUser")]
-        public async Task ErrorToUser(CommandContext ctx, [Description("The message to send.")] string message,
-            [Description("Name or ID of the recipient Eco user.")] string recipientUserNameOrID)
+        [SlashCommand("ErrorToUser", "Sends an Eco error box message to the specified user.")]
+        public async Task ErrorToUser(InteractionContext ctx, [Option("Message", "The message to send.")] string message,
+            [Option("Recipient", "Name or ID of the recipient Eco user.")] string recipientUserNameOrID)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Error, SharedCommands.CommandInterface.Discord, ctx, message, recipientUserNameOrID);
+                await SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Error, CommandInterface.Discord, ctx, message, recipientUserNameOrID);
             }, ctx);
         }
 
-        [Command("NotificationToAll")]
-        [Description("Sends an Eco notification message to all online and conditionally offline users.")]
-        [Aliases("DL-Notification", "DL-Notify")]
-        public async Task NotificationToAll(CommandContext ctx, [Description("The message to send.")] string message,
-            [Description("Whether or not to send the message to offline users as well.")] bool includeOfflineUsers = true)
+        [SlashCommand("NotificationToAll", "Sends an Eco notification message to all online and conditionally offline users.")]
+        public async Task NotificationToAll(InteractionContext ctx, [Option("Message", "The message to send.")] string message,
+            [Option("IncludeOffline", "Whether or not to send the message to offline users as well.")] bool includeOfflineUsers = true)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.SendNotification(SharedCommands.CommandInterface.Discord, ctx, message, string.Empty, includeOfflineUsers);
+                await SharedCommands.SendNotification(CommandInterface.Discord, ctx, message, string.Empty, includeOfflineUsers);
             }, ctx);
         }
 
-        [Command("NotificationToUser")]
-        [Description("Sends an Eco notification message to the specified user.")]
-        [Aliases("DL-NotificationUser", "DL-NotifyUser")]
-        public async Task NotificationToUser(CommandContext ctx, [Description("The message to send.")] string message,
-            [Description("Name or ID of the recipient Eco user.")] string recipientUserNameOrID)
+        [SlashCommand("NotificationToUser", "Sends an Eco notification message to the specified user.")]
+        public async Task NotificationToUser(InteractionContext ctx, [Option("Message", "The message to send.")] string message,
+            [Option("Recipient", "Name or ID of the recipient Eco user.")] string recipientUserNameOrID)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.SendNotification(SharedCommands.CommandInterface.Discord, ctx, message, recipientUserNameOrID, includeOfflineUsers: true);
+                await SharedCommands.SendNotification(CommandInterface.Discord, ctx, message, recipientUserNameOrID, includeOfflineUsers: true);
             }, ctx);
         }
 
-        [Command("PopupToAll")]
-        [Description("Sends an Eco popup message to all online users.")]
-        [Aliases("DL-Popup")]
-        public async Task PopupToAll(CommandContext ctx, [Description("The message to send.")] string message)
+        [SlashCommand("PopupToAll", "Sends an Eco popup message to all online users.")]
+        public async Task PopupToAll(InteractionContext ctx, [Option("Message", "The message to send.")] string message)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.SendPopup(SharedCommands.CommandInterface.Discord, ctx, message, string.Empty);
+                await SharedCommands.SendPopup(CommandInterface.Discord, ctx, message, string.Empty);
             }, ctx);
         }
 
-        [Command("PopupToUser")]
-        [Description("Sends an Eco popup message to the specified user.")]
-        [Aliases("DL-PopupUser")]
-        public async Task PopupToUser(CommandContext ctx, [Description("The message to send.")] string message,
-            [Description("Name or ID of the recipient Eco user.")] string recipientUserNameOrID)
+        [SlashCommand("PopupToUser", "Sends an Eco popup message to the specified user.")]
+        public async Task PopupToUser(InteractionContext ctx, [Option("Message", "The message to send.")] string message,
+            [Option("Recipient", "Name or ID of the recipient Eco user.")] string recipientUserNameOrID)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.SendPopup(SharedCommands.CommandInterface.Discord, ctx, message, recipientUserNameOrID);
+                await SharedCommands.SendPopup(CommandInterface.Discord, ctx, message, recipientUserNameOrID);
             }, ctx);
         }
 
-        [Command("InfoPanelToAll")]
-        [Description("Displays an info panel to all online users.")]
-        [Aliases("DL-InfoPanel")]
-        public async Task InfoPanelToAll(CommandContext ctx, [Description("The title for the info panel.")] string title,
-            [Description("The message to display in the info panel.")] string message)
+        [SlashCommand("InfoPanelToAll", "Displays an info panel to all online users.")]
+        public async Task InfoPanelToAll(InteractionContext ctx, [Option("Title", "The title for the info panel.")] string title,
+            [Option("Message", "The message to display in the info panel.")] string message)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.SendInfoPanel(SharedCommands.CommandInterface.Discord, ctx, DLConstants.ECO_PANEL_NOTIFICATION, title, message, string.Empty);
+                await SharedCommands.SendInfoPanel(CommandInterface.Discord, ctx, DLConstants.ECO_PANEL_NOTIFICATION, title, message, string.Empty);
             }, ctx);
         }
 
-        [Command("InfoPanelToUser")]
-        [Description("Displays an info panel to the specified user.")]
-        [Aliases("DL-InfoPanelUser")]
-        public async Task InfoPanelToUser(CommandContext ctx, [Description("The title for the info panel.")] string title,
-            [Description("The message to display in the info panel.")] string message,
-            [Description("Name or ID of the recipient Eco user.")] string recipientUserNameOrID)
+        [SlashCommand("InfoPanelToUser", "Displays an info panel to the specified user.")]
+        public async Task InfoPanelToUser(InteractionContext ctx, [Option("Title", "The title for the info panel.")] string title,
+            [Option("Message", "The message to display in the info panel.")] string message,
+            [Option("Recipient", "Name or ID of the recipient Eco user.")] string recipientUserNameOrID)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.SendInfoPanel(SharedCommands.CommandInterface.Discord, ctx, DLConstants.ECO_PANEL_NOTIFICATION, title, message, recipientUserNameOrID);
+                await SharedCommands.SendInfoPanel(CommandInterface.Discord, ctx, DLConstants.ECO_PANEL_NOTIFICATION, title, message, recipientUserNameOrID);
             }, ctx);
         }
 
