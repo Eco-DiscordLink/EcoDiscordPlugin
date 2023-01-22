@@ -22,7 +22,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ElixrMods.Framework" Version="3.4.0-rc" />
+    <PackageReference Include="ElixrMods.Framework" Version="3.4.1" />
     <PackageReference Include="ConcurrentHashSet" Version="1.3.0" />
     <PackageReference Include="NetFabric.Hyperlinq.Abstractions" Version="1.3.0" />
     <PackageReference Include="Nito.AsyncEx.Coordination" Version="5.1.2" />
