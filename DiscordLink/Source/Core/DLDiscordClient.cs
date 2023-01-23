@@ -271,9 +271,6 @@ namespace Eco.Plugins.DiscordLink
             if (args.Author == DiscordClient.CurrentUser)
                 return; // Ignore messages sent by our own bot
 
-            if (!string.IsNullOrWhiteSpace(message.Content) && message.Content.StartsWith(DLConfig.Data.DiscordCommandPrefix))
-                return; // Ignore commands
-
             DiscordLink.Obj.HandleEvent(DLEventType.DiscordMessageSent, message);
         }
 
@@ -281,11 +278,6 @@ namespace Eco.Plugins.DiscordLink
         {
             if (args.Author == DiscordClient.CurrentUser)
                 return; // Ignore messages edits made by our own bot
-
-            DiscordMessage message = args.Message;
-
-            if (!string.IsNullOrWhiteSpace(message.Content) && message.Content.StartsWith(DLConfig.Data.DiscordCommandPrefix))
-                return;
 
             DiscordLink.Obj.HandleEvent(DLEventType.DiscordMessageEdited, args.Message, args.MessageBefore);
         }

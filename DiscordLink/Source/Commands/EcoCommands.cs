@@ -354,7 +354,7 @@ namespace Eco.Plugins.DiscordLink
 
                 if (matchingMember == null)
                 {
-                    ReportCommandError(callingUser, $"No Discord account with the name \"{discordName}\" could be found.\nUse {MessageUtils.GetCommandTokenForContext(CommandInterface.Eco)}DL-LinkInfo for linking instructions.");
+                    ReportCommandError(callingUser, $"No Discord account with the name \"{discordName}\" could be found.\nUse `/DL-LinkInfo` for linking instructions.");
                     return;
                 }
 
@@ -366,9 +366,9 @@ namespace Eco.Plugins.DiscordLink
                     if ((hasSLGID && callingUser.SlgId == linkedUser.SlgID) || (hasSteamID && callingUser.SteamId == linkedUser.SteamID))
                     {
                         if (linkedUser.DiscordID == matchingMember.Id.ToString())
-                            ReportCommandInfo(callingUser, $"Eco account is already linked to this Discord account.\nUse {MessageUtils.GetCommandTokenForContext(CommandInterface.Eco)}DL-Unlink to remove the existing link.");
+                            ReportCommandInfo(callingUser, $"Eco account is already linked to this Discord account.\nUse `/DL-Unlink` to remove the existing link.");
                         else
-                            ReportCommandInfo(callingUser, $"Eco account is already linked to a different Discord account.\nUse {MessageUtils.GetCommandTokenForContext(CommandInterface.Eco)}DL-Unlink to remove the existing link.");
+                            ReportCommandInfo(callingUser, $"Eco account is already linked to a different Discord account.\nUse `/DL-Unlink` to remove the existing link.");
                         return;
                     }
                     else if (linkedUser.DiscordID == matchingMember.Id.ToString())

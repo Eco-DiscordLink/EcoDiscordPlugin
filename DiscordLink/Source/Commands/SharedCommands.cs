@@ -501,7 +501,7 @@ namespace Eco.Plugins.DiscordLink
                 int watchedTradesCount = DLStorage.WorldData.GetTradeWatcherCountForUser(discordID);
                 if (watchedTradesCount >= DLConfig.Data.MaxTradeWatcherDisplaysPerUser)
                 {
-                    await ReportCommandError(source, callContext, $"You are already watching {watchedTradesCount} trades and the limit is {DLConfig.Data.MaxTradeWatcherDisplaysPerUser} trade watcher displays per user.\nUse the `{MessageUtils.GetCommandTokenForContext(source)}DL-RemoveTradeWatcherDisplay` command to remove a trade watcher to make space if you wish to add a new one.");
+                    await ReportCommandError(source, callContext, $"You are already watching {watchedTradesCount} trades and the limit is {DLConfig.Data.MaxTradeWatcherDisplaysPerUser} trade watcher displays per user.\nUse the `/DL-RemoveTradeWatcherDisplay` command to remove a trade watcher to make space if you wish to add a new one.");
                     return false;
                 }
             }
@@ -523,7 +523,7 @@ namespace Eco.Plugins.DiscordLink
             }
             else
             {
-                await ReportCommandError(source, callContext, $"Failed to start watching trades for {matchedName}. \nUse `{MessageUtils.GetCommandTokenForContext(source)}DL-TradeWatchers` to see what is currently being watched.");
+                await ReportCommandError(source, callContext, $"Failed to start watching trades for {matchedName}. \nUse `/DL-TradeWatchers` to see what is currently being watched.");
                 return false;
             }
         }
@@ -551,7 +551,7 @@ namespace Eco.Plugins.DiscordLink
             }
             else
             {
-                await ReportCommandError(source, callContext, $"Failed to stop watching trades for {searchName}.\nUse `{MessageUtils.GetCommandTokenForContext(source)}DL-TradeWatchers` to see what is currently being watched.");
+                await ReportCommandError(source, callContext, $"Failed to stop watching trades for {searchName}.\nUse `/DL-TradeWatchers` to see what is currently being watched.");
                 return false;
             }
         }

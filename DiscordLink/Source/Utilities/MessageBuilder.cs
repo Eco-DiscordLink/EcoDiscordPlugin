@@ -126,7 +126,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             public static string GetLinkAccountInfoMessage(SharedCommands.CommandInterface context )
             {
                 return "By linking your Eco account to your Discord account on this server, you can enable the following features:" +
-                    $"\n* Trade Watcher Displays - An always up to date view of a {MessageUtils.GetCommandTokenForContext(context)}DLT command in your DMs with the DiscordLink bot." +
+                    $"\n* Trade Watcher Displays - An always up to date view of a `/DLT` command in your DMs with the DiscordLink bot." +
                     "\n* Discord election voting - Vote in elections directly via Discord." +
                     "\n* DiscordLinked Role and roles matching your demographics and specializations." +
                     "\n" +
@@ -137,7 +137,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     "\n4. Your account is now linked!" +
                     "\n" +
                     "\nUnlinking" +
-                    $"\nIf you no longer wish to have your account linked or you need to reset it for some reason, you can use {MessageUtils.GetCommandTokenForContext(context)}DL-Unlink." +
+                    $"\nIf you no longer wish to have your account linked or you need to reset it for some reason, you can use `/DL-Unlink`." +
                     "\n" +
                     "\nAdditional Information" +
                     "\n* Your account link is only valid for one combination of Eco and Discord servers. If you join a new server, you will need to link your account on that server as well." +

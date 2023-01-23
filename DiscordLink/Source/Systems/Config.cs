@@ -186,19 +186,6 @@ namespace Eco.Plugins.DiscordLink
                 correctionMade = true;
             }
 
-            // Discord Command Prefix
-            if (Data.DiscordCommandPrefix != _prevConfig.DiscordCommandPrefix)
-            {
-                if (string.IsNullOrEmpty(Data.DiscordCommandPrefix))
-                {
-                    Data.DiscordCommandPrefix = DefaultValues.DiscordCommandPrefix;
-                    correctionMade = true;
-
-                    Logger.Info("Command prefix found empty - Resetting to default.");
-                }
-                Logger.Info("Command prefix changed - Restart required to take effect.");
-            }
-
             // Channel Links
             foreach (ChannelLink link in _allChannelLinks)
             {
@@ -302,7 +289,6 @@ namespace Eco.Plugins.DiscordLink
                 ServerDescription = this.ServerDescription,
                 ServerLogo = this.ServerLogo,
                 ConnectionInfo = this.ConnectionInfo,
-                DiscordCommandPrefix = this.DiscordCommandPrefix,
                 LogLevel = this.LogLevel,
                 MaxTradeWatcherDisplaysPerUser = this.MaxTradeWatcherDisplaysPerUser,
                 InviteMessage = this.InviteMessage,
@@ -353,9 +339,6 @@ namespace Eco.Plugins.DiscordLink
 
         [Description("The game server connection information to display to users. This setting can be changed while the server is running."), Category("Base Configuration - Eco")]
         public string ConnectionInfo { get; set; } = $"<eco://connect/{NetworkManager.Config.ID.ToString()}>";
-
-        [Description("The prefix to put before commands in order for the Discord bot to recognize them as such. This setting requires a plugin restart to take effect."), Category("Command Settings")]
-        public string DiscordCommandPrefix { get; set; } = DLConfig.DefaultValues.DiscordCommandPrefix;
 
         [Description("Discord and Eco Channels to connect together for chat crossposting. This setting can be changed while the server is running."), Category("Feeds")]
         public ObservableCollection<ChatChannelLink> ChatChannelLinks { get; set; } = new ObservableCollection<ChatChannelLink>();
