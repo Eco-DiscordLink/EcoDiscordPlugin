@@ -217,9 +217,9 @@ namespace Eco.Plugins.DiscordLink
 
             DiscordLinkEmbed report = await MessageBuilder.Discord.GetPlayerReport(user, ReportType);
             if (source == CommandInterface.Eco)
-                await DisplayCommandData(source, callContext, $"Player report for {user}", MessageUtils.FormatEmbedForEco(report), DLConstants.ECO_PANEL_REPORT);
+                await DisplayCommandData(source, callContext, $"Player report for {MessageUtils.StripTags(user.Name)}", MessageUtils.FormatEmbedForEco(report), DLConstants.ECO_PANEL_REPORT);
             else
-                await DisplayCommandData(source, callContext, $"Player report for {user}", report);
+                await DisplayCommandData(source, callContext, $"Player report for {MessageUtils.StripTags(user.Name)}", report);
             return true;
         }
 
