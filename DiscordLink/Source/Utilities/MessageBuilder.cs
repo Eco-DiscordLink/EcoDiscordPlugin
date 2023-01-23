@@ -36,6 +36,7 @@ using static Eco.Shared.Mathf; // Avoiding collisions with system mathf
 
 using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
 using StoreOfferGroup = System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.StoreComponent, Eco.Gameplay.Components.TradeOffer>>;
+using DSharpPlus.SlashCommands;
 
 namespace Eco.Plugins.DiscordLink.Utilities
 {
@@ -67,19 +68,19 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         public enum PlayerReportComponentFlag
         {
-            OnlineStatus    = 1 << 0,
-            PlayTime        = 1 << 1,
-            Exhaustion      = 1 << 2,
-            Permissions     = 1 << 3,
-            AccessLists     = 1 << 4,
-            DiscordInfo     = 1 << 5,
-            Reputation      = 1 << 6,
-            Experience      = 1 << 7,
-            Skills          = 1 << 8,
-            Demographics    = 1 << 9,
-            Titles          = 1 << 10,
-            Properties      = 1 << 11,
-            All             = ~0
+            [ChoiceName("Online")]          OnlineStatus    = 1 << 0,
+            [ChoiceName("Playtime")]        PlayTime        = 1 << 1,
+            [ChoiceName("Exhaustion")]      Exhaustion      = 1 << 2,
+            [ChoiceName("Permissions")]     Permissions     = 1 << 3,
+            [ChoiceName("Access")]          AccessLists     = 1 << 4,
+            [ChoiceName("Discord")]         DiscordInfo     = 1 << 5,
+            [ChoiceName("Reputation")]      Reputation      = 1 << 6,
+            [ChoiceName("Reputation")]      Experience      = 1 << 7,
+            [ChoiceName("Skills")]          Skills          = 1 << 8,
+            [ChoiceName("Demographics")]    Demographics    = 1 << 9,
+            [ChoiceName("Titles")]          Titles          = 1 << 10,
+            [ChoiceName("Properties")]      Properties      = 1 << 11,
+            [ChoiceName("All")]             All             = ~0
         }
 
         public enum PermissionReportComponentFlag

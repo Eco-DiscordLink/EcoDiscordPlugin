@@ -9,6 +9,7 @@ using Eco.Plugins.DiscordLink.Extensions;
 using System.Threading.Tasks;
 using static Eco.Plugins.DiscordLink.SharedCommands;
 using static Eco.Plugins.DiscordLink.Enums;
+using static Eco.Plugins.DiscordLink.Utilities.MessageBuilder;
 
 namespace Eco.Plugins.DiscordLink
 {
@@ -220,119 +221,17 @@ namespace Eco.Plugins.DiscordLink
         #region Lookups
 
         [ChatSubCommand("DiscordLink", "Displays the Player Report for the given player.", "DL-PlayerReport", ChatAuthorizationLevel.User)]
-        public static async Task PlayerReport(User callingUser, string playerNameOrID)
+        public static async Task PlayerReport(User callingUser, string playerNameOrID, string reportType = "All")
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.PlayerReport(CommandInterface.Eco, callingUser, playerNameOrID);
-            }, callingUser);
-        }
-
-        [ChatSubCommand("DiscordLink", "Displays the Player Online Status Report for the given player.", "DL-PlayerOnline", ChatAuthorizationLevel.User)]
-        public static async Task PlayerOnlineReport(User callingUser, string playerNameOrID)
-        {
-            await ExecuteCommand<object>(async (lUser, args) =>
-            {
-                await SharedCommands.PlayerOnlineReport(CommandInterface.Eco, callingUser, playerNameOrID);
-            }, callingUser);
-        }
-
-        [ChatSubCommand("DiscordLink", "Displays the Player Time Report for the given player.", "DL-PlayerTime", ChatAuthorizationLevel.User)]
-        public static async Task PlayerTimeReport(User callingUser, string playerNameOrID)
-        {
-            await ExecuteCommand<object>(async (lUser, args) =>
-            {
-                await SharedCommands.PlayerTimeReport(CommandInterface.Eco, callingUser, playerNameOrID);
-            }, callingUser);
-        }
-
-        [ChatSubCommand("DiscordLink", "Displays the Player Permissions Report for the given player.", "DL-PlayerPermissions", ChatAuthorizationLevel.User)]
-        public static async Task PlayerPermissionsReport(User callingUser, string playerNameOrID)
-        {
-            await ExecuteCommand<object>(async (lUser, args) =>
-            {
-                await SharedCommands.PlayerPermissionsReport(CommandInterface.Eco, callingUser, playerNameOrID);
-            }, callingUser);
-        }
-
-        [ChatSubCommand("DiscordLink", "Displays the Player WhiteList/Ban/Mute Report for the given player.", "DL-PlayerAccess", ChatAuthorizationLevel.User)]
-        public static async Task PlayerAccessReport(User callingUser, string playerNameOrID)
-        {
-            await ExecuteCommand<object>(async (lUser, args) =>
-            {
-                await SharedCommands.PlayerAccessReport(CommandInterface.Eco, callingUser, playerNameOrID);
-            }, callingUser);
-        }
-
-        [ChatSubCommand("DiscordLink", "Displays the Player Discord Report for the given player.", "DL-PlayerDiscord", ChatAuthorizationLevel.User)]
-        public static async Task PlayerDiscordReport(User callingUser, string playerNameOrID)
-        {
-            await ExecuteCommand<object>((lUser, args) =>
-            {
-                User ecoUser = EcoUtils.UserByNameOrEcoID(playerNameOrID);
-                if (ecoUser == null)
+                if(!Enum.TryParse(reportType, out PlayerReportComponentFlag reportTypeEnum))
                 {
-                    ReportCommandError(ecoUser, $"No player with the name or ID \"{playerNameOrID}\" could be found.\nNote that Discord usernames or IDs can't be looked up from Eco.");
-                    return Task.FromResult(0);
+                    ReportCommandError(callingUser, $"\"{reportType}\" is not a valid report type. The available report types are: {string.Join(", ", Enum.GetNames(typeof(PlayerReportComponentFlag)))}");
+                    return;
                 }
 
-                DiscordLinkEmbed report = MessageBuilder.Discord.GetPlayerReport(ecoUser, MessageBuilder.PlayerReportComponentFlag.DiscordInfo).Result;
-                DisplayCommandData(ecoUser, DLConstants.ECO_PANEL_REPORT, $"Player Discord report for {ecoUser}", report.AsText());
-                return Task.FromResult(0);
-            }, callingUser);
-        }
-
-        [ChatSubCommand("DiscordLink", "Displays the Player Reputation Report for the given player.", "DL-PlayerReputation", ChatAuthorizationLevel.User)]
-        public static async Task PlayerReputationReport(User callingUser, string playerNameOrID)
-        {
-            await ExecuteCommand<object>(async (lUser, args) =>
-            {
-                await SharedCommands.PlayerReputationReport(CommandInterface.Eco, callingUser, playerNameOrID);
-            }, callingUser);
-        }
-
-        [ChatSubCommand("DiscordLink", "Displays the Player XP Report for the given player.", "DL-PlayerXP", ChatAuthorizationLevel.User)]
-        public static async Task PlayerXPReport(User callingUser, string playerNameOrID)
-        {
-            await ExecuteCommand<object>(async (lUser, args) =>
-            {
-                await SharedCommands.PlayerXPReport(CommandInterface.Eco, callingUser, playerNameOrID);
-            }, callingUser);
-        }
-
-        [ChatSubCommand("DiscordLink", "Displays the Player Skills Report for the given player.", "DL-PlayerSkills", ChatAuthorizationLevel.User)]
-        public static async Task PlayerSkillsReport(User callingUser, string playerNameOrID)
-        {
-            await ExecuteCommand<object>(async (lUser, args) =>
-            {
-                await SharedCommands.PlayerSkillsReport(CommandInterface.Eco, callingUser, playerNameOrID);
-            }, callingUser);
-        }
-
-        [ChatSubCommand("DiscordLink", "Displays the Player Demographics Report for the given player.", "DL-PlayerDemographics", ChatAuthorizationLevel.User)]
-        public static async Task PlayerDemographicsReport(User callingUser, string playerNameOrID)
-        {
-            await ExecuteCommand<object>(async (lUser, args) =>
-            {
-                await SharedCommands.PlayerDemographicsReport(CommandInterface.Eco, callingUser, playerNameOrID);
-            }, callingUser);
-        }
-
-        [ChatSubCommand("DiscordLink", "Displays the Player Titles Report for the given player.", "DL-PlayerTitles", ChatAuthorizationLevel.User)]
-        public static async Task PlayerTitlesReport(User callingUser, string playerNameOrID)
-        {
-            await ExecuteCommand<object>(async (lUser, args) =>
-            {
-                await SharedCommands.PlayerTitlesReport(CommandInterface.Eco, callingUser, playerNameOrID);
-            }, callingUser);
-        }
-
-        [ChatSubCommand("DiscordLink", "Displays the Player Property Report for the given player.", "DL-PlayerProperty", ChatAuthorizationLevel.User)]
-        public static async Task PlayerPropertyReport(User callingUser, string playerNameOrID)
-        {
-            await ExecuteCommand<object>(async (lUser, args) =>
-            {
-                await SharedCommands.PlayerPropertiesReport(CommandInterface.Eco, callingUser, playerNameOrID);
+                await SharedCommands.PlayerReport(CommandInterface.Eco, callingUser, playerNameOrID, reportTypeEnum);
             }, callingUser);
         }
 

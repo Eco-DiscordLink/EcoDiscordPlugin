@@ -13,6 +13,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using static Eco.Plugins.DiscordLink.Enums;
 using static Eco.Plugins.DiscordLink.SharedCommands;
+using static Eco.Plugins.DiscordLink.Utilities.MessageBuilder;
 
 namespace Eco.Plugins.DiscordLink
 {
@@ -421,143 +422,11 @@ namespace Eco.Plugins.DiscordLink
 
         [SlashCommand("PlayerReport", "Displays the Player Report for the given player.")]
         public async Task PlayerReport(InteractionContext ctx,
-            [Option("Player", "Name or ID of the player for which to display the report.")] string playerNameOrID)
+            [Option("Player", "Name or ID of the player for which to display the report.")] string playerNameOrID, [Option("Report", "Which type of information the report should include.")] PlayerReportComponentFlag reportType = PlayerReportComponentFlag.All )
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.PlayerReport(CommandInterface.Discord, ctx, playerNameOrID);
-            }, ctx);
-        }
-
-        [SlashCommand("PlayerOnlineReport", "Displays the Player Online Status Report for the given player.")]
-        public async Task PlayerOnlineReport(InteractionContext ctx,
-            [Option("Player", "Name or ID of the player for which to display the report.")] string playerNameOrID)
-        {
-            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
-            {
-                await SharedCommands.PlayerOnlineReport(CommandInterface.Discord, ctx, playerNameOrID);
-            }, ctx);
-        }
-
-        [SlashCommand("PlayerTimeReport", "Displays the Player Time Report for the given player.")]
-        public async Task PlayerTimeReport(InteractionContext ctx,
-            [Option("Player", "Name or ID of the player for which to display the report.")] string playerNameOrID)
-        {
-            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
-            {
-                await SharedCommands.PlayerTimeReport(CommandInterface.Discord, ctx, playerNameOrID);
-            }, ctx);
-        }
-
-        [SlashCommand("PlayerPermissionReport", "Displays the Player Permissions Report for the given player.")]
-        public async Task PlayerPermissionReport(InteractionContext ctx,
-            [Option("Player", "Name or ID of the player for which to display the report.")] string playerNameOrID)
-        {
-            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
-            {
-                await SharedCommands.PlayerPermissionsReport(CommandInterface.Discord, ctx, playerNameOrID);
-            }, ctx);
-        }
-
-        [SlashCommand("PlayerAccessReport", "Displays the Player WhiteList/Ban/Mute Report for the given player.")]
-        public async Task PlayerAccessReport(InteractionContext ctx,
-            [Option("Player", "Name or ID of the player for which to display the report.")] string playerNameOrID)
-        {
-            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
-            {
-                await SharedCommands.PlayerAccessReport(CommandInterface.Discord, ctx, playerNameOrID);
-            }, ctx);
-        }
-
-        [SlashCommand("PlayerDiscordReport", "Displays the Player Discord Report for the given user.")]
-        public async Task DiscordReport(InteractionContext ctx,
-            [Option("User", "Name or ID of the player for which to display the report.")] string userNameOrID)
-        {
-            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
-            {
-                // Eco user
-                User ecoUser = EcoUtils.UserByNameOrEcoID(userNameOrID);
-                if (ecoUser != null)
-                {
-                    DiscordLinkEmbed ecoUserReport = MessageBuilder.Discord.GetPlayerReport(ecoUser, MessageBuilder.PlayerReportComponentFlag.DiscordInfo).Result;
-                    await DisplayCommandData(ctx, string.Empty, ecoUserReport);
-                    return;
-                }
-
-                // Discord member
-                DiscordMember member = DiscordLink.Obj.Client.MemberByNameOrID(userNameOrID);
-                if (ecoUser == null && member == null)
-                {
-                    await ReportCommandError(ctx, $"No Eco or Discord User with the name or ID \"{userNameOrID}\" could be found.");
-                    return;
-                }
-
-                LinkedUser linkedUser = UserLinkManager.LinkedUserByDiscordUser(member, ctx.Member, "Player Discord Report Generation");
-                if (linkedUser == null)
-                    return;
-
-                DiscordLinkEmbed linkedUserReport = MessageBuilder.Discord.GetPlayerReport(linkedUser.EcoUser, MessageBuilder.PlayerReportComponentFlag.DiscordInfo).Result;
-                await DisplayCommandData(ctx, string.Empty, linkedUserReport);
-            }, ctx);
-        }
-
-        [SlashCommand("PlayerReputationReport", "Displays the Player Reputation Report for the given player.")]
-        public async Task PlayerReputationReport(InteractionContext ctx,
-            [Option("Player", "Name or ID of the player for which to display the report.")] string playerNameOrID)
-        {
-            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
-            {
-                await SharedCommands.PlayerReputationReport(CommandInterface.Discord, ctx, playerNameOrID);
-            }, ctx);
-        }
-
-        [SlashCommand("PlayerXPReport", "Displays the Player XP Report for the given player.")]
-        public async Task PlayerXPReport(InteractionContext ctx,
-            [Option("Player", "Name or ID of the player for which to display the report.")] string playerNameOrID)
-        {
-            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
-            {
-                await SharedCommands.PlayerXPReport(CommandInterface.Discord, ctx, playerNameOrID);
-            }, ctx);
-        }
-
-        [SlashCommand("PlayerSkillsReport", "Displays the Player Skills Report for the given player.")]
-        public async Task PlayerSkillsReport(InteractionContext ctx,
-            [Option("Player", "Name or ID of the player for which to display the report.")] string playerNameOrID)
-        {
-            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
-            {
-                await SharedCommands.PlayerSkillsReport(CommandInterface.Discord, ctx, playerNameOrID);
-            }, ctx);
-        }
-
-        [SlashCommand("PlayerDemographicsReport", "Displays the Player Demographics Report for the given player.")]
-        public async Task PlayerDemographicsReport(InteractionContext ctx,
-            [Option("Player", "Name or ID of the player for which to display the report.")] string playerNameOrID)
-        {
-            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
-            {
-                await SharedCommands.PlayerDemographicsReport(CommandInterface.Discord, ctx, playerNameOrID);
-            }, ctx);
-        }
-
-        [SlashCommand("PlayerTitlesReport", "Displays the Player Titles Report for the given player.")]
-        public async Task PlayerTitlesReport(InteractionContext ctx,
-            [Option("Player", "Name or ID of the player for which to display the report.")] string playerNameOrID)
-        {
-            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
-            {
-                await SharedCommands.PlayerTitlesReport(CommandInterface.Discord, ctx, playerNameOrID);
-            }, ctx);
-        }
-
-        [SlashCommand("PlayerPropertyReport", "Displays the Player Property Report for the given player.")]
-        public async Task PlayerPropertyReport(InteractionContext ctx,
-            [Option("Player", "Name or ID of the player for which to display the report.")] string playerNameOrID)
-        {
-            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
-            {
-                await SharedCommands.PlayerPropertiesReport(CommandInterface.Discord, ctx, playerNameOrID);
+                await SharedCommands.PlayerReport(CommandInterface.Discord, ctx, playerNameOrID, reportType);
             }, ctx);
         }
 
