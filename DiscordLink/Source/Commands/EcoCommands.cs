@@ -74,7 +74,7 @@ namespace Eco.Plugins.DiscordLink
 
         #region Plugin Management
 
-        [ChatSubCommand("DiscordLink", "Forces an update.", "DL-Update", ChatAuthorizationLevel.Admin)]
+        [ChatSubCommand("DiscordLink", "Forces an update.", ChatAuthorizationLevel.Admin)]
         public static async Task Update(User callingUser)
         {
             await ExecuteCommand<object>(async (lUser, args) =>
@@ -92,7 +92,7 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Removes all persistent storage data.", "DL-ResetPersistentData", ChatAuthorizationLevel.Admin)]
+        [ChatSubCommand("DiscordLink", "Removes all persistent storage data.", ChatAuthorizationLevel.Admin)]
         public static async Task ResetPersistentData(User callingUser)
         {
             await ExecuteCommand<object>(async (lUser, args) =>
@@ -101,7 +101,7 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Resets world data as if a new world had been created.", "DL-ResetWorldData", ChatAuthorizationLevel.Admin)]
+        [ChatSubCommand("DiscordLink", "Resets world data as if a new world had been created.", ChatAuthorizationLevel.Admin)]
         public static async Task ResetWorldData(User callingUser)
         {
             await ExecuteCommand<object>(async (lUser, args) =>
@@ -110,7 +110,7 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Deletes all Discord roles created and tracked by DiscordLink.", "DL-ClearRoles", ChatAuthorizationLevel.Admin)]
+        [ChatSubCommand("DiscordLink", "Deletes all Discord roles created and tracked by DiscordLink.", ChatAuthorizationLevel.Admin)]
         public static async Task ClearRoles(User callingUser)
         {
             await ExecuteCommand<object>(async (lUser, args) =>
@@ -123,7 +123,7 @@ namespace Eco.Plugins.DiscordLink
 
         #region Server Management
 
-        [ChatSubCommand("DiscordLink", "Shuts the server down.", "DL-Servershutdown", ChatAuthorizationLevel.Admin)]
+        [ChatSubCommand("DiscordLink", "Shuts the server down.", ChatAuthorizationLevel.Admin)]
         public static async Task ServerShutdown(User callingUser)
         {
             await ExecuteCommand<object>(async (lUser, args) =>
@@ -136,7 +136,7 @@ namespace Eco.Plugins.DiscordLink
 
         #region Meta
 
-        [ChatSubCommand("DiscordLink", "Displays information about the DiscordLink plugin.", "DL-About", ChatAuthorizationLevel.User)]
+        [ChatSubCommand("DiscordLink", "Displays information about the DiscordLink plugin.", ChatAuthorizationLevel.User)]
         public static async Task About(User callingUser)
         {
             await ExecuteCommand<object>(async (lUser, args) =>
@@ -145,7 +145,7 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Shows the plugin status.", "DL-Status", ChatAuthorizationLevel.Admin)]
+        [ChatSubCommand("DiscordLink", "Shows the plugin status.", ChatAuthorizationLevel.Admin)]
         public static async Task PluginStatus(User callingUser)
         {
             await ExecuteCommand<object>(async (lUser, args) =>
@@ -154,7 +154,7 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Shows the plugin status including verbose debug level information.", "DL-StatusVerbose", ChatAuthorizationLevel.Admin)]
+        [ChatSubCommand("DiscordLink", "Shows the plugin status including verbose debug level information.", ChatAuthorizationLevel.Admin)]
         public static async Task PluginStatusVerbose(User callingUser)
         {
             await ExecuteCommand<object>(async (lUser, args) =>
@@ -163,7 +163,7 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Checks configuration setup and reports any errors.", "DL-VerifyConfig", ChatAuthorizationLevel.Admin)]
+        [ChatSubCommand("DiscordLink", "Checks configuration setup and reports any errors.", ChatAuthorizationLevel.Admin)]
         public static async Task VerifyConfig(User callingUser)
         {
             await ExecuteCommand<object>(async (lUser, args) =>
@@ -172,7 +172,7 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Checks all permissions and intents needed for the current configuration and reports any missing ones.", "DL-VerifyPermissions", ChatAuthorizationLevel.Admin)]
+        [ChatSubCommand("DiscordLink", "Checks all permissions and intents needed for the current configuration and reports any missing ones.", ChatAuthorizationLevel.Admin)]
         public static async Task VerifyPermissions(User callingUser)
         {
             await ExecuteCommand<object>(async (lUser, args) =>
@@ -181,7 +181,7 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Checks all intents needed and reports any missing ones.", "DL-VerifyIntents", ChatAuthorizationLevel.Admin)]
+        [ChatSubCommand("DiscordLink", "Checks all intents needed and reports any missing ones.", ChatAuthorizationLevel.Admin)]
         public static async Task VerifyIntents(User callingUser)
         {
             await ExecuteCommand<object>(async (lUser, args) =>
@@ -190,7 +190,7 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Checks all server permissions needed and reports any missing ones.", "DL-VerifyServerPermissions", ChatAuthorizationLevel.Admin)]
+        [ChatSubCommand("DiscordLink", "Checks all server permissions needed and reports any missing ones.", ChatAuthorizationLevel.Admin)]
         public static async Task VerifyServerPermissions(User callingUser)
         {
             await ExecuteCommand<object>(async (lUser, args) =>
@@ -199,7 +199,7 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Checks all permissions needed for the given channel and reports any missing ones.", "DL-VerifyChannelPermissions", ChatAuthorizationLevel.Admin)]
+        [ChatSubCommand("DiscordLink", "Checks all permissions needed for the given channel and reports any missing ones.", ChatAuthorizationLevel.Admin)]
         public static async Task VerifyChannelPermissions(User callingUser, string channelNameOrID)
         {
             await ExecuteCommand<object>(async (lUser, args) =>
@@ -208,7 +208,7 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Presents a list of all channel links.", "DL-ListChannels", ChatAuthorizationLevel.Admin)]
+        [ChatSubCommand("DiscordLink", "Presents a list of all channel links.", ChatAuthorizationLevel.Admin)]
         public static async Task ListLinkedChannels(User callingUser)
         {
             await ExecuteCommand<object>(async (lUser, args) =>
@@ -221,7 +221,7 @@ namespace Eco.Plugins.DiscordLink
 
         #region Lookups
 
-        [ChatSubCommand("DiscordLink", "Displays the Player Report for the given player.", "DL-PlayerReport", ChatAuthorizationLevel.User)]
+        [ChatSubCommand("DiscordLink", "Displays the Player Report for the given player.", ChatAuthorizationLevel.User)]
         public static async Task PlayerReport(User callingUser, string playerNameOrID, string reportType = "All")
         {
             await ExecuteCommand<object>(async (lUser, args) =>
@@ -236,7 +236,7 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Displays the Currency Report for the given currency.", "DL-CurrencyReport", ChatAuthorizationLevel.User)]
+        [ChatSubCommand("DiscordLink", "Displays the Currency Report for the given currency.", ChatAuthorizationLevel.User)]
         public static async Task CurrencyReport(User callingUser, string currencyNameOrID)
         {
             await ExecuteCommand<object>(async (lUser, args) =>
@@ -245,7 +245,7 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Displays a report for the top used currencies.", "DL-Currencies", ChatAuthorizationLevel.User)]
+        [ChatSubCommand("DiscordLink", "Displays a report for the top used currencies.", ChatAuthorizationLevel.User)]
         public static async Task CurrenciesReport(User callingUser, string currencyType = "all",
             int maxCurrenciesPerType = DLConstants.CURRENCY_REPORT_COMMAND_MAX_CURRENCIES_PER_TYPE_DEFAULT,
             int holdersPerCurrency = DLConstants.CURRENCY_REPORT_COMMAND_MAX_TOP_HOLDERS_PER_CURRENCY_DEFAULT)
@@ -263,7 +263,7 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Displays the Election Report for the given election.", "DL-Election", ChatAuthorizationLevel.User)]
+        [ChatSubCommand("DiscordLink", "Displays the Election Report for the given election.", ChatAuthorizationLevel.User)]
         public static async Task ElectionReport(User callingUser, string electionNameOrID)
         {
             await ExecuteCommand<object>(async (lUser, args) =>
@@ -272,7 +272,7 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Displays a report for the currently active elections.", "DL-Elections", ChatAuthorizationLevel.User)]
+        [ChatSubCommand("DiscordLink", "Displays a report for the currently active elections.", ChatAuthorizationLevel.User)]
         public static async Task ElectionsReport(User callingUser)
         {
             await ExecuteCommand<object>(async (lUser, args) =>
@@ -281,7 +281,7 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Displays the Work Party Report for the given work party.", "DL-WorkParty", ChatAuthorizationLevel.User)]
+        [ChatSubCommand("DiscordLink", "Displays the Work Party Report for the given work party.", ChatAuthorizationLevel.User)]
         public static async Task WorkPartyReport(User callingUser, string workPartyNameOrID)
         {
             await ExecuteCommand<object>(async (lUser, args) =>
@@ -290,7 +290,7 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Displays a report for the currently active work parties.", "DL-WorkParties", ChatAuthorizationLevel.User)]
+        [ChatSubCommand("DiscordLink", "Displays a report for the currently active work parties.", ChatAuthorizationLevel.User)]
         public static async Task WorkPartiesReport(User callingUser)
         {
             await ExecuteCommand<object>(async (lUser, args) =>
@@ -303,7 +303,7 @@ namespace Eco.Plugins.DiscordLink
 
         #region Invites
 
-        [ChatSubCommand("DiscordLink", "Posts a Discord invite message to the Eco chat.", "DL-PostInviteMessage", ChatAuthorizationLevel.User)]
+        [ChatSubCommand("DiscordLink", "Posts a Discord invite message to the Eco chat.", ChatAuthorizationLevel.User)]
         public static async Task PostInviteMessage(User callingUser)
         {
             await ExecuteCommand<object>(async (lUser, args) =>
@@ -312,7 +312,7 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Opens an invite to the Discord server.", "DL-InviteMe", ChatAuthorizationLevel.User)]
+        [ChatSubCommand("DiscordLink", "Opens an invite to the Discord server.", ChatAuthorizationLevel.User)]
         public static async Task InviteMe(User callingUser)
         {
             await ExecuteCommand<object>(async (lUser, args) =>
@@ -341,7 +341,7 @@ namespace Eco.Plugins.DiscordLink
 
         #region Account Linking
 
-        [ChatSubCommand("DiscordLink", "Presents information about account linking.", "DL-LinkInfo", ChatAuthorizationLevel.User)]
+        [ChatSubCommand("DiscordLink", "Presents information about account linking.", ChatAuthorizationLevel.User)]
         public static async Task LinkInformation(User callingUser)
         {
             await ExecuteCommand<object>(async (lUser, args) =>
@@ -350,8 +350,8 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Links the calling user account to a Discord account.", "DL-Link", ChatAuthorizationLevel.User)]
-        public static async Task LinkDiscordAccount(User callingUser, string discordName)
+        [ChatSubCommand("DiscordLink", "Links the calling user account to a Discord account.", ChatAuthorizationLevel.User)]
+        public static async Task LinkAccount(User callingUser, string discordName)
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
@@ -428,8 +428,8 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Unlinks the Eco account from a linked Discord account.", "DL-Unlink", ChatAuthorizationLevel.User)]
-        public static async Task UnlinkDiscordAccount(User callingUser)
+        [ChatSubCommand("DiscordLink", "Unlinks the Eco account from a linked Discord account.", ChatAuthorizationLevel.User)]
+        public static async Task UnlinkAccount(User callingUser)
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
@@ -445,7 +445,7 @@ namespace Eco.Plugins.DiscordLink
 
         #region Trades
 
-        [ChatSubCommand("DiscordLink", "Displays available trades by player, tag, item or store.", "DL-Trades", ChatAuthorizationLevel.User)]
+        [ChatSubCommand("DiscordLink", "Displays available trades by player, tag, item or store.", "DLT", ChatAuthorizationLevel.User)]
         public static async Task Trades(User callingUser, string searchName)
         {
             ExecuteCommand<object>(async (lUser, args) =>
@@ -454,15 +454,8 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        // Wrapper for the Trades command in order to facilitate more command aliases
-        [ChatSubCommand("DiscordLink", "Displays available trades by player, tag, item or store.", "DLT", ChatAuthorizationLevel.User)]
-        public static async Task Trade(User user, string searchName)
-        {
-            Trades(user, searchName);
-        }
-
-        [ChatSubCommand("DiscordLink", "Creates a live updated display of available trades by player, tag, item or store", "DL-WatchTradeDisplay", ChatAuthorizationLevel.User)]
-        public static async Task AddTradeWatcherDisplay(User callingUser, string searchName)
+        [ChatSubCommand("DiscordLink", "Creates a live updated display of available trades by player, tag, item or store", ChatAuthorizationLevel.User)]
+        public static async Task WatchTradeDisplay(User callingUser, string searchName)
         {
             ExecuteCommand<object>(async (lUser, args) =>
             {
@@ -470,8 +463,8 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Removes the live updated display of available trades for the player, tag, item or store.", "DL-UnwatchTradeDisplay", ChatAuthorizationLevel.User)]
-        public static async Task RemoveTradeWatcherDisplay(User callingUser, string searchName)
+        [ChatSubCommand("DiscordLink", "Removes the live updated display of available trades for the player, tag, item or store.", ChatAuthorizationLevel.User)]
+        public static async Task UnwatchTradeDisplay(User callingUser, string searchName)
         {
             ExecuteCommand<object>(async (lUser, args) =>
             {
@@ -479,8 +472,8 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Creates a feed where the bot will post trades filtered by the search query, as they occur ingame. The search query can filter by player, tag, item or store.", "DL-WatchTradeFeed", ChatAuthorizationLevel.User)]
-        public static async Task AddTradeWatcherFeed(User callingUser, string searchName)
+        [ChatSubCommand("DiscordLink", "Creates a feed where the bot will post trades filtered by the search query, as they occur ingame. The search query can filter by player, tag, item or store.", ChatAuthorizationLevel.User)]
+        public static async Task WatchTradeFeed(User callingUser, string searchName)
         {
             ExecuteCommand<object>(async (lUser, args) =>
             {
@@ -488,8 +481,8 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Removes the trade watcher feed for a player, tag, item or store.", "DL-UnwatchTradeFeed", ChatAuthorizationLevel.User)]
-        public static async Task RemoveTradeWatcherFeed(User callingUser, string searchName)
+        [ChatSubCommand("DiscordLink", "Removes the trade watcher feed for a player, tag, item or store.", ChatAuthorizationLevel.User)]
+        public static async Task UnwatchTradeFeed(User callingUser, string searchName)
         {
             ExecuteCommand<object>(async (lUser, args) =>
             {
@@ -497,7 +490,7 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Lists all trade watchers for the calling user.", "DL-TradeWatchers", ChatAuthorizationLevel.User)]
+        [ChatSubCommand("DiscordLink", "Lists all trade watchers for the calling user.", ChatAuthorizationLevel.User)]
         public static async Task ListTradeWatchers(User callingUser)
         {
             ExecuteCommand<object>(async (lUser, args) =>
@@ -510,7 +503,7 @@ namespace Eco.Plugins.DiscordLink
 
         #region Snippets
 
-        [ChatSubCommand("DiscordLink", "Post a predefined snippet from Discord to Eco.", "DL-Snippet", ChatAuthorizationLevel.User)]
+        [ChatSubCommand("DiscordLink", "Post a predefined snippet from Discord to Eco.", ChatAuthorizationLevel.User)]
         public static void Snippet(User callingUser, string snippetKey = "")
         {
             ExecuteCommand<object>(async (lUser, args) =>
@@ -541,8 +534,8 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Sends an Eco server message to all online users.", "DL-ServerMessage", ChatAuthorizationLevel.Admin)]
-        public static async Task ServerMessageToAll(User callingUser, string message)
+        [ChatSubCommand("DiscordLink", "Sends an Eco server message to all online users.", ChatAuthorizationLevel.Admin)]
+        public static async Task ServerMessageAll(User callingUser, string message)
         {
             ExecuteCommand<object>(async (lUser, args) =>
             {
@@ -550,8 +543,8 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Sends an Eco server message to the specified user.", "DL-ServermessageUser", ChatAuthorizationLevel.Admin)]
-        public static async Task ServerMessageToUser(User callingUser, string message, string recipientUserNameOrID)
+        [ChatSubCommand("DiscordLink", "Sends an Eco server message to the specified user.", ChatAuthorizationLevel.Admin)]
+        public static async Task ServerMessageUser(User callingUser, string message, string recipientUserNameOrID)
         {
             ExecuteCommand<object>(async (lUser, args) =>
             {
@@ -559,8 +552,8 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Sends an info box message to all online users.", "DL-Announce", ChatAuthorizationLevel.Admin)]
-        public static async Task AnnouncementToAll(User callingUser, string message)
+        [ChatSubCommand("DiscordLink", "Sends an info box message to all online users.", ChatAuthorizationLevel.Admin)]
+        public static async Task AnnounceAll(User callingUser, string message)
         {
             ExecuteCommand<object>(async (lUser, args) =>
             {
@@ -568,8 +561,8 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Sends an info box message to the specified user.", "DL-AnnounceUser", ChatAuthorizationLevel.Admin)]
-        public static async Task AnnouncementToUser(User callingUser, string message, string recipientUserNameOrID)
+        [ChatSubCommand("DiscordLink", "Sends an info box message to the specified user.", ChatAuthorizationLevel.Admin)]
+        public static async Task AnnounceUser(User callingUser, string message, string recipientUserNameOrID)
         {
             ExecuteCommand<object>(async (lUser, args) =>
             {
@@ -577,8 +570,8 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Sends a warning box message to all online users.", "DL-Warning", ChatAuthorizationLevel.Admin)]
-        public static async Task WarningToAll(User callingUser, string message)
+        [ChatSubCommand("DiscordLink", "Sends a warning box message to all online users.", ChatAuthorizationLevel.Admin)]
+        public static async Task WarnAll(User callingUser, string message)
         {
             ExecuteCommand<object>(async (lUser, args) =>
             {
@@ -586,8 +579,8 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Sends a warning box message to the specified user.", "DL-WarnUser", ChatAuthorizationLevel.Admin)]
-        public static async Task WarningToUser(User callingUser, string message, string recipientUserNameOrID)
+        [ChatSubCommand("DiscordLink", "Sends a warning box message to the specified user.", ChatAuthorizationLevel.Admin)]
+        public static async Task WarnUser(User callingUser, string message, string recipientUserNameOrID)
         {
             ExecuteCommand<object>(async (lUser, args) =>
             {
@@ -595,8 +588,8 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Sends an error box message to all online users.", "DL-Error", ChatAuthorizationLevel.Admin)]
-        public static async Task ErrorToAll(User callingUser, string message)
+        [ChatSubCommand("DiscordLink", "Sends an error box message to all online users.", ChatAuthorizationLevel.Admin)]
+        public static async Task ErrorAll(User callingUser, string message)
         {
             ExecuteCommand<object>(async (lUser, args) =>
             {
@@ -604,8 +597,8 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Sends an error box message to the specified user.", "DL-ErrorUser", ChatAuthorizationLevel.Admin)]
-        public static async Task ErrorToUser(User callingUser, string message, string recipientUserNameOrID)
+        [ChatSubCommand("DiscordLink", "Sends an error box message to the specified user.", ChatAuthorizationLevel.Admin)]
+        public static async Task ErrorUser(User callingUser, string message, string recipientUserNameOrID)
         {
             ExecuteCommand<object>(async (lUser, args) =>
             {
@@ -613,8 +606,8 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Sends a notification message to all online and conditionally offline users.", "DL-Notify", ChatAuthorizationLevel.Admin)]
-        public static async Task NotificationToAll(User callingUser, string message, bool includeOfflineUsers = true)
+        [ChatSubCommand("DiscordLink", "Sends a notification message to all online and conditionally offline users.", ChatAuthorizationLevel.Admin)]
+        public static async Task NotifyAll(User callingUser, string message, bool includeOfflineUsers = true)
         {
             ExecuteCommand<object>(async (lUser, args) =>
             {
@@ -622,8 +615,8 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Sends a notification message to the specified user.", "DL-NotifyUser", ChatAuthorizationLevel.Admin)]
-        public static async Task NotificationToUser(User callingUser, string message, string recipientUserNameOrID)
+        [ChatSubCommand("DiscordLink", "Sends a notification message to the specified user.", ChatAuthorizationLevel.Admin)]
+        public static async Task NotifyUser(User callingUser, string message, string recipientUserNameOrID)
         {
             ExecuteCommand<object>(async (lUser, args) =>
             {
@@ -631,8 +624,8 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Sends an OK box popup message to all online users.", "DL-Popup", ChatAuthorizationLevel.Admin)]
-        public static async Task PopupToAll(User callingUser, string message)
+        [ChatSubCommand("DiscordLink", "Sends an OK box popup message to all online users.", ChatAuthorizationLevel.Admin)]
+        public static async Task PopupAll(User callingUser, string message)
         {
             ExecuteCommand<object>(async (lUser, args) =>
             {
@@ -640,8 +633,8 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Sends an OK box popup message to the specified user.", "DL-PopupUser", ChatAuthorizationLevel.Admin)]
-        public static async Task PopupToUser(User callingUser, string message, string recipientUserNameOrID)
+        [ChatSubCommand("DiscordLink", "Sends an OK box popup message to the specified user.", ChatAuthorizationLevel.Admin)]
+        public static async Task PopupUser(User callingUser, string message, string recipientUserNameOrID)
         {
             ExecuteCommand<object>(async (lUser, args) =>
             {
@@ -649,8 +642,8 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Displays an info panel to all online users.", "DL-InfoPanel", ChatAuthorizationLevel.Admin)]
-        public static async Task InfoPanelToAll(User callingUser, string title, string message)
+        [ChatSubCommand("DiscordLink", "Displays an info panel to all online users.", ChatAuthorizationLevel.Admin)]
+        public static async Task InfoPanelAll(User callingUser, string title, string message)
         {
             ExecuteCommand<object>(async (lUser, args) =>
             {
@@ -658,8 +651,8 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Displays an info panel to the specified user.", "DL-InfoPanelUser", ChatAuthorizationLevel.Admin)]
-        public static async Task InfoPanelToUser(User callingUser, string title, string message, string recipientUserNameOrID)
+        [ChatSubCommand("DiscordLink", "Displays an info panel to the specified user.", ChatAuthorizationLevel.Admin)]
+        public static async Task InfoPanelUser(User callingUser, string title, string message, string recipientUserNameOrID)
         {
             ExecuteCommand<object>(async (lUser, args) =>
             {

@@ -183,7 +183,7 @@ namespace Eco.Plugins.DiscordLink
         #region Eco Commands
 
         [SlashCommand("EcoCommand", "Runs an ingame command.")]
-        public async Task EcoCommanda(InteractionContext ctx, [Option("Command", "The Eco command to run.")] string command)
+        public async Task EcoCommand(InteractionContext ctx, [Option("Command", "The Eco command to run.")] string command)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
@@ -577,8 +577,8 @@ namespace Eco.Plugins.DiscordLink
 
         #region Message Relaying
 
-        [SlashCommand("ServerMessageToAll", "Sends an Eco server message to all online users.")]
-        public async Task ServerMessageToAll(InteractionContext ctx, [Option("Message", "The message to send.")] string message)
+        [SlashCommand("ServerMessageAll", "Sends an Eco server message to all online users.")]
+        public async Task ServerMessageAll(InteractionContext ctx, [Option("Message", "The message to send.")] string message)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
@@ -586,8 +586,8 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
-        [SlashCommand("ServerMessageToUser", "Sends an Eco server message to the specified user.")]
-        public async Task ServerMessageToUser(InteractionContext ctx,
+        [SlashCommand("ServerMessageUser", "Sends an Eco server message to the specified user.")]
+        public async Task ServerMessageUser(InteractionContext ctx,
             [Option("Message", "The message to send.")] string message,
             [Option("Recipient", "Name or ID of the recipient Eco user.")] string recipientUserNameOrID)
         {
@@ -597,8 +597,8 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
-        [SlashCommand("AnnouncementToAll", "Sends an Eco info box message to all online users.")]
-        public async Task AnnouncementToAll(InteractionContext ctx, [Option("Message", "The message to send.")] string message)
+        [SlashCommand("AnnounceAll", "Sends an Eco info box message to all online users.")]
+        public async Task AnnounceAll(InteractionContext ctx, [Option("Message", "The message to send.")] string message)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
@@ -606,8 +606,8 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
-        [SlashCommand("AnnouncementToUser", "Sends an Eco info box message to the specified user.")]
-        public async Task AnnounceToAll(InteractionContext ctx, [Option("Message", "The message to send.")] string message,
+        [SlashCommand("AnnounceUser", "Sends an Eco info box message to the specified user.")]
+        public async Task AnnounceUser(InteractionContext ctx, [Option("Message", "The message to send.")] string message,
             [Option("Recipient", "Name or ID of the recipient Eco user.")] string recipientUserNameOrID)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
@@ -616,8 +616,8 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
-        [SlashCommand("WarningToAll", "Sends an Eco warning box message to all online users.")]
-        public async Task WarningToAll(InteractionContext ctx, [Option("Message", "The message to send.")] string message)
+        [SlashCommand("WarnAll", "Sends an Eco warning box message to all online users.")]
+        public async Task WarnAll(InteractionContext ctx, [Option("Message", "The message to send.")] string message)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
@@ -625,8 +625,8 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
-        [SlashCommand("WarningToUser", "Sends an Eco warning box message to the specified user.")]
-        public async Task WarningToUser(InteractionContext ctx, [Option("Message", "The message to send.")] string message,
+        [SlashCommand("WarnUser", "Sends an Eco warning box message to the specified user.")]
+        public async Task WarnUser(InteractionContext ctx, [Option("Message", "The message to send.")] string message,
             [Option("Recipient", "Name or ID of the recipient Eco user.")] string recipientUserNameOrID)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
@@ -635,8 +635,8 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
-        [SlashCommand("ErrorToAll", "Sends an Eco error box message to all online users.")]
-        public async Task ErrorToAll(InteractionContext ctx, [Option("Message", "The message to send.")] string message)
+        [SlashCommand("ErrorAll", "Sends an Eco error box message to all online users.")]
+        public async Task ErrorAll(InteractionContext ctx, [Option("Message", "The message to send.")] string message)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
@@ -644,8 +644,8 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
-        [SlashCommand("ErrorToUser", "Sends an Eco error box message to the specified user.")]
-        public async Task ErrorToUser(InteractionContext ctx, [Option("Message", "The message to send.")] string message,
+        [SlashCommand("ErrorUser", "Sends an Eco error box message to the specified user.")]
+        public async Task ErrorUser(InteractionContext ctx, [Option("Message", "The message to send.")] string message,
             [Option("Recipient", "Name or ID of the recipient Eco user.")] string recipientUserNameOrID)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
@@ -654,8 +654,8 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
-        [SlashCommand("NotificationToAll", "Sends an Eco notification message to all online and conditionally offline users.")]
-        public async Task NotificationToAll(InteractionContext ctx, [Option("Message", "The message to send.")] string message,
+        [SlashCommand("NotificyAll", "Sends an Eco notification message to all online and conditionally offline users.")]
+        public async Task NotificyAll(InteractionContext ctx, [Option("Message", "The message to send.")] string message,
             [Option("IncludeOffline", "Whether or not to send the message to offline users as well.")] bool includeOfflineUsers = true)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
@@ -664,8 +664,8 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
-        [SlashCommand("NotificationToUser", "Sends an Eco notification message to the specified user.")]
-        public async Task NotificationToUser(InteractionContext ctx, [Option("Message", "The message to send.")] string message,
+        [SlashCommand("NotifyUser", "Sends an Eco notification message to the specified user.")]
+        public async Task NotifyUser(InteractionContext ctx, [Option("Message", "The message to send.")] string message,
             [Option("Recipient", "Name or ID of the recipient Eco user.")] string recipientUserNameOrID)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
@@ -674,8 +674,8 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
-        [SlashCommand("PopupToAll", "Sends an Eco popup message to all online users.")]
-        public async Task PopupToAll(InteractionContext ctx, [Option("Message", "The message to send.")] string message)
+        [SlashCommand("PopupAll", "Sends an Eco popup message to all online users.")]
+        public async Task PopupAll(InteractionContext ctx, [Option("Message", "The message to send.")] string message)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
@@ -683,8 +683,8 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
-        [SlashCommand("PopupToUser", "Sends an Eco popup message to the specified user.")]
-        public async Task PopupToUser(InteractionContext ctx, [Option("Message", "The message to send.")] string message,
+        [SlashCommand("PopupUser", "Sends an Eco popup message to the specified user.")]
+        public async Task PopupUser(InteractionContext ctx, [Option("Message", "The message to send.")] string message,
             [Option("Recipient", "Name or ID of the recipient Eco user.")] string recipientUserNameOrID)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
@@ -693,7 +693,7 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
-        [SlashCommand("InfoPanelToAll", "Displays an info panel to all online users.")]
+        [SlashCommand("InfoPanelAll", "Displays an info panel to all online users.")]
         public async Task InfoPanelToAll(InteractionContext ctx, [Option("Title", "The title for the info panel.")] string title,
             [Option("Message", "The message to display in the info panel.")] string message)
         {
@@ -703,7 +703,7 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
-        [SlashCommand("InfoPanelToUser", "Displays an info panel to the specified user.")]
+        [SlashCommand("InfoPanelUser", "Displays an info panel to the specified user.")]
         public async Task InfoPanelToUser(InteractionContext ctx, [Option("Title", "The title for the info panel.")] string title,
             [Option("Message", "The message to display in the info panel.")] string message,
             [Option("Recipient", "Name or ID of the recipient Eco user.")] string recipientUserNameOrID)
