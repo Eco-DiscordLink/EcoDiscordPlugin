@@ -85,7 +85,7 @@ namespace Eco.Plugins.DiscordLink
             return true;
         }
 
-        public static async Task<bool> Restart(CommandInterface source, object callContext)
+        public static async Task<bool> RestartPlugin(CommandInterface source, object callContext)
         {
             DiscordLink plugin = DiscordLink.Obj;
             Logger.Info("Restart command executed - Restarting");

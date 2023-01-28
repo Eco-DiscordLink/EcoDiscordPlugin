@@ -205,12 +205,12 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
-        [SlashCommand("Restart", "Restarts the DiscordLink plugin.")]
-        public async Task Restart(InteractionContext ctx)
+        [SlashCommand("RestartPlugin", "Restarts the DiscordLink plugin.")]
+        public async Task RestartPlugin(InteractionContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.Restart(CommandInterface.Discord, ctx);
+                await SharedCommands.RestartPlugin(CommandInterface.Discord, ctx);
             }, ctx);
         }
 

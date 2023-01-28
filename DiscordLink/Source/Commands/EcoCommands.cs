@@ -83,12 +83,12 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Restarts the plugin.", "DL-Restart", ChatAuthorizationLevel.Admin)]
-        public static async Task Restart(User callingUser)
+        [ChatSubCommand("DiscordLink", "Restarts the plugin.", ChatAuthorizationLevel.Admin)]
+        public static async Task RestartPlugin(User callingUser)
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.Restart(CommandInterface.Eco, callingUser);
+                await SharedCommands.RestartPlugin(CommandInterface.Eco, callingUser);
             }, callingUser);
         }
 
