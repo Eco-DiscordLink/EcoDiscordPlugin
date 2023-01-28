@@ -321,9 +321,18 @@ namespace Eco.Plugins.DiscordLink
                 if (string.IsNullOrEmpty(discordAddress))
                 {
                     ReportCommandError(callingUser, "This server does not have an associated Discord server.");
+                    return;
                 }
 
-                callingUser.OpenDiscordInvite(discordAddress.Substring(discordAddress.IndexOf("gg/")));
+                int findIndex = discordAddress.LastIndexOf('/');
+                if(findIndex < 0)
+                {
+                    ReportCommandError(callingUser, "The configured discord address is invalid.");
+                    return;
+                }
+
+                string inviteCode = discordAddress.Substring(findIndex + 1);
+                callingUser.OpenDiscordInvite(inviteCode);
                 ReportCommandInfo(callingUser, "Invite sent");
             }, callingUser);
         }
