@@ -72,7 +72,7 @@ namespace Eco.Plugins.DiscordLink
 
         public static async Task<bool> Update(CommandInterface source, object callContext)
         {
-            if(DiscordLink.Obj.Client.ConnectionStatus != DLDiscordClient.ConnectionState.Connected)
+            if (DiscordLink.Obj.Client.ConnectionStatus != DLDiscordClient.ConnectionState.Connected)
             {
                 await ReportCommandError(source, callContext, "Failed to force update - Disoord client not connected");
                 return false;
@@ -138,7 +138,7 @@ namespace Eco.Plugins.DiscordLink
             Logger.Info("ClearRoles command invoked - Deleting all created roles");
             DiscordLink plugin = DiscordLink.Obj;
             DLDiscordClient client = plugin.Client;
-            foreach(ulong roleID in DLStorage.PersistentData.RoleIDs)
+            foreach (ulong roleID in DLStorage.PersistentData.RoleIDs)
             {
                 DiscordRole role = client.Guild.RoleByID(roleID);
                 await client.DeleteRoleAsync(role);
@@ -402,38 +402,25 @@ namespace Eco.Plugins.DiscordLink
 
         #region Invites
 
-        public static async Task<bool> PostDiscordInvite(CommandInterface source, object callContext, string targetUserName)
+        public static async Task<bool> PostInviteMessage(CommandInterface source, object callContext)
         {
             DLConfigData config = DLConfig.Data;
             string discordAddress = NetworkManager.Config.DiscordAddress;
-            string inviteMessage = config.InviteMessage;
-            if (!inviteMessage.ContainsCaseInsensitive(DLConstants.INVITE_COMMAND_TOKEN) || string.IsNullOrEmpty(discordAddress))
+            if (string.IsNullOrEmpty(discordAddress))
             {
-                await ReportCommandError(source, callContext, "This server is not configured for using Invite commands.");
+                await ReportCommandError(source, callContext, "This server does not have an associated Discord server.");
                 return false;
             }
 
-            User recipient = null; // If no target user is specified; use broadcast
-            if (!string.IsNullOrEmpty(targetUserName))
+            string inviteMessage = config.InviteMessage;
+            if (!inviteMessage.ContainsCaseInsensitive(DLConstants.INVITE_COMMAND_TOKEN))
             {
-                recipient = UserManager.FindUserByName(targetUserName);
-                if (recipient == null)
-                {
-                    User offlineUser = EcoUtils.UserByName(targetUserName);
-                    if (offlineUser != null)
-                        await ReportCommandError(source, callContext, $"{MessageUtils.StripTags(offlineUser.Name)} is not online");
-                    else
-                        await ReportCommandError(source, callContext, $"Could not find user with name {targetUserName}");
-                    return false;
-                }
+                await ReportCommandError(source, callContext, "This server has not specified a valid invite message.");
+                return false;
             }
 
             inviteMessage = Regex.Replace(inviteMessage, Regex.Escape(DLConstants.INVITE_COMMAND_TOKEN), discordAddress);
-
-            bool sent = recipient == null
-                ? EcoUtils.SendChatToDefaultChannel(inviteMessage)
-                : EcoUtils.SendChatToUser(recipient, inviteMessage);
-
+            bool sent = EcoUtils.SendChatToDefaultChannel(inviteMessage);
             if (sent)
                 await ReportCommandInfo(source, callContext, "Invite sent.");
             else
@@ -441,7 +428,6 @@ namespace Eco.Plugins.DiscordLink
 
             return sent;
         }
-
         #endregion
 
         #region Trades
@@ -492,7 +478,7 @@ namespace Eco.Plugins.DiscordLink
             ulong discordID = ulong.Parse(linkedUser.DiscordID);
             if (type == Modules.ModuleArchetype.Display)
             {
-                if(DLConfig.Data.MaxTradeWatcherDisplaysPerUser <= 0)
+                if (DLConfig.Data.MaxTradeWatcherDisplaysPerUser <= 0)
                 {
                     await ReportCommandError(source, callContext, "Trade watcher displays are not enabled on this server.");
                     return false;
@@ -505,7 +491,7 @@ namespace Eco.Plugins.DiscordLink
                     return false;
                 }
             }
-            else if(!DLConfig.Data.UseTradeWatcherFeeds)
+            else if (!DLConfig.Data.UseTradeWatcherFeeds)
             {
                 await ReportCommandError(source, callContext, "Trade watcher feeds are not enabled on this server.");
                 return false;

@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using static Eco.Plugins.DiscordLink.SharedCommands;
 using static Eco.Plugins.DiscordLink.Enums;
 using static Eco.Plugins.DiscordLink.Utilities.MessageBuilder;
+using Eco.Plugins.Networking;
 
 namespace Eco.Plugins.DiscordLink
 {
@@ -225,7 +226,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                if(!Enum.TryParse(reportType, out PlayerReportComponentFlag reportTypeEnum))
+                if (!Enum.TryParse(reportType, out PlayerReportComponentFlag reportTypeEnum))
                 {
                     ReportCommandError(callingUser, $"\"{reportType}\" is not a valid report type. The available report types are: {string.Join(", ", Enum.GetNames(typeof(PlayerReportComponentFlag)))}");
                     return;
@@ -292,7 +293,7 @@ namespace Eco.Plugins.DiscordLink
         [ChatSubCommand("DiscordLink", "Displays a report for the currently active work parties.", "DL-WorkParties", ChatAuthorizationLevel.User)]
         public static async Task WorkPartiesReport(User callingUser)
         {
-            await ExecuteCommand<object>(async(lUser, args) =>
+            await ExecuteCommand<object>(async (lUser, args) =>
             {
                 await SharedCommands.WorkPartiesReport(CommandInterface.Eco, callingUser);
             }, callingUser);
@@ -302,12 +303,28 @@ namespace Eco.Plugins.DiscordLink
 
         #region Invites
 
-        [ChatSubCommand("DiscordLink", "Posts the Discord invite message to the target user. The invite will be broadcasted if no target user is specified.", "DL-Invite", ChatAuthorizationLevel.User)]
-        public static async Task Invite(User callingUser, string targetUserName = "")
+        [ChatSubCommand("DiscordLink", "Posts a Discord invite message to the Eco chat.", "DL-PostInviteMessage", ChatAuthorizationLevel.User)]
+        public static async Task PostInviteMessage(User callingUser)
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.PostDiscordInvite(CommandInterface.Eco, callingUser, targetUserName);
+                await SharedCommands.PostInviteMessage(CommandInterface.Eco, callingUser);
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Opens an invite to the Discord server.", "DL-InviteMe", ChatAuthorizationLevel.User)]
+        public static async Task InviteMe(User callingUser)
+        {
+            await ExecuteCommand<object>(async (lUser, args) =>
+            {
+                string discordAddress = NetworkManager.Config.DiscordAddress;
+                if (string.IsNullOrEmpty(discordAddress))
+                {
+                    ReportCommandError(callingUser, "This server does not have an associated Discord server.");
+                }
+
+                callingUser.OpenDiscordInvite(discordAddress.Substring(discordAddress.IndexOf("gg/")));
+                ReportCommandInfo(callingUser, "Invite sent");
             }, callingUser);
         }
 
@@ -377,15 +394,15 @@ namespace Eco.Plugins.DiscordLink
                         return;
                     }
                 }
-               
+
                 // Try to Notify the Discord account, that a link has been made and ask for verification
                 DiscordMessage message = plugin.Client.SendDMAsync(matchingMember, null, MessageBuilder.Discord.GetVerificationDM(callingUser)).Result;
 
                 // This message can be null, when the target user has blocked direct messages from guild members.
-                if(message != null)
+                if (message != null)
                 {
-                   _ = message.CreateReactionAsync(DLConstants.ACCEPT_EMOJI);
-                   _ = message.CreateReactionAsync(DLConstants.DENY_EMOJI);
+                    _ = message.CreateReactionAsync(DLConstants.ACCEPT_EMOJI);
+                    _ = message.CreateReactionAsync(DLConstants.DENY_EMOJI);
                 }
                 else
                 {

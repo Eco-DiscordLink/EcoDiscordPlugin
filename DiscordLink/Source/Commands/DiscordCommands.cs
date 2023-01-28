@@ -1,7 +1,6 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
-using Eco.Gameplay.Players;
 using Eco.Gameplay.Systems.Messaging.Chat;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
@@ -206,7 +205,7 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
-        [SlashCommand("Restart", "Restarts the plugin.")]
+        [SlashCommand("Restart", "Restarts the DiscordLink plugin.")]
         public async Task Restart(InteractionContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
@@ -422,7 +421,7 @@ namespace Eco.Plugins.DiscordLink
 
         [SlashCommand("PlayerReport", "Displays the Player Report for the given player.")]
         public async Task PlayerReport(InteractionContext ctx,
-            [Option("Player", "Name or ID of the player for which to display the report.")] string playerNameOrID, [Option("Report", "Which type of information the report should include.")] PlayerReportComponentFlag reportType = PlayerReportComponentFlag.All )
+            [Option("Player", "Name or ID of the player for which to display the report.")] string playerNameOrID, [Option("Report", "Which type of information the report should include.")] PlayerReportComponentFlag reportType = PlayerReportComponentFlag.All)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
@@ -494,12 +493,12 @@ namespace Eco.Plugins.DiscordLink
 
         #region Invites
 
-        [SlashCommand("Invite", "Posts the Discord invite message to the target user. Defaults to sending the invite to all users.")]
-        public async Task Invite(InteractionContext ctx, [Option("User", "The Eco username of the user receiving the invite")] string targetUserName = "")
+        [SlashCommand("PostInviteMessage", "Posts a Discord invite message to the Eco chat.")]
+        public async Task PostInviteMessage(InteractionContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.PostDiscordInvite(CommandInterface.Discord, ctx, targetUserName);
+                await SharedCommands.PostInviteMessage(CommandInterface.Discord, ctx);
             }, ctx);
         }
 
@@ -566,7 +565,7 @@ namespace Eco.Plugins.DiscordLink
         #region Snippets
 
         [SlashCommand("DiscordSnippet", "Post a predefined snippet to Discord.")]
-        public async Task Snippet(InteractionContext ctx, [Option("Key", "Key of the snippet to post. Displays the key list if omitted.")] string snippetKey = "", [Option("Context", "Where the snippet should be sent.")] CommandInterface commandTarget = CommandInterface.Discord )
+        public async Task Snippet(InteractionContext ctx, [Option("Key", "Key of the snippet to post. Displays the key list if omitted.")] string snippetKey = "", [Option("Context", "Where the snippet should be sent.")] CommandInterface commandTarget = CommandInterface.Discord)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
