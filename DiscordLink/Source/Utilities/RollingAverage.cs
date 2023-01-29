@@ -1,5 +1,4 @@
-﻿using Microsoft.Net.Http.Headers;
-using System;
+﻿using System;
 
 namespace DiscordLink.Source.Utilities
 {

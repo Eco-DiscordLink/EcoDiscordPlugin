@@ -1,5 +1,4 @@
-﻿using Eco.Plugins.DiscordLink.Utilities;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
 
 namespace Eco.Plugins.DiscordLink.Extensions
