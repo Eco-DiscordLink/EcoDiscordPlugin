@@ -65,6 +65,12 @@ namespace Eco.Plugins.DiscordLink.Modules
                     return;
 
                 DiscordMember member = linkedUser.DiscordMember;
+                if (member == null)
+                {
+                    Logger.Error($"Failed to handle account link role change for Eco user \"{linkedUser.EcoUser.Name}\". Linked Discord member could not be fetched.");
+                    return;
+                }
+
                 foreach (Demographic demographic in EcoUtils.ActiveDemographics)
                 {
                     string demographicName = GetDemographicRoleName(demographic);
