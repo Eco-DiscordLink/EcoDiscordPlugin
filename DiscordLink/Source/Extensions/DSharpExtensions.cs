@@ -1,9 +1,12 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
+using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink.Extensions
 {
@@ -88,6 +91,25 @@ namespace Eco.Plugins.DiscordLink.Extensions
                 return user.Id == ID;
 
             return user.Username.EqualsCaseInsensitive(nameOrID);
+        }
+
+        public static async Task<DiscordMember> LookupMember(this DiscordUser user)
+        {
+            DLDiscordClient client = DiscordLink.Obj.Client;
+            DiscordMember member = client.Guild.Members.FirstOrDefault(m => m.Key == user.Id).Value;
+            if (member == null)
+            {
+                try
+                {
+                    member = await client.Guild.GetMemberAsync(user.Id);
+                }
+                catch (Exception e)
+                {
+                    Logger.Error($"An error occurred while attempting to find member corresponding to Discord user \"{user.UniqueUsername}\". Error: {e}");
+                }
+            }
+
+            return member;
         }
 
         #endregion

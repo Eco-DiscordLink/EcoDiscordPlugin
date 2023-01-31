@@ -117,6 +117,7 @@ namespace Eco.Plugins.DiscordLink
             bool result = user != null && !user.Verified;
             if (result)
             {
+                await user.LoadDiscordMember();
                 user.Verified = true;
                 DLStorage.Instance.Write();
 
@@ -174,7 +175,7 @@ namespace Eco.Plugins.DiscordLink
                         }
                         else if (emoji == DLConstants.ACCEPT_EMOJI)
                         {
-                            if (VerifyLinkedUser(user.Id))
+                            if (await VerifyLinkedUser(user.Id))
                                 response = "Link verified";
                             else
                                 response = "Link verification failed - Unknown error";
