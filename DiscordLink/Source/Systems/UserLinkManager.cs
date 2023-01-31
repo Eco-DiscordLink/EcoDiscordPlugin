@@ -110,7 +110,7 @@ namespace Eco.Plugins.DiscordLink
             return linkedUser;
         }
 
-        public static bool VerifyLinkedUser(ulong discordUserId)
+        public static async Task<bool> VerifyLinkedUser(ulong discordUserId)
         {
             // Find the linked user for the sender and mark them as verified
             LinkedUser user = LinkedUserByDiscordID(discordUserId, requireValid: false);
@@ -146,7 +146,7 @@ namespace Eco.Plugins.DiscordLink
             DLStorage.Instance.Write();
         }
 
-        public static void HandleEvent(DLEventType eventType, params object[] data)
+        public static async Task HandleEvent(DLEventType eventType, params object[] data)
         {
             switch (eventType)
             {

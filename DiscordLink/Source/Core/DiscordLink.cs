@@ -155,9 +155,9 @@ namespace Eco.Plugins.DiscordLink
             UserManager.OnUserLoggedOut.Add(user => HandleEvent(DLEventType.Logout, user));
             Election.ElectionStartedEvent.Add(election => HandleEvent(DLEventType.StartElection, election));
             Election.ElectionFinishedEvent.Add(election => HandleEvent(DLEventType.StopElection, election));
-            EventConverter.OnEventFired += (sender, args) => HandleEvent(args.EventType, args.Data);
             UserLinkManager.OnLinkedUserVerified += (sender, args) => HandleEvent(DLEventType.AccountLinkVerified, args);
             UserLinkManager.OnLinkedUserRemoved += (sender, args) => HandleEvent(DLEventType.AccountLinkRemoved, args);
+            EventConverter.OnEventFired.Add(args => HandleEvent(args.EventType, args.Data));
             ClientLogEventTrigger.OnLogWritten += (message) => EventConverter.Instance.ConvertServerLogEvent(message);
 
             if(_triggerWorldResetEvent)

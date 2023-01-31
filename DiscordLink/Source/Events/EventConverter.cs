@@ -1,4 +1,5 @@
-﻿using Eco.Gameplay.GameActions;
+﻿using Eco.Core.Utils;
+using Eco.Gameplay.GameActions;
 using Eco.Gameplay.Objects;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Utils;
@@ -23,7 +24,7 @@ namespace Eco.Plugins.DiscordLink.Events
 
     public sealed class EventConverter
     {
-        public static event EventHandler<DLEventArgs> OnEventFired;
+        public static readonly ThreadSafeAction<DLEventArgs> OnEventFired;
 
         public static readonly EventConverter Instance = new EventConverter();
 
@@ -132,8 +133,7 @@ namespace Eco.Plugins.DiscordLink.Events
 
         private void FireEvent(DLEventType evetType, params object[] data)
         {
-            if (OnEventFired != null)
-                OnEventFired.Invoke(this, new DLEventArgs(evetType, data));
+            OnEventFired.Invoke(new DLEventArgs(evetType, data));
         }
     }
 }
