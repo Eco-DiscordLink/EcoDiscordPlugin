@@ -24,7 +24,7 @@ namespace Eco.Plugins.DiscordLink.Events
 
     public sealed class EventConverter
     {
-        public static readonly ThreadSafeAction<DLEventArgs> OnEventFired;
+        public static readonly ThreadSafeAction<DLEventArgs> OnEventConverted = new ThreadSafeAction<DLEventArgs>();
 
         public static readonly EventConverter Instance = new EventConverter();
 
@@ -133,7 +133,7 @@ namespace Eco.Plugins.DiscordLink.Events
 
         private void FireEvent(DLEventType evetType, params object[] data)
         {
-            OnEventFired.Invoke(new DLEventArgs(evetType, data));
+            OnEventConverted.Invoke(new DLEventArgs(evetType, data));
         }
     }
 }

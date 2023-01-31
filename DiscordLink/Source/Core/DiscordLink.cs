@@ -49,6 +49,16 @@ namespace Eco.Plugins.DiscordLink
 
         private bool _triggerWorldResetEvent = false;
 
+        private Action<User> OnNewUserJoined;
+        private Action<User> OnNewUserLoggedIn;
+        private Action<User> OnUserLoggedOut;
+        private Action<Election> OnElectionStarted;
+        private Action<Election> OnElectionFinished;
+        private Action<DLEventArgs> OnEventConverted;
+        private Action<string> OnLogWritten;
+        private EventHandler<LinkedUser> OnLinkedUserVerified;
+        private EventHandler<LinkedUser> OnLinkedUserRemoved;
+
         public string Status
         {
             get { return _status; }
@@ -108,6 +118,7 @@ namespace Eco.Plugins.DiscordLink
 
         public void Initialize(TimedTask timer)
         {
+            InitCallbacks();
             DLConfig.Instance.Initialize();
             EventConverter.Instance.Initialize();
             DLStorage.Instance.Initialize();
@@ -148,17 +159,6 @@ namespace Eco.Plugins.DiscordLink
             }
 
             HandleClientConnected();
-
-            // Set up callbacks
-            UserManager.NewUserJoinedEvent.Add(user => HandleEvent(DLEventType.Join, user));
-            UserManager.OnUserLoggedIn.Add(user => HandleEvent(DLEventType.Login, user));
-            UserManager.OnUserLoggedOut.Add(user => HandleEvent(DLEventType.Logout, user));
-            Election.ElectionStartedEvent.Add(election => HandleEvent(DLEventType.StartElection, election));
-            Election.ElectionFinishedEvent.Add(election => HandleEvent(DLEventType.StopElection, election));
-            UserLinkManager.OnLinkedUserVerified += (sender, args) => HandleEvent(DLEventType.AccountLinkVerified, args);
-            UserLinkManager.OnLinkedUserRemoved += (sender, args) => HandleEvent(DLEventType.AccountLinkRemoved, args);
-            EventConverter.OnEventFired.Add(args => HandleEvent(args.EventType, args.Data));
-            ClientLogEventTrigger.OnLogWritten += (message) => EventConverter.Instance.ConvertServerLogEvent(message);
 
             if (_triggerWorldResetEvent)
             {
@@ -247,6 +247,7 @@ namespace Eco.Plugins.DiscordLink
             UserLinkManager.Initialize();
             InitializeModules();
 
+            RegisterCallbacks();
             ActionUtil.AddListener(this);
             _activityUpdateTimer = new Timer(TriggerActivityStringUpdate, null, DLConstants.DISCORD_ACTIVITY_STRING_UPDATE_INTERVAL_MS, DLConstants.DISCORD_ACTIVITY_STRING_UPDATE_INTERVAL_MS);
             Client.OnDisconnecting.Add(HandleClientDisconnecting);
@@ -260,6 +261,7 @@ namespace Eco.Plugins.DiscordLink
         private void HandleClientDisconnecting()
         {
             Client.OnDisconnecting.Remove(HandleClientDisconnecting);
+            DeregisterCallbacks();
 
             SystemUtils.StopAndDestroyTimer(ref _activityUpdateTimer);
             ActionUtil.RemoveListener(this);
@@ -443,5 +445,44 @@ namespace Eco.Plugins.DiscordLink
         }
 
         #endregion
+
+        private void InitCallbacks()
+        {
+            OnNewUserJoined = user => HandleEvent(DLEventType.Join, user);
+            OnNewUserLoggedIn = user => HandleEvent(DLEventType.Login, user);
+            OnUserLoggedOut = user => HandleEvent(DLEventType.Logout, user);
+            OnElectionStarted = election => HandleEvent(DLEventType.StartElection, election);
+            OnElectionFinished = election => HandleEvent(DLEventType.StopElection, election);
+            OnEventConverted = args => HandleEvent(args.EventType, args.Data);
+            OnLogWritten = message => EventConverter.Instance.ConvertServerLogEvent(message);
+            OnLinkedUserVerified = (sender, args) => HandleEvent(DLEventType.AccountLinkVerified, args);
+            OnLinkedUserRemoved = (sender, args) => HandleEvent(DLEventType.AccountLinkRemoved, args);
+        }
+
+        private void RegisterCallbacks()
+        {
+            UserManager.NewUserJoinedEvent.Add(OnNewUserJoined);
+            UserManager.OnUserLoggedIn.Add(OnNewUserLoggedIn);
+            UserManager.OnUserLoggedOut.Add(OnUserLoggedOut);
+            Election.ElectionStartedEvent.Add(OnElectionStarted);
+            Election.ElectionFinishedEvent.Add(OnElectionFinished);
+            EventConverter.OnEventConverted.Add(OnEventConverted);
+            ClientLogEventTrigger.OnLogWritten += (message) => EventConverter.Instance.ConvertServerLogEvent(message);
+            UserLinkManager.OnLinkedUserVerified += OnLinkedUserVerified;
+            UserLinkManager.OnLinkedUserRemoved += OnLinkedUserRemoved;
+        }
+
+        private void DeregisterCallbacks()
+        {
+            UserManager.NewUserJoinedEvent.Remove(OnNewUserJoined);
+            UserManager.OnUserLoggedIn.Remove(OnNewUserLoggedIn);
+            UserManager.OnUserLoggedOut.Remove(OnUserLoggedOut);
+            Election.ElectionStartedEvent.Remove(OnElectionStarted);
+            Election.ElectionFinishedEvent.Remove(OnElectionFinished);
+            EventConverter.OnEventConverted.Remove(OnEventConverted);
+            ClientLogEventTrigger.OnLogWritten -= (message) => EventConverter.Instance.ConvertServerLogEvent(message);
+            UserLinkManager.OnLinkedUserVerified -= OnLinkedUserVerified;
+            UserLinkManager.OnLinkedUserRemoved -= OnLinkedUserRemoved;
+        }
     }
 }
