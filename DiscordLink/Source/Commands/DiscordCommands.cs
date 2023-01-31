@@ -515,6 +515,15 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
+        [SlashCommand("DLT", "Shorthand for the Trades command")]
+        public async Task DLT(InteractionContext ctx, [Option("SearchName", "The player name or item name for which to display trades. Case insensitive and auto completed.")] string searchName)
+        {
+            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
+            {
+                await Trades(ctx, searchName);
+            }, ctx);
+        }
+
         [SlashCommand("AddTradeWatcherDisplay", "Creates a live updated display of available trades by player, tag, item or store.")]
         public async Task AddTradeWatcherDisplay(InteractionContext ctx, [Option("SearchName", "The player name or item name for which to display trades.")] string searchName)
         {
