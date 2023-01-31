@@ -54,7 +54,7 @@ namespace Eco.Plugins.DiscordLink
                 => link.IsValid()
                 && link.DiscordChannel.EqualsCaseInsensitive(discordChannelName));
 
-        public static IEnumerable<ChatChannelLink> ChatLinksForEcoChannel(string ecoChannelName) => 
+        public static IEnumerable<ChatChannelLink> ChatLinksForEcoChannel(string ecoChannelName) =>
             Data.ChatChannelLinks.Where(link
                 => link.IsValid()
                 && link.EcoChannel.EqualsCaseInsensitive(ecoChannelName));

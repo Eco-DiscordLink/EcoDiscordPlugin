@@ -18,7 +18,7 @@ namespace Eco.Plugins.DiscordLink
 
         public static async void Initialize()
         {
-            foreach(LinkedUser User in DLStorage.PersistentData.LinkedUsers)
+            foreach (LinkedUser User in DLStorage.PersistentData.LinkedUsers)
             {
                 if (!User.Verified || string.IsNullOrEmpty(User.DiscordID))
                     continue;

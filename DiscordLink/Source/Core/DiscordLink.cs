@@ -160,7 +160,7 @@ namespace Eco.Plugins.DiscordLink
             EventConverter.OnEventFired.Add(args => HandleEvent(args.EventType, args.Data));
             ClientLogEventTrigger.OnLogWritten += (message) => EventConverter.Instance.ConvertServerLogEvent(message);
 
-            if(_triggerWorldResetEvent)
+            if (_triggerWorldResetEvent)
             {
                 HandleEvent(DLEventType.WorldReset, null);
                 _triggerWorldResetEvent = false;
@@ -193,7 +193,7 @@ namespace Eco.Plugins.DiscordLink
             });
             nameToFunction.Add("Force Update", () =>
             {
-                if(Client.ConnectionStatus != DLDiscordClient.ConnectionState.Connected)
+                if (Client.ConnectionStatus != DLDiscordClient.ConnectionState.Connected)
                 {
                     Logger.Info("Failed to force update - Disoord client not connected");
                     return;
@@ -246,6 +246,7 @@ namespace Eco.Plugins.DiscordLink
 
             UserLinkManager.Initialize();
             InitializeModules();
+
             ActionUtil.AddListener(this);
             _activityUpdateTimer = new Timer(TriggerActivityStringUpdate, null, DLConstants.DISCORD_ACTIVITY_STRING_UPDATE_INTERVAL_MS, DLConstants.DISCORD_ACTIVITY_STRING_UPDATE_INTERVAL_MS);
             Client.OnDisconnecting.Add(HandleClientDisconnecting);
@@ -380,11 +381,11 @@ namespace Eco.Plugins.DiscordLink
             Modules[(int)ModuleType.SpecialitiesRoleModule] = new SpecialtiesRoleModule();
             Modules[(int)ModuleType.SnippetInput] = new SnippetInput();
 
-            foreach(Module module in Modules)
+            foreach (Module module in Modules)
             {
                 module.Setup();
             }
-            foreach(Module module in Modules)
+            foreach (Module module in Modules)
             {
                 await module.HandleStartOrStop();
             }
@@ -394,11 +395,11 @@ namespace Eco.Plugins.DiscordLink
         {
             Status = "Shutting down modules";
 
-            foreach(Module module in Modules)
+            foreach (Module module in Modules)
             {
                 await module.Stop();
             }
-            foreach(Module module in Modules)
+            foreach (Module module in Modules)
             {
                 module.Destroy();
             }
@@ -407,13 +408,13 @@ namespace Eco.Plugins.DiscordLink
 
         private async void UpdateModules(DLEventType trigger, params object[] data)
         {
-            foreach(Module module in Modules.NonNull())
+            foreach (Module module in Modules.NonNull())
             {
                 try
                 {
                     await module.Update(this, trigger, data);
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     Logger.Error($"An error occurred while updating module: {module}. Error: {e}");
                 }
@@ -435,7 +436,7 @@ namespace Eco.Plugins.DiscordLink
 
                 Client.DiscordClient.UpdateStatusAsync(new DiscordActivity(MessageBuilder.Discord.GetActivityString(), ActivityType.Watching));
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Logger.Error($"An error occured while attempting to update the activity string. Error: {e}");
             }
