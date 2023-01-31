@@ -66,9 +66,6 @@ namespace Eco.Plugins.DiscordLink.Modules
                 var currencyEnumerator = personalCurrencies.GetEnumerator();
                 for (int i = 0; i < currencyLink.MaxPersonalCount && currencyEnumerator.MoveNext(); ++i)
                 {
-                    if (currencyEnumerator.Current.Creator == DiscordLink.Obj.EcoUser)
-                        continue; // Ignore the bot currency
-
                     DiscordLinkEmbed currencyReport = MessageBuilder.Discord.GetCurrencyReport(currencyEnumerator.Current, currencyLink.MaxTopCurrencyHolderCount, useBackingInfo: true, useTradeCount: true);
                     if (currencyReport != null)
                         tagAndContent.Add(new Tuple<string, DiscordLinkEmbed>($"{BaseTag} [{currencyEnumerator.Current.Id}]", currencyReport));

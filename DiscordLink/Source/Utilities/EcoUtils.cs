@@ -1,5 +1,7 @@
 ﻿using Eco.Core.Systems;
+using Eco.Core.Utils;
 using Eco.EM.Framework.ChatBase;
+using Eco.EM.Framework.Text;
 using Eco.Gameplay.Civics;
 using Eco.Gameplay.Civics.Demographics;
 using Eco.Gameplay.Civics.Elections;
@@ -13,10 +15,15 @@ using Eco.Gameplay.Skills;
 using Eco.Gameplay.Systems;
 using Eco.Gameplay.Systems.Messaging.Chat;
 using Eco.Gameplay.Systems.Messaging.Chat.Channels;
+using Eco.ModKit.Internal;
 using Eco.Shared.Items;
+using Eco.Shared.Networking;
 using Eco.Shared.Utils;
 using System.Collections.Generic;
 using System.Linq;
+using static Eco.EM.Framework.ChatBase.ChatBase;
+using static System.Net.Mime.MediaTypeNames;
+using User = Eco.Gameplay.Players.User;
 
 namespace Eco.Plugins.DiscordLink.Utilities
 {
@@ -134,30 +141,50 @@ namespace Eco.Plugins.DiscordLink.Utilities
             return newChannel;
         }
 
-        public static bool SendChatRaw(string targetAndMessage)
+        public static bool SendChatRaw(User sender, string targetAndMessage) // NOTE: Does not trigger ChatMessageSent GameAction
         {
-            return ChatBaseExtended.CBChat(targetAndMessage, DiscordLink.Obj.EcoUser, ChatBase.MessageType.Permanent, forServer: true);
+            // TODO: Handle profanity filter
+            // TODO: Handle muting
+            // TODO: Handle tab opening for DMs
+            // TODO: Handle tab opening for channels
+            // TODO: Handle access to channels
+            // TODO: Handle adding to chat log
+
+            var to = ChatParsingUtils.ResolveReceiver(targetAndMessage, out var messageContent);
+            if (to.Failed)
+            {
+                Logger.Error($"Failed to resolve receiver of message: \"{targetAndMessage}\"");
+                return false;
+            }
+            IChatReceiver receiver = to.Val;
+
+            ChatMessage chatMessage = new ChatMessage(sender, receiver, messageContent);
+            foreach (INetClient client in chatMessage.Receiver.ChatRecipients.Select(u => u.Player?.Client).NonNull())
+                ChatManager.Obj.RPC("DisplayChatMessage", client, chatMessage.ToBson(client));
+
+            ChatManager.MessageSent.Invoke(chatMessage);
+            return true;
         }
 
-        public static bool SendChatToChannel(string channel, string message)
+        public static bool SendChatToChannel(User sender, string channel, string message)
         {
-            return SendChatRaw($"#{channel} {message}");
+            return SendChatRaw(sender, $"#{channel} {message}");
         }
 
-        public static bool SendChatToDefaultChannel(string message)
+        public static bool SendChatToDefaultChannel(User sender, string message)
         {
-            return SendChatRaw($"#{DefaultChatChannelName} {message}");
+            return SendChatRaw(sender, $"#{DefaultChatChannelName} {message}");
         }
 
-        public static bool SendChatToUser(User user, string message)
+        public static bool SendChatToUser(User sender, User receiver, string message)
         {
-            return SendChatRaw($"@{user.Name} {message}");
+            return SendChatRaw(sender, $"@{receiver.Name} {message}");
         }
 
-        public static bool SendServerMessageToUser(User user, bool permanent, string message)
+        public static bool SendServerMessageToUser(User receiver, bool permanent, string message)
         {
             ChatBase.MessageType messageType = permanent ? ChatBase.MessageType.Permanent : ChatBase.MessageType.Temporary;
-            return ChatBaseExtended.CBMessage(message, user, messageType);
+            return ChatBaseExtended.CBMessage(message, receiver, messageType);
         }
 
         public static bool SendServerMessageToAll(bool permanent, string message)
@@ -166,9 +193,9 @@ namespace Eco.Plugins.DiscordLink.Utilities
             return ChatBaseExtended.CBMessage(message, messageType);
         }
 
-        public static bool SendOKBoxToUser(User user, string message)
+        public static bool SendOKBoxToUser(User receiver, string message)
         {
-            return ChatBaseExtended.CBOkBox(message, user);
+            return ChatBaseExtended.CBOkBox(message, receiver);
         }
 
         public static bool SendOKBoxToAll(string message)
@@ -176,9 +203,9 @@ namespace Eco.Plugins.DiscordLink.Utilities
             return ChatBaseExtended.CBOkBox(message);
         }
 
-        public static bool SendInfoBoxToUser(User user, string message)
+        public static bool SendInfoBoxToUser(User receiver, string message)
         {
-            return ChatBaseExtended.CBInfoBox(message, user, sendToChat: true);
+            return ChatBaseExtended.CBInfoBox(message, receiver, sendToChat: true);
         }
 
         public static bool SendInfoBoxToAll(string message)
@@ -186,19 +213,19 @@ namespace Eco.Plugins.DiscordLink.Utilities
             return ChatBaseExtended.CBInfoBox(message, sendToChat: true);
         }
 
+        public static bool SendWarningBoxToUser(User receiver, string message)
+        {
+            return ChatBaseExtended.CBWarning(message, receiver, sendToChat: true);
+        }
+
         public static bool SendWarningBoxToAll(string message)
         {
             return ChatBaseExtended.CBWarning(message, sendToChat: true);
         }
 
-        public static bool SendWarningBoxToUser(User user, string message)
+        public static bool SendErrorBoxToUser(User receiver, string message)
         {
-            return ChatBaseExtended.CBWarning(message, user, sendToChat: true);
-        }
-
-        public static bool SendErrorBoxToUser(User user, string message)
-        {
-            return ChatBaseExtended.CBError(message, user, sendToChat: true);
+            return ChatBaseExtended.CBError(message, receiver, sendToChat: true);
         }
 
         public static bool SendErrorBoxToAll(string message)
@@ -206,9 +233,9 @@ namespace Eco.Plugins.DiscordLink.Utilities
             return ChatBaseExtended.CBError(message, sendToChat: true);
         }
 
-        public static bool SendNotificationToUser(User user, string message)
+        public static bool SendNotificationToUser(User receiver, string message)
         {
-            return ChatBaseExtended.CBMail(message, user);
+            return ChatBaseExtended.CBMail(message, receiver);
         }
 
         public static bool SendNotificationToAll(string message)
@@ -216,9 +243,9 @@ namespace Eco.Plugins.DiscordLink.Utilities
             return ChatBaseExtended.CBMail(message);
         }
 
-        public static bool SendInfoPanelToUser(User user, string instance, string title, string message)
+        public static bool SendInfoPanelToUser(User receiver, string instance, string title, string message)
         {
-            return ChatBaseExtended.CBInfoPane(title, message, instance, user, ChatBase.PanelType.InfoPanel);
+            return ChatBaseExtended.CBInfoPane(title, message, instance, receiver, ChatBase.PanelType.InfoPanel);
         }
 
         public static bool SendInfoPanelToAll(string instance, string title, string message)

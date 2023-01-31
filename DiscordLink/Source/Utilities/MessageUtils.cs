@@ -303,48 +303,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         #region Discord -> Eco
 
-        public static async Task<string> FormatMessageForEco(DiscordMessage message, string ecoChannel)
-        {
-            DiscordMember author = await message.GetChannel().Guild.GetMemberAsync(message.Author.Id);
-            string nametag = author != null
-                ? Text.Bold(Text.Color(DLConstants.ECO_NAME_TAG_COLOR, author.DisplayName))
-                : message.Author.Username;
-            return $"#{ecoChannel} {nametag}: {GetReadableContent(message)}";
-        }
-
-        public static string GetReadableContent(DiscordMessage message)
-        {
-            var content = message.Content;
-            foreach (var user in message.MentionedUsers)
-            {
-                if (user == null) { continue; }
-                DiscordMember member = message.GetChannel().Guild.Members.FirstOrDefault(m => m.Value?.Id == user.Id).Value;
-                if (member == null) { continue; }
-                string name = $"@{member.DisplayName}";
-                content = content.Replace($"<@{user.Id}>", name).Replace($"<@!{user.Id}>", name);
-            }
-            foreach (var role in message.MentionedRoles)
-            {
-                if (role == null) continue;
-                content = content.Replace($"<@&{role.Id}>", $"@{role.Name}");
-            }
-            foreach (var channel in message.MentionedChannels)
-            {
-                if (channel == null) continue;
-                content = content.Replace($"<#{channel.Id}>", $"#{channel.Name}");
-            }
-
-            if (message.Attachments.Count > 0)
-            {
-                content += "\nAttachments:";
-                foreach (DiscordAttachment attachment in message.Attachments)
-                {
-                    content += $"\n{attachment.FileName}";
-                }
-            }
-
-            return content;
-        }
+        public static string FormatMessageForEcoChannel(string message, string ecoChannel) => $"#{ecoChannel} {message}";
 
         public static string FormatEmbedForEco(DiscordLinkEmbed embed)
         {

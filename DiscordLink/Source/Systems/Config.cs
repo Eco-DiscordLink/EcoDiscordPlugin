@@ -23,9 +23,7 @@ namespace Eco.Plugins.DiscordLink
             public static bool UseVerboseDisplay = false;
             public static readonly string[] AdminRoles = { "Admin", "Eco Admins", "Administrator", "Moderator" };
             public const string DiscordCommandPrefix = "?";
-            public const string EcoCommandOutputChannel = "General";
             public const string InviteMessage = "Join us on Discord!\\n" + DLConstants.INVITE_COMMAND_TOKEN;
-            public const string EcoBotName = "DiscordLink";
             public const int MaxMintedCurrencies = 1;
             public const int MaxPersonalCurrencies = 3;
             public const int MaxTopCurrencyHolderCount = 3;
@@ -179,13 +177,6 @@ namespace Eco.Plugins.DiscordLink
         {
             bool correctionMade = false;
 
-            // Eco Bot Name
-            if (string.IsNullOrEmpty(Data.EcoBotName))
-            {
-                Data.EcoBotName = DefaultValues.EcoBotName;
-                correctionMade = true;
-            }
-
             // Channel Links
             foreach (ChannelLink link in _allChannelLinks)
             {
@@ -283,7 +274,6 @@ namespace Eco.Plugins.DiscordLink
             {
                 DiscordServerID = this.DiscordServerID,
                 BotToken = this.BotToken,
-                EcoBotName = this.EcoBotName,
                 MinEmbedSizeForFooter = this.MinEmbedSizeForFooter,
                 ServerName = this.ServerName,
                 ServerDescription = this.ServerDescription,
@@ -318,9 +308,6 @@ namespace Eco.Plugins.DiscordLink
 
         [Description("The token provided by the Discord API to allow access to the Discord bot. This setting can be changed while the server is running but will require a plugin restart to take effect."), Category("Base Configuration - Discord")]
         public string BotToken { get; set; }
-
-        [Description("The name of the bot user in Eco. This setting can be changed while the server is running, but changes will only take effect after a world reset."), Category("Base Configuration - Discord")]
-        public string EcoBotName { get; set; } = DLConfig.DefaultValues.EcoBotName;
 
         [Description("The roles recognized as having admin permissions on Discord. This setting requires a plugin restart to take effect."), Category("Base Configuration - Discord")]
         public ObservableCollection<string> AdminRoles { get; set; } = new ObservableCollection<string>(DLConfig.DefaultValues.AdminRoles);

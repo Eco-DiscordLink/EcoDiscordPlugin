@@ -284,9 +284,6 @@ namespace Eco.Plugins.DiscordLink
                 var currencyEnumerator = personalCurrencies.GetEnumerator();
                 for (int i = 0; i < maxCurrenciesPerType && currencyEnumerator.MoveNext(); ++i)
                 {
-                    if (currencyEnumerator.Current.Creator == DiscordLink.Obj.EcoUser)
-                        continue; // Ignore the bot currency
-
                     DiscordLinkEmbed currencyReport = MessageBuilder.Discord.GetCurrencyReport(currencyEnumerator.Current, holdersPerCurrency, useBackingInfo: true, useTradeCount: true);
                     if (currencyReport != null)
                         reports.Add(currencyReport);
@@ -420,7 +417,7 @@ namespace Eco.Plugins.DiscordLink
             }
 
             inviteMessage = Regex.Replace(inviteMessage, Regex.Escape(DLConstants.INVITE_COMMAND_TOKEN), discordAddress);
-            bool sent = EcoUtils.SendChatToDefaultChannel(inviteMessage);
+            bool sent = EcoUtils.SendChatToDefaultChannel(null, inviteMessage);
             if (sent)
                 await ReportCommandInfo(source, callContext, "Invite sent.");
             else
@@ -575,7 +572,7 @@ namespace Eco.Plugins.DiscordLink
                 {
                     if (target == CommandInterface.Eco)
                     {
-                        EcoUtils.SendChatToDefaultChannel($"{userName} invoked snippet \"{snippetKey}\"\n- - -\n{snippetText}\n- - -");
+                        EcoUtils.SendChatToDefaultChannel(null, $"{userName} invoked snippet \"{snippetKey}\"\n- - -\n{snippetText}\n- - -");
                         _ = ReportCommandInfo(source, callContext, "Snippet posted.");
                     }
                     else
@@ -619,8 +616,8 @@ namespace Eco.Plugins.DiscordLink
 
             string formattedMessage = $"[{senderName}] {message}";
             bool sent = recipient == null
-                ? EcoUtils.SendChatToDefaultChannel(formattedMessage)
-                : EcoUtils.SendChatToUser(recipient, formattedMessage);
+                ? EcoUtils.SendChatToDefaultChannel(null, formattedMessage)
+                : EcoUtils.SendChatToUser(null, recipient, formattedMessage);
 
             if (sent)
                 await ReportCommandInfo(source, callContext, "Message delivered.");

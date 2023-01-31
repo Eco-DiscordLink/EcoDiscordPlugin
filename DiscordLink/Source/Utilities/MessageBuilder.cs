@@ -928,7 +928,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     // Some bank accounts (e.g treasury) have no creator and one will belong to the bot
                     // Unbacked currencies has their creator owning infinity
                     float currencyAmount = accountEnumerator.Current.GetCurrencyHoldingVal(currency);
-                    if (accountEnumerator.Current.Creator == null || accountEnumerator.Current.Creator == DiscordLink.Obj.EcoUser || currencyAmount == float.PositiveInfinity)
+                    if (accountEnumerator.Current.Creator == null || currencyAmount == float.PositiveInfinity)
                     {
                         --i;
                         continue;

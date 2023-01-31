@@ -12,10 +12,9 @@ namespace Eco.Plugins.DiscordLink
         public static readonly DiscordIntents[] REQUESTED_INTENTS = { DiscordIntents.AllUnprivileged, DiscordIntents.GuildMembers, DiscordIntents.MessageContents };
 
         public static readonly DiscordColor DISCORD_EMBED_COLOR = DiscordColor.Green;
-        public const string ECO_NAME_TAG_COLOR = "7289DAFF";
+        public const string DISCORD_COLOR = "7289DAFF";
 
-        public const string ECO_USER_STEAM_ID = "DiscordLinkSteam";
-        public const string ECO_USER_SLG_ID = "DiscordLinkSlg";
+        public const string ECO_DISCORDLINK_ICON = "<ecoicon name=\"DiscordLinkLogo\">";
 
         public const int ECO_PLOT_SIZE_M2 = 5 * 5;
 

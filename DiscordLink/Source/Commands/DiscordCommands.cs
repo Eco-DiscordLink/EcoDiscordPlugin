@@ -372,7 +372,7 @@ namespace Eco.Plugins.DiscordLink
                 if (string.IsNullOrWhiteSpace(ecoChannel))
                     ecoChannel = DLConstants.DEFAULT_CHAT_CHANNEL;
 
-                EcoUtils.SendChatToChannel(ecoChannel, $"{DLConstants.ECHO_COMMAND_TOKEN} {message}");
+                EcoUtils.SendChatToChannel(null, ecoChannel, $"{DLConstants.ECHO_COMMAND_TOKEN} {message}");
                 await RespondToCommand(ctx, "Message sent");
             }, ctx);
         }

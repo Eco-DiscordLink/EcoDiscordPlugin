@@ -345,13 +345,6 @@ namespace Eco.Plugins.DiscordLink
                 : Guild.Channels.Values.FirstOrDefault(guild => guild.Name.EqualsCaseInsensitive(channelNameOrID));
         }
 
-        public DiscordMember MemberByNameOrID(string memberNameOrID)
-        {
-            return memberNameOrID.TryParseSnowflakeID(out ulong ID)
-                ? Guild.Members[ID]
-                : Guild.Members.Values.FirstOrDefault(member => member.DisplayName.EqualsCaseInsensitive(memberNameOrID));
-        }
-
         public bool ChannelHasPermission(DiscordChannel channel, Permissions permission)
         {
             if (channel.IsPrivate)

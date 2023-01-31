@@ -9,7 +9,6 @@ using Eco.EM.Framework.VersioningTools;
 using Eco.Gameplay.Aliases;
 using Eco.Gameplay.Civics.Elections;
 using Eco.Gameplay.GameActions;
-using Eco.Gameplay.Modules;
 using Eco.Gameplay.Players;
 using Eco.Gameplay.Property;
 using Eco.Plugins.DiscordLink.Events;
@@ -20,7 +19,6 @@ using Eco.Shared.Utils;
 using Eco.WorldGenerator;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,7 +35,6 @@ namespace Eco.Plugins.DiscordLink
         public static DiscordLink Obj { get { return PluginManager.GetPlugin<DiscordLink>(); } }
         public DLDiscordClient Client { get; private set; } = new DLDiscordClient();
         public Module[] Modules { get; private set; } = new Module[Enum.GetNames(typeof(ModuleType)).Length];
-        public User EcoUser { get; private set; } = null;
         public IPluginConfig PluginConfig { get { return DLConfig.Instance.PluginConfig; } }
         public ThreadSafeAction<object, string> ParamChanged { get; set; }
         public string GetCategory() => "DiscordLink";
@@ -109,10 +106,11 @@ namespace Eco.Plugins.DiscordLink
         public void Initialize(TimedTask timer)
         {
             DLConfig.Instance.Initialize();
-            EventConverter.Instance.Initialize();
-            DLStorage.Instance.Initialize();
             Status = "Initializing";
             InitTime = DateTime.Now;
+
+            EventConverter.Instance.Initialize();
+            DLStorage.Instance.Initialize();
 
             WorldGeneratorPlugin.OnFinishGenerate.AddUnique(this.HandleWorldReset);
             PluginManager.Controller.RunIfOrWhenInited(PostServerInitialize); // Defer some initialization for when the server initialization is completed
@@ -130,11 +128,6 @@ namespace Eco.Plugins.DiscordLink
         private void PostServerInitialize()
         {
             Status = "Performing post server start initialization";
-
-            // Ensure that the bot Eco user exists (Needs to be done after Initialize() as it runs before the UserManager is initialized)
-            EcoUser = UserManager.Users.FirstOrDefault(u => u.SlgId == DLConstants.ECO_USER_SLG_ID && u.SteamId == DLConstants.ECO_USER_STEAM_ID);
-            if (EcoUser == null)
-                EcoUser = UserManager.GetOrCreateUser(DLConstants.ECO_USER_STEAM_ID, DLConstants.ECO_USER_SLG_ID, !string.IsNullOrWhiteSpace(DLConfig.Data.EcoBotName) ? DLConfig.Data.EcoBotName : DLConfig.DefaultValues.EcoBotName);
 
             if (string.IsNullOrEmpty(DLConfig.Data.BotToken) || Client.ConnectionStatus != DLDiscordClient.ConnectionState.Connected)
             {
@@ -274,11 +267,6 @@ namespace Eco.Plugins.DiscordLink
             {
                 case ChatSent chatSent:
                     Logger.DebugVerbose($"Eco Message Received\n{chatSent.FormatForLog()}");
-
-                    // Ignore commands and messages sent by our bot
-                    if (chatSent.Citizen.Name == EcoUser.Name && !chatSent.Message.StartsWith(DLConstants.ECHO_COMMAND_TOKEN))
-                        return;
-
                     HandleEvent(DLEventType.EcoMessageSent, chatSent);
                     break;
 

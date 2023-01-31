@@ -1,11 +1,13 @@
 ﻿using DSharpPlus.Entities;
-using Eco.Gameplay.Systems.Chat;
+using Eco.Gameplay.Players;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
+using Eco.Shared.Utils;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Color = Eco.Shared.Utils.Color;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
@@ -40,15 +42,75 @@ namespace Eco.Plugins.DiscordLink.Modules
             foreach (ChatChannelLink chatLink in chatLinks
                 .Where(link => link.Direction == ChatSyncDirection.EcoToDiscord || link.Direction == ChatSyncDirection.Duplex))
             {
-                await ForwardMessageToEcoChannel(plugin, message, chatLink.EcoChannel);
+                await ForwardMessageToEcoChannel(message, chatLink.EcoChannel);
             }
         }
 
-        private async Task ForwardMessageToEcoChannel(DiscordLink plugin, DiscordMessage message, string ecoChannel)
+        private async Task ForwardMessageToEcoChannel(DiscordMessage discordMessage, string ecoChannel)
         {
             Logger.DebugVerbose($"Sending Discord message to Eco channel: {ecoChannel}");
-            EcoUtils.SendChatRaw(await MessageUtils.FormatMessageForEco(message, ecoChannel));
+            DiscordMember author = await discordMessage.GetChannel().Guild.GetMemberAsync(discordMessage.Author.Id);
+
+            User sender = null;
+            LinkedUser linkedUser = UserLinkManager.LinkedUserByDiscordUser(author);
+            if (linkedUser != null)
+                sender = linkedUser.EcoUser;
+
+            string messageContent = GetReadableContent(discordMessage);
+            if (sender == null)
+            {
+                DiscordMember memberAuthor = await discordMessage.Author.LookupMember();
+                messageContent = $"{Text.Color(Color.LightBlue, memberAuthor.DisplayName)} {DLConstants.ECO_DISCORDLINK_ICON} {messageContent}";
+            }
+            else
+            {
+                messageContent = $"{DLConstants.ECO_DISCORDLINK_ICON} {messageContent}";
+            }
+
+            EcoUtils.SendChatRaw(sender, MessageUtils.FormatMessageForEcoChannel(messageContent, ecoChannel));
             ++_opsCount;
+        }
+
+        private string GetReadableContent(DiscordMessage message)
+        {
+            var content = message.Content;
+            foreach (var user in message.MentionedUsers)
+            {
+                if (user == null)
+                    continue;
+
+                DiscordMember member = message.GetChannel().Guild.Members.FirstOrDefault(m => m.Value?.Id == user.Id).Value;
+                if (member == null)
+                    continue;
+
+                string name = $"@{member.DisplayName}";
+                content = content.Replace($"<@{user.Id}>", name).Replace($"<@!{user.Id}>", name);
+            }
+            foreach (var role in message.MentionedRoles)
+            {
+                if (role == null)
+                    continue;
+
+                content = content.Replace($"<@&{role.Id}>", $"@{role.Name}");
+            }
+            foreach (var channel in message.MentionedChannels)
+            {
+                if (channel == null)
+                    continue;
+
+                content = content.Replace($"<#{channel.Id}>", $"#{channel.Name}");
+            }
+
+            if (message.Attachments.Count > 0)
+            {
+                content += "\nAttachments:";
+                foreach (DiscordAttachment attachment in message.Attachments)
+                {
+                    content += $"\n{attachment.FileName}";
+                }
+            }
+
+            return content;
         }
     }
 }
