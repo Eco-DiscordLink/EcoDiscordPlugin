@@ -49,32 +49,15 @@ namespace Eco.Plugins.DiscordLink
                 : Instance._allChannelLinks;
         }
 
-        [Obsolete("chat links should support multiple channels, too")]
-        public static ChannelLink ChannelLinkForDiscordChannel(string discordChannelName) =>
-            GetChannelLinks().FirstOrDefault(link
-                => link.IsValid()
-                && link.DiscordChannel.EqualsCaseInsensitive(discordChannelName));
-
         public static IEnumerable<ChannelLink> ChannelLinksForDiscordChannel(string discordChannelName) =>
             GetChannelLinks().Where(link
                 => link.IsValid()
                 && link.DiscordChannel.EqualsCaseInsensitive(discordChannelName));
 
-        [Obsolete("chat links should support multiple channels, too")]
-        public static ChatChannelLink ChatLinkForEcoChannel(string ecoChannelName) => Data.ChatChannelLinks.FirstOrDefault(link
-                => link.IsValid()
-                && link.EcoChannel.EqualsCaseInsensitive(ecoChannelName));
-
         public static IEnumerable<ChatChannelLink> ChatLinksForEcoChannel(string ecoChannelName) => 
             Data.ChatChannelLinks.Where(link
                 => link.IsValid()
                 && link.EcoChannel.EqualsCaseInsensitive(ecoChannelName));
-
-        [Obsolete("chat links should support multiple channels, too")]
-        public static ChatChannelLink ChatLinkForDiscordChannel(DiscordChannel channel) =>
-            Data.ChatChannelLinks.FirstOrDefault(link
-                => link.IsValid()
-                && (link.DiscordChannel.EqualsCaseInsensitive(channel.Name) || link.DiscordChannel.EqualsCaseInsensitive(channel.Id.ToString())));
 
         public static IEnumerable<ChatChannelLink> ChatLinksForDiscordChannel(DiscordChannel channel) =>
             Data.ChatChannelLinks.Where(link
