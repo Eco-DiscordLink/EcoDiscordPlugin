@@ -46,6 +46,16 @@ namespace Eco.Plugins.DiscordLink
 
         private bool _triggerWorldResetEvent = false;
 
+        private Action<User> OnNewUserJoined;
+        private Action<User> OnNewUserLoggedIn;
+        private Action<User> OnUserLoggedOut;
+        private Action<Election> OnElectionStarted;
+        private Action<Election> OnElectionFinished;
+        private Action<DLEventArgs> OnEventConverted;
+        private Action<string> OnLogWritten;
+        private EventHandler<LinkedUser> OnLinkedUserVerified;
+        private EventHandler<LinkedUser> OnLinkedUserRemoved;
+
         public string Status
         {
             get { return _status; }
@@ -105,6 +115,7 @@ namespace Eco.Plugins.DiscordLink
 
         public void Initialize(TimedTask timer)
         {
+            InitCallbacks();
             DLConfig.Instance.Initialize();
             Status = "Initializing";
             InitTime = DateTime.Now;
@@ -142,18 +153,7 @@ namespace Eco.Plugins.DiscordLink
 
             HandleClientConnected();
 
-            // Set up callbacks
-            UserManager.NewUserJoinedEvent.Add(user => HandleEvent(DLEventType.Join, user));
-            UserManager.OnUserLoggedIn.Add(user => HandleEvent(DLEventType.Login, user));
-            UserManager.OnUserLoggedOut.Add(user => HandleEvent(DLEventType.Logout, user));
-            Election.ElectionStartedEvent.Add(election => HandleEvent(DLEventType.StartElection, election));
-            Election.ElectionFinishedEvent.Add(election => HandleEvent(DLEventType.StopElection, election));
-            UserLinkManager.OnLinkedUserVerified += (sender, args) => HandleEvent(DLEventType.AccountLinkVerified, args);
-            UserLinkManager.OnLinkedUserRemoved += (sender, args) => HandleEvent(DLEventType.AccountLinkRemoved, args);
-            EventConverter.OnEventFired.Add(args => HandleEvent(args.EventType, args.Data));
-            ClientLogEventTrigger.OnLogWritten += (message) => EventConverter.Instance.ConvertServerLogEvent(message);
-
-            if(_triggerWorldResetEvent)
+            if (_triggerWorldResetEvent)
             {
                 HandleEvent(DLEventType.WorldReset, null);
                 _triggerWorldResetEvent = false;
@@ -186,7 +186,7 @@ namespace Eco.Plugins.DiscordLink
             });
             nameToFunction.Add("Force Update", () =>
             {
-                if(Client.ConnectionStatus != DLDiscordClient.ConnectionState.Connected)
+                if (Client.ConnectionStatus != DLDiscordClient.ConnectionState.Connected)
                 {
                     Logger.Info("Failed to force update - Disoord client not connected");
                     return;
@@ -239,6 +239,8 @@ namespace Eco.Plugins.DiscordLink
 
             UserLinkManager.Initialize();
             InitializeModules();
+
+            RegisterCallbacks();
             ActionUtil.AddListener(this);
             _activityUpdateTimer = new Timer(TriggerActivityStringUpdate, null, DLConstants.DISCORD_ACTIVITY_STRING_UPDATE_INTERVAL_MS, DLConstants.DISCORD_ACTIVITY_STRING_UPDATE_INTERVAL_MS);
             Client.OnDisconnecting.Add(HandleClientDisconnecting);
@@ -252,6 +254,7 @@ namespace Eco.Plugins.DiscordLink
         private void HandleClientDisconnecting()
         {
             Client.OnDisconnecting.Remove(HandleClientDisconnecting);
+            DeregisterCallbacks();
 
             SystemUtils.StopAndDestroyTimer(ref _activityUpdateTimer);
             ActionUtil.RemoveListener(this);
@@ -368,11 +371,11 @@ namespace Eco.Plugins.DiscordLink
             Modules[(int)ModuleType.SpecialitiesRoleModule] = new SpecialtiesRoleModule();
             Modules[(int)ModuleType.SnippetInput] = new SnippetInput();
 
-            foreach(Module module in Modules)
+            foreach (Module module in Modules)
             {
                 module.Setup();
             }
-            foreach(Module module in Modules)
+            foreach (Module module in Modules)
             {
                 await module.HandleStartOrStop();
             }
@@ -382,11 +385,11 @@ namespace Eco.Plugins.DiscordLink
         {
             Status = "Shutting down modules";
 
-            foreach(Module module in Modules)
+            foreach (Module module in Modules)
             {
                 await module.Stop();
             }
-            foreach(Module module in Modules)
+            foreach (Module module in Modules)
             {
                 module.Destroy();
             }
@@ -395,13 +398,13 @@ namespace Eco.Plugins.DiscordLink
 
         private async void UpdateModules(DLEventType trigger, params object[] data)
         {
-            foreach(Module module in Modules.NonNull())
+            foreach (Module module in Modules.NonNull())
             {
                 try
                 {
                     await module.Update(this, trigger, data);
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     Logger.Error($"An error occurred while updating module: {module}. Error: {e}");
                 }
@@ -423,12 +426,51 @@ namespace Eco.Plugins.DiscordLink
 
                 Client.DiscordClient.UpdateStatusAsync(new DiscordActivity(MessageBuilder.Discord.GetActivityString(), ActivityType.Watching));
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Logger.Error($"An error occured while attempting to update the activity string. Error: {e}");
             }
         }
 
         #endregion
+
+        private void InitCallbacks()
+        {
+            OnNewUserJoined = user => HandleEvent(DLEventType.Join, user);
+            OnNewUserLoggedIn = user => HandleEvent(DLEventType.Login, user);
+            OnUserLoggedOut = user => HandleEvent(DLEventType.Logout, user);
+            OnElectionStarted = election => HandleEvent(DLEventType.StartElection, election);
+            OnElectionFinished = election => HandleEvent(DLEventType.StopElection, election);
+            OnEventConverted = args => HandleEvent(args.EventType, args.Data);
+            OnLogWritten = message => EventConverter.Instance.ConvertServerLogEvent(message);
+            OnLinkedUserVerified = (sender, args) => HandleEvent(DLEventType.AccountLinkVerified, args);
+            OnLinkedUserRemoved = (sender, args) => HandleEvent(DLEventType.AccountLinkRemoved, args);
+        }
+
+        private void RegisterCallbacks()
+        {
+            UserManager.NewUserJoinedEvent.Add(OnNewUserJoined);
+            UserManager.OnUserLoggedIn.Add(OnNewUserLoggedIn);
+            UserManager.OnUserLoggedOut.Add(OnUserLoggedOut);
+            Election.ElectionStartedEvent.Add(OnElectionStarted);
+            Election.ElectionFinishedEvent.Add(OnElectionFinished);
+            EventConverter.OnEventConverted.Add(OnEventConverted);
+            ClientLogEventTrigger.OnLogWritten += (message) => EventConverter.Instance.ConvertServerLogEvent(message);
+            UserLinkManager.OnLinkedUserVerified += OnLinkedUserVerified;
+            UserLinkManager.OnLinkedUserRemoved += OnLinkedUserRemoved;
+        }
+
+        private void DeregisterCallbacks()
+        {
+            UserManager.NewUserJoinedEvent.Remove(OnNewUserJoined);
+            UserManager.OnUserLoggedIn.Remove(OnNewUserLoggedIn);
+            UserManager.OnUserLoggedOut.Remove(OnUserLoggedOut);
+            Election.ElectionStartedEvent.Remove(OnElectionStarted);
+            Election.ElectionFinishedEvent.Remove(OnElectionFinished);
+            EventConverter.OnEventConverted.Remove(OnEventConverted);
+            ClientLogEventTrigger.OnLogWritten -= (message) => EventConverter.Instance.ConvertServerLogEvent(message);
+            UserLinkManager.OnLinkedUserVerified -= OnLinkedUserVerified;
+            UserLinkManager.OnLinkedUserRemoved -= OnLinkedUserRemoved;
+        }
     }
 }

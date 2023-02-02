@@ -24,7 +24,7 @@ namespace Eco.Plugins.DiscordLink.Events
 
     public sealed class EventConverter
     {
-        public static readonly ThreadSafeAction<DLEventArgs> OnEventFired;
+        public static readonly ThreadSafeAction<DLEventArgs> OnEventConverted = new ThreadSafeAction<DLEventArgs>();
 
         public static readonly EventConverter Instance = new EventConverter();
 
@@ -64,7 +64,7 @@ namespace Eco.Plugins.DiscordLink.Events
                             FireEvent(DLEventType.AccumulatedTrade, (object)trades);
                         }
                     }
-                    catch(Exception e)
+                    catch (Exception e)
                     {
                         Logger.Error($"Failed to accumulate trade events. Error: {e}");
                     }
@@ -112,7 +112,7 @@ namespace Eco.Plugins.DiscordLink.Events
         {
             string strippedEventText = MessageUtils.StripTags(logEventText);
             Logger.LogLevel eventLevel = Logger.LogLevel.Silent;
-            string[] parts = strippedEventText.Split( ':', 2);
+            string[] parts = strippedEventText.Split(':', 2);
             if (parts.Length == 0)
             {
                 Logger.Warning($"Ignored non delimited log event: \"{strippedEventText}\"");
@@ -133,7 +133,7 @@ namespace Eco.Plugins.DiscordLink.Events
 
         private void FireEvent(DLEventType evetType, params object[] data)
         {
-            OnEventFired.Invoke(new DLEventArgs(evetType, data));
+            OnEventConverted.Invoke(new DLEventArgs(evetType, data));
         }
     }
 }

@@ -123,7 +123,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     "\n\nFor more information, visit \"www.github.com/Eco-DiscordLink/EcoDiscordPlugin\".";
             }
 
-            public static string GetLinkAccountInfoMessage(SharedCommands.CommandInterface context )
+            public static string GetLinkAccountInfoMessage(SharedCommands.CommandInterface context)
             {
                 return "By linking your Eco account to your Discord account on this server, you can enable the following features:" +
                     $"\n* Trade Watcher Displays - An always up to date view of a `/DLT` command in your DMs with the DiscordLink bot." +
@@ -367,7 +367,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             public static string GetChannelLinkList()
             {
                 StringBuilder builder = new StringBuilder();
-                foreach(ChannelLink link in DLConfig.GetChannelLinks(verifiedLinksOnly: false))
+                foreach (ChannelLink link in DLConfig.GetChannelLinks(verifiedLinksOnly: false))
                 {
                     builder.Append(link.ToString());
                     if (!link.IsValid())
@@ -375,7 +375,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     builder.AppendLine();
                 }
 
-                if(builder.Length == 0)
+                if (builder.Length == 0)
                 {
                     builder.AppendLine("No channel links found in configuration");
                 }
@@ -442,7 +442,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             public static string GetGameTimeStamp()
             {
                 double seconds = Simulation.Time.WorldTime.Seconds;
-                return $"{((int)TimeUtil.SecondsToHours(seconds) % 24).ToString("00") }" +
+                return $"{((int)TimeUtil.SecondsToHours(seconds) % 24).ToString("00")}" +
                     $":{((int)(TimeUtil.SecondsToMinutes(seconds) % 60)).ToString("00")}" +
                     $":{((int)seconds % 60).ToString("00")}";
             }
@@ -696,7 +696,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                         embed.AddAlignmentField();
                     }
 
-                    if(flag.HasFlag(ServerInfoComponentFlag.PlayerListExhaustionTime) && BalancePlugin.Obj.Config.IsLimitingHours)
+                    if (flag.HasFlag(ServerInfoComponentFlag.PlayerListExhaustionTime) && BalancePlugin.Obj.Config.IsLimitingHours)
                     {
                         string exhaustTimeList = Shared.GetPlayerExhaustionTimeList();
                         if (!string.IsNullOrWhiteSpace(exhaustTimeList))
@@ -946,7 +946,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 // Build message
                 if (useTradeCount)
                     embed.AddField("Total trades", tradesCount.ToString("n0"), inline: true);
-                
+
                 embed.AddField("Amount in circulation", currency.Circulation.ToString("n0"), inline: true);
                 embed.AddAlignmentField();
                 if (!useTradeCount)
@@ -1218,7 +1218,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 // Currency transfer description
                 string resultDesc;
                 float subTotal = RoundToAcceptedDigits(soldTotal) - RoundToAcceptedDigits(boughtTotal);
-                
+
                 if (Math.Abs(subTotal) <= 0.00f)
                 {
                     resultDesc = "No currency was exchanged.";

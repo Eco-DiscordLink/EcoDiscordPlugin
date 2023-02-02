@@ -30,16 +30,16 @@ namespace Eco.Plugins.DiscordLink
 
         public ChatAuthorizationLevel GetChatAuthLevel()
         {
-            if(EcoUser != null)
+            if (EcoUser != null)
             {
                 if (EcoUser.IsDev)
                     return ChatAuthorizationLevel.Developer;
                 else if (EcoUser.IsAdmin)
                     return ChatAuthorizationLevel.Admin;
             }
-            else if(DiscordLink.Obj.Client.MemberIsAdmin(InteractionContext.Member))
+            else if (DiscordLink.Obj.Client.MemberIsAdmin(InteractionContext.Member))
             {
-                return ChatAuthorizationLevel.Admin;   
+                return ChatAuthorizationLevel.Admin;
             }
 
             return ChatAuthorizationLevel.User;

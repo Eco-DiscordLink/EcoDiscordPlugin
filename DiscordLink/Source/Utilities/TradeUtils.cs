@@ -121,7 +121,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
                 offerType = TradeTargetType.User;
             }
-            else if(match.Is<StoreComponent>())
+            else if (match.Is<StoreComponent>())
             {
                 StoreComponent matchStore = match.Get<StoreComponent>();
                 matchedName = matchStore.Parent.Name;

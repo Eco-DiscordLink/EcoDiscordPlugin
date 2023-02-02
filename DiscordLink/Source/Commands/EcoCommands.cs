@@ -325,7 +325,7 @@ namespace Eco.Plugins.DiscordLink
                 }
 
                 int findIndex = discordAddress.LastIndexOf('/');
-                if(findIndex < 0)
+                if (findIndex < 0)
                 {
                     ReportCommandError(callingUser, "The configured discord address is invalid.");
                     return;
