@@ -1,6 +1,7 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Entities;
 using Eco.Plugins.DiscordLink.Extensions;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Eco.Plugins.DiscordLink
@@ -73,5 +74,36 @@ namespace Eco.Plugins.DiscordLink
         public static readonly DiscordLinkRole ROLE_LINKED_ACCOUNT = new DiscordLinkRole("DiscordLinked", null, DiscordColor.Cyan, false, true, "Linked Discord account to Eco Server");
 
         public static string STORAGE_PATH_ABS { get { return Directory.GetCurrentDirectory() + "/Storage/Mods/DiscordLink/"; } }
+
+        public static readonly Dictionary<string, string> DISCORD_EMOJI_SUBSTITUTION_MAP = new Dictionary<string, string>()
+        {
+            {$"❤{(char)65039}", "heart"},
+            { $"{(char)55358}{(char)56631}{(char)8205}♂{(char)65039}", "man_shrugging"},
+            { $"{(char)55358}{(char)56631}{(char)8205}♀{(char)65039}", "woman_shrugging"},
+            { $"☝{(char)65039}", "point_up"},
+            { "👍", "thumbsup"},
+            { "👎", "thumbsdown"},
+            { "🤔", "thinking" },
+            { "✅", "white_check_mark" },
+            { "❌", "red_cross_mark" },
+            { "🙃", "upside_down"},
+            { "🤘", "metal"},
+            { "🤗", "hugging"},
+            { "🥳", "partying_face"},
+            { "😉", "wink"},
+            { "🥱", "yawning_face"},
+            { "😏", "smirk"},
+            { "🥔", "potato"},
+            { "😓", "sweat"},
+            { "🥰", "smiling_face_with_3_hearts"},
+            { "🤙", "call_me" },
+            { "😮", "open_mouth"},
+            { "😦", "frown"},
+            { "👏", "clap" },
+            { "👀", "eyes"},
+            { "👋", "wave" },
+            { "😆", "laughing" },
+            { "🙂", "slight_smile" },
+        };
     }
 }

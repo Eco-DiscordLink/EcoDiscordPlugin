@@ -314,7 +314,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         public static string GetReadableContent(DiscordMessage message)
         {
-            var content = message.Content;
+            string content = DLConstants.DISCORD_EMOJI_SUBSTITUTION_MAP.Aggregate(message.Content, (current, emojiMapping) => current.Replace(emojiMapping.Key, $"<ecoicon name=\"{emojiMapping.Value}\">"));
             foreach (var user in message.MentionedUsers)
             {
                 if (user == null) { continue; }
