@@ -1,7 +1,6 @@
 ﻿using DSharpPlus.Entities;
 using Eco.Core.Utils;
 using Eco.Plugins.DiscordLink.Extensions;
-using Eco.Plugins.Networking;
 using Eco.Shared.Utils;
 using System;
 using System.Collections.Generic;
@@ -33,6 +32,9 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         // Excessive newline matching regex: Match all cases of (0+)\r followed by (2+)\n.
         private static readonly Regex ExcessiveNewLineRegex = new Regex("(\\\r)*(\\\n){2,}");
+
+        // Discord custom emote regex: Match all characters starting with <: and ending in > while containing an additional : in between. Capture the content between the : pair.
+        private static readonly Regex DiscordCustomEmoteRegex = new Regex("<:(.*?):.*?>");
 
         #region General
 
@@ -314,7 +316,24 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         public static string GetReadableContent(DiscordMessage message)
         {
+            // Substitute Discord standard emojis
             string content = DLConstants.DISCORD_EMOJI_SUBSTITUTION_MAP.Aggregate(message.Content, (current, emojiMapping) => current.Replace(emojiMapping.Key, $"<ecoicon name=\"{emojiMapping.Value}\">"));
+
+            // Substitute custom emojis
+            content = DiscordCustomEmoteRegex.Replace(content, capture =>
+            {
+                string group1 = capture.Groups[1].Value;
+                EmoteIconSubstitution sub = DLConfig.Data.EmoteIconSubstitutions.FirstOrDefault(sub => sub.DiscordEmoteKey.EqualsCaseInsensitive(group1));
+                if (sub != null)
+                {
+                    return $"<ecoicon name=\"{sub.EcoIconKey}\">";
+                }
+                else
+                {
+                    return $":{group1}:";
+                }
+            });
+
             foreach (var user in message.MentionedUsers)
             {
                 if (user == null) { continue; }
