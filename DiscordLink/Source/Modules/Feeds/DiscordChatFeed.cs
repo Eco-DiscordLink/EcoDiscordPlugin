@@ -73,7 +73,24 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         private string GetReadableContent(DiscordMessage message)
         {
-            var content = message.Content;
+            // Substitute Discord standard emojis
+            string content = DLConstants.DISCORD_EMOJI_SUBSTITUTION_MAP.Aggregate(message.Content, (current, emojiMapping) => current.Replace(emojiMapping.Key, $"<ecoicon name=\"{emojiMapping.Value}\">"));
+
+            // Substitute custom emojis
+            content = MessageUtils.DiscordCustomEmoteRegex.Replace(content, capture =>
+            {
+                string group1 = capture.Groups[1].Value;
+                EmoteIconSubstitution sub = DLConfig.Data.EmoteIconSubstitutions.FirstOrDefault(sub => sub.DiscordEmoteKey.EqualsCaseInsensitive(group1));
+                if (sub != null)
+                {
+                    return $"<ecoicon name=\"{sub.EcoIconKey}\">";
+                }
+                else
+                {
+                    return $":{group1}:";
+                }
+            });
+
             foreach (var user in message.MentionedUsers)
             {
                 if (user == null)

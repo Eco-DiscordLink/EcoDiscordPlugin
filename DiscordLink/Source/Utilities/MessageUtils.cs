@@ -1,7 +1,6 @@
 ﻿using DSharpPlus.Entities;
 using Eco.Core.Utils;
 using Eco.Plugins.DiscordLink.Extensions;
-using Eco.Plugins.Networking;
 using Eco.Shared.Utils;
 using System;
 using System.Collections.Generic;
@@ -18,6 +17,9 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         // Display tag matching regex: Match the [] header and the [] tag and capture them both. Will capture only the header if no tag exists.
         public static readonly Regex DisplayTagRegex = new Regex("(\\[[^\\]]+\\])(?:\\s*\\[([^\\]]+)\\])*");
+
+        // Discord custom emote regex: Match all characters starting with <: and ending in > while containing an additional : in between. Capture the content between the : pair.
+        public static readonly Regex DiscordCustomEmoteRegex = new Regex("<:(.*?):.*?>");
 
         // Eco tag matching regex: Match all characters that are used to create HTML style tags
         private static readonly Regex HTMLTagRegex = new Regex("<[^>]*>");

@@ -369,11 +369,30 @@ namespace Eco.Plugins.DiscordLink
                     }
                 }
 
-                if (string.IsNullOrWhiteSpace(ecoChannel))
-                    ecoChannel = DLConstants.DEFAULT_CHAT_CHANNEL;
+                List<string> targetEcoChannelNames = new List<string>();
+                if (!string.IsNullOrWhiteSpace(ecoChannel))
+                {
+                    EcoUtils.SendChatToChannel(null, ecoChannel, $"{DLConstants.ECHO_COMMAND_TOKEN} {message}");
+                    targetEcoChannelNames.Add(ecoChannel);
+                }
+                else
+                {
+                    bool linkFound = false;
+                    foreach (ChatChannelLink chatLink in DLConfig.ChatLinksForDiscordChannel(ctx.Channel))
+                    {
+                        EcoUtils.SendChatToChannel(null, chatLink.EcoChannel, $"{DLConstants.ECHO_COMMAND_TOKEN} {message}");
+                        targetEcoChannelNames.Add(chatLink.EcoChannel);
+                        linkFound = true;
+                    }
 
-                EcoUtils.SendChatToChannel(null, ecoChannel, $"{DLConstants.ECHO_COMMAND_TOKEN} {message}");
-                await RespondToCommand(ctx, "Message sent");
+                    if (!linkFound)
+                    {
+                        EcoUtils.SendChatToChannel(null, DLConstants.DEFAULT_CHAT_CHANNEL, $"{DLConstants.ECHO_COMMAND_TOKEN} {message}");
+                        targetEcoChannelNames.Add(DLConstants.DEFAULT_CHAT_CHANNEL);
+                    }
+                }
+
+                await RespondToCommand(ctx, $"Message sent to the following Eco channel(s): {string.Join(',', targetEcoChannelNames)}");
             }, ctx);
         }
 
