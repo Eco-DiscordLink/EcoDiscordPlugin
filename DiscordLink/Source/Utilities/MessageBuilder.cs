@@ -176,6 +176,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 builder.AppendLine();
                 builder.AppendLine("--- User Data ---");
                 builder.AppendLine($"Linked users: {DLStorage.PersistentData.LinkedUsers.Count}");
+                builder.AppendLine($"Opt-in users: {DLStorage.PersistentData.OptedInUsers.Count}");
+                builder.AppendLine($"Opt-out users: {DLStorage.PersistentData.OptedOutUsers.Count}");
                 builder.AppendLine();
                 builder.AppendLine("--- Modules ---");
 
@@ -221,6 +223,18 @@ namespace Eco.Plugins.DiscordLink.Utilities
                         }
 
                         builder.AppendLine($"{ecoUserName} <--> {discordUserName} - {valididty}");
+                    }
+                    builder.AppendLine();
+                    builder.AppendLine("Opt-in User Data:");
+                    foreach (EcoUser user in DLStorage.PersistentData.OptedInUsers)
+                    {
+                        builder.AppendLine(user.GetUser.Name);
+                    }
+                    builder.AppendLine();
+                    builder.AppendLine("Opt-out User Data:");
+                    foreach (EcoUser user in DLStorage.PersistentData.OptedOutUsers)
+                    {
+                        builder.AppendLine(user.GetUser.Name);
                     }
 
                     builder.AppendLine();

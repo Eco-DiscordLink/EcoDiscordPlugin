@@ -109,6 +109,8 @@ namespace Eco.Plugins.DiscordLink
         {
             public List<LinkedUser> LinkedUsers = new List<LinkedUser>();
             public List<ulong> RoleIDs = new List<ulong>();
+            public List<EcoUser> OptedInUsers = new List<EcoUser>();
+            public List<EcoUser> OptedOutUsers = new List<EcoUser>();
         }
 
         public class WorldStorageData
