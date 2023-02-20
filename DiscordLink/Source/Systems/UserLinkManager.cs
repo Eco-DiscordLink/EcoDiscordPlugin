@@ -1,6 +1,7 @@
 ﻿using DSharpPlus.Entities;
 using Eco.Core.Utils;
 using Eco.Gameplay.Players;
+using Eco.ModKit.Internal;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
@@ -8,6 +9,7 @@ using Newtonsoft.Json;
 using System;
 using System.Threading.Tasks;
 using static Eco.Plugins.DiscordLink.Utilities.MessageBuilder;
+using User = Eco.Gameplay.Players.User;
 
 namespace Eco.Plugins.DiscordLink
 {
@@ -213,8 +215,6 @@ namespace Eco.Plugins.DiscordLink
         public readonly string GuildID = string.Empty;
         public bool Verified = false;
 
-
-
         public LinkedUser(string slgID, string steamID, string discordID, string guildID)
         {
             this.SlgID = slgID;
@@ -234,5 +234,25 @@ namespace Eco.Plugins.DiscordLink
                 Logger.Debug($"Failed to find and load linked Discord member with ID: {DiscordID}.");
             }
         }
+    }
+
+    public class EcoUser
+    {
+        public EcoUser(string SlgID, string SteamID)
+        {
+            this.SlgID = SlgID;
+            this.SteamID = SteamID;
+        }
+
+        public bool HasAnyID(string SlgID, string SteamID)
+        {
+            return ((!string.IsNullOrEmpty(this.SteamID) && this.SteamID == SteamID) || (!string.IsNullOrEmpty(this.SlgID) && this.SlgID == SlgID));
+        }
+
+        [JsonIgnore]
+        public User GetUser { get { return EcoUtils.UserBySteamOrSLGID(SteamID, SlgID); } }
+
+        public readonly string SlgID = string.Empty;
+        public readonly string SteamID = string.Empty;
     }
 }

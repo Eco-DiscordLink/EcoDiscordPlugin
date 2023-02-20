@@ -11,6 +11,8 @@ using static Eco.Plugins.DiscordLink.SharedCommands;
 using static Eco.Plugins.DiscordLink.Enums;
 using static Eco.Plugins.DiscordLink.Utilities.MessageBuilder;
 using Eco.Plugins.Networking;
+using Eco.Shared.Utils;
+using System.Linq;
 
 namespace Eco.Plugins.DiscordLink
 {
@@ -515,6 +517,73 @@ namespace Eco.Plugins.DiscordLink
         #endregion
 
         #region Message Relaying
+
+        [ChatSubCommand("DiscordLink", "Opts the calling user out of chat synchronization.", ChatAuthorizationLevel.User)]
+        public static async Task OptOut(User callingUser)
+        {
+            ExecuteCommand<object>(async (lUser, args) =>
+            {
+                if (DLConfig.Data.ChatSyncMode == ChatSyncMode.OptOut)
+                {
+                    if (DLStorage.PersistentData.OptedOutUsers.Any(user => user.HasAnyID(callingUser.SlgId, callingUser.SteamId)))
+                    {
+                        ReportCommandError(callingUser, "You have already opted out of chat synchronization.");
+                    }
+                    else
+                    {
+                        DLStorage.PersistentData.OptedOutUsers.Add(new EcoUser(callingUser.SlgId, callingUser.SteamId));
+                        ReportCommandInfo(callingUser, "You have opted out of chat synchronization.");
+                    }
+                }
+                else if (DLConfig.Data.ChatSyncMode == ChatSyncMode.OptIn)
+                {
+                    EcoUser optedInUser;
+                    if ((optedInUser = DLStorage.PersistentData.OptedInUsers.FirstOrDefault(user => user.HasAnyID(callingUser.SlgId, callingUser.SteamId))) != null)
+                    {
+                        DLStorage.PersistentData.OptedInUsers.Remove(optedInUser);
+                        ReportCommandInfo(callingUser, "You have opted back out of chat synchronization.");
+                    }
+                    else
+                    {
+                        ReportCommandError(callingUser, "This server is configured to use opt-in by default.");
+                    }
+                }
+
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Opts the calling user into chat synchronization.", ChatAuthorizationLevel.User)]
+        public static async Task Optin(User callingUser)
+        {
+            ExecuteCommand<object>(async (lUser, args) =>
+            {
+                if (DLConfig.Data.ChatSyncMode == ChatSyncMode.OptOut)
+                {
+                    EcoUser optedOutUser;
+                    if ((optedOutUser = DLStorage.PersistentData.OptedOutUsers.FirstOrDefault(user => user.HasAnyID(callingUser.SlgId, callingUser.SteamId))) != null)
+                    {
+                        DLStorage.PersistentData.OptedOutUsers.Remove(optedOutUser);
+                        ReportCommandInfo(callingUser, "You have opted back into chat synchronization.");
+                    }
+                    else
+                    {
+                        ReportCommandError(callingUser, "This server is configured to use opt-out by default.");
+                    }
+                }
+                else if (DLConfig.Data.ChatSyncMode == ChatSyncMode.OptIn)
+                {
+                    if (DLStorage.PersistentData.OptedInUsers.Any(user => user.HasAnyID(callingUser.SlgId, callingUser.SteamId)))
+                    {
+                        ReportCommandError(callingUser, "You have already opted into chat synchronization.");
+                    }
+                    else
+                    {
+                        DLStorage.PersistentData.OptedInUsers.Add(new EcoUser(callingUser.SlgId, callingUser.SteamId));
+                        ReportCommandInfo(callingUser, "You have opted into chat synchronization.");
+                    }
+                }
+            }, callingUser);
+        }
 
         [ChatSubCommand("DiscordLink", "Sends a message to a specific server and channel.", ChatAuthorizationLevel.Admin)]
         public static async Task SendMessageToDiscordChannel(User callingUser, string channelNameOrID, string message)

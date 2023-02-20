@@ -11,6 +11,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
+using static Eco.Plugins.DiscordLink.Enums;
 
 namespace Eco.Plugins.DiscordLink
 {
@@ -24,6 +25,7 @@ namespace Eco.Plugins.DiscordLink
             public static readonly string[] AdminRoles = { "Admin", "Eco Admins", "Administrator", "Moderator" };
             public const string DiscordCommandPrefix = "?";
             public const string InviteMessage = "Join us on Discord!\\n" + DLConstants.INVITE_COMMAND_TOKEN;
+            public const ChatSyncMode ChatSynchronizationMode = ChatSyncMode.OptOut;
             public const int MaxMintedCurrencies = 1;
             public const int MaxPersonalCurrencies = 3;
             public const int MaxTopCurrencyHolderCount = 3;
@@ -263,6 +265,7 @@ namespace Eco.Plugins.DiscordLink
                 ServerDescription = this.ServerDescription,
                 ServerLogo = this.ServerLogo,
                 ConnectionInfo = this.ConnectionInfo,
+                ChatSyncMode = this.ChatSyncMode,
                 LogLevel = this.LogLevel,
                 MaxTradeWatcherDisplaysPerUser = this.MaxTradeWatcherDisplaysPerUser,
                 InviteMessage = this.InviteMessage,
@@ -311,6 +314,8 @@ namespace Eco.Plugins.DiscordLink
 
         [Description("The game server connection information to display to users. This setting can be changed while the server is running."), Category("Base Configuration - Eco")]
         public string ConnectionInfo { get; set; } = $"<eco://connect/{NetworkManager.Config.ID.ToString()}>";
+
+        public ChatSyncMode ChatSyncMode { get; set; } = DLConfig.DefaultValues.ChatSynchronizationMode;
 
         [Description("Discord and Eco Channels to connect together for chat crossposting. This setting can be changed while the server is running."), Category("Feeds")]
         public ObservableCollection<ChatChannelLink> ChatChannelLinks { get; set; } = new ObservableCollection<ChatChannelLink>();

@@ -26,5 +26,11 @@ namespace Eco.Plugins.DiscordLink
             [ChoiceName("Minted")]
             Minted
         }
+
+        public enum ChatSyncMode
+        {
+            OptIn,
+            OptOut,
+        }
     }
 }
