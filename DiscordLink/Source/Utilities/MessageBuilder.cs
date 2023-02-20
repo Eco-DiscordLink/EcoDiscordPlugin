@@ -865,7 +865,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                         bool maxLevelReached = skill.Level >= skill.MaxLevel;
                         skillsDesc.AppendLine(skill.DisplayName);
                         levelsDesc.AppendLine(skill.Level.ToString() + (maxLevelReached ? " (Max)" : string.Empty));
-                        percentOfNextLevelDoneDesc.AppendLine(maxLevelReached ? "N/A" : $"{(int)skill.PercentTowardsNextLevel}%");
+                        percentOfNextLevelDoneDesc.AppendLine(maxLevelReached ? "N/A" : $"{(int)(skill.PercentTowardsNextLevel * 100)}%");
                     }
 
                     report.AddField("Skills", skillsDesc.ToString(), inline: true);
