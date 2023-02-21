@@ -148,20 +148,11 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [ChatSubCommand("DiscordLink", "Shows the plugin status.", ChatAuthorizationLevel.Admin)]
-        public static async Task PluginStatus(User callingUser)
+        public static async Task PluginStatus(User callingUser, bool verbose = false)
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                DisplayCommandData(callingUser, DLConstants.ECO_PANEL_COMPLEX_LIST, "DiscordLink Status", MessageBuilder.Shared.GetDisplayStringAsync(verbose: false).Result);
-            }, callingUser);
-        }
-
-        [ChatSubCommand("DiscordLink", "Shows the plugin status including verbose debug level information.", ChatAuthorizationLevel.Admin)]
-        public static async Task PluginStatusVerbose(User callingUser)
-        {
-            await ExecuteCommand<object>(async (lUser, args) =>
-            {
-                DisplayCommandData(callingUser, DLConstants.ECO_PANEL_COMPLEX_LIST, "DiscordLink Status Verbose", MessageBuilder.Shared.GetDisplayStringAsync(verbose: true).Result);
+                DisplayCommandData(callingUser, DLConstants.ECO_PANEL_COMPLEX_LIST, "DiscordLink Status", MessageBuilder.Shared.GetDisplayStringAsync(verbose).Result);
             }, callingUser);
         }
 
