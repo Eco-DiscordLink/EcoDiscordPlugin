@@ -220,7 +220,7 @@ namespace Eco.Plugins.DiscordLink
             BotMember = null;
 
             OnDisconnected?.Invoke();
-            DiscordLink.Obj.HandleEvent(DLEventType.DiscordClientDisconnected);
+            await DiscordLink.Obj.HandleEvent(DLEventType.DiscordClientDisconnected);
             return true;
         }
 
@@ -271,7 +271,7 @@ namespace Eco.Plugins.DiscordLink
             if (args.Author == DiscordClient.CurrentUser)
                 return; // Ignore messages sent by our own bot
 
-            DiscordLink.Obj.HandleEvent(DLEventType.DiscordMessageSent, message);
+            await DiscordLink.Obj.HandleEvent(DLEventType.DiscordMessageSent, message);
         }
 
         private async Task HandleDiscordMessageEdited(DiscordClient client, MessageUpdateEventArgs args)
@@ -279,12 +279,12 @@ namespace Eco.Plugins.DiscordLink
             if (args.Author == DiscordClient.CurrentUser)
                 return; // Ignore messages edits made by our own bot
 
-            DiscordLink.Obj.HandleEvent(DLEventType.DiscordMessageEdited, args.Message, args.MessageBefore);
+            await DiscordLink.Obj.HandleEvent(DLEventType.DiscordMessageEdited, args.Message, args.MessageBefore);
         }
 
         private async Task HandleDiscordMessageDeleted(DiscordClient client, MessageDeleteEventArgs args)
         {
-            DiscordLink.Obj.HandleEvent(DLEventType.DiscordMessageDeleted, args.Message);
+            await DiscordLink.Obj.HandleEvent(DLEventType.DiscordMessageDeleted, args.Message);
         }
 
         private async Task HandleDiscordReactionAdded(DiscordClient client, MessageReactionAddEventArgs args)
@@ -292,7 +292,7 @@ namespace Eco.Plugins.DiscordLink
             if (args.User == client.CurrentUser)
                 return; // Ignore reactions sent by our own bot
 
-            DiscordLink.Obj.HandleEvent(DLEventType.DiscordReactionAdded, args.User, args.Message, args.Emoji);
+            await DiscordLink.Obj.HandleEvent(DLEventType.DiscordReactionAdded, args.User, args.Message, args.Emoji);
         }
 
         private async Task HandleDiscordReactionRemoved(DiscordClient client, MessageReactionRemoveEventArgs args)
@@ -300,7 +300,7 @@ namespace Eco.Plugins.DiscordLink
             if (args.User == client.CurrentUser)
                 return; // Ignore reactions sent by our own bot
 
-            DiscordLink.Obj.HandleEvent(DLEventType.DiscordReactionRemoved, args.User, args.Message, args.Emoji);
+            await DiscordLink.Obj.HandleEvent(DLEventType.DiscordReactionRemoved, args.User, args.Message, args.Emoji);
         }
 
         private async Task HandleClientError(DiscordClient client, ClientErrorEventArgs args)

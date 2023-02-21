@@ -42,11 +42,11 @@ namespace Eco.Plugins.DiscordLink.Modules
             foreach (ChatChannelLink chatLink in chatLinks
                 .Where(link => link.Direction == ChatSyncDirection.EcoToDiscord || link.Direction == ChatSyncDirection.Duplex))
             {
-                ForwardMessageToDiscordChannel(message, chatLink.Channel, chatLink.UseTimestamp, chatLink.HereAndEveryoneMentionPermission, chatLink.MentionPermissions);
+                await ForwardMessageToDiscordChannel(message, chatLink.Channel, chatLink.UseTimestamp, chatLink.HereAndEveryoneMentionPermission, chatLink.MentionPermissions);
             }
         }
 
-        private void ForwardMessageToDiscordChannel(ChatSent chatMessage, DiscordChannel channel, bool useTimestamp, GlobalMentionPermission globalMentionPermission, ChatLinkMentionPermissions chatlinkPermissions)
+        private async Task ForwardMessageToDiscordChannel(ChatSent chatMessage, DiscordChannel channel, bool useTimestamp, GlobalMentionPermission globalMentionPermission, ChatLinkMentionPermissions chatlinkPermissions)
         {
             Logger.DebugVerbose($"Sending Eco message to Discord channel {channel.Name}");
 
@@ -75,7 +75,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             bool allowGlobalMention = globalMentionPermission == GlobalMentionPermission.AnyUser
                 || globalMentionPermission == GlobalMentionPermission.Admin && chatMessage.Citizen.IsAdmin;
 
-            _ = DiscordLink.Obj.Client.SendMessageAsync(channel, MessageUtils.FormatMessageForDiscord(forwardedMessage, channel, chatMessage.Citizen.Name, useTimestamp, allowGlobalMention, chatlinkPermissions));
+            await DiscordLink.Obj.Client.SendMessageAsync(channel, MessageUtils.FormatMessageForDiscord(forwardedMessage, channel, chatMessage.Citizen.Name, useTimestamp, allowGlobalMention, chatlinkPermissions));
             ++_opsCount;
         }
     }

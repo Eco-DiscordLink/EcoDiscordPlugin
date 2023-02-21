@@ -80,7 +80,7 @@ namespace Eco.Plugins.DiscordLink
 
             DiscordLink plugin = DiscordLink.Obj;
             plugin.Modules.ForEach(async module => await module.HandleStartOrStop());
-            plugin.HandleEvent(Events.DLEventType.ForceUpdate);
+            await plugin.HandleEvent(Events.DLEventType.ForceUpdate);
             await ReportCommandInfo(source, callContext, "Forced update");
             return true;
         }
