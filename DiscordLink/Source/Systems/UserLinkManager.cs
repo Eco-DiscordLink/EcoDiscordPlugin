@@ -1,14 +1,10 @@
 ﻿using DSharpPlus.Entities;
-using Eco.Core.Utils;
-using Eco.Gameplay.Players;
-using Eco.ModKit.Internal;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
 using Newtonsoft.Json;
 using System;
 using System.Threading.Tasks;
-using static Eco.Plugins.DiscordLink.Utilities.MessageBuilder;
 using User = Eco.Gameplay.Players.User;
 
 namespace Eco.Plugins.DiscordLink
@@ -245,7 +241,7 @@ namespace Eco.Plugins.DiscordLink
 
         public bool HasAnyID(string SlgID, string SteamID)
         {
-            return ((!string.IsNullOrEmpty(this.SteamID) && this.SteamID == SteamID) || (!string.IsNullOrEmpty(this.SlgID) && this.SlgID == SlgID));
+            return (!string.IsNullOrEmpty(this.SteamID) && this.SteamID == SteamID) || (!string.IsNullOrEmpty(this.SlgID) && this.SlgID == SlgID);
         }
 
         [JsonIgnore]
