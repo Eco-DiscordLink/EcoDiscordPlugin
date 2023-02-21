@@ -592,7 +592,7 @@ namespace Eco.Plugins.DiscordLink
 
         #region Snippets
 
-        [SlashCommand("DiscordSnippet", "Post a predefined snippet to Discord.")]
+        [SlashCommand("DiscordSnippet", "Posts a predefined snippet to Discord.")]
         public async Task Snippet(InteractionContext ctx, [Option("Key", "Key of the snippet to post. Displays the key list if omitted.")] string snippetKey = "", [Option("Context", "Where the snippet should be sent.")] CommandInterface commandTarget = CommandInterface.Discord)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
