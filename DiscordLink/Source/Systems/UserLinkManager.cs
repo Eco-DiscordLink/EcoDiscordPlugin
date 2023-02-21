@@ -76,13 +76,7 @@ namespace Eco.Plugins.DiscordLink
         public static LinkedUser LinkedUserByEcoUser(User user, object caller = null, string callingReason = null, bool requireValid = true)
         {
             LinkedUser result = null;
-
-            if (user.SlgId != null)
-                result = DLStorage.PersistentData.LinkedUsers.Find(linkedUser => linkedUser.SlgID == user.SlgId && (linkedUser.Valid || !requireValid));
-            else if (user.SteamId != null)
-                result = DLStorage.PersistentData.LinkedUsers.Find(linkedUser => linkedUser.SteamID == user.SteamId && (linkedUser.Valid || !requireValid));
-            else
-                return null;
+            result = DLStorage.PersistentData.LinkedUsers.Find(linkedUser => linkedUser.HasAnyID(user.SlgId, user.SteamId) && (linkedUser.Valid || !requireValid));
 
             if (result == null && caller != null && callingReason != null)
                 ReportLinkLookupFailure(caller, callingReason);
@@ -233,6 +227,11 @@ namespace Eco.Plugins.DiscordLink
             {
                 Logger.Debug($"Failed to find and load linked Discord member with ID: {DiscordID}.");
             }
+        }
+
+        public bool HasAnyID(string SlgID, string SteamID)
+        {
+            return (!string.IsNullOrEmpty(this.SteamID) && this.SteamID == SteamID) || (!string.IsNullOrEmpty(this.SlgID) && this.SlgID == SlgID);
         }
     }
 
