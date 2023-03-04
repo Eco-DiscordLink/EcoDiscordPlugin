@@ -68,7 +68,7 @@ namespace Eco.Plugins.DiscordLink
 
         public override bool IsValid() => !string.IsNullOrWhiteSpace(DiscordChannel) && Channel != null;
 
-        public virtual bool Initailize()
+        public virtual bool Initialize()
         {
             if (string.IsNullOrWhiteSpace(DiscordChannel))
                 return false;
