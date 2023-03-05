@@ -179,7 +179,7 @@ The logo of the server as a URL, to use when the bot posts embed messages.
 **Connection Info**  
 The text to display when showing connection information for the game server. It is recommended to use the Server ID or an IP for this field. You can create a clickable link for joining your server using this syntax: `<eco://connect/<ServerID>>`
 
-## Linking Chat Channels
+## <a id="ChatLink"></a>Linking Chat Channels
 1. Copy the _"ChatChannelLinks"_ section of the sample config into your config file.
 2. Set the _"DiscordChannel"_ field to the name or ID of the Discord channel you wish to synchronize with a channel in Eco.
 3. Set the _"EcoChannel"_ field to the name of the Eco channel you wish to synchronize with the Discord channel in the previous step.

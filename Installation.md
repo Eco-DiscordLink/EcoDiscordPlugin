@@ -80,7 +80,7 @@ If you are not using the server GUI, you instead need to fill out this field in 
 **Online**
 ![Online bot](images/installation/online_bot.png)
 
-### 19. Set up a [Chat Channel Link](ConfigurationGUI.md#ChatLink).
+### 19. Set up a [Chat Channel Link](ConfigurationGUI.md#ChatLink). If you do not have access to the server GUI, use this [guide](ConfigurationNoGUI.md#ChatLink) instead.
 
 ### 20. Verify that the config is correct by running the [VerifyConfig](Commands.md#SAT) command or by selecting it in the DiscordLink dropdown in the server GUI.
 
