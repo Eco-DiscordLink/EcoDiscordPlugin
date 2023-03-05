@@ -36,7 +36,7 @@ If you are not using the server GUI, you instead need to fill out this field in 
 
 ![Create bot user](images/installation/create_bot_user.png)
 
-### 9. Click "Add Bot". Note that this will trigger an 2FA challenge.
+### 9. Click "Add Bot". Note that this will trigger a 2FA challenge.
 
 ![Add bot](images/installation/add_bot.png)
 
