@@ -75,11 +75,11 @@ Displays crafting events in Discord as they occur in Eco.
 A watcher is a personal feed or display that [linked users](AccountLinking.md) can configure to display information in DMs with the bot.  
 
 ### Trade Feed
-Works like the [Trade Feed](#trade) but the notifications are sent to the bot DM channel and the player can customize what should be shown. A Trade Feed Watcher is set up using the [AddTradeWatcherFeed](Commands.md) command and can be customized to filter entries by Player, Tag, Item or Store.  
+Works like the [Trade Feed](#trade) but the notifications are sent to the bot DM channel and the player can customize what should be shown. A Trade Feed Watcher is set up using the [WatchTradeFeed](Commands.md) command and can be customized to filter entries by Player, Tag, Item or Store.  
 ![Trade Watcher Feed](images/features/watchers/trade_feed.png)  
 
 ### Trade Display
-Works like a display for a DL-Trade [command](Commands.md). A trade display is set up using the [AddTradeWatcherDisplay](Commands.md) command and can be customized to filter entries by Player, Tag, Item or Store.  
+Works like a display for a DL-Trade [command](Commands.md). A trade display is set up using the [WatchTradeDisplay](Commands.md) command and can be customized to filter entries by Player, Tag, Item or Store.  
 
 ## Roles
 Roles can be set for [linked users](AccountLinking.md) based on game data.  

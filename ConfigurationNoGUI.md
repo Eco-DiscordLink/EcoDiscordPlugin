@@ -23,9 +23,8 @@ The config data needs to match your Eco server, Discord server and Discord bot.
 
 ```
 {  
-  "DiscordServer": "EcoWorld",  
+  "DiscordServerID": "112233445566778899",  
   "BotToken": "xxXXxxxXxXXxxxxxxXxxxxXXXXxxx.XxxXxx.xXXXxxxxXXxxxxXxxxXXXXXXXxxxxxxxX",  
-  "EcoBotName": "DiscordLink",  
     "AdminRoles": [  
     "admin",  
     "administrator",  
@@ -160,13 +159,8 @@ The config data needs to match your Eco server, Discord server and Discord bot.
 
 
 ## Base Configuration - Discord
-
-**Discord Server and Bot Token**  
+**Discord Server ID and Bot Token**  
 See the [installation guide](Installation.md).
-
-**Eco Bot Name**  
-The name the bot should use when posting in Eco.
-Note that the bot user is created when the server starts for the first time after a world reset and therefore, changing this will only take effect after the next world reset.
 
 **Admin Roles**  
 Names of Discord roles which DiscordLink should consider as having admin privileges.
@@ -176,7 +170,6 @@ The admin role names are not case sensitive.
 Determines for what sizes of embeds to show the footer containing meta information about posted embeds. All embeds of sizes bigger than the selected one will have footers as well.
 
 ## Base Configuration - Eco
-
 **Server Name and Server Description**  
 The name and description to use in output instead of the ones configured in the network config.
 
@@ -184,7 +177,7 @@ The name and description to use in output instead of the ones configured in the 
 The logo of the server as a URL, to use when the bot posts embed messages.
 
 **Connection Info**  
-The text to display when showing connection information for the game server. It is recommended to use the Server ID or an IP for this field.
+The text to display when showing connection information for the game server. It is recommended to use the Server ID or an IP for this field. You can create a clickable link for joining your server using this syntax: `<eco://connect/<ServerID>>`
 
 ## Linking Chat Channels
 1. Copy the _"ChatChannelLinks"_ section of the sample config into your config file.
@@ -195,11 +188,6 @@ The text to display when showing connection information for the game server. It 
 6. **Optional** Configure the _"UseTimestamp"_ field to set if a Discord timestamp should be added to the start of each chat message DiscordLink posts to the Discord channel.
 
 ## Command Settings
-**Discord Command Prefix**  
-The prefix to put before commands in order for the Discord bot to recognize them as such.  
-In all command examples `?` is used as Discord command prefix as this is the default prefix.
-Eco commands always use `/` as command prefix as this is hard coded into the game client.
-
 **Admin Roles**  
 The Discord roles (case sensitive!) for which to allow the use of admin commands. Note that users with these roles will also be able to use ingame admin commands via the `ExecuteEcoCommand` command.
 
@@ -208,17 +196,17 @@ The maximum amount of Trade Watcher Displays allowed for each user.
 Note that lowering this will not remove any existing watchers.
 
 **Invite Message**  
-The message to use for the /DiscordInvite command. The invite link is fetched from the Network configuration (the _Discord Address_ field) and will replace the [LINK] token. The message needs to include at least one [LINK] token in order to function and the _Network_ configuration needs to have the _Discord Address_ field filled out.
+The message to use for the /PostInviteMessage command. The invite link is fetched from the Network configuration (the _Discord Address_ field) and will replace the [LINK] token. The message needs to include at least one [LINK] token in order to function and the _Network_ configuration needs to have the _Discord Address_ field filled out.
 
 ## Displays, Feeds and Inputs
 All displays, feeds and inputs require a [Channel Link](#linking-chat-channels) and will be considered turned off until a valid one exists.  
 For more information, see the [Modules Page](Modules.md).
 
 ## Plugin Configuration
-**Log Level and Backend Log Level**
-The _Log Level_ and _Backend Log Level_ should generally be kept at their defaults unless you are troubleshooting an issue or want to turn off the output in the Eco server log.
+**Log Level**
+Controls what type of DiscordLink log messages are printed to the console. This should generally be kept at the default unless you are troubleshooting an issue or want to turn off the output in the Eco server log.
 
-The potential values for Log Level is:
+The potential values for Log Level are:
 * Debug Verbose
 * Debug
 * Warning
@@ -226,7 +214,10 @@ The potential values for Log Level is:
 * Error
 * Silent
 
-The potential values for Backend Log Level is:
+**Backend Log Level**
+Controls what type of Discord/DSharp log messages should be printed to the console. This should almost always be kept at the default unless you are troubleshooting an issue related to Discord rather than DiscordLink.
+
+The potential values for Backend Log Level are:
 * Trace
 * Debug
 * Information

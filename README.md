@@ -25,9 +25,9 @@ DiscordLink comes with [troubleshooting commands](Commands.md#SAT) that you can 
 * `Helpful Commands`  
 DiscordLink features a number of helpful commands both from within the game and from Discord.  
 Here's the full [command list](Commands.md) and below is a sneak peek on some of the more prominent ones!  
-	* *?ExecuteEcoCommand* - Execute any ingame Eco command straight from Discord! Don't worry, only you and your admins get access to the privileged commands :)  
-	* */dlt* - The DiscordLink Trades command will help you find where you can buy and sell everything you need to run your profession! Search by item, tag, player or store name!  
-	* */snippet* - Post a prepared text snippet in Discord, straight into Eco! Tired of answering the same questions over and over? Make a snippet!  
+	* */EcoCommand* - Execute any ingame Eco command straight from Discord! Don't worry, only you and your admins get access to the privileged commands :)  
+	* */Trades* - The DiscordLink Trades command will help you find where you can buy and sell everything you need to run your profession! Search by item, tag, player or store name!  
+	* */Snippet* - Post a prepared text snippet in Discord, straight into Eco! Tired of answering the same questions over and over? Make a snippet!  
 
 ## Usage
 
@@ -41,14 +41,6 @@ See the [Modules Feature List](Modules.md) for more information.
 
 ### Commands
 See the [command list](Commands.md) for available commands and how to use them.
-
-### Notes:
-1. **Emojis**  
-When sending Emojis from Discord to Eco, bear in mind that these may either be removed or show up ingame as a □ character.
-
-2. **Discord Mentions**  
-Make sure that `@` or `#` is not the first character in your message when writing Discord mentions.
-Eco will consider them ingame mentions of players or channels and your message will open a chat channel ingame instead of being sent to the chat you intended and will therefore never get sent to Discord.
 
 ## Installation
 

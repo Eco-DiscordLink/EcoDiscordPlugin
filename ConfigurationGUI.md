@@ -1,6 +1,6 @@
 # DiscordLink Configuration
-Navigate to your server GUI, and navigate to the tab "DiscordLink". 
-From here, you can manipulate all configuration options available and most of them will take effect without requiring a server restart.
+Navigate to your server GUI, and find the "DiscordLink" tab. 
+From here, you can change all configuration options available and most of them will take effect without requiring a server restart.
 
 #### Sections
 * [Base Configuration - Discord](#base-configuration---discord)
@@ -13,12 +13,8 @@ From here, you can manipulate all configuration options available and most of th
 
 ## Base Configuration - Discord
 
-**Discord Server and Bot Token**  
+**Discord Server ID and Bot Token**  
 See the [installation guide](Installation.md).
-
-**Eco Bot Name**  
-The name the bot should use when posting in Eco.
-Note that the bot user is created when the server starts for the first time after a world reset and therefore, changing this will only take effect after the next world reset.
 
 **Admin Roles**  
 Names of Discord roles which DiscordLink should consider as having admin privileges.
@@ -36,9 +32,9 @@ The name and description to use in output instead of the ones configured in the 
 The logo of the server as a URL, to use when the bot posts embed messages.
 
 **Connection Info**  
-The text to display when showing connection information for the game server. It is recommended to use the Server ID or an IP for this field.
+The text to display when showing connection information for the game server. It is recommended to use the Server ID or an IP for this field. You can create a clickable link for joining your server using this syntax: `<eco://connect/<ServerID>>`
 
-## Linking Chat Channels
+## # <a id="ChatLink"></a>Linking Chat Channels
 
 1. The box you're interested in is called "Chat Channel Links" and it is located in the subcategory "Feeds". Click on the three dots next to the box saying "(Collection)". This may be hidden until you mouse over it.
 
@@ -53,31 +49,26 @@ The text to display when showing connection information for the game server. It 
 4. You're done! All messages sent into the configured Discord channel and Eco chat channel should now be cross posting all player messages.
 
 ## Command Settings
-**Discord Command Prefix**  
-The prefix to put before commands in order for the Discord bot to recognize them as such.  
-In all command examples `?` is used as Discord command prefix as this is the default prefix.
-Eco commands always use `/` as command prefix as this is hard coded into the game client.
-
-**Admin Roles**  
-The Discord roles for which to allow the use of admin commands. Role names are case insensitive.
-
-**Eco Command Channel**  
-The Eco chat channel to use for commands that outputs public messages, excluding the initial # character.
+**Discord Command Channels**  
+The Discord channels in which users are allowed to use commands. Admins override this and can use commands anywhere. If no channel is configured, users can use commands in any channel.
 
 **Max Trade Watcher Displays Per User**  
 The maximum amount of Trade Watcher Displays allowed for each user.
 Note that lowering this will not remove any existing watchers.
 
 **Invite Message**  
-The message to use for the /DiscordInvite command. The invite link is fetched from the Network configuration (the _Discord Address_ field) and will replace the [LINK] token. The message needs to include at least one [LINK] token in order to function and the _Network_ configuration needs to have the _Discord Address_ field filled out.
+The message to use for the /PostInviteMessage command. The invite link is fetched from the Network configuration (the _Discord Address_ field) and will replace the [LINK] token. The message needs to include at least one [LINK] token in order to function and the _Network_ configuration needs to have the _Discord Address_ field filled out.
 
 ## Displays, Feeds and Inputs
 All displays, feeds and inputs require a [Channel Link](#linking-chat-channels) and will be considered turned off until a valid one exists.
 For more information, see the [Modules Page](Modules.md).
 
 ## Plugin Configuration
-**Log Level and Backend Log Level**
-The _Log Level_ and _Backend Log Level_ should generally be kept at their defaults unless you are troubleshooting an issue or want to turn off the output in the Eco server log.
+**Log Level**
+Controls what type of DiscordLink log messages are printed to the console. This should generally be kept at the default unless you are troubleshooting an issue or want to turn off the output in the Eco server log.
+
+**Backend Log Level**
+Controls what type of Discord/DSharp log messages should be printed to the console. This should almost always be kept at the default unless you are troubleshooting an issue related to Discord rather than DiscordLink.
 
 **Notes**
 * All message types below the selected one will be printed as well.
