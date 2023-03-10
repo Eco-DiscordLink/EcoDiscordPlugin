@@ -44,7 +44,7 @@ The text to display when showing connection information for the game server. It 
 
 ![Add new link](images/configuration/channellinking/2.png)
 
-3. Enter the parameters for the channel link. _"DiscordChannel"_ should be the Discord channel you want to link to Eco. For example, "general". _"EcoChannel"_ is the channel in Eco you want to link to Discord, for example "General". Once entered, hit "OK".  
+3. Enter the parameters for the channel link. _"DiscordChannelId"_ should be the Discord channel you want to link to Eco. Every to the bot visible channel should appear in the dropdown List. _"EcoChannel"_ is the channel in Eco you want to link to Discord, for example "General". Once entered, hit "OK".  
 
 4. You're done! All messages sent into the configured Discord channel and Eco chat channel should now be cross posting all player messages.
 
