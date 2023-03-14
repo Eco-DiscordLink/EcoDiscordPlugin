@@ -36,6 +36,7 @@ The config data needs to match your Eco server, Discord server and Discord bot.
   "ServerDescription": "The place to play Eco!",  
   "ConnectionInfo": "xxx.xxx.xxx.xx",  
   "ServerLogo": "https://github.com/Eco-DiscordLink/EcoDiscordPlugin/blob/develop/images/DiscordLinkLogo_Nameless.png",  
+  "ChatSyncMode": "OptOut",  
   "ChatChannelLinks": [  
    {  
     "AllowUserMentions": true,  
@@ -152,6 +153,16 @@ The config data needs to match your Eco server, Discord server and Discord bot.
   "InviteMessage": "Join us on Discord!\n[LINK]",
   "LogLevel": "Information",  
   "BackendLogLevel": "Error",  
+  "EmoteIconSubstitutions": [
+    {
+      "DiscordEmoteKey": "DiscordLink",
+      "EcoIconKey": "DiscordLinkLogo"
+    },
+    {
+      "DiscordEmoteKey": "rooThink",
+      "EcoIconKey": "rooThink"
+    }
+  ]
 }  
 ```  
 
