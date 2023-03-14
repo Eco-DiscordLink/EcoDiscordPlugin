@@ -77,7 +77,7 @@ namespace Eco.Plugins.DiscordLink
         public virtual bool Initialize()
         {
 
-            migrateOldChannelName();
+            MigrateOldChannelName();
             
             if (DiscordChannelId == 0)
                 return false;
@@ -91,7 +91,7 @@ namespace Eco.Plugins.DiscordLink
         }
 
         // Migrates the old Property 'DiscordChannel' to the 'DiscordChannelId' Property. 
-        private void migrateOldChannelName()
+        private void MigrateOldChannelName()
         {
 #pragma warning disable CS0618 // Migration
             if (DiscordChannelId != 0 || DiscordChannel.Equals(DISCORD_CHANNEL_PROPERTY_DEPRECATED)) return;

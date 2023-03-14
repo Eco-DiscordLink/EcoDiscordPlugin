@@ -14,7 +14,7 @@ namespace Eco.Plugins.DiscordLink
     public class DiscordChannelPropertyConverter : TypeConverter
     {
 
-        private string formatChannelString(DiscordChannel discordChannel)
+        private string FormatChannelString(DiscordChannel discordChannel)
         {
             return $"#{discordChannel.Name} ({discordChannel.Id})";
         }
@@ -73,7 +73,7 @@ namespace Eco.Plugins.DiscordLink
                 if ((ulong)value == 0) return "Select a Channel";
 
                 var channels = DiscordLink.Obj.Client.Guild.Channels.Values;
-                return channels.Where(channel => channel.Id == (ulong)value).Select(formatChannelString).FirstOrDefault() ?? $"<Unknown Channel> ({value})";
+                return channels.Where(channel => channel.Id == (ulong)value).Select(FormatChannelString).FirstOrDefault() ?? $"<Unknown Channel> ({value})";
             }
             return base.ConvertFrom(context, culture, value);
         }
