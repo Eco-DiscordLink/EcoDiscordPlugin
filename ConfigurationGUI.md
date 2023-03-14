@@ -34,6 +34,10 @@ The logo of the server as a URL, to use when the bot posts embed messages.
 **Connection Info**  
 The text to display when showing connection information for the game server. It is recommended to use the Server ID or an IP for this field. You can create a clickable link for joining your server using this syntax: `<eco://connect/<ServerID>>`
 
+**Chat Sync Mode**
+Wheter to make chat synchronization opt-in or opt-out. In either mode, users can use the "/dl optin" and "/dl optout" [commands](Commands.md) to control if their chat messages should be synchronized or not.
+If a user choses to not have their chat message synchronized, a message will instead be posted saying that the user sent a message at that point in time.
+
 ## # <a id="ChatLink"></a>Linking Chat Channels
 
 1. The box you're interested in is called "Chat Channel Links" and it is located in the subcategory "Feeds". Click on the three dots next to the box saying "(Collection)". This may be hidden until you mouse over it.
