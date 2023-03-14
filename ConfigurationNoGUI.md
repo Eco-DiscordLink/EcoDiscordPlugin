@@ -206,6 +206,11 @@ The message to use for the /PostInviteMessage command. The invite link is fetche
 All displays, feeds and inputs require a [Channel Link](#linking-chat-channels) and will be considered turned off until a valid one exists.  
 For more information, see the [Modules Page](Modules.md).
 
+## Emotes
+**Emote Icon Substitutions**
+A list of pairs of Discord icon keys and Eco icon keys. When the Discord key is detected in a message on the format ":KEY:", it will be substituted by a en eco icon on the format <ecoicon name="KEY">.
+This allows for Discord icons to be sent directly to Eco, provided that the icon has been added to the server separately, in an asset pack.
+
 ## Plugin Configuration
 **Log Level**
 Controls what type of DiscordLink log messages are printed to the console. This should generally be kept at the default unless you are troubleshooting an issue or want to turn off the output in the Eco server log.
