@@ -50,11 +50,6 @@ namespace Eco.Plugins.DiscordLink
                 : Instance._allChannelLinks;
         }
 
-        public static IEnumerable<ChannelLink> ChannelLinksForDiscordChannel(string discordChannelName) =>
-            GetChannelLinks().Where(link
-                => link.IsValid()
-                && link.DiscordChannel.EqualsCaseInsensitive(discordChannelName));
-
         public static IEnumerable<ChatChannelLink> ChatLinksForEcoChannel(string ecoChannelName) =>
             Data.ChatChannelLinks.Where(link
                 => link.IsValid()
@@ -63,7 +58,7 @@ namespace Eco.Plugins.DiscordLink
         public static IEnumerable<ChatChannelLink> ChatLinksForDiscordChannel(DiscordChannel channel) =>
             Data.ChatChannelLinks.Where(link
                 => link.IsValid()
-                && (link.DiscordChannel.EqualsCaseInsensitive(channel.Name) || link.DiscordChannel.EqualsCaseInsensitive(channel.Id.ToString())));
+                && link.DiscordChannelId == channel.Id);
 
         public delegate Task OnConfigChangedDelegate(object sender, EventArgs e);
         public event OnConfigChangedDelegate OnConfigChanged;

@@ -45,18 +45,6 @@ namespace Eco.Plugins.DiscordLink.Extensions
         public static IReadOnlyList<KeyValuePair<ulong, DiscordChannel>> TextChannels(this DiscordGuild guild) => guild.Channels.Where(channel => channel.Value.Type == ChannelType.Text).ToList();
         public static string[] TextChannelNames(this DiscordGuild guild) => guild.TextChannels().Select(channel => channel.Value.Name).ToArray();
 
-        public static DiscordChannel ChannelByName(this DiscordGuild guild, string channelName)
-        {
-            return guild.TextChannels().FirstOrDefault(channel => channel.Value.Name == channelName).Value;
-        }
-
-        public static DiscordChannel ChannelByNameOrID(this DiscordGuild guild, string channelNameOrID)
-        {
-            return channelNameOrID.TryParseSnowflakeID(out ulong ID)
-                ? guild.GetChannel(ID)
-                : guild.ChannelByName(channelNameOrID);
-        }
-
         public static DiscordRole RoleByName(this DiscordGuild guild, string roleName)
         {
             return guild.Roles.Values.FirstOrDefault(role => role.Name.EqualsCaseInsensitive(roleName));

@@ -44,39 +44,39 @@ The config data needs to match your Eco server, Discord server and Discord bot.
     "Direction": "Duplex",  
     "HereAndEveryoneMentionPermission": "Forbidden",  
     "EcoChannel": "General",  
-    "DiscordChannel": "general",  
+    "DiscordChannelId": 980963363205025815,  
     "UseTimestamp": true  
    }  
   ],  
   "TradeFeedChannels": [  
     {  
-      "DiscordChannel": "trades"  
+      "DiscordChannelId": 980963363205025815  
     }  
   ],  
   "CraftingFeedChannels": [  
     {  
-      "DiscordChannel": "crafting"  
+      "DiscordChannelId": 980963363205025815  
     }  
   ],  
   "ServerStatusFeedChannels": [  
     {  
-      "DiscordChannel": "general"  
+      "DiscordChannelId": 980963363205025815  
     }  
   ],  
   "PlayerStatusFeedChannels": [  
     {  
-      "DiscordChannel": "general"  
+      "DiscordChannelId": 980963363205025815  
     }  
   ],  
   "ElectionFeedChannels": [  
     {  
-      "DiscordChannel": "election-feed"  
+      "DiscordChannelId": 980963363205025815  
     }  
   ],  
   "ServerLogFeedChannels": [  
     {  
       "LogLevel": "Information",  
-      "DiscordChannel": "server-log"  
+      "DiscordChannelId": 980963363205025815  
     }  
   ],  
   "ServerInfoDisplayChannels": [  
@@ -99,17 +99,17 @@ The config data needs to match your Eco server, Discord server and Discord bot.
       "UseElectionList": true,  
       "UseLawCount": false,  
       "UseLawList": true,  
-      "DiscordChannel": "server-info"  
+      "DiscordChannelId": 980963363205025815  
     }  
   ],  
   "WorkPartyDisplayChannels": [  
     {  
-      "DiscordChannel": "work-parties"  
+      "DiscordChannelId": 980963363205025815
     }  
   ],  
   "ElectionDisplayChannels": [  
     {  
-      "DiscordChannel": "elections"  
+      "DiscordChannelId": 980963363205025815
     }  
   ],  
   "CurrencyDisplayChannels": [  
@@ -122,12 +122,12 @@ The config data needs to match your Eco server, Discord server and Discord bot.
       "UseTradeCount": true,  
       "UseBackingInfo": false,  
       "DiscordGuild": "EcoDiscordServer",  
-      "DiscordChannel": "currency"  
+      "DiscordChannelId": 980963363205025815
     }  
   ],  
   "SnippetDisplayChannels": [  
     {  
-      "DiscordChannel": "snippets"  
+      "DiscordChannelId": 980963363205025815 
     }  
   ],  
   "UseLinkedAccountRole": true,  
@@ -145,7 +145,7 @@ The config data needs to match your Eco server, Discord server and Discord bot.
   "UseSpecialtyRoles": true,  
   "DiscordCommandChannels": [  
     {  
-      "DiscordChannel": "commands"  
+      "DiscordChannelId": 980963363205025815
     }  
   ],  
   "MaxTradeWatcherDisplaysPerUser": 5,
@@ -181,7 +181,7 @@ The text to display when showing connection information for the game server. It 
 
 ## <a id="ChatLink"></a>Linking Chat Channels
 1. Copy the _"ChatChannelLinks"_ section of the sample config into your config file.
-2. Set the _"DiscordChannel"_ field to the name or ID of the Discord channel you wish to synchronize with a channel in Eco.
+2. Set the _"DiscordChannelId"_ field to the ID of the Discord channel you wish to synchronize with a channel in Eco.
 3. Set the _"EcoChannel"_ field to the name of the Eco channel you wish to synchronize with the Discord channel in the previous step.
 4. **Optional**: Configure the three flags for Discord mention tag permissions according to your preference of allowing role, user and Channel mentions to be used from Eco.
 5. **Optional** Configure the _"Direction"_ field to only allow messages to be forwarded in one direction.
