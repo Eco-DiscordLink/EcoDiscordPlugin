@@ -131,7 +131,7 @@ namespace Eco.Plugins.DiscordLink
 
             // Check mod versioning if the required data exists
             if (!string.IsNullOrWhiteSpace(ModIOAppID) && !string.IsNullOrWhiteSpace(ModIODeveloperToken))
-                ModVersioning.GetModInit(ModIOAppID, ModIODeveloperToken, "DiscordLink", "DiscordLink", ConsoleColor.Cyan, "DiscordLink");
+                VersionChecker.CheckVersion("DiscordLink", ModIOAppID, ModIODeveloperToken);
             else
                 Logger.Info($"Plugin version is {PluginVersion}");
         }
