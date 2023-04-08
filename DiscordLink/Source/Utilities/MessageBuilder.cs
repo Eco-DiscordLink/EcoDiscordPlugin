@@ -673,7 +673,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     }
                 }
 
-                if (BalancePlugin.Obj.Config.IsLimitingHours && flag.HasFlag(ServerInfoComponentFlag.ExhaustionResetTimeLeft) || flag.HasFlag(ServerInfoComponentFlag.ExhaustedPlayerCount))
+                if (BalancePlugin.Obj.Config.IsLimitingHours && (flag.HasFlag(ServerInfoComponentFlag.ExhaustionResetTimeLeft) || flag.HasFlag(ServerInfoComponentFlag.ExhaustedPlayerCount)))
                 {
                     int fieldsAdded = 0;
                     if (flag.HasFlag(ServerInfoComponentFlag.ExhaustionResetTimeLeft))
