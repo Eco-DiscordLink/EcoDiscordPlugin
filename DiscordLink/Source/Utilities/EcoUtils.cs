@@ -141,24 +141,37 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         public static bool SendChatRaw(User sender, string targetAndMessage) // NOTE: Does not trigger ChatMessageSent GameAction
         {
-            // TODO: Handle profanity filter
-            // TODO: Handle muting
-            // TODO: Handle tab opening for DMs
-            // TODO: Handle tab opening for channels
-            // TODO: Handle access to channels
-            // TODO: Handle adding to chat log
-
             var to = ChatParsingUtils.ResolveReceiver(targetAndMessage, out var messageContent);
-            if (to.Failed)
+            if (to.Failed || to.Val == null)
             {
                 Logger.Error($"Failed to resolve receiver of message: \"{targetAndMessage}\"");
                 return false;
             }
             IChatReceiver receiver = to.Val;
 
+            // Clean the message
+            messageContent = messageContent.Replace("<br>", "");
+            ProfanityUtils.ReplaceIfNotClear(ref messageContent, "<Message blocked - Contained profanity>", null);
+
+            if (string.IsNullOrEmpty(messageContent))
+            {
+                Logger.Warning($"Attempted to send empty message: \"{targetAndMessage}\"");
+                return false;
+            }
+
+            // TODO: Handle muted users
+            // TODO: Handle access to channels
+            // TODO: Handle tab opening for DMs
+            // TODO: Handle tab opening for channels
+
             ChatMessage chatMessage = new ChatMessage(sender, receiver, messageContent);
-            foreach (INetClient client in chatMessage.Receiver.ChatRecipients.Select(u => u.Player?.Client).NonNull())
+            IEnumerable<User> receivers = (sender != null ? chatMessage.Receiver.ChatRecipients.Append(sender).Distinct() : chatMessage.Receiver.ChatRecipients);
+            foreach (INetClient client in receivers.Select(u => u.Player?.Client).NonNull())
                 ChatManager.Obj.RPC("DisplayChatMessage", client, chatMessage.ToBson(client));
+
+            // Add to chatlog so that offline users can see the message when they come online
+            ChatManager.Obj.AddToChatLog(chatMessage);
+            PartitionedData<ChatDataPartition, ChatMessage>.LoadOrCreate("Chat").AddEntry(chatMessage);
 
             ChatManager.MessageSent.Invoke(chatMessage);
             return true;
