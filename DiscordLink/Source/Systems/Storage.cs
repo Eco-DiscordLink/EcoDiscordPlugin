@@ -1,5 +1,4 @@
-﻿using Eco.EM.Framework.FileManager;
-using Eco.Gameplay.GameActions;
+﻿using Eco.Gameplay.GameActions;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Modules;
 using Eco.Shared.Utils;
@@ -13,8 +12,8 @@ namespace Eco.Plugins.DiscordLink
 {
     public sealed class DLStorage
     {
-        private const string PERSISANT_STORAGE_FILE_NAME = "DLPersistentData";
-        private const string WORLD_STORAGE_FILE_NAME = "DLWorldData";
+        private const string PERSISANT_STORAGE_FILE_NAME = "DLPersistentData.json";
+        private const string WORLD_STORAGE_FILE_NAME = "DLWorldData.json";
 
         public static readonly DLStorage Instance = new DLStorage();
         public static PersistentStorageData PersistentData { get; private set; } = new PersistentStorageData();
@@ -62,14 +61,14 @@ namespace Eco.Plugins.DiscordLink
 
         public void Write()
         {
-            FileManager<PersistentStorageData>.WriteTypeHandledToFile(PersistentData, DLConstants.STORAGE_PATH_ABS, PERSISANT_STORAGE_FILE_NAME);
-            FileManager<WorldStorageData>.WriteTypeHandledToFile(WorldData, DLConstants.STORAGE_PATH_ABS, WORLD_STORAGE_FILE_NAME);
+            EW.Utils.Persistance.WriteJsonToFile<PersistentStorageData>(PersistentData, DLConstants.STORAGE_PATH_ABS, PERSISANT_STORAGE_FILE_NAME);
+            EW.Utils.Persistance.WriteJsonToFile<WorldStorageData>(WorldData, DLConstants.STORAGE_PATH_ABS, WORLD_STORAGE_FILE_NAME);
         }
 
         public void Read()
         {
-            PersistentData = FileManager<PersistentStorageData>.ReadTypeHandledFromFile(DLConstants.STORAGE_PATH_ABS, PERSISANT_STORAGE_FILE_NAME);
-            WorldData = FileManager<WorldStorageData>.ReadTypeHandledFromFile(DLConstants.STORAGE_PATH_ABS, WORLD_STORAGE_FILE_NAME);
+            PersistentData = EW.Utils.Persistance.ReadJsonFromFile<PersistentStorageData>(DLConstants.STORAGE_PATH_ABS, PERSISANT_STORAGE_FILE_NAME);
+            WorldData = EW.Utils.Persistance.ReadJsonFromFile<WorldStorageData>(DLConstants.STORAGE_PATH_ABS, WORLD_STORAGE_FILE_NAME);
         }
 
         public void HandleEvent(DLEventType eventType, params object[] data)
