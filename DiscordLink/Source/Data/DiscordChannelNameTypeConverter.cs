@@ -1,5 +1,4 @@
 ﻿using DSharpPlus.Entities;
-using Eco.Mods.TechTree;
 using System;
 using System.ComponentModel;
 using System.Globalization;

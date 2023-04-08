@@ -1,6 +1,6 @@
 ﻿using DiscordLink.Source.Utilities;
+using Eco.EW.Tools;
 using Eco.Plugins.DiscordLink.Events;
-using Eco.Plugins.DiscordLink.Utilities;
 using Nito.AsyncEx;
 using System;
 using System.Threading;

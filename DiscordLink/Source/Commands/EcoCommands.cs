@@ -13,6 +13,7 @@ using static Eco.Plugins.DiscordLink.Utilities.MessageBuilder;
 using Eco.Plugins.Networking;
 using Eco.Shared.Utils;
 using System.Linq;
+using Eco.EW.Tools;
 
 namespace Eco.Plugins.DiscordLink
 {

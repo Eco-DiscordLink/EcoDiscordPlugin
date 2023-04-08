@@ -1,12 +1,12 @@
 ﻿using DSharpPlus.Entities;
 using Eco.Core.Utils;
+using Eco.EW.Tools;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Shared.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink.Utilities
 {

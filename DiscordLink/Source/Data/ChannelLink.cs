@@ -1,6 +1,5 @@
 ﻿using DSharpPlus.Entities;
-using Eco.Core.Utils;
-using Eco.Plugins.DiscordLink.Utilities;
+using Eco.EW.Tools;
 using Eco.Shared.Serialization;
 using System;
 using System.ComponentModel;

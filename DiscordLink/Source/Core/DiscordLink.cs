@@ -5,7 +5,7 @@ using Eco.Core.Plugins;
 using Eco.Core.Plugins.Interfaces;
 using Eco.Core.Utils;
 using Eco.Core.Utils.Logging;
-using Eco.EM.Framework.VersioningTools;
+using Eco.EW.Tools;
 using Eco.Gameplay.Aliases;
 using Eco.Gameplay.Civics.Elections;
 using Eco.Gameplay.GameActions;
@@ -117,6 +117,7 @@ namespace Eco.Plugins.DiscordLink
         {
             InitCallbacks();
             DLConfig.Instance.Initialize();
+            Logger.RegisterLogger("DiscordLink", ConsoleColor.Cyan, DLConfig.Data.LogLevel);
             Status = "Initializing";
             InitTime = DateTime.Now;
 

@@ -1,5 +1,6 @@
 ﻿using DSharpPlus.Entities;
 using Eco.Core.Plugins;
+using Eco.EW.Tools;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Plugins.Networking;
@@ -129,6 +130,7 @@ namespace Eco.Plugins.DiscordLink
             // Do not verify the config in case critical data has been changed, as the client will be restarted and that will trigger verification
             bool tokenChanged = Data.BotToken != _prevConfig.BotToken;
             bool guildChanged = Data.DiscordServerID != _prevConfig.DiscordServerID;
+            bool logLevelChanged = Data.LogLevel != _prevConfig.LogLevel;
             bool correctionMade = !Save();
 
             BuildChanneLinkList();
@@ -136,6 +138,11 @@ namespace Eco.Plugins.DiscordLink
             if (tokenChanged || guildChanged)
             {
                 Logger.Info("Critical config data changed - Please restart the plugin for these changes to take effect");
+            }
+
+            if(logLevelChanged)
+            {
+                Logger.SetConfiguredLogLevel(Data.LogLevel);
             }
 
             if (DiscordLink.Obj.Client.ConnectionStatus == DLDiscordClient.ConnectionState.Connected)

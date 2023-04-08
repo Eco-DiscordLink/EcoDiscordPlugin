@@ -2,6 +2,7 @@
 using Eco.Core.Utils;
 using Eco.EM.Framework.ChatBase;
 using Eco.EM.Framework.Text;
+using Eco.EW.Tools;
 using Eco.Gameplay.Civics;
 using Eco.Gameplay.Civics.Demographics;
 using Eco.Gameplay.Civics.Elections;

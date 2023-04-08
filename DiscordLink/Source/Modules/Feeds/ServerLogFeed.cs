@@ -1,5 +1,5 @@
-﻿using Eco.Plugins.DiscordLink.Events;
-using Eco.Plugins.DiscordLink.Utilities;
+﻿using Eco.EW.Tools;
+using Eco.Plugins.DiscordLink.Events;
 using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink.Modules
