@@ -577,42 +577,6 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Sends a message to a specific server and channel.", ChatAuthorizationLevel.Admin)]
-        public static async Task SendMessageToDiscordChannel(User callingUser, string channelNameOrID, string message)
-        {
-            await ExecuteCommand<object>(async (lUser, args) =>
-            {
-                var plugin = Plugins.DiscordLink.DiscordLink.Obj;
-
-                DiscordChannel channel = plugin.Client.ChannelByNameOrID(channelNameOrID);
-                if (channel == null)
-                {
-                    ReportCommandError(callingUser, $"No channel with the name or ID \"{channelNameOrID}\" could be found.");
-                    return;
-                }
-
-                await plugin.Client.SendMessageAsync(channel, $"**{callingUser.Name.Replace("@", "")}**: {message}");
-            }, callingUser);
-        }
-
-        [ChatSubCommand("DiscordLink", "Sends an Eco server message to all online users.", ChatAuthorizationLevel.Admin)]
-        public static async Task ServerMessageAll(User callingUser, string message)
-        {
-            await ExecuteCommand<object>(async (lUser, args) =>
-            {
-                await SharedCommands.SendServerMessage(CommandInterface.Eco, callingUser, message, string.Empty);
-            }, callingUser);
-        }
-
-        [ChatSubCommand("DiscordLink", "Sends an Eco server message to the specified user.", ChatAuthorizationLevel.Admin)]
-        public static async Task ServerMessageUser(User callingUser, string message, string recipientUserNameOrID)
-        {
-            await ExecuteCommand<object>(async (lUser, args) =>
-            {
-                await SharedCommands.SendServerMessage(CommandInterface.Eco, callingUser, message, recipientUserNameOrID);
-            }, callingUser);
-        }
-
         [ChatSubCommand("DiscordLink", "Sends an info box message to all online users.", ChatAuthorizationLevel.Admin)]
         public static async Task AnnounceAll(User callingUser, string message)
         {

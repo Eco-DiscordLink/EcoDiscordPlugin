@@ -592,42 +592,6 @@ namespace Eco.Plugins.DiscordLink
 
         #region Message Relaying
 
-        public static async Task<bool> SendServerMessage(CommandInterface source, object callContext, string message, string recipientUserNameOrID)
-        {
-            if (string.IsNullOrWhiteSpace(message))
-            {
-                await ReportCommandError(source, callContext, "Message cannot be empty.");
-                return false;
-            }
-
-            User recipient = null;
-            if (!string.IsNullOrWhiteSpace(recipientUserNameOrID))
-            {
-                recipient = EcoUtils.OnlineUsers.FirstOrDefault(user => user.Name.EqualsCaseInsensitive(recipientUserNameOrID) || user.Id.ToString().EqualsCaseInsensitive(recipientUserNameOrID));
-                if (recipient == null)
-                {
-                    await ReportCommandError(source, callContext, $"No online user with the name or ID \"{recipientUserNameOrID}\" could be found.");
-                    return false;
-                }
-            }
-
-            string senderName = source == CommandInterface.Eco
-                ? (callContext as User).Name
-                : (callContext as InteractionContext).Member.DisplayName;
-
-            string formattedMessage = $"[{senderName}] {message}";
-            bool sent = recipient == null
-                ? EcoUtils.SendChatToDefaultChannel(null, formattedMessage)
-                : EcoUtils.SendChatToUser(null, recipient, formattedMessage);
-
-            if (sent)
-                await ReportCommandInfo(source, callContext, "Message delivered.");
-            else
-                await ReportCommandError(source, callContext, "Failed to send message.");
-
-            return sent;
-        }
-
         public static async Task<bool> SendBoxMessage(EcoUtils.BoxMessageType type, CommandInterface source, object callContext, string message, string recipientUserNameOrID)
         {
             if (string.IsNullOrWhiteSpace(message))

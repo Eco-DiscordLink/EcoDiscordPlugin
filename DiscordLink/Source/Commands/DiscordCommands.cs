@@ -606,26 +606,6 @@ namespace Eco.Plugins.DiscordLink
 
         #region Message Relaying
 
-        [SlashCommand("ServerMessageAll", "Sends an Eco server message to all online users.")]
-        public async Task ServerMessageAll(InteractionContext ctx, [Option("Message", "The message to send.")] string message)
-        {
-            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
-            {
-                await SharedCommands.SendServerMessage(CommandInterface.Discord, ctx, message, string.Empty);
-            }, ctx);
-        }
-
-        [SlashCommand("ServerMessageUser", "Sends an Eco server message to the specified user.")]
-        public async Task ServerMessageUser(InteractionContext ctx,
-            [Option("Message", "The message to send.")] string message,
-            [Option("Recipient", "Name or ID of the recipient Eco user.")] string recipientUserNameOrID)
-        {
-            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
-            {
-                await SharedCommands.SendServerMessage(CommandInterface.Discord, ctx, message, recipientUserNameOrID);
-            }, ctx);
-        }
-
         [SlashCommand("AnnounceAll", "Sends an Eco info box message to all online users.")]
         public async Task AnnounceAll(InteractionContext ctx, [Option("Message", "The message to send.")] string message)
         {

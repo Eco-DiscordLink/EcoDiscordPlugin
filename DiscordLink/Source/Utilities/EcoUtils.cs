@@ -182,18 +182,6 @@ namespace Eco.Plugins.DiscordLink.Utilities
             return SendChatRaw(sender, $"@{receiver.Name} {message}");
         }
 
-        public static bool SendServerMessageToUser(User receiver, bool permanent, string message)
-        {
-            ChatBase.MessageType messageType = permanent ? ChatBase.MessageType.Permanent : ChatBase.MessageType.Temporary;
-            return ChatBaseExtended.CBMessage(message, receiver, messageType);
-        }
-
-        public static bool SendServerMessageToAll(bool permanent, string message)
-        {
-            ChatBase.MessageType messageType = permanent ? ChatBase.MessageType.Permanent : ChatBase.MessageType.Temporary;
-            return ChatBaseExtended.CBMessage(message, messageType);
-        }
-
         public static bool SendOKBoxToUser(User receiver, string message)
         {
             return ChatBaseExtended.CBOkBox(message, receiver);
