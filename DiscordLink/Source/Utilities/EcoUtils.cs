@@ -171,7 +171,6 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
             // Add to chatlog so that offline users can see the message when they come online
             ChatManager.Obj.AddToChatLog(chatMessage);
-            PartitionedData<ChatDataPartition, ChatMessage>.LoadOrCreate("Chat").AddEntry(chatMessage);
 
             ChatManager.MessageSent.Invoke(chatMessage);
             return true;
