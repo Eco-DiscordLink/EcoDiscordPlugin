@@ -1029,6 +1029,22 @@ namespace Eco.Plugins.DiscordLink.Utilities
                         voteDesc += $"{vote.Voter.Name}\n";
                         choiceDesc += $"{topChoiceName}\n";
                     }
+
+                    foreach (TwitchVote vote in election.RawTwitchVotes.Values)
+                    {
+                        string topChoiceName = null;
+                        ElectionChoiceID topChoiceID = vote.ChoiceID;
+                        foreach (ElectionChoice choice in election.Choices)
+                        {
+                            if (choice.ID == topChoiceID)
+                            {
+                                topChoiceName = choice.Name;
+                                break;
+                            }
+                        }
+                        voteDesc += $"Twitch Vote\n";
+                        choiceDesc += $"{topChoiceName}\n";
+                    }
                 }
                 else
                 {
