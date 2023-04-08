@@ -1,7 +1,4 @@
 ﻿using Eco.Core.Systems;
-using Eco.Core.Utils;
-using Eco.EM.Framework.ChatBase;
-using Eco.EM.Framework.Text;
 using Eco.EW.Tools;
 using Eco.Gameplay.Civics;
 using Eco.Gameplay.Civics.Demographics;
@@ -16,14 +13,14 @@ using Eco.Gameplay.Skills;
 using Eco.Gameplay.Systems;
 using Eco.Gameplay.Systems.Messaging.Chat;
 using Eco.Gameplay.Systems.Messaging.Chat.Channels;
-using Eco.ModKit.Internal;
+using Eco.Gameplay.Systems.Messaging.Mail;
+using Eco.Gameplay.Utils;
 using Eco.Shared.Items;
+using Eco.Shared.Localization;
 using Eco.Shared.Networking;
 using Eco.Shared.Utils;
 using System.Collections.Generic;
 using System.Linq;
-using static Eco.EM.Framework.ChatBase.ChatBase;
-using static System.Net.Mime.MediaTypeNames;
 using User = Eco.Gameplay.Players.User;
 
 namespace Eco.Plugins.DiscordLink.Utilities
@@ -184,62 +181,176 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         public static bool SendOKBoxToUser(User receiver, string message)
         {
-            return ChatBaseExtended.CBOkBox(message, receiver);
+            try
+            {
+                receiver?.Player?.OkBoxLoc($"{message}");
+                return false;
+            }
+            catch
+            {
+                return true;
+            }
         }
 
         public static bool SendOKBoxToAll(string message)
         {
-            return ChatBaseExtended.CBOkBox(message);
+            try
+            {
+                foreach (User receiver in UserManager.OnlineUsers)
+                {
+                    receiver?.Player?.OkBoxLoc($"{message}");
+                }
+                return false;
+            }
+            catch
+            {
+                return true;
+            }
         }
 
         public static bool SendInfoBoxToUser(User receiver, string message)
         {
-            return ChatBaseExtended.CBInfoBox(message, receiver, sendToChat: true);
+            try
+            {
+                receiver.Msg(Localizer.DoStr(Text.InfoLight(message)));
+                return false;
+            }
+            catch
+            {
+                return true;
+            }
         }
 
         public static bool SendInfoBoxToAll(string message)
         {
-            return ChatBaseExtended.CBInfoBox(message, sendToChat: true);
+            try
+            {
+                foreach (User receiver in UserManager.OnlineUsers)
+                {
+                    receiver.Msg(Localizer.DoStr(Text.InfoLight(message)));
+                }
+                return false;
+            }
+            catch
+            {
+                return true;
+            }
         }
 
         public static bool SendWarningBoxToUser(User receiver, string message)
         {
-            return ChatBaseExtended.CBWarning(message, receiver, sendToChat: true);
+            try
+            {
+                receiver.Msg(Localizer.DoStr(Text.Warning(message)));
+                return false;
+            }
+            catch
+            {
+                return true;
+            }
         }
 
         public static bool SendWarningBoxToAll(string message)
         {
-            return ChatBaseExtended.CBWarning(message, sendToChat: true);
+            try
+            {
+                foreach (User receiver in UserManager.OnlineUsers)
+                {
+                    receiver.Msg(Localizer.DoStr(Text.Warning(message)));
+                }
+                return false;
+            }
+            catch
+            {
+                return true;
+            }
         }
 
         public static bool SendErrorBoxToUser(User receiver, string message)
         {
-            return ChatBaseExtended.CBError(message, receiver, sendToChat: true);
+            try
+            {
+                receiver.Msg(Localizer.DoStr(Text.Error(message)));
+                return false;
+            }
+            catch
+            {
+                return true;
+            }
         }
 
         public static bool SendErrorBoxToAll(string message)
         {
-            return ChatBaseExtended.CBError(message, sendToChat: true);
+            try
+            {
+                foreach (User receiver in UserManager.OnlineUsers)
+                {
+                    receiver.Msg(Localizer.DoStr(Text.Error(message)));
+                }
+                return false;
+            }
+            catch
+            {
+                return true;
+            }
         }
 
         public static bool SendNotificationToUser(User receiver, string message)
         {
-            return ChatBaseExtended.CBMail(message, receiver);
+            try
+            {
+                receiver.Mailbox.Add(new MailMessage(message, "Notifications"), false);
+                return false;
+            }
+            catch
+            {
+                return true;
+            }
         }
 
         public static bool SendNotificationToAll(string message)
         {
-            return ChatBaseExtended.CBMail(message);
+            try
+            {
+                foreach (User receiver in UserManager.OnlineUsers)
+                {
+                    receiver.Mailbox.Add(new MailMessage(message, "Notifications"), false);
+                }
+                return false;
+            }
+            catch
+            {
+                return true;
+            }
         }
 
         public static bool SendInfoPanelToUser(User receiver, string instance, string title, string message)
         {
-            return ChatBaseExtended.CBInfoPane(title, message, instance, receiver, ChatBase.PanelType.InfoPanel);
+            try
+            {
+                receiver?.Player.OpenCustomPanel(instance, title, message);
+                return false;
+            }
+            catch
+            {
+                return true;
+            }
         }
 
         public static bool SendInfoPanelToAll(string instance, string title, string message)
         {
-            return ChatBaseExtended.CBInfoPane(title, message, instance, ChatBase.PanelType.InfoPanel);
+            try
+            {
+                foreach (User receiver in UserManager.OnlineUsers)
+                {
+                    receiver?.Player.OpenCustomPanel(instance, title, message);
+                }
+                return false;
+            }
+            catch
+            {
+                return true;
+            }
         }
 
         #endregion
