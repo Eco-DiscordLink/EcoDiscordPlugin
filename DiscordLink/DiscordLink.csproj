@@ -44,7 +44,6 @@
   </Choose>
   
   <ItemGroup>
-
     <!-- Use locally built Eco dlls if available and dependency dir references otherwise -->
     <Reference Include="Eco.Core">
       <HintPath Condition="Exists('..\Dependencies\Eco.Core.dll')">..\Dependencies\Eco.Core.dll</HintPath>

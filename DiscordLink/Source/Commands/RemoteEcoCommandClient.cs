@@ -5,6 +5,7 @@ using Eco.Gameplay.Systems.Messaging.Chat.Commands;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Localization;
 using Eco.Shared.Services;
+using Eco.Shared.Utils;
 using System;
 using System.Threading.Tasks;
 
@@ -23,10 +24,12 @@ namespace Eco.Plugins.DiscordLink
         }
 
         public string Name => EcoUser != null ? EcoUser.Name : InteractionContext.User.Username;
-
         public LocString MarkedUpName => Localizer.NotLocalizedStr(EcoUser != null ? EcoUser.MarkedUpName : InteractionContext.User.Username);
-
         public string ImplementationName => "DiscordLink Eco Command Client";
+
+        public string ReportUserId => EcoUser != null ? EcoUser.SlgId : InteractionContext.User.Id.ToString();
+        public string ReportUsername => Name;
+        public string ReportIpAddress => EcoUser != null ? EcoUser.ReportIpAddress : null;
 
         public ChatAuthorizationLevel GetChatAuthLevel()
         {

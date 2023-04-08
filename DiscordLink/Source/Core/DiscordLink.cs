@@ -37,12 +37,11 @@ namespace Eco.Plugins.DiscordLink
         public Module[] Modules { get; private set; } = new Module[Enum.GetNames(typeof(ModuleType)).Length];
         public IPluginConfig PluginConfig { get { return DLConfig.Instance.PluginConfig; } }
         public ThreadSafeAction<object, string> ParamChanged { get; set; }
-        public string GetCategory() => "DiscordLink";
         public DateTime InitTime { get; private set; } = DateTime.MinValue;
         public bool CanRestart { get; private set; } = false; // False to start with as we cannot restart while the initial startup is in progress
 
         private const string ModIOAppID = "77";
-        private const string ModIODeveloperToken = "050fa09c552b80b8c99189f4621c2ff1"; // This will always be empty for all but actual release builds.
+        private const string ModIODeveloperToken = ""; // This will always be empty for all but actual release builds.
 
         private bool _triggerWorldResetEvent = false;
 
@@ -55,6 +54,13 @@ namespace Eco.Plugins.DiscordLink
         private Action<string> OnLogWritten;
         private EventHandler<LinkedUser> OnLinkedUserVerified;
         private EventHandler<LinkedUser> OnLinkedUserRemoved;
+
+        public override string ToString() => "DiscordLink";
+        public string GetCategory() => "DiscordLink";
+        public string GetStatus() => Status;
+        public object GetEditObject() => DLConfig.Data;
+        public void OnEditObjectChanged(object o, string param) => _ = DLConfig.Instance.HandleConfigChanged();
+        public LazyResult ShouldOverrideAuth(IAlias alias, IOwned property, GameAction action) => LazyResult.FailedNoMessage;
 
         public string Status
         {
@@ -69,31 +75,6 @@ namespace Eco.Plugins.DiscordLink
         private Timer _activityUpdateTimer = null;
 
         #region Plugin Management
-
-        public override string ToString()
-        {
-            return "DiscordLink";
-        }
-
-        public string GetStatus()
-        {
-            return Status;
-        }
-
-        public LazyResult ShouldOverrideAuth(IAlias alias, IOwned property, GameAction action)
-        {
-            return LazyResult.FailedNoMessage;
-        }
-
-        public object GetEditObject()
-        {
-            return DLConfig.Data;
-        }
-
-        public void OnEditObjectChanged(object o, string param)
-        {
-            _ = DLConfig.Instance.HandleConfigChanged();
-        }
 
         public string GetDisplayText()
         {

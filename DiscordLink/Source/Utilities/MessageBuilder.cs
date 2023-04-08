@@ -37,6 +37,9 @@ using static Eco.Shared.Mathf; // Avoiding collisions with system mathf
 using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
 using StoreOfferGroup = System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.StoreComponent, Eco.Gameplay.Components.TradeOffer>>;
 using DSharpPlus.SlashCommands;
+using Eco.Gameplay.Civics;
+using Eco.Gameplay.Economy.Reputation.Internal;
+using Eco.Gameplay.Economy.Reputation;
 
 namespace Eco.Plugins.DiscordLink.Utilities
 {
@@ -838,9 +841,9 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 // Reputation
                 if (flag.HasFlag(PlayerReportComponentFlag.Reputation))
                 {
-                    Reputation reputation = ReputationManager.Obj.Rep(user.Name, createIfMissing: false);
-                    report.AddField("Reputation", ((int)reputation.CachedTotalReputation).ToString(), inline: true);
-                    report.AddField("Can Give Today", ((int)reputation.GiveableReputation).ToString(), inline: true);
+                    float reputation = ReputationManager.Obj.GetRep(user);
+                    report.AddField("Reputation", reputation.ToString("N0"), inline: true);
+                    report.AddField("Can Give Today", reputation.ToString("N0"), inline: true);
                     report.AddAlignmentField();
                 }
 
@@ -1011,10 +1014,10 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 string choiceDesc = string.Empty;
                 if (!election.Process.AnonymousVoting)
                 {
-                    foreach (RunoffVote vote in election.Votes)
+                    foreach (UserRunoffVote vote in election.UserVotes.Values)
                     {
                         string topChoiceName = null;
-                        int topChoiceID = vote.RankedVotes.FirstOrDefault();
+                        ElectionChoiceID topChoiceID = vote.RankedVotes.FirstOrDefault();
                         foreach (ElectionChoice choice in election.Choices)
                         {
                             if (choice.ID == topChoiceID)

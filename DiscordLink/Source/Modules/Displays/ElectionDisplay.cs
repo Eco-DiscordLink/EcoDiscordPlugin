@@ -73,7 +73,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 return;
 
             string choice = emoji == DLConstants.ACCEPT_EMOJI ? "Yes" : "No";
-            Result result = election.Vote(new RunoffVote(linkedUser.EcoUser, election.GetChoiceByName(choice).ID));
+            Result result = election.Vote(new UserRunoffVote(linkedUser.EcoUser, election.GetChoiceByName(choice).ID));
             if (result.Failed)
                 Logger.Debug($"Failed to cast rection vote of type \"{choice}\" for Discord user \"{user.Username}\" in election {election.Id}. Message: {result.Message}");
 

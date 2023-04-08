@@ -46,7 +46,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                     break;
 
                 case DLEventType.StopElection:
-                    ElectionResults results = election.Results;
+                    ElectionResult results = election.CurrentResults;
                     embed.WithTitle($":ballot_box:  Election Has Ended  :ballot_box: ");
                     embed.AddField("Title", MessageUtils.StripTags(election.Name));
                     if (results.Vetoed)
@@ -68,18 +68,18 @@ namespace Eco.Plugins.DiscordLink.Modules
                         }
                         else
                         {
-                            bool singleWinner = results.WinningUsers.Count == 1;
+                            bool singleWinner = results.WinningUsers.Length == 1;
                             string title;
                             string winningUsers;
                             if (singleWinner)
                             {
                                 title = "Winner";
-                                winningUsers = MessageUtils.StripTags(results.WinningUsers.GetAt(0).Name);
+                                winningUsers = MessageUtils.StripTags(results.WinningUsers[0].Name);
                             }
                             else
                             {
                                 title = "Winners";
-                                winningUsers = MessageUtils.StripTags(string.Join("\n", results.WinningUsers));
+                                winningUsers = MessageUtils.StripTags(string.Join("\n", (object[])results.WinningUsers));
                             }
                             embed.AddField(title, winningUsers, inline: true);
                         }
