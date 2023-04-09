@@ -79,7 +79,7 @@ namespace Eco.Plugins.DiscordLink
 
             if (DLConfig.Data.DiscordServerID == 0)
             {
-                Logger.Error("Discord Server not configured - See Github page for install instructions => (https://github.com/Eco-DiscordLink/EcoDiscordPlugin)");
+                Logger.Error("Discord Server not configured - See Github page for install instructions => \"https://github.com/Eco-DiscordLink/EcoDiscordPlugin\"");
                 LastConnectionError = ConnectionError.InvalidGuild;
                 return; // Do not attempt to initialize if the server name/id is empty
             }
