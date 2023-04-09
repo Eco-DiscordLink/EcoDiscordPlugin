@@ -88,14 +88,7 @@ namespace Eco.Plugins.DiscordLink.Extensions
             DiscordMember member = client.Guild.Members.FirstOrDefault(m => m.Key == user.Id).Value;
             if (member == null)
             {
-                try
-                {
-                    member = await client.Guild.GetMemberAsync(user.Id);
-                }
-                catch (Exception e)
-                {
-                    Logger.Error($"An error occurred while attempting to find member corresponding to Discord user \"{user.UniqueUsername}\". Error: {e}");
-                }
+                member = await client.Guild.GetMemberAsync(user.Id);
             }
 
             return member;
