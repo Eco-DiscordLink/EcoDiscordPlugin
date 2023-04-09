@@ -1,4 +1,5 @@
 ﻿using Eco.Gameplay.GameActions;
+using Eco.Gameplay.Items;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Modules;
 using Eco.Shared.Utils;
@@ -61,14 +62,22 @@ namespace Eco.Plugins.DiscordLink
 
         public void Write()
         {
-            EW.Utils.Persistance.WriteJsonToFile<PersistentStorageData>(PersistentData, DLConstants.STORAGE_PATH_ABS, PERSISANT_STORAGE_FILE_NAME);
-            EW.Utils.Persistance.WriteJsonToFile<WorldStorageData>(WorldData, DLConstants.STORAGE_PATH_ABS, WORLD_STORAGE_FILE_NAME);
+            PersistentStorageData persistentData = PersistentData;
+            if (EW.Utils.Persistance.WriteJsonToFile<PersistentStorageData>(PersistentData, DLConstants.STORAGE_PATH_ABS, PERSISANT_STORAGE_FILE_NAME))
+                PersistentData = persistentData;
+
+            WorldStorageData worldData = WorldData;
+            if (EW.Utils.Persistance.WriteJsonToFile<WorldStorageData>(WorldData, DLConstants.STORAGE_PATH_ABS, WORLD_STORAGE_FILE_NAME))
+                WorldData = worldData;
         }
 
         public void Read()
         {
-            PersistentData = EW.Utils.Persistance.ReadJsonFromFile<PersistentStorageData>(DLConstants.STORAGE_PATH_ABS, PERSISANT_STORAGE_FILE_NAME);
-            WorldData = EW.Utils.Persistance.ReadJsonFromFile<WorldStorageData>(DLConstants.STORAGE_PATH_ABS, WORLD_STORAGE_FILE_NAME);
+            PersistentStorageData persistentData = PersistentData;
+            EW.Utils.Persistance.ReadJsonFromFile<PersistentStorageData>(DLConstants.STORAGE_PATH_ABS, PERSISANT_STORAGE_FILE_NAME, ref persistentData);
+
+            WorldStorageData worldData = WorldData;
+            EW.Utils.Persistance.ReadJsonFromFile<WorldStorageData>(DLConstants.STORAGE_PATH_ABS, WORLD_STORAGE_FILE_NAME, ref worldData);
         }
 
         public void HandleEvent(DLEventType eventType, params object[] data)
