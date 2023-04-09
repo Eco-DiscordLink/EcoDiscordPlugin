@@ -84,12 +84,12 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (ServerErrorException e)
             {
-                Logger.Error($"Failed to get status display string. Error: {e}");
+                Logger.Exception($"Failed to get status display string", e);
                 return "Failed to generate status string";
             }
             catch (Exception e)
             {
-                Logger.Error($"Failed to get status display string. Error: {e}");
+                Logger.Exception($"Failed to get status display string", e);
                 return "Failed to generate status string";
             }
         }
@@ -386,7 +386,7 @@ namespace Eco.Plugins.DiscordLink
                 }
                 catch (Exception e)
                 {
-                    Logger.Error($"An error occurred while updating module: {module}. Error: {e}");
+                    Logger.Exception($"An error occurred while updating module: {module}", e);
                 }
             }
         }
@@ -408,7 +408,7 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (Exception e)
             {
-                Logger.Error($"An error occured while attempting to update the activity string. Error: {e}");
+                Logger.Exception($"An error occured while attempting to update the activity string", e);
             }
         }
 

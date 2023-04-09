@@ -56,7 +56,7 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (Exception e)
             {
-                Logger.Error($"An error occurred while attempting to execute a Discord command. Error message: {e}");
+                Logger.Exception($"An error occurred while attempting to execute a Discord command", e);
                 await RespondToCommand(ctx, $"An error occurred while attempting to run that command. Error message: {e}");
             }
         }
@@ -115,7 +115,7 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (Exception e)
             {
-                Logger.Error($"An error occurred while attempting to respond to command. Error message: {e}");
+                Logger.Exception($"An error occurred while attempting to respond to command", e);
             }
         }
 

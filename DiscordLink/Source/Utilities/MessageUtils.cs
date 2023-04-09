@@ -187,7 +187,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 }
                 catch (UriFormatException e)
                 {
-                    Logger.Debug("Failed to include thumbnail in Server Info embed. Error: " + e);
+                    Logger.Exception("Failed to include thumbnail in Server Info embed", e);
                 }
             }
 

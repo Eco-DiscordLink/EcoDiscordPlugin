@@ -159,7 +159,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 }
                 catch (Exception e)
                 {
-                    Logger.Error($"An error occured while updating the {ToString()} module. Error: {e}");
+                    Logger.Exception($"An error occured while updating the {ToString()} module", e);
                 }
             }
         }

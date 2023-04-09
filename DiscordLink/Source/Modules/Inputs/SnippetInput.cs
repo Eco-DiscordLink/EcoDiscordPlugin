@@ -101,7 +101,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                         if (!snippets.ContainsKey(key))
                             snippets.Add(key, content);
                         else
-                            Logger.Info($"Found duplicate Snippet key \"{key}\". Only the first instance of this Snippet will be loaded.");
+                            Logger.Warning($"Found duplicate Snippet key \"{key}\". Only the first instance of this Snippet will be loaded.");
                     }
                 }
             }

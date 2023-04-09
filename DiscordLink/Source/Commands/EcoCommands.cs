@@ -43,7 +43,7 @@ namespace Eco.Plugins.DiscordLink
             catch (Exception e)
             {
                 EcoUtils.SendInfoBoxToUser(callingUser, $"Error occurred while attempting to run that command. Error message: {e}");
-                Logger.Error($"An exception occured while attempting to execute a command.\nCommand name: \"{commandName}\"\nCalling user: \"{MessageUtils.StripTags(callingUser.Name)}\"\nError message: {e}");
+                Logger.Exception($"An exception occured while attempting to execute a command.\nCommand name: \"{commandName}\"\nCalling user: \"{MessageUtils.StripTags(callingUser.Name)}\"", e);
             }
         }
 

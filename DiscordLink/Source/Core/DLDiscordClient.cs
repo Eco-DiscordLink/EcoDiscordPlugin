@@ -132,7 +132,7 @@ namespace Eco.Plugins.DiscordLink
                 ConnectionStatus = ConnectionState.Disconnected;
                 LastConnectionError = ConnectionError.CreateClientFailed;
                 Status = "Failed to create Discord Client";
-                Logger.Error($"Error occurred while creating the Discord client. Error message: {e}");
+                Logger.Exception($"Error occurred while creating the Discord client", e);
                 return false;
             }
 
@@ -153,7 +153,7 @@ namespace Eco.Plugins.DiscordLink
                 }
                 else
                 {
-                    Logger.Error($"An error occurred while connecting to Discord. Error message: {e}");
+                    Logger.Exception($"An error occurred while connecting to Discord", e);
                 }
 
                 DiscordClient = null;
@@ -209,7 +209,7 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (Exception e)
             {
-                Logger.Error($"An error occurred when disconnecting from Discord: Error message: {e.Message}");
+                Logger.Exception($"An error occurred when disconnecting from Discord", e);
                 Status = "Discord disconnection failed";
                 return false;
             }
@@ -306,12 +306,12 @@ namespace Eco.Plugins.DiscordLink
 
         private async Task HandleClientError(DiscordClient client, ClientErrorEventArgs args)
         {
-            Logger.Debug($"A Discord client error occurred. Error message: {args.EventName} {args.Exception}");
+            Logger.DebugException($"A Discord client error occurred. Event: \"{args.EventName}\"", args.Exception);
         }
 
         private async Task HandleSocketError(DiscordClient client, SocketErrorEventArgs args)
         {
-            Logger.Debug($"A socket error occurred. Error message: {args.Exception}");
+            Logger.DebugException($"A socket error occurred", args.Exception);
         }
 
         private async Task HandleSocketClosedOnConnection(DiscordClient client, SocketCloseEventArgs args)
@@ -354,7 +354,7 @@ namespace Eco.Plugins.DiscordLink
             DiscordMember member = channel.Guild.CurrentMember;
             if (member == null)
             {
-                Logger.Error($"CurrentMember was null when evaluating channel permissions for channel {channel.Name} ");
+                Logger.Error($"CurrentMember was null when evaluating channel permissions for channel \"{channel.Name}\"");
                 return false;
             }
 
@@ -494,7 +494,7 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (Exception e)
             {
-                Logger.Error($"Error occurred when attempting to read message with ID {messageID} from channel \"{channel.Name}\". Error message: {e}");
+                Logger.Exception($"Error occurred when attempting to read message with ID {messageID} from channel \"{channel.Name}\"", e);
                 return null;
             }
         }
@@ -510,12 +510,12 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (ServerErrorException e)
             {
-                Logger.Debug(e.ToString());
+                Logger.Debug($"ServerErrorException occurred while fetching messages from channel \"{channel.Name}. Exception: {e}");
                 return null;
             }
             catch (Exception e)
             {
-                Logger.Error($"Error occurred when attempting to read message history from channel \"{channel.Name}\". Error message: {e}");
+                Logger.DebugException($"Error occurred when attempting to read message history from channel \"{channel.Name}\"", e);
                 return null;
             }
         }
@@ -524,7 +524,7 @@ namespace Eco.Plugins.DiscordLink
         {
             if (!BotHasIntent(DiscordIntents.GuildMembers))
             {
-                Logger.Error("Attempted to get full guild member list without the bot having the privileged GuildMembers intent");
+                Logger.Error("Attempted to get full guild member list but the bot does not have the privileged GuildMembers intent");
                 return null;
             }
 
@@ -534,12 +534,12 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (ServerErrorException e)
             {
-                Logger.Debug(e.ToString());
+                Logger.Debug($"ServerErrorException occurred while fetching guild members. Exception: {e}");
                 return null;
             }
             catch (Exception e)
             {
-                Logger.Error($"Error occured when attempting to fetch all guild members. Error message: {e}");
+                Logger.Exception($"Error occured when attempting to fetch all guild members", e);
                 return null;
             }
         }
@@ -587,11 +587,11 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (ServerErrorException e)
             {
-                Logger.Debug(e.ToString());
+                Logger.Debug($"ServerErrorException occurred while sending message to channel \"{channel.Name}\". Exception: {e}");
             }
             catch (Exception e)
             {
-                Logger.Warning($"Failed to send message to channel {channel.Name}. Error message: {e}");
+                Logger.Exception($"Failed to send message to channel {channel.Name}", e);
             }
             return createdMessage;
         }
@@ -627,11 +627,11 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (ServerErrorException e)
             {
-                Logger.Debug(e.ToString());
+                Logger.Debug($"ServerErrorException occurred while sending message to member \"{targetMember.UniqueUsername()}\". Exception: {e}");
             }
             catch (Exception e)
             {
-                Logger.Debug($"Failed to send DM message to {targetMember.DisplayName}. Error message: {e}");
+                Logger.Exception($"Failed to send DM message to {targetMember.UniqueUsername()}", e);
             }
             return createdMessage;
         }
@@ -673,7 +673,7 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (ServerErrorException e)
             {
-                Logger.Debug(e.ToString());
+                Logger.Debug($"ServerErrorException occurred while modifying message in channel \"{message.Channel.Name}\". Exception: {e}");
             }
             catch (Exception e)
             {
@@ -681,7 +681,7 @@ namespace Eco.Plugins.DiscordLink
                 if (string.IsNullOrWhiteSpace(channelName))
                     channelName = "Unknown channel";
 
-                Logger.Error($"Failed to modify message in channel \"{channelName}\". Error message: {e}");
+                Logger.Exception($"Failed to modify message in channel \"{channelName}\"", e);
             }
             return editedMessage;
         }
@@ -706,7 +706,7 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (ServerErrorException e)
             {
-                Logger.Debug(e.ToString());
+                Logger.Debug($"ServerErrorException occurred while deleting message in channel \"{message.Channel.Name}\". Exception: {e}");
             }
             catch (Exception e)
             {
@@ -714,7 +714,7 @@ namespace Eco.Plugins.DiscordLink
                 if (string.IsNullOrWhiteSpace(channelName))
                     channelName = "Unknown channel";
 
-                Logger.Warning($"Failed to delete message from channel \"{channelName}\". Error message: {e}");
+                Logger.Exception($"Failed to delete message from channel \"{channelName}\"", e);
             }
             return result;
         }
@@ -731,30 +731,30 @@ namespace Eco.Plugins.DiscordLink
                 }
                 else
                 {
-                    Logger.Warning($"Failed to create role \"{dlRole.Name}\".");
+                    Logger.Error($"Failed to create role \"{dlRole.Name}\".");
                 }
 
                 return role;
             }
             catch (ServerErrorException e)
             {
-                Logger.Debug(e.ToString());
+                Logger.Debug($"ServerErrorException occurred while creating role \"{dlRole.Name}\". Exception: {e}");
             }
             catch (Exception e)
             {
-                Logger.Warning($"Failed to create role \"{dlRole.Name}\". Error message: {e}");
+                Logger.Exception($"Failed to create role \"{dlRole.Name}\"", e);
             }
             return await Task.FromResult<DiscordRole>(null);
         }
 
         public async Task AddRoleAsync(DiscordMember member, DiscordLinkRole dlRole)
         {
-            DiscordRole role = Guild.RoleByName(dlRole.Name);
-            if (role == null)
-                role = await CreateRoleAsync(dlRole);
+            DiscordRole discordRole = Guild.RoleByName(dlRole.Name);
+            if (discordRole == null)
+                discordRole = await CreateRoleAsync(dlRole);
 
-            if (role != null)
-                await AddRoleAsync(member, role);
+            if (discordRole != null)
+                await AddRoleAsync(member, discordRole);
         }
 
         public async Task AddRoleAsync(DiscordMember member, DiscordRole role)
@@ -770,11 +770,11 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (ServerErrorException e)
             {
-                Logger.Debug(e.ToString());
+                Logger.Debug($"ServerErrorException occurred while adding role \"{role.Name}\" to member \"{member.UniqueUsername()}\". Exception: {e}");
             }
             catch (Exception e)
             {
-                Logger.Warning($"Failed to grant role \"{role.Name}\" to member \"{member.DisplayName}\". Error message: {e}");
+                Logger.Exception($"Failed to grant role \"{role.Name}\" to member \"{member.UniqueUsername()}\"", e);
             }
         }
 
@@ -803,11 +803,11 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (ServerErrorException e)
             {
-                Logger.Debug(e.ToString());
+                Logger.Debug($"ServerErrorException occurred while removing role \"{role.Name}\" from member \"{member.UniqueUsername()}\". Exception: {e}");
             }
             catch (Exception e)
             {
-                Logger.Warning($"Failed to revoke role \"{role.Name}\" from member \"{member.DisplayName}\". Error message: {e}");
+                Logger.Exception($"Failed to revoke role \"{role.Name}\" from member \"{member.UniqueUsername()}\"", e);
             }
         }
 
@@ -822,11 +822,11 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (ServerErrorException e)
             {
-                Logger.Debug(e.ToString());
+                Logger.Debug($"ServerErrorException occurred while deleting role \"{role.Name}\". Exception: {e}");
             }
             catch (Exception e)
             {
-                Logger.Warning($"Failed to delete role \"{role.Name}\". Error message: {e}");
+                Logger.Exception($"Failed to delete role \"{role.Name}\"", e);
             }
         }
 

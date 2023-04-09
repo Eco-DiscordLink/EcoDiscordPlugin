@@ -67,7 +67,7 @@ namespace Eco.Plugins.DiscordLink.Events
                     }
                     catch (Exception e)
                     {
-                        Logger.Error($"Failed to accumulate trade events. Error: {e}");
+                        Logger.Exception($"Failed to accumulate trade events", e);
                     }
                 }
 
