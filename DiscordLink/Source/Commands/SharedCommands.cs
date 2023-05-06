@@ -75,7 +75,7 @@ namespace Eco.Plugins.DiscordLink
         {
             if (DiscordLink.Obj.Client.ConnectionStatus != DLDiscordClient.ConnectionState.Connected)
             {
-                await ReportCommandError(source, callContext, "Failed to force update - Disoord client not connected");
+                await ReportCommandError(source, callContext, "Failed to force update - Discord client not connected");
                 return false;
             }
 
