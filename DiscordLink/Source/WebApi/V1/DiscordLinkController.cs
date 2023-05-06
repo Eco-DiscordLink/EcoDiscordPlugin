@@ -57,7 +57,7 @@ namespace Eco.Plugins.DiscordLink
         {
 
             DLConfigData config = DLConfig.Data;
-            List<ChannelLinkStatusV1> channelLinks = new();
+            List<DiscordLinkChannelStatusV1> channelLinks = new();
 
             if (DiscordLink.Obj.Client.ConnectionStatus == DLDiscordClient.ConnectionState.Connected)
             {
@@ -66,7 +66,7 @@ namespace Eco.Plugins.DiscordLink
                 {
                     foreach (ChannelLink link in DLConfig.GetChannelLinks(verifiedLinksOnly: false))
                     {
-                        channelLinks.Add(new ChannelLinkStatusV1
+                        channelLinks.Add(new DiscordLinkChannelStatusV1
                         {
                             Id = link.DiscordChannelId.ToString(),
                             Valid = link.IsValid()
