@@ -82,15 +82,15 @@
       <HintPath Condition="Exists('..\..\Eco\Server\Eco.Simulation\bin\Release\net7.0-windows\Eco.Simulation.dll')">..\..\Eco\Server\Eco.Simulation\bin\Release\net7.0-windows\Eco.Simulation.dll</HintPath>
       <Private>false</Private>
     </Reference>
-	  <Reference Include="Eco.WorldGenerator">
-		  <HintPath Condition="Exists('..\Dependencies\Eco.WorldGenerator.dll')">..\Dependencies\Eco.WorldGenerator.dll</HintPath>
-		  <HintPath Condition="Exists('..\..\Eco\Server\Eco.WorldGenerator\bin\Release\net7.0-windows\Eco.WorldGenerator.dll')">..\..\Eco\Server\Eco.WorldGenerator\bin\Release\net7.0-windows\Eco.WorldGenerator.dll</HintPath>
-	  </Reference>
-	  <Reference Include="Eco.WebServer">
-		  <HintPath Condition="Exists('..\Dependencies\Eco.WebServer.dll')">..\Dependencies\Eco.WebServer.dll</HintPath>
-		  <HintPath Condition="Exists('..\..\Eco\Server\Eco.WebServer\bin\Release\net7.0-windows\Eco.WebServer.dll')">..\..\Eco\Server\Eco.WebServer\bin\Release\net7.0-windows\Eco.WebServer.dll</HintPath>
-		  <Private>False</Private>
-	  </Reference>
+	<Reference Include="Eco.WorldGenerator">
+	 <HintPath Condition="Exists('..\Dependencies\Eco.WorldGenerator.dll')">..\Dependencies\Eco.WorldGenerator.dll</HintPath>
+	 <HintPath Condition="Exists('..\..\Eco\Server\Eco.WorldGenerator\bin\Release\net7.0-windows\Eco.WorldGenerator.dll')">..\..\Eco\Server\Eco.WorldGenerator\bin\Release\net7.0-windows\Eco.WorldGenerator.dll</HintPath>
+	</Reference>
+	<Reference Include="Eco.WebServer">
+	 <HintPath Condition="Exists('..\Dependencies\Eco.WebServer.dll')">..\Dependencies\Eco.WebServer.dll</HintPath>
+	 <HintPath Condition="Exists('..\..\Eco\Server\Eco.WebServer\bin\Release\net7.0-windows\Eco.WebServer.dll')">..\..\Eco\Server\Eco.WebServer\bin\Release\net7.0-windows\Eco.WebServer.dll</HintPath>
+	 <Private>False</Private>
+	</Reference>
 	  
   </ItemGroup>
   
