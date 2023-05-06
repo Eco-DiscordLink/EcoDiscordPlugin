@@ -17,6 +17,7 @@ namespace Eco.Plugins.DiscordLink
 
         /// <summary>Force restart DiscordLink</summary>
         [HttpPost("restart")]
+        [Produces("application/json")]
         public async Task<bool> PostReloadPlugin()
         {
             return await SharedCommands.RestartPlugin(SharedCommands.CommandInterface.WebCommand, null);
@@ -24,6 +25,7 @@ namespace Eco.Plugins.DiscordLink
 
         /// <summary>Post an Invite to the discord server.</summary>
         [HttpPost("chat/invite")]
+        [Produces("application/json")]
         public async Task<bool> PostInviteMessage()
         {
             bool sent = await SharedCommands.PostInviteMessage(SharedCommands.CommandInterface.WebCommand, null);
@@ -33,6 +35,7 @@ namespace Eco.Plugins.DiscordLink
 
         /// <summary>Get the status of Discordlink.</summary>
         [HttpGet("status/plugin")]
+        [Produces("application/json")]
         public DiscordLinkPluginStatusV1 GetPluginStatus()
         {
             DiscordLink plugin = DiscordLink.Obj;
@@ -49,6 +52,7 @@ namespace Eco.Plugins.DiscordLink
 
         /// <summary>Get the status of the current Configuration.</summary>
         [HttpGet("status/config")]
+        [Produces("application/json")]
         public DiscordLinkConfigStatusV1 GetConfigValidationStatus()
         {
 
