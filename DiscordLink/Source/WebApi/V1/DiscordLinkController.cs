@@ -23,7 +23,7 @@ namespace Eco.Plugins.DiscordLink
         }
 
         /// <summary>Post an Invite to the discord server.</summary>
-        [HttpPost("/chat/invite")]
+        [HttpPost("chat/invite")]
         public async Task<bool> PostInviteMessage()
         {
             bool sent = await SharedCommands.PostInviteMessage(SharedCommands.CommandInterface.WebCommand, null);
