@@ -33,7 +33,9 @@ namespace Eco.Plugins.DiscordLink
             [ChoiceName("Eco")]
             Eco,
             [ChoiceName("Discord")]
-            Discord
+            Discord,
+            [ChoiceName("WebCommand")]
+            WebCommand
         }
 
 
@@ -41,7 +43,7 @@ namespace Eco.Plugins.DiscordLink
         {
             if (source == CommandInterface.Eco)
                 EcoCommands.ReportCommandError(callContext as User, message);
-            else
+            else if (source == CommandInterface.Discord)
                 await DiscordCommands.ReportCommandError(callContext as InteractionContext, message);
         }
 
@@ -49,7 +51,7 @@ namespace Eco.Plugins.DiscordLink
         {
             if (source == CommandInterface.Eco)
                 EcoCommands.ReportCommandInfo(callContext as User, message);
-            else
+            else if (source == CommandInterface.Discord)
                 await DiscordCommands.ReportCommandInfo(callContext as InteractionContext, message);
         }
 
