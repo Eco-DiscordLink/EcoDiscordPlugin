@@ -6,9 +6,6 @@
         public string PluginStatus;
         public string ServerVersion;
         public string PluginVersion;
-        public int LinkedUsers;
-        public int OptInUsers;
-        public int OptOutUsers;
         public string ClientName;
     }
 }
