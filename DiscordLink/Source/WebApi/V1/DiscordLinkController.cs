@@ -43,9 +43,6 @@ namespace Eco.Plugins.DiscordLink
                 PluginStatus = plugin.GetStatus(),
                 ServerVersion = EcoVersion.VersionNumber,
                 PluginVersion = plugin.PluginVersion.ToString(),
-                LinkedUsers = DLStorage.PersistentData.LinkedUsers.Count,
-                OptInUsers = DLStorage.PersistentData.OptedInUsers.Count,
-                OptOutUsers = DLStorage.PersistentData.OptedOutUsers.Count,
                 ClientName = client.DiscordClient.CurrentUser.Username
             };
         }
