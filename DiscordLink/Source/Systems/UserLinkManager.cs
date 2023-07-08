@@ -88,9 +88,9 @@ namespace Eco.Plugins.DiscordLink
         public static void ReportLinkLookupFailure(object caller, string callingContext)
         {
             if (caller is User user)
-                EcoUtils.SendErrorBoxToUser(user, $"{callingContext} Failed\nYou have not linked your Discord Account to DiscordLink on this Eco Server.\nUse the `/DL-Link` command to initiate account linking.");
+                EcoUtils.SendErrorBoxToUser(user, $"{callingContext} Failed\nYou have not linked your Discord Account to DiscordLink on this Eco Server.\nUse the `/DL LinkAccount` command to initiate account linking.");
             else if (caller is DiscordMember member)
-                _ = DiscordLink.Obj.Client.SendDMAsync(member, $"**{callingContext} Failed**\nYou have not linked your Discord Account to DiscordLink on this Eco Server.\nUse the `/DL-Link` command in Eco to initiate account linking.");
+                _ = DiscordLink.Obj.Client.SendDMAsync(member, $"**{callingContext} Failed**\nYou have not linked your Discord Account to DiscordLink on this Eco Server.\nUse the `/DL LinkAccount` command in Eco to initiate account linking.");
             else
                 Logger.Error("Attempted to fetch a linked user using an invalid caller argument");
         }
