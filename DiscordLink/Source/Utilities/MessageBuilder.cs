@@ -21,6 +21,7 @@ using Eco.Gameplay.Players;
 using Eco.Gameplay.Property;
 using Eco.Gameplay.Skills;
 using Eco.Gameplay.Systems.Balance;
+using Eco.Gameplay.Components.Store;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.Networking;
 using Eco.Simulation.Types;
@@ -34,8 +35,8 @@ using Eco.Gameplay.Disasters;
 
 using static Eco.Shared.Mathf; // Avoiding collisions with system mathf 
 
-using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
-using StoreOfferGroup = System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.StoreComponent, Eco.Gameplay.Components.TradeOffer>>;
+using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.Store.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
+using StoreOfferGroup = System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.Store.StoreComponent, Eco.Gameplay.Components.TradeOffer>>;
 using DSharpPlus.SlashCommands;
 using Eco.Gameplay.Civics;
 using Eco.Gameplay.Economy.Reputation.Internal;

@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using Eco.Gameplay.Components;
+using Eco.Gameplay.Components.Store;
 using Eco.Gameplay.Items;
 using Eco.Gameplay.Objects;
 using Eco.Gameplay.Players;
 using Eco.Shared.Utils;
 
-using LookupEntry = Eco.Plugins.DiscordLink.Utilities.Either<Eco.Gameplay.Items.Item, Eco.Gameplay.Players.User, Eco.Gameplay.Items.Tag, Eco.Gameplay.Components.StoreComponent>;
-using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
+using LookupEntry = Eco.Plugins.DiscordLink.Utilities.Either<Eco.Gameplay.Items.Item, Eco.Gameplay.Players.User, Eco.Gameplay.Items.Tag, Eco.Gameplay.Components.Store.StoreComponent>;
+using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.Store.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
 
 namespace Eco.Plugins.DiscordLink.Utilities
 {

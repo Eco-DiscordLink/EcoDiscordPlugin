@@ -1,5 +1,6 @@
 ﻿using Eco.Gameplay.Components;
 using Eco.Gameplay.Economy;
+using Eco.Gameplay.Economy.Transfer;
 using Eco.Gameplay.GameActions;
 using Eco.Gameplay.Items;
 using Eco.Gameplay.Objects;
