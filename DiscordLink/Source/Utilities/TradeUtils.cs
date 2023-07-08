@@ -27,7 +27,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
         private static List<LookupEntry> _itemLookup = null;
 
         public static List<LookupEntry> ItemLookup =>
-            _itemLookup ??= Item.AllItems.Select(item => new LookupEntry(item)).ToList();
+            _itemLookup ??= Item.AllItemsExceptHidden.Select(item => new LookupEntry(item)).ToList();
 
         private static List<LookupEntry> _tagLookup = null;
 
@@ -172,7 +172,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
         private static IEnumerable<Tag> FindTags()
         {
             List<Tag> uniqueTags = new List<Tag>();
-            foreach (Item item in Item.AllItems)
+            foreach (Item item in Item.AllItemsExceptHidden)
             {
                 foreach (Tag tag in item.Tags())
                 {
