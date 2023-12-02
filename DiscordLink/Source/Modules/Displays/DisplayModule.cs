@@ -282,7 +282,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 else if (userLink != null)
                 {
                     DiscordDmChannel dmChannel = await userLink.Member.CreateDmChannelAsync();
-                    targetMessages = await dmChannel.GetMessagesAsync();
+                    targetMessages = await plugin.Client.GetMessagesAsync(dmChannel);
                 }
 
                 if (targetMessages == null)
