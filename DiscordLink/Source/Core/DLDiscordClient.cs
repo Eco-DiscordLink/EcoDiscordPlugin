@@ -2,7 +2,10 @@
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
+using DSharpPlus.SlashCommands;
 using Eco.Core.Utils;
+using Eco.Core.Utils.Async;
+using Eco.EW.Tools;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
@@ -11,8 +14,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DSharpPlus.SlashCommands;
-using Eco.EW.Tools;
 
 namespace Eco.Plugins.DiscordLink
 {
@@ -486,7 +487,7 @@ namespace Eco.Plugins.DiscordLink
 
             try
             {
-                return await channel.GetMessagesAsync();
+                return await channel.GetMessagesAsync().ToList();
             }
             catch (ServerErrorException e)
             {
@@ -500,7 +501,7 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
-        public async Task<IReadOnlyCollection<DiscordMember>> GetGuildMembersAsync()
+        public async Task<IReadOnlyList<DiscordMember>> GetGuildMembersAsync()
         {
             if (!BotHasIntent(DiscordIntents.GuildMembers))
             {
@@ -510,7 +511,7 @@ namespace Eco.Plugins.DiscordLink
 
             try
             {
-                return await Guild.GetAllMembersAsync();
+                return await Guild.GetAllMembersAsync().ToList();
             }
             catch (ServerErrorException e)
             {
