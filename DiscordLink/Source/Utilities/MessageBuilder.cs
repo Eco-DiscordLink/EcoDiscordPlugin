@@ -790,9 +790,9 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 // Play time
                 if (flag.HasFlag(PlayerReportComponentFlag.PlayTime))
                 {
-                    report.AddField("Playtime Total", Shared.GetTimeDescription(user.OnlineTimeLog.SecondsOnline(0.0), annotate: true), inline: true);
-                    report.AddField("Playtime last 24 hours", Shared.GetTimeDescription(user.OnlineTimeLog.SecondsOnline(DLConstants.SECONDS_PER_DAY), Shared.TimespanStringComponent.Hour | Shared.TimespanStringComponent.Minute | Shared.TimespanStringComponent.Second, annotate: true), inline: true);
-                    report.AddField("Playtime Last 7 days", Shared.GetTimeDescription(user.OnlineTimeLog.SecondsOnline(DLConstants.SECONDS_PER_WEEK), annotate: true), inline: true);
+                    report.AddField("Playtime Total", Shared.GetTimeDescription(user.OnlineTimeLog.ActiveSeconds(0.0), annotate: true), inline: true);
+                    report.AddField("Playtime last 24 hours", Shared.GetTimeDescription(user.OnlineTimeLog.ActiveSeconds(DLConstants.SECONDS_PER_DAY), Shared.TimespanStringComponent.Hour | Shared.TimespanStringComponent.Minute | Shared.TimespanStringComponent.Second, annotate: true), inline: true);
+                    report.AddField("Playtime Last 7 days", Shared.GetTimeDescription(user.OnlineTimeLog.ActiveSeconds(DLConstants.SECONDS_PER_WEEK), annotate: true), inline: true);
                 }
 
                 // Exhaustion
@@ -914,7 +914,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     {
                         propertiessDesc.AppendLine(deed.Name.TrimEndString(" Deed"));
                         propertiessSizeOrVehicleDesc.AppendLine(deed.IsVehicle() ? deed.GetVehicle().Parent.CreatingItem.DisplayName : $"{deed.GetTotalPlotSize()}m²");
-                        propertiessLocationDesc.AppendLine(deed.IsVehicle() ? deed.GetVehicle().Parent.Position3i.ToString() : deed.CenterPos == null ? deed.CenterPos.ToString() : "Unknown");
+                        propertiessLocationDesc.AppendLine(deed.IsVehicle() ? deed.GetVehicle().Parent.Position3i.ToString() : deed.CachedCenterPos == null ? deed.CachedCenterPos.ToString() : "Unknown");
                     }
 
                     bool hasProperty = userDeeds.Count() > 0;

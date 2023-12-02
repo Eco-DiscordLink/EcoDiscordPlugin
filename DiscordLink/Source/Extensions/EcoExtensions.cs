@@ -1,5 +1,6 @@
 ﻿using Eco.Gameplay.Components;
 using Eco.Gameplay.Economy;
+using Eco.Gameplay.Economy.Money;
 using Eco.Gameplay.Economy.Transfer;
 using Eco.Gameplay.GameActions;
 using Eco.Gameplay.Items;
@@ -33,7 +34,7 @@ namespace Eco.Plugins.DiscordLink.Extensions
         public static float GetWealthInCurrency(this User user, Currency cur)
         {
             float wealth = 0.0f;
-            foreach (var account in Transfers.GetTaxableAccountsForUser(user, cur))
+            foreach (var account in BankAccountUtils.GetNonGovernmentAccountsAccessibleToUser(user, cur))
             {
                 float amount = account.GetCurrencyHoldingVal(cur, user);
                 if (amount < Transfers.AlmostZero)

@@ -1,4 +1,5 @@
 ﻿using Eco.Core.Systems;
+using Eco.Core.Utils;
 using Eco.EW.Tools;
 using Eco.Gameplay.Civics;
 using Eco.Gameplay.Civics.Demographics;
@@ -71,7 +72,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
         public static Demographic ActiveDemographicByID(int demographicID) => ActiveDemographics.FirstOrDefault(demographic => demographic.Id == demographicID);
         public static Demographic ActiveDemographicByNameOrID(string demographicNameOrID) => int.TryParse(demographicNameOrID, out int ID) ? ActiveDemographicByID(ID) : ActiveDemographicByName(demographicNameOrID);
 
-        public static IEnumerable<Title> ActiveTitles => TitleManager.Obj.ActiveTitles;
+        public static IEnumerable<Title> ActiveTitles => Registrars.All<Title>().Where(x => x.CachedValidity == Result.Succeeded);
         public static Title ActiveTitleByName(string titleName) => ActiveTitles.FirstOrDefault(title => title.Name.EqualsCaseInsensitive(titleName));
         public static Title ActiveTitleByID(int titleID) => ActiveTitles.FirstOrDefault(title => title.Id == titleID);
         public static Title ActiveTitleByNameOrID(string titleNameOrID) => int.TryParse(titleNameOrID, out int ID) ? ActiveTitleByID(ID) : ActiveTitleByName(titleNameOrID);
