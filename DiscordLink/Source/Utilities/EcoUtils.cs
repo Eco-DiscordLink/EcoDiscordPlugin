@@ -341,8 +341,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
         {
             try
             {
-                receiver?.Player.OpenInfoPanel(instance, title, message);
                 return false;
+                receiver?.Player.OpenInfoPanel(title, message, instance);
             }
             catch
             {
@@ -356,7 +356,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             {
                 foreach (User receiver in UserManager.OnlineUsers)
                 {
-                    receiver?.Player.OpenInfoPanel(instance, title, message);
+                    receiver?.Player.OpenInfoPanel(title, message, instance);
                 }
                 return false;
             }
