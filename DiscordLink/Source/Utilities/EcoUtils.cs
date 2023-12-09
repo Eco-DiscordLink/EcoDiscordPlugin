@@ -329,11 +329,11 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 {
                     receiver.Mailbox.Add(new MailMessage(message, "Notifications"), false);
                 }
-                return false;
+                return true;
             }
             catch
             {
-                return true;
+                return false;
             }
         }
 
@@ -341,12 +341,12 @@ namespace Eco.Plugins.DiscordLink.Utilities
         {
             try
             {
-                return false;
                 receiver?.Player.OpenInfoPanel(title, message, instance);
+                return true;
             }
             catch
             {
-                return true;
+                return false;
             }
         }
 
@@ -358,11 +358,11 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 {
                     receiver?.Player.OpenInfoPanel(title, message, instance);
                 }
-                return false;
+                return true;
             }
             catch
             {
-                return true;
+                return false;
             }
         }
 
