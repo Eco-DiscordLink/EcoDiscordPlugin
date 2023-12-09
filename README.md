@@ -77,6 +77,7 @@ For information on how to set up the development environment, see the [project s
 **bozoweed** - Eco 8.0 update compatibility.  
 **Lord-Helmchen** - Fixed support for multiple chat links.  
 **R3sist3nt** - Fixed an issue related to handling missing permissions.
+**StalEF** - Updateded the DiscordLink logo for Eco 10.0.  
 
 
 \
