@@ -23,7 +23,7 @@ The config data needs to match your Eco server, Discord server and Discord bot.
 
 ```
 {  
-  "DiscordServerID": "112233445566778899",  
+  "DiscordServerID": 112233445566778899,  
   "BotToken": "xxXXxxxXxXXxxxxxxXxxxxXXXXxxx.XxxXxx.xXXXxxxxXXxxxxXxxxXXXXXXXxxxxxxxX",  
     "AdminRoles": [  
     "admin",  
