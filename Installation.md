@@ -48,31 +48,31 @@ If you are not using the server GUI, you instead need to fill out this field in 
 
 ![Config box](images/installation/bot_token.png)
 
-### 12. Enter the ID of your Discord server into the "Discord Server ID" field. To get this ID, right click your server in Discord and select "Copy ID" and it will be copied to your clipboard.
-
-![Discord Server Name](images/installation/server_name.png)
-
-### 13. Restart the DiscordLink plugin to make the changes take effect.
-
-![Plugin Restart](images/installation/plugin_restart.png)
-
-### 14. Navigate back to the bot's page and the "General Information" tab on the Discord website (see above). Copy the "Application ID" - you will need it in the next section.
+### 12. Navigate back to the bot's page and the "General Information" tab on the Discord website (see above). Copy the "Application ID" - you will need it in the next section.
 
 ![Discord application id](images/installation/application_id.png)
 
-### 15. Before you leave the bot's page, enable the "Server Members Intent" and "Message Content Intent" for your bot.
+### 13. Before you leave the bot's page, enable the "Server Members Intent" and "Message Content Intent" for your bot.
 * The Server members intent allows DiscordLink to search for users in your Discord server when trying to link an Eco account to a Discord account.
 * The Message Content Intent is needed for DiscordLink to read chat messages.
 
 ![Intents](images/installation/intents.png)
 
-### 16. Go to <https://discordapi.com/permissions.html#268659776>. Paste the Application ID in the bottom left field labelled "Client ID", and add any extra permissions you want the bot to have. Click the link at the bottom.
+### 14. Go to <https://discordapi.com/permissions.html#268659776>. Paste the Application ID in the bottom left field labelled "Client ID", and add any extra permissions you want the bot to have. Click the link at the bottom.
 
 ![Setting permissions](images/installation/permissions_setup.png)
 
-### 17. Set the server you want to invite the bot to, then click "Continue".
+### 15. Set the server you want to invite the bot to, then click "Continue".
 
 ![Invite to server](images/installation/invite_bot.png)
+
+### 16. Enter the ID of your Discord server into the "Discord Server ID" field. To get this ID, right click your server in Discord and select "Copy ID" and it will be copied to your clipboard.
+
+![Discord Server Name](images/installation/server_name.png)
+
+### 17. Restart the DiscordLink plugin to make the changes take effect.
+
+![Plugin Restart](images/installation/plugin_restart.png)
 
 ### 18. Check your Discord server to see that the bot is online when the server is running.
 **Offline**
