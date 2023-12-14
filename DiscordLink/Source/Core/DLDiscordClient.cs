@@ -183,7 +183,7 @@ namespace Eco.Plugins.DiscordLink
                 ConnectionStatus = ConnectionState.Disconnected;
                 LastConnectionError = ConnectionError.GuildConnectionFailed;
                 Status = "Failed to find configured Discord server";
-                Logger.Error($"Failed to find Discord server \"{DLConfig.Data.DiscordServerID}\"");
+                Logger.Error($"Failed to find Discord server \"{DLConfig.Data.DiscordServerID}\". Make sure the Bot is invited to your Server and the Server ID is correct. See Github page for install instructions.");
                 return;
             }
 
