@@ -106,10 +106,11 @@ namespace Eco.Plugins.DiscordLink
             DLStorage.Instance.Initialize();
 
             WorldGeneratorPlugin.OnFinishGenerate.AddUnique(this.HandleWorldReset);
-            PluginManager.Controller.RunIfOrWhenInited(PostServerInitialize); // Defer some initialization for when the server initialization is completed
-
+            
             // Start the Discord client so that a connection has hopefully been established before the server is done initializing
             _ = Client.Start();
+            
+            PluginManager.Controller.RunIfOrWhenInited(PostServerInitialize); // Defer some initialization for when the server initialization is completed
 
             // Check mod versioning if the required data exists
             if (!string.IsNullOrWhiteSpace(ModIOAppID) && !string.IsNullOrWhiteSpace(ModIODeveloperToken))
@@ -120,19 +121,25 @@ namespace Eco.Plugins.DiscordLink
 
         private async void PostServerInitialize()
         {
-            Status = "Performing post server start initialization";
+            Status = "Awaiting Guild Download..";
 
-            if (string.IsNullOrEmpty(DLConfig.Data.BotToken) || Client.ConnectionStatus != DLDiscordClient.ConnectionState.Connected)
+            if (string.IsNullOrEmpty(DLConfig.Data.BotToken))
             {
-                Status = "Initialization aborted";
-                Client.OnConnected.Add(HandleClientConnected);
-                if (!string.IsNullOrEmpty(DLConfig.Data.BotToken))
-                    Logger.Error("Discord client did not connect before server initialization was completed. Use restart commands to make a new connection attempt");
-
-                CanRestart = true;
+                HandleDiscordConnectionFailed("Failed to start DiscordLink: Missing BotToken.");
                 return;
             }
 
+            // The Server is Started at this point, but the guild download might not have been completed yet, so we wait for it.
+            await DelayPostInitUntilConnectionAttemptIsCompleted();
+            
+            if (Client.ConnectionStatus == DLDiscordClient.ConnectionState.Disconnected)
+            {
+                HandleDiscordConnectionFailed("Failed to start DiscordLink. See previous errors for more Information.");
+                return;
+            }
+            CanRestart = true;
+
+            Status = "Performing post server start initialization";
             HandleClientConnected();
 
             if (_triggerWorldResetEvent)
@@ -143,6 +150,32 @@ namespace Eco.Plugins.DiscordLink
 
             await HandleEvent(DLEventType.ServerStarted, null);
         }
+
+        private void HandleDiscordConnectionFailed(string message)
+        {
+            Status = "Initialization aborted";
+            Client.OnConnected.Add(HandleClientConnected);
+            Logger.Error(message);
+            CanRestart = true;
+        }
+
+        private async Task DelayPostInitUntilConnectionAttemptIsCompleted()
+        {
+            int connectingTimePassed = 0;
+            while (Client.ConnectionStatus == DLDiscordClient.ConnectionState.Connecting)
+            {
+                connectingTimePassed++;
+                await Task.Delay(1000);
+
+                // Warn after 5 seconds, then every minute.
+                if (connectingTimePassed == 5 || connectingTimePassed % 60 == 0)
+                {
+                    Logger.Info(
+                        "DiscordLink is still trying to connect to Discord.. If this message keeps appearing, make sure your BotToken is correct and discord.com is reachable from your Server.");
+                }
+            }
+        }
+
 
         public async Task ShutdownAsync()
         {
@@ -365,11 +398,11 @@ namespace Eco.Plugins.DiscordLink
         {
             Status = "Shutting down modules";
 
-            foreach (Module module in Modules)
+            foreach (Module module in Modules.NonNull())
             {
                 await module.Stop();
             }
-            foreach (Module module in Modules)
+            foreach (Module module in Modules.NonNull())
             {
                 module.Destroy();
             }
