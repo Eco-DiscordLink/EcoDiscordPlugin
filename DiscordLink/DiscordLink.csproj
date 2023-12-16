@@ -46,13 +46,13 @@
   
   <ItemGroup>
     <!-- Use locally built Eco dlls if available and dependency dir references otherwise -->
+    <Reference Include="EcoWorldCore">
+      <HintPath>..\Dependencies\EcoWorldCore.dll</HintPath>
+    </Reference>
     <Reference Include="Eco.Core">
       <HintPath Condition="Exists('..\Dependencies\Eco.Core.dll')">..\Dependencies\Eco.Core.dll</HintPath>
       <HintPath Condition="Exists('..\..\Eco\Server\Eco.Core\bin\Release\net7.0\Eco.Core.dll')">..\..\Eco\Server\Eco.Core\bin\Release\net7.0\Eco.Core.dll</HintPath>
       <Private>false</Private>
-    </Reference>
-    <Reference Include="Eco.EW.Core">
-      <HintPath>..\Dependencies\Eco.EW.Core.dll</HintPath>
     </Reference>
     <Reference Include="Eco.Gameplay">
       <HintPath Condition="Exists('..\Dependencies\Eco.Gameplay.dll')">..\Dependencies\Eco.Gameplay.dll</HintPath>
