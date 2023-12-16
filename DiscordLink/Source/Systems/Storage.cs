@@ -74,10 +74,12 @@ namespace Eco.Plugins.DiscordLink
         public void Read()
         {
             PersistentStorageData persistentData = PersistentData;
-            EW.Utils.Persistance.ReadJsonFromFile<PersistentStorageData>(DLConstants.STORAGE_PATH_ABS, PERSISANT_STORAGE_FILE_NAME, ref persistentData);
+            if (EW.Utils.Persistance.ReadJsonFromFile<PersistentStorageData>(DLConstants.STORAGE_PATH_ABS, PERSISANT_STORAGE_FILE_NAME, ref persistentData))
+                PersistentData = persistentData;
 
             WorldStorageData worldData = WorldData;
-            EW.Utils.Persistance.ReadJsonFromFile<WorldStorageData>(DLConstants.STORAGE_PATH_ABS, WORLD_STORAGE_FILE_NAME, ref worldData);
+            if (EW.Utils.Persistance.ReadJsonFromFile<WorldStorageData>(DLConstants.STORAGE_PATH_ABS, WORLD_STORAGE_FILE_NAME, ref worldData))
+                WorldData = worldData;
         }
 
         public void HandleEvent(DLEventType eventType, params object[] data)
