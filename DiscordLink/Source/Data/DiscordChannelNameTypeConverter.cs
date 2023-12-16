@@ -74,8 +74,11 @@ namespace Eco.Plugins.DiscordLink
         {
             if (value != null && destinationType == typeof(string) && value.GetType() == typeof(ulong))
             {
-                if (DiscordLink.Obj?.Client?.Guild?.Channels?.Values == null) return "No Connection";
-                if ((ulong)value == 0) return "Select a Channel";
+                if (DiscordLink.Obj?.Client?.Guild?.Channels?.Values == null) 
+                    return "No Connection";
+                
+                if ((ulong)value == 0) 
+                    return "Select a Channel";
 
                 var channels = DiscordLink.Obj.Client.Guild.Channels.Values;
                 return channels.Where(channel => channel.Id == (ulong)value).Select(FormatChannelString).FirstOrDefault() ?? $"<Unknown Channel> ({value})";

@@ -121,7 +121,7 @@ namespace Eco.Plugins.DiscordLink
 
         private async void PostServerInitialize()
         {
-            Status = "Awaiting Guild Download..";
+            Status = "Awaiting Guild Download";
 
             if (string.IsNullOrEmpty(DLConfig.Data.BotToken))
             {
@@ -170,8 +170,7 @@ namespace Eco.Plugins.DiscordLink
                 // Warn after 5 seconds, then every minute.
                 if (connectingTimePassed == 5 || connectingTimePassed % 60 == 0)
                 {
-                    Logger.Info(
-                        "DiscordLink is still trying to connect to Discord.. If this message keeps appearing, make sure your BotToken is correct and discord.com is reachable from your Server.");
+                    Logger.Info("DiscordLink is still trying to connect to Discord.. If this message keeps appearing, make sure your BotToken is correct and discord.com is reachable from your Server.");
                 }
             }
         }
