@@ -1,5 +1,6 @@
 ﻿using DSharpPlus.Entities;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
@@ -20,9 +21,13 @@ namespace Eco.Plugins.DiscordLink
 
         public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
-            var foundChannelIds = DiscordLink.Obj.Client.Guild.Channels.Values.Where(channel => channel.Type == DSharpPlus.ChannelType.Text).Select(c => c.Id).ToList();
+            var foundChannelIds = DiscordLink.Obj?.Client?.Guild?.Channels?.Values?
+                .Where(channel => channel.Type == DSharpPlus.ChannelType.Text)
+                .OrderBy(channel => channel.Name)
+                .Select(c => c.Id)
+                .ToList();
 
-            return new StandardValuesCollection(foundChannelIds);
+            return new StandardValuesCollection(foundChannelIds ?? new List<ulong>());
         }
         public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
         {
@@ -69,7 +74,11 @@ namespace Eco.Plugins.DiscordLink
         {
             if (value != null && destinationType == typeof(string) && value.GetType() == typeof(ulong))
             {
-                if ((ulong)value == 0) return "Select a Channel";
+                if (DiscordLink.Obj?.Client?.Guild?.Channels?.Values == null) 
+                    return "No Connection";
+                
+                if ((ulong)value == 0) 
+                    return "Select a Channel";
 
                 var channels = DiscordLink.Obj.Client.Guild.Channels.Values;
                 return channels.Where(channel => channel.Id == (ulong)value).Select(FormatChannelString).FirstOrDefault() ?? $"<Unknown Channel> ({value})";

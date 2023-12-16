@@ -350,6 +350,10 @@ namespace Eco.Plugins.DiscordLink.Utilities
                             if (!client.ChannelHasPermission(link.Channel, permission))
                             {
                                 builder.AppendLine($"- Missing Channel Permission \"{permission}\" in channel \"{link.Channel.Name}\".");
+                                if (client.BotHasPermission(permission))
+                                {
+                                    builder.AppendLine($"  ^ This is only related to the Channel's settings inside your Discord Server and not the DiscordLink configuration.");
+                                }
                             }
                         }
                     }
