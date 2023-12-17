@@ -84,7 +84,7 @@ namespace Eco.Plugins.DiscordLink.Extensions
                     string shortLine = line;
                     if (line.Length > DLConstants.DISCORD_EMBED_FIELD_CHARACTER_PER_LINE_LIMIT)
                         shortLine = $"{line.Substring(0, DLConstants.DISCORD_EMBED_FIELD_CHARACTER_PER_LINE_LIMIT - 3)}...";
-                    builder.AppendLine(shortLine);
+                    builder.Append($"{shortLine}\n");
                 }
                 text = builder.ToString();
             }
