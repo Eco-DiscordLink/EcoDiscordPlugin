@@ -1,5 +1,7 @@
 ﻿using Eco.EW.Tools;
 using Eco.Plugins.DiscordLink.Events;
+using System;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink.Modules
@@ -13,7 +15,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected override DLEventType GetTriggers()
         {
-            return DLEventType.ServerLogWritten;
+            return DLEventType.AccumulatedServerLog;
         }
 
         protected override async Task<bool> ShouldRun()
@@ -28,7 +30,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
         {
-            if (!(data[0] is Logger.LogLevel logLevel) || !(data[1] is string message))
+            if (!(data[0] is Tuple<Logger.LogLevel, string>[] logData))
                 return;
 
             foreach (ServerLogFeedChannelLink serverFeedLink in DLConfig.Data.ServerLogFeedChannels)
@@ -36,11 +38,20 @@ namespace Eco.Plugins.DiscordLink.Modules
                 if (!serverFeedLink.IsValid())
                     continue;
 
-                if (serverFeedLink.LogLevel > logLevel)
-                    continue;
+                StringBuilder accumulatedLogBuilder = new StringBuilder();
+                foreach(Tuple<Logger.LogLevel, string> logEntry in logData)
+                {
+                    if (serverFeedLink.LogLevel > logEntry.Item1)
+                        continue;
 
-                await DiscordLink.Obj.Client.SendMessageAsync(serverFeedLink.Channel, FormatLogMessage(logLevel, message));
-                ++_opsCount;
+                    accumulatedLogBuilder.AppendLine(FormatLogMessage(logEntry.Item1, logEntry.Item2) );
+                }
+
+                if(accumulatedLogBuilder.Length > 0)
+                {
+                    await DiscordLink.Obj.Client.SendMessageAsync(serverFeedLink.Channel, accumulatedLogBuilder.ToString());
+                    ++_opsCount;
+                }
             }
         }
 

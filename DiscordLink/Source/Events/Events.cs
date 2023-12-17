@@ -41,7 +41,7 @@ namespace Eco.Plugins.DiscordLink.Events
         EnteredDemographic          = 1L << 32,
         LeftDemographic             = 1L << 33,
         GainedSpecialty             = 1L << 34,
-        ServerLogWritten            = 1L << 35,
+        AccumulatedServerLog        = 1L << 35,
     }
     #pragma warning restore format
 }

@@ -51,7 +51,6 @@ namespace Eco.Plugins.DiscordLink
         private Action<Election> OnElectionStarted;
         private Action<Election> OnElectionFinished;
         private Action<DLEventArgs> OnEventConverted;
-        private Action<string> OnLogWritten;
         private EventHandler<LinkedUser> OnLinkedUserVerified;
         private EventHandler<LinkedUser> OnLinkedUserRemoved;
 
@@ -494,7 +493,6 @@ namespace Eco.Plugins.DiscordLink
             OnEventConverted = async args => await HandleEvent(args.EventType, args.Data);
             OnLinkedUserVerified = async (sender, args) => await HandleEvent(DLEventType.AccountLinkVerified, args);
             OnLinkedUserRemoved = async (sender, args) => await HandleEvent(DLEventType.AccountLinkRemoved, args);
-            OnLogWritten = EventConverter.Instance.ConvertServerLogEvent;
         }
 
         private void RegisterCallbacks()
@@ -505,7 +503,6 @@ namespace Eco.Plugins.DiscordLink
             Election.ElectionStartedEvent.Add(OnElectionStarted);
             Election.ElectionFinishedEvent.Add(OnElectionFinished);
             EventConverter.OnEventConverted.Add(OnEventConverted);
-            ClientLogEventTrigger.OnLogWritten += (message) => EventConverter.Instance.ConvertServerLogEvent(message);
             UserLinkManager.OnLinkedUserVerified += OnLinkedUserVerified;
             UserLinkManager.OnLinkedUserRemoved += OnLinkedUserRemoved;
         }
@@ -518,7 +515,6 @@ namespace Eco.Plugins.DiscordLink
             Election.ElectionStartedEvent.Remove(OnElectionStarted);
             Election.ElectionFinishedEvent.Remove(OnElectionFinished);
             EventConverter.OnEventConverted.Remove(OnEventConverted);
-            ClientLogEventTrigger.OnLogWritten -= (message) => EventConverter.Instance.ConvertServerLogEvent(message);
             UserLinkManager.OnLinkedUserVerified -= OnLinkedUserVerified;
             UserLinkManager.OnLinkedUserRemoved -= OnLinkedUserRemoved;
         }
