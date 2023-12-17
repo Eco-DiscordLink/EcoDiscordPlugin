@@ -4,7 +4,6 @@ using Eco.Core;
 using Eco.Core.Plugins;
 using Eco.Core.Plugins.Interfaces;
 using Eco.Core.Utils;
-using Eco.Core.Utils.Logging;
 using Eco.EW.Tools;
 using Eco.Gameplay.Aliases;
 using Eco.Gameplay.Civics.Elections;
@@ -19,6 +18,7 @@ using Eco.Shared.Utils;
 using Eco.WorldGenerator;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -57,21 +57,59 @@ namespace Eco.Plugins.DiscordLink
 
         public override string ToString() => "DiscordLink";
         public string GetCategory() => "DiscordLink";
-        public string GetStatus() => Status;
+        public string GetStatus() => _statusDescription;
         public object GetEditObject() => DLConfig.Data;
         public void OnEditObjectChanged(object o, string param) => _ = DLConfig.Instance.HandleConfigChanged();
         public LazyResult ShouldOverrideAuth(IAlias alias, IOwned property, GameAction action) => LazyResult.FailedNoMessage;
 
-        public string Status
+        public StatusState Status
         {
             get { return _status; }
             private set
             {
                 Logger.Debug($"Plugin status changed from \"{_status}\" to \"{value}\"");
                 _status = value;
+                _statusDescription = EW.Utils.Text.GetEnumDescription(value);
             }
         }
-        private string _status = "Uninitialized";
+        private StatusState _status = StatusState.Uninitialized;
+        private string _statusDescription = EW.Utils.Text.GetEnumDescription(StatusState.Uninitialized);
+        public enum StatusState
+        {
+            [Description("Uninitialized")]
+            Uninitialized,
+
+            [Description("Initializing plugin")]
+            InitializingPlugin,
+
+            [Description("Initializing modules")]
+            InitializingModules,
+
+            [Description("Initialization aborted")]
+            InitializationAborted,
+
+            [Description("Awaiting guild download")]
+            AwaitingGuildDownload,
+
+            [Description("Performing post server init")]
+            PostServerInit,
+
+            [Description("Shutting down plugin")]
+            ShuttingDownPlugin,
+
+            [Description("Shutting down modules")]
+            ShuttingDownModules,
+
+            [Description("Connected and running")]
+            Connected,
+
+            [Description("Discord server connection failed")]
+            ServerConnectionFailed,
+
+            [Description("Disconnected")]
+            Disconnected,
+        }
+
         private Timer _activityUpdateTimer = null;
 
         #region Plugin Management
@@ -99,7 +137,7 @@ namespace Eco.Plugins.DiscordLink
             InitCallbacks();
             DLConfig.Instance.Initialize();
             Logger.RegisterLogger("DiscordLink", ConsoleColor.Cyan, DLConfig.Data.LogLevel);
-            Status = "Initializing";
+            Status = StatusState.InitializingPlugin;
             InitTime = DateTime.Now;
 
             EventConverter.Instance.Initialize();
@@ -121,7 +159,7 @@ namespace Eco.Plugins.DiscordLink
 
         private async void PostServerInitialize()
         {
-            Status = "Awaiting Guild Download";
+            Status = StatusState.AwaitingGuildDownload;
 
             if (string.IsNullOrEmpty(DLConfig.Data.BotToken))
             {
@@ -139,7 +177,7 @@ namespace Eco.Plugins.DiscordLink
             }
             CanRestart = true;
 
-            Status = "Performing post server start initialization";
+            Status = StatusState.PostServerInit;
             HandleClientConnected();
 
             if (_triggerWorldResetEvent)
@@ -153,7 +191,7 @@ namespace Eco.Plugins.DiscordLink
 
         private void HandleDiscordConnectionFailed(string message)
         {
-            Status = "Initialization aborted";
+            Status = StatusState.InitializationAborted;
             Client.OnConnected.Add(HandleClientConnected);
             Logger.Error(message);
             CanRestart = true;
@@ -178,7 +216,7 @@ namespace Eco.Plugins.DiscordLink
 
         public async Task ShutdownAsync()
         {
-            Status = "Shutting down";
+            Status = StatusState.ShuttingDownPlugin;
 
             await HandleEvent(DLEventType.ServerStopped, null);
             ShutdownModules();
@@ -244,7 +282,7 @@ namespace Eco.Plugins.DiscordLink
             DLConfig.Instance.PostConnectionInitialize();
             if (Client.Guild == null)
             {
-                Status = "Discord Server connection failed";
+                Status = StatusState.ServerConnectionFailed;
                 CanRestart = true;
                 return;
             }
@@ -258,7 +296,7 @@ namespace Eco.Plugins.DiscordLink
             Client.OnDisconnecting.Add(HandleClientDisconnecting);
             _ = HandleEvent(DLEventType.DiscordClientConnected);
 
-            Status = "Connected and running";
+            Status = StatusState.Connected;
             Logger.Info("Connection Successful - DiscordLink Running");
             CanRestart = true;
         }
@@ -273,7 +311,7 @@ namespace Eco.Plugins.DiscordLink
             ShutdownModules();
             Client.OnConnected.Add(HandleClientConnected);
 
-            Status = "Disconnected";
+            Status = StatusState.Disconnected;
         }
 
         public void ActionPerformed(GameAction action)
@@ -361,7 +399,7 @@ namespace Eco.Plugins.DiscordLink
 
         private async void InitializeModules()
         {
-            Status = "Initializing modules";
+            Status = StatusState.InitializingModules;
 
             Modules[(int)ModuleType.CurrencyDisplay] = new CurrencyDisplay();
             Modules[(int)ModuleType.ElectionDisplay] = new ElectionDisplay();
@@ -395,7 +433,7 @@ namespace Eco.Plugins.DiscordLink
 
         private async void ShutdownModules()
         {
-            Status = "Shutting down modules";
+            Status = StatusState.ShuttingDownModules;
 
             foreach (Module module in Modules.NonNull())
             {
