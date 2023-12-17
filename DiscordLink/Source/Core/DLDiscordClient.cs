@@ -349,23 +349,28 @@ namespace Eco.Plugins.DiscordLink
 
         public bool ChannelHasPermission(DiscordChannel channel, Permissions permission)
         {
-            if (channel.IsPrivate)
-                return true; // Assume permission is given for DMs
-
-            DiscordMember member = channel.Guild.CurrentMember;
-            if (member == null)
+            if (BotMember == null)
             {
-                Logger.Error($"CurrentMember was null when evaluating channel permissions for channel \"{channel.Name}\"");
+                Logger.Error($"BotMember was null when evaluating channel permissions for channel \"{channel.Name}\"");
                 return false;
             }
 
-            return channel.PermissionsFor(member).HasPermission(permission);
+            if (channel.IsPrivate)
+                return true; // Assume permission is given for DMs
+
+            return channel.PermissionsFor(BotMember).HasPermission(permission);
         }
 
         public bool BotHasPermission(Permissions permission)
         {
+            if (BotMember == null)
+            {
+                Logger.Error($"BotMember was null when evaluating bot permissions");
+                return false;
+            }
+
             bool hasPermission = false;
-            foreach (DiscordRole role in Guild.Roles.Values)
+            foreach (DiscordRole role in BotMember.Roles)
             {
                 if (role.CheckPermission(permission) == PermissionLevel.Allowed)
                 {
