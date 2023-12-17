@@ -315,7 +315,7 @@ namespace Eco.Plugins.DiscordLink
         public string ServerLogo { get; set; }
 
         [Description("The game server connection information to display to users. This setting can be changed while the server is running."), Category("Base Configuration - Eco")]
-        public string ConnectionInfo { get; set; } = $"<eco://connect/{NetworkManager.Config.ID.ToString()}>";
+        public string ConnectionInfo { get; set; } = $"Server ID: {NetworkManager.Config.ID.ToString()}";
 
         [Description("Whether chat message should be synchroinized by default or not. This setting can be changed while the server is running."), Category("Base Configuration - Eco")]
         public ChatSyncMode ChatSyncMode { get; set; } = DLConfig.DefaultValues.ChatSynchronizationMode;
