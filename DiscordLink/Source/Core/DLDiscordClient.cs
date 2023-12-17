@@ -810,6 +810,10 @@ namespace Eco.Plugins.DiscordLink
             {
                 Logger.Debug($"ServerErrorException occurred while deleting role \"{role.Name}\". Exception: {e}");
             }
+            catch (UnauthorizedException e)
+            {
+                Logger.Exception($"Failed to delete role \"{role.Name}\". Please ensure that DiscordLink has permission to manage roles and that the role being deleted is of lower rank the the highest ranked role assigned to DiscordLink.", e);
+            }
             catch (Exception e)
             {
                 Logger.Exception($"Failed to delete role \"{role.Name}\"", e);
