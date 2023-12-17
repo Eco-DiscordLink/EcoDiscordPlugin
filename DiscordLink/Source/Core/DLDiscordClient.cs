@@ -492,7 +492,7 @@ namespace Eco.Plugins.DiscordLink
 
             try
             {
-                return await channel.GetMessagesAsync().ToList();
+                return await channel.GetMessagesAsync();
             }
             catch (ServerErrorException e)
             {
@@ -506,7 +506,7 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
-        public async Task<IReadOnlyList<DiscordMember>> GetGuildMembersAsync()
+        public async Task<IReadOnlyCollection<DiscordMember>> GetGuildMembersAsync()
         {
             if (!BotHasIntent(DiscordIntents.GuildMembers))
             {
@@ -516,7 +516,7 @@ namespace Eco.Plugins.DiscordLink
 
             try
             {
-                return await Guild.GetAllMembersAsync().ToList();
+                return await Guild.GetAllMembersAsync();
             }
             catch (ServerErrorException e)
             {
