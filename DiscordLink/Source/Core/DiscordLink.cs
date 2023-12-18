@@ -326,8 +326,8 @@ namespace Eco.Plugins.DiscordLink
                     _ = HandleEvent(DLEventType.Trade, currencyTrade);
                     break;
 
-                case WorkOrderAction workOrderAction:
-                    _ = HandleEvent(DLEventType.WorkOrderCreated, workOrderAction);
+                case CreateWorkOrder createWorkOrderAction:
+                    _ = HandleEvent(DLEventType.WorkOrderCreated, createWorkOrderAction);
                     break;
 
                 case PostedWorkParty postedWorkParty:
