@@ -593,12 +593,21 @@ namespace Eco.Plugins.DiscordLink
 
         #region Snippets
 
-        [SlashCommand("DiscordSnippet", "Posts a predefined snippet to Discord.")]
-        public async Task Snippet(InteractionContext ctx, [Option("Key", "Key of the snippet to post. Displays the key list if omitted.")] string snippetKey = "", [Option("Context", "Where the snippet should be sent.")] CommandInterface commandTarget = CommandInterface.Discord)
+        [SlashCommand("Snippet", "Posts a predefined snippet to Eco or Discord.")]
+        public async Task Snippet(InteractionContext ctx, [Option("Key", "Key of the snippet to post. Displays the key list if omitted.")] string snippetKey = "")
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.Snippet(CommandInterface.Discord, ctx, commandTarget, ctx.GetSenderName(), snippetKey);
+                await SharedCommands.Snippet(CommandInterface.Discord, ctx, CommandInterface.Discord, ctx.GetSenderName(), snippetKey);
+            }, ctx);
+        }
+
+        [SlashCommand("EcoSnippet", "Posts a predefined snippet to Eco.")]
+        public async Task EcoSnippet(InteractionContext ctx, [Option("Key", "Key of the snippet to post. Displays the key list if omitted.")] string snippetKey = "")
+        {
+            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
+            {
+                await SharedCommands.Snippet(CommandInterface.Discord, ctx, CommandInterface.Eco, ctx.GetSenderName(), snippetKey);
             }, ctx);
         }
 
