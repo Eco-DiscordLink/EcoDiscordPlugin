@@ -20,6 +20,7 @@ using Eco.Shared.Items;
 using Eco.Shared.Localization;
 using Eco.Shared.Networking;
 using Eco.Shared.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using User = Eco.Gameplay.Players.User;
@@ -197,11 +198,12 @@ namespace Eco.Plugins.DiscordLink.Utilities
             try
             {
                 receiver?.Player?.OkBoxLoc($"{message}");
-                return false;
-            }
-            catch
-            {
                 return true;
+            }
+            catch(Exception e)
+            {
+                Logger.Exception($"Failed to send OKBox to user \"{receiver.Name}\"", e);
+                return false;
             }
         }
 
@@ -213,11 +215,12 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 {
                     receiver?.Player?.OkBoxLoc($"{message}");
                 }
-                return false;
-            }
-            catch
-            {
                 return true;
+            }
+            catch (Exception e)
+            {
+                Logger.Exception($"Failed to send OKBox to all users", e);
+                return false;
             }
         }
 
@@ -226,11 +229,12 @@ namespace Eco.Plugins.DiscordLink.Utilities
             try
             {
                 receiver.Msg(Localizer.DoStr(Text.InfoLight(message)));
-                return false;
-            }
-            catch
-            {
                 return true;
+            }
+            catch (Exception e)
+            {
+                Logger.Exception($"Failed to send InfoBox to user \"{receiver.Name}\"", e);
+                return false;
             }
         }
 
@@ -242,11 +246,12 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 {
                     receiver.Msg(Localizer.DoStr(Text.InfoLight(message)));
                 }
-                return false;
-            }
-            catch
-            {
                 return true;
+            }
+            catch (Exception e)
+            {
+                Logger.Exception($"Failed to send InfoBox to all users", e);
+                return false;
             }
         }
 
@@ -255,11 +260,12 @@ namespace Eco.Plugins.DiscordLink.Utilities
             try
             {
                 receiver.Msg(Localizer.DoStr(Text.Warning(message)));
-                return false;
-            }
-            catch
-            {
                 return true;
+            }
+            catch (Exception e)
+            {
+                Logger.Exception($"Failed to send WarningBox to user \"{receiver.Name}\"", e);
+                return false;
             }
         }
 
@@ -271,11 +277,12 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 {
                     receiver.Msg(Localizer.DoStr(Text.Warning(message)));
                 }
-                return false;
-            }
-            catch
-            {
                 return true;
+            }
+            catch (Exception e)
+            {
+                Logger.Exception($"Failed to send WarningBox to all users", e);
+                return false;
             }
         }
 
@@ -284,11 +291,12 @@ namespace Eco.Plugins.DiscordLink.Utilities
             try
             {
                 receiver.Msg(Localizer.DoStr(Text.Error(message)));
-                return false;
-            }
-            catch
-            {
                 return true;
+            }
+            catch (Exception e)
+            {
+                Logger.Exception($"Failed to send ErrorBox to user \"{receiver.Name}\"", e);
+                return false;
             }
         }
 
@@ -300,11 +308,12 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 {
                     receiver.Msg(Localizer.DoStr(Text.Error(message)));
                 }
-                return false;
-            }
-            catch
-            {
                 return true;
+            }
+            catch (Exception e)
+            {
+                Logger.Exception($"Failed to send ErrorBox to all users", e);
+                return false;
             }
         }
 
@@ -313,11 +322,12 @@ namespace Eco.Plugins.DiscordLink.Utilities
             try
             {
                 receiver.Mailbox.Add(new MailMessage(message, "Notifications"), false);
-                return false;
-            }
-            catch
-            {
                 return true;
+            }
+            catch (Exception e)
+            {
+                Logger.Exception($"Failed to send notification to user \"{receiver.Name}\"", e);
+                return false;
             }
         }
 
@@ -331,8 +341,9 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 }
                 return true;
             }
-            catch
+            catch (Exception e)
             {
+                Logger.Exception($"Failed to send notification to all users", e);
                 return false;
             }
         }
@@ -344,8 +355,9 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 receiver?.Player.OpenInfoPanel(title, message, instance);
                 return true;
             }
-            catch
+            catch (Exception e)
             {
+                Logger.Exception($"Failed to send InfoPanel to user \"{receiver.Name}\"", e);
                 return false;
             }
         }
@@ -360,8 +372,9 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 }
                 return true;
             }
-            catch
+            catch (Exception e)
             {
+                Logger.Exception($"Failed to send InfoPanel to all users", e);
                 return false;
             }
         }
