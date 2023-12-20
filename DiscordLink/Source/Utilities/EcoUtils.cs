@@ -134,8 +134,16 @@ namespace Eco.Plugins.DiscordLink.Utilities
             foreach (User user in channelUsers)
             {
                 var tabSettings = GlobalData.Obj.ChatSettings(user).ChatTabSettings;
-                var chatTab = tabSettings.OfType<ChatTabSettingsCommon>().First(tabSettings => tabSettings.Channels.Contains(ChannelManager.Obj.Get(SpecialChannel.General)));
-                chatTab.Channels.Add(newChannel);
+                var generalChannel = ChannelManager.Obj.Get(SpecialChannel.General);
+                var chatTab = tabSettings.OfType<ChatTabSettingsCommon>().FirstOrDefault(tabSetting => tabSetting.Channels.Contains(generalChannel));
+                if(chatTab != null)
+                {
+                    chatTab.Channels.Add(newChannel);
+                }
+                else
+                {
+                    Logger.Warning($"Failed to find chat tab when creating channel \"{channelName}\" for user \"{user.Name}\"");
+                }
             }
 
             return newChannel;
