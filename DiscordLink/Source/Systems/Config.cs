@@ -156,8 +156,7 @@ namespace Eco.Plugins.DiscordLink
             // If the guild becomes null, this check is unstable and will be performed on plugin restart anyway.
             if (!correctionMade && !guildChanged)
             {
-                if (OnConfigChanged != null)
-                    await OnConfigChanged.Invoke(this, EventArgs.Empty);
+                await OnConfigChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 

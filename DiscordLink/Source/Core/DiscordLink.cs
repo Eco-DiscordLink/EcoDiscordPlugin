@@ -22,7 +22,6 @@ using System.ComponentModel;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-
 using Module = Eco.Plugins.DiscordLink.Modules.Module;
 
 namespace Eco.Plugins.DiscordLink
