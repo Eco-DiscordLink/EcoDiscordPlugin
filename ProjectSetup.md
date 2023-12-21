@@ -4,11 +4,11 @@
 2. **Download the modkit Eco server DLLs from [Play.Eco](https://play.eco).**  
 3a. **Copy the reference assemblies into the "Dependencies" subdirectory.**  
 OR  
-3b (Dev Tier). **Place the Eco repository at ../Eco and build the server.**  
-4. **Place a copy of the game server at "../EcoServer" from the repository root.** 
-5. **Open the DiscordLink .sln file using Visual Studio 2019 or newer.** 
-3. **Install the required NuGets via the Visual Studio NuGet browser.** 
-5. **Attempt to build and run the mod.** 
+3b (Dev Tier). **Place the Eco repository at ../Eco and build the server.** Note that this is also required in order to attach a debugger.
+4. **Download the latest [EcoWorldCore](https://mod.io/g/eco/m/ecoworldcore1) dll and place it into the "Dependencies" subdirectory.**
+4. **Open the DiscordLink .sln file using Visual Studio 2019 or newer.** 
+5. **Install the required NuGets via the Visual Studio NuGet browser.** 
+6. **Attempt to build and run the mod.** 
 This will:  
    1. Create a new build of the selected configuration. 
    2. Copy the relevant DLLs and PDB files to the server. 
