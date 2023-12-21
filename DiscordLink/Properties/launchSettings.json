@@ -2,8 +2,8 @@
   "profiles": {
     "DiscordLink": {
       "commandName": "Executable",
-      "executablePath": "$(SolutionDir)..\\EcoServer\\EcoServer.exe",
-      "workingDirectory": "$(SolutionDir)..\\EcoServer"
+      "executablePath": "$(SolutionDir)/../Eco/Server\\bin\\Debug\\net7.0-windows\\EcoServer.exe",
+      "workingDirectory": "$(SolutionDir)/../Eco/Server\\bin\\Debug\\net7.0-windows"
     }
   }
 }
