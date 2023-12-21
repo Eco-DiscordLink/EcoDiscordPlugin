@@ -13,12 +13,12 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <Optimize>false</Optimize>
+    <Optimize>False</Optimize>
     <NoWarn>1701;1702;1998</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <Optimize>false</Optimize>
+    <Optimize>False</Optimize>
     <NoWarn>1701;1702</NoWarn>
   </PropertyGroup>
 
