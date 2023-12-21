@@ -1,7 +1,6 @@
 {
-  "DiscordServer": "",
+  "DiscordServerID": 0,
   "BotToken": "",
-  "EcoBotName": "DiscordLink",
   "AdminRoles": [
     "Admin",
     "Administrator",
@@ -12,7 +11,7 @@
   "ServerDescription": "",
   "MinEmbedSizeForFooter": "Medium",
   "ConnectionInfo": "",
-  "DiscordCommandPrefix": "?",
+  "ChatSyncMode": "OptOut",
   "ChatChannelLinks": [],
   "TradeFeedChannels": [],
   "CraftingFeedChannels": [],
@@ -43,5 +42,6 @@
   "InviteMessage": "Join us on Discord!\\n[LINK]",
   "LogLevel": "Information",
   "BackendLogLevel": "None",
-  "UseVerboseDisplay": false
+  "UseVerboseDisplay": false,
+  "EmoteIconSubstitutions": []
 }
