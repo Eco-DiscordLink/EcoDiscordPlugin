@@ -47,7 +47,9 @@
   <ItemGroup>
     <!-- Use locally built Eco dlls if available and dependency dir references otherwise -->
     <Reference Include="EcoWorldCore">
-      <HintPath>..\Dependencies\EcoWorldCore.dll</HintPath>
+      <HintPath Condition="Exists('..\Dependencies\EcoWorldCore.dll')">..\Dependencies\EcoWorldCore.dll</HintPath>
+      <HintPath Condition="Exists('..\..\EcoWorldCore\EcoWorldCore\bin\Release\net7.0\EcoWorldCore.dll')">..\..\EcoWorldCore\EcoWorldCore\bin\Release\net7.0\EcoWorldCore.dll</HintPath>
+      <Private>false</Private>  
     </Reference>
     <Reference Include="Eco.Core">
       <HintPath Condition="Exists('..\Dependencies\Eco.Core.dll')">..\Dependencies\Eco.Core.dll</HintPath>
