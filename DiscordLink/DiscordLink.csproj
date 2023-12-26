@@ -45,10 +45,10 @@
   </Choose>
   
   <ItemGroup>
-    <!-- Use locally built Eco dlls if available and dependency dir references otherwise -->
-    <Reference Include="EcoWorldCore">
-      <HintPath Condition="Exists('..\Dependencies\EcoWorldCore.dll')">..\Dependencies\EcoWorldCore.dll</HintPath>
-      <HintPath Condition="Exists('..\..\EcoWorldCore\EcoWorldCore\bin\Release\net7.0\EcoWorldCore.dll')">..\..\EcoWorldCore\EcoWorldCore\bin\Release\net7.0\EcoWorldCore.dll</HintPath>
+    <!-- Use dependency dir references if available and locally built Eco dlls otherwise -->
+    <Reference Include="MightyMooseCore">
+      <HintPath Condition="Exists('..\Dependencies\MightyMooseCore.dll')">..\Dependencies\MightyMooseCore.dll</HintPath>
+      <HintPath Condition="Exists('..\..\MightyMooseCore\MightyMooseCore\bin\Release\net7.0\MightyMooseCore.dll')">..\..\MightyMooseCore\MightyMooseCore\bin\Release\net7.0\MightyMooseCore.dll</HintPath>
       <Private>false</Private>  
     </Reference>
     <Reference Include="Eco.Core">
@@ -88,6 +88,6 @@
   </ItemGroup>
   
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="if exist $(SolutionDir)..\Eco\ (set ServerPath=&quot;$(SolutionDir)..\Eco\Server\&quot;) else (set ServerPath=&quot;$(SolutionDir)..\EcoServer\&quot;)&#xD;&#xA;xcopy /Y &quot;$(OutDir)\Eco.EW.Core.dll&quot; &quot;%25ServerPath%25Mods\EcoWorld\&quot;&#xD;&#xA;for /f &quot;tokens=*&quot; %25%25i in ($(SolutionDir)DLLCopyList.txt) DO (xcopy /Y &quot;$(OutDir)%25%25i&quot; &quot;%25ServerPath%25Mods\DiscordLink\&quot;)&#xD;&#xA;xcopy /Y &quot;$(OutDir)\DiscordLink.pdb&quot; &quot;%25ServerPath%25&quot;" />
+    <Exec Command="if exist $(SolutionDir)..\Eco\ (set ServerPath=&quot;$(SolutionDir)..\Eco\Server\&quot;) else (set ServerPath=&quot;$(SolutionDir)..\EcoServer\&quot;)&#xD;&#xA;xcopy /Y &quot;$(OutDir)\MightyMooseCore.dll&quot; &quot;%25ServerPath%25Mods\MightyMoose\&quot;&#xD;&#xA;for /f &quot;tokens=*&quot; %25%25i in ($(SolutionDir)DLLCopyList.txt) DO (xcopy /Y &quot;$(OutDir)%25%25i&quot; &quot;%25ServerPath%25Mods\DiscordLink\&quot;)&#xD;&#xA;xcopy /Y &quot;$(OutDir)\DiscordLink.pdb&quot; &quot;%25ServerPath%25&quot;" />
   </Target>
 </Project>

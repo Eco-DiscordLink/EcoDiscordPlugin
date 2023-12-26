@@ -63,22 +63,22 @@ namespace Eco.Plugins.DiscordLink
         public void Write()
         {
             PersistentStorageData persistentData = PersistentData;
-            if (EW.Utils.Persistance.WriteJsonToFile<PersistentStorageData>(PersistentData, DLConstants.STORAGE_PATH_ABS, PERSISANT_STORAGE_FILE_NAME))
+            if (Moose.Utils.Persistance.WriteJsonToFile<PersistentStorageData>(PersistentData, DLConstants.STORAGE_PATH_ABS, PERSISANT_STORAGE_FILE_NAME))
                 PersistentData = persistentData;
 
             WorldStorageData worldData = WorldData;
-            if (EW.Utils.Persistance.WriteJsonToFile<WorldStorageData>(WorldData, DLConstants.STORAGE_PATH_ABS, WORLD_STORAGE_FILE_NAME))
+            if (Moose.Utils.Persistance.WriteJsonToFile<WorldStorageData>(WorldData, DLConstants.STORAGE_PATH_ABS, WORLD_STORAGE_FILE_NAME))
                 WorldData = worldData;
         }
 
         public void Read()
         {
             PersistentStorageData persistentData = PersistentData;
-            if (EW.Utils.Persistance.ReadJsonFromFile<PersistentStorageData>(DLConstants.STORAGE_PATH_ABS, PERSISANT_STORAGE_FILE_NAME, ref persistentData))
+            if (Moose.Utils.Persistance.ReadJsonFromFile<PersistentStorageData>(DLConstants.STORAGE_PATH_ABS, PERSISANT_STORAGE_FILE_NAME, ref persistentData))
                 PersistentData = persistentData;
 
             WorldStorageData worldData = WorldData;
-            if (EW.Utils.Persistance.ReadJsonFromFile<WorldStorageData>(DLConstants.STORAGE_PATH_ABS, WORLD_STORAGE_FILE_NAME, ref worldData))
+            if (Moose.Utils.Persistance.ReadJsonFromFile<WorldStorageData>(DLConstants.STORAGE_PATH_ABS, WORLD_STORAGE_FILE_NAME, ref worldData))
                 WorldData = worldData;
         }
 

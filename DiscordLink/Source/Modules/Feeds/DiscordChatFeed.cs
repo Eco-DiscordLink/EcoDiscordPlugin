@@ -1,5 +1,5 @@
 ﻿using DSharpPlus.Entities;
-using Eco.EW.Tools;
+using Eco.Moose.Tools;
 using Eco.Gameplay.Players;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Extensions;

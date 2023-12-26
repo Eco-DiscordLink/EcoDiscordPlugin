@@ -1,7 +1,7 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
-using Eco.EW.Tools;
+using Eco.Moose.Tools;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Utils;
 using System;

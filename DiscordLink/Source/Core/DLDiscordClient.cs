@@ -4,7 +4,7 @@ using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
 using DSharpPlus.SlashCommands;
 using Eco.Core.Utils;
-using Eco.EW.Tools;
+using Eco.Moose.Tools;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;

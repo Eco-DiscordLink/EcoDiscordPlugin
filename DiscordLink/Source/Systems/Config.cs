@@ -1,6 +1,6 @@
 ﻿using DSharpPlus.Entities;
 using Eco.Core.Plugins;
-using Eco.EW.Tools;
+using Eco.Moose.Tools;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Plugins.Networking;

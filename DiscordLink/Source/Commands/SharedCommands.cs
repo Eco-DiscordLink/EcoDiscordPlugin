@@ -2,7 +2,7 @@
 using DSharpPlus.SlashCommands;
 using Eco.Core;
 using Eco.Core.Plugins;
-using Eco.EW.Tools;
+using Eco.Moose.Tools;
 using Eco.Gameplay.Civics.Elections;
 using Eco.Gameplay.Economy;
 using Eco.Gameplay.Economy.WorkParties;

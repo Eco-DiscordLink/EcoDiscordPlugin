@@ -1,5 +1,5 @@
 ﻿using DiscordLink.Source.Utilities;
-using Eco.EW.Tools;
+using Eco.Moose.Tools;
 using Eco.Plugins.DiscordLink.Events;
 using Nito.AsyncEx;
 using System;
