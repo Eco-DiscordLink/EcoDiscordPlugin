@@ -116,9 +116,7 @@ namespace Eco.Plugins.DiscordLink
                     Token = DLConfig.Data.BotToken,
                     TokenType = TokenType.Bot,
                     MinimumLogLevel = DLConfig.Data.BackendLogLevel,
-                    Intents = DiscordIntents.AllUnprivileged |
-                    DiscordIntents.GuildMembers |
-                    DiscordIntents.MessageContents
+                    Intents = DLConstants.REQUESTED_INTENTS.Aggregate((current, next) => current | next)
                 });
 
                 // Register Discord commands
