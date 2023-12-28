@@ -90,7 +90,7 @@ namespace Eco.Plugins.DiscordLink
             if (caller is User user)
                 EcoUtils.SendErrorBoxToUser(user, $"{callingContext} Failed\nYou have not linked your Discord Account to DiscordLink on this Eco Server.\nUse the `/DL LinkAccount` command to initiate account linking.");
             else if (caller is DiscordMember member)
-                _ = Plugin.Obj.Client.SendDMAsync(member, $"**{callingContext} Failed**\nYou have not linked your Discord Account to DiscordLink on this Eco Server.\nUse the `/DL LinkAccount` command in Eco to initiate account linking.");
+                _ = DiscordLink.Obj.Client.SendDMAsync(member, $"**{callingContext} Failed**\nYou have not linked your Discord Account to DiscordLink on this Eco Server.\nUse the `/DL LinkAccount` command in Eco to initiate account linking.");
             else
                 Logger.Error("Attempted to fetch a linked user using an invalid caller argument");
         }
@@ -149,7 +149,7 @@ namespace Eco.Plugins.DiscordLink
                     DiscordMessage message = data[1] as DiscordMessage;
                     DiscordEmoji emoji = data[2] as DiscordEmoji;
 
-                    DLDiscordClient client = Plugin.Obj.Client;
+                    DLDiscordClient client = DiscordLink.Obj.Client;
                     DiscordChannel channel = message.GetChannel();
                     if (channel == null || !channel.IsPrivate)
                         return;
@@ -218,7 +218,7 @@ namespace Eco.Plugins.DiscordLink
         {
             try
             {
-                DiscordMember = await Plugin.Obj.Client.Guild.GetMemberAsync(ulong.Parse(DiscordID));
+                DiscordMember = await DiscordLink.Obj.Client.Guild.GetMemberAsync(ulong.Parse(DiscordID));
             }
             catch (DSharpPlus.Exceptions.NotFoundException)
             {

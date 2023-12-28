@@ -103,11 +103,11 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         private void TriggerTimedUpdate(object stateInfo)
         {
-            _ = base.Update(Plugin.Obj, DLEventType.Timer, null);
+            _ = base.Update(DiscordLink.Obj, DLEventType.Timer, null);
             SystemUtils.StopAndDestroyTimer(ref _HighFrequencyEventTimer);
         }
 
-        protected sealed override async Task UpdateInternal(Plugin plugin, DLEventType trigger, params object[] data)
+        protected sealed override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
         {
             // Handle deleted messages first to avoid crashes
             if (trigger == DLEventType.DiscordMessageDeleted)
@@ -257,7 +257,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected async virtual Task HandleReactionChange(DiscordUser user, DiscordMessage message, DiscordEmoji reaction, DiscordReactionChange changeType) { }
 
-        private async Task FindMessages(Plugin plugin)
+        private async Task FindMessages(DiscordLink plugin)
         {
             ClearTargetDisplays();
 

@@ -89,7 +89,7 @@ namespace Eco.Plugins.DiscordLink
 
             try
             {
-                DLDiscordClient client = Plugin.Obj.Client;
+                DLDiscordClient client = DiscordLink.Obj.Client;
                 if (!client.ChannelHasPermission(ctx.Channel, Permissions.SendMessages) || !client.ChannelHasPermission(ctx.Channel, Permissions.ReadMessageHistory))
                 {
                     Logger.Error($"Failed to respond to command \"{ctx.CommandName}\" in channel \"{ctx.Channel}\" as the bot lacks permissions for sending and/or reading messages in this channel.");
@@ -124,7 +124,7 @@ namespace Eco.Plugins.DiscordLink
             return requiredPermission switch
             {
                 PermissionType.User => true,
-                PermissionType.Admin => Plugin.Obj.Client.MemberIsAdmin(ctx.Member),
+                PermissionType.Admin => DiscordLink.Obj.Client.MemberIsAdmin(ctx.Member),
                 _ => false,
             };
         }
@@ -134,7 +134,7 @@ namespace Eco.Plugins.DiscordLink
             var commandChannels = DLConfig.Data.DiscordCommandChannels;
             bool allowed =
                 ctx.Channel.IsPrivate
-                || Plugin.Obj.Client.MemberIsAdmin(ctx.Member) // Allow admins to override channel requirements
+                || DiscordLink.Obj.Client.MemberIsAdmin(ctx.Member) // Allow admins to override channel requirements
                 || !(commandChannels.Any(link => link.IsValid())); // Always allow if there are no valid command channels or the command is sent via DM
 
             // Check if the discord channel used is listed as a command channel

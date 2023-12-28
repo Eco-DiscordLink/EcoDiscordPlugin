@@ -139,9 +139,9 @@ namespace Eco.Plugins.DiscordLink.Modules
         }
 
         // NOTE: Do NOT acquire the overlap lock in this function or there will be deadlocks
-        protected abstract Task UpdateInternal(Plugin plugin, DLEventType trigger, params object[] data);
+        protected abstract Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data);
 
-        public virtual async Task Update(Plugin plugin, DLEventType trigger, params object[] data)
+        public virtual async Task Update(DiscordLink plugin, DLEventType trigger, params object[] data)
         {
             // Check if this module should execute on the supplied trigger
             if ((GetTriggers() & trigger) == 0)

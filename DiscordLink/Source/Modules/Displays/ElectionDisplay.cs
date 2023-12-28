@@ -111,7 +111,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         private async Task CreateVoteReactions(DiscordMessage message)
         {
-            if (Plugin.Obj.Client.ChannelHasPermission(message.GetChannel(), DSharpPlus.Permissions.AddReactions))
+            if (DiscordLink.Obj.Client.ChannelHasPermission(message.GetChannel(), DSharpPlus.Permissions.AddReactions))
             {
                 await message.CreateReactionAsync(DLConstants.ACCEPT_EMOJI);
                 await message.CreateReactionAsync(DLConstants.DENY_EMOJI);

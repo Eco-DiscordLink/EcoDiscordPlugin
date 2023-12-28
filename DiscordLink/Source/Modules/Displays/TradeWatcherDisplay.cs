@@ -118,12 +118,12 @@ namespace Eco.Plugins.DiscordLink.Modules
         private async Task OnTradeWatcherAdded(object sender, EventArgs e, TradeWatcherEntry watcher)
         {
             if (!await HandleStartOrStop()) // If the module wasn't started by this, there is already an update on the way
-                await Update(Plugin.Obj, DLEventType.TradeWatcherDisplayAdded, watcher);
+                await Update(DiscordLink.Obj, DLEventType.TradeWatcherDisplayAdded, watcher);
         }
 
         private async Task OnTradeWatcherRemoved(object sender, EventArgs e, TradeWatcherEntry watcher)
         {
-            await Update(Plugin.Obj, DLEventType.TradeWatcherDisplayRemoved, watcher);
+            await Update(DiscordLink.Obj, DLEventType.TradeWatcherDisplayRemoved, watcher);
             await HandleStartOrStop();
         }
     }

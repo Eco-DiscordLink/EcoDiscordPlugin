@@ -105,7 +105,7 @@ namespace Eco.Plugins.DiscordLink
         public void PostConnectionInit()
         {
             // Guild
-            if (Plugin.Obj.Client.Guild == null)
+            if (DiscordLink.Obj.Client.Guild == null)
             {
                 Logger.Error($"Failed to find a Discord server with the ID \"{Data.DiscordServerID}\"");
                 return;
@@ -145,7 +145,7 @@ namespace Eco.Plugins.DiscordLink
                 Logger.SetConfiguredLogLevel(Data.LogLevel);
             }
 
-            if (Plugin.Obj.Client.ConnectionStatus == DLDiscordClient.ConnectionState.Connected)
+            if (DiscordLink.Obj.Client.ConnectionStatus == DLDiscordClient.ConnectionState.Connected)
             {
                 BuildChanneLinkList();
                 VerifyLinks();

@@ -28,7 +28,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             return false;
         }
 
-        protected override async Task UpdateInternal(Plugin plugin, DLEventType trigger, params object[] data)
+        protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
         {
             if (!(data[0] is Tuple<Logger.LogLevel, string>[] logData))
                 return;
@@ -49,7 +49,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
                 if(accumulatedLogBuilder.Length > 0)
                 {
-                    await Plugin.Obj.Client.SendMessageAsync(serverFeedLink.Channel, accumulatedLogBuilder.ToString());
+                    await DiscordLink.Obj.Client.SendMessageAsync(serverFeedLink.Channel, accumulatedLogBuilder.ToString());
                     ++_opsCount;
                 }
             }

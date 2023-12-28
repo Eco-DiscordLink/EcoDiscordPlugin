@@ -26,9 +26,9 @@ namespace Eco.Plugins.DiscordLink.Modules
             return base.GetTriggers() | DLEventType.DiscordClientConnected | DLEventType.AccountLinkVerified | DLEventType.AccountLinkRemoved | DLEventType.EnteredDemographic | DLEventType.LeftDemographic;
         }
 
-        protected override async Task UpdateInternal(Plugin plugin, DLEventType trigger, params object[] data)
+        protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
         {
-            DLDiscordClient client = Plugin.Obj.Client;
+            DLDiscordClient client = DiscordLink.Obj.Client;
             if (!client.BotHasPermission(Permissions.ManageRoles))
                 return;
 

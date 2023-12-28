@@ -39,7 +39,7 @@ namespace Eco.Plugins.DiscordLink
                 else if (EcoUser.IsAdmin)
                     return ChatAuthorizationLevel.Admin;
             }
-            else if (Plugin.Obj.Client.MemberIsAdmin(InteractionContext.Member))
+            else if (DiscordLink.Obj.Client.MemberIsAdmin(InteractionContext.Member))
             {
                 return ChatAuthorizationLevel.Admin;
             }

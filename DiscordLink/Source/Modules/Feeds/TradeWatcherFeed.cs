@@ -33,7 +33,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             return DLConfig.Data.UseTradeWatcherFeeds;
         }
 
-        protected override async Task UpdateInternal(Plugin plugin, DLEventType trigger, params object[] data)
+        protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
         {
             if (!(data[0] is List<CurrencyTrade>[] accumulatedTrades))
                 return;
@@ -54,7 +54,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 || accumulatedTrades.SelectMany(tradeList => tradeList).Any(trade => trade.ItemUsed.HasTagWithName(entry.Key)))) // Tag
                     {
                         DiscordLinkEmbed content = MessageBuilder.Discord.GetAccumulatedTradeReport(accumulatedTradeList);
-                        await Plugin.Obj.Client.SendMessageAsync(await linkedUser.DiscordMember.CreateDmChannelAsync(), string.Empty, content);
+                        await DiscordLink.Obj.Client.SendMessageAsync(await linkedUser.DiscordMember.CreateDmChannelAsync(), string.Empty, content);
                         ++_opsCount;
                     }
                 }

@@ -54,7 +54,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             await base.HandleConfigChanged(sender, e);
         }
 
-        protected override async Task UpdateInternal(Plugin plugin, DLEventType trigger, params object[] data)
+        protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
         {
             if (!(data[0] is DiscordMessage message))
                 return;
@@ -78,7 +78,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         private async Task ReloadSnippets()
         {
-            Plugin plugin = Plugin.Obj;
+            DiscordLink plugin = DiscordLink.Obj;
             foreach (ChannelLink snippetChannel in DLConfig.Data.SnippetInputChannels)
             {
                 if (!snippetChannel.IsValid())
