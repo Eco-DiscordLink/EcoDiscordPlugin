@@ -102,7 +102,7 @@ namespace Eco.Plugins.DiscordLink
             Data.DiscordCommandChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
         }
 
-        public void PostConnectionInitialize()
+        public void PostConnectionInit()
         {
             // Guild
             if (DiscordLink.Obj.Client.Guild == null)

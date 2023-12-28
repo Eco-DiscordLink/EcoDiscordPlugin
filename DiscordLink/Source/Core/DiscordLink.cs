@@ -278,8 +278,9 @@ namespace Eco.Plugins.DiscordLink
         {
             Client.OnConnected.Remove(HandleClientConnected);
 
-            DLConfig.Instance.PostConnectionInitialize();
             DLConstants.PostConnectionInit();
+
+            DLConfig.Instance.PostConnectionInit();
             if (Client.Guild == null)
             {
                 Status = StatusState.ServerConnectionFailed;
