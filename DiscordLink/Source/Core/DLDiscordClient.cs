@@ -719,6 +719,10 @@ namespace Eco.Plugins.DiscordLink
 
                 return role;
             }
+            catch (UnauthorizedException e)
+            {
+                Logger.Exception($"DiscordLink was not allowed to create the role \"{dlRole.Name}\". Ensure that your bot user is assigned a role with higher permission level than all roles it manages.", e);
+            }
             catch (ServerErrorException e)
             {
                 Logger.Debug($"ServerErrorException occurred while creating role \"{dlRole.Name}\". Exception: {e}");
@@ -750,6 +754,10 @@ namespace Eco.Plugins.DiscordLink
             try
             {
                 await member.GrantRoleAsync(role, "Added by DiscordLink");
+            }
+            catch (UnauthorizedException e)
+            {
+                Logger.Exception($"DiscordLink was not allowed to grant the role \"{role.Name}\" to member \"{member.Username}\". Ensure that your bot user is assigned a role with higher permission level than all roles it manages.", e);
             }
             catch (ServerErrorException e)
             {
@@ -784,6 +792,10 @@ namespace Eco.Plugins.DiscordLink
             {
                 await member.RevokeRoleAsync(role, "Removed by DiscordLink");
             }
+            catch (UnauthorizedException e)
+            {
+                Logger.Exception($"DiscordLink was not allowed to revoke the role \"{role.Name}\" from member \"{member.Username}\". Ensure that your bot user is assigned a role with higher permission level than all roles it manages.", e);
+            }
             catch (ServerErrorException e)
             {
                 Logger.Debug($"ServerErrorException occurred while removing role \"{role.Name}\" from member \"{member.Username}\". Exception: {e}");
@@ -801,15 +813,15 @@ namespace Eco.Plugins.DiscordLink
 
             try
             {
-                await role.DeleteAsync("Delete by DiscordLink via command");
+                await role.DeleteAsync("Deleted by DiscordLink");
+            }
+            catch (UnauthorizedException e)
+            {
+                Logger.Exception($"DiscordLink was not allowed to delete the role \"{role.Name}\". Ensure that your bot user is assigned a role with higher permission level than all roles it manages.", e);
             }
             catch (ServerErrorException e)
             {
                 Logger.Debug($"ServerErrorException occurred while deleting role \"{role.Name}\". Exception: {e}");
-            }
-            catch (UnauthorizedException e)
-            {
-                Logger.Exception($"Failed to delete role \"{role.Name}\". Please ensure that DiscordLink has permission to manage roles and that the role being deleted is of lower rank the the highest ranked role assigned to DiscordLink.", e);
             }
             catch (Exception e)
             {
