@@ -7,6 +7,7 @@
     <RepositoryUrl>https://github.com/Eco-DiscordLink/EcoDiscordPlugin</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Eco Discord</PackageTags>
+    <Authors>MonzUn, R3sist3nt, Spoffy</Authors>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <Version>3.3.2</Version>
     <OutputType>Library</OutputType>
