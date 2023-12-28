@@ -64,13 +64,13 @@ namespace Eco.Plugins.DiscordLink
         public const string ECO_PANEL_REPORT = "DLReport";
         public const string ECO_PANEL_DL_TRADES = "DLTrades";
 
-        public static readonly DiscordEmoji ACCEPT_EMOJI = DiscordEmoji.FromName(DiscordLink.Obj.Client.DiscordClient, ":white_check_mark:");
-        public static readonly DiscordEmoji DENY_EMOJI = DiscordEmoji.FromName(DiscordLink.Obj.Client.DiscordClient, ":x:");
+        public static DiscordEmoji ACCEPT_EMOJI;
+        public static DiscordEmoji DENY_EMOJI;
 
-        public static readonly DiscordEmoji DEBUG_LOG_EMOJI = DiscordEmoji.FromName(DiscordLink.Obj.Client.DiscordClient, ":exclamation:");
-        public static readonly DiscordEmoji WARNING_LOG_EMOJI = DiscordEmoji.FromName(DiscordLink.Obj.Client.DiscordClient, ":small_orange_diamond:");
-        public static readonly DiscordEmoji INFO_LOG_EMOJI = DiscordEmoji.FromName(DiscordLink.Obj.Client.DiscordClient, ":white_small_square:");
-        public static readonly DiscordEmoji ERROR_LOG_EMOJI = DiscordEmoji.FromName(DiscordLink.Obj.Client.DiscordClient, ":small_red_triangle:");
+        public static DiscordEmoji DEBUG_LOG_EMOJI;
+        public static DiscordEmoji WARNING_LOG_EMOJI;
+        public static DiscordEmoji INFO_LOG_EMOJI;
+        public static DiscordEmoji ERROR_LOG_EMOJI;
 
         public static readonly DiscordLinkRole ROLE_LINKED_ACCOUNT = new DiscordLinkRole("DiscordLinked", null, DiscordColor.Cyan, false, true, "Linked Discord account to Eco Server");
 
@@ -106,5 +106,24 @@ namespace Eco.Plugins.DiscordLink
             { "😆", "laughing" },
             { "🙂", "slight_smile" },
         };
+
+        public static bool PostConnectionInit()
+        {
+            try
+            {
+                ACCEPT_EMOJI = DiscordEmoji.FromName(DiscordLink.Obj.Client.DiscordClient, ":white_check_mark:");
+                DENY_EMOJI = DiscordEmoji.FromName(DiscordLink.Obj.Client.DiscordClient, ":x:");
+                DEBUG_LOG_EMOJI = DiscordEmoji.FromName(DiscordLink.Obj.Client.DiscordClient, ":exclamation:");
+                WARNING_LOG_EMOJI = DiscordEmoji.FromName(DiscordLink.Obj.Client.DiscordClient, ":small_orange_diamond:");
+                INFO_LOG_EMOJI = DiscordEmoji.FromName(DiscordLink.Obj.Client.DiscordClient, ":white_small_square:");
+                ERROR_LOG_EMOJI = DiscordEmoji.FromName(DiscordLink.Obj.Client.DiscordClient, ":small_red_triangle:");
+                return true;
+            }
+            catch(Exception e)
+            {
+                Logger.Exception("Failed to initialize constants.", e);
+                return false;
+            }
+        }
     }
 }
