@@ -153,7 +153,7 @@ namespace Eco.Plugins.DiscordLink
             if (!string.IsNullOrWhiteSpace(ModIOAppID) && !string.IsNullOrWhiteSpace(ModIODeveloperToken))
                 ModIOVersion = await VersionChecker.CheckVersion("DiscordLink", ModIOAppID, ModIODeveloperToken);
             else
-                Logger.Info($"Plugin version is {PluginVersion}");
+                Logger.Info($"Plugin version is {InstalledVersion.ToString(3)}");
         }
 
         private async void PostServerInitialize()

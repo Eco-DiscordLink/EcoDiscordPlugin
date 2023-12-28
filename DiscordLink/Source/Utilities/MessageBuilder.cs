@@ -120,7 +120,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
             public static string GetAboutMessage()
             {
-                return $"This server is running the DiscordLink plugin version {DiscordLink.Obj.PluginVersion}." +
+                return $"This server is running the DiscordLink plugin version {DiscordLink.Obj.InstalledVersion.ToString(3)}." +
                     "\nIt connects the game server to a Discord bot in order to perform seamless communication between Eco and Discord." +
                     "\nThis enables you to chat with players who are currently not online in Eco, but are available on Discord." +
                     "\nDiscordLink can also be used to display information about the Eco server in Discord, such as who is online and what items are available on the market." +
@@ -153,7 +153,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 DiscordLink plugin = DiscordLink.Obj;
                 DLDiscordClient client = plugin.Client;
                 StringBuilder builder = new StringBuilder();
-                builder.AppendLine($"DiscordLink {plugin.PluginVersion}");
+                builder.AppendLine($"DiscordLink {plugin.InstalledVersion.ToString(3)}");
                 if (verbose)
                 {
                     builder.AppendLine($"Server Name: {MessageUtils.FirstNonEmptyString(DLConfig.Data.ServerName, MessageUtils.StripTags(NetworkManager.GetServerInfo().Description), "[Server Title Missing]")}");

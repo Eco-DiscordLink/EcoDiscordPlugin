@@ -144,7 +144,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                DisplayCommandData(callingUser, DLConstants.ECO_PANEL_DL_MESSAGE_MEDIUM, $"About DiscordLink {Plugins.DiscordLink.DiscordLink.Obj.PluginVersion}", MessageBuilder.Shared.GetAboutMessage());
+                DisplayCommandData(callingUser, DLConstants.ECO_PANEL_DL_MESSAGE_MEDIUM, $"About DiscordLink {Plugins.DiscordLink.DiscordLink.Obj.InstalledVersion.ToString(3)}", MessageBuilder.Shared.GetAboutMessage());
             }, callingUser);
         }
 
