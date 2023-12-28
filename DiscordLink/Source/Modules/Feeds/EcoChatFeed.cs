@@ -32,7 +32,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             return false;
         }
 
-        protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
+        protected override async Task UpdateInternal(Plugin plugin, DLEventType trigger, params object[] data)
         {
             if (!(data[0] is ChatSent message))
                 return;
@@ -76,7 +76,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             bool allowGlobalMention = globalMentionPermission == GlobalMentionPermission.AnyUser
                 || globalMentionPermission == GlobalMentionPermission.Admin && chatMessage.Citizen.IsAdmin;
 
-            await DiscordLink.Obj.Client.SendMessageAsync(channel, MessageUtils.FormatMessageForDiscord(forwardedMessage, channel, chatMessage.Citizen.Name, useTimestamp, allowGlobalMention, chatlinkPermissions));
+            await Plugin.Obj.Client.SendMessageAsync(channel, MessageUtils.FormatMessageForDiscord(forwardedMessage, channel, chatMessage.Citizen.Name, useTimestamp, allowGlobalMention, chatlinkPermissions));
             ++_opsCount;
         }
     }

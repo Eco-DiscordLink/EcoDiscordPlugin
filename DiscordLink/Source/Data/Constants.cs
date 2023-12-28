@@ -111,12 +111,12 @@ namespace Eco.Plugins.DiscordLink
         {
             try
             {
-                ACCEPT_EMOJI = DiscordEmoji.FromName(DiscordLink.Obj.Client.DiscordClient, ":white_check_mark:");
-                DENY_EMOJI = DiscordEmoji.FromName(DiscordLink.Obj.Client.DiscordClient, ":x:");
-                DEBUG_LOG_EMOJI = DiscordEmoji.FromName(DiscordLink.Obj.Client.DiscordClient, ":exclamation:");
-                WARNING_LOG_EMOJI = DiscordEmoji.FromName(DiscordLink.Obj.Client.DiscordClient, ":small_orange_diamond:");
-                INFO_LOG_EMOJI = DiscordEmoji.FromName(DiscordLink.Obj.Client.DiscordClient, ":white_small_square:");
-                ERROR_LOG_EMOJI = DiscordEmoji.FromName(DiscordLink.Obj.Client.DiscordClient, ":small_red_triangle:");
+                ACCEPT_EMOJI = DiscordEmoji.FromName(Plugin.Obj.Client.DiscordClient, ":white_check_mark:");
+                DENY_EMOJI = DiscordEmoji.FromName(Plugin.Obj.Client.DiscordClient, ":x:");
+                DEBUG_LOG_EMOJI = DiscordEmoji.FromName(Plugin.Obj.Client.DiscordClient, ":exclamation:");
+                WARNING_LOG_EMOJI = DiscordEmoji.FromName(Plugin.Obj.Client.DiscordClient, ":small_orange_diamond:");
+                INFO_LOG_EMOJI = DiscordEmoji.FromName(Plugin.Obj.Client.DiscordClient, ":white_small_square:");
+                ERROR_LOG_EMOJI = DiscordEmoji.FromName(Plugin.Obj.Client.DiscordClient, ":small_red_triangle:");
                 return true;
             }
             catch(Exception e)

@@ -27,12 +27,12 @@ using Module = Eco.Plugins.DiscordLink.Modules.Module;
 namespace Eco.Plugins.DiscordLink
 {
     [Priority(PriorityAttribute.High)] // Need to start before WorldGenerator in order to listen for world generation finished event
-    public class DiscordLink : IModKitPlugin, IInitializablePlugin, IShutdownablePlugin, IConfigurablePlugin, IDisplayablePlugin, IGameActionAware, ICommandablePlugin
+    public class Plugin : IModKitPlugin, IInitializablePlugin, IShutdownablePlugin, IConfigurablePlugin, IDisplayablePlugin, IGameActionAware, ICommandablePlugin
     {
         public readonly Version InstalledVersion = Assembly.GetExecutingAssembly().GetName().Version;
         public Version? ModIOVersion = null;
 
-        public static DiscordLink Obj { get { return PluginManager.GetPlugin<DiscordLink>(); } }
+        public static Plugin Obj { get { return PluginManager.GetPlugin<Plugin>(); } }
         public DLDiscordClient Client { get; private set; } = new DLDiscordClient();
         public Module[] Modules { get; private set; } = new Module[Enum.GetNames(typeof(ModuleType)).Length];
         public IPluginConfig PluginConfig { get { return DLConfig.Instance.PluginConfig; } }

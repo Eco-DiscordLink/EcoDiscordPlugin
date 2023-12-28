@@ -73,13 +73,13 @@ namespace Eco.Plugins.DiscordLink
 
         public static async Task<bool> Update(CommandInterface source, object callContext)
         {
-            if (DiscordLink.Obj.Client.ConnectionStatus != DLDiscordClient.ConnectionState.Connected)
+            if (Plugin.Obj.Client.ConnectionStatus != DLDiscordClient.ConnectionState.Connected)
             {
                 await ReportCommandError(source, callContext, "Failed to force update - Discord client not connected");
                 return false;
             }
 
-            DiscordLink plugin = DiscordLink.Obj;
+            Plugin plugin = Plugin.Obj;
             plugin.Modules.ForEach(async module => await module.HandleStartOrStop());
             await plugin.HandleEvent(Events.DLEventType.ForceUpdate);
             await ReportCommandInfo(source, callContext, "Forced update");
@@ -88,7 +88,7 @@ namespace Eco.Plugins.DiscordLink
 
         public static async Task<bool> RestartPlugin(CommandInterface source, object callContext)
         {
-            DiscordLink plugin = DiscordLink.Obj;
+            Plugin plugin = Plugin.Obj;
             Logger.Info("Restart command executed - Restarting");
             await ReportCommandInfo(source, callContext, "Attempting Restart!");
             bool restarted = plugin.Restart().Result;
@@ -137,7 +137,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task<bool> ClearRoles(CommandInterface source, object callContext)
         {
             Logger.Info("ClearRoles command invoked - Deleting all created roles");
-            DiscordLink plugin = DiscordLink.Obj;
+            Plugin plugin = Plugin.Obj;
             DLDiscordClient client = plugin.Client;
             foreach (ulong roleID in DLStorage.PersistentData.RoleIDs)
             {
@@ -186,7 +186,7 @@ namespace Eco.Plugins.DiscordLink
 
         public static async Task<bool> VerifyPermissionsForChannel(CommandInterface source, object callContext, string channelNameOrID)
         {
-            DiscordChannel channel = DiscordLink.Obj.Client.ChannelByNameOrID(channelNameOrID);
+            DiscordChannel channel = Plugin.Obj.Client.ChannelByNameOrID(channelNameOrID);
             if (channel == null)
             {
                 await ReportCommandError(source, callContext, $"No channel with the named \"{channelNameOrID}\" could be found.");

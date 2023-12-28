@@ -13,7 +13,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected override async Task<bool> ShouldRun()
         {
-            return DiscordLink.Obj.Client.BotHasPermission(Permissions.ManageRoles);
+            return Plugin.Obj.Client.BotHasPermission(Permissions.ManageRoles);
         }
     }
 }

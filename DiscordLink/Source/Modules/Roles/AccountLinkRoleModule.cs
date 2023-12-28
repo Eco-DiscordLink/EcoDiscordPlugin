@@ -22,16 +22,16 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         public override void Setup()
         {
-            _linkedAccountRole = DiscordLink.Obj.Client.Guild.RoleByName(DLConstants.ROLE_LINKED_ACCOUNT.Name);
+            _linkedAccountRole = Plugin.Obj.Client.Guild.RoleByName(DLConstants.ROLE_LINKED_ACCOUNT.Name);
             if (_linkedAccountRole == null)
                 SetupLinkRole();
 
             base.Setup();
         }
 
-        protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
+        protected override async Task UpdateInternal(Plugin plugin, DLEventType trigger, params object[] data)
         {
-            DLDiscordClient client = DiscordLink.Obj.Client;
+            DLDiscordClient client = Plugin.Obj.Client;
             if (!client.BotHasPermission(Permissions.ManageRoles))
                 return;
 
@@ -92,7 +92,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 return;
 
             ++_opsCount;
-            _linkedAccountRole = DiscordLink.Obj.Client.CreateRoleAsync(DLConstants.ROLE_LINKED_ACCOUNT).Result;
+            _linkedAccountRole = Plugin.Obj.Client.CreateRoleAsync(DLConstants.ROLE_LINKED_ACCOUNT).Result;
         }
     }
 }

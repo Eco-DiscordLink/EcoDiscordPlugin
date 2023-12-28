@@ -29,7 +29,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             return false;
         }
 
-        protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
+        protected override async Task UpdateInternal(Plugin plugin, DLEventType trigger, params object[] data)
         {
             if (!(data[0] is User user))
                 return;
@@ -62,7 +62,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 if (!playerStatusLink.IsValid())
                     continue;
 
-                await DiscordLink.Obj.Client.SendMessageAsync(playerStatusLink.Channel, null, embed);
+                await Plugin.Obj.Client.SendMessageAsync(playerStatusLink.Channel, null, embed);
                 ++_opsCount;
             }
         }

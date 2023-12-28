@@ -153,7 +153,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                DisplayCommandData(callingUser, DLConstants.ECO_PANEL_DL_MESSAGE_MEDIUM, $"About DiscordLink {Plugins.DiscordLink.DiscordLink.Obj.InstalledVersion.ToString(3)}", MessageBuilder.Shared.GetAboutMessage());
+                DisplayCommandData(callingUser, DLConstants.ECO_PANEL_DL_MESSAGE_MEDIUM, $"About DiscordLink {Plugins.DiscordLink.Plugin.Obj.InstalledVersion.ToString(3)}", MessageBuilder.Shared.GetAboutMessage());
             }, callingUser);
         }
 
@@ -358,7 +358,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                var plugin = Plugins.DiscordLink.DiscordLink.Obj;
+                var plugin = Plugins.DiscordLink.Plugin.Obj;
 
                 if (!plugin.Client.BotHasIntent(DiscordIntents.GuildMembers))
                 {

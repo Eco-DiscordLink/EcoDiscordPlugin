@@ -81,7 +81,7 @@ namespace Eco.Plugins.DiscordLink
             if (DiscordChannelId == 0)
                 return false;
 
-            DiscordChannel channel = DiscordLink.Obj.Client.Guild.GetChannel(DiscordChannelId);
+            DiscordChannel channel = Plugin.Obj.Client.Guild.GetChannel(DiscordChannelId);
             if (channel == null)
                 return false;
 
@@ -101,7 +101,7 @@ namespace Eco.Plugins.DiscordLink
             }
             else
             {
-               DiscordChannelId = DiscordChannelId = DiscordLink.Obj.Client.ChannelByNameOrID(DiscordChannel)?.Id ?? 0;
+               DiscordChannelId = DiscordChannelId = Plugin.Obj.Client.ChannelByNameOrID(DiscordChannel)?.Id ?? 0;
             }
             // Mark as Deprecated and show note in config file.
             DiscordChannel = DISCORD_CHANNEL_PROPERTY_DEPRECATED;

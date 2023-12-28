@@ -119,10 +119,10 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
             public static string GetVersionMessage()
             {
-                Version? modIOVersion = DiscordLink.Obj.ModIOVersion;
+                Version? modIOVersion = Plugin.Obj.ModIOVersion;
                 string modIOVersionDesc = modIOVersion != null ? $"Latest version: {modIOVersion.ToString(3)}" : "Latest version: Unknown";
 
-                Version installedVersion = DiscordLink.Obj.InstalledVersion;
+                Version installedVersion = Plugin.Obj.InstalledVersion;
                 string installedVersionDesc = $"Installed version: {installedVersion.ToString(3)}";
 
                 if (modIOVersion == null)
@@ -136,7 +136,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
             public static string GetAboutMessage()
             {
-                return $"This server is running the DiscordLink plugin version {DiscordLink.Obj.InstalledVersion.ToString(3)}." +
+                return $"This server is running the DiscordLink plugin version {Plugin.Obj.InstalledVersion.ToString(3)}." +
                     "\nIt connects the game server to a Discord bot in order to perform seamless communication between Eco and Discord." +
                     "\nThis enables you to chat with players who are currently not online in Eco, but are available on Discord." +
                     "\nDiscordLink can also be used to display information about the Eco server in Discord, such as who is online and what items are available on the market." +
@@ -166,7 +166,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
             public static async Task<string> GetDisplayStringAsync(bool verbose)
             {
-                DiscordLink plugin = DiscordLink.Obj;
+                Plugin plugin = Plugin.Obj;
                 DLDiscordClient client = plugin.Client;
                 StringBuilder builder = new StringBuilder();
                 builder.AppendLine($"DiscordLink {plugin.InstalledVersion.ToString(3)}");
@@ -282,7 +282,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             public static string GetConfigVerificationReport()
             {
                 StringBuilder builder = new StringBuilder();
-                if (DiscordLink.Obj.Client.ConnectionStatus != DLDiscordClient.ConnectionState.Connected)
+                if (Plugin.Obj.Client.ConnectionStatus != DLDiscordClient.ConnectionState.Connected)
                 {
                     builder.AppendLine("[Discord Client not connected - Parts of the config was not possible to verify]");
                 }
@@ -307,10 +307,10 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     builder.AppendLine($"- Invite message does not contain the invite link token {DLConstants.INVITE_COMMAND_TOKEN}.");
                 }
 
-                if (DiscordLink.Obj.Client.ConnectionStatus == DLDiscordClient.ConnectionState.Connected)
+                if (Plugin.Obj.Client.ConnectionStatus == DLDiscordClient.ConnectionState.Connected)
                 {
                     // Discord guild and channel information isn't available the first time this function is called
-                    if (DiscordLink.Obj.Client.Guild != null && DLConfig.GetChannelLinks(verifiedLinksOnly: false).Count > 0)
+                    if (Plugin.Obj.Client.Guild != null && DLConfig.GetChannelLinks(verifiedLinksOnly: false).Count > 0)
                     {
                         foreach (ChannelLink link in DLConfig.GetChannelLinks(verifiedLinksOnly: false))
                         {
@@ -333,7 +333,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 if (flag == 0)
                     return "Permission Check Failed";
 
-                DLDiscordClient client = DiscordLink.Obj.Client;
+                DLDiscordClient client = Plugin.Obj.Client;
                 StringBuilder builder = new StringBuilder();
                 if (flag.HasFlag(PermissionReportComponentFlag.Intents))
                 {
@@ -388,7 +388,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 StringBuilder builder = new StringBuilder();
                 foreach (Permissions permission in DLConstants.REQUESTED_CHANNEL_PERMISSIONS)
                 {
-                    if (!DiscordLink.Obj.Client.ChannelHasPermission(channel, permission))
+                    if (!Plugin.Obj.Client.ChannelHasPermission(channel, permission))
                     {
                         builder.AppendLine($"- Missing Channel Permission \"{permission}\".");
                     }
@@ -594,7 +594,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
             public static DiscordLinkEmbed GetServerInfo(ServerInfoComponentFlag flag)
             {
-                var plugin = DiscordLink.Obj;
+                var plugin = Plugin.Obj;
 
                 DLConfigData config = DLConfig.Data;
                 ServerInfo serverInfo = NetworkManager.GetServerInfo();
@@ -828,7 +828,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 {
                     report.AddField("Eco Admin", Shared.GetYesNo(user.IsAdmin), inline: true);
                     if (userLinkExists)
-                        report.AddField("Discord Admin", Shared.GetYesNo(DiscordLink.Obj.Client.MemberIsAdmin(discordMember)), inline: true);
+                        report.AddField("Discord Admin", Shared.GetYesNo(Plugin.Obj.Client.MemberIsAdmin(discordMember)), inline: true);
                     report.AddField("Eco Dev Permission", Shared.GetYesNo(user.IsDev), inline: true);
                     if (!userLinkExists)
                         report.AddAlignmentField();
