@@ -149,7 +149,7 @@ namespace Eco.Plugins.DiscordLink
                     DiscordMessage message = data[1] as DiscordMessage;
                     DiscordEmoji emoji = data[2] as DiscordEmoji;
 
-                    DLDiscordClient client = DiscordLink.Obj.Client;
+                    DiscordClient client = DiscordLink.Obj.Client;
                     DiscordChannel channel = message.GetChannel();
                     if (channel == null || !channel.IsPrivate)
                         return;

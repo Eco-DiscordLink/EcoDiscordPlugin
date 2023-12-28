@@ -28,7 +28,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
         {
-            DLDiscordClient client = DiscordLink.Obj.Client;
+            DiscordClient client = DiscordLink.Obj.Client;
             if (!client.BotHasPermission(Permissions.ManageRoles))
                 return;
 
@@ -125,7 +125,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 : demographic.Name;
         }
 
-        private async Task AddDemographicRole(DLDiscordClient client, DiscordMember member, string demographicName)
+        private async Task AddDemographicRole(DiscordClient client, DiscordMember member, string demographicName)
         {
             await client.AddRoleAsync(member, new DiscordLinkRole(demographicName, null, DemographicColor, false, true, $"User is in the {demographicName} demographic"));
         }

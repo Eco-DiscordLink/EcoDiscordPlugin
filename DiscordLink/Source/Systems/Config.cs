@@ -145,7 +145,7 @@ namespace Eco.Plugins.DiscordLink
                 Logger.SetConfiguredLogLevel(Data.LogLevel);
             }
 
-            if (DiscordLink.Obj.Client.ConnectionStatus == DLDiscordClient.ConnectionState.Connected)
+            if (DiscordLink.Obj.Client.ConnectionStatus == DiscordClient.ConnectionState.Connected)
             {
                 BuildChanneLinkList();
                 VerifyLinks();

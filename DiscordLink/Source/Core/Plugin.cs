@@ -33,7 +33,7 @@ namespace Eco.Plugins.DiscordLink
         public Version? ModIOVersion = null;
 
         public static DiscordLink Obj { get { return PluginManager.GetPlugin<DiscordLink>(); } }
-        public DLDiscordClient Client { get; private set; } = new DLDiscordClient();
+        public DiscordClient Client { get; private set; } = new DiscordClient();
         public Module[] Modules { get; private set; } = new Module[Enum.GetNames(typeof(ModuleType)).Length];
         public IPluginConfig PluginConfig { get { return DLConfig.Instance.PluginConfig; } }
         public ThreadSafeAction<object, string> ParamChanged { get; set; }
@@ -169,7 +169,7 @@ namespace Eco.Plugins.DiscordLink
             // The Server is Started at this point, but the guild download might not have been completed yet, so we wait for it.
             await DelayPostInitUntilConnectionAttemptIsCompleted();
             
-            if (Client.ConnectionStatus == DLDiscordClient.ConnectionState.Disconnected)
+            if (Client.ConnectionStatus == DiscordClient.ConnectionState.Disconnected)
             {
                 HandleDiscordConnectionFailed("Failed to start DiscordLink. See previous errors for more Information.");
                 return;
@@ -199,7 +199,7 @@ namespace Eco.Plugins.DiscordLink
         private async Task DelayPostInitUntilConnectionAttemptIsCompleted()
         {
             int connectingTimePassed = 0;
-            while (Client.ConnectionStatus == DLDiscordClient.ConnectionState.Connecting)
+            while (Client.ConnectionStatus == DiscordClient.ConnectionState.Connecting)
             {
                 connectingTimePassed++;
                 await Task.Delay(1000);
@@ -228,14 +228,14 @@ namespace Eco.Plugins.DiscordLink
             nameToFunction.Add("Verify Config", () => { Logger.Info($"Config Verification Report:\n{MessageBuilder.Shared.GetConfigVerificationReport()}"); });
             nameToFunction.Add("Verify Permissions", () =>
             {
-                if (Client.ConnectionStatus == DLDiscordClient.ConnectionState.Connected)
+                if (Client.ConnectionStatus == DiscordClient.ConnectionState.Connected)
                     Logger.Info($"Permission Verification Report:\n{MessageBuilder.Shared.GetPermissionsReport(MessageBuilder.PermissionReportComponentFlag.All)}");
                 else
                     Logger.Error("Failed to verify permissions - Discord client not connected");
             });
             nameToFunction.Add("Force Update", async () =>
             {
-                if (Client.ConnectionStatus != DLDiscordClient.ConnectionState.Connected)
+                if (Client.ConnectionStatus != DiscordClient.ConnectionState.Connected)
                 {
                     Logger.Info("Failed to force update - Disoord client not connected");
                     return;
@@ -471,11 +471,11 @@ namespace Eco.Plugins.DiscordLink
         {
             try
             {
-                if (Client.ConnectionStatus != DLDiscordClient.ConnectionState.Connected
+                if (Client.ConnectionStatus != DiscordClient.ConnectionState.Connected
                     || (trigger & (DLEventType.Join | DLEventType.Login | DLEventType.Logout | DLEventType.Timer)) == 0)
                     return;
 
-                Client.DiscordClient.UpdateStatusAsync(new DiscordActivity(MessageBuilder.Discord.GetActivityString(), ActivityType.Watching));
+                Client.DSharpClient.UpdateStatusAsync(new DiscordActivity(MessageBuilder.Discord.GetActivityString(), ActivityType.Watching));
             }
             catch (Exception e)
             {

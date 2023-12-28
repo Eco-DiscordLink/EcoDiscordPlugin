@@ -167,19 +167,19 @@ namespace Eco.Plugins.DiscordLink.Utilities
             public static async Task<string> GetDisplayStringAsync(bool verbose)
             {
                 DiscordLink plugin = DiscordLink.Obj;
-                DLDiscordClient client = plugin.Client;
+                DiscordClient client = plugin.Client;
                 StringBuilder builder = new StringBuilder();
                 builder.AppendLine($"DiscordLink {plugin.InstalledVersion.ToString(3)}");
                 if (verbose)
                 {
                     builder.AppendLine($"Server Name: {MessageUtils.FirstNonEmptyString(DLConfig.Data.ServerName, MessageUtils.StripTags(NetworkManager.GetServerInfo().Description), "[Server Title Missing]")}");
                     builder.AppendLine($"Server Version: {EcoVersion.VersionNumber}");
-                    if (client.ConnectionStatus == DLDiscordClient.ConnectionState.Connected)
-                        builder.AppendLine($"D# Version: {client.DiscordClient.VersionString}");
+                    if (client.ConnectionStatus == DiscordClient.ConnectionState.Connected)
+                        builder.AppendLine($"D# Version: {client.DSharpClient.VersionString}");
                 }
                 builder.AppendLine($"Plugin Status: {plugin.GetStatus()}");
                 builder.AppendLine($"Discord Client Status: {client.Status}");
-                if (client.LastConnectionError != DLDiscordClient.ConnectionError.None)
+                if (client.LastConnectionError != DiscordClient.ConnectionError.None)
                     builder.AppendLine($"Discord Client Error: {client.LastConnectionError}");
 
                 TimeSpan elapssedTime = DateTime.Now.Subtract(plugin.InitTime);
@@ -187,7 +187,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     builder.AppendLine($"Start Time: {plugin.InitTime:yyyy-MM-dd HH:mm}");
                 builder.AppendLine($"Running Time: {(int)elapssedTime.TotalDays}:{elapssedTime.Hours}:{elapssedTime.Minutes}");
 
-                if (client.ConnectionStatus != DLDiscordClient.ConnectionState.Connected)
+                if (client.ConnectionStatus != DiscordClient.ConnectionState.Connected)
                     return builder.ToString();
 
                 if (verbose)
@@ -208,7 +208,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 {
                     builder.AppendLine();
                     builder.AppendLine("--- Config ---");
-                    builder.AppendLine($"Name: {client.DiscordClient.CurrentUser.Username}");
+                    builder.AppendLine($"Name: {client.DSharpClient.CurrentUser.Username}");
 
                     builder.AppendLine();
                     builder.AppendLine("--- Storage - Persistent ---");
@@ -282,7 +282,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             public static string GetConfigVerificationReport()
             {
                 StringBuilder builder = new StringBuilder();
-                if (DiscordLink.Obj.Client.ConnectionStatus != DLDiscordClient.ConnectionState.Connected)
+                if (DiscordLink.Obj.Client.ConnectionStatus != DiscordClient.ConnectionState.Connected)
                 {
                     builder.AppendLine("[Discord Client not connected - Parts of the config was not possible to verify]");
                 }
@@ -307,7 +307,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     builder.AppendLine($"- Invite message does not contain the invite link token {DLConstants.INVITE_COMMAND_TOKEN}.");
                 }
 
-                if (DiscordLink.Obj.Client.ConnectionStatus == DLDiscordClient.ConnectionState.Connected)
+                if (DiscordLink.Obj.Client.ConnectionStatus == DiscordClient.ConnectionState.Connected)
                 {
                     // Discord guild and channel information isn't available the first time this function is called
                     if (DiscordLink.Obj.Client.Guild != null && DLConfig.GetChannelLinks(verifiedLinksOnly: false).Count > 0)
@@ -333,7 +333,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 if (flag == 0)
                     return "Permission Check Failed";
 
-                DLDiscordClient client = DiscordLink.Obj.Client;
+                DiscordClient client = DiscordLink.Obj.Client;
                 StringBuilder builder = new StringBuilder();
                 if (flag.HasFlag(PermissionReportComponentFlag.Intents))
                 {

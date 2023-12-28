@@ -29,7 +29,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
         {
-            DLDiscordClient client = DiscordLink.Obj.Client;
+            DiscordClient client = DiscordLink.Obj.Client;
             if (!client.BotHasPermission(Permissions.ManageRoles))
                 return;
 
@@ -112,7 +112,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             }
         }
 
-        private async Task AddSpecialtyRole(DLDiscordClient client, DiscordMember member, string specialtyName)
+        private async Task AddSpecialtyRole(DiscordClient client, DiscordMember member, string specialtyName)
         {
             await client.AddRoleAsync(member, new DiscordLinkRole(specialtyName, null, SpecialtyColor, false, true, $"User has the {specialtyName} specialty"));
         }

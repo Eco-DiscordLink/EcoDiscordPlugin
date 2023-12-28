@@ -73,7 +73,7 @@ namespace Eco.Plugins.DiscordLink
 
         public static async Task<bool> Update(CommandInterface source, object callContext)
         {
-            if (DiscordLink.Obj.Client.ConnectionStatus != DLDiscordClient.ConnectionState.Connected)
+            if (DiscordLink.Obj.Client.ConnectionStatus != DiscordClient.ConnectionState.Connected)
             {
                 await ReportCommandError(source, callContext, "Failed to force update - Discord client not connected");
                 return false;
@@ -138,7 +138,7 @@ namespace Eco.Plugins.DiscordLink
         {
             Logger.Info("ClearRoles command invoked - Deleting all created roles");
             DiscordLink plugin = DiscordLink.Obj;
-            DLDiscordClient client = plugin.Client;
+            DiscordClient client = plugin.Client;
             foreach (ulong roleID in DLStorage.PersistentData.RoleIDs)
             {
                 DiscordRole role = client.Guild.RoleByID(roleID);

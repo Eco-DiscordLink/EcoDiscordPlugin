@@ -32,7 +32,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
         {
-            DLDiscordClient client = DiscordLink.Obj.Client;
+            DiscordClient client = DiscordLink.Obj.Client;
             if (!client.BotHasPermission(Permissions.ManageRoles))
                 return;
 

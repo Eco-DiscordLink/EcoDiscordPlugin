@@ -89,7 +89,7 @@ namespace Eco.Plugins.DiscordLink
 
             try
             {
-                DLDiscordClient client = DiscordLink.Obj.Client;
+                DiscordClient client = DiscordLink.Obj.Client;
                 if (!client.ChannelHasPermission(ctx.Channel, Permissions.SendMessages) || !client.ChannelHasPermission(ctx.Channel, Permissions.ReadMessageHistory))
                 {
                     Logger.Error($"Failed to respond to command \"{ctx.CommandName}\" in channel \"{ctx.Channel}\" as the bot lacks permissions for sending and/or reading messages in this channel.");

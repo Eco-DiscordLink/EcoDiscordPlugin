@@ -30,11 +30,11 @@ namespace Eco.Plugins.DiscordLink.Extensions
 
         #region DiscordClient
 
-        public static string[] GuildNames(this DiscordClient client) => client.Guilds.Values.Select(guild => guild.Name).ToArray();
+        public static string[] GuildNames(this DSharpPlus.DiscordClient client) => client.Guilds.Values.Select(guild => guild.Name).ToArray();
 
-        public static DiscordGuild DefaultGuild(this DiscordClient client) => client.Guilds.FirstOrDefault().Value;
+        public static DiscordGuild DefaultGuild(this DSharpPlus.DiscordClient client) => client.Guilds.FirstOrDefault().Value;
 
-        public static DiscordGuild GuildByName(this DiscordClient client, string name) => client.Guilds.Values.FirstOrDefault(guild => guild.Name == name);
+        public static DiscordGuild GuildByName(this DSharpPlus.DiscordClient client, string name) => client.Guilds.Values.FirstOrDefault(guild => guild.Name == name);
 
         #endregion
 
@@ -79,7 +79,7 @@ namespace Eco.Plugins.DiscordLink.Extensions
 
         public static async Task<DiscordMember> LookupMember(this DiscordUser user)
         {
-            DLDiscordClient client = DiscordLink.Obj.Client;
+            DiscordClient client = DiscordLink.Obj.Client;
             DiscordMember member = client.Guild.Members.FirstOrDefault(m => m.Key == user.Id).Value;
             if (member == null)
             {
@@ -148,7 +148,7 @@ namespace Eco.Plugins.DiscordLink.Extensions
 
         #region DiscordMessage
 
-        public static DiscordChannel GetChannel(this DiscordMessage message) => message.Channel ?? DiscordLink.Obj.Client.DiscordClient.GetChannelAsync(message.ChannelId).Result;
+        public static DiscordChannel GetChannel(this DiscordMessage message) => message.Channel ?? DiscordLink.Obj.Client.DSharpClient.GetChannelAsync(message.ChannelId).Result;
         public static string FormatForLog(this DiscordMessage message) => $"Channel: {message.GetChannel()}\nAuthor: {message.Author}\nMessage: {message.Content}\nAttachments ({message.Attachments.Count}): {string.Join(", ", message.Attachments.Select(a => $"{a.FileName} ({a.FileSize} bytes)"))}";
 
         #endregion
