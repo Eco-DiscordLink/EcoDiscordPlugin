@@ -610,11 +610,11 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (ServerErrorException e)
             {
-                Logger.Debug($"ServerErrorException occurred while sending message to member \"{targetMember.UniqueUsername()}\". Exception: {e}");
+                Logger.Debug($"ServerErrorException occurred while sending message to member \"{targetMember.Username}\". Exception: {e}");
             }
             catch (Exception e)
             {
-                Logger.Exception($"Failed to send DM message to {targetMember.UniqueUsername()}", e);
+                Logger.Exception($"Failed to send DM message to {targetMember.Username}", e);
             }
             return createdMessage;
         }
@@ -753,11 +753,11 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (ServerErrorException e)
             {
-                Logger.Debug($"ServerErrorException occurred while adding role \"{role.Name}\" to member \"{member.UniqueUsername()}\". Exception: {e}");
+                Logger.Debug($"ServerErrorException occurred while adding role \"{role.Name}\" to member \"{member.Username}\". Exception: {e}");
             }
             catch (Exception e)
             {
-                Logger.Exception($"Failed to grant role \"{role.Name}\" to member \"{member.UniqueUsername()}\"", e);
+                Logger.Exception($"Failed to grant role \"{role.Name}\" to member \"{member.Username}\"", e);
             }
         }
 
@@ -786,11 +786,11 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (ServerErrorException e)
             {
-                Logger.Debug($"ServerErrorException occurred while removing role \"{role.Name}\" from member \"{member.UniqueUsername()}\". Exception: {e}");
+                Logger.Debug($"ServerErrorException occurred while removing role \"{role.Name}\" from member \"{member.Username}\". Exception: {e}");
             }
             catch (Exception e)
             {
-                Logger.Exception($"Failed to revoke role \"{role.Name}\" from member \"{member.UniqueUsername()}\"", e);
+                Logger.Exception($"Failed to revoke role \"{role.Name}\" from member \"{member.Username}\"", e);
             }
         }
 

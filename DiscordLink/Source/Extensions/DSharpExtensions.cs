@@ -72,8 +72,6 @@ namespace Eco.Plugins.DiscordLink.Extensions
 
         #region DiscordUser
 
-        public static string UniqueUsername(this DiscordUser user) => $"{user.Username}#{user.Discriminator}";
-
         public static bool HasNameOrID(this DiscordUser user, string nameOrID)
         {
             if (nameOrID.TryParseSnowflakeID(out ulong ID))
@@ -103,7 +101,7 @@ namespace Eco.Plugins.DiscordLink.Extensions
             if (nameOrID.TryParseSnowflakeID(out ulong ID))
                 return member.Id == ID;
 
-            return member.UniqueUsername().EqualsCaseInsensitive(nameOrID) || member.Username.EqualsCaseInsensitive(nameOrID);
+            return member.Username.EqualsCaseInsensitive(nameOrID) || member.Username.EqualsCaseInsensitive(nameOrID);
         }
 
         public static DiscordRole GetHighestHierarchyRole(this DiscordMember member)
