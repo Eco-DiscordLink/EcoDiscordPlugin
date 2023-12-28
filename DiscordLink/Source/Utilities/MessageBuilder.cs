@@ -118,6 +118,23 @@ namespace Eco.Plugins.DiscordLink.Utilities
         {
             public static object Items { get; internal set; }
 
+            public static string GetVersionMessage()
+            {
+                Version? modIOVersion = DiscordLink.Obj.ModIOVersion;
+                string modIOVersionDesc = modIOVersion != null ? $"Latest version: {modIOVersion.ToString(3)}" : "Latest version: Unknown";
+
+                Version installedVersion = DiscordLink.Obj.InstalledVersion;
+                string installedVersionDesc = $"Installed version: {installedVersion.ToString(3)}";
+
+                if (modIOVersion == null)
+                    modIOVersionDesc = Moose.Utils.Text.Color.Red(modIOVersionDesc);
+
+                if (modIOVersion != null && modIOVersion > installedVersion)
+                    installedVersionDesc = Moose.Utils.Text.Color.Red(installedVersionDesc);
+
+                return $"{modIOVersionDesc}\n{installedVersionDesc}";
+            }
+
             public static string GetAboutMessage()
             {
                 return $"This server is running the DiscordLink plugin version {DiscordLink.Obj.InstalledVersion.ToString(3)}." +

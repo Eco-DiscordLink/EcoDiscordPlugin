@@ -259,7 +259,20 @@ namespace Eco.Plugins.DiscordLink
 
         #region Meta
 
-        [SlashCommand("About", "Displays a message describing what the DiscordLink plugin is.")]
+        [SlashCommand("Version", "Displays the current version of the DiscordLink plugin.")]
+        public async Task Version(InteractionContext ctx)
+        {
+            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
+            {
+                DiscordLinkEmbed embed = new DiscordLinkEmbed()
+                    .WithTitle("Version")
+                    .WithDescription(Moose.Utils.Text.StripTags(MessageBuilder.Shared.GetVersionMessage()));
+
+                await RespondToCommand(ctx, null, embed);
+            }, ctx);
+        }
+
+        [SlashCommand("About", "Displays information about the DiscordLink plugin.")]
         public async Task About(InteractionContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
