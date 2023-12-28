@@ -1,5 +1,4 @@
 ﻿using Eco.Gameplay.GameActions;
-using Eco.Gameplay.Items;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Modules;
 using Eco.Shared.Utils;

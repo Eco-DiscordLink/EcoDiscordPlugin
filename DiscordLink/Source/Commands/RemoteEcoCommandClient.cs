@@ -5,7 +5,6 @@ using Eco.Gameplay.Systems.Messaging.Chat.Commands;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Localization;
 using Eco.Shared.Services;
-using Eco.Shared.Utils;
 using System;
 using System.Threading.Tasks;
 

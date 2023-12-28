@@ -1,10 +1,7 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
-using Eco.Moose.Tools;
-using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Utils;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
