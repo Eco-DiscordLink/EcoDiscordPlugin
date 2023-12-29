@@ -463,6 +463,7 @@ namespace Eco.Plugins.DiscordLink
 
             try
             {
+                Logger.Trace($"Fetching message with ID \"{messageID}\" from channel \"{channel.Name}\"");
                 return await channel.GetMessageAsync(messageID);
             }
             catch (ServerErrorException e)
@@ -484,6 +485,7 @@ namespace Eco.Plugins.DiscordLink
 
             try
             {
+                Logger.Trace($"Fetching recent messages from channel \"{channel.Name}\"");
                 return await channel.GetMessagesAsync();
             }
             catch (ServerErrorException e)
@@ -508,6 +510,7 @@ namespace Eco.Plugins.DiscordLink
 
             try
             {
+                Logger.Trace("Fetching guild member list");
                 return await Guild.GetAllMembersAsync();
             }
             catch (ServerErrorException e)
@@ -547,6 +550,7 @@ namespace Eco.Plugins.DiscordLink
                 ICollection<string> stringParts = MessageUtils.SplitStringBySize(fullTextContent, DLConstants.DISCORD_MESSAGE_CHARACTER_LIMIT);
                 ICollection<DiscordEmbed> embedParts = MessageUtils.BuildDiscordEmbeds(embedContent);
 
+                Logger.Trace($"Sending message to channel \"{channel.Name}\" containing {stringParts.Count} raw string parts and {embedParts.Count} embed parts");
                 if (stringParts.Count <= 1 && embedParts.Count == 1)
                 {
                     createdMessage = await channel.SendMessageAsync(fullTextContent, embedParts.First());
@@ -586,6 +590,7 @@ namespace Eco.Plugins.DiscordLink
                 ICollection<string> stringParts = MessageUtils.SplitStringBySize(textContent, DLConstants.DISCORD_MESSAGE_CHARACTER_LIMIT);
                 ICollection<DiscordEmbed> embedParts = MessageUtils.BuildDiscordEmbeds(embedContent);
 
+                Logger.Trace($"Sending DM to user \"{targetMember.Username}\" containing {stringParts.Count} raw string parts and {embedParts.Count} embed parts");
                 if (stringParts.Count <= 1 && embedParts.Count <= 1)
                 {
                     DiscordEmbed embed = (embedParts.Count >= 1) ? embedParts.First() : null;
@@ -631,6 +636,7 @@ namespace Eco.Plugins.DiscordLink
 
                 if (embedContent == null)
                 {
+                    Logger.Trace($"Editing raw message in channel \"{message.Channel.Name}\"");
                     editedMessage = await message.ModifyAsync(textContent);
                 }
                 else
@@ -639,11 +645,13 @@ namespace Eco.Plugins.DiscordLink
                     if (ChannelHasPermission(channel, Permissions.EmbedLinks))
                     {
                         List<DiscordEmbed> splitEmbeds = MessageUtils.BuildDiscordEmbeds(embedContent);
+                        Logger.Trace($"Editing embed message with {splitEmbeds.Count} pieces in channel \"{message.Channel.Name}\"");
                         if (splitEmbeds.Count > 0)
                             editedMessage = await message.ModifyAsync(textContent, splitEmbeds[0]); // TODO: Actually keep track of split messages instead of only overwriting the first one
                     }
                     else
                     {
+                        Logger.Trace($"Editing converted embed message with in channel \"{message.Channel.Name}\"");
                         await message.ModifyEmbedSuppressionAsync(true); // Remove existing embeds
                         editedMessage = await message.ModifyAsync($"{textContent}\n{embedContent.AsText()}");
                     }
@@ -679,6 +687,7 @@ namespace Eco.Plugins.DiscordLink
             bool result = false;
             try
             {
+                Logger.Trace($"Deleting message \"{message.Id}\" from channel \"{channel.Name}\"");
                 await message.DeleteAsync("Deleted by DiscordLink");
                 result = true;
             }
@@ -701,6 +710,7 @@ namespace Eco.Plugins.DiscordLink
         {
             try
             {
+                Logger.Trace($"Creating role \"{dlRole.Name}\"");
                 DiscordRole role = await Guild.CreateRoleAsync(dlRole.Name, dlRole.Permissions, dlRole.Color, dlRole.Hoist, dlRole.Mentionable, dlRole.AddReason);
                 if (role != null)
                 {
@@ -748,6 +758,7 @@ namespace Eco.Plugins.DiscordLink
 
             try
             {
+                Logger.Trace($"Adding role \"{role.Name}\" to member \"{member.Username}\"");
                 await member.GrantRoleAsync(role, "Added by DiscordLink");
             }
             catch (UnauthorizedException e)
@@ -785,6 +796,7 @@ namespace Eco.Plugins.DiscordLink
 
             try
             {
+                Logger.Trace($"Removing role \"{role.Name}\" from member \"{member.Username}\"");
                 await member.RevokeRoleAsync(role, "Removed by DiscordLink");
             }
             catch (UnauthorizedException e)
@@ -808,6 +820,7 @@ namespace Eco.Plugins.DiscordLink
 
             try
             {
+                Logger.Trace($"Deleting role \"{role.Name}\"");
                 await role.DeleteAsync("Deleted by DiscordLink");
             }
             catch (UnauthorizedException e)
