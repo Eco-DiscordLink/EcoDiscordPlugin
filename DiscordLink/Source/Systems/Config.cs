@@ -304,9 +304,6 @@ namespace Eco.Plugins.DiscordLink
         [Description("The roles recognized as having admin permissions on Discord. This setting requires a plugin restart to take effect."), Category("Base Configuration - Discord")]
         public ObservableCollection<string> AdminRoles { get; set; } = new ObservableCollection<string>(DLConfig.DefaultValues.AdminRoles);
 
-        [Description("Determines for what sizes of embeds to show the footer containing meta information about posted embeds. All embeds of sizes bigger than the selected one will have footers as well. This setting can be changed while the server is running."), Category("Base Configuration - Discord")]
-        public DiscordLinkEmbed.EmbedSize MinEmbedSizeForFooter { get; set; } = DLConfig.DefaultValues.MinEmbedSizeForFooter;
-
         [Description("The name of the Eco server, overriding the name configured within Eco. This setting can be changed while the server is running."), Category("Base Configuration - Eco")]
         public string ServerName { get; set; }
 
@@ -393,5 +390,8 @@ namespace Eco.Plugins.DiscordLink
 
         [Description("Emote keys to replace with eco icons using the value name. This setting can be changed while the server is running."), Category("Emotes")]
         public ObservableCollection<EmoteIconSubstitution> EmoteIconSubstitutions { get; set; } = new ObservableCollection<EmoteIconSubstitution>(DLConfig.DefaultValues.EmoteSubstitutions);
+
+        [Description("Determines for what sizes of embeds to show the footer containing meta information about posted embeds. All embeds of sizes bigger than the selected one will have footers as well. This setting can be changed while the server is running."), Category("Style - Discord")]
+        public DiscordLinkEmbed.EmbedSize MinEmbedSizeForFooter { get; set; } = DLConfig.DefaultValues.MinEmbedSizeForFooter;
     }
 }
