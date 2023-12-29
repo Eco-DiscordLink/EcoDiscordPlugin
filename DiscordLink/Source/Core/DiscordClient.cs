@@ -467,12 +467,7 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (ServerErrorException e)
             {
-                Logger.Debug(e.ToString());
-                return null;
-            }
-            catch (NotFoundException e)
-            {
-                Logger.Debug(e.ToString());
+                Logger.DebugException($"ServerErrorException occurred when attempting to read message with ID {messageID} from channel \"{channel.Name}\"", e);
                 return null;
             }
             catch (Exception e)
@@ -493,12 +488,12 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (ServerErrorException e)
             {
-                Logger.Debug($"ServerErrorException occurred while fetching messages from channel \"{channel.Name}. Exception: {e}");
+                Logger.DebugException($"ServerErrorException occurred while fetching messages from channel \"{channel.Name}", e);
                 return null;
             }
             catch (Exception e)
             {
-                Logger.DebugException($"Error occurred when attempting to read message history from channel \"{channel.Name}\"", e);
+                Logger.Exception($"Error occurred when attempting to read message history from channel \"{channel.Name}\"", e);
                 return null;
             }
         }
@@ -517,7 +512,7 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (ServerErrorException e)
             {
-                Logger.Debug($"ServerErrorException occurred while fetching guild members. Exception: {e}");
+                Logger.DebugException($"ServerErrorException occurred while fetching guild members", e);
                 return null;
             }
             catch (Exception e)
@@ -570,7 +565,7 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (ServerErrorException e)
             {
-                Logger.Debug($"ServerErrorException occurred while sending message to channel \"{channel.Name}\". Exception: {e}");
+                Logger.DebugException($"ServerErrorException occurred while sending message to channel \"{channel.Name}\"", e);
             }
             catch (Exception e)
             {
@@ -610,7 +605,7 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (ServerErrorException e)
             {
-                Logger.Debug($"ServerErrorException occurred while sending message to member \"{targetMember.Username}\". Exception: {e}");
+                Logger.DebugException($"ServerErrorException occurred while sending message to member \"{targetMember.Username}\"", e);
             }
             catch (Exception e)
             {
@@ -656,7 +651,7 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (ServerErrorException e)
             {
-                Logger.Debug($"ServerErrorException occurred while modifying message in channel \"{message.Channel.Name}\". Exception: {e}");
+                Logger.DebugException($"ServerErrorException occurred while modifying message in channel \"{message.Channel.Name}\"", e);
             }
             catch (Exception e)
             {
@@ -689,7 +684,7 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (ServerErrorException e)
             {
-                Logger.Debug($"ServerErrorException occurred while deleting message in channel \"{message.Channel.Name}\". Exception: {e}");
+                Logger.DebugException($"ServerErrorException occurred while deleting message in channel \"{message.Channel.Name}\"", e);
             }
             catch (Exception e)
             {
@@ -725,7 +720,7 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (ServerErrorException e)
             {
-                Logger.Debug($"ServerErrorException occurred while creating role \"{dlRole.Name}\". Exception: {e}");
+                Logger.DebugException($"ServerErrorException occurred while creating role \"{dlRole.Name}\"", e);
             }
             catch (Exception e)
             {
@@ -761,7 +756,7 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (ServerErrorException e)
             {
-                Logger.Debug($"ServerErrorException occurred while adding role \"{role.Name}\" to member \"{member.Username}\". Exception: {e}");
+                Logger.DebugException($"ServerErrorException occurred while adding role \"{role.Name}\" to member \"{member.Username}\"", e);
             }
             catch (Exception e)
             {
@@ -774,7 +769,7 @@ namespace Eco.Plugins.DiscordLink
             DiscordRole role = Guild.RoleByName(roleName);
             if (role == null)
             {
-                Logger.Warning($"Attempting to remove nonexistent role \"{roleName}\" from user \"{member.DisplayName}\"");
+                Logger.Debug($"Attempting to remove nonexistent role \"{roleName}\" from user \"{member.DisplayName}\"");
                 return;
             }
 
@@ -798,7 +793,7 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (ServerErrorException e)
             {
-                Logger.Debug($"ServerErrorException occurred while removing role \"{role.Name}\" from member \"{member.Username}\". Exception: {e}");
+                Logger.DebugException($"ServerErrorException occurred while removing role \"{role.Name}\" from member \"{member.Username}\"", e);
             }
             catch (Exception e)
             {
@@ -821,7 +816,7 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (ServerErrorException e)
             {
-                Logger.Debug($"ServerErrorException occurred while deleting role \"{role.Name}\". Exception: {e}");
+                Logger.DebugException($"ServerErrorException occurred while deleting role \"{role.Name}\"", e);
             }
             catch (Exception e)
             {
