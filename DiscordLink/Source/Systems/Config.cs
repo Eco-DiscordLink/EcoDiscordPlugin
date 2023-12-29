@@ -262,8 +262,8 @@ namespace Eco.Plugins.DiscordLink
         {
             return new DLConfigData
             {
-                DiscordServerID = this.DiscordServerID,
                 BotToken = this.BotToken,
+                DiscordServerID = this.DiscordServerID,
                 MinEmbedSizeForFooter = this.MinEmbedSizeForFooter,
                 ServerName = this.ServerName,
                 ServerDescription = this.ServerDescription,
@@ -295,11 +295,11 @@ namespace Eco.Plugins.DiscordLink
             };
         }
 
-        [Description("The ID if the Discord Server. This setting can be changed while the server is running but will require a plugin restart to take effect."), Category("Base Configuration - Discord")]
-        public ulong DiscordServerID { get; set; }
-
         [Description("The token provided by the Discord API to allow access to the Discord bot. This setting can be changed while the server is running but will require a plugin restart to take effect."), Category("Base Configuration - Discord")]
         public string BotToken { get; set; }
+
+        [Description("The ID if the Discord Server. This setting can be changed while the server is running but will require a plugin restart to take effect."), Category("Base Configuration - Discord")]
+        public ulong DiscordServerID { get; set; }
 
         [Description("The roles recognized as having admin permissions on Discord. This setting requires a plugin restart to take effect."), Category("Base Configuration - Discord")]
         public ObservableCollection<string> AdminRoles { get; set; } = new ObservableCollection<string>(DLConfig.DefaultValues.AdminRoles);
