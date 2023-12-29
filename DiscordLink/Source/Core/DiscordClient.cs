@@ -440,7 +440,21 @@ namespace Eco.Plugins.DiscordLink
 
         public async Task<DiscordUser> GetUserAsync(ulong userID)
         {
-            return await DSharpClient.GetUserAsync(userID);
+            try
+            {
+                Logger.Trace($"Fetching user with ID \"{userID}\"");
+                return await DSharpClient.GetUserAsync(userID);
+            }
+            catch (ServerErrorException e)
+            {
+                Logger.DebugException($"ServerErrorException occurred when attempting to fetch user with ID \"{userID}\"", e);
+                return null;
+            }
+            catch (Exception e)
+            {
+                Logger.Exception($"Error occurred when attempting to fetch user with ID \"{userID}\"", e);
+                return null;
+            }
         }
 
         public async Task<DiscordMember> GetMemberAsync(string userID)
@@ -451,9 +465,23 @@ namespace Eco.Plugins.DiscordLink
             return await GetMemberAsync(Guild, ID);
         }
 
-        public async Task<DiscordMember> GetMemberAsync(DiscordGuild guild, ulong userID)
+        public async Task<DiscordMember> GetMemberAsync(DiscordGuild guild, ulong memberID)
         {
-            return await guild.GetMemberAsync(userID);
+            try
+            {
+                Logger.Trace($"Fetching member with ID \"{memberID}\"");
+                return await Guild.GetMemberAsync(memberID);
+            }
+            catch (ServerErrorException e)
+            {
+                Logger.DebugException($"ServerErrorException occurred when attempting to fetch member with ID \"{memberID}\"", e);
+                return null;
+            }
+            catch (Exception e)
+            {
+                Logger.Exception($"Error occurred when attempting to fetch member with ID \"{memberID}\"", e);
+                return null;
+            }
         }
 
         public async Task<DiscordMessage> GetMessageAsync(DiscordChannel channel, ulong messageID)
