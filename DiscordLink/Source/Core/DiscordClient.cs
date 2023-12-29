@@ -829,6 +829,29 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
+        public async Task SetMemberNickname(DiscordMember member, string newNickname)
+        {
+            if (member.Nickname == newNickname)
+                return;
+
+            try
+            {
+                await member.ModifyAsync((edit) => { edit.Nickname = newNickname; });
+            }
+            catch (UnauthorizedException e)
+            {
+                Logger.Exception($"DiscordLink was not allowed to change the nickname of \"{member.Username}\". Ensure that your bot user has permission to manage user nicknames.", e);
+            }
+            catch (ServerErrorException e)
+            {
+                Logger.Debug($"ServerErrorException occurred while changing the nickname of \"{member.Username}\". Exception: {e}");
+            }
+            catch (Exception e)
+            {
+                Logger.Exception($"Failed to change nickname of \"{member.Username}\"", e);
+            }
+        }
+
         #endregion
     }
 }

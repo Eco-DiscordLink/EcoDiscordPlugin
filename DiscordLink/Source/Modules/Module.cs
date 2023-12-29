@@ -28,7 +28,8 @@ namespace Eco.Plugins.DiscordLink.Modules
         DemographicRoleModule,
         RoleCleanupModule,
         SpecialitiesRoleModule,
-        SnippetInput
+        SnippetInput,
+        NameSync
     }
 
     public enum ModuleArchetype

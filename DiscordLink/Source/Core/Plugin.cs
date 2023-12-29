@@ -421,6 +421,7 @@ namespace Eco.Plugins.DiscordLink
             Modules[(int)ModuleType.RoleCleanupModule] = new RoleCleanupModule();
             Modules[(int)ModuleType.SpecialitiesRoleModule] = new SpecialtiesRoleModule();
             Modules[(int)ModuleType.SnippetInput] = new SnippetInput();
+            Modules[(int)ModuleType.NameSync] = new NameSyncModule();
 
             foreach (Module module in Modules)
             {

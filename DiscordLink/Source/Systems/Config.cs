@@ -36,6 +36,7 @@ namespace Eco.Plugins.DiscordLink
             public const bool UseLinkedAccountRole = true;
             public const bool UseDemographicRoles = true;
             public const bool UseSpecialtyRoles = true;
+            public const bool UseNameSynchronization = false;
             public static readonly DemographicRoleReplacement[] DemographicRoleReplacements = { new DemographicRoleReplacement("everyone", "Eco Everyone"), new DemographicRoleReplacement("admins", "Eco Admins") };
             public static readonly EmoteIconSubstitution[] EmoteSubstitutions = { new EmoteIconSubstitution("DiscordLink", "DiscordLinkLogo") };
         }
@@ -262,9 +263,8 @@ namespace Eco.Plugins.DiscordLink
         {
             return new DLConfigData
             {
-                DiscordServerID = this.DiscordServerID,
                 BotToken = this.BotToken,
-                MinEmbedSizeForFooter = this.MinEmbedSizeForFooter,
+                DiscordServerID = this.DiscordServerID,
                 ServerName = this.ServerName,
                 ServerDescription = this.ServerDescription,
                 ServerLogo = this.ServerLogo,
@@ -276,6 +276,8 @@ namespace Eco.Plugins.DiscordLink
                 UseLinkedAccountRole = this.UseLinkedAccountRole,
                 UseDemographicRoles = this.UseDemographicRoles,
                 UseSpecialtyRoles = this.UseSpecialtyRoles,
+                UseNameSynchronization = this.UseNameSynchronization,
+                MinEmbedSizeForFooter = this.MinEmbedSizeForFooter,
                 AdminRoles = new ObservableCollection<string>(this.AdminRoles.Select(t => t.Clone()).Cast<string>()),
                 ChatChannelLinks = new ObservableCollection<ChatChannelLink>(this.ChatChannelLinks.Select(t => t.Clone()).Cast<ChatChannelLink>()),
                 TradeFeedChannels = new ObservableCollection<ChannelLink>(this.TradeFeedChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
@@ -372,6 +374,9 @@ namespace Eco.Plugins.DiscordLink
 
         [Description("Determines if Discord roles matching ingame specialties will be granted to users who have linked their accounts. This setting can be changed while the server is running."), Category("Roles")]
         public bool UseSpecialtyRoles { get; set; } = DLConfig.DefaultValues.UseSpecialtyRoles;
+
+        [Description("Determines if the Discord nickname should be set to match the Eco username when an account is linked. This setting can be changed while the server is running."), Category("Module - Synchronization")]
+        public bool UseNameSynchronization { get; set; } = DLConfig.DefaultValues.UseNameSynchronization;
 
         [Description("Discord channels in which to allow commands. If no channels are specified, commands will be allowed in all channels. This setting can be changed while the server is running."), Category("Commands")]
         public ObservableCollection<ChannelLink> DiscordCommandChannels { get; set; } = new ObservableCollection<ChannelLink>();

@@ -10,7 +10,7 @@ namespace Eco.Plugins.DiscordLink
 {
     public static class DLConstants
     {
-        public static readonly Permissions[] REQUESTED_GUILD_PERMISSIONS = { Permissions.AccessChannels, Permissions.ManageRoles };
+        public static readonly Permissions[] REQUESTED_GUILD_PERMISSIONS = { Permissions.AccessChannels, Permissions.ManageNicknames, Permissions.ManageRoles };
         public static readonly Permissions[] REQUESTED_CHANNEL_PERMISSIONS = { Permissions.AccessChannels, Permissions.SendMessages, Permissions.EmbedLinks, Permissions.AddReactions, Permissions.MentionEveryone, Permissions.ManageMessages, Permissions.ReadMessageHistory };
         public static readonly DiscordIntents[] REQUESTED_INTENTS = { DiscordIntents.AllUnprivileged, DiscordIntents.GuildMembers, DiscordIntents.MessageContents };
 
