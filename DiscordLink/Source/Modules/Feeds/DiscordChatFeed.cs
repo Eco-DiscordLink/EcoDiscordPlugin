@@ -49,7 +49,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         private async Task ForwardMessageToEcoChannel(DiscordMessage discordMessage, string ecoChannel)
         {
-            Logger.DebugVerbose($"Sending Discord message to Eco channel: {ecoChannel}");
+            Logger.Trace($"Sending Discord message to Eco channel: {ecoChannel}");
             DiscordMember author = await discordMessage.GetChannel().Guild.GetMemberAsync(discordMessage.Author.Id);
 
             User sender = null;

@@ -265,7 +265,7 @@ namespace Eco.Plugins.DiscordLink
         private async Task HandleDiscordMessageCreated(DSharpPlus.DiscordClient client, MessageCreateEventArgs args)
         {
             DiscordMessage message = args.Message;
-            Logger.DebugVerbose($"Discord Message Received\n{message.FormatForLog()}");
+            Logger.Trace($"Discord Message Received\n{message.FormatForLog()}");
 
             if (args.Author == DSharpClient.CurrentUser)
                 return; // Ignore messages sent by our own bot

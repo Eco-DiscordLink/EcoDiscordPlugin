@@ -101,7 +101,7 @@ namespace Eco.Plugins.DiscordLink.Events
                     }
                     catch (Exception e)
                     {
-                        Logger.DebugVerbose($"Failed to accumulate log events. Exception: {e}"); // Using verbose log only as it's risky to log here since we could cause a feedback loop.
+                        Logger.Trace($"Failed to accumulate log events. Exception: {e}"); // Using trace log only as it's risky to log here since we could cause a feedback loop.
                     }
                 }
             }, null, 0, LOG_POSTING_INTERVAL_MS);

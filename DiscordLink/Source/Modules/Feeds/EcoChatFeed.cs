@@ -49,7 +49,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         private async Task ForwardMessageToDiscordChannel(ChatSent chatMessage, DiscordChannel channel, bool useTimestamp, GlobalMentionPermission globalMentionPermission, ChatLinkMentionPermissions chatlinkPermissions)
         {
-            Logger.DebugVerbose($"Sending Eco message to Discord channel {channel.Name}");
+            Logger.Trace($"Sending Eco message to Discord channel {channel.Name}");
 
             bool blocked = false;
             string forwardedMessage = string.Empty;

@@ -320,7 +320,7 @@ namespace Eco.Plugins.DiscordLink
             switch (action)
             {
                 case ChatSent chatSent:
-                    Logger.DebugVerbose($"Eco Message Received\n{chatSent.FormatForLog()}");
+                    Logger.Trace($"Eco Message Received\n{chatSent.FormatForLog()}");
                     _ = HandleEvent(DLEventType.EcoMessageSent, chatSent);
                     break;
 
@@ -378,7 +378,7 @@ namespace Eco.Plugins.DiscordLink
 
         public async Task HandleEvent(DLEventType eventType, params object[] data)
         {
-            Logger.DebugVerbose($"Event of type {eventType} received");
+            Logger.Trace($"Event of type {eventType} received");
 
             EventConverter.Instance.HandleEvent(eventType, data);
             DLStorage.Instance.HandleEvent(eventType, data);
