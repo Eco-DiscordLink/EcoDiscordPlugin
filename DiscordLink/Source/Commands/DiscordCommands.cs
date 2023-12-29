@@ -183,7 +183,7 @@ namespace Eco.Plugins.DiscordLink
 
         #region Eco Commands
 
-        [SlashCommand("EcoCommand", "Runs an ingame command.")]
+        [SlashCommand("EcoCommand", "Executes an ingame command.")]
         public async Task EcoCommand(InteractionContext ctx, [Option("Command", "The Eco command to run.")] string command)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
