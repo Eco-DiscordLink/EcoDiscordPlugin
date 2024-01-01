@@ -50,7 +50,7 @@
     <Reference Include="MightyMooseCore">
       <HintPath Condition="Exists('..\Dependencies\MightyMooseCore.dll')">..\Dependencies\MightyMooseCore.dll</HintPath>
       <HintPath Condition="Exists('..\..\MightyMooseCore\MightyMooseCore\bin\Release\net7.0\MightyMooseCore.dll')">..\..\MightyMooseCore\MightyMooseCore\bin\Release\net7.0\MightyMooseCore.dll</HintPath>
-      <Private>false</Private>  
+      <Private>true</Private>
     </Reference>
     <Reference Include="Eco.Core">
       <HintPath Condition="Exists('..\Dependencies\Eco.Core.dll')">..\Dependencies\Eco.Core.dll</HintPath>
@@ -85,6 +85,7 @@
     <Reference Include="Eco.WorldGenerator">
       <HintPath Condition="Exists('..\Dependencies\Eco.WorldGenerator.dll')">..\Dependencies\Eco.WorldGenerator.dll</HintPath>
       <HintPath Condition="Exists('..\..\Eco\Server\Eco.WorldGenerator\bin\Release\net7.0-windows\Eco.WorldGenerator.dll')">..\..\Eco\Server\Eco.WorldGenerator\bin\Release\net7.0-windows\Eco.WorldGenerator.dll</HintPath>
+      <Private>false</Private>
     </Reference>
   </ItemGroup>
   
