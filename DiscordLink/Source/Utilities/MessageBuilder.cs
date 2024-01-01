@@ -439,7 +439,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 electionList = string.Empty;
                 votesList = string.Empty;
                 timeRemainingList = string.Empty;
-                foreach (Election election in EcoUtils.ActiveElections)
+                foreach (Election election in EcoUtils.ActiveElections.OrderByDescending(election => MessageUtils.StripTags(election.Name)))
                 {
                     electionList += $"{MessageUtils.StripTags(election.Name)}\n";
                     votesList += $"{election.TotalVotes} Votes\n";
@@ -451,7 +451,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             {
                 lawList = string.Empty;
                 creatorList = string.Empty;
-                foreach (Law law in EcoUtils.ActiveLaws)
+                foreach (Law law in EcoUtils.ActiveLaws.OrderByDescending(law => MessageUtils.StripTags(law.Name)))
                 {
                     lawList += $"{MessageUtils.StripTags(law.Name)}\n";
                     creatorList += law.Creator != null ? $"{MessageUtils.StripTags(law.Creator.Name)}\n" : "Unknown\n";
