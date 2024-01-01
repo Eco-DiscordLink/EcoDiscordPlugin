@@ -204,7 +204,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 builder.AppendLine();
                 builder.AppendLine("--- Modules ---");
 
-                string moduleDisplayText = plugin.Modules.Select(m => m.GetDisplayText(string.Empty, verbose)).DoubleNewlineList();
+                string moduleDisplayText = plugin.Modules.Select(module => module.GetDisplayText(string.Empty, verbose)).DoubleNewlineList();
                 builder.AppendLine(moduleDisplayText);
 
                 if (verbose)
@@ -430,7 +430,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
             public static string GetOnlinePlayerList()
             {
-                string playerList = string.Join("\n", EcoUtils.OnlineUsersAlphabetical.Select(u => MessageUtils.StripTags(u.Name)));
+                string playerList = string.Join("\n", EcoUtils.OnlineUsersAlphabetical.Select(user => MessageUtils.StripTags(user.Name)));
                 if (string.IsNullOrEmpty(playerList))
                     playerList = "-- No players online --";
 
@@ -476,12 +476,12 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
             public static string GetPlayerSessionTimeList()
             {
-                return string.Join("\n", EcoUtils.OnlineUsersAlphabetical.Select(u => GetTimeDescription(u.GetSecondsSinceLogin(), TimespanStringComponent.Day | TimespanStringComponent.Hour | TimespanStringComponent.Minute, TimespanStringComponent.Hour | TimespanStringComponent.Minute)));
+                return string.Join("\n", EcoUtils.OnlineUsersAlphabetical.Select(user => GetTimeDescription(user.GetSecondsSinceLogin(), TimespanStringComponent.Day | TimespanStringComponent.Hour | TimespanStringComponent.Minute, TimespanStringComponent.Hour | TimespanStringComponent.Minute)));
             }
 
             public static string GetPlayerExhaustionTimeList()
             {
-                return string.Join("\n", EcoUtils.OnlineUsersAlphabetical.Select(u => (u.ExhaustionMonitor?.IsExhausted ?? false) ? "Exhausted" : GetTimeDescription(u.GetSecondsLeftUntilExhaustion(), TimespanStringComponent.Day | TimespanStringComponent.Hour | TimespanStringComponent.Minute, TimespanStringComponent.Hour | TimespanStringComponent.Minute)));
+                return string.Join("\n", EcoUtils.OnlineUsersAlphabetical.Select(user => (user.ExhaustionMonitor?.IsExhausted ?? false) ? "Exhausted" : GetTimeDescription(user.GetSecondsLeftUntilExhaustion(), TimespanStringComponent.Day | TimespanStringComponent.Hour | TimespanStringComponent.Minute, TimespanStringComponent.Hour | TimespanStringComponent.Minute)));
             }
 
             public enum TimespanStringComponent
@@ -931,7 +931,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     StringBuilder levelsDesc = new StringBuilder();
                     StringBuilder percentOfNextLevelDoneDesc = new StringBuilder();
 
-                    IEnumerable<Skill> orderedSkills = user.Skillset.Skills.Where(s => s.Level > 0).OrderByDescending(s => s.Level);
+                    IEnumerable<Skill> orderedSkills = user.Skillset.Skills.Where(skill => skill.Level > 0).OrderByDescending(skill => skill.Level);
                     foreach (Skill skill in orderedSkills)
                     {
                         bool maxLevelReached = skill.Level >= skill.MaxLevel;
