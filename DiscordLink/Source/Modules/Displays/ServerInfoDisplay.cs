@@ -71,6 +71,10 @@ namespace Eco.Plugins.DiscordLink.Modules
                 statusFlag |= MessageBuilder.ServerInfoComponentFlag.ExhaustionResetTimeLeft;
             if (infoChannel.UseExhaustedPlayerCount)
                 statusFlag |= MessageBuilder.ServerInfoComponentFlag.ExhaustedPlayerCount;
+            if (infoChannel.UseSettlementCount)
+                statusFlag |= MessageBuilder.ServerInfoComponentFlag.ActiveSettlementCount;
+            if (infoChannel.UseSettlementList)
+                statusFlag |= MessageBuilder.ServerInfoComponentFlag.ActiveSettlementList;
             if (infoChannel.UseElectionCount)
                 statusFlag |= MessageBuilder.ServerInfoComponentFlag.ActiveElectionCount;
             if (infoChannel.UseElectionList)

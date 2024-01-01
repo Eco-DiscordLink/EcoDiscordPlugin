@@ -40,6 +40,7 @@ using StoreOfferGroup = System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.
 using DSharpPlus.SlashCommands;
 using Eco.Gameplay.Civics;
 using Eco.Gameplay.Economy.Reputation;
+using Eco.Gameplay.Settlements;
 
 namespace Eco.Plugins.DiscordLink.Utilities
 {
@@ -66,6 +67,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
             ActiveElectionList          = 1 << 15,
             LawCount                    = 1 << 16,
             LawList                     = 1 << 17,
+            ActiveSettlementCount       = 1 << 18,
+            ActiveSettlementList        = 1 << 19,
             All                         = ~0
         }
 
@@ -458,6 +461,19 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 }
             }
 
+            public static void GetActiveSettlementsList(out string settlementList, out string activeCitizenCountAndInfluenceList, out string leaderList)
+            {
+                settlementList = string.Empty;
+                activeCitizenCountAndInfluenceList = string.Empty;
+                leaderList = string.Empty;
+                foreach (Settlement settlement in EcoUtils.ActiveSettlements.OrderByDescending(settlement => settlement.CachedData.CultureRecursiveTotal))
+                {
+                    settlementList += $"{MessageUtils.StripTags(settlement.Name)}\n";
+                    activeCitizenCountAndInfluenceList += $"{settlement.Citizens.Count(user => user.IsActive)} | {settlement.CachedData.CultureRecursiveTotal.ToString("0")}\n";
+                    leaderList += settlement.Leader != null && settlement.Leader.Occupied ? $"{MessageUtils.StripTags(settlement.Leader.UserSet.First().Name)}\n" : "None\n";
+                }
+            }
+
             public static string GetPlayerSessionTimeList()
             {
                 return string.Join("\n", EcoUtils.OnlineUsersAlphabetical.Select(u => GetTimeDescription(u.GetSecondsSinceLogin(), TimespanStringComponent.Day | TimespanStringComponent.Hour | TimespanStringComponent.Minute, TimespanStringComponent.Hour | TimespanStringComponent.Minute)));
@@ -638,7 +654,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     embed.AddField("Webpage Address", fieldText);
                 }
 
-                if (flag.HasFlag(ServerInfoComponentFlag.PlayerCount) || flag.HasFlag(ServerInfoComponentFlag.LawCount) || flag.HasFlag(ServerInfoComponentFlag.ActiveElectionCount))
+                if (flag.HasFlag(ServerInfoComponentFlag.PlayerCount) || flag.HasFlag(ServerInfoComponentFlag.ActiveSettlementCount))
                 {
                     int fieldsAdded = 0;
                     if (flag.HasFlag(ServerInfoComponentFlag.PlayerCount))
@@ -647,6 +663,21 @@ namespace Eco.Plugins.DiscordLink.Utilities
                         ++fieldsAdded;
                     }
 
+                    if (flag.HasFlag(ServerInfoComponentFlag.ActiveSettlementCount))
+                    {
+                        embed.AddField("Active Settlement Count", $"{EcoUtils.ActiveSettlements.Count()}", inline: true);
+                        ++fieldsAdded;
+                    }
+
+                    for (int i = fieldsAdded; i < DLConstants.DISCORD_EMBED_FIELDS_PER_ROW_LIMIT; ++i)
+                    {
+                        embed.AddAlignmentField();
+                    }
+                }
+
+                if(flag.HasFlag(ServerInfoComponentFlag.LawCount) || flag.HasFlag(ServerInfoComponentFlag.ActiveElectionCount))
+                {
+                    int fieldsAdded = 0;
                     if (flag.HasFlag(ServerInfoComponentFlag.LawCount))
                     {
                         embed.AddField("Law Count", $"{EcoUtils.ActiveLaws.Count()}", inline: true);
@@ -744,6 +775,23 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     }
                     else
                     {
+                        embed.AddAlignmentField();
+                    }
+                }
+
+                if(flag.HasFlag(ServerInfoComponentFlag.ActiveSettlementList))
+                {
+                    Shared.GetActiveSettlementsList(out string settlementList, out string activeCitizenCountList, out string leaderList);
+                    if (!string.IsNullOrEmpty(settlementList))
+                    {
+                        embed.AddField("Active Settlements", settlementList, inline: true);
+                        embed.AddField("Active Citizen & Influence", activeCitizenCountList, inline: true);
+                        embed.AddField("Leader", leaderList, inline: true);
+                    }
+                    else
+                    {
+                        embed.AddField("Active Settlements", "-- No active settlements --", inline: true);
+                        embed.AddAlignmentField();
                         embed.AddAlignmentField();
                     }
                 }

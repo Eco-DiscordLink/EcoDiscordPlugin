@@ -267,6 +267,12 @@ namespace Eco.Plugins.DiscordLink
         [Description("Display the amount of exhausted players.")]
         public bool UseExhaustedPlayerCount { get; set; } = false;
 
+        [Description("Display the number of settlements elections.")]
+        public bool UseSettlementCount { get; set; } = false;
+
+        [Description("Display a list of all active settlements.")]
+        public bool UseSettlementList { get; set; } = true;
+
         [Description("Display the number of active elections.")]
         public bool UseElectionCount { get; set; } = false;
 

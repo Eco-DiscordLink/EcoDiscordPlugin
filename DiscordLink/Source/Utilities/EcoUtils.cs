@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using User = Eco.Gameplay.Players.User;
+using Eco.Gameplay.Settlements;
 
 namespace Eco.Plugins.DiscordLink.Utilities
 {
@@ -77,6 +78,12 @@ namespace Eco.Plugins.DiscordLink.Utilities
         public static Title ActiveTitleByName(string titleName) => ActiveTitles.FirstOrDefault(title => title.Name.EqualsCaseInsensitive(titleName));
         public static Title ActiveTitleByID(int titleID) => ActiveTitles.FirstOrDefault(title => title.Id == titleID);
         public static Title ActiveTitleByNameOrID(string titleNameOrID) => int.TryParse(titleNameOrID, out int ID) ? ActiveTitleByID(ID) : ActiveTitleByName(titleNameOrID);
+
+        public static IEnumerable<Settlement> Settlements => Registrars.Get<Settlement>().NonNull().Where(settlement => settlement.Founded);
+        public static IEnumerable<Settlement> ActiveSettlements => Settlements.Where(settlement => settlement.Citizens.Any(user => user.IsActive));
+        public static Settlement SettlementByName(string settlementName) => Settlements.FirstOrDefault(settlement => settlement.Name.EqualsCaseInsensitive(settlementName));
+        public static Settlement SettlementByID(int settlementID) => Settlements.FirstOrDefault(settlement => settlement.Id == settlementID);
+        public static Settlement SettlementByNameOrID(string settlementNameOrID) => int.TryParse(settlementNameOrID, out int ID) ? SettlementByID(ID) : SettlementByName(settlementNameOrID);
 
         public static IEnumerable<Currency> Currencies => CurrencyManager.Currencies;
         public static Currency CurrencyByName(string currencyName) => Currencies.FirstOrDefault(c => c.Name.EqualsCaseInsensitive(currencyName));
