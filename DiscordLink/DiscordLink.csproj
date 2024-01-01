@@ -63,11 +63,6 @@
       <HintPath Condition="Exists('..\..\Eco\Server\Eco.Gameplay\bin\Release\net7.0-windows\Eco.Gameplay.dll')">..\..\Eco\Server\Eco.Gameplay\bin\Release\net7.0-windows\Eco.Gameplay.dll</HintPath>
       <Private>false</Private>
     </Reference>
-    <Reference Include="Eco.ModKit">
-      <HintPath Condition="Exists('..\Dependencies\Eco.ModKit.dll')">..\Dependencies\Eco.ModKit.dll</HintPath>
-      <HintPath Condition="Exists('..\..\Eco\Server\Eco.ModKit\bin\Release\net7.0-windows\Eco.ModKit.dll')">..\..\Eco\Server\Eco.ModKit\bin\Release\net7.0-windows\Eco.ModKit.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
     <Reference Include="Eco.Plugins">
       <HintPath Condition="Exists('..\Dependencies\Eco.Plugins.dll')">..\Dependencies\Eco.Plugins.dll</HintPath>
       <HintPath Condition="Exists('..\..\Eco\Server\Eco.Plugins\bin\Release\net7.0-windows\Eco.Plugins.dll')">..\..\Eco\Server\Eco.Plugins\bin\Release\net7.0-windows\Eco.Plugins.dll</HintPath>
