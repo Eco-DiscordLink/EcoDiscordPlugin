@@ -17,6 +17,8 @@ namespace Eco.Plugins.DiscordLink
         public static readonly DiscordColor DISCORD_EMBED_COLOR = DiscordColor.Green;
         public const string DISCORD_COLOR = "7289DAFF";
 
+        public const string INVISIBLE_EMBED_CHAR = "\u200e";
+
         public const string ECO_DISCORDLINK_ICON = "<ecoicon name=\"DiscordLinkLogo\">";
 
         public const int ECO_PLOT_SIZE_M2 = 5 * 5;

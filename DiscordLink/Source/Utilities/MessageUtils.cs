@@ -311,7 +311,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
         {
             string text = embed.AsText();
             text = text.Substring(text.IndexOf('\n') + 1);
-            text = text.Replace(DiscordLinkEmbed.INVISIBLE_EMBED_CHAR, null);
+            text = text.Replace(DLConstants.INVISIBLE_EMBED_CHAR, null);
             text = text.Replace("[", null);
             text = text.Replace("****", null);
             text = text.Replace("\r", null);

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Text;
+using static Eco.Plugins.DiscordLink.DLConstants;
 
 namespace Eco.Plugins.DiscordLink.Extensions
 {
@@ -14,8 +15,6 @@ namespace Eco.Plugins.DiscordLink.Extensions
             Small,
             None // For config option to not have any footers
         }
-
-        public static readonly string INVISIBLE_EMBED_CHAR = "\u200e";
 
         public string Title { get; private set; }
         public string Description { get; private set; }
