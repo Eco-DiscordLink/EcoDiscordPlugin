@@ -23,7 +23,7 @@ namespace Eco.Plugins.DiscordLink
         {
             var foundChannelIds = DiscordLink.Obj?.Client?.Guild?.Channels?.Values?
                 .Where(channel => channel.Type == DSharpPlus.ChannelType.Text)
-                .OrderBy(channel => channel.Name)
+                .OrderBy(channel => channel.Position)
                 .Select(c => c.Id)
                 .ToList();
 
