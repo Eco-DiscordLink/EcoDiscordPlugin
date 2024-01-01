@@ -9,8 +9,9 @@
     <PackageTags>Eco Discord</PackageTags>
     <Authors>MonzUn, R3sist3nt, Spoffy</Authors>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <Version>3.3.2</Version>
     <OutputType>Library</OutputType>
+    <RootNamespace>Eco.Plugins.DiscordLink</RootNamespace>
+    <Version>3.3.2</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
