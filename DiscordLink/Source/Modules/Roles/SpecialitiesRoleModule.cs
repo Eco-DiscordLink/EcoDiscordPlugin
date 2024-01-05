@@ -1,13 +1,14 @@
-﻿using DSharpPlus.Entities;
+﻿using DSharpPlus;
+using DSharpPlus.Entities;
 using Eco.Plugins.DiscordLink.Events;
-using System.Linq;
-using System.Threading.Tasks;
+using Eco.Moose.Utils;
+using Eco.Moose.Utils.Lookups;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Gameplay.GameActions;
-using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Gameplay.Skills;
-using DSharpPlus;
 using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
@@ -42,7 +43,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 foreach (DiscordMember member in await client.GetGuildMembersAsync())
                 {
                     LinkedUser linkedUser = UserLinkManager.LinkedUserByDiscordUser(member);
-                    foreach (Skill specialty in EcoUtils.Specialties)
+                    foreach (Skill specialty in Lookups.Specialties)
                     {
                         if (IgnoredSpecialtyNames.Contains(specialty.Name))
                             continue;
@@ -69,7 +70,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                     return;
 
                 DiscordMember member = linkedUser.DiscordMember;
-                foreach (Skill specialty in EcoUtils.Specialties)
+                foreach (Skill specialty in Lookups.Specialties)
                 {
                     if (IgnoredSpecialtyNames.Contains(specialty.Name))
                         continue;

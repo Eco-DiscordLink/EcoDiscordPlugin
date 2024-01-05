@@ -3,6 +3,7 @@ using DSharpPlus.SlashCommands;
 using Eco.Core;
 using Eco.Core.Plugins;
 using Eco.Moose.Tools;
+using Eco.Moose.Utils.Lookups;
 using Eco.Gameplay.Civics.Elections;
 using Eco.Gameplay.Economy;
 using Eco.Gameplay.Economy.WorkParties;
@@ -209,7 +210,7 @@ namespace Eco.Plugins.DiscordLink
 
         public static async Task<bool> PlayerReport(CommandInterface source, object callContext, string playerNameOrID, PlayerReportComponentFlag ReportType)
         {
-            User user = EcoUtils.UserByNameOrEcoID(playerNameOrID);
+            User user = Lookups.UserByNameOrEcoID(playerNameOrID);
             if (user == null)
             {
                 await ReportCommandError(source, callContext, $"No player with the name or ID \"{playerNameOrID}\" could be found.");
@@ -226,7 +227,7 @@ namespace Eco.Plugins.DiscordLink
 
         public static async Task<bool> CurrencyReport(CommandInterface source, object callContext, string currencyNameOrID)
         {
-            Currency currency = EcoUtils.CurrencyByNameOrID(currencyNameOrID);
+            Currency currency = Lookups.CurrencyByNameOrID(currencyNameOrID);
             if (currency == null)
             {
                 await ReportCommandError(source, callContext, $"No currency with the name or ID \"{currencyNameOrID}\" could be found.");
@@ -263,7 +264,7 @@ namespace Eco.Plugins.DiscordLink
             bool useMinted = currencyType == CurrencyType.All || currencyType == CurrencyType.Minted;
             bool usePersonal = currencyType == CurrencyType.All || currencyType == CurrencyType.Personal;
 
-            IEnumerable<Currency> currencies = EcoUtils.Currencies;
+            IEnumerable<Currency> currencies = Lookups.Currencies;
             var currencyTradesMap = DLStorage.WorldData.CurrencyToTradeCountMap;
             List<DiscordLinkEmbed> reports = new List<DiscordLinkEmbed>();
 
@@ -309,7 +310,7 @@ namespace Eco.Plugins.DiscordLink
 
         public static async Task<bool> ElectionReport(CommandInterface source, object callContext, string electionNameOrID)
         {
-            Election election = EcoUtils.ActiveElectionByNameOrID(electionNameOrID);
+            Election election = Lookups.ActiveElectionByNameOrID(electionNameOrID);
             if (election == null)
             {
                 await ReportCommandError(source, callContext, $"No election with the name or ID \"{electionNameOrID}\" could be found.");
@@ -326,7 +327,7 @@ namespace Eco.Plugins.DiscordLink
 
         public static async Task<bool> ElectionsReport(CommandInterface source, object callContext)
         {
-            IEnumerable<Election> elections = EcoUtils.ActiveElections;
+            IEnumerable<Election> elections = Lookups.ActiveElections;
             if (elections.Count() <= 0)
             {
                 await ReportCommandInfo(source, callContext, "There are no active elections.");
@@ -357,7 +358,7 @@ namespace Eco.Plugins.DiscordLink
 
         public static async Task<bool> WorkPartyReport(CommandInterface source, object callContext, string workPartyNameOrID)
         {
-            WorkParty workParty = EcoUtils.ActiveWorkPartyByNameOrID(workPartyNameOrID);
+            WorkParty workParty = Lookups.ActiveWorkPartyByNameOrID(workPartyNameOrID);
             if (workParty == null)
             {
                 await ReportCommandError(source, callContext, $"No work party with the name or ID \"{workPartyNameOrID}\" could be found.");
@@ -375,7 +376,7 @@ namespace Eco.Plugins.DiscordLink
 
         public static async Task<bool> WorkPartiesReport(CommandInterface source, object callContext)
         {
-            IEnumerable<WorkParty> workParties = EcoUtils.ActiveWorkParties;
+            IEnumerable<WorkParty> workParties = Lookups.ActiveWorkParties;
             if (workParties.Count() <= 0)
             {
                 await ReportCommandInfo(source, callContext, "There are no active work parties");
@@ -603,7 +604,7 @@ namespace Eco.Plugins.DiscordLink
             User recipient = null;
             if (!string.IsNullOrWhiteSpace(recipientUserNameOrID))
             {
-                recipient = EcoUtils.OnlineUsers.FirstOrDefault(user => user.Name.EqualsCaseInsensitive(recipientUserNameOrID) || user.Id.ToString().EqualsCaseInsensitive(recipientUserNameOrID));
+                recipient = Lookups.OnlineUsers.FirstOrDefault(user => user.Name.EqualsCaseInsensitive(recipientUserNameOrID) || user.Id.ToString().EqualsCaseInsensitive(recipientUserNameOrID));
                 if (recipient == null)
                 {
                     await ReportCommandError(source, callContext, $"No online user with the name or ID \"{recipientUserNameOrID}\" could be found.");
@@ -657,7 +658,7 @@ namespace Eco.Plugins.DiscordLink
             User recipient = null;
             if (!string.IsNullOrWhiteSpace(recipientUserNameOrID))
             {
-                recipient = EcoUtils.OnlineUsers.FirstOrDefault(user => user.Name.EqualsCaseInsensitive(recipientUserNameOrID) || user.Id.ToString().EqualsCaseInsensitive(recipientUserNameOrID));
+                recipient = Lookups.OnlineUsers.FirstOrDefault(user => user.Name.EqualsCaseInsensitive(recipientUserNameOrID) || user.Id.ToString().EqualsCaseInsensitive(recipientUserNameOrID));
                 if (recipient == null)
                 {
                     await ReportCommandError(source, callContext, $"No online user with the name or ID \"{recipientUserNameOrID}\" could be found.");
@@ -747,7 +748,7 @@ namespace Eco.Plugins.DiscordLink
             User recipient = null;
             if (!string.IsNullOrWhiteSpace(recipientUserNameOrID))
             {
-                recipient = EcoUtils.OnlineUsers.FirstOrDefault(user => user.Name.EqualsCaseInsensitive(recipientUserNameOrID) || user.Id.ToString().EqualsCaseInsensitive(recipientUserNameOrID));
+                recipient = Lookups.OnlineUsers.FirstOrDefault(user => user.Name.EqualsCaseInsensitive(recipientUserNameOrID) || user.Id.ToString().EqualsCaseInsensitive(recipientUserNameOrID));
                 if (recipient == null)
                 {
                     await ReportCommandError(source, callContext, $"No online user with the name or ID \"{recipientUserNameOrID}\" could be found.");

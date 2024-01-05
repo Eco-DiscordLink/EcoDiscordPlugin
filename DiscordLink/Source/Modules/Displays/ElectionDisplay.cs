@@ -1,6 +1,7 @@
 ﻿using DSharpPlus.Entities;
 using Eco.Core.Utils;
 using Eco.Moose.Tools;
+using Eco.Moose.Utils.Lookups;
 using Eco.Gameplay.Civics.Elections;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Extensions;
@@ -39,7 +40,7 @@ namespace Eco.Plugins.DiscordLink.Modules
         {
             tagAndContent = new List<Tuple<string, DiscordLinkEmbed>>();
 
-            foreach (Election election in EcoUtils.ActiveElections)
+            foreach (Election election in Lookups.ActiveElections)
             {
                 string tag = $"{BaseTag} [{election.Id}]";
                 DiscordLinkEmbed report = MessageBuilder.Discord.GetElectionReport(election);
@@ -99,7 +100,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 if (!int.TryParse(tag, out int electionID))
                     continue;
 
-                Election foundElection = EcoUtils.ActiveElections.FirstOrDefault(e => e.Id == electionID);
+                Election foundElection = Lookups.ActiveElections.FirstOrDefault(e => e.Id == electionID);
                 if (foundElection != null)
                 {
                     election = foundElection;

@@ -6,19 +6,25 @@ using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
+using DSharpPlus.SlashCommands;
 using Eco.Core.Utils;
+using Eco.Gameplay.Auth;
+using Eco.Gameplay.Civics;
 using Eco.Gameplay.Civics.Demographics;
 using Eco.Gameplay.Civics.Elections;
 using Eco.Gameplay.Civics.Laws;
 using Eco.Gameplay.Civics.Titles;
 using Eco.Gameplay.Components;
+using Eco.Gameplay.Disasters;
 using Eco.Gameplay.Economy;
+using Eco.Gameplay.Economy.Reputation;
 using Eco.Gameplay.Economy.WorkParties;
 using Eco.Gameplay.GameActions;
 using Eco.Gameplay.Items;
 using Eco.Gameplay.Objects;
 using Eco.Gameplay.Players;
 using Eco.Gameplay.Property;
+using Eco.Gameplay.Settlements;
 using Eco.Gameplay.Skills;
 using Eco.Gameplay.Systems.Balance;
 using Eco.Gameplay.Components.Store;
@@ -29,18 +35,17 @@ using Eco.Shared.Networking;
 using Eco.Shared.Utils;
 using Eco.Shared;
 using Eco.Shared.Items;
-using Eco.Gameplay.Auth;
 using Eco.Shared.IoC;
-using Eco.Gameplay.Disasters;
+using Eco.Moose.Utils;
+using Eco.Moose.Utils.Lookups;
 
 using static Eco.Shared.Mathf; // Avoiding collisions with system mathf
 
+using Constants = Eco.Moose.Utils.Constants;
+using Text = Eco.Shared.Utils.Text;
+
 using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.Store.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
 using StoreOfferGroup = System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.Store.StoreComponent, Eco.Gameplay.Components.TradeOffer>>;
-using DSharpPlus.SlashCommands;
-using Eco.Gameplay.Civics;
-using Eco.Gameplay.Economy.Reputation;
-using Eco.Gameplay.Settlements;
 
 namespace Eco.Plugins.DiscordLink.Utilities
 {
@@ -425,12 +430,12 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
             public static string GetPlayerCount()
             {
-                return $"{EcoUtils.NumOnlinePlayers}/{EcoUtils.NumTotalPlayers}";
+                return $"{Lookups.NumOnlinePlayers}/{Lookups.NumTotalPlayers}";
             }
 
             public static string GetOnlinePlayerList()
             {
-                string playerList = string.Join("\n", EcoUtils.OnlineUsersAlphabetical.Select(user => MessageUtils.StripTags(user.Name)));
+                string playerList = string.Join("\n", Lookups.OnlineUsersAlphabetical.Select(user => MessageUtils.StripTags(user.Name)));
                 if (string.IsNullOrEmpty(playerList))
                     playerList = "-- No players online --";
 
@@ -442,7 +447,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 electionList = string.Empty;
                 votesList = string.Empty;
                 timeRemainingList = string.Empty;
-                foreach (Election election in EcoUtils.ActiveElections.OrderByDescending(election => MessageUtils.StripTags(election.Name)))
+                foreach (Election election in Lookups.ActiveElections.OrderByDescending(election => MessageUtils.StripTags(election.Name)))
                 {
                     electionList += $"{MessageUtils.StripTags(election.Name)}\n";
                     votesList += $"{election.TotalVotes} Votes\n";
@@ -454,7 +459,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             {
                 lawList = string.Empty;
                 creatorList = string.Empty;
-                foreach (Law law in EcoUtils.ActiveLaws.OrderByDescending(law => MessageUtils.StripTags(law.Name)))
+                foreach (Law law in Lookups.ActiveLaws.OrderByDescending(law => MessageUtils.StripTags(law.Name)))
                 {
                     lawList += $"{MessageUtils.StripTags(law.Name)}\n";
                     creatorList += law.Creator != null ? $"{MessageUtils.StripTags(law.Creator.Name)}\n" : "Unknown\n";
@@ -466,7 +471,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 settlementList = string.Empty;
                 activeCitizenCountAndInfluenceList = string.Empty;
                 leaderList = string.Empty;
-                foreach (Settlement settlement in EcoUtils.ActiveSettlements.OrderByDescending(settlement => settlement.CachedData.CultureRecursiveTotal))
+                foreach (Settlement settlement in Lookups.ActiveSettlements.OrderByDescending(settlement => settlement.CachedData.CultureRecursiveTotal))
                 {
                     settlementList += $"{MessageUtils.StripTags(settlement.Name)}\n";
                     activeCitizenCountAndInfluenceList += $"{settlement.Citizens.Count(user => user.IsActive)} | {settlement.CachedData.CultureRecursiveTotal.ToString("0")}\n";
@@ -476,12 +481,12 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
             public static string GetPlayerSessionTimeList()
             {
-                return string.Join("\n", EcoUtils.OnlineUsersAlphabetical.Select(user => GetTimeDescription(user.GetSecondsSinceLogin(), TimespanStringComponent.Day | TimespanStringComponent.Hour | TimespanStringComponent.Minute, TimespanStringComponent.Hour | TimespanStringComponent.Minute)));
+                return string.Join("\n", Lookups.OnlineUsersAlphabetical.Select(user => GetTimeDescription(user.GetSecondsSinceLogin(), TimespanStringComponent.Day | TimespanStringComponent.Hour | TimespanStringComponent.Minute, TimespanStringComponent.Hour | TimespanStringComponent.Minute)));
             }
 
             public static string GetPlayerExhaustionTimeList()
             {
-                return string.Join("\n", EcoUtils.OnlineUsersAlphabetical.Select(user => (user.ExhaustionMonitor?.IsExhausted ?? false) ? "Exhausted" : GetTimeDescription(user.GetSecondsLeftUntilExhaustion(), TimespanStringComponent.Day | TimespanStringComponent.Hour | TimespanStringComponent.Minute, TimespanStringComponent.Hour | TimespanStringComponent.Minute)));
+                return string.Join("\n", Lookups.OnlineUsersAlphabetical.Select(user => (user.ExhaustionMonitor?.IsExhausted ?? false) ? "Exhausted" : GetTimeDescription(user.GetSecondsLeftUntilExhaustion(), TimespanStringComponent.Day | TimespanStringComponent.Hour | TimespanStringComponent.Minute, TimespanStringComponent.Hour | TimespanStringComponent.Minute)));
             }
 
             public enum TimespanStringComponent
@@ -575,7 +580,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
         {
             public static string GetActivityString()
             {
-                int onlinePlayers = EcoUtils.NumOnlinePlayers;
+                int onlinePlayers = Lookups.NumOnlinePlayers;
                 string activityString;
                 if (onlinePlayers > 0)
                 {
@@ -659,13 +664,13 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     int fieldsAdded = 0;
                     if (flag.HasFlag(ServerInfoComponentFlag.PlayerCount))
                     {
-                        embed.AddField("Player Count", $"{EcoUtils.NumOnlinePlayers} Online / {serverInfo.TotalPlayers} Total", inline: true);
+                        embed.AddField("Player Count", $"{Lookups.NumOnlinePlayers} Online / {serverInfo.TotalPlayers} Total", inline: true);
                         ++fieldsAdded;
                     }
 
                     if (flag.HasFlag(ServerInfoComponentFlag.ActiveSettlementCount))
                     {
-                        embed.AddField("Active Settlement Count", $"{EcoUtils.ActiveSettlements.Count()}", inline: true);
+                        embed.AddField("Active Settlement Count", $"{Lookups.ActiveSettlements.Count()}", inline: true);
                         ++fieldsAdded;
                     }
 
@@ -680,13 +685,13 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     int fieldsAdded = 0;
                     if (flag.HasFlag(ServerInfoComponentFlag.LawCount))
                     {
-                        embed.AddField("Law Count", $"{EcoUtils.ActiveLaws.Count()}", inline: true);
+                        embed.AddField("Law Count", $"{Lookups.ActiveLaws.Count()}", inline: true);
                         ++fieldsAdded;
                     }
 
                     if (flag.HasFlag(ServerInfoComponentFlag.ActiveElectionCount))
                     {
-                        embed.AddField("Active Elections Count", $"{EcoUtils.ActiveElections.Count()}", inline: true);
+                        embed.AddField("Active Elections Count", $"{Lookups.ActiveElections.Count()}", inline: true);
                         ++fieldsAdded;
                     }
 
@@ -733,13 +738,13 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     int fieldsAdded = 0;
                     if (flag.HasFlag(ServerInfoComponentFlag.ExhaustionResetTimeLeft))
                     {
-                        embed.AddField("Exhaustion Reset", DateTime.Now.AddSeconds(EcoUtils.SecondsLeftOnDay).ToDiscordTimeStamp('R'), inline: true);
+                        embed.AddField("Exhaustion Reset", DateTime.Now.AddSeconds(Lookups.SecondsLeftOnDay).ToDiscordTimeStamp('R'), inline: true);
                         ++fieldsAdded;
                     }
 
                     if (flag.HasFlag(ServerInfoComponentFlag.ExhaustedPlayerCount))
                     {
-                        embed.AddField("Exhausted Players Count", EcoUtils.NumExhaustedPlayers.ToString(), inline: true);
+                        embed.AddField("Exhausted Players Count", Lookups.NumExhaustedPlayers.ToString(), inline: true);
                         ++fieldsAdded;
                     }
 
@@ -751,7 +756,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
                 if (flag.HasFlag(ServerInfoComponentFlag.PlayerList))
                 {
-                    embed.AddField($"Online Players ({EcoUtils.NumOnlinePlayers})", Shared.GetOnlinePlayerList(), inline: true);
+                    embed.AddField($"Online Players ({Lookups.NumOnlinePlayers})", Shared.GetOnlinePlayerList(), inline: true);
                     if (flag.HasFlag(ServerInfoComponentFlag.PlayerListLoginTime))
                     {
                         string sessionTimeList = Shared.GetPlayerSessionTimeList();
@@ -859,8 +864,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 if (flag.HasFlag(PlayerReportComponentFlag.PlayTime))
                 {
                     report.AddField("Playtime Total", Shared.GetTimeDescription(user.OnlineTimeLog.ActiveSeconds(0.0), annotate: true), inline: true);
-                    report.AddField("Playtime last 24 hours", Shared.GetTimeDescription(user.OnlineTimeLog.ActiveSeconds(DLConstants.SECONDS_PER_DAY), Shared.TimespanStringComponent.Hour | Shared.TimespanStringComponent.Minute | Shared.TimespanStringComponent.Second, annotate: true), inline: true);
-                    report.AddField("Playtime Last 7 days", Shared.GetTimeDescription(user.OnlineTimeLog.ActiveSeconds(DLConstants.SECONDS_PER_WEEK), annotate: true), inline: true);
+                    report.AddField("Playtime last 24 hours", Shared.GetTimeDescription(user.OnlineTimeLog.ActiveSeconds(Constants.SECONDS_PER_DAY), Shared.TimespanStringComponent.Hour | Shared.TimespanStringComponent.Minute | Shared.TimespanStringComponent.Second, annotate: true), inline: true);
+                    report.AddField("Playtime Last 7 days", Shared.GetTimeDescription(user.OnlineTimeLog.ActiveSeconds(Constants.SECONDS_PER_WEEK), annotate: true), inline: true);
                 }
 
                 // Exhaustion
@@ -949,7 +954,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 if (flag.HasFlag(PlayerReportComponentFlag.Demographics))
                 {
                     StringBuilder demographicDesc = new StringBuilder();
-                    IEnumerable<Demographic> userDemographics = EcoUtils.ActiveDemographics.Where(demographic => demographic.ContainsUser(user)).OrderBy(demographic => demographic.Name);
+                    IEnumerable<Demographic> userDemographics = Lookups.ActiveDemographics.Where(demographic => demographic.ContainsUser(user)).OrderBy(demographic => demographic.Name);
                     foreach (Demographic demographic in userDemographics)
                     {
                         demographicDesc.AppendLine(demographic.Name + (demographic.Creator == user ? " (Creator)" : string.Empty));
@@ -961,7 +966,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 if (flag.HasFlag(PlayerReportComponentFlag.Titles))
                 {
                     StringBuilder titlesDesc = new StringBuilder();
-                    IEnumerable<Title> userTitles = EcoUtils.ActiveTitles.Where(title => title.UserSet.Contains(user)).OrderBy(title => title.Name);
+                    IEnumerable<Title> userTitles = Lookups.ActiveTitles.Where(title => title.UserSet.Contains(user)).OrderBy(title => title.Name);
                     foreach (Title title in userTitles)
                     {
                         titlesDesc.AppendLine(title.Name + (title.Creator == user ? " (Creator)" : string.Empty));
@@ -977,7 +982,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     StringBuilder propertiessSizeOrVehicleDesc = new StringBuilder();
                     StringBuilder propertiessLocationDesc = new StringBuilder();
 
-                    IEnumerable<Deed> userDeeds = EcoUtils.Deeds.Where(deed => deed.ContainsOwner(user)).OrderByDescending(deed => deed.GetTotalPlotSize());
+                    IEnumerable<Deed> userDeeds = Lookups.Deeds.Where(deed => deed.ContainsOwner(user)).OrderByDescending(deed => deed.GetTotalPlotSize());
                     foreach (Deed deed in userDeeds)
                     {
                         propertiessDesc.AppendLine(deed.Name.TrimEndString(" Deed"));

@@ -1,4 +1,5 @@
 ﻿using Eco.Gameplay.Economy.WorkParties;
+using Eco.Moose.Utils.Lookups;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
@@ -34,7 +35,7 @@ namespace Eco.Plugins.DiscordLink.Modules
         protected override void GetDisplayContent(DiscordTarget target, out List<Tuple<string, DiscordLinkEmbed>> tagAndContent)
         {
             tagAndContent = new List<Tuple<string, DiscordLinkEmbed>>();
-            foreach (WorkParty workParty in EcoUtils.ActiveWorkParties)
+            foreach (WorkParty workParty in Lookups.ActiveWorkParties)
             {
                 string tag = $"{BaseTag} [{workParty.Id}]";
                 DiscordLinkEmbed report = MessageBuilder.Discord.GetWorkPartyReport(workParty);

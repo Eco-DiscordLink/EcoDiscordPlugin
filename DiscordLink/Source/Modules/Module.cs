@@ -1,5 +1,6 @@
 ﻿using DiscordLink.Source.Utilities;
 using Eco.Moose.Tools;
+using Eco.Moose.Utils;
 using Eco.Plugins.DiscordLink.Events;
 using Nito.AsyncEx;
 using System;
@@ -50,12 +51,12 @@ namespace Eco.Plugins.DiscordLink.Modules
         protected string _status = "Off";
         protected DateTime _startTime = DateTime.MinValue;
         protected int _opsCount = 0;
-        private RollingAverage _opsCountAverage = new RollingAverage(DLConstants.SECONDS_PER_MINUTE);
+        private RollingAverage _opsCountAverage = new RollingAverage(Constants.SECONDS_PER_MINUTE);
         private Timer _OpsCountTimer = null;
 
         public Module()
         {
-            _OpsCountTimer = new Timer(UpdateRollingAverage, null, DLConstants.MILLISECONDS_PER_MINUTE, DLConstants.MILLISECONDS_PER_MINUTE);
+            _OpsCountTimer = new Timer(UpdateRollingAverage, null, Constants.MILLISECONDS_PER_MINUTE, Constants.MILLISECONDS_PER_MINUTE);
         }
 
         public virtual string GetDisplayText(string childInfo, bool verbose)

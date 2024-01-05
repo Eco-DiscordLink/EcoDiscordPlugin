@@ -1,13 +1,13 @@
-﻿using DSharpPlus.Entities;
+﻿using DSharpPlus;
+using DSharpPlus.Entities;
 using Eco.Plugins.DiscordLink.Events;
-using System.Threading.Tasks;
 using Eco.Plugins.DiscordLink.Extensions;
-using DSharpPlus;
-using System.Collections.Generic;
 using Eco.Gameplay.Civics.Demographics;
-using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Gameplay.Skills;
 using Eco.Shared.Utils;
+using Eco.Moose.Utils.Lookups;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
@@ -53,7 +53,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
                     // Demographics
                     bool foundDemographic = false;
-                    foreach (Demographic demographic in EcoUtils.ActiveDemographics)
+                    foreach (Demographic demographic in Lookups.ActiveDemographics)
                     {
                         string roleName = DemographicsRoleModule.GetDemographicRoleName(demographic);
                         if (role.Name.EqualsCaseInsensitive(roleName))
@@ -67,7 +67,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
                     // Specialties
                     bool foundSpecialty = false;
-                    foreach (Skill specialty in EcoUtils.Specialties)
+                    foreach (Skill specialty in Lookups.Specialties)
                     {
                         if (role.Name.EqualsCaseInsensitive(specialty.DisplayName))
                         {

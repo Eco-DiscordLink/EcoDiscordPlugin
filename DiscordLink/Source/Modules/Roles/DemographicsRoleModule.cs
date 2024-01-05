@@ -1,14 +1,14 @@
-﻿using DSharpPlus.Entities;
+﻿using DSharpPlus;
+using DSharpPlus.Entities;
 using Eco.Plugins.DiscordLink.Events;
-using System.Linq;
-using System.Threading.Tasks;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Gameplay.GameActions;
 using Eco.Gameplay.Civics.Demographics;
-using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Utils;
-using DSharpPlus;
 using Eco.Moose.Tools;
+using Eco.Moose.Utils.Lookups;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
@@ -41,7 +41,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 foreach (DiscordMember member in await client.GetGuildMembersAsync())
                 {
                     LinkedUser linkedUser = UserLinkManager.LinkedUserByDiscordUser(member);
-                    foreach (Demographic demographic in EcoUtils.ActiveDemographics)
+                    foreach (Demographic demographic in Lookups.ActiveDemographics)
                     {
                         string demographicName = GetDemographicRoleName(demographic);
                         if (linkedUser == null || !DLConfig.Data.UseDemographicRoles || !demographic.ContainsUser(linkedUser.EcoUser))
@@ -72,7 +72,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                     return;
                 }
 
-                foreach (Demographic demographic in EcoUtils.ActiveDemographics)
+                foreach (Demographic demographic in Lookups.ActiveDemographics)
                 {
                     string demographicName = GetDemographicRoleName(demographic);
                     if (trigger == DLEventType.AccountLinkRemoved || !DLConfig.Data.UseDemographicRoles || !demographic.ContainsUser(linkedUser.EcoUser))

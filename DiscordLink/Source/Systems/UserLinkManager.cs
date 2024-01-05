@@ -1,5 +1,6 @@
 ﻿using DSharpPlus.Entities;
 using Eco.Moose.Tools;
+using Eco.Moose.Utils.Lookups;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
@@ -192,7 +193,7 @@ namespace Eco.Plugins.DiscordLink
     public class LinkedUser
     {
         [JsonIgnore]
-        public User EcoUser { get { return EcoUtils.UserBySteamOrSLGID(SteamID, SlgID); } }
+        public User EcoUser { get { return Lookups.UserBySteamOrSLGID(SteamID, SlgID); } }
 
         [JsonIgnore]
         public DiscordMember DiscordMember { get; private set; }
@@ -246,7 +247,7 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [JsonIgnore]
-        public User GetUser { get { return EcoUtils.UserBySteamOrSLGID(SteamID, SlgID); } }
+        public User GetUser { get { return Lookups.UserBySteamOrSLGID(SteamID, SlgID); } }
 
         public readonly string SlgID = string.Empty;
         public readonly string SteamID = string.Empty;
