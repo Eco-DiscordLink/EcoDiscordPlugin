@@ -49,7 +49,7 @@ namespace Eco.Plugins.DiscordLink
 
         public const string ECO_PANEL_NOTIFICATION = "DLNotification";
         public const string ECO_PANEL_SIMPLE_LIST = "DLSimpleList";
-        public const string ECO_PANEL_COMPLEX_LIST = "DL_ComplexList";
+        public const string ECO_PANEL_COMPLEX_LIST = "DLComplexList";
         public const string ECO_PANEL_DL_MESSAGE_MEDIUM = "DLMessageMedium";
         public const string ECO_PANEL_REPORT = "DLReport";
         public const string ECO_PANEL_DL_TRADES = "DLTrades";
