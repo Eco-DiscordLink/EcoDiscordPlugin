@@ -259,7 +259,7 @@ namespace Eco.Plugins.DiscordLink
 
         #region Meta
 
-        [SlashCommand("Version", "Displays the current version of the DiscordLink plugin.")]
+        [SlashCommand("Version", "Displays the installed and latest available plugin version.")]
         public async Task Version(InteractionContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>

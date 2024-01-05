@@ -139,7 +139,7 @@ namespace Eco.Plugins.DiscordLink
 
         #region Meta
 
-        [ChatSubCommand("DiscordLink", "Displays the current version of the DiscordLink plugin.", ChatAuthorizationLevel.User)]
+        [ChatSubCommand("DiscordLink", "Displays the installed and latest available plugin version.", ChatAuthorizationLevel.User)]
         public static async Task Version(User callingUser)
         {
             await ExecuteCommand<object>(async (lUser, args) =>
