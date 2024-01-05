@@ -134,10 +134,10 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 string installedVersionDesc = $"Installed version: {installedVersion.ToString(3)}";
 
                 if (modIOVersion == null)
-                    modIOVersionDesc = Moose.Utils.Text.Text.Color.Red(modIOVersionDesc);
+                    modIOVersionDesc = Text.Color(Color.Red, modIOVersionDesc);
 
                 if (modIOVersion != null && modIOVersion > installedVersion)
-                    installedVersionDesc = Moose.Utils.Text.Text.Color.Red(installedVersionDesc);
+                    installedVersionDesc = Text.Color(Color.Red, installedVersionDesc);
 
                 return $"{modIOVersionDesc}\n{installedVersionDesc}";
             }
