@@ -1,6 +1,7 @@
 ﻿using DSharpPlus.Entities;
 using Eco.Core.Plugins;
 using Eco.Moose.Tools.Logger;
+using Eco.Moose.Utils.Message;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Plugins.Networking;
@@ -233,7 +234,7 @@ namespace Eco.Plugins.DiscordLink
             foreach (ChatChannelLink chatLink in Data.ChatChannelLinks)
             {
                 if (chatLink.IsValid())
-                    EcoUtils.EnsureChatChannelExists(chatLink.EcoChannel);
+                    Message.EnsureChatChannelExists(chatLink.EcoChannel);
             }
         }
 

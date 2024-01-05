@@ -1,6 +1,7 @@
 ﻿using DSharpPlus.Entities;
 using Eco.Moose.Tools.Logger;
 using Eco.Moose.Utils.Lookups;
+using Eco.Moose.Utils.Message;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
@@ -89,7 +90,7 @@ namespace Eco.Plugins.DiscordLink
         public static void ReportLinkLookupFailure(object caller, string callingContext)
         {
             if (caller is User user)
-                EcoUtils.SendErrorBoxToUser(user, $"{callingContext} Failed\nYou have not linked your Discord Account to DiscordLink on this Eco Server.\nUse the `/DL LinkAccount` command to initiate account linking.");
+                Message.SendErrorBoxToUser(user, $"{callingContext} Failed\nYou have not linked your Discord Account to DiscordLink on this Eco Server.\nUse the `/DL LinkAccount` command to initiate account linking.");
             else if (caller is DiscordMember member)
                 _ = DiscordLink.Obj.Client.SendDMAsync(member, $"**{callingContext} Failed**\nYou have not linked your Discord Account to DiscordLink on this Eco Server.\nUse the `/DL LinkAccount` command in Eco to initiate account linking.");
             else

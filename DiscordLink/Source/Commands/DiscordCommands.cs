@@ -15,6 +15,7 @@ using static Eco.Plugins.DiscordLink.Enums;
 using static Eco.Plugins.DiscordLink.SharedCommands;
 using static Eco.Plugins.DiscordLink.Utilities.MessageBuilder;
 using Text = Eco.Moose.Utils.Text.Text;
+using Eco.Moose.Utils.Message;
 
 namespace Eco.Plugins.DiscordLink
 {
@@ -387,7 +388,7 @@ namespace Eco.Plugins.DiscordLink
                 List<string> targetEcoChannelNames = new List<string>();
                 if (!string.IsNullOrWhiteSpace(ecoChannel))
                 {
-                    EcoUtils.SendChatToChannel(null, ecoChannel, $"{DLConstants.ECHO_COMMAND_TOKEN} {message}");
+                    Message.SendChatToChannel(null, ecoChannel, $"{DLConstants.ECHO_COMMAND_TOKEN} {message}");
                     targetEcoChannelNames.Add(ecoChannel);
                 }
                 else
@@ -395,14 +396,14 @@ namespace Eco.Plugins.DiscordLink
                     bool linkFound = false;
                     foreach (ChatChannelLink chatLink in DLConfig.ChatLinksForDiscordChannel(ctx.Channel))
                     {
-                        EcoUtils.SendChatToChannel(null, chatLink.EcoChannel, $"{DLConstants.ECHO_COMMAND_TOKEN} {message}");
+                        Message.SendChatToChannel(null, chatLink.EcoChannel, $"{DLConstants.ECHO_COMMAND_TOKEN} {message}");
                         targetEcoChannelNames.Add(chatLink.EcoChannel);
                         linkFound = true;
                     }
 
                     if (!linkFound)
                     {
-                        EcoUtils.SendChatToChannel(null, DLConstants.DEFAULT_CHAT_CHANNEL, $"{DLConstants.ECHO_COMMAND_TOKEN} {message}");
+                        Message.SendChatToChannel(null, DLConstants.DEFAULT_CHAT_CHANNEL, $"{DLConstants.ECHO_COMMAND_TOKEN} {message}");
                         targetEcoChannelNames.Add(DLConstants.DEFAULT_CHAT_CHANNEL);
                     }
                 }
@@ -634,7 +635,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Info, CommandInterface.Discord, ctx, message, string.Empty);
+                await SharedCommands.SendBoxMessage(Message.BoxMessageType.Info, CommandInterface.Discord, ctx, message, string.Empty);
             }, ctx);
         }
 
@@ -644,7 +645,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Info, CommandInterface.Discord, ctx, message, recipientUserNameOrID);
+                await SharedCommands.SendBoxMessage(Message.BoxMessageType.Info, CommandInterface.Discord, ctx, message, recipientUserNameOrID);
             }, ctx);
         }
 
@@ -653,7 +654,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Warning, CommandInterface.Discord, ctx, message, string.Empty);
+                await SharedCommands.SendBoxMessage(Message.BoxMessageType.Warning, CommandInterface.Discord, ctx, message, string.Empty);
             }, ctx);
         }
 
@@ -663,7 +664,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Warning, CommandInterface.Discord, ctx, message, recipientUserNameOrID);
+                await SharedCommands.SendBoxMessage(Message.BoxMessageType.Warning, CommandInterface.Discord, ctx, message, recipientUserNameOrID);
             }, ctx);
         }
 
@@ -672,7 +673,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Error, CommandInterface.Discord, ctx, message, string.Empty);
+                await SharedCommands.SendBoxMessage(Message.BoxMessageType.Error, CommandInterface.Discord, ctx, message, string.Empty);
             }, ctx);
         }
 
@@ -682,7 +683,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                await SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Error, CommandInterface.Discord, ctx, message, recipientUserNameOrID);
+                await SharedCommands.SendBoxMessage(Message.BoxMessageType.Error, CommandInterface.Discord, ctx, message, recipientUserNameOrID);
             }, ctx);
         }
 

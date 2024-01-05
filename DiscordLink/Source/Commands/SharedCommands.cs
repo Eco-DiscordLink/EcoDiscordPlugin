@@ -19,6 +19,7 @@ using static Eco.Plugins.DiscordLink.Enums;
 using static Eco.Plugins.DiscordLink.Utilities.MessageBuilder;
 using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.Store.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
 using Eco.Moose.Tools.Logger;
+using Eco.Moose.Utils.Message;
 
 namespace Eco.Plugins.DiscordLink
 {
@@ -419,7 +420,7 @@ namespace Eco.Plugins.DiscordLink
             }
 
             inviteMessage = Regex.Replace(inviteMessage, Regex.Escape(DLConstants.INVITE_COMMAND_TOKEN), discordAddress);
-            bool sent = EcoUtils.SendChatToDefaultChannel(null, inviteMessage);
+            bool sent = Message.SendChatToDefaultChannel(null, inviteMessage);
             if (sent)
                 await ReportCommandInfo(source, callContext, "Invite sent.");
             else
@@ -574,7 +575,7 @@ namespace Eco.Plugins.DiscordLink
                 {
                     if (target == CommandInterface.Eco)
                     {
-                        EcoUtils.SendChatToDefaultChannel(null, $"{userName} invoked snippet \"{snippetKey}\"\n- - -\n{snippetText}\n- - -");
+                        Message.SendChatToDefaultChannel(null, $"{userName} invoked snippet \"{snippetKey}\"\n- - -\n{snippetText}\n- - -");
                         _ = ReportCommandInfo(source, callContext, "Snippet posted.");
                     }
                     else
@@ -593,7 +594,7 @@ namespace Eco.Plugins.DiscordLink
 
         #region Message Relaying
 
-        public static async Task<bool> SendBoxMessage(EcoUtils.BoxMessageType type, CommandInterface source, object callContext, string message, string recipientUserNameOrID)
+        public static async Task<bool> SendBoxMessage(Message.BoxMessageType type, CommandInterface source, object callContext, string message, string recipientUserNameOrID)
         {
             if (string.IsNullOrWhiteSpace(message))
             {
@@ -620,22 +621,22 @@ namespace Eco.Plugins.DiscordLink
             string formattedMessage = $"[{senderName}]\n\n{message}";
             switch (type)
             {
-                case EcoUtils.BoxMessageType.Info:
+                case Message.BoxMessageType.Info:
                     sent = recipient == null
-                        ? EcoUtils.SendInfoBoxToAll(message)
-                        : EcoUtils.SendInfoBoxToUser(recipient, formattedMessage);
+                        ? Message.SendInfoBoxToAll(message)
+                        : Message.SendInfoBoxToUser(recipient, formattedMessage);
                     break;
 
-                case EcoUtils.BoxMessageType.Warning:
+                case Message.BoxMessageType.Warning:
                     sent = recipient == null
-                        ? EcoUtils.SendWarningBoxToAll(message)
-                        : EcoUtils.SendWarningBoxToUser(recipient, formattedMessage);
+                        ? Message.SendWarningBoxToAll(message)
+                        : Message.SendWarningBoxToUser(recipient, formattedMessage);
                     break;
 
-                case EcoUtils.BoxMessageType.Error:
+                case Message.BoxMessageType.Error:
                     sent = recipient == null
-                        ? EcoUtils.SendErrorBoxToAll(message)
-                        : EcoUtils.SendErrorBoxToUser(recipient, formattedMessage);
+                        ? Message.SendErrorBoxToAll(message)
+                        : Message.SendErrorBoxToUser(recipient, formattedMessage);
                     break;
             }
 
@@ -672,8 +673,8 @@ namespace Eco.Plugins.DiscordLink
 
             string formattedMessage = $"[{senderName}]\n\n{message}";
             bool sent = recipient == null
-                ? EcoUtils.SendOKBoxToAll(formattedMessage)
-                : EcoUtils.SendOKBoxToUser(recipient, formattedMessage);
+                ? Message.SendOKBoxToAll(formattedMessage)
+                : Message.SendOKBoxToUser(recipient, formattedMessage);
 
             if (sent)
                 await ReportCommandInfo(source, callContext, "Message delivered.");
@@ -711,14 +712,14 @@ namespace Eco.Plugins.DiscordLink
             if (includeOfflineUsers)
             {
                 sent = recipient == null
-                    ? EcoUtils.SendNotificationToAll(formattedMessage)
-                    : EcoUtils.SendNotificationToUser(recipient, formattedMessage);
+                    ? Message.SendNotificationToAll(formattedMessage)
+                    : Message.SendNotificationToUser(recipient, formattedMessage);
             }
             else
             {
                 foreach (User user in UserManager.Users)
                 {
-                    if (!EcoUtils.SendNotificationToUser(user, formattedMessage))
+                    if (!Message.SendNotificationToUser(user, formattedMessage))
                         sent = false;
                 }
             }
@@ -762,8 +763,8 @@ namespace Eco.Plugins.DiscordLink
 
             string formattedMessage = $"{message}\n\n[{senderName}]";
             bool sent = recipient == null
-                ? EcoUtils.SendInfoPanelToAll(instance, title, formattedMessage)
-                : EcoUtils.SendInfoPanelToUser(recipient, instance, title, formattedMessage);
+                ? Message.SendInfoPanelToAll(instance, title, formattedMessage)
+                : Message.SendInfoPanelToUser(recipient, instance, title, formattedMessage);
 
             if (sent)
                 await ReportCommandInfo(source, callContext, "Message delivered.");

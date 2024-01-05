@@ -14,6 +14,7 @@ using Eco.Plugins.Networking;
 using Eco.Shared.Utils;
 using System.Linq;
 using Eco.Moose.Tools.Logger;
+using Eco.Moose.Utils.Message;
 
 namespace Eco.Plugins.DiscordLink
 {
@@ -42,7 +43,7 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (Exception e)
             {
-                EcoUtils.SendInfoBoxToUser(callingUser, $"Error occurred while attempting to run that command. Error message: {e}");
+                Message.SendInfoBoxToUser(callingUser, $"Error occurred while attempting to run that command. Error message: {e}");
                 Logger.Exception($"An exception occured while attempting to execute a command.\nCommand name: \"{commandName}\"\nCalling user: \"{MessageUtils.StripTags(callingUser.Name)}\"", e);
             }
         }
@@ -60,17 +61,17 @@ namespace Eco.Plugins.DiscordLink
 
         public static void ReportCommandError(User callingUser, string message)
         {
-            EcoUtils.SendErrorBoxToUser(callingUser, message);
+            Message.SendErrorBoxToUser(callingUser, message);
         }
 
         public static void ReportCommandInfo(User callingUser, string message)
         {
-            EcoUtils.SendInfoBoxToUser(callingUser, message);
+            Message.SendInfoBoxToUser(callingUser, message);
         }
 
         public static void DisplayCommandData(User callingUser, string panelInstance, string title, string data)
         {
-            EcoUtils.SendInfoPanelToUser(callingUser, panelInstance, title, data);
+            Message.SendInfoPanelToUser(callingUser, panelInstance, title, data);
         }
 
         #endregion
@@ -591,7 +592,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Info, CommandInterface.Eco, callingUser, message, string.Empty);
+                await SharedCommands.SendBoxMessage(Message.BoxMessageType.Info, CommandInterface.Eco, callingUser, message, string.Empty);
             }, callingUser);
         }
 
@@ -600,7 +601,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Info, CommandInterface.Eco, callingUser, message, recipientUserNameOrID);
+                await SharedCommands.SendBoxMessage(Message.BoxMessageType.Info, CommandInterface.Eco, callingUser, message, recipientUserNameOrID);
             }, callingUser);
         }
 
@@ -609,7 +610,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Warning, CommandInterface.Eco, callingUser, message, string.Empty);
+                await SharedCommands.SendBoxMessage(Message.BoxMessageType.Warning, CommandInterface.Eco, callingUser, message, string.Empty);
             }, callingUser);
         }
 
@@ -618,7 +619,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Warning, CommandInterface.Eco, callingUser, message, recipientUserNameOrID);
+                await SharedCommands.SendBoxMessage(Message.BoxMessageType.Warning, CommandInterface.Eco, callingUser, message, recipientUserNameOrID);
             }, callingUser);
         }
 
@@ -627,7 +628,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Warning, CommandInterface.Eco, callingUser, message, string.Empty);
+                await SharedCommands.SendBoxMessage(Message.BoxMessageType.Warning, CommandInterface.Eco, callingUser, message, string.Empty);
             }, callingUser);
         }
 
@@ -636,7 +637,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.SendBoxMessage(EcoUtils.BoxMessageType.Error, CommandInterface.Eco, callingUser, message, recipientUserNameOrID);
+                await SharedCommands.SendBoxMessage(Message.BoxMessageType.Error, CommandInterface.Eco, callingUser, message, recipientUserNameOrID);
             }, callingUser);
         }
 

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Color = Eco.Shared.Utils.Color;
+using Eco.Moose.Utils.Message;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
@@ -68,7 +69,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 messageContent = $"{DLConstants.ECO_DISCORDLINK_ICON} {messageContent}";
             }
 
-            EcoUtils.SendChatRaw(sender, MessageUtils.FormatMessageForEcoChannel(messageContent, ecoChannel));
+            Message.SendChatRaw(sender, MessageUtils.FormatMessageForEcoChannel(messageContent, ecoChannel));
             ++_opsCount;
         }
 
