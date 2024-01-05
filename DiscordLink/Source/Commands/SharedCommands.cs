@@ -211,7 +211,7 @@ namespace Eco.Plugins.DiscordLink
 
         public static async Task<bool> PlayerReport(CommandInterface source, object callContext, string playerNameOrID, PlayerReportComponentFlag ReportType)
         {
-            User user = Lookups.UserByNameOrEcoID(playerNameOrID);
+            User user = Lookups.UserByNameOrID(playerNameOrID);
             if (user == null)
             {
                 await ReportCommandError(source, callContext, $"No player with the name or ID \"{playerNameOrID}\" could be found.");
