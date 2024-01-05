@@ -1,5 +1,6 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Entities;
+using Eco.Moose.Utils.SystemUtils;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
@@ -90,7 +91,9 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         public void StopTimer()
         {
-            if ((GetTriggers() & DLEventType.Timer) == 0) return;
+            if ((GetTriggers() & DLEventType.Timer) == 0)
+                return;
+
             SystemUtils.StopAndDestroyTimer(ref _updateTimer);
         }
 

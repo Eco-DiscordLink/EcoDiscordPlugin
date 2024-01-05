@@ -25,6 +25,7 @@ using System.Threading.Tasks;
 using Module = Eco.Plugins.DiscordLink.Modules.Module;
 using Text = Eco.Moose.Utils.Text.Text;
 using Eco.Moose.Tools.VersionChecker;
+using Eco.Moose.Utils.SystemUtils;
 
 namespace Eco.Plugins.DiscordLink
 {
