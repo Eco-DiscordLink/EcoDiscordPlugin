@@ -36,12 +36,12 @@ using Eco.Shared.Utils;
 using Eco.Shared;
 using Eco.Shared.Items;
 using Eco.Shared.IoC;
-using Eco.Moose.Utils;
+using Eco.Moose.Utils.Extensions;
 using Eco.Moose.Utils.Lookups;
 
 using static Eco.Shared.Mathf; // Avoiding collisions with system mathf
 
-using Constants = Eco.Moose.Utils.Constants;
+using Constants = Eco.Moose.Utils.Constants.Constants;
 using Text = Eco.Shared.Utils.Text;
 
 using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.Store.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
@@ -134,10 +134,10 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 string installedVersionDesc = $"Installed version: {installedVersion.ToString(3)}";
 
                 if (modIOVersion == null)
-                    modIOVersionDesc = Moose.Utils.Text.Color.Red(modIOVersionDesc);
+                    modIOVersionDesc = Moose.Utils.Text.Text.Color.Red(modIOVersionDesc);
 
                 if (modIOVersion != null && modIOVersion > installedVersion)
-                    installedVersionDesc = Moose.Utils.Text.Color.Red(installedVersionDesc);
+                    installedVersionDesc = Moose.Utils.Text.Text.Color.Red(installedVersionDesc);
 
                 return $"{modIOVersionDesc}\n{installedVersionDesc}";
             }

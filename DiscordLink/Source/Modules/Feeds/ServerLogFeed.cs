@@ -1,4 +1,4 @@
-﻿using Eco.Moose.Tools;
+﻿using Eco.Moose.Tools.Logger;
 using Eco.Plugins.DiscordLink.Events;
 using System;
 using System.Text;

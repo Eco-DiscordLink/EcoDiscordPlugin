@@ -4,7 +4,7 @@ using Eco.Core;
 using Eco.Core.Plugins;
 using Eco.Core.Plugins.Interfaces;
 using Eco.Core.Utils;
-using Eco.Moose.Tools;
+using Eco.Moose.Tools.Logger;
 using Eco.Gameplay.Aliases;
 using Eco.Gameplay.Civics.Elections;
 using Eco.Gameplay.GameActions;
@@ -23,6 +23,8 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Module = Eco.Plugins.DiscordLink.Modules.Module;
+using Text = Eco.Moose.Utils.Text.Text;
+using Eco.Moose.Tools.VersionChecker;
 
 namespace Eco.Plugins.DiscordLink
 {
@@ -68,11 +70,11 @@ namespace Eco.Plugins.DiscordLink
             {
                 Logger.Debug($"Plugin status changed from \"{_status}\" to \"{value}\"");
                 _status = value;
-                _statusDescription = Moose.Utils.Text.GetEnumDescription(value);
+                _statusDescription = Text.GetEnumDescription(value);
             }
         }
         private StatusState _status = StatusState.Uninitialized;
-        private string _statusDescription = Moose.Utils.Text.GetEnumDescription(StatusState.Uninitialized);
+        private string _statusDescription = Text.GetEnumDescription(StatusState.Uninitialized);
         public enum StatusState
         {
             [Description("Uninitialized")]

@@ -1,4 +1,4 @@
-﻿using Eco.Moose.Tools;
+﻿using Eco.Moose.Tools.Logger;
 using Eco.Gameplay.Civics.Demographics;
 using Eco.Gameplay.Players;
 using Eco.Gameplay.Systems;

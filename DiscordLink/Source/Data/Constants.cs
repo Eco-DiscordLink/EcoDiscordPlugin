@@ -1,6 +1,6 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Entities;
-using Eco.Moose.Tools;
+using Eco.Moose.Tools.Logger;
 using Eco.Plugins.DiscordLink.Extensions;
 using System;
 using System.Collections.Generic;

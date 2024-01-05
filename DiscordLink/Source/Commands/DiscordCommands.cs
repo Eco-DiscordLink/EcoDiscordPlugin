@@ -1,7 +1,7 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
-using Eco.Moose.Tools;
+using Eco.Moose.Tools.Logger;
 using Eco.Gameplay.Systems.Messaging.Chat;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using static Eco.Plugins.DiscordLink.Enums;
 using static Eco.Plugins.DiscordLink.SharedCommands;
 using static Eco.Plugins.DiscordLink.Utilities.MessageBuilder;
+using Text = Eco.Moose.Utils.Text.Text;
 
 namespace Eco.Plugins.DiscordLink
 {
@@ -266,7 +267,7 @@ namespace Eco.Plugins.DiscordLink
             {
                 DiscordLinkEmbed embed = new DiscordLinkEmbed()
                     .WithTitle("Version")
-                    .WithDescription(Moose.Utils.Text.StripTags(MessageBuilder.Shared.GetVersionMessage()));
+                    .WithDescription(Text.StripTags(MessageBuilder.Shared.GetVersionMessage()));
 
                 await RespondToCommand(ctx, null, embed);
             }, ctx);

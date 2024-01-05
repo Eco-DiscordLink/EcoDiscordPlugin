@@ -2,7 +2,6 @@
 using DSharpPlus.SlashCommands;
 using Eco.Core;
 using Eco.Core.Plugins;
-using Eco.Moose.Tools;
 using Eco.Moose.Utils.Lookups;
 using Eco.Gameplay.Civics.Elections;
 using Eco.Gameplay.Economy;
@@ -19,6 +18,7 @@ using System.Threading.Tasks;
 using static Eco.Plugins.DiscordLink.Enums;
 using static Eco.Plugins.DiscordLink.Utilities.MessageBuilder;
 using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.Store.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
+using Eco.Moose.Tools.Logger;
 
 namespace Eco.Plugins.DiscordLink
 {

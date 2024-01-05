@@ -1,5 +1,5 @@
 ﻿using DSharpPlus.Entities;
-using Eco.Moose.Tools;
+using Eco.Moose.Tools.Logger;
 using Eco.Shared.Serialization;
 using System;
 using System.ComponentModel;

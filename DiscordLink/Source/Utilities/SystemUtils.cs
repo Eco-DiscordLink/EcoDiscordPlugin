@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using System.IO;
 using System;
-using Eco.Moose.Tools;
+using Eco.Moose.Tools.Logger;
 
 namespace Eco.Plugins.DiscordLink.Utilities
 {

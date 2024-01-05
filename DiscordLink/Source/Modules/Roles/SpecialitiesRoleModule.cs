@@ -1,7 +1,7 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Entities;
 using Eco.Plugins.DiscordLink.Events;
-using Eco.Moose.Utils;
+using Eco.Moose.Utils.Extensions;
 using Eco.Moose.Utils.Lookups;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Gameplay.GameActions;

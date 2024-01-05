@@ -1,6 +1,5 @@
 ﻿using DSharpPlus.Entities;
 using Eco.Core.Utils;
-using Eco.Moose.Tools;
 using Eco.Moose.Utils.Lookups;
 using Eco.Gameplay.Civics.Elections;
 using Eco.Plugins.DiscordLink.Events;
@@ -11,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using static Eco.Plugins.DiscordLink.Enums;
+using Eco.Moose.Tools.Logger;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {

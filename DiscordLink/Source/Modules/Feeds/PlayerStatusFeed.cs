@@ -1,4 +1,4 @@
-﻿using Eco.Moose.Tools;
+﻿using Eco.Moose.Tools.Logger;
 using Eco.Gameplay.Players;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Extensions;
