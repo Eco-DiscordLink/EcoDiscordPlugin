@@ -1,6 +1,6 @@
 {
-  "DiscordServerID": 0,
   "BotToken": "",
+  "DiscordServerID": 0,
   "AdminRoles": [
     "Admin",
     "Administrator",
