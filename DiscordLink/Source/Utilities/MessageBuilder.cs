@@ -1074,6 +1074,9 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 string fieldText = !string.IsNullOrEmpty(webServerURL) ? $"{webServerURL}/election/{election.Id}" : "Webserver URL not configured";
                 report.AddField("URL", fieldText);
 
+                // Settlement juristiction
+                report.AddField("Settlement", election.Settlement.Name, inline: true);
+
                 // Proposer name
                 report.AddField("Proposer", election.Creator.Name, inline: true);
 
