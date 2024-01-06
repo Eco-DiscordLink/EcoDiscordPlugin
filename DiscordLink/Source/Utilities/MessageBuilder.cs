@@ -442,26 +442,28 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 return playerList;
             }
 
-            public static void GetActiveElectionsList(out string electionList, out string votesList, out string timeRemainingList)
+            public static void GetActiveElectionsList(out string electionList, out string settlementList, out string VoteAndtimeRemainingList)
             {
                 electionList = string.Empty;
-                votesList = string.Empty;
-                timeRemainingList = string.Empty;
-                foreach (Election election in Lookups.ActiveElections.OrderByDescending(election => MessageUtils.StripTags(election.Name)))
+                settlementList = string.Empty;
+                VoteAndtimeRemainingList = string.Empty;
+                foreach (Election election in Lookups.ActiveElections.OrderByDescending(election => election.Settlement.CachedData.CultureRecursiveTotal))
                 {
                     electionList += $"{MessageUtils.StripTags(election.Name)}\n";
-                    votesList += $"{election.TotalVotes} Votes\n";
-                    timeRemainingList += $"{TimeFormatter.FormatSpan(election.TimeLeft)}\n";
+                    settlementList += $"{MessageUtils.StripTags(election.Settlement.Name)}\n";
+                    VoteAndtimeRemainingList += $"{election.TotalVotes} | {TimeFormatter.FormatSpan(election.TimeLeft)}\n";
                 }
             }
 
-            public static void GetActiveLawsList(out string lawList, out string creatorList)
+            public static void GetActiveLawsList(out string lawList, out string settlementList, out string creatorList)
             {
                 lawList = string.Empty;
+                settlementList = string.Empty;
                 creatorList = string.Empty;
-                foreach (Law law in Lookups.ActiveLaws.OrderByDescending(law => MessageUtils.StripTags(law.Name)))
+                foreach (Law law in Lookups.ActiveLaws.OrderByDescending(law => law.Settlement.CachedData.CultureRecursiveTotal))
                 {
                     lawList += $"{MessageUtils.StripTags(law.Name)}\n";
+                    settlementList += $"{MessageUtils.StripTags(law.Settlement.Name)}\n";
                     creatorList += law.Creator != null ? $"{MessageUtils.StripTags(law.Creator.Name)}\n" : "Unknown\n";
                 }
             }
@@ -803,12 +805,12 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
                 if (flag.HasFlag(ServerInfoComponentFlag.ActiveElectionList))
                 {
-                    Shared.GetActiveElectionsList(out string electionList, out string votesList, out string timeRemainingList);
+                    Shared.GetActiveElectionsList(out string electionList, out string settlementList, out string votesAndTimeRemainingList);
                     if (!string.IsNullOrEmpty(electionList))
                     {
                         embed.AddField("Active Elections", electionList, inline: true);
-                        embed.AddField("Votes", votesList, inline: true);
-                        embed.AddField("Time Remaining", timeRemainingList, inline: true);
+                        embed.AddField("Settlement", settlementList, inline: true);
+                        embed.AddField("Votes & Timer", votesAndTimeRemainingList, inline: true);
                     }
                     else
                     {
@@ -820,12 +822,12 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
                 if (flag.HasFlag(ServerInfoComponentFlag.LawList))
                 {
-                    Shared.GetActiveLawsList(out string lawList, out string creatorList);
+                    Shared.GetActiveLawsList(out string lawList, out string settlementList, out string creatorList);
                     if (!string.IsNullOrEmpty(lawList))
                     {
                         embed.AddField("Active Laws", lawList, inline: true);
+                        embed.AddField("Settlement", settlementList, inline: true);
                         embed.AddField("Creator", creatorList, inline: true);
-                        embed.AddAlignmentField();
                     }
                     else
                     {
