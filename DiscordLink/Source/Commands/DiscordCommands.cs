@@ -687,8 +687,8 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
-        [SlashCommand("NotificyAll", "Sends an Eco notification message to all online and conditionally offline users.")]
-        public async Task NotificyAll(InteractionContext ctx, [Option("Message", "The message to send.")] string message,
+        [SlashCommand("NotifyAll", "Sends an Eco notification message to all online and conditionally offline users.")]
+        public async Task NotifyAll(InteractionContext ctx, [Option("Message", "The message to send.")] string message,
             [Option("IncludeOffline", "Whether or not to send the message to offline users as well.")] bool includeOfflineUsers = true)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
