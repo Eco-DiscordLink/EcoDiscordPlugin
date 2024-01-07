@@ -450,7 +450,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 foreach (Election election in Lookups.ActiveElections.OrderByDescending(election => election.Settlement.CachedData.CultureRecursiveTotal))
                 {
                     electionList += $"{MessageUtils.StripTags(election.Name)}\n";
-                    settlementList += $"{MessageUtils.StripTags(election.Settlement.Name)}\n";
+                    settlementList += election.Settlement != null ? $"{MessageUtils.StripTags(election.Settlement.Name)}\n" : "None";
                     VoteAndtimeRemainingList += $"{election.TotalVotes} | {TimeFormatter.FormatSpan(election.TimeLeft)}\n";
                 }
             }
@@ -463,7 +463,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 foreach (Law law in Lookups.ActiveLaws.OrderByDescending(law => law.Settlement.CachedData.CultureRecursiveTotal))
                 {
                     lawList += $"{MessageUtils.StripTags(law.Name)}\n";
-                    settlementList += $"{MessageUtils.StripTags(law.Settlement.Name)}\n";
+                    settlementList += law.Settlement != null ? $"{MessageUtils.StripTags(law.Settlement.Name)}\n" : "None";
                     creatorList += law.Creator != null ? $"{MessageUtils.StripTags(law.Creator.Name)}\n" : "Unknown\n";
                 }
             }
