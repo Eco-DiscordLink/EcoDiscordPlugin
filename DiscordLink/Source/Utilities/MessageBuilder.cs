@@ -159,17 +159,17 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     "\n* DiscordLinked Role and roles matching your demographics and specializations." +
                     "\n" +
                     "\nLink instructions" +
-                    $"\n1. Use \"/DL LinkAccount\" <UserName> in Eco. The username parameter is your Discord account name (not nickname) with or without the #xxxx at the end. Example: /DL-Link Monzun#1234" +
+                    $"\n1. Use \"/DL LinkAccount\" <UserName> in Eco. The username parameter is your Discord account name (not nickname). Example: /DL LinkAccount Monzun" +
                     "\n2. If your account could be found on the Discord server, the bot will send you a DM." +
                     "\n3. Click the approve button on the message to verify that you are the owner of both the Eco and Discord account." +
                     "\n4. Your account is now linked!" +
                     "\n" +
                     "\nUnlinking" +
-                    $"\nIf you no longer wish to have your account linked or you need to reset it for some reason, you can use `/DL-Unlink`." +
+                    $"\nIf you no longer wish to have your account linked or you need to reset it for some reason, you can use `/DL UnlinkAccount`." +
                     "\n" +
                     "\nAdditional Information" +
                     "\n* Your account link is only valid for one combination of Eco and Discord servers. If you join a new server, you will need to link your account on that server as well." +
-                    "\n* Your account link remains active over world resets. It is only removed if you use the /dl-unlink command or if the server host deletes the persistent storage data.";
+                    "\n* Your account link remains active over world resets. It is only removed if you use the /DL UnlinkAccount command or if the server host deletes the persistent storage data.";
             }
 
             public static async Task<string> GetDisplayStringAsync(bool verbose)
