@@ -158,6 +158,15 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
+        [ChatSubCommand("DiscordLink", "Open the documentation web page", ChatAuthorizationLevel.User)]
+        public static async Task Documentation(User callingUser)
+        {
+            await ExecuteCommand<object>(async (lUser, args) =>
+            {
+                callingUser.OpenWebpage("https://github.com/Eco-DiscordLink/EcoDiscordPlugin");
+            }, callingUser);
+        }
+
         [ChatSubCommand("DiscordLink", "Shows the plugin status.", ChatAuthorizationLevel.Admin)]
         public static async Task PluginStatus(User callingUser, bool verbose = false)
         {

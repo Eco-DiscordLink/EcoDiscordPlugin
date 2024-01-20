@@ -16,6 +16,8 @@ using System.Threading.Tasks;
 using static Eco.Plugins.DiscordLink.Enums;
 using static Eco.Plugins.DiscordLink.SharedCommands;
 using static Eco.Plugins.DiscordLink.Utilities.MessageBuilder;
+using Eco.Gameplay.Players;
+using Eco.Gameplay.Systems.Messaging.Chat.Commands;
 
 namespace Eco.Plugins.DiscordLink
 {
@@ -284,6 +286,15 @@ namespace Eco.Plugins.DiscordLink
                     .WithDescription(MessageBuilder.Shared.GetAboutMessage());
 
                 await RespondToCommand(ctx, null, embed);
+            }, ctx);
+        }
+
+        [SlashCommand("Documentation", "Opens the documentation web page.")]
+        public async Task Documentation(InteractionContext ctx)
+        {
+            await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
+            {
+                await RespondToCommand(ctx, "The documentation can be found here: <https://github.com/Eco-DiscordLink/EcoDiscordPlugin>");
             }, ctx);
         }
 
