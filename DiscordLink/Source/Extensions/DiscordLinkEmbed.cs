@@ -74,7 +74,7 @@ namespace Eco.Plugins.DiscordLink.Extensions
                 allowAutoLineBreak = !inline;
 
             // Shorten lines to avoid alignment being broken by automatic line breaks
-            if (!(bool)allowAutoLineBreak && text.Length > DLConstants.DISCORD_EMBED_FIELD_CHARACTER_PER_LINE_LIMIT)
+            if (!(bool)allowAutoLineBreak && text.Length >= DLConstants.DISCORD_EMBED_FIELD_CHARACTER_PER_LINE_LIMIT)
             {
                 StringBuilder builder = new StringBuilder();
                 text = text.Replace("\r", null); // Remove all carrige returns so they don't cause extra newlines
