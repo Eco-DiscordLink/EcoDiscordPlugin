@@ -6,7 +6,7 @@ If you encounter problems, remember that Discordlink has [troubleshooting comman
 
 ---------------
 
-### 1. Download and install EcoWorldCore from [eco.mod.io](https://mod.io/g/eco/m/ecoworldcore1). This is a required dependency for DiscordLink.
+### 1. Download and install MightyMooseCore from [eco.mod.io](https://mod.io/g/eco/m/mightymoosecore). This is a required dependency for DiscordLink.
 
 ### 2. Download the latest DiscordLink release .zip file from [Github](https://github.com/Eco-DiscordLink/EcoDiscordPlugin/releases) or [eco.mod.io](https://mod.io/g/eco/m/discordlink).
 
