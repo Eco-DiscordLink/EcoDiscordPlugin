@@ -26,7 +26,9 @@ using Eco.Gameplay.Players;
 using Eco.Gameplay.Property;
 using Eco.Gameplay.Settlements;
 using Eco.Gameplay.Skills;
+using Eco.Gameplay.Systems;
 using Eco.Gameplay.Systems.Balance;
+using Eco.Gameplay.Systems.Exhaustion;
 using Eco.Gameplay.Components.Store;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.Networking;
@@ -735,7 +737,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     }
                 }
 
-                if (BalancePlugin.Obj.Config.IsLimitingHours && (flag.HasFlag(ServerInfoComponentFlag.ExhaustionResetTimeLeft) || flag.HasFlag(ServerInfoComponentFlag.ExhaustedPlayerCount)))
+                if (FeatureConfig.Obj.ExhaustionTimeEnabled && (flag.HasFlag(ServerInfoComponentFlag.ExhaustionResetTimeLeft) || flag.HasFlag(ServerInfoComponentFlag.ExhaustedPlayerCount)))
                 {
                     int fieldsAdded = 0;
                     if (flag.HasFlag(ServerInfoComponentFlag.ExhaustionResetTimeLeft))
@@ -772,7 +774,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                         embed.AddAlignmentField();
                     }
 
-                    if (flag.HasFlag(ServerInfoComponentFlag.PlayerListExhaustionTime) && BalancePlugin.Obj.Config.IsLimitingHours)
+                    if (flag.HasFlag(ServerInfoComponentFlag.PlayerListExhaustionTime) && FeatureConfig.Obj.ExhaustionTimeEnabled)
                     {
                         string exhaustTimeList = Shared.GetPlayerExhaustionTimeList();
                         if (!string.IsNullOrWhiteSpace(exhaustTimeList))
@@ -871,7 +873,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 }
 
                 // Exhaustion
-                if (flag.HasFlag(PlayerReportComponentFlag.Exhaustion) && BalancePlugin.Obj.Config.IsLimitingHours)
+                if (flag.HasFlag(PlayerReportComponentFlag.Exhaustion) && FeatureConfig.Obj.ExhaustionTimeEnabled)
                 {
                     report.AddField("Exhaustion Countdown", (user.ExhaustionMonitor?.IsExhausted ?? false) ? "Exhausted" : Shared.GetTimeDescription(user.GetSecondsLeftUntilExhaustion(), includeZeroValues: Shared.TimespanStringComponent.Hour | Shared.TimespanStringComponent.Minute | Shared.TimespanStringComponent.Second), inline: true);
                     report.AddAlignmentField();
