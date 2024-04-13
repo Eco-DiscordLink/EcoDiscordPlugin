@@ -640,11 +640,6 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     embed.WithDescription(MessageUtils.FirstNonEmptyString(config.ServerDescription, MessageUtils.StripTags(serverInfo.Description), "No server description is available."));
                 }
 
-                if (flag.HasFlag(ServerInfoComponentFlag.Logo) && !string.IsNullOrWhiteSpace(config.ServerLogo))
-                {
-                    embed.WithThumbnail(config.ServerLogo);
-                }
-
                 if (flag.HasFlag(ServerInfoComponentFlag.ConnectionInfo))
                 {
                     string fieldText = "-- Connection info not configured --";

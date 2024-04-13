@@ -268,7 +268,6 @@ namespace Eco.Plugins.DiscordLink
                 MinEmbedSizeForFooter = this.MinEmbedSizeForFooter,
                 ServerName = this.ServerName,
                 ServerDescription = this.ServerDescription,
-                ServerLogo = this.ServerLogo,
                 ConnectionInfo = this.ConnectionInfo,
                 ChatSyncMode = this.ChatSyncMode,
                 LogLevel = this.LogLevel,
@@ -310,9 +309,6 @@ namespace Eco.Plugins.DiscordLink
 
         [Description("The description of the Eco server, overriding the description configured within Eco. This setting can be changed while the server is running."), Category("Base Configuration - Eco")]
         public string ServerDescription { get; set; }
-
-        [Description("The logo of the server as a URL. This setting can be changed while the server is running."), Category("Base Configuration - Eco")]
-        public string ServerLogo { get; set; }
 
         [Description("The game server connection information to display to users. This setting can be changed while the server is running."), Category("Base Configuration - Eco")]
         public string ConnectionInfo { get; set; } = $"Server ID: {NetworkManager.Config.ID.ToString()}";
