@@ -12,6 +12,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Eco.Plugins.DiscordLink</RootNamespace>
     <Version>3.4.2</Version>
+    <UserSecretsId>76327cae-f51e-4a40-a600-1fbe4c0d0bb3</UserSecretsId>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -26,6 +27,7 @@
 
   <ItemGroup>
     <PackageReference Include="ConcurrentHashSet" Version="1.3.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.1" />
     <PackageReference Include="NetFabric.Hyperlinq.Abstractions" Version="1.3.0" />
     <PackageReference Include="Nito.AsyncEx.Coordination" Version="5.1.2" />
   </ItemGroup>
