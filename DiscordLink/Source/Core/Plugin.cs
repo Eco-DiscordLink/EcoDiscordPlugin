@@ -36,15 +36,17 @@ namespace Eco.Plugins.DiscordLink
         public readonly Version InstalledVersion = Assembly.GetExecutingAssembly().GetName().Version;
         public Version? ModIOVersion = null;
 
+        public static readonly IConfiguration Secrets = new ConfigurationBuilder().AddUserSecrets<DiscordLink>().Build();
+        private static string ModIODeveloperToken = Secrets["ModIODeveloperToken"];
+        private const string ModIOAppID = "77";
+
         public static DiscordLink Obj { get { return PluginManager.GetPlugin<DiscordLink>(); } }
         public DiscordClient Client { get; private set; } = new DiscordClient();
         public Module[] Modules { get; private set; } = new Module[Enum.GetNames(typeof(ModuleType)).Length];
         public IPluginConfig PluginConfig { get { return DLConfig.Instance.PluginConfig; } }
         public ThreadSafeAction<object, string> ParamChanged { get; set; }
-        public IConfiguration Secrets { get; private set; }
         public DateTime InitTime { get; private set; } = DateTime.MinValue;
         public bool CanRestart { get; private set; } = false; // False to start with as we cannot restart while the initial startup is in progress
-
 
         private bool _triggerWorldResetEvent = false;
 
@@ -136,11 +138,6 @@ namespace Eco.Plugins.DiscordLink
 
         public async void Initialize(TimedTask timer)
         {
-            // Retrieve App Secrets
-            Secrets = new ConfigurationBuilder()
-                .AddUserSecrets<DiscordLink>()
-                .Build();
-
             InitCallbacks();
             DLConfig.Instance.Initialize();
             Logger.RegisterLogger("DiscordLink", ConsoleColor.Cyan, DLConfig.Data.LogLevel);
@@ -158,8 +155,6 @@ namespace Eco.Plugins.DiscordLink
             PluginManager.Controller.RunIfOrWhenInited(PostServerInitialize); // Defer some initialization for when the server initialization is completed
 
             // Check mod versioning if the required data exists
-            string ModIOAppID = Secrets["ModIo:AppId"];
-            string ModIODeveloperToken = Secrets["ModIo:DeveloperToken"];
             if (!string.IsNullOrWhiteSpace(ModIOAppID) && !string.IsNullOrWhiteSpace(ModIODeveloperToken))
                 ModIOVersion = await VersionChecker.CheckVersion("DiscordLink", ModIOAppID, ModIODeveloperToken);
             else
