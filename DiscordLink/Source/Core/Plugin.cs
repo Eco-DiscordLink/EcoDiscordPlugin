@@ -33,6 +33,7 @@ namespace Eco.Plugins.DiscordLink
     [Priority(PriorityAttribute.High)] // Need to start before WorldGenerator in order to listen for world generation finished event
     public class DiscordLink : IModKitPlugin, IInitializablePlugin, IShutdownablePlugin, IConfigurablePlugin, IDisplayablePlugin, IGameActionAware, ICommandablePlugin
     {
+        public readonly string PluginName = "DiscordLink";
         public readonly Version InstalledVersion = Assembly.GetExecutingAssembly().GetName().Version;
         public Version? ModIOVersion = null;
 
@@ -59,7 +60,7 @@ namespace Eco.Plugins.DiscordLink
         private EventHandler<LinkedUser> OnLinkedUserVerified;
         private EventHandler<LinkedUser> OnLinkedUserRemoved;
 
-        public override string ToString() => "DiscordLink";
+        public override string ToString() => PluginName;
         public string GetCategory() => "DiscordLink";
         public string GetStatus() => _statusDescription;
         public object GetEditObject() => DLConfig.Data;
@@ -140,7 +141,7 @@ namespace Eco.Plugins.DiscordLink
         {
             InitCallbacks();
             DLConfig.Instance.Initialize();
-            Logger.RegisterLogger("DiscordLink", ConsoleColor.Cyan, DLConfig.Data.LogLevel);
+            Logger.RegisterLogger(PluginName, ConsoleColor.Cyan, DLConfig.Data.LogLevel);
             Status = StatusState.InitializingPlugin;
             InitTime = DateTime.Now;
 
@@ -156,7 +157,7 @@ namespace Eco.Plugins.DiscordLink
 
             // Check mod versioning if the required data exists
             if (!string.IsNullOrWhiteSpace(ModIOAppID) && !string.IsNullOrWhiteSpace(ModIODeveloperToken))
-                ModIOVersion = await VersionChecker.CheckVersion("DiscordLink", ModIOAppID, ModIODeveloperToken);
+                ModIOVersion = await VersionChecker.CheckVersion(PluginName, ModIOAppID, ModIODeveloperToken);
             else
                 Logger.Info($"Plugin version is {InstalledVersion.ToString(3)}");
         }
