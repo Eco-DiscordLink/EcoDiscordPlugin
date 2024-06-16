@@ -5,8 +5,8 @@
 3a. **Copy the reference assemblies into the "Dependencies" subdirectory.**  
 OR  
 3b (Dev Tier). **Place the Eco repository at ../Eco and build the server.** Note that this is also required in order to attach a debugger.
-4. **Download the latest [EcoWorldCore](https://mod.io/g/eco/m/ecoworldcore1) dll and place it into the "Dependencies" subdirectory.**
-4. **Open the DiscordLink .sln file using Visual Studio 2019 or newer.** 
+4. **Download the latest [MightyMooseCore](https://mod.io/g/eco/m/mightymoosecore) dll and place it into the "Dependencies" subdirectory.**
+4. **Open the DiscordLink .sln file using Visual Studio 2022 or newer.** 
 5. **Install the required NuGets via the Visual Studio NuGet browser.** 
 6. **Attempt to build and run the mod.** 
 This will:  
