@@ -116,6 +116,7 @@ namespace Eco.Plugins.DiscordLink
                     Token = DLConfig.Data.BotToken,
                     TokenType = TokenType.Bot,
                     MinimumLogLevel = DLConfig.Data.BackendLogLevel,
+                    LoggerFactory = new DSharpPlusLogWrapperFactory(DLConfig.Data.BackendLogLevel, DLConfig.Data.TraceFileLogging),
                     Intents = DLConstants.REQUESTED_INTENTS.Aggregate((current, next) => current | next)
                 });
 
@@ -829,7 +830,7 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (UnauthorizedException e)
             {
-                Logger.Exception($"DiscordLink was not allowed to revoke the role \"{role.Name}\" from member \"{member.Username}\". Ensure that your bot user is assigned a role with higher permission level than all roles it manages.", e);
+                Logger.Exception($"DiscordLink was not allowed to revoke the role \"{role.Name}\" from member \"{member.Username}\". Ensure that your bot user is assigned a role with higher permission level than all roles it manages. This role was most likely not created by the current bot. Deleting it manually will resolve this Issue.", e);
             }
             catch (ServerErrorException e)
             {
