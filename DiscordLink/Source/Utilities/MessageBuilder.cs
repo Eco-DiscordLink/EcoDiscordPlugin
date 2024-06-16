@@ -27,7 +27,6 @@ using Eco.Gameplay.Property;
 using Eco.Gameplay.Settlements;
 using Eco.Gameplay.Skills;
 using Eco.Gameplay.Systems;
-using Eco.Gameplay.Systems.Balance;
 using Eco.Gameplay.Systems.Exhaustion;
 using Eco.Gameplay.Components.Store;
 using Eco.Plugins.DiscordLink.Extensions;
@@ -737,7 +736,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     int fieldsAdded = 0;
                     if (flag.HasFlag(ServerInfoComponentFlag.ExhaustionResetTimeLeft))
                     {
-                        embed.AddField("Exhaustion Reset", DateTime.Now.AddSeconds(Lookups.SecondsLeftOnDay).ToDiscordTimeStamp('R'), inline: true);
+                        embed.AddField("Exhaustion Reset", DateTime.Now.AddSeconds(ExhaustionPlugin.Obj.Config.TimeUntilRefresh).ToDiscordTimeStamp('R'), inline: true);
                         ++fieldsAdded;
                     }
 
