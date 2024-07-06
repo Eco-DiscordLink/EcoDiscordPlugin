@@ -1,15 +1,13 @@
 ﻿using Eco.Core.Utils;
 using Eco.Core.Utils.Logging;
 using Eco.Moose.Tools.Logger;
-using Eco.Gameplay.GameActions;
-using Eco.Gameplay.Objects;
+using Eco.Moose.Utils.SystemUtils;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Utils;
 using Nito.AsyncEx;
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using Eco.Moose.Utils.SystemUtils;
 
 namespace Eco.Plugins.DiscordLink.Events
 {
@@ -32,15 +30,10 @@ namespace Eco.Plugins.DiscordLink.Events
         public static readonly EventConverter Instance = new EventConverter();
 
         private const int LOG_POSTING_INTERVAL_MS = 1000;
-        private const int TRADE_POSTING_INTERVAL_MS = 1000;
         private readonly List<Tuple<Logger.LogLevel, string>> _accumulatedLogs = new List<Tuple<Logger.LogLevel, string>>();
-        private readonly Dictionary<Tuple<int, int>, List<CurrencyTrade>> _accumulatedTrades = new Dictionary<Tuple<int, int>, List<CurrencyTrade>>();
         private Timer _logPostingTimer = null;
-        private Timer _tradePostingTimer = null;
         private readonly AsyncLock _accumulatedLogssoverlapLock = new AsyncLock();
-        private readonly AsyncLock _accumulatedTradesoverlapLock = new AsyncLock();
         private readonly AsyncLock _accumulatedLogsLock = new AsyncLock();
-        private readonly AsyncLock _accumulatedTradesLock = new AsyncLock();
 
         // Explicit static constructor to tell C# compiler not to mark type as beforefieldinit
         static EventConverter()
@@ -53,34 +46,6 @@ namespace Eco.Plugins.DiscordLink.Events
 
         public void Initialize()
         {
-            // Initialize trade accumulation
-            _tradePostingTimer = new Timer(InnerArgs =>
-            {
-                using (_accumulatedTradesoverlapLock.Lock()) // Make sure this code isn't entered multiple times simultaniously
-                {
-                    try
-                    {
-                        if (_accumulatedTrades.Count > 0)
-                        {
-                            // Fire the accumulated event
-                            List<CurrencyTrade>[] trades = null;
-                            using (_accumulatedTradesLock.Lock())
-                            {
-                                trades = new List<CurrencyTrade>[_accumulatedTrades.Values.Count];
-                                _accumulatedTrades.Values.CopyTo(trades, 0);
-                                _accumulatedTrades.Clear();
-                            }
-                            FireEvent(DLEventType.AccumulatedTrade, (object)trades);
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Logger.Exception($"Failed to accumulate trade events", e);
-                    }
-                }
-
-            }, null, 0, TRADE_POSTING_INTERVAL_MS);
-
             // Initialize log accumulation
             _logPostingTimer = new Timer(InnerArgs =>
             {
@@ -113,7 +78,6 @@ namespace Eco.Plugins.DiscordLink.Events
 
         public void Shutdown()
         {
-            SystemUtils.StopAndDestroyTimer(ref _tradePostingTimer);
             SystemUtils.StopAndDestroyTimer(ref _logPostingTimer);
         }
 
@@ -121,31 +85,6 @@ namespace Eco.Plugins.DiscordLink.Events
         {
             switch (eventType)
             {
-                case DLEventType.Trade:
-                    if (!(data[0] is CurrencyTrade tradeEvent))
-                        return;
-
-                    // Store the event in a list in order to accumulate trade events that should be considered as one. We do this as each item in a trade will fire an individual event and we want to summarize them
-                    Tuple<int, int> IDTuple = new Tuple<int, int>(tradeEvent.Citizen.Id, (tradeEvent.WorldObject as WorldObject).ID);
-                    List<CurrencyTrade> trades;
-                    using (_accumulatedTradesLock.Lock())
-                    {
-                        _accumulatedTrades.TryGetValue(IDTuple, out trades);
-                    }
-                    if (trades == null)
-                    {
-                        trades = new List<CurrencyTrade>();
-                        using (_accumulatedTradesLock.Lock())
-                        {
-                            _accumulatedTrades.Add(IDTuple, trades);
-                        }
-                    }
-                    using (_accumulatedTradesLock.Lock())
-                    {
-                        trades.Add(tradeEvent);
-                    }
-                    break;
-
                 default:
                     break;
             }

@@ -1,4 +1,4 @@
-﻿using Eco.Gameplay.GameActions;
+﻿using Eco.Moose.Tools.Logger;
 using Eco.Moose.Utils.Persistance;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Modules;
@@ -86,23 +86,9 @@ namespace Eco.Plugins.DiscordLink
         {
             switch (eventType)
             {
-                // Keep track of the amount of trades per currency
-                case DLEventType.AccumulatedTrade:
-                    if (!(data[0] is IEnumerable<List<CurrencyTrade>> accumulatedTrade))
-                        return;
-
-                    foreach (var list in accumulatedTrade)
-                    {
-                        if (list.Count <= 0) continue;
-
-                        // Make sure an entry exists for the currency
-                        int currencyID = accumulatedTrade.First()[0].Currency.Id;
-                        if (!WorldData.CurrencyToTradeCountMap.ContainsKey(currencyID))
-                            WorldData.CurrencyToTradeCountMap.Add(currencyID, 0);
-
-                        WorldData.CurrencyToTradeCountMap.TryGetValue(currencyID, out int tradeCount);
-                        WorldData.CurrencyToTradeCountMap[currencyID] = tradeCount + 1;
-                    }
+                case DLEventType.WorldReset:
+                    Logger.Info("New world generated - Removing storage data for previous world");
+                    ResetWorldData();
                     break;
 
                 default:

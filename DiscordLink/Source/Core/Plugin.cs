@@ -4,10 +4,12 @@ using Eco.Core;
 using Eco.Core.Plugins;
 using Eco.Core.Plugins.Interfaces;
 using Eco.Core.Utils;
+using Eco.Moose.Events;
+using Eco.Moose.Plugin;
 using Eco.Moose.Tools.Logger;
+using Eco.Moose.Tools.VersionChecker;
 using Eco.Moose.Utils.TextUtils;
 using Eco.Moose.Utils.SystemUtils;
-using Eco.Moose.Tools.VersionChecker;
 using Eco.Gameplay.Aliases;
 using Eco.Gameplay.Civics.Elections;
 using Eco.Gameplay.GameActions;
@@ -27,6 +29,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Module = Eco.Plugins.DiscordLink.Modules.Module;
+
 
 namespace Eco.Plugins.DiscordLink
 {
@@ -57,6 +60,7 @@ namespace Eco.Plugins.DiscordLink
         private Action<Election> OnElectionStarted;
         private Action<Election> OnElectionFinished;
         private Action<DLEventArgs> OnEventConverted;
+        private Action<MooseEventArgs> OnMooseEventFired;
         private EventHandler<LinkedUser> OnLinkedUserVerified;
         private EventHandler<LinkedUser> OnLinkedUserRemoved;
 
@@ -395,8 +399,6 @@ namespace Eco.Plugins.DiscordLink
 
         public void HandleWorldReset()
         {
-            Logger.Info("New world generated - Removing storage data for previous world");
-            DLStorage.Instance.ResetWorldData();
             _triggerWorldResetEvent = true;
         }
 
@@ -499,6 +501,7 @@ namespace Eco.Plugins.DiscordLink
             OnElectionStarted = async election => await HandleEvent(DLEventType.StartElection, election);
             OnElectionFinished = async election => await HandleEvent(DLEventType.StopElection, election);
             OnEventConverted = async args => await HandleEvent(args.EventType, args.Data);
+            OnMooseEventFired = async args => await HandleEvent((DLEventType)args.EventType, args.Data);
             OnLinkedUserVerified = async (sender, args) => await HandleEvent(DLEventType.AccountLinkVerified, args);
             OnLinkedUserRemoved = async (sender, args) => await HandleEvent(DLEventType.AccountLinkRemoved, args);
         }
@@ -511,6 +514,7 @@ namespace Eco.Plugins.DiscordLink
             Election.ElectionStartedEvent.Add(OnElectionStarted);
             Election.ElectionFinishedEvent.Add(OnElectionFinished);
             EventConverter.OnEventConverted.Add(OnEventConverted);
+            MightyMooseCore.OnEventFired.Add(OnMooseEventFired);
             UserLinkManager.OnLinkedUserVerified += OnLinkedUserVerified;
             UserLinkManager.OnLinkedUserRemoved += OnLinkedUserRemoved;
         }
@@ -523,6 +527,7 @@ namespace Eco.Plugins.DiscordLink
             Election.ElectionStartedEvent.Remove(OnElectionStarted);
             Election.ElectionFinishedEvent.Remove(OnElectionFinished);
             EventConverter.OnEventConverted.Remove(OnEventConverted);
+            MightyMooseCore.OnEventFired.Remove(OnMooseEventFired);
             UserLinkManager.OnLinkedUserVerified -= OnLinkedUserVerified;
             UserLinkManager.OnLinkedUserRemoved -= OnLinkedUserRemoved;
         }

@@ -16,8 +16,6 @@ using System.Threading.Tasks;
 using static Eco.Plugins.DiscordLink.Enums;
 using static Eco.Plugins.DiscordLink.SharedCommands;
 using static Eco.Plugins.DiscordLink.Utilities.MessageBuilder;
-using Eco.Gameplay.Players;
-using Eco.Gameplay.Systems.Messaging.Chat.Commands;
 
 namespace Eco.Plugins.DiscordLink
 {

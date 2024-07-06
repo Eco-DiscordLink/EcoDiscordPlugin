@@ -52,7 +52,6 @@ namespace Eco.Plugins.DiscordLink
         public const string ECO_PANEL_COMPLEX_LIST = "DLComplexList";
         public const string ECO_PANEL_DL_MESSAGE_MEDIUM = "DLMessageMedium";
         public const string ECO_PANEL_REPORT = "DLReport";
-        public const string ECO_PANEL_DL_TRADES = "DLTrades";
 
         public static DiscordEmoji ACCEPT_EMOJI;
         public static DiscordEmoji DENY_EMOJI;
