@@ -400,9 +400,7 @@ namespace Eco.Plugins.DiscordLink
                 // Make sure that the accounts aren't already linked to any account
                 foreach (LinkedUser linkedUser in DLStorage.PersistentData.LinkedUsers)
                 {
-                    bool hasSLGID = !string.IsNullOrWhiteSpace(callingUser.SlgId) && !string.IsNullOrWhiteSpace(linkedUser.SlgID);
-                    bool hasSteamID = !string.IsNullOrWhiteSpace(callingUser.SteamId) && !string.IsNullOrWhiteSpace(linkedUser.SteamID);
-                    if ((hasSLGID && callingUser.SlgId == linkedUser.SlgID) || (hasSteamID && callingUser.SteamId == linkedUser.SteamID))
+                    if (linkedUser.HasAnyID(callingUser.StrangeId, callingUser.SteamId))
                     {
                         if (linkedUser.DiscordID == matchingMember.Id.ToString())
                             ReportCommandInfo(callingUser, $"Eco account is already linked to this Discord account.\nUse `/DL UnlinkAccount` to remove the existing link.");
@@ -536,20 +534,20 @@ namespace Eco.Plugins.DiscordLink
             {
                 if (DLConfig.Data.ChatSyncMode == ChatSyncMode.OptOut)
                 {
-                    if (DLStorage.PersistentData.OptedOutUsers.Any(user => user.HasAnyID(callingUser.SlgId, callingUser.SteamId)))
+                    if (DLStorage.PersistentData.OptedOutUsers.Any(user => user.HasAnyID(callingUser.StrangeId, callingUser.SteamId)))
                     {
                         ReportCommandError(callingUser, "You have already opted out of chat synchronization.");
                     }
                     else
                     {
-                        DLStorage.PersistentData.OptedOutUsers.Add(new EcoUser(callingUser.SlgId, callingUser.SteamId));
+                        DLStorage.PersistentData.OptedOutUsers.Add(new EcoUser(callingUser.StrangeId, callingUser.SteamId));
                         ReportCommandInfo(callingUser, "You have opted out of chat synchronization.");
                     }
                 }
                 else if (DLConfig.Data.ChatSyncMode == ChatSyncMode.OptIn)
                 {
                     EcoUser optedInUser;
-                    if ((optedInUser = DLStorage.PersistentData.OptedInUsers.FirstOrDefault(user => user.HasAnyID(callingUser.SlgId, callingUser.SteamId))) != null)
+                    if ((optedInUser = DLStorage.PersistentData.OptedInUsers.FirstOrDefault(user => user.HasAnyID(callingUser.StrangeId, callingUser.SteamId))) != null)
                     {
                         DLStorage.PersistentData.OptedInUsers.Remove(optedInUser);
                         ReportCommandInfo(callingUser, "You have opted back out of chat synchronization.");
@@ -571,7 +569,7 @@ namespace Eco.Plugins.DiscordLink
                 if (DLConfig.Data.ChatSyncMode == ChatSyncMode.OptOut)
                 {
                     EcoUser optedOutUser;
-                    if ((optedOutUser = DLStorage.PersistentData.OptedOutUsers.FirstOrDefault(user => user.HasAnyID(callingUser.SlgId, callingUser.SteamId))) != null)
+                    if ((optedOutUser = DLStorage.PersistentData.OptedOutUsers.FirstOrDefault(user => user.HasAnyID(callingUser.StrangeId, callingUser.SteamId))) != null)
                     {
                         DLStorage.PersistentData.OptedOutUsers.Remove(optedOutUser);
                         ReportCommandInfo(callingUser, "You have opted back into chat synchronization.");
@@ -583,13 +581,13 @@ namespace Eco.Plugins.DiscordLink
                 }
                 else if (DLConfig.Data.ChatSyncMode == ChatSyncMode.OptIn)
                 {
-                    if (DLStorage.PersistentData.OptedInUsers.Any(user => user.HasAnyID(callingUser.SlgId, callingUser.SteamId)))
+                    if (DLStorage.PersistentData.OptedInUsers.Any(user => user.HasAnyID(callingUser.StrangeId, callingUser.SteamId)))
                     {
                         ReportCommandError(callingUser, "You have already opted into chat synchronization.");
                     }
                     else
                     {
-                        DLStorage.PersistentData.OptedInUsers.Add(new EcoUser(callingUser.SlgId, callingUser.SteamId));
+                        DLStorage.PersistentData.OptedInUsers.Add(new EcoUser(callingUser.StrangeId, callingUser.SteamId));
                         ReportCommandInfo(callingUser, "You have opted into chat synchronization.");
                     }
                 }

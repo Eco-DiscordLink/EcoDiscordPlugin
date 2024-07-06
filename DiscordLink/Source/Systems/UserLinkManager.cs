@@ -61,7 +61,7 @@ namespace Eco.Plugins.DiscordLink
             if (string.IsNullOrEmpty(SlgOrSteamId))
                 return null;
 
-            LinkedUser result = DLStorage.PersistentData.LinkedUsers.Find(linkedUser => (linkedUser.SlgID == SlgOrSteamId || linkedUser.SteamID == SlgOrSteamId) && (linkedUser.Valid || !requireValid));
+            LinkedUser result = DLStorage.PersistentData.LinkedUsers.Find(linkedUser => (linkedUser.StrangeID == SlgOrSteamId || linkedUser.SteamID == SlgOrSteamId) && (linkedUser.Valid || !requireValid));
             if (result == null && caller != null && callingReason != null)
                 ReportLinkLookupFailure(caller, callingReason);
 
@@ -75,7 +75,7 @@ namespace Eco.Plugins.DiscordLink
         public static LinkedUser LinkedUserByEcoUser(User user, object caller = null, string callingReason = null, bool requireValid = true)
         {
             LinkedUser result = null;
-            result = DLStorage.PersistentData.LinkedUsers.Find(linkedUser => linkedUser.HasAnyID(user.SlgId, user.SteamId) && (linkedUser.Valid || !requireValid));
+            result = DLStorage.PersistentData.LinkedUsers.Find(linkedUser => linkedUser.HasAnyID(user.StrangeId, user.SteamId) && (linkedUser.Valid || !requireValid));
 
             if (result == null && caller != null && callingReason != null)
                 ReportLinkLookupFailure(caller, callingReason);
@@ -99,7 +99,7 @@ namespace Eco.Plugins.DiscordLink
 
         public static LinkedUser AddLinkedUser(User user, string discordId, string guildId)
         {
-            LinkedUser linkedUser = new LinkedUser(user.SlgId, user.SteamId, discordId, guildId);
+            LinkedUser linkedUser = new LinkedUser(user.StrangeId, user.SteamId, discordId, guildId);
             DLStorage.PersistentData.LinkedUsers.Add(linkedUser);
             DLStorage.Instance.Write();
             return linkedUser;
@@ -194,7 +194,7 @@ namespace Eco.Plugins.DiscordLink
     public class LinkedUser
     {
         [JsonIgnore]
-        public User EcoUser { get { return Lookups.UserBySteamOrSLGID(SteamID, SlgID); } }
+        public User EcoUser { get { return Lookups.UserByStrangeOrSteamID(StrangeID, SteamID); } }
 
         [JsonIgnore]
         public DiscordMember DiscordMember { get; private set; }
@@ -202,7 +202,7 @@ namespace Eco.Plugins.DiscordLink
         [JsonIgnore]
         public bool Valid => Verified && EcoUser != null && DiscordMember != null;
 
-        public readonly string SlgID = string.Empty;
+        public readonly string StrangeID = string.Empty;
         public readonly string SteamID = string.Empty;
         public readonly string DiscordID = string.Empty;
         public readonly string GuildID = string.Empty;
@@ -210,7 +210,7 @@ namespace Eco.Plugins.DiscordLink
 
         public LinkedUser(string slgID, string steamID, string discordID, string guildID)
         {
-            this.SlgID = slgID;
+            this.StrangeID = slgID;
             this.SteamID = steamID;
             this.DiscordID = discordID;
             this.GuildID = guildID;
@@ -230,7 +230,7 @@ namespace Eco.Plugins.DiscordLink
 
         public bool HasAnyID(string SlgID, string SteamID)
         {
-            return (!string.IsNullOrEmpty(this.SteamID) && this.SteamID == SteamID) || (!string.IsNullOrEmpty(this.SlgID) && this.SlgID == SlgID);
+            return (!string.IsNullOrEmpty(this.SteamID) && this.SteamID == SteamID) || (!string.IsNullOrEmpty(this.StrangeID) && this.StrangeID == SlgID);
         }
     }
 
@@ -238,19 +238,19 @@ namespace Eco.Plugins.DiscordLink
     {
         public EcoUser(string SlgID, string SteamID)
         {
-            this.SlgID = SlgID;
+            this.StrangeID = SlgID;
             this.SteamID = SteamID;
         }
 
         public bool HasAnyID(string SlgID, string SteamID)
         {
-            return (!string.IsNullOrEmpty(this.SteamID) && this.SteamID == SteamID) || (!string.IsNullOrEmpty(this.SlgID) && this.SlgID == SlgID);
+            return (!string.IsNullOrEmpty(this.SteamID) && this.SteamID == SteamID) || (!string.IsNullOrEmpty(this.StrangeID) && this.StrangeID == SlgID);
         }
 
         [JsonIgnore]
-        public User GetUser { get { return Lookups.UserBySteamOrSLGID(SteamID, SlgID); } }
+        public User GetUser { get { return Lookups.UserByStrangeOrSteamID(StrangeID, SteamID); } }
 
-        public readonly string SlgID = string.Empty;
+        public readonly string StrangeID = string.Empty;
         public readonly string SteamID = string.Empty;
     }
 }

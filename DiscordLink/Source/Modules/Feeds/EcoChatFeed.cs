@@ -55,7 +55,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             string forwardedMessage = string.Empty;
             if (DLConfig.Data.ChatSyncMode == Enums.ChatSyncMode.OptOut)
             {
-                if (DLStorage.PersistentData.OptedOutUsers.Any(u => (u.SteamID != string.Empty && u.SteamID == chatMessage.Citizen.SteamId) || (u.SlgID != string.Empty && u.SlgID == chatMessage.Citizen.SlgId)))
+                if (DLStorage.PersistentData.OptedOutUsers.Any(u => (u.SteamID != string.Empty && u.SteamID == chatMessage.Citizen.SteamId) || (u.StrangeID != string.Empty && u.StrangeID == chatMessage.Citizen.StrangeId)))
                 {
                     forwardedMessage = $"[Blocked Message - Author opted out]";
                     blocked = true;
@@ -63,7 +63,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             }
             else if (DLConfig.Data.ChatSyncMode == Enums.ChatSyncMode.OptIn)
             {
-                if (DLStorage.PersistentData.OptedInUsers.None(u => (u.SteamID != string.Empty && u.SteamID == chatMessage.Citizen.SteamId) || (u.SlgID != string.Empty && u.SlgID == chatMessage.Citizen.SlgId)))
+                if (DLStorage.PersistentData.OptedInUsers.None(u => (u.SteamID != string.Empty && u.SteamID == chatMessage.Citizen.SteamId) || (u.StrangeID != string.Empty && u.StrangeID == chatMessage.Citizen.StrangeId)))
                 {
                     forwardedMessage = $"[Blocked Message - Author not opted in]";
                     blocked = true;
