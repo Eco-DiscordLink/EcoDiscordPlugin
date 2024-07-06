@@ -2,6 +2,8 @@
 using DSharpPlus.SlashCommands;
 using Eco.Core;
 using Eco.Core.Plugins;
+using Eco.Moose.Tools.Logger;
+using Eco.Moose.Utils.Message;
 using Eco.Moose.Utils.Lookups;
 using Eco.Gameplay.Civics.Elections;
 using Eco.Gameplay.Economy;
@@ -17,9 +19,9 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using static Eco.Plugins.DiscordLink.Enums;
 using static Eco.Plugins.DiscordLink.Utilities.MessageBuilder;
+using static Eco.Moose.Features.Trade;
 using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.Store.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
-using Eco.Moose.Tools.Logger;
-using Eco.Moose.Utils.Message;
+
 
 namespace Eco.Plugins.DiscordLink
 {
@@ -440,7 +442,7 @@ namespace Eco.Plugins.DiscordLink
                 return false;
             }
 
-            string matchedName = TradeUtils.GetMatchAndOffers(searchName, out TradeTargetType offerType, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
+            string matchedName = FindOffers(searchName, out TradeTargetType offerType, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
             if (offerType == TradeTargetType.Invalid)
             {
                 await ReportCommandError(source, callContext, $"No player, tag, item or store with the name \"{searchName}\" could be found.");
@@ -449,8 +451,7 @@ namespace Eco.Plugins.DiscordLink
 
             if (source == CommandInterface.Eco)
             {
-                MessageBuilder.Eco.FormatTrades(callContext as User, offerType, groupedBuyOffers, groupedSellOffers, out string message);
-                await DisplayCommandData(source, callContext, matchedName, message, DLConstants.ECO_PANEL_DL_TRADES);
+                Moose.Plugin.Commands.Trades(callContext as User, searchName);
             }
             else
             {
@@ -497,7 +498,7 @@ namespace Eco.Plugins.DiscordLink
                 return false;
             }
 
-            string matchedName = TradeUtils.GetMatchAndOffers(searchName, out TradeTargetType offerType, out _, out _);
+            string matchedName = FindOffers(searchName, out TradeTargetType offerType, out _, out _);
             if (offerType == TradeTargetType.Invalid)
                 return false;
 

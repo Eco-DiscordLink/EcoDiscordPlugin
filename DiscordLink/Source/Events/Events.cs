@@ -1,10 +1,7 @@
-﻿using Eco.Gameplay.GameActions;
-using System.Collections.Generic;
-
-namespace Eco.Plugins.DiscordLink.Events
+﻿namespace Eco.Plugins.DiscordLink.Events
 {
     #pragma warning disable format
-    public enum DLEventType : System.Int64
+    public enum DLEventType : System.UInt64
     {
         Timer                       = 1L << 0,
         ForceUpdate                 = 1L << 1,
@@ -25,28 +22,25 @@ namespace Eco.Plugins.DiscordLink.Events
         Login                       = 1L << 16,
         Logout                      = 1L << 17,
         Trade                       = 1L << 18,
-        AccumulatedTrade            = 1L << 19,
-        TradeWatcherDisplayAdded    = 1L << 20,
-        TradeWatcherDisplayRemoved  = 1L << 21,
-        WorkOrderCreated            = 1L << 22,
-        PostedWorkParty             = 1L << 23,
-        CompletedWorkParty          = 1L << 24,
-        JoinedWorkParty             = 1L << 25,
-        LeftWorkParty               = 1L << 26,
-        WorkedWorkParty             = 1L << 27,
-        Vote                        = 1L << 28,
-        StartElection               = 1L << 29,
-        StopElection                = 1L << 30,
-        CurrencyCreated             = 1L << 31,
-        EnteredDemographic          = 1L << 32,
-        LeftDemographic             = 1L << 33,
-        GainedSpecialty             = 1L << 34,
-        AccumulatedServerLog        = 1L << 35,
+        TradeWatcherDisplayAdded    = 1L << 19,
+        TradeWatcherDisplayRemoved  = 1L << 20,
+        WorkOrderCreated            = 1L << 21,
+        PostedWorkParty             = 1L << 22,
+        CompletedWorkParty          = 1L << 23,
+        JoinedWorkParty             = 1L << 24,
+        LeftWorkParty               = 1L << 25,
+        WorkedWorkParty             = 1L << 26,
+        Vote                        = 1L << 27,
+        StartElection               = 1L << 28,
+        StopElection                = 1L << 29,
+        CurrencyCreated             = 1L << 30,
+        EnteredDemographic          = 1L << 31,
+        LeftDemographic             = 1L << 32,
+        GainedSpecialty             = 1L << 33,
+        AccumulatedServerLog        = 1L << 34,
+
+        // Matched with other plugins
+        AccumulatedTrade            = 1L << 62,
     }
     #pragma warning restore format
-}
-
-public class AccumulatedTradeEvent
-{
-    public List<CurrencyTrade> TradeEvents = new List<CurrencyTrade>();
 }

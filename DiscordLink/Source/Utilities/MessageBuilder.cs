@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DSharpPlus;
+﻿using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using Eco.Core.Utils;
-using Eco.Gameplay.Auth;
 using Eco.Gameplay.Civics;
 using Eco.Gameplay.Civics.Demographics;
 using Eco.Gameplay.Civics.Elections;
@@ -27,8 +20,6 @@ using Eco.Gameplay.Property;
 using Eco.Gameplay.Settlements;
 using Eco.Gameplay.Skills;
 using Eco.Gameplay.Systems;
-using Eco.Gameplay.Systems.Balance;
-using Eco.Gameplay.Systems.Exhaustion;
 using Eco.Gameplay.Components.Store;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.Networking;
@@ -37,17 +28,22 @@ using Eco.Shared.Networking;
 using Eco.Shared.Utils;
 using Eco.Shared;
 using Eco.Shared.Items;
-using Eco.Shared.IoC;
 using Eco.Moose.Utils.Extensions;
 using Eco.Moose.Utils.Lookups;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 using static Eco.Shared.Mathf; // Avoiding collisions with system mathf
+using static Eco.Moose.Features.Trade;
 
 using Constants = Eco.Moose.Utils.Constants.Constants;
 using Text = Eco.Shared.Utils.Text;
 
 using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.Store.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
-using StoreOfferGroup = System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.Store.StoreComponent, Eco.Gameplay.Components.TradeOffer>>;
 
 namespace Eco.Plugins.DiscordLink.Utilities
 {
@@ -1498,110 +1494,6 @@ namespace Eco.Plugins.DiscordLink.Utilities
                         quantityAndPrice = $"~~{quantityAndPrice}~~";
                     return $"{quantityAndPrice} {getLabel(t)}";
                 });
-            }
-        }
-
-        public static class Eco
-        {
-            public static void FormatTrades(User user, TradeTargetType tradeType, StoreOfferList groupedBuyOffers, StoreOfferList groupedSellOffers, out string message)
-            {
-                // Format message
-                StringBuilder builder = new StringBuilder();
-                if (groupedSellOffers.Count() > 0 || groupedBuyOffers.Count() > 0)
-                {
-                    switch (tradeType)
-                    {
-                        case TradeTargetType.Tag:
-                        case TradeTargetType.Item:
-                            groupedBuyOffers = groupedBuyOffers.OrderByDescending(o => o.First().Item1.Currency != null ? DLStorage.WorldData.CurrencyToTradeCountMap.GetValueOrDefault(o.First().Item1.Currency.Id, 0) : int.MinValue); // Currency == null => Barter store
-                            groupedSellOffers = groupedSellOffers.OrderByDescending(o => o.First().Item1.Currency != null ? DLStorage.WorldData.CurrencyToTradeCountMap.GetValueOrDefault(o.First().Item1.Currency.Id, 0) : int.MinValue);
-                            break;
-
-                        case TradeTargetType.User:
-                        case TradeTargetType.Store:
-                            break;
-                    }
-
-                    foreach (StoreOfferGroup group in groupedBuyOffers)
-                    {
-                        builder.AppendLine(Text.Bold(Text.Color(Color.Green, $"<--- Buying for {group.First().Item1.CurrencyName} --->")));
-                        builder.Append(TradeOffersToDescriptions(group, user, tradeType));
-                        builder.AppendLine();
-                    }
-
-                    foreach (StoreOfferGroup group in groupedSellOffers)
-                    {
-                        builder.AppendLine(Text.Bold(Text.Color(Color.Red, $"<--- Selling for {MessageUtils.StripTags(group.First().Item1.CurrencyName)} --->")));
-                        builder.Append(TradeOffersToDescriptions(group, user, tradeType));
-                        builder.AppendLine();
-                    }
-                }
-                else
-                {
-                    builder.AppendLine("--- No trade offers available ---");
-                }
-                message = builder.ToString();
-            }
-
-            private static string TradeOffersToDescriptions(StoreOfferGroup offers, User user, TradeTargetType tradeType)
-            {
-                Func<Tuple<StoreComponent, TradeOffer>, string> getLabel = tradeType switch
-                {
-                    TradeTargetType.Tag => t => $"{t.Item2.Stack.Item.MarkedUpName} @ {t.Item1.Parent.MarkedUpName}",
-                    TradeTargetType.Item => t => $"@ {t.Item1.Parent.MarkedUpName}",
-                    TradeTargetType.User => t => t.Item2.Stack.Item.MarkedUpName,
-                    TradeTargetType.Store => t => t.Item2.Stack.Item.MarkedUpName,
-                    _ => t => string.Empty,
-                };
-
-                IAuthManager AuthManager = ServiceHolder<IAuthManager>.Obj;
-
-                StringBuilder NormalOffers = new StringBuilder();
-                StringBuilder NoQuantityOffers = new StringBuilder();
-                StringBuilder DisabledOffers = new StringBuilder();
-                foreach (var storeAndoffer in offers)
-                {
-                    StoreComponent store = storeAndoffer.Item1;
-                    TradeOffer offer = storeAndoffer.Item2;
-
-                    float price = offer.Price;
-                    int quantity = offer.Stack.Quantity;
-                    Currency currency = store.Currency;
-                    float availableCurrency = offer.Buying ? store.BankAccount.GetCurrencyHoldingVal(currency) : user.GetWealthInCurrency(currency);
-                    int maxTradeCount = price > 0f && !float.IsInfinity(availableCurrency) ? FloorToInt(availableCurrency / price) : Int32.MaxValue; // Calculate how many items can be traded using the available money
-                    if (offer.Buying)
-                    {
-                        if (offer.ShouldLimit && offer.MaxNumWanted < maxTradeCount) // If there is a buy limit that is lower than what can be afforded, lower to that limit
-                            maxTradeCount = offer.MaxNumWanted;
-                    }
-                    else if (quantity < maxTradeCount)
-                    {
-                        maxTradeCount = quantity; // If there less items for sale than we can pay for, lower to the amount available for sale
-                    }
-
-                    var quantityString = (offer.Stack.Quantity == maxTradeCount || maxTradeCount == Int32.MaxValue)
-                        ? $"{quantity}"
-                        : $"{quantity} ({maxTradeCount})";
-                    var line = $"{quantityString} - ${price} {getLabel(storeAndoffer)}";
-
-                    // Apply color and sort
-                    if (!store.OnOff.Enabled || !AuthManager.IsAuthorized(store.Parent, user, AccessType.ConsumerAccess, null))
-                    {
-                        line = Text.Color(Color.Red, line);
-                        DisabledOffers.AppendLine(line);
-                    }
-                    else if (offer.Stack.Quantity == 0)
-                    {
-                        line = Text.Color(Color.Yellow, line);
-                        NoQuantityOffers.AppendLine(line);
-                    }
-                    else
-                    {
-                        NormalOffers.AppendLine(line);
-                    }
-                }
-
-                return $"{NormalOffers}{NoQuantityOffers}{DisabledOffers}";
             }
         }
     }

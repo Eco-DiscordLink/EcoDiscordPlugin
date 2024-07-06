@@ -6,7 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
+
 using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.Store.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
+using static Eco.Moose.Features.Trade;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
@@ -77,7 +79,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             IEnumerable<string> tradeWatchers = DLStorage.WorldData.TradeWatchers[(target as UserLink).Member.Id].Where(watcher => watcher.Type == ModuleArchetype.Display).Select(watcher => watcher.Key);
             foreach (string trade in tradeWatchers)
             {
-                string matchedName = TradeUtils.GetMatchAndOffers(trade, out TradeTargetType offerType, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
+                string matchedName = Moose.Features.Trade.FindOffers(trade, out TradeTargetType offerType, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
                 if (offerType == TradeTargetType.Invalid)
                     continue; // There was no match
 
