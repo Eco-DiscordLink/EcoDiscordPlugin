@@ -982,7 +982,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     foreach (Deed deed in userDeeds)
                     {
                         propertiessDesc.AppendLine(deed.Name.TrimEndString(" Deed"));
-                        propertiessSizeOrVehicleDesc.AppendLine(deed.IsVehicle() ? deed.GetVehicle().Parent.CreatingItem.DisplayName : $"{deed.GetTotalPlotSize()}m²");
+                        propertiessSizeOrVehicleDesc.AppendLine(deed.IsVehicle() ? deed.GetVehicle().Parent.DisplayName : $"{deed.GetTotalPlotSize()}m²");
                         propertiessLocationDesc.AppendLine(deed.IsVehicle() ? deed.GetVehicle().Parent.Position3i.ToString() : deed.CachedCenterPos == null ? deed.CachedCenterPos.ToString() : "Unknown");
                     }
 
