@@ -640,10 +640,10 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 if (flag.HasFlag(ServerInfoComponentFlag.ConnectionInfo))
                 {
                     string fieldText = "-- Connection info not configured --";
-                    if (!string.IsNullOrEmpty(config.ConnectionInfo))
-                        fieldText = config.ConnectionInfo;
-                    else if (!string.IsNullOrEmpty(serverInfo.Address))
-                        fieldText = serverInfo.Address;
+                    if (!string.IsNullOrEmpty(pluginConfig.ConnectionInfo))
+                        fieldText = pluginConfig.ConnectionInfo;
+                    else if (!string.IsNullOrEmpty(serverConfig.IPAddress))
+                        fieldText = serverConfig.IPAddress;
 
                     embed.AddField("Connection Info", fieldText);
                 }
