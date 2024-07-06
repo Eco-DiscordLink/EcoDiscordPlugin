@@ -179,7 +179,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 builder.AppendLine($"DiscordLink {plugin.InstalledVersion.ToString(3)}");
                 if (verbose)
                 {
-                    builder.AppendLine($"Server Name: {MessageUtils.FirstNonEmptyString(DLConfig.Data.ServerName, MessageUtils.StripTags(NetworkManager.GetServerInfo().Description), "[Server Title Missing]")}");
+                    builder.AppendLine($"Server Name: {MessageUtils.FirstNonEmptyString(DLConfig.Data.ServerName, NetworkManager.Config.Description.StripTags(), "[Server Title Missing]")}");
                     builder.AppendLine($"Server Version: {EcoVersion.VersionNumber}");
                     if (client.ConnectionStatus == DiscordClient.ConnectionState.Connected)
                         builder.AppendLine($"D# Version: {client.DSharpClient.VersionString}");
@@ -618,14 +618,15 @@ namespace Eco.Plugins.DiscordLink.Utilities
             {
                 var plugin = DiscordLink.Obj;
 
-                DLConfigData config = DLConfig.Data;
-                ServerInfo serverInfo = NetworkManager.GetServerInfo();
+                DLConfigData pluginConfig = DLConfig.Data;
+                ServerInfo serverInfo = StrangeCloudWorldRegistration.StrangeWorld.ServerInfo;
+                EcoServerConfig serverConfig = NetworkManager.Config;
 
                 DiscordLinkEmbed embed = new DiscordLinkEmbed();
 
                 if (flag.HasFlag(ServerInfoComponentFlag.Name))
                 {
-                    embed.WithTitle($"**{MessageUtils.FirstNonEmptyString(config.ServerName, MessageUtils.StripTags(serverInfo.Description), "[Server Title Missing]")} Server Status**");
+                    embed.WithTitle($"**{MessageUtils.FirstNonEmptyString(pluginConfig.ServerName, MessageUtils.StripTags(serverInfo.Description), "[Server Title Missing]")} Server Status**");
                 }
                 else
                 {
@@ -634,7 +635,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
                 if (flag.HasFlag(ServerInfoComponentFlag.Description))
                 {
-                    embed.WithDescription(MessageUtils.FirstNonEmptyString(config.ServerDescription, MessageUtils.StripTags(serverInfo.Description), "No server description is available."));
+                    embed.WithDescription(MessageUtils.FirstNonEmptyString(pluginConfig.ServerDescription, MessageUtils.StripTags(serverInfo.Description), "No server description is available."));
                 }
 
                 if (flag.HasFlag(ServerInfoComponentFlag.ConnectionInfo))
@@ -1340,9 +1341,9 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
             public static DiscordLinkEmbed GetVerificationDM(User ecoUser)
             {
-                DLConfigData config = DLConfig.Data;
-                ServerInfo serverInfo = NetworkManager.GetServerInfo();
-                string serverName = MessageUtils.StripTags(!string.IsNullOrWhiteSpace(config.ServerName) ? DLConfig.Data.ServerName : MessageUtils.StripTags(serverInfo.Description));
+                DLConfigData PluginConfig = DLConfig.Data;
+                EcoServerConfig serverConfig = NetworkManager.Config;
+                string serverName = MessageUtils.StripTags(!string.IsNullOrWhiteSpace(PluginConfig.ServerName) ? DLConfig.Data.ServerName : serverConfig.Description.StripTags());
 
                 DiscordLinkEmbed embed = new DiscordLinkEmbed();
                 embed.WithTitle("Account Linking Verification");
@@ -1355,7 +1356,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
             public static string GetStandardEmbedFooter()
             {
-                string serverName = MessageUtils.FirstNonEmptyString(DLConfig.Data.ServerName, MessageUtils.StripTags(NetworkManager.GetServerInfo().Description), "[Server Title Missing]");
+                string serverName = MessageUtils.FirstNonEmptyString(DLConfig.Data.ServerName, NetworkManager.Config.Description.StripTags(), "[Server Title Missing]");
                 string timestamp = Shared.GetServerTimeStamp();
                 return $"Message sent by DiscordLink @ {serverName} [{timestamp}]";
             }
