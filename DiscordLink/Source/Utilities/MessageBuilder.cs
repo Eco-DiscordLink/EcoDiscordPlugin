@@ -702,7 +702,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     int fieldsAdded = 0;
                     if (flag.HasFlag(ServerInfoComponentFlag.IngameTime))
                     {
-                        TimeSpan timeSinceStartSpan = new TimeSpan(0, 0, (int)serverInfo.TimeSinceStart);
+                        TimeSpan timeSinceStartSpan = new TimeSpan(0, 0, (int)Lookups.SecondsPassedTotal);
                         embed.AddField("Ingame Time", $"Day {timeSinceStartSpan.Days + 1} {timeSinceStartSpan.Hours.ToString("00")}:{timeSinceStartSpan.Minutes.ToString("00")}", inline: true); // +1 days to get start at day 1 just like ingame
                         ++fieldsAdded;
                     }
@@ -711,14 +711,13 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     {
                         string meteorContent = DisasterPlugin.MeteorDestroyed
                             ? "Destroyed!"
-                            : DateTime.Now.AddSeconds(serverInfo.TimeLeft).ToDiscordTimeStamp('R');
+                            : DateTime.Now.AddSeconds(Lookups.SecondsLeftUntilMeteor).ToDiscordTimeStamp('R');
                         embed.AddField("Meteor", meteorContent, inline: true);
                         ++fieldsAdded;
                     }
 
                     if (flag.HasFlag(ServerInfoComponentFlag.ServerTime))
                     {
-                        TimeSpan timeSinceStartSpan = new TimeSpan(0, 0, (int)serverInfo.TimeSinceStart);
                         embed.AddField("Server Time", Shared.GetServerTimeStamp(), inline: true);
                         ++fieldsAdded;
                     }
