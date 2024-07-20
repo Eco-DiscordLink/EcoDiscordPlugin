@@ -432,7 +432,7 @@ namespace Eco.Plugins.DiscordLink
             {
                 DiscordLinkEmbed embed = new DiscordLinkEmbed()
                     .WithTitle("Eco --> Discord Account Linking")
-                    .WithDescription(MessageBuilder.Shared.GetLinkAccountInfoMessage(CommandInterface.Discord));
+                    .WithDescription(MessageBuilder.Shared.GetLinkAccountInfoMessage());
 
                 await RespondToCommand(ctx, null, embed);
             }, ctx);

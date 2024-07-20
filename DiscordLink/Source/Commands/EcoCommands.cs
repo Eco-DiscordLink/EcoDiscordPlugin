@@ -359,7 +359,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                DisplayCommandData(callingUser, DLConstants.ECO_PANEL_DL_MESSAGE_MEDIUM, $"Eco --> Discord Account Linking", MessageBuilder.Shared.GetLinkAccountInfoMessage(CommandInterface.Eco));
+                DisplayCommandData(callingUser, DLConstants.ECO_PANEL_DL_MESSAGE_MEDIUM, $"Eco --> Discord Account Linking", MessageBuilder.Shared.GetLinkAccountInfoMessage());
             }, callingUser);
         }
 

@@ -150,7 +150,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     "\n\nFor more information, visit \"www.github.com/Eco-DiscordLink/EcoDiscordPlugin\".";
             }
 
-            public static string GetLinkAccountInfoMessage(SharedCommands.CommandInterface context)
+            public static string GetLinkAccountInfoMessage()
             {
                 return "By linking your Eco account to your Discord account on this server, you can enable the following features:" +
                     $"\n* Trade Watcher Displays - An always up to date view of a `/DLT` command in your DMs with the DiscordLink bot." +
