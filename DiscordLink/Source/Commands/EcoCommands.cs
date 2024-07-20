@@ -83,7 +83,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.Update(CommandInterface.Eco, callingUser);
+                await SharedCommands.Update(ApplicationInterfaceType.Eco, callingUser);
             }, callingUser);
         }
 
@@ -92,7 +92,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.RestartPlugin(CommandInterface.Eco, callingUser);
+                await SharedCommands.RestartPlugin(ApplicationInterfaceType.Eco, callingUser);
             }, callingUser);
         }
 
@@ -101,7 +101,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.ResetPersistentData(CommandInterface.Eco, callingUser);
+                await SharedCommands.ResetPersistentData(ApplicationInterfaceType.Eco, callingUser);
             }, callingUser);
         }
 
@@ -110,7 +110,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.ResetWorldData(CommandInterface.Eco, callingUser);
+                await SharedCommands.ResetWorldData(ApplicationInterfaceType.Eco, callingUser);
             }, callingUser);
         }
 
@@ -119,7 +119,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.ClearRoles(CommandInterface.Eco, callingUser);
+                await SharedCommands.ClearRoles(ApplicationInterfaceType.Eco, callingUser);
             }, callingUser);
         }
 
@@ -132,7 +132,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.ServerShutdown(CommandInterface.Eco, callingUser);
+                await SharedCommands.ServerShutdown(ApplicationInterfaceType.Eco, callingUser);
             }, callingUser);
         }
 
@@ -181,7 +181,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.VerifyConfig(CommandInterface.Eco, callingUser);
+                await SharedCommands.VerifyConfig(ApplicationInterfaceType.Eco, callingUser);
             }, callingUser);
         }
 
@@ -190,7 +190,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.VerifyPermissions(CommandInterface.Eco, callingUser, MessageBuilder.PermissionReportComponentFlag.All);
+                await SharedCommands.VerifyPermissions(ApplicationInterfaceType.Eco, callingUser, MessageBuilder.PermissionReportComponentFlag.All);
             }, callingUser);
         }
 
@@ -199,7 +199,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.VerifyPermissions(CommandInterface.Eco, callingUser, MessageBuilder.PermissionReportComponentFlag.Intents);
+                await SharedCommands.VerifyPermissions(ApplicationInterfaceType.Eco, callingUser, MessageBuilder.PermissionReportComponentFlag.Intents);
             }, callingUser);
         }
 
@@ -208,7 +208,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.VerifyPermissions(CommandInterface.Eco, callingUser, MessageBuilder.PermissionReportComponentFlag.ServerPermissions);
+                await SharedCommands.VerifyPermissions(ApplicationInterfaceType.Eco, callingUser, MessageBuilder.PermissionReportComponentFlag.ServerPermissions);
             }, callingUser);
         }
 
@@ -217,7 +217,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.VerifyPermissionsForChannel(CommandInterface.Eco, callingUser, channelNameOrID);
+                await SharedCommands.VerifyPermissionsForChannel(ApplicationInterfaceType.Eco, callingUser, channelNameOrID);
             }, callingUser);
         }
 
@@ -226,7 +226,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.ListChannelLinks(CommandInterface.Eco, callingUser);
+                await SharedCommands.ListChannelLinks(ApplicationInterfaceType.Eco, callingUser);
             }, callingUser);
         }
 
@@ -245,7 +245,7 @@ namespace Eco.Plugins.DiscordLink
                     return;
                 }
 
-                await SharedCommands.PlayerReport(CommandInterface.Eco, callingUser, playerNameOrID, reportTypeEnum);
+                await SharedCommands.PlayerReport(ApplicationInterfaceType.Eco, callingUser, playerNameOrID, reportTypeEnum);
             }, callingUser);
         }
 
@@ -254,7 +254,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.CurrencyReport(CommandInterface.Eco, callingUser, currencyNameOrID);
+                await SharedCommands.CurrencyReport(ApplicationInterfaceType.Eco, callingUser, currencyNameOrID);
             }, callingUser);
         }
 
@@ -272,7 +272,7 @@ namespace Eco.Plugins.DiscordLink
                     return;
                 }
 
-                await SharedCommands.CurrenciesReport(CommandInterface.Eco, callingUser, type, maxCurrenciesPerType, holdersPerCurrency);
+                await SharedCommands.CurrenciesReport(ApplicationInterfaceType.Eco, callingUser, type, maxCurrenciesPerType, holdersPerCurrency);
             }, callingUser);
         }
 
@@ -281,7 +281,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.ElectionReport(CommandInterface.Eco, callingUser, electionNameOrID);
+                await SharedCommands.ElectionReport(ApplicationInterfaceType.Eco, callingUser, electionNameOrID);
             }, callingUser);
         }
 
@@ -290,7 +290,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.ElectionsReport(CommandInterface.Eco, callingUser);
+                await SharedCommands.ElectionsReport(ApplicationInterfaceType.Eco, callingUser);
             }, callingUser);
         }
 
@@ -299,7 +299,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.WorkPartyReport(CommandInterface.Eco, callingUser, workPartyNameOrID);
+                await SharedCommands.WorkPartyReport(ApplicationInterfaceType.Eco, callingUser, workPartyNameOrID);
             }, callingUser);
         }
 
@@ -308,7 +308,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.WorkPartiesReport(CommandInterface.Eco, callingUser);
+                await SharedCommands.WorkPartiesReport(ApplicationInterfaceType.Eco, callingUser);
             }, callingUser);
         }
 
@@ -321,7 +321,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.PostInviteMessage(CommandInterface.Eco, callingUser);
+                await SharedCommands.PostInviteMessage(ApplicationInterfaceType.Eco, callingUser);
             }, callingUser);
         }
 
@@ -463,7 +463,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.Trades(CommandInterface.Eco, callingUser, searchName);
+                await SharedCommands.Trades(ApplicationInterfaceType.Eco, callingUser, searchName);
             }, callingUser);
         }
 
@@ -472,7 +472,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.AddTradeWatcher(CommandInterface.Eco, callingUser, searchName, Modules.ModuleArchetype.Display);
+                await SharedCommands.AddTradeWatcher(ApplicationInterfaceType.Eco, callingUser, searchName, Modules.ModuleArchetype.Display);
             }, callingUser);
         }
 
@@ -481,7 +481,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.RemoveTradeWatcher(CommandInterface.Eco, callingUser, searchName, Modules.ModuleArchetype.Display);
+                await SharedCommands.RemoveTradeWatcher(ApplicationInterfaceType.Eco, callingUser, searchName, Modules.ModuleArchetype.Display);
             }, callingUser);
         }
 
@@ -490,7 +490,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.AddTradeWatcher(CommandInterface.Eco, callingUser, searchName, Modules.ModuleArchetype.Feed);
+                await SharedCommands.AddTradeWatcher(ApplicationInterfaceType.Eco, callingUser, searchName, Modules.ModuleArchetype.Feed);
             }, callingUser);
         }
 
@@ -499,7 +499,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.RemoveTradeWatcher(CommandInterface.Eco, callingUser, searchName, Modules.ModuleArchetype.Feed);
+                await SharedCommands.RemoveTradeWatcher(ApplicationInterfaceType.Eco, callingUser, searchName, Modules.ModuleArchetype.Feed);
             }, callingUser);
         }
 
@@ -508,7 +508,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.ListTradeWatchers(CommandInterface.Eco, callingUser);
+                await SharedCommands.ListTradeWatchers(ApplicationInterfaceType.Eco, callingUser);
             }, callingUser);
         }
 
@@ -521,7 +521,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.Snippet(CommandInterface.Eco, callingUser, CommandInterface.Eco, callingUser.Name, snippetKey);
+                await SharedCommands.Snippet(ApplicationInterfaceType.Eco, callingUser, ApplicationInterfaceType.Eco, callingUser.Name, snippetKey);
             }, callingUser);
         }
 
@@ -601,7 +601,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.SendBoxMessage(Message.BoxMessageType.Info, CommandInterface.Eco, callingUser, message, string.Empty);
+                await SharedCommands.SendBoxMessage(Message.BoxMessageType.Info, ApplicationInterfaceType.Eco, callingUser, message, string.Empty);
             }, callingUser);
         }
 
@@ -610,7 +610,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.SendBoxMessage(Message.BoxMessageType.Info, CommandInterface.Eco, callingUser, message, recipientUserNameOrID);
+                await SharedCommands.SendBoxMessage(Message.BoxMessageType.Info, ApplicationInterfaceType.Eco, callingUser, message, recipientUserNameOrID);
             }, callingUser);
         }
 
@@ -619,7 +619,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.SendBoxMessage(Message.BoxMessageType.Warning, CommandInterface.Eco, callingUser, message, string.Empty);
+                await SharedCommands.SendBoxMessage(Message.BoxMessageType.Warning, ApplicationInterfaceType.Eco, callingUser, message, string.Empty);
             }, callingUser);
         }
 
@@ -628,7 +628,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.SendBoxMessage(Message.BoxMessageType.Warning, CommandInterface.Eco, callingUser, message, recipientUserNameOrID);
+                await SharedCommands.SendBoxMessage(Message.BoxMessageType.Warning, ApplicationInterfaceType.Eco, callingUser, message, recipientUserNameOrID);
             }, callingUser);
         }
 
@@ -637,7 +637,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.SendBoxMessage(Message.BoxMessageType.Warning, CommandInterface.Eco, callingUser, message, string.Empty);
+                await SharedCommands.SendBoxMessage(Message.BoxMessageType.Warning, ApplicationInterfaceType.Eco, callingUser, message, string.Empty);
             }, callingUser);
         }
 
@@ -646,7 +646,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.SendBoxMessage(Message.BoxMessageType.Error, CommandInterface.Eco, callingUser, message, recipientUserNameOrID);
+                await SharedCommands.SendBoxMessage(Message.BoxMessageType.Error, ApplicationInterfaceType.Eco, callingUser, message, recipientUserNameOrID);
             }, callingUser);
         }
 
@@ -655,7 +655,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.SendNotification(CommandInterface.Eco, callingUser, message, string.Empty, includeOfflineUsers);
+                await SharedCommands.SendNotification(ApplicationInterfaceType.Eco, callingUser, message, string.Empty, includeOfflineUsers);
             }, callingUser);
         }
 
@@ -664,7 +664,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.SendNotification(CommandInterface.Eco, callingUser, message, recipientUserNameOrID, includeOfflineUsers: true);
+                await SharedCommands.SendNotification(ApplicationInterfaceType.Eco, callingUser, message, recipientUserNameOrID, includeOfflineUsers: true);
             }, callingUser);
         }
 
@@ -673,7 +673,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.SendPopup(CommandInterface.Eco, callingUser, message, string.Empty);
+                await SharedCommands.SendPopup(ApplicationInterfaceType.Eco, callingUser, message, string.Empty);
             }, callingUser);
         }
 
@@ -682,7 +682,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.SendPopup(CommandInterface.Eco, callingUser, message, recipientUserNameOrID);
+                await SharedCommands.SendPopup(ApplicationInterfaceType.Eco, callingUser, message, recipientUserNameOrID);
             }, callingUser);
         }
 
@@ -691,7 +691,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.SendInfoPanel(CommandInterface.Eco, callingUser, DLConstants.ECO_PANEL_NOTIFICATION, title, message, string.Empty);
+                await SharedCommands.SendInfoPanel(ApplicationInterfaceType.Eco, callingUser, DLConstants.ECO_PANEL_NOTIFICATION, title, message, string.Empty);
             }, callingUser);
         }
 
@@ -700,7 +700,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.SendInfoPanel(CommandInterface.Eco, callingUser, DLConstants.ECO_PANEL_NOTIFICATION, title, message, recipientUserNameOrID);
+                await SharedCommands.SendInfoPanel(ApplicationInterfaceType.Eco, callingUser, DLConstants.ECO_PANEL_NOTIFICATION, title, message, recipientUserNameOrID);
             }, callingUser);
         }
 

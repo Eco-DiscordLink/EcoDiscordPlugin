@@ -4,6 +4,14 @@ namespace Eco.Plugins.DiscordLink
 {
     public static class Enums
     {
+        public enum ApplicationInterfaceType
+        {
+            [ChoiceName("Eco")]
+            Eco,
+            [ChoiceName("Discord")]
+            Discord
+        }
+
         public enum DiscordReactionChange
         {
             Added,

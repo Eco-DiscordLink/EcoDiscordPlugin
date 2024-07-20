@@ -21,6 +21,12 @@ namespace Eco.Plugins.DiscordLink.Utilities
         // Discord custom emote regex: Match all characters starting with <: and ending in > while containing an additional : in between. Capture the content between the : pair.
         public static readonly Regex DiscordCustomEmoteRegex = new Regex("<:(.*?):.*?>");
 
+        // Discord bold tag matching regex: Match all characters between ** pairs.
+        public static readonly Regex DiscordBoldRegex = new Regex("\\*\\*(.*?)\\*\\*");
+
+        // Excessive newline matching regex: Match all cases of (0+)\r followed by (2+)\n.
+        public static readonly Regex ExcessiveNewLineRegex = new Regex("(\\\r)*(\\\n){2,}");
+
         // Eco tag matching regex: Match all characters that are used to create HTML style tags
         private static readonly Regex HTMLTagRegex = new Regex("<[^>]*>");
 
@@ -29,12 +35,6 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         // Discord @everyone and @here matching regex: Match all instances that would trigger a Discord tag to @everyone or @here and capture the tag so the @ can easily removed.
         private static readonly Regex DiscordGlobalMentionRegex = new Regex("@(everyone|here)");
-
-        // Discord bold tag matching regex: Match all characters between ** pairs.
-        private static readonly Regex DiscordBoldRegex = new Regex("\\*\\*(.*?)\\*\\*");
-
-        // Excessive newline matching regex: Match all cases of (0+)\r followed by (2+)\n.
-        private static readonly Regex ExcessiveNewLineRegex = new Regex("(\\\r)*(\\\n){2,}");
 
         #region General
 
@@ -307,19 +307,6 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         public static string FormatMessageForEcoChannel(string message, string ecoChannel) => $"#{ecoChannel} {message}";
 
-        public static string FormatEmbedForEco(DiscordLinkEmbed embed)
-        {
-            string text = embed.AsText();
-            text = text.Substring(text.IndexOf('\n') + 1);
-            text = text.Replace(DLConstants.INVISIBLE_EMBED_CHAR, null);
-            text = text.Replace("[", null);
-            text = text.Replace("****", null);
-            text = text.Replace("\r", null);
-            text = ExcessiveNewLineRegex.Replace(text, "\n\n");
-            text = DiscordBoldRegex.Replace(text, Text.Color(Color.Green, Text.Bold("$1")));
-            return text;
-        }
-
-        #endregion
+        #endregion 
     }
 }
