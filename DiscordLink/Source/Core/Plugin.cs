@@ -65,7 +65,7 @@ namespace Eco.Plugins.DiscordLink
         private EventHandler<LinkedUser> OnLinkedUserRemoved;
 
         public override string ToString() => PluginName;
-        public string GetCategory() => "DiscordLink";
+        public string GetCategory() => "Mighty Moose";
         public string GetStatus() => _statusDescription;
         public object GetEditObject() => DLConfig.Data;
         public void OnEditObjectChanged(object o, string param) => _ = DLConfig.Instance.HandleConfigChanged();
