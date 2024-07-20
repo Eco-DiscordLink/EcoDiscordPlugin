@@ -111,7 +111,6 @@ namespace Eco.Plugins.DiscordLink
 
         public class WorldStorageData
         {
-            public Dictionary<int, int> CurrencyToTradeCountMap = new Dictionary<int, int>();
             public Dictionary<ulong, List<TradeWatcherEntry>> TradeWatchers = new Dictionary<ulong, List<TradeWatcherEntry>>();
 
             public IEnumerable<KeyValuePair<ulong, List<TradeWatcherEntry>>> DisplayTradeWatchers => TradeWatchers.Where(userAndWatchers => userAndWatchers.Value.Any(watcher => watcher.Type == ModuleArchetype.Display));

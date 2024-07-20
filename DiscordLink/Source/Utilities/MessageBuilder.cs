@@ -997,7 +997,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
             public static DiscordLinkEmbed GetCurrencyReport(Currency currency, int maxTopHolders, bool useBackingInfo, bool useTradeCount)
             {
-                var currencyTradesMap = DLStorage.WorldData.CurrencyToTradeCountMap;
+                var currencyTradesMap = Moose.Plugin.MooseStorage.WorldData.CurrencyToTradeCountMap;
 
                 DiscordLinkEmbed embed = new DiscordLinkEmbed();
                 embed.WithTitle(MessageUtils.StripTags(currency.Name));
@@ -1477,7 +1477,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     if (o.Currency == null)
                         return -1; // Sort barters last
 
-                    DLStorage.WorldData.CurrencyToTradeCountMap.TryGetValue(o.Currency.Id, out int result);
+                    Moose.Plugin.MooseStorage.WorldData.CurrencyToTradeCountMap.TryGetValue(o.Currency.Id, out int result);
                     return result;
                 }).ToList();
                 return allOffersSorted;

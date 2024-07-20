@@ -35,7 +35,7 @@ namespace Eco.Plugins.DiscordLink.Modules
         {
             tagAndContent = new List<Tuple<string, DiscordLinkEmbed>>();
             IEnumerable<Currency> currencies = Lookups.Currencies;
-            var currencyTradesMap = DLStorage.WorldData.CurrencyToTradeCountMap;
+            var currencyTradesMap = Moose.Plugin.MooseStorage.WorldData.CurrencyToTradeCountMap;
             if (!(target is CurrencyChannelLink currencyLink))
                 return;
 
