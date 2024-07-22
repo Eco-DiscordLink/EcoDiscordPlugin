@@ -250,7 +250,7 @@ namespace Eco.Plugins.DiscordLink
 
         #region Server Management
 
-        [SlashCommand("ServerShutdown", "Shuts the server down.")]
+        [SlashCommand("ServerShutdown", "Shuts down the Eco server.")]
         public async Task ServerShutdown(InteractionContext ctx)
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>

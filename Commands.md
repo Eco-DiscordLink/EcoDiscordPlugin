@@ -14,7 +14,7 @@ All Eco and Discord commands are case insensitive.
 | **Name**                   | **Alias**           | **Discord/Eco**   | **Parameters**                                                          | **Permissions** | **Description**                                                                                                      |
 |----------------------------|---------------------|-------------------|-------------------------------------------------------------------------|-----------------|----------------------------------------------------------------------------------------------------------------------|
 | DiscordLink                | DL                  | Eco               |                                                                         | User            | Displays a list of all available DiscordLink commands. This is the parent command of all other DiscordLink commands. |
-| RestartPlugin              | 			           | Both              |                                                                         | Admin           | Restarts the plugin.                                                                                                 |
+| RestartPlugin              |                     | Both              |                                                                         | Admin           | Restarts the plugin.                                                                                                 |
 | ResetPersistentData        |                     | Both              |                                                                         | Admin           | Removes all persistent storage data.                                                                                 |
 | ResetWorldData             |                     | Both              |                                                                         | Admin           | Resets world data as if a new world had been created.                                                                |
 | Update                     |                     | Both              |                                                                         | Admin           | Forces an update of all modules.                                                                                     |
@@ -32,10 +32,12 @@ All Eco and Discord commands are case insensitive.
 | Echo                       |                     | Discord           | Message                                                                 | Admin           | Sends the provided message to Eco and back to Discord again if a chat link is configured for the channel.            |
 
 
-# **Utility**
+# **Server Management**
 | **Name**                   | **Alias**           | **Discord/Eco**   | **Parameters**                                                          | **Permissions** | **Description**                                                                                                      |              
 |----------------------------|---------------------|-------------------|-------------------------------------------------------------------------|-----------------|----------------------------------------------------------------------------------------------------------------------|
-| EcoCommand          		 |                     | Discord           | Eco Command                                                             | Dynamic         | Executes the inputted eco command. The parameter should be styled as a full ingame Eco command.                      |
+| EcoCommand                 |                     | Discord           | Eco Command                                                             | Dynamic         | Executes the inputted eco command. The parameter should be styled as a full ingame Eco command.                      |
+| Announce                   |                     | Both              | Message, MessageType (optional), recipientUserNameOrID (optional)       | Admin           | Sends the message formatted as [MessageType] to everyone on the server or the specified recipient.                   |
+| ServerShutdown             |                     | Both              |                                                                         | Admin           | Shuts down the eco server.                                                                                           |
 
 
 # **Info**
