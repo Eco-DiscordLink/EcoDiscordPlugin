@@ -2,13 +2,14 @@
 using DSharpPlus.SlashCommands;
 using Eco.Core;
 using Eco.Core.Plugins;
-using Eco.Moose.Tools.Logger;
-using Eco.Moose.Utils.Message;
-using Eco.Moose.Utils.Lookups;
+using Eco.Core.Utils;
 using Eco.Gameplay.Civics.Elections;
 using Eco.Gameplay.Economy;
 using Eco.Gameplay.Economy.WorkParties;
 using Eco.Gameplay.Players;
+using Eco.Moose.Tools.Logger;
+using Eco.Moose.Utils.Lookups;
+using Eco.Moose.Utils.Message;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Plugins.Networking;
@@ -17,11 +18,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using static Eco.Moose.Features.Trade;
 using static Eco.Plugins.DiscordLink.Enums;
 using static Eco.Plugins.DiscordLink.Utilities.MessageBuilder;
-using static Eco.Moose.Features.Trade;
 using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.Store.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
-using Eco.Core.Utils;
 
 
 namespace Eco.Plugins.DiscordLink
@@ -602,190 +602,6 @@ namespace Eco.Plugins.DiscordLink
                     await ReportCommandError(source, callContext, $"No snippet with key \"{snippetKey}\" could be found.");
                 }
             }
-        }
-
-        #endregion
-
-        #region Message Relaying
-
-        public static async Task<bool> SendBoxMessage(Message.BoxMessageType type, ApplicationInterfaceType source, object callContext, string message, string recipientUserNameOrID)
-        {
-            if (string.IsNullOrWhiteSpace(message))
-            {
-                await ReportCommandError(source, callContext, "Message cannot be empty.");
-                return false;
-            }
-
-            User recipient = null;
-            if (!string.IsNullOrWhiteSpace(recipientUserNameOrID))
-            {
-                recipient = Lookups.OnlineUsers.FirstOrDefault(user => user.Name.EqualsCaseInsensitive(recipientUserNameOrID) || user.Id.ToString().EqualsCaseInsensitive(recipientUserNameOrID));
-                if (recipient == null)
-                {
-                    await ReportCommandError(source, callContext, $"No online user with the name or ID \"{recipientUserNameOrID}\" could be found.");
-                    return false;
-                }
-            }
-
-            string senderName = source == ApplicationInterfaceType.Eco
-                ? (callContext as User).Name
-                : (callContext as InteractionContext).Member.DisplayName;
-
-            bool sent = false;
-            string formattedMessage = $"[{senderName}]\n\n{message}";
-            switch (type)
-            {
-                case Message.BoxMessageType.Info:
-                    sent = recipient == null
-                        ? Message.SendInfoBoxToAll(message)
-                        : Message.SendInfoBoxToUser(recipient, formattedMessage);
-                    break;
-
-                case Message.BoxMessageType.Warning:
-                    sent = recipient == null
-                        ? Message.SendWarningBoxToAll(message)
-                        : Message.SendWarningBoxToUser(recipient, formattedMessage);
-                    break;
-
-                case Message.BoxMessageType.Error:
-                    sent = recipient == null
-                        ? Message.SendErrorBoxToAll(message)
-                        : Message.SendErrorBoxToUser(recipient, formattedMessage);
-                    break;
-            }
-
-            if (sent)
-                await ReportCommandInfo(source, callContext, "Message delivered.");
-            else
-                await ReportCommandError(source, callContext, "Failed to send message.");
-
-            return sent;
-        }
-
-        public static async Task<bool> SendPopup(ApplicationInterfaceType source, object callContext, string message, string recipientUserNameOrID)
-        {
-            if (string.IsNullOrWhiteSpace(message))
-            {
-                await ReportCommandError(source, callContext, "Message cannot be empty.");
-                return false;
-            }
-
-            User recipient = null;
-            if (!string.IsNullOrWhiteSpace(recipientUserNameOrID))
-            {
-                recipient = Lookups.OnlineUsers.FirstOrDefault(user => user.Name.EqualsCaseInsensitive(recipientUserNameOrID) || user.Id.ToString().EqualsCaseInsensitive(recipientUserNameOrID));
-                if (recipient == null)
-                {
-                    await ReportCommandError(source, callContext, $"No online user with the name or ID \"{recipientUserNameOrID}\" could be found.");
-                    return false;
-                }
-            }
-
-            string senderName = source == ApplicationInterfaceType.Eco
-                ? (callContext as User).Name
-                : (callContext as InteractionContext).Member.DisplayName;
-
-            string formattedMessage = $"[{senderName}]\n\n{message}";
-            bool sent = recipient == null
-                ? Message.SendOKBoxToAll(formattedMessage)
-                : Message.SendOKBoxToUser(recipient, formattedMessage);
-
-            if (sent)
-                await ReportCommandInfo(source, callContext, "Message delivered.");
-            else
-                await ReportCommandError(source, callContext, "Failed to send message.");
-
-            return sent;
-        }
-
-        public static async Task<bool> SendNotification(ApplicationInterfaceType source, object callContext, string message, string recipientUserNameOrID, bool includeOfflineUsers)
-        {
-            if (string.IsNullOrWhiteSpace(message))
-            {
-                await ReportCommandError(source, callContext, "Message cannot be empty.");
-                return false;
-            }
-
-            User recipient = null;
-            if (!string.IsNullOrWhiteSpace(recipientUserNameOrID))
-            {
-                recipient = UserManager.Users.FirstOrDefault(x => x.Name.EqualsCaseInsensitive(recipientUserNameOrID) || x.Id.ToString().EqualsCaseInsensitive(recipientUserNameOrID));
-                if (recipient == null)
-                {
-                    await ReportCommandError(source, callContext, $"No online user with the name or ID \"{recipientUserNameOrID}\" could be found.");
-                    return false;
-                }
-            }
-
-            string senderName = source == ApplicationInterfaceType.Eco
-                ? (callContext as User).Name
-                : (callContext as InteractionContext).Member.DisplayName;
-
-            string formattedMessage = $"[{senderName}]\n\n{message}";
-            bool sent = true;
-            if (includeOfflineUsers)
-            {
-                sent = recipient == null
-                    ? Message.SendNotificationToAll(formattedMessage)
-                    : Message.SendNotificationToUser(recipient, formattedMessage);
-            }
-            else
-            {
-                foreach (User user in UserManager.Users)
-                {
-                    if (!Message.SendNotificationToUser(user, formattedMessage))
-                        sent = false;
-                }
-            }
-
-            if (sent)
-                await ReportCommandInfo(source, callContext, "Message delivered.");
-            else
-                await ReportCommandError(source, callContext, "Failed to send message.");
-
-            return sent;
-        }
-
-        public static async Task<bool> SendInfoPanel(ApplicationInterfaceType source, object callContext, string instance, string title, string message, string recipientUserNameOrID)
-        {
-            if (string.IsNullOrWhiteSpace(title))
-            {
-                await ReportCommandError(source, callContext, "Title cannot be empty.");
-                return false;
-            }
-
-            if (string.IsNullOrWhiteSpace(message))
-            {
-                await ReportCommandError(source, callContext, "Message cannot be empty.");
-                return false;
-            }
-
-            User recipient = null;
-            if (!string.IsNullOrWhiteSpace(recipientUserNameOrID))
-            {
-                recipient = Lookups.OnlineUsers.FirstOrDefault(user => user.Name.EqualsCaseInsensitive(recipientUserNameOrID) || user.Id.ToString().EqualsCaseInsensitive(recipientUserNameOrID));
-                if (recipient == null)
-                {
-                    await ReportCommandError(source, callContext, $"No online user with the name or ID \"{recipientUserNameOrID}\" could be found.");
-                    return false;
-                }
-            }
-
-            string senderName = source == ApplicationInterfaceType.Eco
-                ? (callContext as User).Name
-                : (callContext as InteractionContext).Member.DisplayName;
-
-            string formattedMessage = $"{message}\n\n[{senderName}]";
-            bool sent = recipient == null
-                ? Message.SendInfoPanelToAll(instance, title, formattedMessage)
-                : Message.SendInfoPanelToUser(recipient, instance, title, formattedMessage);
-
-            if (sent)
-                await ReportCommandInfo(source, callContext, "Message delivered.");
-            else
-                await ReportCommandError(source, callContext, "Failed to send message.");
-
-            return sent;
         }
 
         #endregion
