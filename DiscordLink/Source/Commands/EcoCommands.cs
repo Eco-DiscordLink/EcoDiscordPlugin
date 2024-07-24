@@ -1,5 +1,6 @@
 using DSharpPlus;
 using DSharpPlus.Entities;
+using DSharpPlus.SlashCommands;
 using Eco.Gameplay.Players;
 using Eco.Gameplay.Systems.Messaging.Chat.Commands;
 using Eco.Moose.Tools.Logger;
@@ -12,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using static Eco.Plugins.DiscordLink.DiscordCommands;
 using static Eco.Plugins.DiscordLink.Enums;
 using static Eco.Plugins.DiscordLink.Utilities.MessageBuilder;
 
@@ -119,6 +121,25 @@ namespace Eco.Plugins.DiscordLink
             await ExecuteCommand<object>(async (lUser, args) =>
             {
                 await SharedCommands.ClearRoles(ApplicationInterfaceType.Eco, callingUser);
+            }, callingUser);
+        }
+
+
+        [ChatSubCommand("DiscordLink", "Displays a description of the persistent storage data.", ChatAuthorizationLevel.Admin)]
+        public static async Task PersistentStorageData(User callingUser)
+        {
+            await ExecuteCommand<object>(async (lUser, args) =>
+            {
+                await SharedCommands.PersistentStorageData(ApplicationInterfaceType.Eco, callingUser);
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Displays a description of the world storage data.", ChatAuthorizationLevel.Admin)]
+        public static async Task WorldStorageData(User callingUser)
+        {
+            await ExecuteCommand<object>(async (lUser, args) =>
+            {
+                await SharedCommands.WorldStorageData(ApplicationInterfaceType.Eco, callingUser);
             }, callingUser);
         }
 

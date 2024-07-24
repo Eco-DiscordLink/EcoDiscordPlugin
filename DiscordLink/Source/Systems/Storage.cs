@@ -1,6 +1,8 @@
-﻿using Eco.Moose.Tools.Logger;
+﻿using DSharpPlus.Entities;
+using Eco.Moose.Tools.Logger;
 using Eco.Moose.Utils.Persistance;
 using Eco.Plugins.DiscordLink.Events;
+using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Modules;
 using Eco.Shared.Utils;
 using System;
@@ -107,6 +109,55 @@ namespace Eco.Plugins.DiscordLink
             public List<ulong> RoleIDs = new List<ulong>();
             public List<EcoUser> OptedInUsers = new List<EcoUser>();
             public List<EcoUser> OptedOutUsers = new List<EcoUser>();
+
+            public async Task<DiscordLinkEmbed> GetDataDescription()
+            {
+                DiscordLinkEmbed embed = new DiscordLinkEmbed();
+                embed.WithTitle("Persistent data");
+                embed.WithDescription("Persistent storage data is kept when a new world is created.");
+
+                // Userlinks
+                {
+                    StringBuilder ecoBuilder = new StringBuilder();
+                    StringBuilder discordBuilder = new StringBuilder();
+                    StringBuilder verifiedBuilder = new StringBuilder();
+                    foreach (LinkedUser linkedUser in PersistentData.LinkedUsers.Where(link => link.Verified))
+                    {
+                        ecoBuilder.AppendLine(linkedUser.EcoUser != null ? linkedUser.EcoUser.Name : linkedUser.SlgID);
+                        discordBuilder.AppendLine(linkedUser.DiscordMember != null ? linkedUser.DiscordMember.Nickname : linkedUser.DiscordID.ToString());
+                        verifiedBuilder.AppendLine(linkedUser.Verified ? "True" : "False");
+                    }
+                    embed.AddField("Eco Links", ecoBuilder.ToString(), inline: true);
+                    embed.AddField("Discord Links", discordBuilder.ToString(), inline: true);
+                    embed.AddField("Link Verified", verifiedBuilder.ToString(), inline: true);
+                }
+
+                // Opt in/out
+                {
+                    embed.AddField("Optout Users", string.Join("\n", PersistentData.OptedOutUsers.Where(user => user.GetUser != null).Select(user => user.GetUser.Name)), inline: true);
+                    embed.AddField("Optin Users", string.Join("\n", PersistentData.OptedInUsers.Where(user => user.GetUser != null).Select(user => user.GetUser.Name)), inline: true);
+                    embed.AddAlignmentField();
+                }
+
+                // Roles
+                {
+                    StringBuilder nameBuilder = new StringBuilder();
+                    StringBuilder idBuilder = new StringBuilder();
+                    StringBuilder permissionBuilder = new StringBuilder();
+                    foreach (ulong id in PersistentData.RoleIDs)
+                    {
+                        DiscordRole role = DiscordLink.Obj.Client.GetRoleById(id);
+                        nameBuilder.AppendLine(role != null ? role.Name : "Uknown");
+                        idBuilder.AppendLine(id.ToString());
+                        permissionBuilder.AppendLine(role != null ? role.Permissions.ToString() : "Uknown");
+                    }
+                    embed.AddField("Role Names", nameBuilder.ToString(), inline: true);
+                    embed.AddField("Role ID", idBuilder.ToString(), inline: true);
+                    embed.AddField("Role Permissions", permissionBuilder.ToString(), inline: true);
+                }
+
+                return embed;
+            }
         }
 
         public class WorldStorageData
@@ -183,6 +234,42 @@ namespace Eco.Plugins.DiscordLink
                     builder.AppendLine($"- {tradeWatcher}");
                 }
                 return builder.ToString();
+            }
+
+            public async Task<DiscordLinkEmbed> GetDataDescription()
+            {
+                DiscordLinkEmbed embed = new DiscordLinkEmbed();
+                embed.WithTitle("World data");
+                embed.WithDescription("World storage data is reset when a new world is created.");
+
+                // Trade watcher counts
+                {
+                    embed.AddField("Trade Watchers Total", WorldData.TradeWatcherCountTotal.ToString(), inline: true);
+                    embed.AddField("Display Watchers", WorldData.TradeWatcherDisplayCountTotal.ToString(), inline: true);
+                    embed.AddField("Feed Watchers", WorldData.TradeWatcherFeedCountTotal.ToString(), inline: true);
+                }
+
+                // Watchers
+                {
+                    StringBuilder userBuilder = new StringBuilder();
+                    StringBuilder watchBuilder = new StringBuilder();
+                    StringBuilder typeBuilder = new StringBuilder();
+                    foreach (var userAndWatch in TradeWatchers)
+                    {
+                        DiscordMember member = await DiscordLink.Obj.Client.GetMemberAsync(userAndWatch.Key.ToString());
+                        foreach (var watch in userAndWatch.Value)
+                        {
+                            userBuilder.AppendLine(member != null ? member.DisplayName : userAndWatch.Key.ToString());
+                            watchBuilder.AppendLine(watch.Key);
+                            typeBuilder.AppendLine(Enum.GetName(watch.Type));
+                        }
+                    }
+                    embed.AddField("Owner", userBuilder.ToString(), inline: true);
+                    embed.AddField("Watch", watchBuilder.ToString(), inline: true);
+                    embed.AddField("Type", typeBuilder.ToString(), inline: true);
+                }
+
+                return embed;
             }
         }
     }

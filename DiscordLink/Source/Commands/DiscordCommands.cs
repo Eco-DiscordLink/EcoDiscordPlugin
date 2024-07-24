@@ -246,6 +246,24 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
+        [SlashCommand("PersistentStorageData", "Displays a description of the persistent storage data.")]
+        public async Task PersistentStorageData(InteractionContext ctx)
+        {
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
+            {
+                await SharedCommands.PersistentStorageData(ApplicationInterfaceType.Discord, ctx);
+            }, ctx);
+        }
+
+        [SlashCommand("WorldStorageData", "Displays a description of the world storage data.")]
+        public async Task WorldStorageData(InteractionContext ctx)
+        {
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
+            {
+                await SharedCommands.WorldStorageData(ApplicationInterfaceType.Discord, ctx);
+            }, ctx);
+        }
+
         #endregion
 
         #region Server Management

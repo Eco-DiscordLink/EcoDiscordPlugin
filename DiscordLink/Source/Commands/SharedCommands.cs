@@ -167,6 +167,20 @@ namespace Eco.Plugins.DiscordLink
             return true;
         }
 
+        public static async Task<bool> PersistentStorageData(ApplicationInterfaceType source, object callContext)
+        {
+            DiscordLinkEmbed embed = await DLStorage.PersistentData.GetDataDescription();
+            await DisplayCommandData(source, callContext, "Persistent Storage Data", embed, DLConstants.ECO_PANEL_COMPLEX_LIST);
+            return true;
+        }
+
+        public static async Task<bool> WorldStorageData(ApplicationInterfaceType source, object callContext)
+        {
+            DiscordLinkEmbed embed = await DLStorage.WorldData.GetDataDescription();
+            await DisplayCommandData(source, callContext, "World Storage Data", embed, DLConstants.ECO_PANEL_COMPLEX_LIST);
+            return true;
+        }
+
         #endregion
 
         #region Server Management

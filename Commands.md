@@ -19,6 +19,8 @@ All Eco and Discord commands are case insensitive.
 | ResetWorldData             |                     | Both              |                                                                         | Admin           | Resets world data as if a new world had been created.                                                                |
 | Update                     |                     | Both              |                                                                         | Admin           | Forces an update of all modules.                                                                                     |
 | ClearRoles                 |                     | Both              |                                                                         | Admin           | Deletes all Discord roles created and tracked by DiscordLink.                                                        |
+| PersistentStorageData      |                     | Both              |                                                                         | Admin           | Displays a description of the persistent storage data.                                                               |
+| WorldStorageData           |                     | Both              |                                                                         | Admin           | Displays a description of the world storage data.                                                                    |
 
 
 # <a id="SAT"></a>**Setup and Troubleshooting**
