@@ -353,7 +353,7 @@ namespace Eco.Plugins.DiscordLink
 
         #region Account Linking
 
-        [ChatSubCommand("DiscordLink", "Presents information about account linking.", ChatAuthorizationLevel.User)]
+        [ChatSubCommand("DiscordLink", "Presents information about account linking.", "LinkInfo", ChatAuthorizationLevel.User)]
         public static async Task LinkInformation(User callingUser)
         {
             await ExecuteCommand<object>(async (lUser, args) =>
