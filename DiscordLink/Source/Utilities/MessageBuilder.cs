@@ -29,7 +29,7 @@ using Eco.Shared.Networking;
 using Eco.Shared.Utils;
 using Eco.Shared;
 using Eco.Shared.Items;
-using Eco.Moose.Utils.Extensions;
+using Eco.Moose.Extensions;
 using Eco.Moose.Utils.Lookups;
 using System;
 using System.Collections.Generic;
@@ -41,7 +41,7 @@ using System.Threading.Tasks;
 using static Eco.Shared.Mathf; // Avoiding collisions with system mathf
 using static Eco.Moose.Features.Trade;
 
-using Constants = Eco.Moose.Utils.Constants.Constants;
+using Constants = Eco.Moose.Data.Constants.Constants;
 using Text = Eco.Shared.Utils.Text;
 
 using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.Store.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
