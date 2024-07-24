@@ -642,7 +642,7 @@ namespace Eco.Plugins.DiscordLink
         #region Message Relaying
 
         [SlashCommand("Announce", "Announces a message to everyone or a specified user.")]
-        public async Task Announce(InteractionContext ctx, [Option("Message", "The message to send.")] string message, [Option("Message", "The type of message to send.")] Moose.Data.Enums.MessageType messageType, [Option("Player", "Name or ID of the player to send the message to. Leave empty to send to everyone.")] string recipientUserNameOrID)
+        public async Task Announce(InteractionContext ctx, [Option("Message", "The message to send.")] string message, [Option("MessageType", "The type of message to send.")] Moose.Data.Enums.MessageType messageType = Moose.Data.Enums.MessageType.Notification, [Option("Player", "Name or ID of the player to send the message to. Sends to everyone if omitted.")] string recipientUserNameOrID = "")
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
