@@ -768,6 +768,16 @@ namespace Eco.Plugins.DiscordLink
             return await Task.FromResult<DiscordRole>(null);
         }
 
+        public DiscordRole GetRoleById(ulong id)
+        {
+            return Guild.RoleByID(id);
+        }
+
+        public DiscordRole GetRoleByName(string name)
+        {
+            return Guild.RoleByName(name);
+        }
+
         public async Task AddRoleAsync(DiscordMember member, DiscordLinkRole dlRole)
         {
             DiscordRole discordRole = Guild.RoleByName(dlRole.Name);
