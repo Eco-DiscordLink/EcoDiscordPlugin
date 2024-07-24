@@ -305,7 +305,12 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         #region Discord -> Eco
 
-        public static string FormatMessageForEcoChannel(string message, string ecoChannel) => $"#{ecoChannel} {message}";
+        public static string FormatMessageForEcoChannel(string message, string ecoChannel) => $"#{ecoChannel} {FormatMessageForEco(message)}";
+
+        public static string FormatMessageForEco(string message)
+        {
+            return DiscordBoldRegex.Replace(message, Text.Bold("$1"));
+        }
 
         #endregion 
     }
