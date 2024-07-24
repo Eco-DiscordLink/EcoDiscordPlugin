@@ -54,9 +54,9 @@ namespace Eco.Plugins.DiscordLink
             if (source == ApplicationInterfaceType.Eco)
             {
                 User context = callContext as User;
-                if (data is string str)
+                if (data is string message)
                 {
-                    EcoCommands.DisplayCommandData(context, panelInstance, title, str);
+                    EcoCommands.DisplayCommandData(context, panelInstance, MessageUtils.FormatMessageForEco(title), MessageUtils.FormatMessageForEco(message));
                 }
                 else if(data is DiscordLinkEmbed embed)
                 {
@@ -67,7 +67,7 @@ namespace Eco.Plugins.DiscordLink
                         titleToUse = embed.Title;
                     else if(!embed.Fields.First().Title.IsEmpty())
                         titleToUse = embed.Fields.First().Title;
-                    EcoCommands.DisplayCommandData(context, panelInstance, titleToUse, embed.AsEcoText() );
+                    EcoCommands.DisplayCommandData(context, panelInstance, MessageUtils.FormatMessageForEco(titleToUse), embed.AsEcoText() );
                 }
             }
             else if(source == ApplicationInterfaceType.Discord)
