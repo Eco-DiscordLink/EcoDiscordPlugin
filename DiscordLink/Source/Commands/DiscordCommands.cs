@@ -791,9 +791,9 @@ namespace Eco.Plugins.DiscordLink
                         }
                 }
 
-                string sendContext = recipient == null ? "everyone" : recipient.Name;
+                string sendContext = recipient == null ? "all players" : recipient.Name;
                 if (result)
-                    await ReportCommandInfo(ctx, $"Message sent to {sendContext}.");
+                    await ReportCommandInfo(ctx, $"Message delivered to {sendContext}.");
                 else
                     await ReportCommandError(ctx, $"Failed to send message to {sendContext}.");
 
