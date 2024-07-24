@@ -664,7 +664,7 @@ namespace Eco.Plugins.DiscordLink
                 }
 
 
-                if (messageType != Moose.Data.Enums.MessageType.NotificationOffline && !recipient.IsOnline)
+                if (recipient != null && messageType != Moose.Data.Enums.MessageType.NotificationOffline && !recipient.IsOnline)
                 {
                     await ReportCommandError(ctx, $"Failed to send message - {recipient.Name} is offline.");
                     return;
