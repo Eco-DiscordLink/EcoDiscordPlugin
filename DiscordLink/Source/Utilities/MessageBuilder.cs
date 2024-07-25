@@ -214,74 +214,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 if (verbose)
                 {
                     builder.AppendLine();
-                    builder.AppendLine("--- Config ---");
-                    builder.AppendLine($"Name: {client.DSharpClient.CurrentUser.Username}");
-
-                    builder.AppendLine();
-                    builder.AppendLine("--- Storage - Persistent ---");
-                    builder.AppendLine("Linked User Data:");
-                    foreach (LinkedUser linkedUser in DLStorage.PersistentData.LinkedUsers)
-                    {
-                        User ecoUser = linkedUser.EcoUser;
-                        string ecoUserName = (ecoUser != null) ? MessageUtils.StripTags(ecoUser.Name) : "[Unknown Eco User]";
-
-                        DiscordUser discordUser = linkedUser.DiscordMember;
-                        string discordUserName = (discordUser != null) ? discordUser.Username : "[Unknown Discord User]";
-                        string valididty;
-                        if (linkedUser.Valid)
-                        {
-                            valididty = "Valid";
-                        }
-                        else if (linkedUser.Verified)
-                        {
-                            if (linkedUser.DiscordMember == null && linkedUser.EcoUser == null)
-                                valididty = "Failed lookup (Eco & Discord)";
-                            else if (linkedUser.DiscordMember == null)
-                                valididty = "Failed lookup (Discord)";
-                            else if (linkedUser.EcoUser == null)
-                                valididty = "Failed lookup (Eco)";
-                            else
-                                valididty = "Verified but invalid";
-
-                        }
-                        else
-                        {
-                            valididty = "Unverified";
-                        }
-
-                        builder.AppendLine($"{ecoUserName} <--> {discordUserName} - {valididty}");
-                    }
-                    builder.AppendLine();
-                    builder.AppendLine("Opt-in User Data:");
-                    foreach (EcoUser user in DLStorage.PersistentData.OptedInUsers)
-                    {
-                        builder.AppendLine(user.GetUser.Name);
-                    }
-                    builder.AppendLine();
-                    builder.AppendLine("Opt-out User Data:");
-                    foreach (EcoUser user in DLStorage.PersistentData.OptedOutUsers)
-                    {
-                        builder.AppendLine(user.GetUser.Name);
-                    }
-
-                    builder.AppendLine();
-                    builder.AppendLine("--- Storage - World ---");
-                    if (DLStorage.WorldData.TradeWatchers.Count > 0)
-                    {
-                        builder.AppendLine("Trade Watchers:");
-                        foreach (var userTradeWatchers in DLStorage.WorldData.TradeWatchers)
-                        {
-                            DiscordUser discordUser = await client.GetUserAsync(userTradeWatchers.Key);
-                            if (discordUser == null)
-                                continue;
-
-                            builder.AppendLine($"[{discordUser.Username}]");
-                            foreach (TradeWatcherEntry tradeWatcher in userTradeWatchers.Value)
-                            {
-                                builder.AppendLine($"- {tradeWatcher}");
-                            }
-                        }
-                    }
+                    builder.AppendLine("--- Configuration ---");
+                    builder.AppendLine($"Bot Name: {client.DSharpClient.CurrentUser.Username}");
                 }
                 return builder.ToString();
             }
