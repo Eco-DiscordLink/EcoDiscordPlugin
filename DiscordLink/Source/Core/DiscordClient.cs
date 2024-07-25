@@ -246,6 +246,7 @@ namespace Eco.Plugins.DiscordLink
             DSharpClient.MessageDeleted += HandleDiscordMessageDeleted;
             DSharpClient.MessageReactionAdded += HandleDiscordReactionAdded;
             DSharpClient.MessageReactionRemoved += HandleDiscordReactionRemoved;
+            DSharpClient.GuildMemberRemoved += HandleMemberRemoved;
         }
 
         private void UnregisterEventListeners()
@@ -257,6 +258,7 @@ namespace Eco.Plugins.DiscordLink
             DSharpClient.MessageDeleted -= HandleDiscordMessageDeleted;
             DSharpClient.MessageReactionAdded -= HandleDiscordReactionAdded;
             DSharpClient.MessageReactionRemoved -= HandleDiscordReactionRemoved;
+            DSharpClient.GuildMemberRemoved -= HandleMemberRemoved;
         }
 
         #endregion
@@ -301,6 +303,11 @@ namespace Eco.Plugins.DiscordLink
                 return; // Ignore reactions sent by our own bot
 
             await DiscordLink.Obj.HandleEvent(DLEventType.DiscordReactionRemoved, args.User, args.Message, args.Emoji);
+        }
+
+        private async Task HandleMemberRemoved(DSharpPlus.DiscordClient client, GuildMemberRemoveEventArgs args)
+        {
+            await DiscordLink.Obj.HandleEvent(DLEventType.DiscordMemberRemoved, args.Member);
         }
 
         private async Task HandleClientError(DSharpPlus.DiscordClient client, ClientErrorEventArgs args)

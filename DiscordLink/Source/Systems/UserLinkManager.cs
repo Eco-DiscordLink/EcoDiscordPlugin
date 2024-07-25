@@ -4,9 +4,9 @@ using Eco.Moose.Utils.Lookups;
 using Eco.Moose.Utils.Message;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Extensions;
-using Eco.Plugins.DiscordLink.Utilities;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using User = Eco.Gameplay.Players.User;
 
@@ -145,43 +145,57 @@ namespace Eco.Plugins.DiscordLink
             switch (eventType)
             {
                 case DLEventType.DiscordReactionAdded:
-                    DiscordUser user = data[0] as DiscordUser;
-                    DiscordMessage message = data[1] as DiscordMessage;
-                    DiscordEmoji emoji = data[2] as DiscordEmoji;
-
-                    DiscordClient client = DiscordLink.Obj.Client;
-                    DiscordChannel channel = message.GetChannel();
-                    if (channel == null || !channel.IsPrivate)
-                        return;
-
-                    if (emoji != DLConstants.ACCEPT_EMOJI && emoji != DLConstants.DENY_EMOJI)
-                        return;
-
-                    string response = string.Empty;
-                    LinkedUser linkedUser = LinkedUserByDiscordUser(user, requireValid: false);
-                    if (linkedUser != null)
                     {
-                        if (emoji == DLConstants.DENY_EMOJI)
+                        DiscordUser user = data[0] as DiscordUser;
+                        DiscordMessage message = data[1] as DiscordMessage;
+                        DiscordEmoji emoji = data[2] as DiscordEmoji;
+
+                        DiscordClient client = DiscordLink.Obj.Client;
+                        DiscordChannel channel = message.GetChannel();
+                        if (channel == null || !channel.IsPrivate)
+                            return;
+
+                        if (emoji != DLConstants.ACCEPT_EMOJI && emoji != DLConstants.DENY_EMOJI)
+                            return;
+
+                        string response = string.Empty;
+                        LinkedUser linkedUser = LinkedUserByDiscordUser(user, requireValid: false);
+                        if (linkedUser != null)
                         {
-                            response = "Link removed";
+                            if (emoji == DLConstants.DENY_EMOJI)
+                            {
+                                response = "Link removed";
+                                RemoveLinkedUser(linkedUser);
+                            }
+                            else if (emoji == DLConstants.ACCEPT_EMOJI)
+                            {
+                                if (await VerifyLinkedUser(user.Id))
+                                    response = "Link verified";
+                                else
+                                    response = "Link verification failed - Unknown error";
+                            }
+                        }
+                        else
+                        {
+                            response = "Link verification failed - No outstanding link request";
+                        }
+
+                        client.SendMessageAsync(channel, response).Wait();
+                        _ = client.DeleteMessageAsync(message);
+                        break;
+                    }
+
+                case DLEventType.DiscordMemberRemoved:
+                    {
+                        DiscordMember member = data[0] as DiscordMember;
+                        LinkedUser linkedUser = LinkedUserByDiscordID(member.Id);
+                        if(linkedUser != null)
+                        {
+                            Logger.Debug($"Removing linked user {member.Username} due to leaving guild");
                             RemoveLinkedUser(linkedUser);
                         }
-                        else if (emoji == DLConstants.ACCEPT_EMOJI)
-                        {
-                            if (await VerifyLinkedUser(user.Id))
-                                response = "Link verified";
-                            else
-                                response = "Link verification failed - Unknown error";
-                        }
+                        break;
                     }
-                    else
-                    {
-                        response = "Link verification failed - No outstanding link request";
-                    }
-
-                    client.SendMessageAsync(channel, response).Wait();
-                    _ = client.DeleteMessageAsync(message);
-                    break;
 
                 default:
                     break;
