@@ -45,6 +45,8 @@ namespace Eco.Plugins.DiscordLink
         public const int CURRENCY_REPORT_COMMAND_MAX_CURRENCIES_PER_TYPE_DEFAULT = 3;
         public const int CURRENCY_REPORT_COMMAND_MAX_TOP_HOLDERS_PER_CURRENCY_DEFAULT = 5;
 
+        public const int USER_LINK_FAILED_LOOKUP_REMOVAL_THRESHOLD = 3;
+
         public const int POST_SERVER_CONNECTION_WAIT_MS = 3000;
 
         public const string ECO_PANEL_NOTIFICATION = "DLNotification";

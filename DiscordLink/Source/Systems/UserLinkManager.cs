@@ -19,13 +19,8 @@ namespace Eco.Plugins.DiscordLink
 
         public static async void Initialize()
         {
-            foreach (LinkedUser User in DLStorage.PersistentData.LinkedUsers)
-            {
-                if (!User.Verified || string.IsNullOrEmpty(User.DiscordID))
-                    continue;
-
-                await User.LoadDiscordMember();
-            }
+            await LoadMembers();
+            PruneObsoleteMemberReferences();
         }
 
         public static LinkedUser LinkedUserByDiscordUser(DiscordUser user, object caller = null, string callingReason = null, bool requireValid = true)
@@ -133,13 +128,16 @@ namespace Eco.Plugins.DiscordLink
             return deleted;
         }
 
-        public static void RemoveLinkedUser(LinkedUser linkedUser)
+        public static void RemoveLinkedUser(LinkedUser linkedUser, bool shouldFlush = true)
         {
             if (linkedUser.Valid)
                 OnLinkedUserRemoved?.Invoke(null, linkedUser);
 
             DLStorage.PersistentData.LinkedUsers.Remove(linkedUser);
-            DLStorage.Instance.Write();
+            if(shouldFlush)
+            {
+                DLStorage.Instance.Write();
+            }
         }
 
         public static async Task HandleEvent(DLEventType eventType, params object[] data)
@@ -189,6 +187,35 @@ namespace Eco.Plugins.DiscordLink
                     break;
             }
         }
+
+        private static async Task LoadMembers()
+        {
+            foreach (LinkedUser user in DLStorage.PersistentData.LinkedUsers)
+            {
+                await user.LoadDiscordMember();
+            }
+        }
+
+        private static void PruneObsoleteMemberReferences()
+        {
+            List<LinkedUser> toRemove = new List<LinkedUser>();
+            foreach (LinkedUser user in DLStorage.PersistentData.LinkedUsers)
+            {
+                if (user.HasPassedFailedLookupThreshold())
+                    toRemove.Add(user);
+            }
+
+            foreach (LinkedUser user in toRemove)
+            {
+                Logger.Debug($"Pruned obsolete reference to linked user with ID {user.SlgID}");
+                RemoveLinkedUser(user, false);
+            }
+
+            if (toRemove.Count > 0)
+            {
+                DLStorage.Instance.Write();
+            }
+        }
     }
 
     public class LinkedUser
@@ -207,6 +234,7 @@ namespace Eco.Plugins.DiscordLink
         public readonly string DiscordID = string.Empty;
         public readonly string GuildID = string.Empty;
         public bool Verified = false;
+        public uint FailedLookupsCount = 0;
 
         public LinkedUser(string slgID, string steamID, string discordID, string guildID)
         {
@@ -218,19 +246,32 @@ namespace Eco.Plugins.DiscordLink
 
         public async Task LoadDiscordMember()
         {
+            if (!Verified || string.IsNullOrEmpty(DiscordID))
+            {
+                ++FailedLookupsCount;
+                return;
+            }    
+
             try
             {
                 DiscordMember = await DiscordLink.Obj.Client.Guild.GetMemberAsync(ulong.Parse(DiscordID));
+                FailedLookupsCount = 0;
             }
             catch (DSharpPlus.Exceptions.NotFoundException)
             {
-                Logger.Debug($"Failed to find and load linked Discord member with ID: {DiscordID}.");
+                ++FailedLookupsCount;
+                Logger.Debug($"Failed to load linked Discord member with ID: {DiscordID}. Fail count = {FailedLookupsCount}");
             }
         }
 
         public bool HasAnyID(string SlgID, string SteamID)
         {
             return (!string.IsNullOrEmpty(this.SteamID) && this.SteamID == SteamID) || (!string.IsNullOrEmpty(this.SlgID) && this.SlgID == SlgID);
+        }
+
+        public bool HasPassedFailedLookupThreshold()
+        {
+            return FailedLookupsCount >= DLConstants.USER_LINK_FAILED_LOOKUP_REMOVAL_THRESHOLD;
         }
     }
 
