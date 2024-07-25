@@ -90,7 +90,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                     }
                 }
             }
-            else
+            else if(trigger == DLEventType.EnteredDemographic || trigger == DLEventType.LeftDemographic)
             {
                 if (!DLConfig.Data.UseDemographicRoles)
                     return;
@@ -105,6 +105,9 @@ namespace Eco.Plugins.DiscordLink.Modules
                 string demographicName = GetDemographicRoleName(demographicChange.Demographic);
                 if (trigger == DLEventType.EnteredDemographic)
                 {
+                    if (!demographicChange.Demographic.Settlement.Founded)
+                        return;
+
                     ++_opsCount;
                     await AddDemographicRole(client, linkedUser.DiscordMember, demographicName);
                 }
