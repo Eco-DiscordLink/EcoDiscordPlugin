@@ -8,6 +8,7 @@ using Eco.Shared.Utils;
 using Eco.Moose.Utils.Lookups;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Eco.Moose.Tools.Logger;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
@@ -45,7 +46,12 @@ namespace Eco.Plugins.DiscordLink.Modules
                 {
                     DiscordRole role = client.Guild.RoleByID(roleID);
                     if (role == null)
-                        continue; // Ignore roles that have been removed by others
+                    {
+                        // Unregister roles that have been removed by others
+                        DLStorage.PersistentData.RoleIDs.Remove(roleID);
+                        Logger.Debug($"{this} Failed to find role with ID {roleID}. Removing tracking for role ID.");
+                        continue;
+                    }
 
                     // Special
                     if (role == AccountLinkRole && DLConfig.Data.UseLinkedAccountRole)
