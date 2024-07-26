@@ -38,7 +38,8 @@
         EnteredDemographic          = 1L << 32,
         LeftDemographic             = 1L << 33,
         GainedSpecialty             = 1L << 34,
-        AccumulatedServerLog        = 1L << 35,
+        LostSpecialty               = 1L << 35,
+        AccumulatedServerLog        = 1L << 36,
 
         // Matched with other plugins
         SettlementFounded           = 1L << 61,

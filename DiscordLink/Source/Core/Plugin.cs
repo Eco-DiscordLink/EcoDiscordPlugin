@@ -381,6 +381,10 @@ namespace Eco.Plugins.DiscordLink
                     _ = HandleEvent(DLEventType.GainedSpecialty, gainSpecialty);
                     break;
 
+                case LoseSpecialty loseSpecialty:
+                    _ = HandleEvent(DLEventType.LostSpecialty, loseSpecialty);
+                    break;
+
                 default:
                     break;
             }

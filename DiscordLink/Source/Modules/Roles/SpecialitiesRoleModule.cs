@@ -25,7 +25,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected override DLEventType GetTriggers()
         {
-            return base.GetTriggers() | DLEventType.DiscordClientConnected | DLEventType.AccountLinkVerified | DLEventType.AccountLinkRemoved | DLEventType.GainedSpecialty;
+            return base.GetTriggers() | DLEventType.DiscordClientConnected | DLEventType.AccountLinkVerified | DLEventType.AccountLinkRemoved | DLEventType.GainedSpecialty | DLEventType.LostSpecialty;
         }
 
         protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
@@ -93,25 +93,31 @@ namespace Eco.Plugins.DiscordLink.Modules
                     }
                 }
             }
-            else
+            else if (trigger == DLEventType.GainedSpecialty || trigger == DLEventType.LostSpecialty)
             {
                 if (!DLConfig.Data.UseSpecialtyRoles)
                     return;
 
-                if (!(data[0] is GainSpecialty gainSpecialty))
+                SkillAction action = data[0] is GainSpecialty gainSpecialty ? gainSpecialty : data[0] is LoseSpecialty loseSpecialty ? loseSpecialty : null;
+                if (action == null)
                     return;
 
-                if (IgnoredSpecialtyNames.Contains(gainSpecialty.Specialty.Name))
+                if (IgnoredSpecialtyNames.Contains(action.Specialty.Name))
                     return;
 
-                LinkedUser linkedUser = UserLinkManager.LinkedUserByEcoUser(gainSpecialty.Citizen);
+                LinkedUser linkedUser = UserLinkManager.LinkedUserByEcoUser(action.Citizen);
                 if (linkedUser == null)
                     return;
 
                 if (trigger == DLEventType.GainedSpecialty)
                 {
                     ++_opsCount;
-                    await AddSpecialtyRole(client, linkedUser.DiscordMember, gainSpecialty.Specialty.DisplayName);
+                    await AddSpecialtyRole(client, linkedUser.DiscordMember, action.Specialty.DisplayName);
+                }
+                else if(trigger == DLEventType.LostSpecialty)
+                {
+                    ++_opsCount;
+                    await client.RemoveRoleAsync(linkedUser.DiscordMember, action.Specialty.DisplayName);
                 }
             }
         }
