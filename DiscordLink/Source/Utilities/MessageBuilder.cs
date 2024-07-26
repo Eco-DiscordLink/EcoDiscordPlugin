@@ -896,7 +896,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 if (flag.HasFlag(PlayerReportComponentFlag.Titles))
                 {
                     StringBuilder titlesDesc = new StringBuilder();
-                    IEnumerable<Title> userTitles = Lookups.ActiveTitles.Where(title => title.UserSet.Contains(user)).OrderBy(title => title.Name);
+                    IEnumerable<Title> userTitles = Lookups.ActiveElectedTitles.Where(title => title.UserSet.Contains(user)).Cast<Title>().Concat(Lookups.ActiveAppointedTitles.Where(title => title.UserSet.Contains(user)).Cast<Title>()).OrderBy(title => title.Name);
                     foreach (Title title in userTitles)
                     {
                         titlesDesc.AppendLine(title.Name + (title.Creator == user ? " (Creator)" : string.Empty));
