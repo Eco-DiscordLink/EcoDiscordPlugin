@@ -17,7 +17,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected override DLEventType GetTriggers()
         {
-            return DLEventType.StartElection | DLEventType.StopElection;
+            return DLEventType.ElectionStarted | DLEventType.ElectionStopped;
         }
 
         protected override async Task<bool> ShouldRun()
@@ -38,14 +38,14 @@ namespace Eco.Plugins.DiscordLink.Modules
             DiscordLinkEmbed embed = new DiscordLinkEmbed();
             switch (trigger)
             {
-                case DLEventType.StartElection:
+                case DLEventType.ElectionStarted:
                     embed.WithTitle($":ballot_box:  {MessageUtils.StripTags(election.Creator.Name)} Started An Election :ballot_box: ");
                     embed.AddField("Title", MessageUtils.StripTags(election.Name), inline: true);
                     embed.AddField("Process", MessageUtils.StripTags(election.Process.Name), inline: true);
                     embed.AddField("Time", TimeFormatter.FormatSpan(election.TimeLeft), inline: true);
                     break;
 
-                case DLEventType.StopElection:
+                case DLEventType.ElectionStopped:
                     ElectionResult results = election.CurrentResults;
                     embed.WithTitle($":ballot_box:  Election Has Ended  :ballot_box: ");
                     embed.AddField("Title", MessageUtils.StripTags(election.Name));

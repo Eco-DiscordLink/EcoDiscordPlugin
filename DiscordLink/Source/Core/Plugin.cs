@@ -498,8 +498,8 @@ namespace Eco.Plugins.DiscordLink
             OnNewUserJoined = async user => await HandleEvent(DLEventType.Join, user);
             OnNewUserLoggedIn = async user => await HandleEvent(DLEventType.Login, user);
             OnUserLoggedOut = async user => await HandleEvent(DLEventType.Logout, user);
-            OnElectionStarted = async election => await HandleEvent(DLEventType.StartElection, election);
-            OnElectionFinished = async election => await HandleEvent(DLEventType.StopElection, election);
+            OnElectionStarted = async election => await HandleEvent(DLEventType.ElectionStarted, election);
+            OnElectionFinished = async election => await HandleEvent(DLEventType.ElectionStopped, election);
             OnEventConverted = async args => await HandleEvent(args.EventType, args.Data);
             OnMooseEventFired = async args => await HandleEvent((DLEventType)args.EventType, args.Data);
             OnLinkedUserVerified = async (sender, args) => await HandleEvent(DLEventType.AccountLinkVerified, args);
