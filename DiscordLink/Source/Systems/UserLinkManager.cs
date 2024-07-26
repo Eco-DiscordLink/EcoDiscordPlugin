@@ -111,6 +111,11 @@ namespace Eco.Plugins.DiscordLink
                 user.Verified = true;
                 DLStorage.Instance.Write();
 
+                if (user.DiscordMember != null)
+                    Message.SendInfoBoxToUser(user.EcoUser, $"Discord link to {user.DiscordMember.DisplayName} verified!");
+                else
+                    Logger.Error($"Newly verified account link between {user.EcoUser} and Discord account with ID {user.DiscordID} failed to load Discord member");
+
                 OnLinkedUserVerified?.Invoke(null, user);
             }
             return result;
