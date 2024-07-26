@@ -41,6 +41,7 @@
         AccumulatedServerLog        = 1L << 35,
 
         // Matched with other plugins
+        SettlementFounded           = 1L << 61,
         AccumulatedTrade            = 1L << 62,
     }
     #pragma warning restore format
