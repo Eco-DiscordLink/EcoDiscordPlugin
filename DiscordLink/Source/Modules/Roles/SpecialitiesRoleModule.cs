@@ -66,6 +66,9 @@ namespace Eco.Plugins.DiscordLink.Modules
             }
             else if (trigger == DLEventType.AccountLinkVerified || trigger == DLEventType.AccountLinkRemoved)
             {
+                if (!DLConfig.Data.UseDemographicRoles)
+                    return;
+
                 if (!(data[0] is LinkedUser linkedUser))
                     return;
 
