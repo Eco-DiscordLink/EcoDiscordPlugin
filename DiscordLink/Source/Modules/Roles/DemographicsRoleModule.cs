@@ -105,10 +105,12 @@ namespace Eco.Plugins.DiscordLink.Modules
                 if (linkedUser == null)
                     return;
 
-                string demographicName = GetDemographicRoleName(demographicChange.Demographic);
+                Demographic demographic = demographicChange.Demographic;
+                string demographicName = GetDemographicRoleName(demographic);
                 if (trigger == DLEventType.EnteredDemographic)
                 {
-                    if (!demographicChange.Demographic.Settlement.Founded)
+                    Settlement settlement = demographicChange.Demographic.Settlement;
+                    if (!demographic.IsSpecial && settlement == null && !settlement.Founded) // Settlement is null for special demographics
                         return;
 
                     ++_opsCount;
