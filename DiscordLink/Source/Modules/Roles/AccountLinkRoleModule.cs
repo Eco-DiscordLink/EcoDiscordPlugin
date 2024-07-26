@@ -3,6 +3,7 @@ using Eco.Plugins.DiscordLink.Events;
 using System.Threading.Tasks;
 using Eco.Plugins.DiscordLink.Extensions;
 using DSharpPlus;
+using Eco.Moose.Tools.Logger;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
@@ -73,16 +74,24 @@ namespace Eco.Plugins.DiscordLink.Modules
                 if (!(data[0] is LinkedUser linkedUser))
                     return;
 
-                if (trigger == DLEventType.AccountLinkVerified)
+                DiscordMember member = linkedUser.DiscordMember;
+                if (member == null)
+                {
+                    Logger.Error($"Failed to handle role change for Eco user \"{linkedUser.EcoUser.Name}\". Linked Discord member was not loaded.");
+                    return;
+                }
+
+                if (trigger == DLEventType.AccountLinkRemoved)
                 {
                     ++_opsCount;
-                    await client.AddRoleAsync(linkedUser.DiscordMember, _linkedAccountRole);
+                    await client.RemoveRoleAsync(member, _linkedAccountRole);
                 }
-                else if (trigger == DLEventType.AccountLinkRemoved)
+                else if (trigger == DLEventType.AccountLinkVerified)
                 {
                     ++_opsCount;
-                    await client.RemoveRoleAsync(linkedUser.DiscordMember, _linkedAccountRole);
+                    await client.AddRoleAsync(member, _linkedAccountRole);
                 }
+                
             }
         }
 

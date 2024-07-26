@@ -4,6 +4,7 @@ using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Gameplay.GameActions;
 using Eco.Gameplay.Civics.Demographics;
+using Eco.Gameplay.Settlements;
 using Eco.Shared.Utils;
 using Eco.Moose.Tools.Logger;
 using Eco.Moose.Utils.Lookups;
@@ -55,7 +56,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                         else if (!member.HasRoleWithName(demographicName) && demographic.ContainsUser(linkedUser.EcoUser))
                         {
                             ++_opsCount;
-                            await AddDemographicRole(client, linkedUser.DiscordMember, demographicName);
+                            await AddDemographicRole(client, member, demographicName);
                         }
                     }
                 }
@@ -71,14 +72,14 @@ namespace Eco.Plugins.DiscordLink.Modules
                 DiscordMember member = linkedUser.DiscordMember;
                 if (member == null)
                 {
-                    Logger.Error($"Failed to handle account link role change for Eco user \"{linkedUser.EcoUser.Name}\". Linked Discord member could not be fetched.");
+                    Logger.Error($"Failed to handle role change for Eco user \"{linkedUser.EcoUser.Name}\". Linked Discord member was not loaded.");
                     return;
                 }
 
                 foreach (Demographic demographic in Lookups.ActiveDemographics)
                 {
                     string demographicName = GetDemographicRoleName(demographic);
-                    if (trigger == DLEventType.AccountLinkRemoved || !DLConfig.Data.UseDemographicRoles || !demographic.ContainsUser(linkedUser.EcoUser))
+                    if (trigger == DLEventType.AccountLinkRemoved)
                     {
                         if (member.HasRoleWithName(demographicName))
                         {
@@ -86,10 +87,13 @@ namespace Eco.Plugins.DiscordLink.Modules
                             await client.RemoveRoleAsync(member, demographicName);
                         }
                     }
-                    else if (!member.HasRoleWithName(demographicName) && demographic.ContainsUser(linkedUser.EcoUser))
+                    else if (trigger == DLEventType.AccountLinkVerified)
                     {
-                        ++_opsCount;
-                        await AddDemographicRole(client, linkedUser.DiscordMember, demographicName);
+                        if(!member.HasRoleWithName(demographicName) && demographic.ContainsUser(linkedUser.EcoUser))
+                        {
+                            ++_opsCount;
+                            await AddDemographicRole(client, linkedUser.DiscordMember, demographicName);
+                        }
                     }
                 }
             }

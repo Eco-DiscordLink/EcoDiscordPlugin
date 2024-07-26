@@ -9,6 +9,7 @@ using Eco.Gameplay.Skills;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Eco.Moose.Tools.Logger;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
@@ -73,12 +74,18 @@ namespace Eco.Plugins.DiscordLink.Modules
                     return;
 
                 DiscordMember member = linkedUser.DiscordMember;
+                if (member == null)
+                {
+                    Logger.Error($"Failed to handle role change for Eco user \"{linkedUser.EcoUser.Name}\". Linked Discord member was not loaded.");
+                    return;
+                }
+
                 foreach (Skill specialty in Lookups.Specialties)
                 {
                     if (IgnoredSpecialtyNames.Contains(specialty.Name))
                         continue;
 
-                    if (trigger == DLEventType.AccountLinkRemoved || !DLConfig.Data.UseSpecialtyRoles || !linkedUser.EcoUser.HasSpecialization(specialty.Type))
+                    if (trigger == DLEventType.AccountLinkRemoved)
                     {
                         if (member.HasRoleWithName(specialty.DisplayName))
                         {
@@ -86,10 +93,13 @@ namespace Eco.Plugins.DiscordLink.Modules
                             await client.RemoveRoleAsync(member, specialty.DisplayName);
                         }
                     }
-                    else if (!member.HasRoleWithName(specialty.DisplayName) && linkedUser.EcoUser.HasSpecialization(specialty.Type))
+                    else if (trigger == DLEventType.AccountLinkVerified)
                     {
-                        ++_opsCount;
-                        await AddSpecialtyRole(client, linkedUser.DiscordMember, specialty.DisplayName);
+                        if(!member.HasRoleWithName(specialty.DisplayName) && linkedUser.EcoUser.HasSpecialization(specialty.Type))
+                        {
+                            ++_opsCount;
+                            await AddSpecialtyRole(client, member, specialty.DisplayName);
+                        }
                     }
                 }
             }
