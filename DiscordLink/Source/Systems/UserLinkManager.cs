@@ -206,6 +206,12 @@ namespace Eco.Plugins.DiscordLink
         {
             foreach (LinkedUser user in DLStorage.PersistentData.LinkedUsers)
             {
+                if (!user.Verified || string.IsNullOrEmpty(user.DiscordID))
+                {
+                    ++user.FailedInitializationCount;
+                    continue;
+                }
+
                 await user.LoadDiscordMember();
             }
         }
@@ -248,7 +254,7 @@ namespace Eco.Plugins.DiscordLink
         public readonly string DiscordID = string.Empty;
         public readonly string GuildID = string.Empty;
         public bool Verified = false;
-        public uint FailedLookupsCount = 0;
+        public uint FailedInitializationCount = 0;
 
         public LinkedUser(string slgID, string steamID, string discordID, string guildID)
         {
@@ -260,21 +266,15 @@ namespace Eco.Plugins.DiscordLink
 
         public async Task LoadDiscordMember()
         {
-            if (!Verified || string.IsNullOrEmpty(DiscordID))
-            {
-                ++FailedLookupsCount;
-                return;
-            }    
-
             try
             {
                 DiscordMember = await DiscordLink.Obj.Client.Guild.GetMemberAsync(ulong.Parse(DiscordID));
-                FailedLookupsCount = 0;
+                FailedInitializationCount = 0;
             }
             catch (DSharpPlus.Exceptions.NotFoundException)
             {
-                ++FailedLookupsCount;
-                Logger.Debug($"Failed to load linked Discord member with ID: {DiscordID}. Fail count = {FailedLookupsCount}");
+                ++FailedInitializationCount;
+                Logger.Debug($"Failed to load linked Discord member with ID: {DiscordID}. Fail count = {FailedInitializationCount}");
             }
         }
 
@@ -285,7 +285,7 @@ namespace Eco.Plugins.DiscordLink
 
         public bool HasPassedFailedLookupThreshold()
         {
-            return FailedLookupsCount >= DLConstants.USER_LINK_FAILED_LOOKUP_REMOVAL_THRESHOLD;
+            return FailedInitializationCount >= DLConstants.USER_LINK_FAILED_LOOKUP_REMOVAL_THRESHOLD;
         }
     }
 
