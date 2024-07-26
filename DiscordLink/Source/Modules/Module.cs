@@ -27,8 +27,9 @@ namespace Eco.Plugins.DiscordLink.Modules
         TradeWatcherFeed,
         AccountLinkRoleModule,
         DemographicRoleModule,
-        RoleCleanupModule,
+        ElectedTitleRoleModule,
         SpecialitiesRoleModule,
+        RoleCleanupModule,
         SnippetInput
     }
 

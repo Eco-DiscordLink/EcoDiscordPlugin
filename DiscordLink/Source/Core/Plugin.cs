@@ -430,8 +430,9 @@ namespace Eco.Plugins.DiscordLink
             Modules[(int)ModuleType.TradeWatcherFeed] = new TradeWatcherFeed();
             Modules[(int)ModuleType.AccountLinkRoleModule] = new AccountLinkRoleModule();
             Modules[(int)ModuleType.DemographicRoleModule] = new DemographicsRoleModule();
-            Modules[(int)ModuleType.RoleCleanupModule] = new RoleCleanupModule();
+            Modules[(int)ModuleType.ElectedTitleRoleModule] = new ElectedTitleRoleModule();
             Modules[(int)ModuleType.SpecialitiesRoleModule] = new SpecialtiesRoleModule();
+            Modules[(int)ModuleType.RoleCleanupModule] = new RoleCleanupModule();
             Modules[(int)ModuleType.SnippetInput] = new SnippetInput();
 
             foreach (Module module in Modules)
