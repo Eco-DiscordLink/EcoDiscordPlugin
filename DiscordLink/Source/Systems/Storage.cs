@@ -124,7 +124,7 @@ namespace Eco.Plugins.DiscordLink
                     foreach (LinkedUser linkedUser in PersistentData.LinkedUsers.Where(link => link.Verified))
                     {
                         ecoBuilder.AppendLine(linkedUser.EcoUser != null ? linkedUser.EcoUser.Name : linkedUser.SlgID);
-                        discordBuilder.AppendLine(linkedUser.DiscordMember != null ? linkedUser.DiscordMember.Nickname : linkedUser.DiscordID.ToString());
+                        discordBuilder.AppendLine(linkedUser.DiscordMember != null ? linkedUser.DiscordMember.DisplayName : linkedUser.DiscordID.ToString());
                         verifiedBuilder.AppendLine(linkedUser.Verified ? "True" : "False");
                     }
                     embed.AddField("Eco Links", ecoBuilder.ToString(), inline: true);
