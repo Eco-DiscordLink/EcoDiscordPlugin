@@ -878,7 +878,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     report.AddField("Eco Admin", Shared.GetYesNo(user.IsAdmin), inline: true);
                     if (userLinkExists)
                         report.AddField("Discord Admin", Shared.GetYesNo(DiscordLink.Obj.Client.MemberIsAdmin(discordMember)), inline: true);
-                    report.AddField("Eco Dev Permission", Shared.GetYesNo(user.IsDev), inline: true);
+                    report.AddField("Eco Dev Permission", Shared.GetYesNo(user.IsDevTier), inline: true);
                     if (!userLinkExists)
                         report.AddAlignmentField();
                 }

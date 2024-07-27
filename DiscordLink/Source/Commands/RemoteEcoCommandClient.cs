@@ -34,8 +34,8 @@ namespace Eco.Plugins.DiscordLink
         {
             if (EcoUser != null)
             {
-                if (EcoUser.IsDev)
-                    return ChatAuthorizationLevel.Developer;
+                if (EcoUser.IsDevTier)
+                    return ChatAuthorizationLevel.DevTier;
                 else if (EcoUser.IsAdmin)
                     return ChatAuthorizationLevel.Admin;
             }
