@@ -123,7 +123,7 @@ namespace Eco.Plugins.DiscordLink
                     StringBuilder verifiedBuilder = new StringBuilder();
                     foreach (LinkedUser linkedUser in PersistentData.LinkedUsers.Where(link => link.Verified))
                     {
-                        ecoBuilder.AppendLine(linkedUser.EcoUser != null ? linkedUser.EcoUser.Name : linkedUser.SlgID);
+                        ecoBuilder.AppendLine(linkedUser.EcoUser != null ? linkedUser.EcoUser.Name : linkedUser.StrangeID);
                         discordBuilder.AppendLine(linkedUser.DiscordMember != null ? linkedUser.DiscordMember.DisplayName : linkedUser.DiscordID.ToString());
                         verifiedBuilder.AppendLine(linkedUser.Verified ? "True" : "False");
                     }

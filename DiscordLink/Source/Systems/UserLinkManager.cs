@@ -232,7 +232,7 @@ namespace Eco.Plugins.DiscordLink
 
             foreach (LinkedUser user in toRemove)
             {
-                Logger.Debug($"Pruned obsolete reference to linked user with ID {user.SlgID}");
+                Logger.Debug($"Pruned obsolete reference to linked user with ID {user.StrangeID}");
                 RemoveLinkedUser(user, false);
             }
 
