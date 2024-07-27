@@ -65,7 +65,7 @@ namespace Eco.Plugins.DiscordLink
         private EventHandler<LinkedUser> OnLinkedUserRemoved;
 
         public override string ToString() => PluginName;
-        public string GetCategory() => "DiscordLink";
+        public string GetCategory() => "Mighty Moose";
         public string GetStatus() => _statusDescription;
         public object GetEditObject() => DLConfig.Data;
         public void OnEditObjectChanged(object o, string param) => _ = DLConfig.Instance.HandleConfigChanged();
@@ -381,6 +381,10 @@ namespace Eco.Plugins.DiscordLink
                     _ = HandleEvent(DLEventType.GainedSpecialty, gainSpecialty);
                     break;
 
+                case LoseSpecialty loseSpecialty:
+                    _ = HandleEvent(DLEventType.LostSpecialty, loseSpecialty);
+                    break;
+
                 default:
                     break;
             }
@@ -426,8 +430,9 @@ namespace Eco.Plugins.DiscordLink
             Modules[(int)ModuleType.TradeWatcherFeed] = new TradeWatcherFeed();
             Modules[(int)ModuleType.AccountLinkRoleModule] = new AccountLinkRoleModule();
             Modules[(int)ModuleType.DemographicRoleModule] = new DemographicsRoleModule();
-            Modules[(int)ModuleType.RoleCleanupModule] = new RoleCleanupModule();
+            Modules[(int)ModuleType.ElectedTitleRoleModule] = new ElectedTitleRoleModule();
             Modules[(int)ModuleType.SpecialitiesRoleModule] = new SpecialtiesRoleModule();
+            Modules[(int)ModuleType.RoleCleanupModule] = new RoleCleanupModule();
             Modules[(int)ModuleType.SnippetInput] = new SnippetInput();
 
             foreach (Module module in Modules)
@@ -498,8 +503,8 @@ namespace Eco.Plugins.DiscordLink
             OnNewUserJoined = async user => await HandleEvent(DLEventType.Join, user);
             OnNewUserLoggedIn = async user => await HandleEvent(DLEventType.Login, user);
             OnUserLoggedOut = async user => await HandleEvent(DLEventType.Logout, user);
-            OnElectionStarted = async election => await HandleEvent(DLEventType.StartElection, election);
-            OnElectionFinished = async election => await HandleEvent(DLEventType.StopElection, election);
+            OnElectionStarted = async election => await HandleEvent(DLEventType.ElectionStarted, election);
+            OnElectionFinished = async election => await HandleEvent(DLEventType.ElectionStopped, election);
             OnEventConverted = async args => await HandleEvent(args.EventType, args.Data);
             OnMooseEventFired = async args => await HandleEvent((DLEventType)args.EventType, args.Data);
             OnLinkedUserVerified = async (sender, args) => await HandleEvent(DLEventType.AccountLinkVerified, args);

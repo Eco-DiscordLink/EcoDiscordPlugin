@@ -29,7 +29,7 @@ using Eco.Shared.Networking;
 using Eco.Shared.Utils;
 using Eco.Shared;
 using Eco.Shared.Items;
-using Eco.Moose.Utils.Extensions;
+using Eco.Moose.Extensions;
 using Eco.Moose.Utils.Lookups;
 using System;
 using System.Collections.Generic;
@@ -41,7 +41,7 @@ using System.Threading.Tasks;
 using static Eco.Shared.Mathf; // Avoiding collisions with system mathf
 using static Eco.Moose.Features.Trade;
 
-using Constants = Eco.Moose.Utils.Constants.Constants;
+using Constants = Eco.Moose.Data.Constants.Constants;
 using Text = Eco.Shared.Utils.Text;
 
 using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.Store.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
@@ -150,25 +150,25 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     "\n\nFor more information, visit \"www.github.com/Eco-DiscordLink/EcoDiscordPlugin\".";
             }
 
-            public static string GetLinkAccountInfoMessage(SharedCommands.CommandInterface context)
+            public static string GetLinkAccountInfoMessage()
             {
-                return "By linking your Eco account to your Discord account on this server, you can enable the following features:" +
-                    $"\n* Trade Watcher Displays - An always up to date view of a `/DLT` command in your DMs with the DiscordLink bot." +
+                return "By linking Eco to your Discord account on this server, you can enable the following features:" +
+                    $"\n* Trade Watchers - Get trade information about your store or market items directly to your DMs!" +
                     "\n* Discord election voting - Vote in elections directly via Discord." +
                     "\n* DiscordLinked Role and roles matching your demographics and specializations." +
                     "\n" +
-                    "\nLink instructions" +
-                    $"\n1. Use \"/DL LinkAccount\" <UserName> in Eco. The username parameter is your Discord account name (not nickname). Example: /DL LinkAccount Monzun" +
+                    "\n**Link instructions**" +
+                    $"\n1. Use `/DL LinkAccount <UserName>` in Eco. The username is your Discord account name (not nickname). Example: `/DL LinkAccount Monzun`" +
                     "\n2. If your account could be found on the Discord server, the bot will send you a DM." +
                     "\n3. Click the approve button on the message to verify that you are the owner of both the Eco and Discord account." +
                     "\n4. Your account is now linked!" +
                     "\n" +
-                    "\nUnlinking" +
-                    $"\nIf you no longer wish to have your account linked or you need to reset it for some reason, you can use `/DL UnlinkAccount`." +
+                    "\n**Unlinking**" +
+                    $"\nIf you no longer wish to have your account linked, you can use the `/DL UnlinkAccount`. command." +
                     "\n" +
-                    "\nAdditional Information" +
+                    "\n**Additional Information**" +
                     "\n* Your account link is only valid for one combination of Eco and Discord servers. If you join a new server, you will need to link your account on that server as well." +
-                    "\n* Your account link remains active over world resets. It is only removed if you use the /DL UnlinkAccount command or if the server host deletes the persistent storage data.";
+                    "\n* Your account link remains active over world resets. It is only removed if you use the `/DL UnlinkAccount` command or if the server host deletes the persistent storage data.";
             }
 
             public static async Task<string> GetDisplayStringAsync(bool verbose)
@@ -214,74 +214,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 if (verbose)
                 {
                     builder.AppendLine();
-                    builder.AppendLine("--- Config ---");
-                    builder.AppendLine($"Name: {client.DSharpClient.CurrentUser.Username}");
-
-                    builder.AppendLine();
-                    builder.AppendLine("--- Storage - Persistent ---");
-                    builder.AppendLine("Linked User Data:");
-                    foreach (LinkedUser linkedUser in DLStorage.PersistentData.LinkedUsers)
-                    {
-                        User ecoUser = linkedUser.EcoUser;
-                        string ecoUserName = (ecoUser != null) ? MessageUtils.StripTags(ecoUser.Name) : "[Unknown Eco User]";
-
-                        DiscordUser discordUser = linkedUser.DiscordMember;
-                        string discordUserName = (discordUser != null) ? discordUser.Username : "[Unknown Discord User]";
-                        string valididty;
-                        if (linkedUser.Valid)
-                        {
-                            valididty = "Valid";
-                        }
-                        else if (linkedUser.Verified)
-                        {
-                            if (linkedUser.DiscordMember == null && linkedUser.EcoUser == null)
-                                valididty = "Failed lookup (Eco & Discord)";
-                            else if (linkedUser.DiscordMember == null)
-                                valididty = "Failed lookup (Discord)";
-                            else if (linkedUser.EcoUser == null)
-                                valididty = "Failed lookup (Eco)";
-                            else
-                                valididty = "Verified but invalid";
-
-                        }
-                        else
-                        {
-                            valididty = "Unverified";
-                        }
-
-                        builder.AppendLine($"{ecoUserName} <--> {discordUserName} - {valididty}");
-                    }
-                    builder.AppendLine();
-                    builder.AppendLine("Opt-in User Data:");
-                    foreach (EcoUser user in DLStorage.PersistentData.OptedInUsers)
-                    {
-                        builder.AppendLine(user.GetUser.Name);
-                    }
-                    builder.AppendLine();
-                    builder.AppendLine("Opt-out User Data:");
-                    foreach (EcoUser user in DLStorage.PersistentData.OptedOutUsers)
-                    {
-                        builder.AppendLine(user.GetUser.Name);
-                    }
-
-                    builder.AppendLine();
-                    builder.AppendLine("--- Storage - World ---");
-                    if (DLStorage.WorldData.TradeWatchers.Count > 0)
-                    {
-                        builder.AppendLine("Trade Watchers:");
-                        foreach (var userTradeWatchers in DLStorage.WorldData.TradeWatchers)
-                        {
-                            DiscordUser discordUser = await client.GetUserAsync(userTradeWatchers.Key);
-                            if (discordUser == null)
-                                continue;
-
-                            builder.AppendLine($"[{discordUser.Username}]");
-                            foreach (TradeWatcherEntry tradeWatcher in userTradeWatchers.Value)
-                            {
-                                builder.AppendLine($"- {tradeWatcher}");
-                            }
-                        }
-                    }
+                    builder.AppendLine("--- Configuration ---");
+                    builder.AppendLine($"Bot Name: {client.DSharpClient.CurrentUser.Username}");
                 }
                 return builder.ToString();
             }
@@ -962,7 +896,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 if (flag.HasFlag(PlayerReportComponentFlag.Titles))
                 {
                     StringBuilder titlesDesc = new StringBuilder();
-                    IEnumerable<Title> userTitles = Lookups.ActiveTitles.Where(title => title.UserSet.Contains(user)).OrderBy(title => title.Name);
+                    IEnumerable<Title> userTitles = Lookups.ActiveElectedTitles.Where(title => title.UserSet.Contains(user)).Cast<Title>().Concat(Lookups.ActiveAppointedTitles.Where(title => title.UserSet.Contains(user)).Cast<Title>()).OrderBy(title => title.Name);
                     foreach (Title title in userTitles)
                     {
                         titlesDesc.AppendLine(title.Name + (title.Creator == user ? " (Creator)" : string.Empty));
@@ -997,7 +931,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
             public static DiscordLinkEmbed GetCurrencyReport(Currency currency, int maxTopHolders, bool useBackingInfo, bool useTradeCount)
             {
-                var currencyTradesMap = DLStorage.WorldData.CurrencyToTradeCountMap;
+                var currencyTradesMap = Moose.Plugin.MooseStorage.WorldData.CurrencyToTradeCountMap;
 
                 DiscordLinkEmbed embed = new DiscordLinkEmbed();
                 embed.WithTitle(MessageUtils.StripTags(currency.Name));
@@ -1477,7 +1411,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     if (o.Currency == null)
                         return -1; // Sort barters last
 
-                    DLStorage.WorldData.CurrencyToTradeCountMap.TryGetValue(o.Currency.Id, out int result);
+                    Moose.Plugin.MooseStorage.WorldData.CurrencyToTradeCountMap.TryGetValue(o.Currency.Id, out int result);
                     return result;
                 }).ToList();
                 return allOffersSorted;

@@ -1,6 +1,6 @@
 ﻿using Eco.Gameplay.GameActions;
 using Eco.Gameplay.Objects;
-using Eco.Moose.Utils.Extensions;
+using Eco.Moose.Extensions;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;

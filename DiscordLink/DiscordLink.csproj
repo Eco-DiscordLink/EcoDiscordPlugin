@@ -2,13 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
+    <Authors>MonzUn, R3sist3nt, Spoffy</Authors>
+    <Company>Mighty Moose Mods</Company>
     <PackageLicenseExpression>Gnu Affero</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/Eco-DiscordLink/EcoDiscordPlugin</PackageProjectUrl>
     <RepositoryUrl>https://github.com/Eco-DiscordLink/EcoDiscordPlugin</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Eco Discord</PackageTags>
-    <Authors>MonzUn, R3sist3nt, Spoffy</Authors>
-    <Company>Mighty Moose Mods</Company>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <OutputType>Library</OutputType>
     <RootNamespace>Eco.Plugins.DiscordLink</RootNamespace>

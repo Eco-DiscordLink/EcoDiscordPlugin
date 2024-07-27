@@ -246,6 +246,7 @@ namespace Eco.Plugins.DiscordLink
             DSharpClient.MessageDeleted += HandleDiscordMessageDeleted;
             DSharpClient.MessageReactionAdded += HandleDiscordReactionAdded;
             DSharpClient.MessageReactionRemoved += HandleDiscordReactionRemoved;
+            DSharpClient.GuildMemberRemoved += HandleMemberRemoved;
         }
 
         private void UnregisterEventListeners()
@@ -257,6 +258,7 @@ namespace Eco.Plugins.DiscordLink
             DSharpClient.MessageDeleted -= HandleDiscordMessageDeleted;
             DSharpClient.MessageReactionAdded -= HandleDiscordReactionAdded;
             DSharpClient.MessageReactionRemoved -= HandleDiscordReactionRemoved;
+            DSharpClient.GuildMemberRemoved -= HandleMemberRemoved;
         }
 
         #endregion
@@ -301,6 +303,11 @@ namespace Eco.Plugins.DiscordLink
                 return; // Ignore reactions sent by our own bot
 
             await DiscordLink.Obj.HandleEvent(DLEventType.DiscordReactionRemoved, args.User, args.Message, args.Emoji);
+        }
+
+        private async Task HandleMemberRemoved(DSharpPlus.DiscordClient client, GuildMemberRemoveEventArgs args)
+        {
+            await DiscordLink.Obj.HandleEvent(DLEventType.DiscordMemberRemoved, args.Member);
         }
 
         private async Task HandleClientError(DSharpPlus.DiscordClient client, ClientErrorEventArgs args)
@@ -573,7 +580,7 @@ namespace Eco.Plugins.DiscordLink
                 }
 
                 // Either make sure we have permission to use embeds or convert the embed to text
-                string fullTextContent = (embedContent == null || ChannelHasPermission(channel, Permissions.EmbedLinks)) ? textContent : $"{textContent}\n{embedContent.AsText()}";
+                string fullTextContent = (embedContent == null || ChannelHasPermission(channel, Permissions.EmbedLinks)) ? textContent : $"{textContent}\n{embedContent.AsDiscordText()}";
 
                 // If needed; split the message into multiple parts
                 ICollection<string> stringParts = MessageUtils.SplitStringBySize(fullTextContent, DLConstants.DISCORD_MESSAGE_CHARACTER_LIMIT);
@@ -682,7 +689,7 @@ namespace Eco.Plugins.DiscordLink
                     {
                         Logger.Trace($"Editing converted embed message with in channel \"{message.Channel.Name}\"");
                         await message.ModifyEmbedSuppressionAsync(true); // Remove existing embeds
-                        editedMessage = await message.ModifyAsync($"{textContent}\n{embedContent.AsText()}");
+                        editedMessage = await message.ModifyAsync($"{textContent}\n{embedContent.AsDiscordText()}");
                     }
                 }
             }
@@ -766,6 +773,16 @@ namespace Eco.Plugins.DiscordLink
                 Logger.Exception($"Failed to create role \"{dlRole.Name}\"", e);
             }
             return await Task.FromResult<DiscordRole>(null);
+        }
+
+        public DiscordRole GetRoleById(ulong id)
+        {
+            return Guild.RoleByID(id);
+        }
+
+        public DiscordRole GetRoleByName(string name)
+        {
+            return Guild.RoleByName(name);
         }
 
         public async Task AddRoleAsync(DiscordMember member, DiscordLinkRole dlRole)

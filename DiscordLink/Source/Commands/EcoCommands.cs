@@ -1,20 +1,21 @@
 using DSharpPlus;
 using DSharpPlus.Entities;
+using DSharpPlus.SlashCommands;
 using Eco.Gameplay.Players;
 using Eco.Gameplay.Systems.Messaging.Chat.Commands;
-using Eco.Plugins.DiscordLink.Utilities;
-using System;
-using System.Collections.Generic;
-using Eco.Plugins.DiscordLink.Extensions;
-using System.Threading.Tasks;
-using static Eco.Plugins.DiscordLink.SharedCommands;
-using static Eco.Plugins.DiscordLink.Enums;
-using static Eco.Plugins.DiscordLink.Utilities.MessageBuilder;
-using Eco.Plugins.Networking;
-using Eco.Shared.Utils;
-using System.Linq;
 using Eco.Moose.Tools.Logger;
 using Eco.Moose.Utils.Message;
+using Eco.Plugins.DiscordLink.Extensions;
+using Eco.Plugins.DiscordLink.Utilities;
+using Eco.Plugins.Networking;
+using Eco.Shared.Utils;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using static Eco.Plugins.DiscordLink.DiscordCommands;
+using static Eco.Plugins.DiscordLink.Enums;
+using static Eco.Plugins.DiscordLink.Utilities.MessageBuilder;
 
 namespace Eco.Plugins.DiscordLink
 {
@@ -59,14 +60,14 @@ namespace Eco.Plugins.DiscordLink
 
         #region User Feedback
 
-        public static void ReportCommandError(User callingUser, string message)
-        {
-            Message.SendErrorBoxToUser(callingUser, message);
-        }
-
         public static void ReportCommandInfo(User callingUser, string message)
         {
             Message.SendInfoBoxToUser(callingUser, message);
+        }
+
+        public static void ReportCommandError(User callingUser, string message)
+        {
+            Message.SendErrorBoxToUser(callingUser, message);
         }
 
         public static void DisplayCommandData(User callingUser, string panelInstance, string title, string data)
@@ -83,7 +84,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.Update(CommandInterface.Eco, callingUser);
+                await SharedCommands.Update(ApplicationInterfaceType.Eco, callingUser);
             }, callingUser);
         }
 
@@ -92,7 +93,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.RestartPlugin(CommandInterface.Eco, callingUser);
+                await SharedCommands.RestartPlugin(ApplicationInterfaceType.Eco, callingUser);
             }, callingUser);
         }
 
@@ -101,7 +102,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.ResetPersistentData(CommandInterface.Eco, callingUser);
+                await SharedCommands.ResetPersistentData(ApplicationInterfaceType.Eco, callingUser);
             }, callingUser);
         }
 
@@ -110,7 +111,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.ResetWorldData(CommandInterface.Eco, callingUser);
+                await SharedCommands.ResetWorldData(ApplicationInterfaceType.Eco, callingUser);
             }, callingUser);
         }
 
@@ -119,7 +120,26 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.ClearRoles(CommandInterface.Eco, callingUser);
+                await SharedCommands.ClearRoles(ApplicationInterfaceType.Eco, callingUser);
+            }, callingUser);
+        }
+
+
+        [ChatSubCommand("DiscordLink", "Displays a description of the persistent storage data.", ChatAuthorizationLevel.Admin)]
+        public static async Task PersistentStorageData(User callingUser)
+        {
+            await ExecuteCommand<object>(async (lUser, args) =>
+            {
+                await SharedCommands.PersistentStorageData(ApplicationInterfaceType.Eco, callingUser);
+            }, callingUser);
+        }
+
+        [ChatSubCommand("DiscordLink", "Displays a description of the world storage data.", ChatAuthorizationLevel.Admin)]
+        public static async Task WorldStorageData(User callingUser)
+        {
+            await ExecuteCommand<object>(async (lUser, args) =>
+            {
+                await SharedCommands.WorldStorageData(ApplicationInterfaceType.Eco, callingUser);
             }, callingUser);
         }
 
@@ -132,7 +152,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.ServerShutdown(CommandInterface.Eco, callingUser);
+                await SharedCommands.ServerShutdown(ApplicationInterfaceType.Eco, callingUser);
             }, callingUser);
         }
 
@@ -181,7 +201,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.VerifyConfig(CommandInterface.Eco, callingUser);
+                await SharedCommands.VerifyConfig(ApplicationInterfaceType.Eco, callingUser);
             }, callingUser);
         }
 
@@ -190,7 +210,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.VerifyPermissions(CommandInterface.Eco, callingUser, MessageBuilder.PermissionReportComponentFlag.All);
+                await SharedCommands.VerifyPermissions(ApplicationInterfaceType.Eco, callingUser, MessageBuilder.PermissionReportComponentFlag.All);
             }, callingUser);
         }
 
@@ -199,7 +219,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.VerifyPermissions(CommandInterface.Eco, callingUser, MessageBuilder.PermissionReportComponentFlag.Intents);
+                await SharedCommands.VerifyPermissions(ApplicationInterfaceType.Eco, callingUser, MessageBuilder.PermissionReportComponentFlag.Intents);
             }, callingUser);
         }
 
@@ -208,7 +228,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.VerifyPermissions(CommandInterface.Eco, callingUser, MessageBuilder.PermissionReportComponentFlag.ServerPermissions);
+                await SharedCommands.VerifyPermissions(ApplicationInterfaceType.Eco, callingUser, MessageBuilder.PermissionReportComponentFlag.ServerPermissions);
             }, callingUser);
         }
 
@@ -217,7 +237,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.VerifyPermissionsForChannel(CommandInterface.Eco, callingUser, channelNameOrID);
+                await SharedCommands.VerifyPermissionsForChannel(ApplicationInterfaceType.Eco, callingUser, channelNameOrID);
             }, callingUser);
         }
 
@@ -226,7 +246,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.ListChannelLinks(CommandInterface.Eco, callingUser);
+                await SharedCommands.ListChannelLinks(ApplicationInterfaceType.Eco, callingUser);
             }, callingUser);
         }
 
@@ -245,7 +265,7 @@ namespace Eco.Plugins.DiscordLink
                     return;
                 }
 
-                await SharedCommands.PlayerReport(CommandInterface.Eco, callingUser, playerNameOrID, reportTypeEnum);
+                await SharedCommands.PlayerReport(ApplicationInterfaceType.Eco, callingUser, playerNameOrID, reportTypeEnum);
             }, callingUser);
         }
 
@@ -254,7 +274,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.CurrencyReport(CommandInterface.Eco, callingUser, currencyNameOrID);
+                await SharedCommands.CurrencyReport(ApplicationInterfaceType.Eco, callingUser, currencyNameOrID);
             }, callingUser);
         }
 
@@ -272,7 +292,7 @@ namespace Eco.Plugins.DiscordLink
                     return;
                 }
 
-                await SharedCommands.CurrenciesReport(CommandInterface.Eco, callingUser, type, maxCurrenciesPerType, holdersPerCurrency);
+                await SharedCommands.CurrenciesReport(ApplicationInterfaceType.Eco, callingUser, type, maxCurrenciesPerType, holdersPerCurrency);
             }, callingUser);
         }
 
@@ -281,7 +301,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.ElectionReport(CommandInterface.Eco, callingUser, electionNameOrID);
+                await SharedCommands.ElectionReport(ApplicationInterfaceType.Eco, callingUser, electionNameOrID);
             }, callingUser);
         }
 
@@ -290,7 +310,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.ElectionsReport(CommandInterface.Eco, callingUser);
+                await SharedCommands.ElectionsReport(ApplicationInterfaceType.Eco, callingUser);
             }, callingUser);
         }
 
@@ -299,7 +319,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.WorkPartyReport(CommandInterface.Eco, callingUser, workPartyNameOrID);
+                await SharedCommands.WorkPartyReport(ApplicationInterfaceType.Eco, callingUser, workPartyNameOrID);
             }, callingUser);
         }
 
@@ -308,7 +328,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.WorkPartiesReport(CommandInterface.Eco, callingUser);
+                await SharedCommands.WorkPartiesReport(ApplicationInterfaceType.Eco, callingUser);
             }, callingUser);
         }
 
@@ -321,7 +341,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.PostInviteMessage(CommandInterface.Eco, callingUser);
+                await SharedCommands.PostInviteMessage(ApplicationInterfaceType.Eco, callingUser);
             }, callingUser);
         }
 
@@ -354,12 +374,12 @@ namespace Eco.Plugins.DiscordLink
 
         #region Account Linking
 
-        [ChatSubCommand("DiscordLink", "Presents information about account linking.", ChatAuthorizationLevel.User)]
+        [ChatSubCommand("DiscordLink", "Presents information about account linking.", "LinkInfo", ChatAuthorizationLevel.User)]
         public static async Task LinkInformation(User callingUser)
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                DisplayCommandData(callingUser, DLConstants.ECO_PANEL_DL_MESSAGE_MEDIUM, $"Eco --> Discord Account Linking", MessageBuilder.Shared.GetLinkAccountInfoMessage(CommandInterface.Eco));
+                DisplayCommandData(callingUser, DLConstants.ECO_PANEL_DL_MESSAGE_MEDIUM, $"Discord Account Linking", MessageUtils.FormatMessageForEco(MessageBuilder.Shared.GetLinkAccountInfoMessage()));
             }, callingUser);
         }
 
@@ -393,7 +413,7 @@ namespace Eco.Plugins.DiscordLink
 
                 if (matchingMember == null)
                 {
-                    ReportCommandError(callingUser, $"No Discord account with the name \"{discordName}\" could be found.\nUse `/DL LinkInfo` for linking instructions.");
+                    ReportCommandError(callingUser, $"No Discord account with the name \"{discordName}\" could be found.\nUse `/DL LinkInformation` for linking instructions.");
                     return;
                 }
 
@@ -456,12 +476,12 @@ namespace Eco.Plugins.DiscordLink
 
         #region Trades
 
-        [ChatSubCommand("DiscordLink", "Displays available trades by player, tag, item or store.", "DLT", ChatAuthorizationLevel.User)]
+        [ChatSubCommand("DiscordLink", "Displays available trades by player, tag, item or store. Alias for /Moose Trades.", "DLT", ChatAuthorizationLevel.User)]
         public static async Task Trades(User callingUser, string searchName)
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.Trades(CommandInterface.Eco, callingUser, searchName);
+                await SharedCommands.Trades(ApplicationInterfaceType.Eco, callingUser, searchName);
             }, callingUser);
         }
 
@@ -470,7 +490,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.AddTradeWatcher(CommandInterface.Eco, callingUser, searchName, Modules.ModuleArchetype.Display);
+                await SharedCommands.AddTradeWatcher(ApplicationInterfaceType.Eco, callingUser, searchName, Modules.ModuleArchetype.Display);
             }, callingUser);
         }
 
@@ -479,7 +499,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.RemoveTradeWatcher(CommandInterface.Eco, callingUser, searchName, Modules.ModuleArchetype.Display);
+                await SharedCommands.RemoveTradeWatcher(ApplicationInterfaceType.Eco, callingUser, searchName, Modules.ModuleArchetype.Display);
             }, callingUser);
         }
 
@@ -488,7 +508,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.AddTradeWatcher(CommandInterface.Eco, callingUser, searchName, Modules.ModuleArchetype.Feed);
+                await SharedCommands.AddTradeWatcher(ApplicationInterfaceType.Eco, callingUser, searchName, Modules.ModuleArchetype.Feed);
             }, callingUser);
         }
 
@@ -497,7 +517,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.RemoveTradeWatcher(CommandInterface.Eco, callingUser, searchName, Modules.ModuleArchetype.Feed);
+                await SharedCommands.RemoveTradeWatcher(ApplicationInterfaceType.Eco, callingUser, searchName, Modules.ModuleArchetype.Feed);
             }, callingUser);
         }
 
@@ -506,7 +526,7 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.ListTradeWatchers(CommandInterface.Eco, callingUser);
+                await SharedCommands.ListTradeWatchers(ApplicationInterfaceType.Eco, callingUser);
             }, callingUser);
         }
 
@@ -519,13 +539,22 @@ namespace Eco.Plugins.DiscordLink
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.Snippet(CommandInterface.Eco, callingUser, CommandInterface.Eco, callingUser.Name, snippetKey);
+                await SharedCommands.Snippet(ApplicationInterfaceType.Eco, callingUser, ApplicationInterfaceType.Eco, callingUser.Name, snippetKey);
             }, callingUser);
         }
 
         #endregion
 
         #region Message Relaying
+
+        [ChatSubCommand("DiscordLink", "Announces a message to everyone or a specified user. Alias for /Moose Announce.", ChatAuthorizationLevel.Admin)]
+        public static async Task Announce(User callingUser, string message, Moose.Data.Enums.MessageType messageType = Moose.Data.Enums.MessageType.Notification, User recipient = null)
+        {
+            await ExecuteCommand<object>(async (lUser, args) =>
+            {
+                Moose.Plugin.Commands.Announce(callingUser, message, messageType.ToString(), recipient);
+            }, callingUser);
+        }
 
         [ChatSubCommand("DiscordLink", "Opts the calling user out of chat synchronization.", ChatAuthorizationLevel.User)]
         public static async Task OptOut(User callingUser)
@@ -591,114 +620,6 @@ namespace Eco.Plugins.DiscordLink
                         ReportCommandInfo(callingUser, "You have opted into chat synchronization.");
                     }
                 }
-            }, callingUser);
-        }
-
-        [ChatSubCommand("DiscordLink", "Sends an info box message to all online users.", ChatAuthorizationLevel.Admin)]
-        public static async Task AnnounceAll(User callingUser, string message)
-        {
-            await ExecuteCommand<object>(async (lUser, args) =>
-            {
-                await SharedCommands.SendBoxMessage(Message.BoxMessageType.Info, CommandInterface.Eco, callingUser, message, string.Empty);
-            }, callingUser);
-        }
-
-        [ChatSubCommand("DiscordLink", "Sends an info box message to the specified user.", ChatAuthorizationLevel.Admin)]
-        public static async Task AnnounceUser(User callingUser, string message, string recipientUserNameOrID)
-        {
-            await ExecuteCommand<object>(async (lUser, args) =>
-            {
-                await SharedCommands.SendBoxMessage(Message.BoxMessageType.Info, CommandInterface.Eco, callingUser, message, recipientUserNameOrID);
-            }, callingUser);
-        }
-
-        [ChatSubCommand("DiscordLink", "Sends a warning box message to all online users.", ChatAuthorizationLevel.Admin)]
-        public static async Task WarnAll(User callingUser, string message)
-        {
-            await ExecuteCommand<object>(async (lUser, args) =>
-            {
-                await SharedCommands.SendBoxMessage(Message.BoxMessageType.Warning, CommandInterface.Eco, callingUser, message, string.Empty);
-            }, callingUser);
-        }
-
-        [ChatSubCommand("DiscordLink", "Sends a warning box message to the specified user.", ChatAuthorizationLevel.Admin)]
-        public static async Task WarnUser(User callingUser, string message, string recipientUserNameOrID)
-        {
-            await ExecuteCommand<object>(async (lUser, args) =>
-            {
-                await SharedCommands.SendBoxMessage(Message.BoxMessageType.Warning, CommandInterface.Eco, callingUser, message, recipientUserNameOrID);
-            }, callingUser);
-        }
-
-        [ChatSubCommand("DiscordLink", "Sends an error box message to all online users.", ChatAuthorizationLevel.Admin)]
-        public static async Task ErrorAll(User callingUser, string message)
-        {
-            await ExecuteCommand<object>(async (lUser, args) =>
-            {
-                await SharedCommands.SendBoxMessage(Message.BoxMessageType.Warning, CommandInterface.Eco, callingUser, message, string.Empty);
-            }, callingUser);
-        }
-
-        [ChatSubCommand("DiscordLink", "Sends an error box message to the specified user.", ChatAuthorizationLevel.Admin)]
-        public static async Task ErrorUser(User callingUser, string message, string recipientUserNameOrID)
-        {
-            await ExecuteCommand<object>(async (lUser, args) =>
-            {
-                await SharedCommands.SendBoxMessage(Message.BoxMessageType.Error, CommandInterface.Eco, callingUser, message, recipientUserNameOrID);
-            }, callingUser);
-        }
-
-        [ChatSubCommand("DiscordLink", "Sends a notification message to all online and conditionally offline users.", ChatAuthorizationLevel.Admin)]
-        public static async Task NotifyAll(User callingUser, string message, bool includeOfflineUsers = true)
-        {
-            await ExecuteCommand<object>(async (lUser, args) =>
-            {
-                await SharedCommands.SendNotification(CommandInterface.Eco, callingUser, message, string.Empty, includeOfflineUsers);
-            }, callingUser);
-        }
-
-        [ChatSubCommand("DiscordLink", "Sends a notification message to the specified user.", ChatAuthorizationLevel.Admin)]
-        public static async Task NotifyUser(User callingUser, string message, string recipientUserNameOrID)
-        {
-            await ExecuteCommand<object>(async (lUser, args) =>
-            {
-                await SharedCommands.SendNotification(CommandInterface.Eco, callingUser, message, recipientUserNameOrID, includeOfflineUsers: true);
-            }, callingUser);
-        }
-
-        [ChatSubCommand("DiscordLink", "Sends an OK box popup message to all online users.", ChatAuthorizationLevel.Admin)]
-        public static async Task PopupAll(User callingUser, string message)
-        {
-            await ExecuteCommand<object>(async (lUser, args) =>
-            {
-                await SharedCommands.SendPopup(CommandInterface.Eco, callingUser, message, string.Empty);
-            }, callingUser);
-        }
-
-        [ChatSubCommand("DiscordLink", "Sends an OK box popup message to the specified user.", ChatAuthorizationLevel.Admin)]
-        public static async Task PopupUser(User callingUser, string message, string recipientUserNameOrID)
-        {
-            await ExecuteCommand<object>(async (lUser, args) =>
-            {
-                await SharedCommands.SendPopup(CommandInterface.Eco, callingUser, message, recipientUserNameOrID);
-            }, callingUser);
-        }
-
-        [ChatSubCommand("DiscordLink", "Displays an info panel to all online users.", ChatAuthorizationLevel.Admin)]
-        public static async Task InfoPanelAll(User callingUser, string title, string message)
-        {
-            await ExecuteCommand<object>(async (lUser, args) =>
-            {
-                await SharedCommands.SendInfoPanel(CommandInterface.Eco, callingUser, DLConstants.ECO_PANEL_NOTIFICATION, title, message, string.Empty);
-            }, callingUser);
-        }
-
-        [ChatSubCommand("DiscordLink", "Displays an info panel to the specified user.", ChatAuthorizationLevel.Admin)]
-        public static async Task InfoPanelUser(User callingUser, string title, string message, string recipientUserNameOrID)
-        {
-            await ExecuteCommand<object>(async (lUser, args) =>
-            {
-                await SharedCommands.SendInfoPanel(CommandInterface.Eco, callingUser, DLConstants.ECO_PANEL_NOTIFICATION, title, message, recipientUserNameOrID);
             }, callingUser);
         }
 

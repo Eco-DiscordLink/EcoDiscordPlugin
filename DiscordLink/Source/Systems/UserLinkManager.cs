@@ -4,9 +4,9 @@ using Eco.Moose.Utils.Lookups;
 using Eco.Moose.Utils.Message;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Extensions;
-using Eco.Plugins.DiscordLink.Utilities;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using User = Eco.Gameplay.Players.User;
 
@@ -19,13 +19,8 @@ namespace Eco.Plugins.DiscordLink
 
         public static async void Initialize()
         {
-            foreach (LinkedUser User in DLStorage.PersistentData.LinkedUsers)
-            {
-                if (!User.Verified || string.IsNullOrEmpty(User.DiscordID))
-                    continue;
-
-                await User.LoadDiscordMember();
-            }
+            await LoadMembers();
+            PruneObsoleteMemberReferences();
         }
 
         public static LinkedUser LinkedUserByDiscordUser(DiscordUser user, object caller = null, string callingReason = null, bool requireValid = true)
@@ -116,6 +111,11 @@ namespace Eco.Plugins.DiscordLink
                 user.Verified = true;
                 DLStorage.Instance.Write();
 
+                if (user.DiscordMember != null)
+                    Message.SendInfoBoxToUser(user.EcoUser, $"Discord link to {user.DiscordMember.DisplayName} verified!");
+                else
+                    Logger.Error($"Newly verified account link between {user.EcoUser} and Discord account with ID {user.DiscordID} failed to load Discord member");
+
                 OnLinkedUserVerified?.Invoke(null, user);
             }
             return result;
@@ -133,13 +133,16 @@ namespace Eco.Plugins.DiscordLink
             return deleted;
         }
 
-        public static void RemoveLinkedUser(LinkedUser linkedUser)
+        public static void RemoveLinkedUser(LinkedUser linkedUser, bool shouldFlush = true)
         {
             if (linkedUser.Valid)
                 OnLinkedUserRemoved?.Invoke(null, linkedUser);
 
             DLStorage.PersistentData.LinkedUsers.Remove(linkedUser);
-            DLStorage.Instance.Write();
+            if(shouldFlush)
+            {
+                DLStorage.Instance.Write();
+            }
         }
 
         public static async Task HandleEvent(DLEventType eventType, params object[] data)
@@ -147,46 +150,95 @@ namespace Eco.Plugins.DiscordLink
             switch (eventType)
             {
                 case DLEventType.DiscordReactionAdded:
-                    DiscordUser user = data[0] as DiscordUser;
-                    DiscordMessage message = data[1] as DiscordMessage;
-                    DiscordEmoji emoji = data[2] as DiscordEmoji;
-
-                    DiscordClient client = DiscordLink.Obj.Client;
-                    DiscordChannel channel = message.GetChannel();
-                    if (channel == null || !channel.IsPrivate)
-                        return;
-
-                    if (emoji != DLConstants.ACCEPT_EMOJI && emoji != DLConstants.DENY_EMOJI)
-                        return;
-
-                    string response = string.Empty;
-                    LinkedUser linkedUser = LinkedUserByDiscordUser(user, requireValid: false);
-                    if (linkedUser != null)
                     {
-                        if (emoji == DLConstants.DENY_EMOJI)
+                        DiscordUser user = data[0] as DiscordUser;
+                        DiscordMessage message = data[1] as DiscordMessage;
+                        DiscordEmoji emoji = data[2] as DiscordEmoji;
+
+                        DiscordClient client = DiscordLink.Obj.Client;
+                        DiscordChannel channel = message.GetChannel();
+                        if (channel == null || !channel.IsPrivate)
+                            return;
+
+                        if (emoji != DLConstants.ACCEPT_EMOJI && emoji != DLConstants.DENY_EMOJI)
+                            return;
+
+                        string response = string.Empty;
+                        LinkedUser linkedUser = LinkedUserByDiscordUser(user, requireValid: false);
+                        if (linkedUser != null)
                         {
-                            response = "Link removed";
+                            if (emoji == DLConstants.DENY_EMOJI)
+                            {
+                                response = "Link removed";
+                                RemoveLinkedUser(linkedUser);
+                            }
+                            else if (emoji == DLConstants.ACCEPT_EMOJI)
+                            {
+                                if (await VerifyLinkedUser(user.Id))
+                                    response = "Link verified";
+                                else
+                                    response = "Link verification failed - Unknown error";
+                            }
+                        }
+                        else
+                        {
+                            response = "Link verification failed - No outstanding link request";
+                        }
+
+                        client.SendMessageAsync(channel, response).Wait();
+                        _ = client.DeleteMessageAsync(message);
+                        break;
+                    }
+
+                case DLEventType.DiscordMemberRemoved:
+                    {
+                        DiscordMember member = data[0] as DiscordMember;
+                        LinkedUser linkedUser = LinkedUserByDiscordID(member.Id);
+                        if(linkedUser != null)
+                        {
+                            Logger.Debug($"Removing linked user {member.Username} due to leaving guild");
                             RemoveLinkedUser(linkedUser);
                         }
-                        else if (emoji == DLConstants.ACCEPT_EMOJI)
-                        {
-                            if (await VerifyLinkedUser(user.Id))
-                                response = "Link verified";
-                            else
-                                response = "Link verification failed - Unknown error";
-                        }
+                        break;
                     }
-                    else
-                    {
-                        response = "Link verification failed - No outstanding link request";
-                    }
-
-                    client.SendMessageAsync(channel, response).Wait();
-                    _ = client.DeleteMessageAsync(message);
-                    break;
 
                 default:
                     break;
+            }
+        }
+
+        private static async Task LoadMembers()
+        {
+            foreach (LinkedUser user in DLStorage.PersistentData.LinkedUsers)
+            {
+                if (!user.Verified || string.IsNullOrEmpty(user.DiscordID))
+                {
+                    ++user.FailedInitializationCount;
+                    continue;
+                }
+
+                await user.LoadDiscordMember();
+            }
+        }
+
+        private static void PruneObsoleteMemberReferences()
+        {
+            List<LinkedUser> toRemove = new List<LinkedUser>();
+            foreach (LinkedUser user in DLStorage.PersistentData.LinkedUsers)
+            {
+                if (user.HasPassedFailedLookupThreshold())
+                    toRemove.Add(user);
+            }
+
+            foreach (LinkedUser user in toRemove)
+            {
+                Logger.Debug($"Pruned obsolete reference to linked user with ID {user.SlgID}");
+                RemoveLinkedUser(user, false);
+            }
+
+            if (toRemove.Count > 0)
+            {
+                DLStorage.Instance.Write();
             }
         }
     }
@@ -207,6 +259,7 @@ namespace Eco.Plugins.DiscordLink
         public readonly string DiscordID = string.Empty;
         public readonly string GuildID = string.Empty;
         public bool Verified = false;
+        public uint FailedInitializationCount = 0;
 
         public LinkedUser(string slgID, string steamID, string discordID, string guildID)
         {
@@ -221,16 +274,23 @@ namespace Eco.Plugins.DiscordLink
             try
             {
                 DiscordMember = await DiscordLink.Obj.Client.Guild.GetMemberAsync(ulong.Parse(DiscordID));
+                FailedInitializationCount = 0;
             }
             catch (DSharpPlus.Exceptions.NotFoundException)
             {
-                Logger.Debug($"Failed to find and load linked Discord member with ID: {DiscordID}.");
+                ++FailedInitializationCount;
+                Logger.Debug($"Failed to load linked Discord member with ID: {DiscordID}. Fail count = {FailedInitializationCount}");
             }
         }
 
         public bool HasAnyID(string SlgID, string SteamID)
         {
             return (!string.IsNullOrEmpty(this.SteamID) && this.SteamID == SteamID) || (!string.IsNullOrEmpty(this.StrangeID) && this.StrangeID == SlgID);
+        }
+
+        public bool HasPassedFailedLookupThreshold()
+        {
+            return FailedInitializationCount >= DLConstants.USER_LINK_FAILED_LOOKUP_REMOVAL_THRESHOLD;
         }
     }
 

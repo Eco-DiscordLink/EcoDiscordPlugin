@@ -1,6 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using Eco.Plugins.DiscordLink.Utilities;
+using Eco.Shared.Utils;
+using System.Collections.Generic;
 using System.Text;
 using static Eco.Plugins.DiscordLink.DLConstants;
+using static Eco.Plugins.DiscordLink.Enums;
 
 namespace Eco.Plugins.DiscordLink.Extensions
 {
@@ -104,24 +107,45 @@ namespace Eco.Plugins.DiscordLink.Extensions
             return this;
         }
 
-        public string AsText()
+        public string AsDiscordText(bool includeTitle = true, bool includeFooter = true) => AsText(ApplicationInterfaceType.Discord, includeTitle, includeFooter);
+        public string AsEcoText(bool includeTitle = false, bool includeFooter = false) => AsText(ApplicationInterfaceType.Eco, includeTitle, includeFooter);
+        public string AsText(ApplicationInterfaceType destination, bool includeTitle, bool includeFooter)
         {
-            string text = string.Empty;
-            if (!string.IsNullOrWhiteSpace(Title))
-                text += $"{Title}\n\n";
+            StringBuilder builder = new StringBuilder();
+            if (includeTitle && !string.IsNullOrWhiteSpace(Title))
+                builder.Append($"{Title}\n\n");
 
             if (!string.IsNullOrWhiteSpace(Description))
-                text += $"{Description}\n\n";
+                builder.Append($"{Description}\n\n");
 
             foreach (DiscordLinkEmbedField field in Fields)
             {
-                text += $"**{field.Title}**\n[{field.Text}\n\n";
+                if (destination == ApplicationInterfaceType.Discord)
+                    builder.Append($"**{field.Title}**\n{field.Text}\n\n");
+                else
+                    builder.Append($"{field.Title}\n{field.Text}\n\n");
             }
 
-            if (!string.IsNullOrWhiteSpace(Footer))
-                text += Footer;
+            if (includeFooter && !string.IsNullOrWhiteSpace(Footer))
+                builder.Append(Footer);
 
-            return text.Trim();
+            if(destination == ApplicationInterfaceType.Eco)
+            {
+                builder.Replace(DLConstants.INVISIBLE_EMBED_CHAR, null);
+                builder.Replace("[", null);
+                builder.Replace("****", null);
+                builder.Replace("\r", null);
+            }
+
+            string result = builder.ToString();
+
+            if (destination == ApplicationInterfaceType.Eco)
+            {
+                result = MessageUtils.ExcessiveNewLineRegex.Replace(result, "\n\n");
+                result = MessageUtils.DiscordBoldRegex.Replace(result, Text.Color(Color.Green, Text.Bold("$1")));
+            }
+
+            return result.Trim();
         }
 
         public EmbedSize GetSize()

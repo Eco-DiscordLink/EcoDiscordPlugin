@@ -28,7 +28,7 @@ namespace Eco.Plugins.DiscordLink.Modules
         protected override DLEventType GetTriggers()
         {
             return base.GetTriggers() | DLEventType.DiscordClientConnected | DLEventType.Timer | DLEventType.Login
-                | DLEventType.Vote | DLEventType.StartElection | DLEventType.StopElection;
+                | DLEventType.Vote | DLEventType.ElectionStarted | DLEventType.ElectionStopped;
         }
 
         protected override async Task<List<DiscordTarget>> GetDiscordTargets()
@@ -72,6 +72,12 @@ namespace Eco.Plugins.DiscordLink.Modules
             LinkedUser linkedUser = UserLinkManager.LinkedUserByDiscordUser(user, member, "Reaction Voting");
             if (linkedUser == null)
                 return;
+
+            if(!election.CanVote(linkedUser.EcoUser))
+            {
+                await linkedUser.DiscordMember.SendMessageAsync($"Your vote in election \"{election.Name}\" has not been registered as you are not an eligable voter for this election.");
+                return;
+            }
 
             string choice = emoji == DLConstants.ACCEPT_EMOJI ? "Yes" : "No";
             Result result = election.Vote(new UserRunoffVote(linkedUser.EcoUser, election.GetChoiceByName(choice).ID));

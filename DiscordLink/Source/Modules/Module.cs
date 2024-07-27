@@ -1,6 +1,6 @@
 ﻿using DiscordLink.Source.Utilities;
 using Eco.Moose.Tools.Logger;
-using Eco.Moose.Utils.Constants;
+using Eco.Moose.Data.Constants;
 using Eco.Plugins.DiscordLink.Events;
 using Nito.AsyncEx;
 using System;
@@ -27,8 +27,9 @@ namespace Eco.Plugins.DiscordLink.Modules
         TradeWatcherFeed,
         AccountLinkRoleModule,
         DemographicRoleModule,
-        RoleCleanupModule,
+        ElectedTitleRoleModule,
         SpecialitiesRoleModule,
+        RoleCleanupModule,
         SnippetInput
     }
 

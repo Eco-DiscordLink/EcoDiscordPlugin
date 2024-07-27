@@ -37,6 +37,7 @@ namespace Eco.Plugins.DiscordLink
             public const bool UseLinkedAccountRole = true;
             public const bool UseDemographicRoles = true;
             public const bool UseSpecialtyRoles = true;
+            public const bool UseElectedTitleRoles = true;
             public static readonly DemographicRoleReplacement[] DemographicRoleReplacements = { new DemographicRoleReplacement("everyone", "Eco Everyone"), new DemographicRoleReplacement("admins", "Eco Admins") };
             public static readonly EmoteIconSubstitution[] EmoteSubstitutions = { new EmoteIconSubstitution("DiscordLink", "DiscordLinkLogo") };
         }
@@ -366,6 +367,9 @@ namespace Eco.Plugins.DiscordLink
 
         [Description("Determines if Discord roles matching ingame specialties will be granted to users who have linked their accounts. This setting can be changed while the server is running."), Category("Modules - Roles")]
         public bool UseSpecialtyRoles { get; set; } = DLConfig.DefaultValues.UseSpecialtyRoles;
+
+        [Description("Determines if Discord roles matching ingame elected titles will be granted to users who have linked their accounts. This setting can be changed while the server is running."), Category("Modules - Roles")]
+        public bool UseElectedTitleRoles { get; set; } = DLConfig.DefaultValues.UseElectedTitleRoles;
 
         [Description("Discord channels in which to allow commands. If no channels are specified, commands will be allowed in all channels. This setting can be changed while the server is running."), Category("Commands")]
         public ObservableCollection<ChannelLink> DiscordCommandChannels { get; set; } = new ObservableCollection<ChannelLink>();

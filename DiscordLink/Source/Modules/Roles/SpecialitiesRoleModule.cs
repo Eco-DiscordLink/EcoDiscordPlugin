@@ -1,7 +1,7 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Entities;
 using Eco.Plugins.DiscordLink.Events;
-using Eco.Moose.Utils.Extensions;
+using Eco.Moose.Extensions;
 using Eco.Moose.Utils.Lookups;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Gameplay.GameActions;
@@ -9,6 +9,7 @@ using Eco.Gameplay.Skills;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Eco.Moose.Tools.Logger;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
@@ -25,7 +26,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected override DLEventType GetTriggers()
         {
-            return base.GetTriggers() | DLEventType.DiscordClientConnected | DLEventType.AccountLinkVerified | DLEventType.AccountLinkRemoved | DLEventType.GainedSpecialty;
+            return base.GetTriggers() | DLEventType.DiscordClientConnected | DLEventType.AccountLinkVerified | DLEventType.AccountLinkRemoved | DLEventType.GainedSpecialty | DLEventType.LostSpecialty;
         }
 
         protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
@@ -66,16 +67,25 @@ namespace Eco.Plugins.DiscordLink.Modules
             }
             else if (trigger == DLEventType.AccountLinkVerified || trigger == DLEventType.AccountLinkRemoved)
             {
+                if (!DLConfig.Data.UseDemographicRoles)
+                    return;
+
                 if (!(data[0] is LinkedUser linkedUser))
                     return;
 
                 DiscordMember member = linkedUser.DiscordMember;
+                if (member == null)
+                {
+                    Logger.Error($"Failed to handle role change for Eco user \"{linkedUser.EcoUser.Name}\". Linked Discord member was not loaded.");
+                    return;
+                }
+
                 foreach (Skill specialty in Lookups.Specialties)
                 {
                     if (IgnoredSpecialtyNames.Contains(specialty.Name))
                         continue;
 
-                    if (trigger == DLEventType.AccountLinkRemoved || !DLConfig.Data.UseSpecialtyRoles || !linkedUser.EcoUser.HasSpecialization(specialty.Type))
+                    if (trigger == DLEventType.AccountLinkRemoved)
                     {
                         if (member.HasRoleWithName(specialty.DisplayName))
                         {
@@ -83,32 +93,41 @@ namespace Eco.Plugins.DiscordLink.Modules
                             await client.RemoveRoleAsync(member, specialty.DisplayName);
                         }
                     }
-                    else if (!member.HasRoleWithName(specialty.DisplayName) && linkedUser.EcoUser.HasSpecialization(specialty.Type))
+                    else if (trigger == DLEventType.AccountLinkVerified)
                     {
-                        ++_opsCount;
-                        await AddSpecialtyRole(client, linkedUser.DiscordMember, specialty.DisplayName);
+                        if(!member.HasRoleWithName(specialty.DisplayName) && linkedUser.EcoUser.HasSpecialization(specialty.Type))
+                        {
+                            ++_opsCount;
+                            await AddSpecialtyRole(client, member, specialty.DisplayName);
+                        }
                     }
                 }
             }
-            else
+            else if (trigger == DLEventType.GainedSpecialty || trigger == DLEventType.LostSpecialty)
             {
                 if (!DLConfig.Data.UseSpecialtyRoles)
                     return;
 
-                if (!(data[0] is GainSpecialty gainSpecialty))
+                SkillAction action = data[0] is GainSpecialty gainSpecialty ? gainSpecialty : data[0] is LoseSpecialty loseSpecialty ? loseSpecialty : null;
+                if (action == null)
                     return;
 
-                if (IgnoredSpecialtyNames.Contains(gainSpecialty.Specialty.Name))
+                if (IgnoredSpecialtyNames.Contains(action.Specialty.Name))
                     return;
 
-                LinkedUser linkedUser = UserLinkManager.LinkedUserByEcoUser(gainSpecialty.Citizen);
+                LinkedUser linkedUser = UserLinkManager.LinkedUserByEcoUser(action.Citizen);
                 if (linkedUser == null)
                     return;
 
                 if (trigger == DLEventType.GainedSpecialty)
                 {
                     ++_opsCount;
-                    await AddSpecialtyRole(client, linkedUser.DiscordMember, gainSpecialty.Specialty.DisplayName);
+                    await AddSpecialtyRole(client, linkedUser.DiscordMember, action.Specialty.DisplayName);
+                }
+                else if(trigger == DLEventType.LostSpecialty)
+                {
+                    ++_opsCount;
+                    await client.RemoveRoleAsync(linkedUser.DiscordMember, action.Specialty.DisplayName);
                 }
             }
         }

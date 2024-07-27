@@ -14,11 +14,13 @@ All Eco and Discord commands are case insensitive.
 | **Name**                   | **Alias**           | **Discord/Eco**   | **Parameters**                                                          | **Permissions** | **Description**                                                                                                      |
 |----------------------------|---------------------|-------------------|-------------------------------------------------------------------------|-----------------|----------------------------------------------------------------------------------------------------------------------|
 | DiscordLink                | DL                  | Eco               |                                                                         | User            | Displays a list of all available DiscordLink commands. This is the parent command of all other DiscordLink commands. |
-| RestartPlugin              | 			           | Both              |                                                                         | Admin           | Restarts the plugin.                                                                                                 |
+| RestartPlugin              |                     | Both              |                                                                         | Admin           | Restarts the plugin.                                                                                                 |
 | ResetPersistentData        |                     | Both              |                                                                         | Admin           | Removes all persistent storage data.                                                                                 |
 | ResetWorldData             |                     | Both              |                                                                         | Admin           | Resets world data as if a new world had been created.                                                                |
 | Update                     |                     | Both              |                                                                         | Admin           | Forces an update of all modules.                                                                                     |
 | ClearRoles                 |                     | Both              |                                                                         | Admin           | Deletes all Discord roles created and tracked by DiscordLink.                                                        |
+| PersistentStorageData      |                     | Both              |                                                                         | Admin           | Displays a description of the persistent storage data.                                                               |
+| WorldStorageData           |                     | Both              |                                                                         | Admin           | Displays a description of the world storage data.                                                                    |
 
 
 # <a id="SAT"></a>**Setup and Troubleshooting**
@@ -32,10 +34,12 @@ All Eco and Discord commands are case insensitive.
 | Echo                       |                     | Discord           | Message                                                                 | Admin           | Sends the provided message to Eco and back to Discord again if a chat link is configured for the channel.            |
 
 
-# **Utility**
+# **Server Management**
 | **Name**                   | **Alias**           | **Discord/Eco**   | **Parameters**                                                          | **Permissions** | **Description**                                                                                                      |              
 |----------------------------|---------------------|-------------------|-------------------------------------------------------------------------|-----------------|----------------------------------------------------------------------------------------------------------------------|
-| EcoCommand          		 |                     | Discord           | Eco Command                                                             | Dynamic         | Executes the inputted eco command. The parameter should be styled as a full ingame Eco command.                      |
+| EcoCommand                 |                     | Discord           | Eco Command                                                             | Dynamic         | Executes the inputted eco command. The parameter should be styled as a full ingame Eco command.                      |
+| Announce                   |                     | Both              | Message, MessageType (optional), recipientUserNameOrID (optional)       | Admin           | Sends the message formatted as [MessageType] to everyone on the server or the specified recipient.                   |
+| ServerShutdown             |                     | Both              |                                                                         | Admin           | Shuts down the eco server.                                                                                           |
 
 
 # **Info**
@@ -44,7 +48,7 @@ All Eco and Discord commands are case insensitive.
 | Version                    |                     | Both              |                                                                         | User            | Displays the installed and latest available plugin version.                                                          |
 | About                      |                     | Both              |                                                                         | User            | Displays information about the DiscordLink plugin.                                                                   |
 | Documentation              |                     | Both              |                                                                         | User            | Opens the documentation web page.                                                                                    |
-| LinkInformation            |                     | Both              |                                                                         | User            | Presents information about account linking.                                                                          |
+| LinkInformation            |LinkInfo             | Both              |                                                                         | User            | Presents information about account linking.                                                                          |
 | PluginStatus               |                     | Both              | Verbose (true/false)                                                    | Admin           | Displays the plugin status. Displays more information if the verbose parameter is set to true.                       |
 | ListLinkedChannels         |                     | Both              |                                                                         | Admin           | Presents a list of all channel links.                                                                                |
 | ServerStatus               |                     | Discord           |                                                                         | User            | Displays the Server Info status.                                                                                     |
