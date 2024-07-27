@@ -179,7 +179,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 builder.AppendLine($"DiscordLink {plugin.InstalledVersion.ToString(3)}");
                 if (verbose)
                 {
-                    builder.AppendLine($"Server Name: {MessageUtils.FirstNonEmptyString(DLConfig.Data.ServerName, NetworkManager.Config.Description.StripTags(), "[Server Title Missing]")}");
+                    builder.AppendLine($"Server Name: {MessageUtils.FirstNonEmptyString(DLConfig.Data.ServerName, NetworkManager.Config.Name.StripTags(), "[Server Title Missing]")}");
                     builder.AppendLine($"Server Version: {EcoVersion.VersionNumber}");
                     if (client.ConnectionStatus == DiscordClient.ConnectionState.Connected)
                         builder.AppendLine($"D# Version: {client.DSharpClient.VersionString}");
@@ -1343,7 +1343,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             {
                 DLConfigData PluginConfig = DLConfig.Data;
                 EcoServerConfig serverConfig = NetworkManager.Config;
-                string serverName = MessageUtils.StripTags(!string.IsNullOrWhiteSpace(PluginConfig.ServerName) ? DLConfig.Data.ServerName : serverConfig.Description.StripTags());
+                string serverName = MessageUtils.StripTags(!string.IsNullOrWhiteSpace(PluginConfig.ServerName) ? DLConfig.Data.ServerName : serverConfig.Name.StripTags());
 
                 DiscordLinkEmbed embed = new DiscordLinkEmbed();
                 embed.WithTitle("Account Linking Verification");
@@ -1356,7 +1356,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
             public static string GetStandardEmbedFooter()
             {
-                string serverName = MessageUtils.FirstNonEmptyString(DLConfig.Data.ServerName, NetworkManager.Config.Description.StripTags(), "[Server Title Missing]");
+                string serverName = MessageUtils.FirstNonEmptyString(DLConfig.Data.ServerName, NetworkManager.Config.Name.StripTags(), "[Server Title Missing]");
                 string timestamp = Shared.GetServerTimeStamp();
                 return $"Message sent by DiscordLink @ {serverName} [{timestamp}]";
             }
