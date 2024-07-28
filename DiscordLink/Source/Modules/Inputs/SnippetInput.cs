@@ -24,9 +24,9 @@ namespace Eco.Plugins.DiscordLink.Modules
             return base.GetDisplayText(info, verbose);
         }
 
-        protected override DLEventType GetTriggers()
+        protected override DlEventType GetTriggers()
         {
-            return DLEventType.DiscordMessageSent | DLEventType.DiscordMessageEdited | DLEventType.DiscordMessageDeleted;
+            return DlEventType.DiscordMessageSent | DlEventType.DiscordMessageEdited | DlEventType.DiscordMessageDeleted;
         }
 
         protected override async Task<bool> ShouldRun()
@@ -54,7 +54,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             await base.HandleConfigChanged(sender, e);
         }
 
-        protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
+        protected override async Task UpdateInternal(DiscordLink plugin, DlEventType trigger, params object[] data)
         {
             if (!(data[0] is DiscordMessage message))
                 return;

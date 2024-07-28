@@ -17,9 +17,9 @@ namespace Eco.Plugins.DiscordLink.Modules
             return "Eco Chat Feed";
         }
 
-        protected override DLEventType GetTriggers()
+        protected override DlEventType GetTriggers()
         {
-            return DLEventType.EcoMessageSent;
+            return DlEventType.EcoMessageSent;
         }
 
         protected override async Task<bool> ShouldRun()
@@ -32,7 +32,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             return false;
         }
 
-        protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
+        protected override async Task UpdateInternal(DiscordLink plugin, DlEventType trigger, params object[] data)
         {
             if (!(data[0] is ChatSent message))
                 return;
@@ -55,7 +55,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             string forwardedMessage = string.Empty;
             if (DLConfig.Data.ChatSyncMode == Enums.ChatSyncMode.OptOut)
             {
-                if (DLStorage.PersistentData.OptedOutUsers.Any(u => (u.SteamID != string.Empty && u.SteamID == chatMessage.Citizen.SteamId) || (u.SlgID != string.Empty && u.SlgID == chatMessage.Citizen.SlgId)))
+                if (DLStorage.PersistentData.OptedOutUsers.Any(u => (u.SteamId != string.Empty && u.SteamId == chatMessage.Citizen.SteamId) || (u.SlgId != string.Empty && u.SlgId == chatMessage.Citizen.SlgId)))
                 {
                     forwardedMessage = $"[Blocked Message - Author opted out]";
                     blocked = true;
@@ -63,7 +63,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             }
             else if (DLConfig.Data.ChatSyncMode == Enums.ChatSyncMode.OptIn)
             {
-                if (DLStorage.PersistentData.OptedInUsers.None(u => (u.SteamID != string.Empty && u.SteamID == chatMessage.Citizen.SteamId) || (u.SlgID != string.Empty && u.SlgID == chatMessage.Citizen.SlgId)))
+                if (DLStorage.PersistentData.OptedInUsers.None(u => (u.SteamId != string.Empty && u.SteamId == chatMessage.Citizen.SteamId) || (u.SlgId != string.Empty && u.SlgId == chatMessage.Citizen.SlgId)))
                 {
                     forwardedMessage = $"[Blocked Message - Author not opted in]";
                     blocked = true;

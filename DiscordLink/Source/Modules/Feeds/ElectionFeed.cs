@@ -15,9 +15,9 @@ namespace Eco.Plugins.DiscordLink.Modules
             return "Election Feed";
         }
 
-        protected override DLEventType GetTriggers()
+        protected override DlEventType GetTriggers()
         {
-            return DLEventType.ElectionStarted | DLEventType.ElectionStopped;
+            return DlEventType.ElectionStarted | DlEventType.ElectionStopped;
         }
 
         protected override async Task<bool> ShouldRun()
@@ -30,7 +30,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             return false;
         }
 
-        protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
+        protected override async Task UpdateInternal(DiscordLink plugin, DlEventType trigger, params object[] data)
         {
             if (!(data[0] is Election election))
                 return;
@@ -38,14 +38,14 @@ namespace Eco.Plugins.DiscordLink.Modules
             DiscordLinkEmbed embed = new DiscordLinkEmbed();
             switch (trigger)
             {
-                case DLEventType.ElectionStarted:
+                case DlEventType.ElectionStarted:
                     embed.WithTitle($":ballot_box:  {MessageUtils.StripTags(election.Creator.Name)} Started An Election :ballot_box: ");
                     embed.AddField("Title", MessageUtils.StripTags(election.Name), inline: true);
                     embed.AddField("Process", MessageUtils.StripTags(election.Process.Name), inline: true);
                     embed.AddField("Time", TimeFormatter.FormatSpan(election.TimeLeft), inline: true);
                     break;
 
-                case DLEventType.ElectionStopped:
+                case DlEventType.ElectionStopped:
                     ElectionResult results = election.CurrentResults;
                     embed.WithTitle($":ballot_box:  Election Has Ended  :ballot_box: ");
                     embed.AddField("Title", MessageUtils.StripTags(election.Name));

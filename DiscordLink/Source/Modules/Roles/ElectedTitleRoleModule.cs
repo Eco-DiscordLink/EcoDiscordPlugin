@@ -22,21 +22,21 @@ namespace Eco.Plugins.DiscordLink.Modules
             return "Elected Title Role Module";
         }
 
-        protected override DLEventType GetTriggers()
+        protected override DlEventType GetTriggers()
         {
-            return base.GetTriggers() | DLEventType.DiscordClientConnected | DLEventType.AccountLinkVerified | DLEventType.AccountLinkRemoved | DLEventType.ElectionStopped | DLEventType.SettlementFounded;
+            return base.GetTriggers() | DlEventType.DiscordClientConnected | DlEventType.AccountLinkVerified | DlEventType.AccountLinkRemoved | DlEventType.ElectionStopped | DlEventType.SettlementFounded;
         }
 
-        protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
+        protected override async Task UpdateInternal(DiscordLink plugin, DlEventType trigger, params object[] data)
         {
             DiscordClient client = DiscordLink.Obj.Client;
             if (!client.BotHasPermission(Permissions.ManageRoles))
                 return;
 
-            if (trigger == DLEventType.DiscordClientConnected || trigger == DLEventType.ForceUpdate)
+            if (trigger == DlEventType.DiscordClientConnected || trigger == DlEventType.ForceUpdate)
             {
                 ++_opsCount;
-                foreach (DiscordMember member in await client.GetGuildMembersAsync())
+                foreach (DiscordMember member in await client.GetMembersAsync())
                 {
                     LinkedUser linkedUser = UserLinkManager.LinkedUserByDiscordUser(member);
                     foreach (ElectedTitle title in Lookups.ActiveElectedTitles)
@@ -58,7 +58,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                     }
                 }
             }
-            else if (trigger == DLEventType.AccountLinkVerified || trigger == DLEventType.AccountLinkRemoved)
+            else if (trigger == DlEventType.AccountLinkVerified || trigger == DlEventType.AccountLinkRemoved)
             {
                 if (!DLConfig.Data.UseDemographicRoles)
                     return;
@@ -76,7 +76,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 foreach (ElectedTitle title in Lookups.ActiveElectedTitles)
                 {
                     string titleName = title.Name;
-                    if (trigger == DLEventType.AccountLinkRemoved)
+                    if (trigger == DlEventType.AccountLinkRemoved)
                     {
                         if (member.HasRoleWithName(titleName))
                         {
@@ -84,7 +84,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                             await client.RemoveRoleAsync(member, titleName);
                         }
                     }
-                    else if (trigger == DLEventType.AccountLinkVerified)
+                    else if (trigger == DlEventType.AccountLinkVerified)
                     {
                         if (!member.HasRoleWithName(titleName) && title.ContainsUser(linkedUser.EcoUser))
                         {
@@ -94,7 +94,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                     }
                 }
             }
-            else if (trigger == DLEventType.ElectionStopped)
+            else if (trigger == DlEventType.ElectionStopped)
             {
                 if (!DLConfig.Data.UseDemographicRoles)
                     return;
@@ -121,7 +121,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 }
                 
             }
-            else if(trigger == DLEventType.SettlementFounded)
+            else if(trigger == DlEventType.SettlementFounded)
             {
                 if (!DLConfig.Data.UseDemographicRoles)
                     return;

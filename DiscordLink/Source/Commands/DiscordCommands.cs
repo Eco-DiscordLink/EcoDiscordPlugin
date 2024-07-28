@@ -362,14 +362,14 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [SlashCommand("VerifyChannelPermissions", "Checks all permissions needed for the given channel and reports any missing ones.")]
-        public async Task CheckChannelPermissions(InteractionContext ctx, [Option("Channel", "Name or ID of the channel to check permissions for. Defaults to the current channel.")] string channelNameOrID = "")
+        public async Task CheckChannelPermissions(InteractionContext ctx, [Option("Channel", "Name or ID of the channel to check permissions for. Defaults to the current channel.")] string channelNameOrId = "")
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
-                if (string.IsNullOrWhiteSpace(channelNameOrID))
+                if (string.IsNullOrWhiteSpace(channelNameOrId))
                     await SharedCommands.VerifyPermissionsForChannel(ApplicationInterfaceType.Discord, ctx, ctx.Channel);
                 else
-                    await SharedCommands.VerifyPermissionsForChannel(ApplicationInterfaceType.Discord, ctx, channelNameOrID);
+                    await SharedCommands.VerifyPermissionsForChannel(ApplicationInterfaceType.Discord, ctx, channelNameOrId);
             }, ctx);
         }
 
@@ -485,21 +485,21 @@ namespace Eco.Plugins.DiscordLink
 
         [SlashCommand("PlayerReport", "Displays the Player Report for the given player.")]
         public async Task PlayerReport(InteractionContext ctx,
-            [Option("Player", "Name or ID of the player for which to display the report.")] string playerNameOrID, [Option("Report", "Which type of information the report should include.")] PlayerReportComponentFlag reportType = PlayerReportComponentFlag.All)
+            [Option("Player", "Name or ID of the player for which to display the report.")] string playerNameOrId, [Option("Report", "Which type of information the report should include.")] PlayerReportComponentFlag reportType = PlayerReportComponentFlag.All)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.PlayerReport(ApplicationInterfaceType.Discord, ctx, playerNameOrID, reportType);
+                await SharedCommands.PlayerReport(ApplicationInterfaceType.Discord, ctx, playerNameOrId, reportType);
             }, ctx);
         }
 
         [SlashCommand("CurrencyReport", "Displays the Currency Report for the given currency.")]
         public async Task CurrencyReport(InteractionContext ctx,
-            [Option("Currency", "Name or ID of the currency for which to display a report.")] string currencyNameOrID)
+            [Option("Currency", "Name or ID of the currency for which to display a report.")] string currencyNameOrId)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.CurrencyReport(ApplicationInterfaceType.Discord, ctx, currencyNameOrID);
+                await SharedCommands.CurrencyReport(ApplicationInterfaceType.Discord, ctx, currencyNameOrId);
             }, ctx);
         }
 
@@ -517,11 +517,11 @@ namespace Eco.Plugins.DiscordLink
 
         [SlashCommand("ElectionReport", "Displays the Election Report for the given election.")]
         public async Task ElectionReport(InteractionContext ctx,
-            [Option("Election", "Name or ID of the election for which to display a report.")] string electionNameOrID)
+            [Option("Election", "Name or ID of the election for which to display a report.")] string electionNameOrId)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.ElectionReport(ApplicationInterfaceType.Discord, ctx, electionNameOrID);
+                await SharedCommands.ElectionReport(ApplicationInterfaceType.Discord, ctx, electionNameOrId);
             }, ctx);
         }
 
@@ -536,11 +536,11 @@ namespace Eco.Plugins.DiscordLink
 
         [SlashCommand("WorkPartyReport", "Displays the Work Party Report for the given work party.")]
         public async Task WorkPartyReport(InteractionContext ctx,
-            [Option("WorkParty", "Name or ID of the work party for which to display a report.")] string workPartyNameOrID)
+            [Option("WorkParty", "Name or ID of the work party for which to display a report.")] string workPartyNameOrI)
         {
             await ExecuteCommand<object>(PermissionType.User, async (lCtx, args) =>
             {
-                await SharedCommands.WorkPartyReport(ApplicationInterfaceType.Discord, ctx, workPartyNameOrID);
+                await SharedCommands.WorkPartyReport(ApplicationInterfaceType.Discord, ctx, workPartyNameOrI);
             }, ctx);
         }
 
@@ -660,7 +660,7 @@ namespace Eco.Plugins.DiscordLink
         #region Message Relaying
 
         [SlashCommand("Announce", "Announces a message to everyone or a specified user.")]
-        public async Task Announce(InteractionContext ctx, [Option("Message", "The message to send.")] string message, [Option("MessageType", "The type of message to send.")] Moose.Data.Enums.MessageType messageType = Moose.Data.Enums.MessageType.Notification, [Option("Player", "Name or ID of the player to send the message to. Sends to everyone if omitted.")] string recipientUserNameOrID = "")
+        public async Task Announce(InteractionContext ctx, [Option("Message", "The message to send.")] string message, [Option("MessageType", "The type of message to send.")] Moose.Data.Enums.MessageType messageType = Moose.Data.Enums.MessageType.Notification, [Option("Player", "Name or ID of the player to send the message to. Sends to everyone if omitted.")] string recipientUserNameOrId = "")
         {
             await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
             {
@@ -671,12 +671,12 @@ namespace Eco.Plugins.DiscordLink
                 }
 
                 User recipient = null;
-                if (!recipientUserNameOrID.IsEmpty())
+                if (!recipientUserNameOrId.IsEmpty())
                 {
-                    recipient = Lookups.Users.FirstOrDefault(user => user.Name.EqualsCaseInsensitive(recipientUserNameOrID) || user.Id.ToString().EqualsCaseInsensitive(recipientUserNameOrID));
+                    recipient = Lookups.Users.FirstOrDefault(user => user.Name.EqualsCaseInsensitive(recipientUserNameOrId) || user.Id.ToString().EqualsCaseInsensitive(recipientUserNameOrId));
                     if (recipient == null)
                     {
-                        await ReportCommandError(ctx, $"No player with the name or ID \"{recipientUserNameOrID}\" could be found.");
+                        await ReportCommandError(ctx, $"No player with the name or ID \"{recipientUserNameOrId}\" could be found.");
                         return;
                     }
                 }

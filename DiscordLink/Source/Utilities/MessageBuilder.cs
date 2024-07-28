@@ -126,7 +126,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
             public static string GetVersionMessage()
             {
-                Version? modIOVersion = DiscordLink.Obj.ModIOVersion;
+                Version? modIOVersion = DiscordLink.Obj.ModIoVersion;
                 string modIOVersionDesc = modIOVersion != null ? $"Latest version: {modIOVersion.ToString(3)}" : "Latest version: Unknown";
 
                 Version installedVersion = DiscordLink.Obj.InstalledVersion;
@@ -231,7 +231,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 DLConfigData config = DLConfig.Data;
 
                 // Guild
-                if (config.DiscordServerID == 0)
+                if (config.DiscordServerId == 0)
                 {
                     builder.AppendLine("- Discord server ID not configured.");
                 }
@@ -1024,10 +1024,10 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     foreach (UserRunoffVote vote in election.UserVotes.Values)
                     {
                         string topChoiceName = null;
-                        ElectionChoiceID topChoiceID = vote.RankedVotes.FirstOrDefault();
+                        ElectionChoiceID topChoiceId = vote.RankedVotes.FirstOrDefault();
                         foreach (ElectionChoice choice in election.Choices)
                         {
-                            if (choice.ID == topChoiceID)
+                            if (choice.ID == topChoiceId)
                             {
                                 topChoiceName = choice.Name;
                                 break;
@@ -1040,10 +1040,10 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     foreach (TwitchVote vote in election.RawTwitchVotes.Values)
                     {
                         string topChoiceName = null;
-                        ElectionChoiceID topChoiceID = vote.ChoiceID;
+                        ElectionChoiceID topChoiceId = vote.ChoiceID;
                         foreach (ElectionChoice choice in election.Choices)
                         {
-                            if (choice.ID == topChoiceID)
+                            if (choice.ID == topChoiceId)
                             {
                                 topChoiceName = choice.Name;
                                 break;

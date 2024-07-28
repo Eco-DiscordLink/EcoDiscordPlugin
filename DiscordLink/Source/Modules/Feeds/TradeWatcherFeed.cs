@@ -24,9 +24,9 @@ namespace Eco.Plugins.DiscordLink.Modules
             return "Trade Watcher Feed";
         }
 
-        protected override DLEventType GetTriggers()
+        protected override DlEventType GetTriggers()
         {
-            return DLEventType.AccumulatedTrade;
+            return DlEventType.AccumulatedTrade;
         }
 
         protected override async Task<bool> ShouldRun()
@@ -34,21 +34,21 @@ namespace Eco.Plugins.DiscordLink.Modules
             return DLConfig.Data.UseTradeWatcherFeeds;
         }
 
-        protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
+        protected override async Task UpdateInternal(DiscordLink plugin, DlEventType trigger, params object[] data)
         {
             if (!(data[0] is List<CurrencyTrade>[] accumulatedTrades))
                 return;
 
-            foreach (var userAndWatcher in DLStorage.WorldData.TradeWatchers)
+            foreach (var memberIdAndWatcher in DLStorage.WorldData.TradeWatchers)
             {
-                LinkedUser linkedUser = UserLinkManager.LinkedUserByDiscordID(userAndWatcher.Key);
+                LinkedUser linkedUser = UserLinkManager.LinkedUserByDiscordId(memberIdAndWatcher.Key);
                 if (linkedUser == null)
                     continue;
 
                 foreach (List<CurrencyTrade> accumulatedTradeList in accumulatedTrades)
                 {
                     CurrencyTrade firstTrade = accumulatedTradeList[0];
-                    foreach (TradeWatcherEntry tradeWatcherEntry in userAndWatcher.Value.Where(entry => entry.Type == ModuleArchetype.Feed
+                    foreach (TradeWatcherEntry tradeWatcherEntry in memberIdAndWatcher.Value.Where(entry => entry.Type == ModuleArchetype.Feed
                     && (entry.Key.EqualsCaseInsensitive(firstTrade.Buyer.Name) || entry.Key.EqualsCaseInsensitive(firstTrade.Seller.Name) // Player name
                 || entry.Key.EqualsCaseInsensitive((firstTrade.WorldObject as WorldObject).Name) // Store name
                 || accumulatedTrades.SelectMany(tradeList => tradeList).Any(trade => entry.Key.EqualsCaseInsensitive(trade.ItemUsed.DisplayName))) // Item name

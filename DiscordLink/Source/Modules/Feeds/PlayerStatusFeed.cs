@@ -14,9 +14,9 @@ namespace Eco.Plugins.DiscordLink.Modules
             return "Player Status Feed";
         }
 
-        protected override DLEventType GetTriggers()
+        protected override DlEventType GetTriggers()
         {
-            return DLEventType.Join | DLEventType.Login | DLEventType.Logout;
+            return DlEventType.Join | DlEventType.Login | DlEventType.Logout;
         }
 
         protected override async Task<bool> ShouldRun()
@@ -29,7 +29,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             return false;
         }
 
-        protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
+        protected override async Task UpdateInternal(DiscordLink plugin, DlEventType trigger, params object[] data)
         {
             if (!(data[0] is User user))
                 return;
@@ -37,15 +37,15 @@ namespace Eco.Plugins.DiscordLink.Modules
             string message;
             switch (trigger)
             {
-                case DLEventType.Join:
+                case DlEventType.Join:
                     message = $":tada:  {MessageUtils.StripTags(user.Name)} Joined The Server!  :tada:";
                     break;
 
-                case DLEventType.Login:
+                case DlEventType.Login:
                     message = $":arrow_up:  {MessageUtils.StripTags(user.Name)} Logged In  :arrow_up:";
                     break;
 
-                case DLEventType.Logout:
+                case DlEventType.Logout:
                     message = $":arrow_down:  {MessageUtils.StripTags(user.Name)} Logged Out  :arrow_down:";
                     break;
 

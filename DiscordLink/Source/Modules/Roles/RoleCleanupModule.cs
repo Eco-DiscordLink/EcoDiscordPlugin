@@ -21,9 +21,9 @@ namespace Eco.Plugins.DiscordLink.Modules
             return "Role Cleanup Module";
         }
 
-        protected override DLEventType GetTriggers()
+        protected override DlEventType GetTriggers()
         {
-            return base.GetTriggers() | DLEventType.WorldReset | DLEventType.ServerStarted;
+            return base.GetTriggers() | DlEventType.WorldReset | DlEventType.ServerStarted;
         }
 
         protected override async Task<bool> ShouldRun()
@@ -31,25 +31,25 @@ namespace Eco.Plugins.DiscordLink.Modules
             return DiscordLink.Obj.Client.BotHasPermission(Permissions.ManageRoles) && !_hasRun;
         }
 
-        protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
+        protected override async Task UpdateInternal(DiscordLink plugin, DlEventType trigger, params object[] data)
         {
             DiscordClient client = DiscordLink.Obj.Client;
             if (!client.BotHasPermission(Permissions.ManageRoles))
                 return;
 
-            if (trigger == DLEventType.WorldReset)
+            if (trigger == DlEventType.WorldReset)
             {
-                DiscordRole AccountLinkRole = client.Guild.RoleByName(DLConstants.ROLE_LINKED_ACCOUNT.Name);
+                DiscordRole AccountLinkRole = client.Guild.GetRoleByName(DLConstants.ROLE_LINKED_ACCOUNT.Name);
 
                 List<DiscordRole> removeRoles = new List<DiscordRole>();
-                foreach (ulong roleID in DLStorage.PersistentData.RoleIDs)
+                foreach (ulong roleId in DLStorage.PersistentData.RoleIds)
                 {
-                    DiscordRole role = client.Guild.RoleByID(roleID);
+                    DiscordRole role = client.Guild.GetRoleById(roleId);
                     if (role == null)
                     {
                         // Unregister roles that have been removed by others
-                        DLStorage.PersistentData.RoleIDs.Remove(roleID);
-                        Logger.Debug($"{this} Failed to find role with ID {roleID}. Removing tracking for role ID.");
+                        DLStorage.PersistentData.RoleIds.Remove(roleId);
+                        Logger.Debug($"{this} Failed to find role with ID {roleId}. Removing tracking for role ID.");
                         continue;
                     }
 
@@ -92,14 +92,14 @@ namespace Eco.Plugins.DiscordLink.Modules
                 {
                     ++_opsCount;
                     await client.DeleteRoleAsync(role);
-                    DLStorage.PersistentData.RoleIDs.Remove(role.Id);
+                    DLStorage.PersistentData.RoleIds.Remove(role.Id);
                 }
 
                 // Turn ourselves off
                 _hasRun = true;
                 await HandleStartOrStop();
             }
-            else if (trigger == DLEventType.ServerStarted)
+            else if (trigger == DlEventType.ServerStarted)
             {
                 // We are past the point where we should run, so we turn ourselves off
                 _hasRun = true;

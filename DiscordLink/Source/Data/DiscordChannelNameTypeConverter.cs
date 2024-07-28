@@ -33,6 +33,7 @@ namespace Eco.Plugins.DiscordLink
         {
             return true;
         }
+
         public override bool GetStandardValuesExclusive(ITypeDescriptorContext context)
         {
             return true;

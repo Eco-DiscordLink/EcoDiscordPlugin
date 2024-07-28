@@ -13,9 +13,9 @@ namespace Eco.Plugins.DiscordLink.Modules
             return "Server Log Feed";
         }
 
-        protected override DLEventType GetTriggers()
+        protected override DlEventType GetTriggers()
         {
-            return DLEventType.AccumulatedServerLog;
+            return DlEventType.AccumulatedServerLog;
         }
 
         protected override async Task<bool> ShouldRun()
@@ -28,7 +28,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             return false;
         }
 
-        protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
+        protected override async Task UpdateInternal(DiscordLink plugin, DlEventType trigger, params object[] data)
         {
             if (!(data[0] is Tuple<Logger.LogLevel, string>[] logData))
                 return;

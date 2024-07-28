@@ -52,7 +52,7 @@ namespace Eco.Plugins.DiscordLink
         [Browsable(false), JsonIgnore]
         public DiscordChannel Channel { get; private set; } = null;
 
-        [Description("Discord Channel by ID.")]
+        [Description("Discord channel by id.")]
         [TypeConverter(typeof(DiscordChannelPropertyConverter))]
         public ulong DiscordChannelId { get; set; } = 0;
 

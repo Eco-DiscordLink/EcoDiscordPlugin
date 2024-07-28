@@ -12,9 +12,9 @@ namespace Eco.Plugins.DiscordLink.Modules
             return "Server Status Feed";
         }
 
-        protected override DLEventType GetTriggers()
+        protected override DlEventType GetTriggers()
         {
-            return DLEventType.ServerStarted | DLEventType.ServerStopped;
+            return DlEventType.ServerStarted | DlEventType.ServerStopped;
         }
 
         protected override async Task<bool> ShouldRun()
@@ -27,16 +27,16 @@ namespace Eco.Plugins.DiscordLink.Modules
             return false;
         }
 
-        protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
+        protected override async Task UpdateInternal(DiscordLink plugin, DlEventType trigger, params object[] data)
         {
             string message;
             switch (trigger)
             {
-                case DLEventType.ServerStarted:
+                case DlEventType.ServerStarted:
                     message = "Server Started  :white_check_mark:";
                     break;
 
-                case DLEventType.ServerStopped:
+                case DlEventType.ServerStopped:
                     message = "Server Stopped  :x:";
                     break;
 

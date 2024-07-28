@@ -26,7 +26,7 @@ namespace Eco.Plugins.DiscordLink
         public static LinkedUser LinkedUserByDiscordUser(DiscordUser user, object caller = null, string callingReason = null, bool requireValid = true)
         {
             string DiscordIdStr = user.Id.ToString();
-            LinkedUser result = DLStorage.PersistentData.LinkedUsers.Find(linkedUser => linkedUser.DiscordID == DiscordIdStr && (linkedUser.Valid || !requireValid));
+            LinkedUser result = DLStorage.PersistentData.LinkedUsers.Find(linkedUser => linkedUser.DiscordId == DiscordIdStr && (linkedUser.Valid || !requireValid));
             if (result == null && caller != null && callingReason != null)
                 ReportLinkLookupFailure(caller, callingReason);
 
@@ -37,10 +37,10 @@ namespace Eco.Plugins.DiscordLink
             return result;
         }
 
-        public static LinkedUser LinkedUserByDiscordID(ulong DiscordId, object caller = null, string callingReason = null, bool requireValid = true)
+        public static LinkedUser LinkedUserByDiscordId(ulong DiscordId, object caller = null, string callingReason = null, bool requireValid = true)
         {
             string DiscordIdStr = DiscordId.ToString();
-            LinkedUser result = DLStorage.PersistentData.LinkedUsers.Find(linkedUser => linkedUser.DiscordID == DiscordIdStr && (linkedUser.Valid || !requireValid));
+            LinkedUser result = DLStorage.PersistentData.LinkedUsers.Find(linkedUser => linkedUser.DiscordId == DiscordIdStr && (linkedUser.Valid || !requireValid));
             if (result == null && caller != null && callingReason != null)
                 ReportLinkLookupFailure(caller, callingReason);
 
@@ -51,12 +51,12 @@ namespace Eco.Plugins.DiscordLink
             return result;
         }
 
-        public static LinkedUser LinkedUserByEcoID(string SlgOrSteamId, object caller = null, string callingReason = null, bool requireValid = true)
+        public static LinkedUser LinkedUserByEcoId(string SlgOrSteamId, object caller = null, string callingReason = null, bool requireValid = true)
         {
             if (string.IsNullOrEmpty(SlgOrSteamId))
                 return null;
 
-            LinkedUser result = DLStorage.PersistentData.LinkedUsers.Find(linkedUser => (linkedUser.SlgID == SlgOrSteamId || linkedUser.SteamID == SlgOrSteamId) && (linkedUser.Valid || !requireValid));
+            LinkedUser result = DLStorage.PersistentData.LinkedUsers.Find(linkedUser => (linkedUser.SlgId == SlgOrSteamId || linkedUser.SteamId == SlgOrSteamId) && (linkedUser.Valid || !requireValid));
             if (result == null && caller != null && callingReason != null)
                 ReportLinkLookupFailure(caller, callingReason);
 
@@ -70,7 +70,7 @@ namespace Eco.Plugins.DiscordLink
         public static LinkedUser LinkedUserByEcoUser(User user, object caller = null, string callingReason = null, bool requireValid = true)
         {
             LinkedUser result = null;
-            result = DLStorage.PersistentData.LinkedUsers.Find(linkedUser => linkedUser.HasAnyID(user.SlgId, user.SteamId) && (linkedUser.Valid || !requireValid));
+            result = DLStorage.PersistentData.LinkedUsers.Find(linkedUser => linkedUser.HasAnyId(user.SlgId, user.SteamId) && (linkedUser.Valid || !requireValid));
 
             if (result == null && caller != null && callingReason != null)
                 ReportLinkLookupFailure(caller, callingReason);
@@ -87,7 +87,7 @@ namespace Eco.Plugins.DiscordLink
             if (caller is User user)
                 Message.SendErrorBoxToUser(user, $"{callingContext} Failed\nYou have not linked your Discord Account to DiscordLink on this Eco Server.\nUse the `/DL LinkAccount` command to initiate account linking.");
             else if (caller is DiscordMember member)
-                _ = DiscordLink.Obj.Client.SendDMAsync(member, $"**{callingContext} Failed**\nYou have not linked your Discord Account to DiscordLink on this Eco Server.\nUse the `/DL LinkAccount` command in Eco to initiate account linking.");
+                _ = DiscordLink.Obj.Client.SendDmAsync(member, $"**{callingContext} Failed**\nYou have not linked your Discord Account to DiscordLink on this Eco Server.\nUse the `/DL LinkAccount` command in Eco to initiate account linking.");
             else
                 Logger.Error("Attempted to fetch a linked user using an invalid caller argument");
         }
@@ -103,7 +103,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task<bool> VerifyLinkedUser(ulong discordUserId)
         {
             // Find the linked user for the sender and mark them as verified
-            LinkedUser user = LinkedUserByDiscordID(discordUserId, requireValid: false);
+            LinkedUser user = LinkedUserByDiscordId(discordUserId, requireValid: false);
             bool result = user != null && !user.Verified;
             if (result)
             {
@@ -114,7 +114,7 @@ namespace Eco.Plugins.DiscordLink
                 if (user.DiscordMember != null)
                     Message.SendInfoBoxToUser(user.EcoUser, $"Discord link to {user.DiscordMember.DisplayName} verified!");
                 else
-                    Logger.Error($"Newly verified account link between {user.EcoUser} and Discord account with ID {user.DiscordID} failed to load Discord member");
+                    Logger.Error($"Newly verified account link between {user.EcoUser} and Discord account with ID {user.DiscordId} failed to load Discord member");
 
                 OnLinkedUserVerified?.Invoke(null, user);
             }
@@ -145,11 +145,11 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
-        public static async Task HandleEvent(DLEventType eventType, params object[] data)
+        public static async Task HandleEvent(DlEventType eventType, params object[] data)
         {
             switch (eventType)
             {
-                case DLEventType.DiscordReactionAdded:
+                case DlEventType.DiscordReactionAdded:
                     {
                         DiscordUser user = data[0] as DiscordUser;
                         DiscordMessage message = data[1] as DiscordMessage;
@@ -190,10 +190,10 @@ namespace Eco.Plugins.DiscordLink
                         break;
                     }
 
-                case DLEventType.DiscordMemberRemoved:
+                case DlEventType.DiscordMemberRemoved:
                     {
                         DiscordMember member = data[0] as DiscordMember;
-                        LinkedUser linkedUser = LinkedUserByDiscordID(member.Id);
+                        LinkedUser linkedUser = LinkedUserByDiscordId(member.Id);
                         if(linkedUser != null)
                         {
                             Logger.Debug($"Removing linked user {member.Username} due to leaving guild");
@@ -211,7 +211,7 @@ namespace Eco.Plugins.DiscordLink
         {
             foreach (LinkedUser user in DLStorage.PersistentData.LinkedUsers)
             {
-                if (!user.Verified || string.IsNullOrEmpty(user.DiscordID))
+                if (!user.Verified || string.IsNullOrEmpty(user.DiscordId))
                 {
                     ++user.FailedInitializationCount;
                     continue;
@@ -232,7 +232,7 @@ namespace Eco.Plugins.DiscordLink
 
             foreach (LinkedUser user in toRemove)
             {
-                Logger.Debug($"Pruned obsolete reference to linked user with ID {user.SlgID}");
+                Logger.Debug($"Pruned obsolete reference to linked user with ID {user.SlgId}");
                 RemoveLinkedUser(user, false);
             }
 
@@ -246,7 +246,7 @@ namespace Eco.Plugins.DiscordLink
     public class LinkedUser
     {
         [JsonIgnore]
-        public User EcoUser { get { return Lookups.UserBySteamOrSLGID(SteamID, SlgID); } }
+        public User EcoUser { get { return Lookups.UserBySteamOrSlgId(SteamId, SlgId); } }
 
         [JsonIgnore]
         public DiscordMember DiscordMember { get; private set; }
@@ -254,38 +254,38 @@ namespace Eco.Plugins.DiscordLink
         [JsonIgnore]
         public bool Valid => Verified && EcoUser != null && DiscordMember != null;
 
-        public readonly string SlgID = string.Empty;
-        public readonly string SteamID = string.Empty;
-        public readonly string DiscordID = string.Empty;
-        public readonly string GuildID = string.Empty;
+        public readonly string SlgId = string.Empty;
+        public readonly string SteamId = string.Empty;
+        public readonly string DiscordId = string.Empty;
+        public readonly string GuildId = string.Empty;
         public bool Verified = false;
         public uint FailedInitializationCount = 0;
 
-        public LinkedUser(string slgID, string steamID, string discordID, string guildID)
+        public LinkedUser(string slgId, string steamId, string discordId, string guildId)
         {
-            this.SlgID = slgID;
-            this.SteamID = steamID;
-            this.DiscordID = discordID;
-            this.GuildID = guildID;
+            this.SlgId = slgId;
+            this.SteamId = steamId;
+            this.DiscordId = discordId;
+            this.GuildId = guildId;
         }
 
         public async Task LoadDiscordMember()
         {
             try
             {
-                DiscordMember = await DiscordLink.Obj.Client.Guild.GetMemberAsync(ulong.Parse(DiscordID));
+                DiscordMember = await DiscordLink.Obj.Client.Guild.GetMemberAsync(ulong.Parse(DiscordId));
                 FailedInitializationCount = 0;
             }
             catch (DSharpPlus.Exceptions.NotFoundException)
             {
                 ++FailedInitializationCount;
-                Logger.Debug($"Failed to load linked Discord member with ID: {DiscordID}. Fail count = {FailedInitializationCount}");
+                Logger.Debug($"Failed to load linked Discord member with ID: {DiscordId}. Fail count = {FailedInitializationCount}");
             }
         }
 
-        public bool HasAnyID(string SlgID, string SteamID)
+        public bool HasAnyId(string SlgId, string SteamId)
         {
-            return (!string.IsNullOrEmpty(this.SteamID) && this.SteamID == SteamID) || (!string.IsNullOrEmpty(this.SlgID) && this.SlgID == SlgID);
+            return (!string.IsNullOrEmpty(this.SteamId) && this.SteamId == SteamId) || (!string.IsNullOrEmpty(this.SlgId) && this.SlgId == SlgId);
         }
 
         public bool HasPassedFailedLookupThreshold()
@@ -296,21 +296,21 @@ namespace Eco.Plugins.DiscordLink
 
     public class EcoUser
     {
-        public EcoUser(string SlgID, string SteamID)
+        public EcoUser(string SlgId, string SteamId)
         {
-            this.SlgID = SlgID;
-            this.SteamID = SteamID;
+            this.SlgId = SlgId;
+            this.SteamId = SteamId;
         }
 
-        public bool HasAnyID(string SlgID, string SteamID)
+        public bool HasAnyId(string SlgId, string SteamId)
         {
-            return (!string.IsNullOrEmpty(this.SteamID) && this.SteamID == SteamID) || (!string.IsNullOrEmpty(this.SlgID) && this.SlgID == SlgID);
+            return (!string.IsNullOrEmpty(this.SteamId) && this.SteamId == SteamId) || (!string.IsNullOrEmpty(this.SlgId) && this.SlgId == SlgId);
         }
 
         [JsonIgnore]
-        public User GetUser { get { return Lookups.UserBySteamOrSLGID(SteamID, SlgID); } }
+        public User GetUser { get { return Lookups.UserBySteamOrSlgId(SteamId, SlgId); } }
 
-        public readonly string SlgID = string.Empty;
-        public readonly string SteamID = string.Empty;
+        public readonly string SlgId = string.Empty;
+        public readonly string SteamId = string.Empty;
     }
 }

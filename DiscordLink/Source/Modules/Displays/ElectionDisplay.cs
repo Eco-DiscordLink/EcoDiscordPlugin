@@ -16,19 +16,19 @@ namespace Eco.Plugins.DiscordLink.Modules
 {
     class ElectionDisplay : DisplayModule
     {
-        protected override int TimerUpdateIntervalMS { get { return 60000; } }
+        protected override int TimerUpdateIntervalMs { get { return 60000; } }
         protected override string BaseTag { get { return "[Election]"; } }
-        protected override int TimerStartDelayMS { get { return 15000; } }
+        protected override int TimerStartDelayMs { get { return 15000; } }
 
         public override string ToString()
         {
             return "Election Display";
         }
 
-        protected override DLEventType GetTriggers()
+        protected override DlEventType GetTriggers()
         {
-            return base.GetTriggers() | DLEventType.DiscordClientConnected | DLEventType.Timer | DLEventType.Login
-                | DLEventType.Vote | DLEventType.ElectionStarted | DLEventType.ElectionStopped;
+            return base.GetTriggers() | DlEventType.DiscordClientConnected | DlEventType.Timer | DlEventType.Login
+                | DlEventType.Vote | DlEventType.ElectionStarted | DlEventType.ElectionStopped;
         }
 
         protected override async Task<List<DiscordTarget>> GetDiscordTargets()
@@ -103,10 +103,10 @@ namespace Eco.Plugins.DiscordLink.Modules
                 if (string.IsNullOrWhiteSpace(tag))
                     continue;
 
-                if (!int.TryParse(tag, out int electionID))
+                if (!int.TryParse(tag, out int electionId))
                     continue;
 
-                Election foundElection = Lookups.ActiveElections.FirstOrDefault(e => e.Id == electionID);
+                Election foundElection = Lookups.ActiveElections.FirstOrDefault(e => e.Id == electionId);
                 if (foundElection != null)
                 {
                     election = foundElection;

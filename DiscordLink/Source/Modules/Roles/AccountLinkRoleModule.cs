@@ -16,39 +16,39 @@ namespace Eco.Plugins.DiscordLink.Modules
             return "Account Link Role Module";
         }
 
-        protected override DLEventType GetTriggers()
+        protected override DlEventType GetTriggers()
         {
-            return base.GetTriggers() | DLEventType.DiscordClientConnected | DLEventType.AccountLinkVerified | DLEventType.AccountLinkRemoved;
+            return base.GetTriggers() | DlEventType.DiscordClientConnected | DlEventType.AccountLinkVerified | DlEventType.AccountLinkRemoved;
         }
 
         public override void Setup()
         {
-            _linkedAccountRole = DiscordLink.Obj.Client.Guild.RoleByName(DLConstants.ROLE_LINKED_ACCOUNT.Name);
+            _linkedAccountRole = DiscordLink.Obj.Client.Guild.GetRoleByName(DLConstants.ROLE_LINKED_ACCOUNT.Name);
             if (_linkedAccountRole == null)
                 SetupLinkRole();
 
             base.Setup();
         }
 
-        protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
+        protected override async Task UpdateInternal(DiscordLink plugin, DlEventType trigger, params object[] data)
         {
             DiscordClient client = DiscordLink.Obj.Client;
             if (!client.BotHasPermission(Permissions.ManageRoles))
                 return;
 
-            if (_linkedAccountRole == null || client.Guild.RoleByID(_linkedAccountRole.Id) == null)
+            if (_linkedAccountRole == null || client.Guild.GetRoleById(_linkedAccountRole.Id) == null)
                 SetupLinkRole();
 
             if (_linkedAccountRole == null)
                 return;
 
-            if (trigger == DLEventType.DiscordClientConnected || trigger == DLEventType.ForceUpdate)
+            if (trigger == DlEventType.DiscordClientConnected || trigger == DlEventType.ForceUpdate)
             {
                 if (!client.BotHasIntent(DiscordIntents.GuildMembers))
                     return;
 
                 ++_opsCount;
-                foreach (DiscordMember member in await client.GetGuildMembersAsync())
+                foreach (DiscordMember member in await client.GetMembersAsync())
                 {
                     LinkedUser linkedUser = UserLinkManager.LinkedUserByDiscordUser(member);
                     if (linkedUser == null || !DLConfig.Data.UseLinkedAccountRole)
@@ -81,12 +81,12 @@ namespace Eco.Plugins.DiscordLink.Modules
                     return;
                 }
 
-                if (trigger == DLEventType.AccountLinkRemoved)
+                if (trigger == DlEventType.AccountLinkRemoved)
                 {
                     ++_opsCount;
                     await client.RemoveRoleAsync(member, _linkedAccountRole);
                 }
-                else if (trigger == DLEventType.AccountLinkVerified)
+                else if (trigger == DlEventType.AccountLinkVerified)
                 {
                     ++_opsCount;
                     await client.AddRoleAsync(member, _linkedAccountRole);

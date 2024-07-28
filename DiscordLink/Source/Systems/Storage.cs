@@ -84,11 +84,11 @@ namespace Eco.Plugins.DiscordLink
                 WorldData = worldData;
         }
 
-        public void HandleEvent(DLEventType eventType, params object[] data)
+        public void HandleEvent(DlEventType eventType, params object[] data)
         {
             switch (eventType)
             {
-                case DLEventType.WorldReset:
+                case DlEventType.WorldReset:
                     Logger.Info("New world generated - Removing storage data for previous world");
                     ResetWorldData();
                     break;
@@ -100,13 +100,13 @@ namespace Eco.Plugins.DiscordLink
 
         private void HandleLinkedUserRemoved(object sender, LinkedUser user)
         {
-            WorldData.TradeWatchers.Remove(ulong.Parse(user.DiscordID));
+            WorldData.TradeWatchers.Remove(ulong.Parse(user.DiscordId));
         }
 
         public class PersistentStorageData
         {
             public List<LinkedUser> LinkedUsers = new List<LinkedUser>();
-            public List<ulong> RoleIDs = new List<ulong>();
+            public List<ulong> RoleIds = new List<ulong>();
             public List<EcoUser> OptedInUsers = new List<EcoUser>();
             public List<EcoUser> OptedOutUsers = new List<EcoUser>();
 
@@ -123,8 +123,8 @@ namespace Eco.Plugins.DiscordLink
                     StringBuilder verifiedBuilder = new StringBuilder();
                     foreach (LinkedUser linkedUser in PersistentData.LinkedUsers.Where(link => link.Verified))
                     {
-                        ecoBuilder.AppendLine(linkedUser.EcoUser != null ? linkedUser.EcoUser.Name : linkedUser.SlgID);
-                        discordBuilder.AppendLine(linkedUser.DiscordMember != null ? linkedUser.DiscordMember.DisplayName : linkedUser.DiscordID.ToString());
+                        ecoBuilder.AppendLine(linkedUser.EcoUser != null ? linkedUser.EcoUser.Name : linkedUser.SlgId);
+                        discordBuilder.AppendLine(linkedUser.DiscordMember != null ? linkedUser.DiscordMember.DisplayName : linkedUser.DiscordId.ToString());
                         verifiedBuilder.AppendLine(linkedUser.Verified ? "True" : "False");
                     }
                     embed.AddField("Eco Links", ecoBuilder.ToString(), inline: true);
@@ -144,7 +144,7 @@ namespace Eco.Plugins.DiscordLink
                     StringBuilder nameBuilder = new StringBuilder();
                     StringBuilder idBuilder = new StringBuilder();
                     StringBuilder permissionBuilder = new StringBuilder();
-                    foreach (ulong id in PersistentData.RoleIDs)
+                    foreach (ulong id in PersistentData.RoleIds)
                     {
                         DiscordRole role = DiscordLink.Obj.Client.GetRoleById(id);
                         nameBuilder.AppendLine(role != null ? role.Name : "Uknown");
@@ -171,15 +171,15 @@ namespace Eco.Plugins.DiscordLink
             public int TradeWatcherDisplayCountTotal => TradeWatchers.Values.SelectMany(watchers => watchers).Where(watcher => watcher.Type == ModuleArchetype.Display).Count();
             public int TradeWatcherFeedCountTotal => TradeWatchers.Values.SelectMany(watchers => watchers).Where(watcher => watcher.Type == ModuleArchetype.Feed).Count();
 
-            public async Task<bool> AddTradeWatcher(ulong discordUserId, TradeWatcherEntry watcherEntry)
+            public async Task<bool> AddTradeWatcher(ulong discordMemberId, TradeWatcherEntry watcherEntry)
             {
-                if (!TradeWatchers.ContainsKey(discordUserId))
-                    TradeWatchers.Add(discordUserId, new List<TradeWatcherEntry>());
+                if (!TradeWatchers.ContainsKey(discordMemberId))
+                    TradeWatchers.Add(discordMemberId, new List<TradeWatcherEntry>());
 
-                if (TradeWatchers[discordUserId].Contains(watcherEntry))
+                if (TradeWatchers[discordMemberId].Contains(watcherEntry))
                     return false;
 
-                TradeWatchers[discordUserId].Add(watcherEntry);
+                TradeWatchers[discordMemberId].Add(watcherEntry);
                 await TradeWatcherAdded?.Invoke(this, EventArgs.Empty, watcherEntry);
 
                 return true;
