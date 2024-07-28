@@ -338,6 +338,17 @@ namespace Eco.Plugins.DiscordLink
 
         #region Information Fetching
 
+        public IEnumerable<DiscordChannel> GetCachedChannels(params ChannelType[] channelTypes)
+        {
+            return Guild.Channels.Values.Where(channel => channelTypes.Any(type => type == channel.Type));
+        }
+
+        public async Task<IEnumerable<DiscordChannel>> FetchChannels(params ChannelType[] channelTypes)
+        {
+            IReadOnlyList<DiscordChannel> channels = await Guild.GetChannelsAsync();
+            return channels.Where(channel => channelTypes.Any(type => type == channel.Type));
+        }
+
         public DiscordChannel ChannelByNameOrId(string channelNameOrId)
         {
             return channelNameOrId.TryParseSnowflakeId(out ulong channelId)
