@@ -47,19 +47,12 @@ namespace Eco.Plugins.DiscordLink
 
     public class ChannelLink : DiscordTarget, ICloneable
     {
-        private const string DISCORD_CHANNEL_PROPERTY_DEPRECATED = "_This field is not supported anymore. Please use DiscordChannelId instead_";
-
         [Browsable(false), JsonIgnore]
         public DiscordChannel Channel { get; private set; } = null;
 
         [Description("Discord channel by id.")]
         [TypeConverter(typeof(DiscordChannelPropertyConverter))]
         public ulong DiscordChannelId { get; set; } = 0;
-
-        // Legacy Property, to support migrating to the new ID-Based Solution.
-        [Browsable(false)]
-        [Obsolete("Please use DiscordChannelId instead. This only exists for migration of the old Format.")]
-        public string DiscordChannel { get; set;  } = DISCORD_CHANNEL_PROPERTY_DEPRECATED;
 
         public override string ToString()
         {
@@ -75,9 +68,6 @@ namespace Eco.Plugins.DiscordLink
 
         public virtual bool Initialize()
         {
-
-            MigrateOldChannelName();
-            
             if (DiscordChannelId == 0)
                 return false;
 
@@ -87,25 +77,6 @@ namespace Eco.Plugins.DiscordLink
 
             Channel = channel;
             return true;
-        }
-
-        // Migrates the old Property 'DiscordChannel' to the 'DiscordChannelId' Property. 
-        private void MigrateOldChannelName()
-        {
-#pragma warning disable CS0618 // Migration
-            if (DiscordChannelId != 0 || DiscordChannel.Equals(DISCORD_CHANNEL_PROPERTY_DEPRECATED)) return;
-
-            if (ulong.TryParse(DiscordChannel, out ulong channelId))
-            {
-                DiscordChannelId = channelId;
-            }
-            else
-            {
-               DiscordChannelId = DiscordChannelId = DiscordLink.Obj.Client.ChannelByNameOrID(DiscordChannel)?.Id ?? 0;
-            }
-            // Mark as Deprecated and show note in config file.
-            DiscordChannel = DISCORD_CHANNEL_PROPERTY_DEPRECATED;
-#pragma warning restore CS0618 // // Migration
         }
 
         public virtual bool MakeCorrections()
