@@ -1,6 +1,5 @@
 using DSharpPlus;
 using DSharpPlus.Entities;
-using DSharpPlus.SlashCommands;
 using Eco.Gameplay.Players;
 using Eco.Gameplay.Systems.Messaging.Chat.Commands;
 using Eco.Moose.Tools.Logger;
@@ -13,7 +12,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using static Eco.Plugins.DiscordLink.DiscordCommands;
 using static Eco.Plugins.DiscordLink.Enums;
 using static Eco.Plugins.DiscordLink.Utilities.MessageBuilder;
 

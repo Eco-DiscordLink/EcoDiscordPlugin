@@ -1,12 +1,12 @@
-﻿using System;
+﻿using Eco.Gameplay.Economy;
+using Eco.Moose.Utils.Lookups;
+using Eco.Plugins.DiscordLink.Events;
+using Eco.Plugins.DiscordLink.Extensions;
+using Eco.Plugins.DiscordLink.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Eco.Plugins.DiscordLink.Events;
-using Eco.Gameplay.Economy;
-using Eco.Moose.Utils.Lookups;
-using Eco.Plugins.DiscordLink.Utilities;
-using Eco.Plugins.DiscordLink.Extensions;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {

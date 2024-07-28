@@ -1,7 +1,7 @@
-using System;
 using Eco.Moose.Tools.Logger;
 using Microsoft.Extensions.Logging;
 using Nito.Disposables;
+using System;
 
 namespace Eco.Plugins.DiscordLink;
 

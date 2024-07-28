@@ -1,5 +1,5 @@
-﻿using Eco.Moose.Tools.Logger;
-using Eco.Gameplay.Civics.Elections;
+﻿using Eco.Gameplay.Civics.Elections;
+using Eco.Moose.Tools.Logger;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
