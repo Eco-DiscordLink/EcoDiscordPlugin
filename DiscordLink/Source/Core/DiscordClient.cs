@@ -338,19 +338,8 @@ namespace Eco.Plugins.DiscordLink
 
         #region Information Fetching
 
-        public DiscordGuild GuildByNameOrID(string guildNameOrID)
         public DiscordChannel ChannelByNameOrId(string channelNameOrId)
         {
-            return guildNameOrID.TryParseSnowflakeID(out ulong ID)
-                ? DSharpClient.Guilds.Values.FirstOrDefault(guild => guild.Id == ID)
-                : DSharpClient.Guilds.Values.FirstOrDefault(guild => guild.Name.EqualsCaseInsensitive(guildNameOrID));
-        }
-
-        public DiscordChannel ChannelByNameOrID(string channelNameOrID)
-        {
-            return channelNameOrID.TryParseSnowflakeID(out ulong ID)
-                ? Guild.Channels.Values.FirstOrDefault(channel => channel.Id == ID)
-                : Guild.Channels.Values.FirstOrDefault(guild => guild.Name.EqualsCaseInsensitive(channelNameOrID));
             return channelNameOrId.TryParseSnowflakeId(out ulong channelId)
                 ? Guild.Channels.Values.FirstOrDefault(channel => channel.Id == channelId)
                 : Guild.Channels.Values.FirstOrDefault(guild => guild.Name.EqualsCaseInsensitive(channelNameOrId));
@@ -447,38 +436,6 @@ namespace Eco.Plugins.DiscordLink
             if (!memberIdStr.TryParseSnowflakeId(out ulong memberId))
                 return null;
 
-            return await GetUserAsync(ID);
-        }
-
-        public async Task<DiscordUser> GetUserAsync(ulong userID)
-        {
-            try
-            {
-                Logger.Trace($"Fetching user with ID \"{userID}\"");
-                return await DSharpClient.GetUserAsync(userID);
-            }
-            catch (ServerErrorException e)
-            {
-                Logger.DebugException($"ServerErrorException occurred when attempting to fetch user with ID \"{userID}\"", e);
-                return null;
-            }
-            catch (Exception e)
-            {
-                Logger.Exception($"Error occurred when attempting to fetch user with ID \"{userID}\"", e);
-                return null;
-            }
-        }
-
-        public async Task<DiscordMember> GetMemberAsync(string userID)
-        {
-            if (!userID.TryParseSnowflakeID(out ulong ID))
-                return null;
-
-            return await GetMemberAsync(Guild, ID);
-        }
-
-        public async Task<DiscordMember> GetMemberAsync(DiscordGuild guild, ulong memberID)
-        {
             try
             {
                 Logger.Trace($"Fetching member with ID \"{memberId}\"");
