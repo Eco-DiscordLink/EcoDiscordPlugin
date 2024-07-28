@@ -43,14 +43,14 @@ namespace Eco.Plugins.DiscordLink.Extensions
         public static IReadOnlyList<KeyValuePair<ulong, DiscordChannel>> TextChannels(this DiscordGuild guild) => guild.Channels.Where(channel => channel.Value.Type == ChannelType.Text).ToList();
         public static string[] TextChannelNames(this DiscordGuild guild) => guild.TextChannels().Select(channel => channel.Value.Name).ToArray();
 
-        public static DiscordRole RoleByName(this DiscordGuild guild, string roleName)
+        public static DiscordRole GetRoleByName(this DiscordGuild guild, string roleName)
         {
             return guild.Roles.Values.FirstOrDefault(role => role.Name.EqualsCaseInsensitive(roleName));
         }
 
-        public static DiscordRole RoleByID(this DiscordGuild guild, ulong ID)
+        public static DiscordRole GetRoleById(this DiscordGuild guild, ulong roleId)
         {
-            return guild.Roles.Values.FirstOrDefault(role => role.Id == ID);
+            return guild.Roles.Values.FirstOrDefault(role => role.Id == roleId);
         }
 
         #endregion

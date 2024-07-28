@@ -185,12 +185,12 @@ namespace Eco.Plugins.DiscordLink
                 return true;
             }
 
-            public async Task<bool> RemoveTradeWatcher(ulong discordUserId, TradeWatcherEntry watcherEntry)
+            public async Task<bool> RemoveTradeWatcher(ulong discordMemberId, TradeWatcherEntry watcherEntry)
             {
-                if (!TradeWatchers.ContainsKey(discordUserId))
+                if (!TradeWatchers.ContainsKey(discordMemberId))
                     return false;
 
-                List<TradeWatcherEntry> watcherList = TradeWatchers[discordUserId];
+                List<TradeWatcherEntry> watcherList = TradeWatchers[discordMemberId];
                 int toRemoveIndex = watcherList.FindIndex(w => w.Equals(watcherEntry));
                 if (toRemoveIndex == -1)
                     return false;
@@ -201,35 +201,35 @@ namespace Eco.Plugins.DiscordLink
 
                 // Remove the user entry if the last watcher was remvoed
                 if (watcherList.Count <= 0)
-                    TradeWatchers.Remove(discordUserId);
+                    TradeWatchers.Remove(discordMemberId);
 
                 return true;
             }
 
-            public void RemoveAllTradeWatchersForUser(ulong discordUserId)
+            public void RemoveAllTradeWatchersForMember(ulong discordMemberId)
             {
-                if (!TradeWatchers.ContainsKey(discordUserId))
+                if (!TradeWatchers.ContainsKey(discordMemberId))
                     return;
 
-                TradeWatchers.Remove(discordUserId);
+                TradeWatchers.Remove(discordMemberId);
             }
 
-            public int GetTradeWatcherCountForUser(ulong discordUserID)
+            public int GetTradeWatcherCountForMember(ulong discordMemberId)
             {
-                if (!TradeWatchers.ContainsKey(discordUserID))
+                if (!TradeWatchers.ContainsKey(discordMemberId))
                     return 0;
 
-                return TradeWatchers[discordUserID].Count;
+                return TradeWatchers[discordMemberId].Count;
             }
 
-            public string ListTradeWatchers(ulong discordUserID)
+            public string ListTradeWatchers(ulong discordMemberId)
             {
-                if (!TradeWatchers.ContainsKey(discordUserID) || TradeWatchers[discordUserID].Count <= 0)
+                if (!TradeWatchers.ContainsKey(discordMemberId) || TradeWatchers[discordMemberId].Count <= 0)
                     return "No trade watchers exist for this user";
 
                 StringBuilder builder = new StringBuilder();
                 builder.Append("Your trade watchers are:\n");
-                foreach (TradeWatcherEntry tradeWatcher in TradeWatchers[discordUserID])
+                foreach (TradeWatcherEntry tradeWatcher in TradeWatchers[discordMemberId])
                 {
                     builder.AppendLine($"- {tradeWatcher}");
                 }
@@ -254,12 +254,12 @@ namespace Eco.Plugins.DiscordLink
                     StringBuilder userBuilder = new StringBuilder();
                     StringBuilder watchBuilder = new StringBuilder();
                     StringBuilder typeBuilder = new StringBuilder();
-                    foreach (var userAndWatch in TradeWatchers)
+                    foreach (var memberIdAndWatch in TradeWatchers)
                     {
-                        DiscordMember member = await DiscordLink.Obj.Client.GetMemberAsync(userAndWatch.Key.ToString());
-                        foreach (var watch in userAndWatch.Value)
+                        DiscordMember member = await DiscordLink.Obj.Client.GetMemberAsync(memberIdAndWatch.Key.ToString());
+                        foreach (var watch in memberIdAndWatch.Value)
                         {
-                            userBuilder.AppendLine(member != null ? member.DisplayName : userAndWatch.Key.ToString());
+                            userBuilder.AppendLine(member != null ? member.DisplayName : memberIdAndWatch.Key.ToString());
                             watchBuilder.AppendLine(watch.Key);
                             typeBuilder.AppendLine(Enum.GetName(watch.Type));
                         }

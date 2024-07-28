@@ -339,6 +339,7 @@ namespace Eco.Plugins.DiscordLink
         #region Information Fetching
 
         public DiscordGuild GuildByNameOrID(string guildNameOrID)
+        public DiscordChannel ChannelByNameOrId(string channelNameOrId)
         {
             return guildNameOrID.TryParseSnowflakeID(out ulong ID)
                 ? DSharpClient.Guilds.Values.FirstOrDefault(guild => guild.Id == ID)
@@ -350,6 +351,9 @@ namespace Eco.Plugins.DiscordLink
             return channelNameOrID.TryParseSnowflakeID(out ulong ID)
                 ? Guild.Channels.Values.FirstOrDefault(channel => channel.Id == ID)
                 : Guild.Channels.Values.FirstOrDefault(guild => guild.Name.EqualsCaseInsensitive(channelNameOrID));
+            return channelNameOrId.TryParseSnowflakeId(out ulong channelId)
+                ? Guild.Channels.Values.FirstOrDefault(channel => channel.Id == channelId)
+                : Guild.Channels.Values.FirstOrDefault(guild => guild.Name.EqualsCaseInsensitive(channelNameOrId));
         }
 
         public bool ChannelHasPermission(DiscordChannel channel, Permissions permission)
@@ -438,9 +442,9 @@ namespace Eco.Plugins.DiscordLink
             return missingIntents;
         }
 
-        public async Task<DiscordUser> GetUserAsync(string userID)
+        public async Task<DiscordMember> GetMemberAsync(string memberIdStr)
         {
-            if (!userID.TryParseSnowflakeID(out ulong ID))
+            if (!memberIdStr.TryParseSnowflakeId(out ulong memberId))
                 return null;
 
             return await GetUserAsync(ID);
@@ -614,9 +618,9 @@ namespace Eco.Plugins.DiscordLink
             return createdMessage;
         }
 
-        public async Task<DiscordMessage> SendDMAsync(DiscordMember targetMember, string textContent, DiscordLinkEmbed embedContent = null)
+        public async Task<DiscordMessage> SendDmAsync(DiscordMember recipientMember, string textContent, DiscordLinkEmbed embedContent = null)
         {
-            if (targetMember == null)
+            if (recipientMember == null)
                 return null;
 
             DiscordMessage createdMessage = null;
@@ -626,31 +630,31 @@ namespace Eco.Plugins.DiscordLink
                 ICollection<string> stringParts = MessageUtils.SplitStringBySize(textContent, DLConstants.DISCORD_MESSAGE_CHARACTER_LIMIT);
                 ICollection<DiscordEmbed> embedParts = MessageUtils.BuildDiscordEmbeds(embedContent);
 
-                Logger.Trace($"Sending DM to user \"{targetMember.Username}\" containing {stringParts.Count} raw string parts and {embedParts.Count} embed parts");
+                Logger.Trace($"Sending DM to user \"{recipientMember.Username}\" containing {stringParts.Count} raw string parts and {embedParts.Count} embed parts");
                 if (stringParts.Count <= 1 && embedParts.Count <= 1)
                 {
                     DiscordEmbed embed = (embedParts.Count >= 1) ? embedParts.First() : null;
-                    createdMessage = await targetMember.SendMessageAsync(textContent, embed);
+                    createdMessage = await recipientMember.SendMessageAsync(textContent, embed);
                 }
                 else
                 {
                     foreach (string textMessagePart in stringParts)
                     {
-                        createdMessage = await targetMember.SendMessageAsync(textMessagePart, null);
+                        createdMessage = await recipientMember.SendMessageAsync(textMessagePart, null);
                     }
                     foreach (DiscordEmbed embedPart in embedParts)
                     {
-                        createdMessage = await targetMember.SendMessageAsync(null, embedPart);
+                        createdMessage = await recipientMember.SendMessageAsync(null, embedPart);
                     }
                 }
             }
             catch (ServerErrorException e)
             {
-                Logger.DebugException($"ServerErrorException occurred while sending message to member \"{targetMember.Username}\"", e);
+                Logger.DebugException($"ServerErrorException occurred while sending message to member \"{recipientMember.Username}\"", e);
             }
             catch (Exception e)
             {
-                Logger.Exception($"Failed to send DM message to {targetMember.Username}", e);
+                Logger.Exception($"Failed to send DM message to {recipientMember.Username}", e);
             }
             return createdMessage;
         }
@@ -775,19 +779,19 @@ namespace Eco.Plugins.DiscordLink
             return await Task.FromResult<DiscordRole>(null);
         }
 
-        public DiscordRole GetRoleById(ulong id)
+        public DiscordRole GetRoleById(ulong roleId)
         {
-            return Guild.RoleByID(id);
+            return Guild.GetRoleById(roleId);
         }
 
-        public DiscordRole GetRoleByName(string name)
+        public DiscordRole GetRoleByName(string roleName)
         {
-            return Guild.RoleByName(name);
+            return Guild.GetRoleByName(roleName);
         }
 
         public async Task AddRoleAsync(DiscordMember member, DiscordLinkRole dlRole)
         {
-            DiscordRole discordRole = Guild.RoleByName(dlRole.Name);
+            DiscordRole discordRole = Guild.GetRoleByName(dlRole.Name);
             if (discordRole == null)
                 discordRole = await CreateRoleAsync(dlRole);
 
@@ -823,7 +827,7 @@ namespace Eco.Plugins.DiscordLink
 
         public async Task RemoveRoleAsync(DiscordMember member, string roleName)
         {
-            DiscordRole role = Guild.RoleByName(roleName);
+            DiscordRole role = Guild.GetRoleByName(roleName);
             if (role == null)
             {
                 Logger.Debug($"Attempting to remove nonexistent role \"{roleName}\" from user \"{member.DisplayName}\"");
