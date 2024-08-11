@@ -3,11 +3,11 @@ using System.ComponentModel;
 
 namespace Eco.Plugins.DiscordLink
 {
-    public class DemographicRoleReplacement : ICloneable
+    public class DemographicRoleSubstitution : ICloneable
     {
-        public DemographicRoleReplacement() { }
+        public DemographicRoleSubstitution() { }
 
-        public DemographicRoleReplacement(string demographicName, string roleName)
+        public DemographicRoleSubstitution(string demographicName, string roleName)
         {
             this.DemographicName = demographicName;
             this.RoleName = roleName;

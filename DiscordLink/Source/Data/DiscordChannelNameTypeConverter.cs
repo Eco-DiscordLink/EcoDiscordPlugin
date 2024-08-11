@@ -1,4 +1,5 @@
-﻿using DSharpPlus.Entities;
+﻿using DSharpPlus;
+using DSharpPlus.Entities;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -21,8 +22,7 @@ namespace Eco.Plugins.DiscordLink
 
         public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
-            var foundChannelIds = DiscordLink.Obj?.Client?.Guild?.Channels?.Values?
-                .Where(channel => channel.Type == DSharpPlus.ChannelType.Text)
+            var foundChannelIds = DiscordLink.Obj?.Client?.GetCachedChannels(ChannelType.Text)
                 .OrderBy(channel => channel.Position)
                 .Select(c => c.Id)
                 .ToList();
@@ -33,6 +33,7 @@ namespace Eco.Plugins.DiscordLink
         {
             return true;
         }
+
         public override bool GetStandardValuesExclusive(ITypeDescriptorContext context)
         {
             return true;

@@ -12,7 +12,7 @@ namespace Eco.Plugins.DiscordLink.Extensions
     {
         #region InteractionContext
 
-        public static ulong GetSenderID(this InteractionContext ctx)
+        public static ulong GetSenderId(this InteractionContext ctx)
         {
             DiscordUser user = ctx.Member ?? ctx.User;
             return user.Id;
@@ -40,41 +40,38 @@ namespace Eco.Plugins.DiscordLink.Extensions
 
         #region DiscordGuild
 
-        public static IReadOnlyList<KeyValuePair<ulong, DiscordChannel>> TextChannels(this DiscordGuild guild) => guild.Channels.Where(channel => channel.Value.Type == ChannelType.Text).ToList();
-        public static string[] TextChannelNames(this DiscordGuild guild) => guild.TextChannels().Select(channel => channel.Value.Name).ToArray();
-
-        public static DiscordRole RoleByName(this DiscordGuild guild, string roleName)
+        public static DiscordRole GetRoleByName(this DiscordGuild guild, string roleName)
         {
             return guild.Roles.Values.FirstOrDefault(role => role.Name.EqualsCaseInsensitive(roleName));
         }
 
-        public static DiscordRole RoleByID(this DiscordGuild guild, ulong ID)
+        public static DiscordRole GetRoleById(this DiscordGuild guild, ulong roleId)
         {
-            return guild.Roles.Values.FirstOrDefault(role => role.Id == ID);
+            return guild.Roles.Values.FirstOrDefault(role => role.Id == roleId);
         }
 
         #endregion
 
         #region DiscordChannel
 
-        public static bool HasNameOrID(this DiscordChannel channel, string nameOrID)
+        public static bool HasNameOrId(this DiscordChannel channel, string nameOrChannelId)
         {
-            if (nameOrID.TryParseSnowflakeID(out ulong ID))
-                return channel.Id == ID;
+            if (nameOrChannelId.TryParseSnowflakeId(out ulong channelId))
+                return channel.Id == channelId;
 
-            return channel.Name.EqualsCaseInsensitive(nameOrID);
+            return channel.Name.EqualsCaseInsensitive(nameOrChannelId);
         }
 
         #endregion
 
         #region DiscordUser
 
-        public static bool HasNameOrID(this DiscordUser user, string nameOrID)
+        public static bool HasNameOrId(this DiscordUser user, string nameOrUserId)
         {
-            if (nameOrID.TryParseSnowflakeID(out ulong ID))
-                return user.Id == ID;
+            if (nameOrUserId.TryParseSnowflakeId(out ulong userId))
+                return user.Id == userId;
 
-            return user.Username.EqualsCaseInsensitive(nameOrID);
+            return user.Username.EqualsCaseInsensitive(nameOrUserId);
         }
 
         public static async Task<DiscordMember> LookupMember(this DiscordUser user)
@@ -93,12 +90,12 @@ namespace Eco.Plugins.DiscordLink.Extensions
 
         #region DiscordMember
 
-        public static bool HasNameOrID(this DiscordMember member, string nameOrID)
+        public static bool HasNameOrMemberId(this DiscordMember member, string nameOrId)
         {
-            if (nameOrID.TryParseSnowflakeID(out ulong ID))
-                return member.Id == ID;
+            if (nameOrId.TryParseSnowflakeId(out ulong Id))
+                return member.Id == Id;
 
-            return member.Username.EqualsCaseInsensitive(nameOrID) || member.Username.EqualsCaseInsensitive(nameOrID);
+            return member.Username.EqualsCaseInsensitive(nameOrId) || member.Username.EqualsCaseInsensitive(nameOrId);
         }
 
         public static DiscordRole GetHighestHierarchyRole(this DiscordMember member)
@@ -136,12 +133,12 @@ namespace Eco.Plugins.DiscordLink.Extensions
 
         #region DiscordRole
 
-        public static bool HasNameOrID(this DiscordRole role, string nameOrID)
+        public static bool HasNameOrId(this DiscordRole role, string nameOrId)
         {
-            if (nameOrID.TryParseSnowflakeID(out ulong roleID))
-                return role.Id == roleID;
+            if (nameOrId.TryParseSnowflakeId(out ulong roleId))
+                return role.Id == roleId;
 
-            return role.Name.EqualsCaseInsensitive(nameOrID);
+            return role.Name.EqualsCaseInsensitive(nameOrId);
         }
 
         #endregion

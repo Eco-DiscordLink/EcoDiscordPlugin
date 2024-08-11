@@ -38,7 +38,7 @@ namespace Eco.Plugins.DiscordLink
             public const bool UseDemographicRoles = true;
             public const bool UseSpecialtyRoles = true;
             public const bool UseElectedTitleRoles = true;
-            public static readonly DemographicRoleReplacement[] DemographicRoleReplacements = { new DemographicRoleReplacement("everyone", "Eco Everyone"), new DemographicRoleReplacement("admins", "Eco Admins") };
+            public static readonly DemographicRoleSubstitution[] DemographicRoleReplacements = { new DemographicRoleSubstitution("everyone", "Eco Everyone"), new DemographicRoleSubstitution("admins", "Eco Admins") };
             public static readonly EmoteIconSubstitution[] EmoteSubstitutions = { new EmoteIconSubstitution("DiscordLink", "DiscordLinkLogo") };
         }
 
@@ -109,7 +109,7 @@ namespace Eco.Plugins.DiscordLink
             // Guild
             if (DiscordLink.Obj.Client.Guild == null)
             {
-                Logger.Error($"Failed to find a Discord server with the ID \"{Data.DiscordServerID}\"");
+                Logger.Error($"Failed to find a Discord server with the ID \"{Data.DiscordServerId}\"");
                 return;
             }
 
@@ -131,7 +131,7 @@ namespace Eco.Plugins.DiscordLink
             // Do not verify if change occurred as this function is going to be called again in that case
             // Do not verify the config in case critical data has been changed, as the client will be restarted and that will trigger verification
             bool tokenChanged = Data.BotToken != _prevConfig.BotToken;
-            bool guildChanged = Data.DiscordServerID != _prevConfig.DiscordServerID;
+            bool guildChanged = Data.DiscordServerId != _prevConfig.DiscordServerId;
             bool logLevelChanged = Data.LogLevel != _prevConfig.LogLevel;
             bool correctionMade = !Save();
 
@@ -265,7 +265,7 @@ namespace Eco.Plugins.DiscordLink
             return new DLConfigData
             {
                 BotToken = this.BotToken,
-                DiscordServerID = this.DiscordServerID,
+                DiscordServerId = this.DiscordServerId,
                 MinEmbedSizeForFooter = this.MinEmbedSizeForFooter,
                 ServerName = this.ServerName,
                 ServerDescription = this.ServerDescription,
@@ -291,7 +291,7 @@ namespace Eco.Plugins.DiscordLink
                 CurrencyDisplayChannels = new ObservableCollection<CurrencyChannelLink>(this.CurrencyDisplayChannels.Select(t => t.Clone()).Cast<CurrencyChannelLink>()),
                 SnippetInputChannels = new ObservableCollection<ChannelLink>(this.SnippetInputChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
                 DiscordCommandChannels = new ObservableCollection<ChannelLink>(this.DiscordCommandChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
-                DemographicReplacementRoles = new ObservableCollection<DemographicRoleReplacement>(this.DemographicReplacementRoles.Select(t => t.Clone()).Cast<DemographicRoleReplacement>()),
+                DemographicReplacementRoles = new ObservableCollection<DemographicRoleSubstitution>(this.DemographicReplacementRoles.Select(t => t.Clone()).Cast<DemographicRoleSubstitution>()),
                 EmoteIconSubstitutions = new ObservableCollection<EmoteIconSubstitution>(this.EmoteIconSubstitutions.Select(t => t.Clone()).Cast<EmoteIconSubstitution>()),
             };
         }
@@ -300,7 +300,7 @@ namespace Eco.Plugins.DiscordLink
         public string BotToken { get; set; }
 
         [Description("The ID if the Discord Server. This setting can be changed while the server is running but will require a plugin restart to take effect."), Category("Base Configuration - Discord")]
-        public ulong DiscordServerID { get; set; }
+        public ulong DiscordServerId { get; set; }
 
         [Description("The roles recognized as having admin permissions on Discord. This setting requires a plugin restart to take effect."), Category("Base Configuration - Discord")]
         public ObservableCollection<string> AdminRoles { get; set; } = new ObservableCollection<string>(DLConfig.DefaultValues.AdminRoles);
@@ -312,7 +312,7 @@ namespace Eco.Plugins.DiscordLink
         public string ServerDescription { get; set; }
 
         [Description("The game server connection information to display to users. This setting can be changed while the server is running."), Category("Base Configuration - Eco")]
-        public string ConnectionInfo { get; set; } = $"Server ID: {NetworkManager.Config.ID.ToString()}";
+        public string ConnectionInfo { get; set; } = $"Server Id: {NetworkManager.Config.ID.ToString()}";
 
         [Description("Whether chat message should be synchroinized by default or not. This setting can be changed while the server is running."), Category("Base Configuration - Eco")]
         public ChatSyncMode ChatSyncMode { get; set; } = DLConfig.DefaultValues.ChatSynchronizationMode;
@@ -363,7 +363,7 @@ namespace Eco.Plugins.DiscordLink
         public bool UseDemographicRoles { get; set; } = DLConfig.DefaultValues.UseDemographicRoles;
 
         [Description("Roles that will be used (and created if needed) for the given demographics. This setting can be changed while the server is running."), Category("Modules - Roles")]
-        public ObservableCollection<DemographicRoleReplacement> DemographicReplacementRoles { get; set; } = new ObservableCollection<DemographicRoleReplacement>(DLConfig.DefaultValues.DemographicRoleReplacements);
+        public ObservableCollection<DemographicRoleSubstitution> DemographicReplacementRoles { get; set; } = new ObservableCollection<DemographicRoleSubstitution>(DLConfig.DefaultValues.DemographicRoleReplacements);
 
         [Description("Determines if Discord roles matching ingame specialties will be granted to users who have linked their accounts. This setting can be changed while the server is running."), Category("Modules - Roles")]
         public bool UseSpecialtyRoles { get; set; } = DLConfig.DefaultValues.UseSpecialtyRoles;

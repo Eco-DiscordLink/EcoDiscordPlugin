@@ -4,17 +4,17 @@ using Eco.Core;
 using Eco.Core.Plugins;
 using Eco.Core.Plugins.Interfaces;
 using Eco.Core.Utils;
-using Eco.Moose.Events;
-using Eco.Moose.Plugin;
-using Eco.Moose.Tools.Logger;
-using Eco.Moose.Tools.VersionChecker;
-using Eco.Moose.Utils.TextUtils;
-using Eco.Moose.Utils.SystemUtils;
 using Eco.Gameplay.Aliases;
 using Eco.Gameplay.Civics.Elections;
 using Eco.Gameplay.GameActions;
 using Eco.Gameplay.Players;
 using Eco.Gameplay.Property;
+using Eco.Moose.Events;
+using Eco.Moose.Plugin;
+using Eco.Moose.Tools.Logger;
+using Eco.Moose.Tools.VersionChecker;
+using Eco.Moose.Utils.SystemUtils;
+using Eco.Moose.Utils.TextUtils;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Modules;
@@ -38,11 +38,11 @@ namespace Eco.Plugins.DiscordLink
     {
         public readonly string PluginName = "DiscordLink";
         public readonly Version InstalledVersion = Assembly.GetExecutingAssembly().GetName().Version;
-        public Version? ModIOVersion = null;
+        public Version? ModIoVersion = null;
 
         public static readonly IConfiguration Secrets = new ConfigurationBuilder().AddUserSecrets<DiscordLink>().Build();
-        private static string ModIODeveloperToken = Secrets["ModIODeveloperToken"];
-        private const string ModIOAppID = "77";
+        private static string ModIoDeveloperToken = Secrets["ModIoDeveloperToken"];
+        private const string ModIoAppId = "77";
 
         public static DiscordLink Obj { get { return PluginManager.GetPlugin<DiscordLink>(); } }
         public DiscordClient Client { get; private set; } = new DiscordClient();
@@ -160,8 +160,8 @@ namespace Eco.Plugins.DiscordLink
             PluginManager.Controller.RunIfOrWhenInited(PostServerInitialize); // Defer some initialization for when the server initialization is completed
 
             // Check mod versioning if the required data exists
-            if (!string.IsNullOrWhiteSpace(ModIOAppID) && !string.IsNullOrWhiteSpace(ModIODeveloperToken))
-                ModIOVersion = await VersionChecker.CheckVersion(PluginName, ModIOAppID, ModIODeveloperToken);
+            if (!string.IsNullOrWhiteSpace(ModIoAppId) && !string.IsNullOrWhiteSpace(ModIoDeveloperToken))
+                ModIoVersion = await VersionChecker.CheckVersion(PluginName, ModIoAppId, ModIoDeveloperToken);
             else
                 Logger.Info($"Plugin version is {InstalledVersion.ToString(3)}");
         }
@@ -191,11 +191,11 @@ namespace Eco.Plugins.DiscordLink
 
             if (_triggerWorldResetEvent)
             {
-                await HandleEvent(DLEventType.WorldReset, null);
+                await HandleEvent(DlEventType.WorldReset, null);
                 _triggerWorldResetEvent = false;
             }
 
-            await HandleEvent(DLEventType.ServerStarted, null);
+            await HandleEvent(DlEventType.ServerStarted, null);
         }
 
         private void HandleDiscordConnectionFailed(string message)
@@ -222,12 +222,11 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
-
         public async Task ShutdownAsync()
         {
             Status = StatusState.ShuttingDownPlugin;
 
-            await HandleEvent(DLEventType.ServerStopped, null);
+            await HandleEvent(DlEventType.ServerStopped, null);
             ShutdownModules();
             EventConverter.Instance.Shutdown();
             DLStorage.Instance.Shutdown();
@@ -252,7 +251,7 @@ namespace Eco.Plugins.DiscordLink
                 }
 
                 Modules.ForEach(async module => await module.HandleStartOrStop());
-                await HandleEvent(DLEventType.ForceUpdate);
+                await HandleEvent(DlEventType.ForceUpdate);
                 Logger.Info("Forced update");
             });
             nameToFunction.Add("Restart Plugin", () =>
@@ -305,7 +304,7 @@ namespace Eco.Plugins.DiscordLink
             ActionUtil.AddListener(this);
             _activityUpdateTimer = new Timer(TriggerActivityStringUpdate, null, DLConstants.DISCORD_ACTIVITY_STRING_UPDATE_INTERVAL_MS, DLConstants.DISCORD_ACTIVITY_STRING_UPDATE_INTERVAL_MS);
             Client.OnDisconnecting.Add(HandleClientDisconnecting);
-            _ = HandleEvent(DLEventType.DiscordClientConnected);
+            _ = HandleEvent(DlEventType.DiscordClientConnected);
 
             Status = StatusState.Connected;
             Logger.Info("Connection Successful - DiscordLink Running");
@@ -331,58 +330,58 @@ namespace Eco.Plugins.DiscordLink
             {
                 case ChatSent chatSent:
                     Logger.Trace($"Eco Message Received\n{chatSent.FormatForLog()}");
-                    _ = HandleEvent(DLEventType.EcoMessageSent, chatSent);
+                    _ = HandleEvent(DlEventType.EcoMessageSent, chatSent);
                     break;
 
                 case CurrencyTrade currencyTrade:
-                    _ = HandleEvent(DLEventType.Trade, currencyTrade);
+                    _ = HandleEvent(DlEventType.Trade, currencyTrade);
                     break;
 
                 case CreateWorkOrder createWorkOrderAction:
-                    _ = HandleEvent(DLEventType.WorkOrderCreated, createWorkOrderAction);
+                    _ = HandleEvent(DlEventType.WorkOrderCreated, createWorkOrderAction);
                     break;
 
                 case PostedWorkParty postedWorkParty:
-                    _ = HandleEvent(DLEventType.PostedWorkParty, postedWorkParty);
+                    _ = HandleEvent(DlEventType.PostedWorkParty, postedWorkParty);
                     break;
 
                 case CompletedWorkParty completedWorkParty:
-                    _ = HandleEvent(DLEventType.CompletedWorkParty, completedWorkParty);
+                    _ = HandleEvent(DlEventType.CompletedWorkParty, completedWorkParty);
                     break;
 
                 case JoinedWorkParty joinedWorkParty:
-                    _ = HandleEvent(DLEventType.JoinedWorkParty, joinedWorkParty);
+                    _ = HandleEvent(DlEventType.JoinedWorkParty, joinedWorkParty);
                     break;
 
                 case LeftWorkParty leftWorkParty:
-                    _ = HandleEvent(DLEventType.LeftWorkParty, leftWorkParty);
+                    _ = HandleEvent(DlEventType.LeftWorkParty, leftWorkParty);
                     break;
 
                 case WorkedForWorkParty workedParty:
-                    _ = HandleEvent(DLEventType.WorkedWorkParty, workedParty);
+                    _ = HandleEvent(DlEventType.WorkedWorkParty, workedParty);
                     break;
 
                 case Vote vote:
-                    _ = HandleEvent(DLEventType.Vote, vote);
+                    _ = HandleEvent(DlEventType.Vote, vote);
                     break;
 
                 case CreateCurrency createCurrency:
-                    _ = HandleEvent(DLEventType.CurrencyCreated, createCurrency);
+                    _ = HandleEvent(DlEventType.CurrencyCreated, createCurrency);
                     break;
 
                 case DemographicChange demographicChange:
-                    DLEventType type = demographicChange.Entered == Shared.Items.EnteredOrLeftDemographic.EnteringDemographic
-                        ? DLEventType.EnteredDemographic
-                        : DLEventType.LeftDemographic;
+                    DlEventType type = demographicChange.Entered == Shared.Items.EnteredOrLeftDemographic.EnteringDemographic
+                        ? DlEventType.EnteredDemographic
+                        : DlEventType.LeftDemographic;
                     _ = HandleEvent(type, demographicChange);
                     break;
 
                 case GainSpecialty gainSpecialty:
-                    _ = HandleEvent(DLEventType.GainedSpecialty, gainSpecialty);
+                    _ = HandleEvent(DlEventType.GainedSpecialty, gainSpecialty);
                     break;
 
                 case LoseSpecialty loseSpecialty:
-                    _ = HandleEvent(DLEventType.LostSpecialty, loseSpecialty);
+                    _ = HandleEvent(DlEventType.LostSpecialty, loseSpecialty);
                     break;
 
                 default:
@@ -390,7 +389,7 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
-        public async Task HandleEvent(DLEventType eventType, params object[] data)
+        public async Task HandleEvent(DlEventType eventType, params object[] data)
         {
             Logger.Trace($"Event of type {eventType} received");
 
@@ -460,7 +459,7 @@ namespace Eco.Plugins.DiscordLink
             Modules = new Module[Enum.GetNames(typeof(ModuleType)).Length];
         }
 
-        private async void UpdateModules(DLEventType trigger, params object[] data)
+        private async void UpdateModules(DlEventType trigger, params object[] data)
         {
             foreach (Module module in Modules.NonNull())
             {
@@ -477,15 +476,15 @@ namespace Eco.Plugins.DiscordLink
 
         private void TriggerActivityStringUpdate(object stateInfo)
         {
-            UpdateActivityString(DLEventType.Timer);
+            UpdateActivityString(DlEventType.Timer);
         }
 
-        private void UpdateActivityString(DLEventType trigger)
+        private void UpdateActivityString(DlEventType trigger)
         {
             try
             {
                 if (Client.ConnectionStatus != DiscordClient.ConnectionState.Connected
-                    || (trigger & (DLEventType.Join | DLEventType.Login | DLEventType.Logout | DLEventType.Timer)) == 0)
+                    || (trigger & (DlEventType.Join | DlEventType.Login | DlEventType.Logout | DlEventType.Timer)) == 0)
                     return;
 
                 Client.DSharpClient.UpdateStatusAsync(new DiscordActivity(MessageBuilder.Discord.GetActivityString(), ActivityType.Watching));
@@ -500,15 +499,15 @@ namespace Eco.Plugins.DiscordLink
 
         private void InitCallbacks()
         {
-            OnNewUserJoined = async user => await HandleEvent(DLEventType.Join, user);
-            OnNewUserLoggedIn = async user => await HandleEvent(DLEventType.Login, user);
-            OnUserLoggedOut = async user => await HandleEvent(DLEventType.Logout, user);
-            OnElectionStarted = async election => await HandleEvent(DLEventType.ElectionStarted, election);
-            OnElectionFinished = async election => await HandleEvent(DLEventType.ElectionStopped, election);
+            OnNewUserJoined = async user => await HandleEvent(DlEventType.Join, user);
+            OnNewUserLoggedIn = async user => await HandleEvent(DlEventType.Login, user);
+            OnUserLoggedOut = async user => await HandleEvent(DlEventType.Logout, user);
+            OnElectionStarted = async election => await HandleEvent(DlEventType.ElectionStarted, election);
+            OnElectionFinished = async election => await HandleEvent(DlEventType.ElectionStopped, election);
             OnEventConverted = async args => await HandleEvent(args.EventType, args.Data);
-            OnMooseEventFired = async args => await HandleEvent((DLEventType)args.EventType, args.Data);
-            OnLinkedUserVerified = async (sender, args) => await HandleEvent(DLEventType.AccountLinkVerified, args);
-            OnLinkedUserRemoved = async (sender, args) => await HandleEvent(DLEventType.AccountLinkRemoved, args);
+            OnMooseEventFired = async args => await HandleEvent((DlEventType)args.EventType, args.Data);
+            OnLinkedUserVerified = async (sender, args) => await HandleEvent(DlEventType.AccountLinkVerified, args);
+            OnLinkedUserRemoved = async (sender, args) => await HandleEvent(DlEventType.AccountLinkRemoved, args);
         }
 
         private void RegisterCallbacks()

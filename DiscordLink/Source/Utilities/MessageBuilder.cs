@@ -8,6 +8,7 @@ using Eco.Gameplay.Civics.Elections;
 using Eco.Gameplay.Civics.Laws;
 using Eco.Gameplay.Civics.Titles;
 using Eco.Gameplay.Components;
+using Eco.Gameplay.Components.Store;
 using Eco.Gameplay.Disasters;
 using Eco.Gameplay.Economy;
 using Eco.Gameplay.Economy.Reputation;
@@ -19,32 +20,28 @@ using Eco.Gameplay.Players;
 using Eco.Gameplay.Property;
 using Eco.Gameplay.Settlements;
 using Eco.Gameplay.Skills;
-using Eco.Gameplay.Systems;
 using Eco.Gameplay.Systems.Exhaustion;
-using Eco.Gameplay.Components.Store;
-using Eco.Plugins.DiscordLink.Extensions;
-using Eco.Plugins.Networking;
-using Eco.Simulation.Types;
-using Eco.Shared.Networking;
-using Eco.Shared.Utils;
-using Eco.Shared;
-using Eco.Shared.Items;
 using Eco.Moose.Extensions;
 using Eco.Moose.Utils.Lookups;
+using Eco.Plugins.DiscordLink.Extensions;
+using Eco.Plugins.Networking;
+using Eco.Shared;
+using Eco.Shared.Items;
+using Eco.Shared.Networking;
+using Eco.Shared.Time;
+using Eco.Shared.Utils;
+using Eco.Simulation.Types;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
-using static Eco.Shared.Mathf; // Avoiding collisions with system mathf
 using static Eco.Moose.Features.Trade;
-
+using static Eco.Shared.Mathf; // Avoiding collisions with system mathf
 using Constants = Eco.Moose.Data.Constants.Constants;
-using Text = Eco.Shared.Utils.Text;
-
 using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.Store.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
+using Text = Eco.Shared.Utils.Text;
 
 namespace Eco.Plugins.DiscordLink.Utilities
 {
@@ -126,7 +123,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
             public static string GetVersionMessage()
             {
-                Version? modIOVersion = DiscordLink.Obj.ModIOVersion;
+                Version? modIOVersion = DiscordLink.Obj.ModIoVersion;
                 string modIOVersionDesc = modIOVersion != null ? $"Latest version: {modIOVersion.ToString(3)}" : "Latest version: Unknown";
 
                 Version installedVersion = DiscordLink.Obj.InstalledVersion;
@@ -231,7 +228,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 DLConfigData config = DLConfig.Data;
 
                 // Guild
-                if (config.DiscordServerID == 0)
+                if (config.DiscordServerId == 0)
                 {
                     builder.AppendLine("- Discord server ID not configured.");
                 }
@@ -663,7 +660,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     }
                 }
 
-                if (FeatureConfig.Obj.ExhaustionTimeEnabled && (flag.HasFlag(ServerInfoComponentFlag.ExhaustionResetTimeLeft) || flag.HasFlag(ServerInfoComponentFlag.ExhaustedPlayerCount)))
+                if (DifficultySettingsConfig.Vals.ExhaustionEnabled && (flag.HasFlag(ServerInfoComponentFlag.ExhaustionResetTimeLeft) || flag.HasFlag(ServerInfoComponentFlag.ExhaustedPlayerCount)))
                 {
                     int fieldsAdded = 0;
                     if (flag.HasFlag(ServerInfoComponentFlag.ExhaustionResetTimeLeft))
@@ -700,7 +697,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                         embed.AddAlignmentField();
                     }
 
-                    if (flag.HasFlag(ServerInfoComponentFlag.PlayerListExhaustionTime) && FeatureConfig.Obj.ExhaustionTimeEnabled)
+                    if (flag.HasFlag(ServerInfoComponentFlag.PlayerListExhaustionTime) && DifficultySettingsConfig.Vals.ExhaustionEnabled)
                     {
                         string exhaustTimeList = Shared.GetPlayerExhaustionTimeList();
                         if (!string.IsNullOrWhiteSpace(exhaustTimeList))
@@ -799,7 +796,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 }
 
                 // Exhaustion
-                if (flag.HasFlag(PlayerReportComponentFlag.Exhaustion) && FeatureConfig.Obj.ExhaustionTimeEnabled)
+                if (flag.HasFlag(PlayerReportComponentFlag.Exhaustion) && DifficultySettingsConfig.Vals.ExhaustionEnabled)
                 {
                     report.AddField("Exhaustion Countdown", (user.ExhaustionMonitor?.IsExhausted ?? false) ? "Exhausted" : Shared.GetTimeDescription(user.GetSecondsLeftUntilExhaustion(), includeZeroValues: Shared.TimespanStringComponent.Hour | Shared.TimespanStringComponent.Minute | Shared.TimespanStringComponent.Second), inline: true);
                     report.AddAlignmentField();
@@ -1024,10 +1021,10 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     foreach (UserRunoffVote vote in election.UserVotes.Values)
                     {
                         string topChoiceName = null;
-                        ElectionChoiceID topChoiceID = vote.RankedVotes.FirstOrDefault();
+                        ElectionChoiceID topChoiceId = vote.RankedVotes.FirstOrDefault();
                         foreach (ElectionChoice choice in election.Choices)
                         {
-                            if (choice.ID == topChoiceID)
+                            if (choice.ID == topChoiceId)
                             {
                                 topChoiceName = choice.Name;
                                 break;
@@ -1040,10 +1037,10 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     foreach (TwitchVote vote in election.RawTwitchVotes.Values)
                     {
                         string topChoiceName = null;
-                        ElectionChoiceID topChoiceID = vote.ChoiceID;
+                        ElectionChoiceID topChoiceId = vote.ChoiceID;
                         foreach (ElectionChoice choice in election.Choices)
                         {
-                            if (choice.ID == topChoiceID)
+                            if (choice.ID == topChoiceId)
                             {
                                 topChoiceName = choice.Name;
                                 break;

@@ -20,9 +20,9 @@ namespace Eco.Plugins.DiscordLink.Modules
             return "Discord Chat Feed";
         }
 
-        protected override DLEventType GetTriggers()
+        protected override DlEventType GetTriggers()
         {
-            return DLEventType.DiscordMessageSent;
+            return DlEventType.DiscordMessageSent;
         }
 
         protected override async Task<bool> ShouldRun()
@@ -35,7 +35,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             return false;
         }
 
-        protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
+        protected override async Task UpdateInternal(DiscordLink plugin, DlEventType trigger, params object[] data)
         {
             if (!(data[0] is DiscordMessage message))
                 return;
@@ -61,7 +61,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             string messageContent = GetReadableContent(discordMessage);
             if (sender == null)
             {
-                DiscordMember memberAuthor = await discordMessage.Author.LookupMember();
+                DiscordMember memberAuthor = discordMessage.Author as DiscordMember ?? await discordMessage.Author.LookupMember();
                 messageContent = $"{Text.Color(Color.LightBlue, memberAuthor.DisplayName)} {DLConstants.ECO_DISCORDLINK_ICON} {messageContent}";
             }
             else

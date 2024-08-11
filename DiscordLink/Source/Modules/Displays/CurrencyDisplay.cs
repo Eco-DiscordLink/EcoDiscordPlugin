@@ -1,29 +1,29 @@
-﻿using System;
+﻿using Eco.Gameplay.Economy;
+using Eco.Moose.Utils.Lookups;
+using Eco.Plugins.DiscordLink.Events;
+using Eco.Plugins.DiscordLink.Extensions;
+using Eco.Plugins.DiscordLink.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Eco.Plugins.DiscordLink.Events;
-using Eco.Gameplay.Economy;
-using Eco.Moose.Utils.Lookups;
-using Eco.Plugins.DiscordLink.Utilities;
-using Eco.Plugins.DiscordLink.Extensions;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
     public class CurrencyDisplay : DisplayModule
     {
         protected override string BaseTag { get { return "[Currencies]"; } }
-        protected override int TimerUpdateIntervalMS { get { return 60000; } }
-        protected override int TimerStartDelayMS { get { return 10000; } }
+        protected override int TimerUpdateIntervalMs { get { return 60000; } }
+        protected override int TimerStartDelayMs { get { return 10000; } }
 
         public override string ToString()
         {
             return "Currency Display";
         }
 
-        protected override DLEventType GetTriggers()
+        protected override DlEventType GetTriggers()
         {
-            return base.GetTriggers() | DLEventType.DiscordClientConnected | DLEventType.Timer | DLEventType.CurrencyCreated;
+            return base.GetTriggers() | DlEventType.DiscordClientConnected | DlEventType.Timer | DlEventType.CurrencyCreated;
         }
 
         protected override async Task<List<DiscordTarget>> GetDiscordTargets()

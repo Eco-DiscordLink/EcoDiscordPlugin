@@ -14,9 +14,9 @@ namespace Eco.Plugins.DiscordLink.Modules
             return "Trade Feed";
         }
 
-        protected override DLEventType GetTriggers()
+        protected override DlEventType GetTriggers()
         {
-            return DLEventType.AccumulatedTrade;
+            return DlEventType.AccumulatedTrade;
         }
 
         protected override async Task<bool> ShouldRun()
@@ -29,7 +29,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             return false;
         }
 
-        protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
+        protected override async Task UpdateInternal(DiscordLink plugin, DlEventType trigger, params object[] data)
         {
             if (DLConfig.Data.TradeFeedChannels.Count <= 0)
                 return;

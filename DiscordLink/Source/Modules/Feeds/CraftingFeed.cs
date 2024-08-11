@@ -12,9 +12,9 @@ namespace Eco.Plugins.DiscordLink.Modules
             return "Crafting Feed";
         }
 
-        protected override DLEventType GetTriggers()
+        protected override DlEventType GetTriggers()
         {
-            return DLEventType.WorkOrderCreated;
+            return DlEventType.WorkOrderCreated;
         }
 
         protected override async Task<bool> ShouldRun()
@@ -27,7 +27,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             return false;
         }
 
-        protected override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
+        protected override async Task UpdateInternal(DiscordLink plugin, DlEventType trigger, params object[] data)
         {
             if (!(data[0] is CreateWorkOrder craftingEvent))
                 return;

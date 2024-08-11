@@ -13,13 +13,13 @@ namespace Eco.Plugins.DiscordLink.Events
 {
     public class DLEventArgs : EventArgs
     {
-        public DLEventArgs(DLEventType eventType, object[] data)
+        public DLEventArgs(DlEventType eventType, object[] data)
         {
             EventType = eventType;
             Data = data;
         }
 
-        public DLEventType EventType { get; set; }
+        public DlEventType EventType { get; set; }
         public object[] Data { get; set; }
     }
 
@@ -62,7 +62,7 @@ namespace Eco.Plugins.DiscordLink.Events
                                 logs = _accumulatedLogs.ToArray();
                                 _accumulatedLogs.Clear();
                             }
-                            FireEvent(DLEventType.AccumulatedServerLog, (object)logs);
+                            FireEvent(DlEventType.AccumulatedServerLog, (object)logs);
                         }
                     }
                     catch (Exception e)
@@ -81,7 +81,7 @@ namespace Eco.Plugins.DiscordLink.Events
             SystemUtils.StopAndDestroyTimer(ref _logPostingTimer);
         }
 
-        public void HandleEvent(DLEventType eventType, params object[] data)
+        public void HandleEvent(DlEventType eventType, params object[] data)
         {
             switch (eventType)
             {
@@ -116,7 +116,7 @@ namespace Eco.Plugins.DiscordLink.Events
             }
         }
 
-        private void FireEvent(DLEventType evetType, params object[] data)
+        private void FireEvent(DlEventType evetType, params object[] data)
         {
             OnEventConverted.Invoke(new DLEventArgs(evetType, data));
         }

@@ -18,9 +18,9 @@ namespace Eco.Plugins.DiscordLink.Modules
         public DateTime LastUpdateTime { get; protected set; } = DateTime.MinValue;
 
         protected virtual string BaseTag { get; } = "[Unset Tag]";
-        protected virtual int TimerUpdateIntervalMS { get; } = -1;
-        protected virtual int TimerStartDelayMS { get; } = 0;
-        protected virtual int HighFrequencyEventDelayMS { get; } = 2000;
+        protected virtual int TimerUpdateIntervalMs { get; } = -1;
+        protected virtual int TimerStartDelayMs { get; } = 0;
+        protected virtual int HighFrequencyEventDelayMs { get; } = 2000;
         protected List<TargetDisplayData> TargetDisplays { get; } = new List<TargetDisplayData>();
 
         private bool _dirty = false;
@@ -42,9 +42,9 @@ namespace Eco.Plugins.DiscordLink.Modules
             return base.GetDisplayText(info, verbose);
         }
 
-        protected override DLEventType GetTriggers()
+        protected override DlEventType GetTriggers()
         {
-            return DLEventType.ForceUpdate | DLEventType.DiscordMessageDeleted | DLEventType.DiscordReactionAdded | DLEventType.DiscordReactionRemoved;
+            return DlEventType.ForceUpdate | DlEventType.DiscordMessageDeleted | DlEventType.DiscordReactionAdded | DlEventType.DiscordReactionRemoved;
         }
 
         protected override async Task Initialize()
@@ -81,17 +81,17 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         public void StartTimer()
         {
-            if ((GetTriggers() & DLEventType.Timer) == 0) return;
+            if ((GetTriggers() & DlEventType.Timer) == 0) return;
 
             if (_updateTimer != null)
                 StopTimer();
 
-            _updateTimer = new Timer(this.TriggerTimedUpdate, null, TimerStartDelayMS, TimerUpdateIntervalMS == -1 ? Timeout.Infinite : TimerUpdateIntervalMS);
+            _updateTimer = new Timer(this.TriggerTimedUpdate, null, TimerStartDelayMs, TimerUpdateIntervalMs == -1 ? Timeout.Infinite : TimerUpdateIntervalMs);
         }
 
         public void StopTimer()
         {
-            if ((GetTriggers() & DLEventType.Timer) == 0)
+            if ((GetTriggers() & DlEventType.Timer) == 0)
                 return;
 
             SystemUtils.StopAndDestroyTimer(ref _updateTimer);
@@ -106,14 +106,14 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         private void TriggerTimedUpdate(object stateInfo)
         {
-            _ = base.Update(DiscordLink.Obj, DLEventType.Timer, null);
+            _ = base.Update(DiscordLink.Obj, DlEventType.Timer, null);
             SystemUtils.StopAndDestroyTimer(ref _HighFrequencyEventTimer);
         }
 
-        protected sealed override async Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data)
+        protected sealed override async Task UpdateInternal(DiscordLink plugin, DlEventType trigger, params object[] data)
         {
             // Handle deleted messages first to avoid crashes
-            if (trigger == DLEventType.DiscordMessageDeleted)
+            if (trigger == DlEventType.DiscordMessageDeleted)
             {
                 if (!(data[0] is DiscordMessage message))
                     return;
@@ -134,22 +134,22 @@ namespace Eco.Plugins.DiscordLink.Modules
                         break;
                 }
             }
-            else if (trigger == DLEventType.DiscordReactionAdded || trigger == DLEventType.DiscordReactionRemoved)
+            else if (trigger == DlEventType.DiscordReactionAdded || trigger == DlEventType.DiscordReactionRemoved)
             {
-                DiscordReactionChange changeType = (trigger == DLEventType.DiscordReactionAdded ? DiscordReactionChange.Added : DiscordReactionChange.Removed);
+                DiscordReactionChange changeType = (trigger == DlEventType.DiscordReactionAdded ? DiscordReactionChange.Added : DiscordReactionChange.Removed);
                 await HandleReactionChange(data[0] as DiscordUser, data[1] as DiscordMessage, data[2] as DiscordEmoji, changeType);
                 return;
             }
 
             // Block Display implementations from using edit and delete events
-            if (trigger == DLEventType.DiscordMessageEdited || trigger == DLEventType.DiscordMessageDeleted)
+            if (trigger == DlEventType.DiscordMessageEdited || trigger == DlEventType.DiscordMessageDeleted)
                 return;
 
             // Avoid hitting the rate limitation by not allowig events that can be fired often to pass straight through.
             if ((trigger & HighFrequencyTriggerFlags) == trigger)
             {
                 if (_HighFrequencyEventTimer == null)
-                    _HighFrequencyEventTimer = new Timer(this.TriggerTimedUpdate, null, HighFrequencyEventDelayMS, Timeout.Infinite);
+                    _HighFrequencyEventTimer = new Timer(this.TriggerTimedUpdate, null, HighFrequencyEventDelayMs, Timeout.Infinite);
                 return;
             }
 
@@ -184,9 +184,9 @@ namespace Eco.Plugins.DiscordLink.Modules
 
                 GetDisplayContent(target, out List<Tuple<string, DiscordLinkEmbed>> tagsAndContent);
 
-                foreach (ulong messageID in channelDisplayData.DisplayMessages.Keys)
+                foreach (ulong messageId in channelDisplayData.DisplayMessages.Keys)
                 {
-                    DiscordMessage message = await plugin.Client.GetMessageAsync(targetChannel, messageID);
+                    DiscordMessage message = await plugin.Client.GetMessageAsync(targetChannel, messageId);
                     if (message == null)
                     {
                         _dirty = true;

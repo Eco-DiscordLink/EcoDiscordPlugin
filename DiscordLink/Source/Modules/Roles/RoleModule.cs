@@ -6,9 +6,9 @@ namespace Eco.Plugins.DiscordLink.Modules
 {
     public abstract class RoleModule : Module
     {
-        protected override DLEventType GetTriggers()
+        protected override DlEventType GetTriggers()
         {
-            return DLEventType.ForceUpdate;
+            return DlEventType.ForceUpdate;
         }
 
         protected override async Task<bool> ShouldRun()

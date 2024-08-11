@@ -10,19 +10,19 @@ namespace Eco.Plugins.DiscordLink.Modules
 {
     public class ServerInfoDisplay : DisplayModule
     {
-        protected override int TimerUpdateIntervalMS { get { return 60000; } }
+        protected override int TimerUpdateIntervalMs { get { return 60000; } }
         protected override string BaseTag { get { return "[Server Info]"; } }
-        protected override int TimerStartDelayMS { get { return 0; } }
+        protected override int TimerStartDelayMs { get { return 0; } }
 
         public override string ToString()
         {
             return "Server Info Display";
         }
 
-        protected override DLEventType GetTriggers()
+        protected override DlEventType GetTriggers()
         {
-            return base.GetTriggers() | DLEventType.DiscordClientConnected | DLEventType.Timer | DLEventType.Login | DLEventType.ElectionStarted
-                | DLEventType.ElectionStopped | DLEventType.Vote;
+            return base.GetTriggers() | DlEventType.DiscordClientConnected | DlEventType.Timer | DlEventType.Login | DlEventType.ElectionStarted
+                | DlEventType.ElectionStopped | DlEventType.Vote;
         }
 
         protected override async Task<List<DiscordTarget>> GetDiscordTargets()

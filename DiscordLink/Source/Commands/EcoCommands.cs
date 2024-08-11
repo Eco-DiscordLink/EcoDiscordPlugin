@@ -1,6 +1,5 @@
 using DSharpPlus;
 using DSharpPlus.Entities;
-using DSharpPlus.SlashCommands;
 using Eco.Gameplay.Players;
 using Eco.Gameplay.Systems.Messaging.Chat.Commands;
 using Eco.Moose.Tools.Logger;
@@ -13,7 +12,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using static Eco.Plugins.DiscordLink.DiscordCommands;
 using static Eco.Plugins.DiscordLink.Enums;
 using static Eco.Plugins.DiscordLink.Utilities.MessageBuilder;
 
@@ -233,11 +231,11 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [ChatSubCommand("DiscordLink", "Checks all permissions needed for the given channel and reports any missing ones.", ChatAuthorizationLevel.Admin)]
-        public static async Task VerifyChannelPermissions(User callingUser, string channelNameOrID)
+        public static async Task VerifyChannelPermissions(User callingUser, string channelNameOrId)
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.VerifyPermissionsForChannel(ApplicationInterfaceType.Eco, callingUser, channelNameOrID);
+                await SharedCommands.VerifyPermissionsForChannel(ApplicationInterfaceType.Eco, callingUser, channelNameOrId);
             }, callingUser);
         }
 
@@ -255,7 +253,7 @@ namespace Eco.Plugins.DiscordLink
         #region Lookups
 
         [ChatSubCommand("DiscordLink", "Displays the Player Report for the given player.", ChatAuthorizationLevel.User)]
-        public static async Task PlayerReport(User callingUser, string playerNameOrID, string reportType = "All")
+        public static async Task PlayerReport(User callingUser, string playerNameOrId, string reportType = "All")
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
@@ -265,16 +263,16 @@ namespace Eco.Plugins.DiscordLink
                     return;
                 }
 
-                await SharedCommands.PlayerReport(ApplicationInterfaceType.Eco, callingUser, playerNameOrID, reportTypeEnum);
+                await SharedCommands.PlayerReport(ApplicationInterfaceType.Eco, callingUser, playerNameOrId, reportTypeEnum);
             }, callingUser);
         }
 
         [ChatSubCommand("DiscordLink", "Displays the Currency Report for the given currency.", ChatAuthorizationLevel.User)]
-        public static async Task CurrencyReport(User callingUser, string currencyNameOrID)
+        public static async Task CurrencyReport(User callingUser, string currencyNameOrId)
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.CurrencyReport(ApplicationInterfaceType.Eco, callingUser, currencyNameOrID);
+                await SharedCommands.CurrencyReport(ApplicationInterfaceType.Eco, callingUser, currencyNameOrId);
             }, callingUser);
         }
 
@@ -297,11 +295,11 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [ChatSubCommand("DiscordLink", "Displays the Election Report for the given election.", ChatAuthorizationLevel.User)]
-        public static async Task ElectionReport(User callingUser, string electionNameOrID)
+        public static async Task ElectionReport(User callingUser, string electionNameOrId)
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.ElectionReport(ApplicationInterfaceType.Eco, callingUser, electionNameOrID);
+                await SharedCommands.ElectionReport(ApplicationInterfaceType.Eco, callingUser, electionNameOrId);
             }, callingUser);
         }
 
@@ -315,11 +313,11 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [ChatSubCommand("DiscordLink", "Displays the Work Party Report for the given work party.", ChatAuthorizationLevel.User)]
-        public static async Task WorkPartyReport(User callingUser, string workPartyNameOrID)
+        public static async Task WorkPartyReport(User callingUser, string workPartyNameOrId)
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                await SharedCommands.WorkPartyReport(ApplicationInterfaceType.Eco, callingUser, workPartyNameOrID);
+                await SharedCommands.WorkPartyReport(ApplicationInterfaceType.Eco, callingUser, workPartyNameOrId);
             }, callingUser);
         }
 
@@ -398,13 +396,13 @@ namespace Eco.Plugins.DiscordLink
 
                 // Find the Discord user
                 DiscordMember matchingMember = null;
-                IReadOnlyCollection<DiscordMember> guildMembers = await plugin.Client.GetGuildMembersAsync();
+                IReadOnlyCollection<DiscordMember> guildMembers = await plugin.Client.GetMembersAsync();
                 if (guildMembers == null)
                     return;
 
                 foreach (DiscordMember member in guildMembers)
                 {
-                    if (member.HasNameOrID(discordName))
+                    if (member.HasNameOrMemberId(discordName))
                     {
                         matchingMember = member;
                         break;
@@ -420,15 +418,17 @@ namespace Eco.Plugins.DiscordLink
                 // Make sure that the accounts aren't already linked to any account
                 foreach (LinkedUser linkedUser in DLStorage.PersistentData.LinkedUsers)
                 {
-                    if (linkedUser.HasAnyID(callingUser.StrangeId, callingUser.SteamId))
+                    bool hasStrangeId = !string.IsNullOrWhiteSpace(callingUser.StrangeId) && !string.IsNullOrWhiteSpace(linkedUser.StrangeId);
+                    bool hasSteamId = !string.IsNullOrWhiteSpace(callingUser.SteamId) && !string.IsNullOrWhiteSpace(linkedUser.SteamId);
+                    if ((hasStrangeId && callingUser.StrangeId == linkedUser.StrangeId) || (hasSteamId && callingUser.SteamId == linkedUser.SteamId))
                     {
-                        if (linkedUser.DiscordID == matchingMember.Id.ToString())
+                        if (linkedUser.DiscordId == matchingMember.Id.ToString())
                             ReportCommandInfo(callingUser, $"Eco account is already linked to this Discord account.\nUse `/DL UnlinkAccount` to remove the existing link.");
                         else
                             ReportCommandInfo(callingUser, $"Eco account is already linked to a different Discord account.\nUse `/DL UnlinkAccount` to remove the existing link.");
                         return;
                     }
-                    else if (linkedUser.DiscordID == matchingMember.Id.ToString())
+                    else if (linkedUser.DiscordId == matchingMember.Id.ToString())
                     {
                         ReportCommandError(callingUser, "Discord account is already linked to a different Eco account.");
                         return;
@@ -436,7 +436,7 @@ namespace Eco.Plugins.DiscordLink
                 }
 
                 // Try to Notify the Discord account, that a link has been made and ask for verification
-                DiscordMessage message = await plugin.Client.SendDMAsync(matchingMember, null, MessageBuilder.Discord.GetVerificationDM(callingUser));
+                DiscordMessage message = await plugin.Client.SendDmAsync(matchingMember, null, MessageBuilder.Discord.GetVerificationDM(callingUser));
 
                 // This message can be null, when the target user has blocked direct messages from guild members.
                 if (message != null)
@@ -563,7 +563,7 @@ namespace Eco.Plugins.DiscordLink
             {
                 if (DLConfig.Data.ChatSyncMode == ChatSyncMode.OptOut)
                 {
-                    if (DLStorage.PersistentData.OptedOutUsers.Any(user => user.HasAnyID(callingUser.StrangeId, callingUser.SteamId)))
+                    if (DLStorage.PersistentData.OptedOutUsers.Any(user => user.HasAnyId(callingUser.StrangeId, callingUser.SteamId)))
                     {
                         ReportCommandError(callingUser, "You have already opted out of chat synchronization.");
                     }
@@ -576,7 +576,7 @@ namespace Eco.Plugins.DiscordLink
                 else if (DLConfig.Data.ChatSyncMode == ChatSyncMode.OptIn)
                 {
                     EcoUser optedInUser;
-                    if ((optedInUser = DLStorage.PersistentData.OptedInUsers.FirstOrDefault(user => user.HasAnyID(callingUser.StrangeId, callingUser.SteamId))) != null)
+                    if ((optedInUser = DLStorage.PersistentData.OptedInUsers.FirstOrDefault(user => user.HasAnyId(callingUser.StrangeId, callingUser.SteamId))) != null)
                     {
                         DLStorage.PersistentData.OptedInUsers.Remove(optedInUser);
                         ReportCommandInfo(callingUser, "You have opted back out of chat synchronization.");
@@ -598,7 +598,7 @@ namespace Eco.Plugins.DiscordLink
                 if (DLConfig.Data.ChatSyncMode == ChatSyncMode.OptOut)
                 {
                     EcoUser optedOutUser;
-                    if ((optedOutUser = DLStorage.PersistentData.OptedOutUsers.FirstOrDefault(user => user.HasAnyID(callingUser.StrangeId, callingUser.SteamId))) != null)
+                    if ((optedOutUser = DLStorage.PersistentData.OptedOutUsers.FirstOrDefault(user => user.HasAnyId(callingUser.StrangeId, callingUser.SteamId))) != null)
                     {
                         DLStorage.PersistentData.OptedOutUsers.Remove(optedOutUser);
                         ReportCommandInfo(callingUser, "You have opted back into chat synchronization.");
@@ -610,7 +610,7 @@ namespace Eco.Plugins.DiscordLink
                 }
                 else if (DLConfig.Data.ChatSyncMode == ChatSyncMode.OptIn)
                 {
-                    if (DLStorage.PersistentData.OptedInUsers.Any(user => user.HasAnyID(callingUser.StrangeId, callingUser.SteamId)))
+                    if (DLStorage.PersistentData.OptedInUsers.Any(user => user.HasAnyId(callingUser.StrangeId, callingUser.SteamId)))
                     {
                         ReportCommandError(callingUser, "You have already opted into chat synchronization.");
                     }

@@ -77,7 +77,7 @@ namespace Eco.Plugins.DiscordLink
                 return; // Do not attempt to initialize if the bot token is empty
             }
 
-            if (DLConfig.Data.DiscordServerID == 0)
+            if (DLConfig.Data.DiscordServerId == 0)
             {
                 Logger.Error("Discord Server not configured - See Github page for install instructions => \"https://github.com/Eco-DiscordLink/EcoDiscordPlugin\"");
                 LastConnectionError = ConnectionError.InvalidGuild;
@@ -122,7 +122,7 @@ namespace Eco.Plugins.DiscordLink
 
                 // Register Discord commands
                 _commands = DSharpClient.UseSlashCommands(new SlashCommandsConfiguration());
-                _commands.RegisterCommands<DiscordCommands>(DLConfig.Data.DiscordServerID);
+                _commands.RegisterCommands<DiscordCommands>(DLConfig.Data.DiscordServerId);
             }
             catch (Exception e)
             {
@@ -172,7 +172,7 @@ namespace Eco.Plugins.DiscordLink
         private async Task HandleGuildDownloadCompleted(DSharpPlus.DiscordClient client, GuildDownloadCompletedEventArgs args)
         {
             Status = "Resolving Discord server...";
-            Guild = DSharpClient.Guilds.Values.FirstOrDefault(guild => guild.Id == DLConfig.Data.DiscordServerID);
+            Guild = DSharpClient.Guilds.Values.FirstOrDefault(guild => guild.Id == DLConfig.Data.DiscordServerId);
 
             if (Guild == null)
             {
@@ -181,7 +181,7 @@ namespace Eco.Plugins.DiscordLink
                 ConnectionStatus = ConnectionState.Disconnected;
                 LastConnectionError = ConnectionError.GuildConnectionFailed;
                 Status = "Failed to find configured Discord server";
-                Logger.Error($"Failed to find Discord server \"{DLConfig.Data.DiscordServerID}\". Make sure the Bot is invited to your Server and the Server ID is correct. See Github page for install instructions.");
+                Logger.Error($"Failed to find Discord server \"{DLConfig.Data.DiscordServerId}\". Make sure the Bot is invited to your Server and the Server ID is correct. See Github page for install instructions.");
                 return;
             }
 
@@ -220,7 +220,7 @@ namespace Eco.Plugins.DiscordLink
             BotMember = null;
 
             OnDisconnected?.Invoke();
-            await DiscordLink.Obj.HandleEvent(DLEventType.DiscordClientDisconnected);
+            await DiscordLink.Obj.HandleEvent(DlEventType.DiscordClientDisconnected);
             return true;
         }
 
@@ -273,7 +273,7 @@ namespace Eco.Plugins.DiscordLink
             if (args.Author == DSharpClient.CurrentUser)
                 return; // Ignore messages sent by our own bot
 
-            await DiscordLink.Obj.HandleEvent(DLEventType.DiscordMessageSent, message);
+            await DiscordLink.Obj.HandleEvent(DlEventType.DiscordMessageSent, message);
         }
 
         private async Task HandleDiscordMessageEdited(DSharpPlus.DiscordClient client, MessageUpdateEventArgs args)
@@ -281,12 +281,12 @@ namespace Eco.Plugins.DiscordLink
             if (args.Author == DSharpClient.CurrentUser)
                 return; // Ignore messages edits made by our own bot
 
-            await DiscordLink.Obj.HandleEvent(DLEventType.DiscordMessageEdited, args.Message, args.MessageBefore);
+            await DiscordLink.Obj.HandleEvent(DlEventType.DiscordMessageEdited, args.Message, args.MessageBefore);
         }
 
         private async Task HandleDiscordMessageDeleted(DSharpPlus.DiscordClient client, MessageDeleteEventArgs args)
         {
-            await DiscordLink.Obj.HandleEvent(DLEventType.DiscordMessageDeleted, args.Message);
+            await DiscordLink.Obj.HandleEvent(DlEventType.DiscordMessageDeleted, args.Message);
         }
 
         private async Task HandleDiscordReactionAdded(DSharpPlus.DiscordClient client, MessageReactionAddEventArgs args)
@@ -294,7 +294,7 @@ namespace Eco.Plugins.DiscordLink
             if (args.User == client.CurrentUser)
                 return; // Ignore reactions sent by our own bot
 
-            await DiscordLink.Obj.HandleEvent(DLEventType.DiscordReactionAdded, args.User, args.Message, args.Emoji);
+            await DiscordLink.Obj.HandleEvent(DlEventType.DiscordReactionAdded, args.User, args.Message, args.Emoji);
         }
 
         private async Task HandleDiscordReactionRemoved(DSharpPlus.DiscordClient client, MessageReactionRemoveEventArgs args)
@@ -302,12 +302,12 @@ namespace Eco.Plugins.DiscordLink
             if (args.User == client.CurrentUser)
                 return; // Ignore reactions sent by our own bot
 
-            await DiscordLink.Obj.HandleEvent(DLEventType.DiscordReactionRemoved, args.User, args.Message, args.Emoji);
+            await DiscordLink.Obj.HandleEvent(DlEventType.DiscordReactionRemoved, args.User, args.Message, args.Emoji);
         }
 
         private async Task HandleMemberRemoved(DSharpPlus.DiscordClient client, GuildMemberRemoveEventArgs args)
         {
-            await DiscordLink.Obj.HandleEvent(DLEventType.DiscordMemberRemoved, args.Member);
+            await DiscordLink.Obj.HandleEvent(DlEventType.DiscordMemberRemoved, args.Member);
         }
 
         private async Task HandleClientError(DSharpPlus.DiscordClient client, ClientErrorEventArgs args)
@@ -338,18 +338,22 @@ namespace Eco.Plugins.DiscordLink
 
         #region Information Fetching
 
-        public DiscordGuild GuildByNameOrID(string guildNameOrID)
+        public IEnumerable<DiscordChannel> GetCachedChannels(params ChannelType[] channelTypes)
         {
-            return guildNameOrID.TryParseSnowflakeID(out ulong ID)
-                ? DSharpClient.Guilds.Values.FirstOrDefault(guild => guild.Id == ID)
-                : DSharpClient.Guilds.Values.FirstOrDefault(guild => guild.Name.EqualsCaseInsensitive(guildNameOrID));
+            return Guild.Channels.Values.Where(channel => channelTypes.Any(type => type == channel.Type));
         }
 
-        public DiscordChannel ChannelByNameOrID(string channelNameOrID)
+        public async Task<IEnumerable<DiscordChannel>> FetchChannels(params ChannelType[] channelTypes)
         {
-            return channelNameOrID.TryParseSnowflakeID(out ulong ID)
-                ? Guild.Channels.Values.FirstOrDefault(channel => channel.Id == ID)
-                : Guild.Channels.Values.FirstOrDefault(guild => guild.Name.EqualsCaseInsensitive(channelNameOrID));
+            IReadOnlyList<DiscordChannel> channels = await Guild.GetChannelsAsync();
+            return channels.Where(channel => channelTypes.Any(type => type == channel.Type));
+        }
+
+        public DiscordChannel ChannelByNameOrId(string channelNameOrId)
+        {
+            return channelNameOrId.TryParseSnowflakeId(out ulong channelId)
+                ? Guild.Channels.Values.FirstOrDefault(channel => channel.Id == channelId)
+                : Guild.Channels.Values.FirstOrDefault(guild => guild.Name.EqualsCaseInsensitive(channelNameOrId));
         }
 
         public bool ChannelHasPermission(DiscordChannel channel, Permissions permission)
@@ -395,7 +399,7 @@ namespace Eco.Plugins.DiscordLink
         {
             foreach (string adminRole in DLConfig.Data.AdminRoles)
             {
-                if (adminRole.TryParseSnowflakeID(out ulong adminRoleID) && member.Roles.Any(role => role.Id == adminRoleID))
+                if (adminRole.TryParseSnowflakeId(out ulong adminRoleId) && member.Roles.Any(role => role.Id == adminRoleId))
                     return true;
 
                 if (member.Roles.Any(role => role.Name.EqualsCaseInsensitive(adminRole)))
@@ -438,78 +442,46 @@ namespace Eco.Plugins.DiscordLink
             return missingIntents;
         }
 
-        public async Task<DiscordUser> GetUserAsync(string userID)
+        public async Task<DiscordMember> GetMemberAsync(string memberIdStr)
         {
-            if (!userID.TryParseSnowflakeID(out ulong ID))
+            if (!memberIdStr.TryParseSnowflakeId(out ulong memberId))
                 return null;
 
-            return await GetUserAsync(ID);
-        }
-
-        public async Task<DiscordUser> GetUserAsync(ulong userID)
-        {
             try
             {
-                Logger.Trace($"Fetching user with ID \"{userID}\"");
-                return await DSharpClient.GetUserAsync(userID);
+                Logger.Trace($"Fetching member with ID \"{memberId}\"");
+                return await Guild.GetMemberAsync(memberId);
             }
             catch (ServerErrorException e)
             {
-                Logger.DebugException($"ServerErrorException occurred when attempting to fetch user with ID \"{userID}\"", e);
+                Logger.DebugException($"ServerErrorException occurred when attempting to fetch member with ID \"{memberIdStr}\"", e);
                 return null;
             }
             catch (Exception e)
             {
-                Logger.Exception($"Error occurred when attempting to fetch user with ID \"{userID}\"", e);
+                Logger.Exception($"Error occurred when attempting to fetch member with ID \"{memberIdStr}\"", e);
                 return null;
             }
         }
 
-        public async Task<DiscordMember> GetMemberAsync(string userID)
-        {
-            if (!userID.TryParseSnowflakeID(out ulong ID))
-                return null;
-
-            return await GetMemberAsync(Guild, ID);
-        }
-
-        public async Task<DiscordMember> GetMemberAsync(DiscordGuild guild, ulong memberID)
-        {
-            try
-            {
-                Logger.Trace($"Fetching member with ID \"{memberID}\"");
-                return await Guild.GetMemberAsync(memberID);
-            }
-            catch (ServerErrorException e)
-            {
-                Logger.DebugException($"ServerErrorException occurred when attempting to fetch member with ID \"{memberID}\"", e);
-                return null;
-            }
-            catch (Exception e)
-            {
-                Logger.Exception($"Error occurred when attempting to fetch member with ID \"{memberID}\"", e);
-                return null;
-            }
-        }
-
-        public async Task<DiscordMessage> GetMessageAsync(DiscordChannel channel, ulong messageID)
+        public async Task<DiscordMessage> GetMessageAsync(DiscordChannel channel, ulong messageId)
         {
             if (!ChannelHasPermission(channel, Permissions.ReadMessageHistory))
                 return null;
 
             try
             {
-                Logger.Trace($"Fetching message with ID \"{messageID}\" from channel \"{channel.Name}\"");
-                return await channel.GetMessageAsync(messageID);
+                Logger.Trace($"Fetching message with ID \"{messageId}\" from channel \"{channel.Name}\"");
+                return await channel.GetMessageAsync(messageId);
             }
             catch (ServerErrorException e)
             {
-                Logger.DebugException($"ServerErrorException occurred when attempting to read message with ID {messageID} from channel \"{channel.Name}\"", e);
+                Logger.DebugException($"ServerErrorException occurred when attempting to read message with ID {messageId} from channel \"{channel.Name}\"", e);
                 return null;
             }
             catch (Exception e)
             {
-                Logger.Exception($"Error occurred when attempting to read message with ID {messageID} from channel \"{channel.Name}\"", e);
+                Logger.Exception($"Error occurred when attempting to read message with ID {messageId} from channel \"{channel.Name}\"", e);
                 return null;
             }
         }
@@ -536,7 +508,7 @@ namespace Eco.Plugins.DiscordLink
             }
         }
 
-        public async Task<IReadOnlyCollection<DiscordMember>> GetGuildMembersAsync()
+        public async Task<IReadOnlyCollection<DiscordMember>> GetMembersAsync()
         {
             if (!BotHasIntent(DiscordIntents.GuildMembers))
             {
@@ -551,7 +523,7 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (ServerErrorException e)
             {
-                Logger.DebugException($"ServerErrorException occurred while fetching guild members", e);
+                Logger.DebugException($"ServerErrorException occurred while fetching all guild members", e);
                 return null;
             }
             catch (Exception e)
@@ -614,9 +586,9 @@ namespace Eco.Plugins.DiscordLink
             return createdMessage;
         }
 
-        public async Task<DiscordMessage> SendDMAsync(DiscordMember targetMember, string textContent, DiscordLinkEmbed embedContent = null)
+        public async Task<DiscordMessage> SendDmAsync(DiscordMember recipientMember, string textContent, DiscordLinkEmbed embedContent = null)
         {
-            if (targetMember == null)
+            if (recipientMember == null)
                 return null;
 
             DiscordMessage createdMessage = null;
@@ -626,31 +598,31 @@ namespace Eco.Plugins.DiscordLink
                 ICollection<string> stringParts = MessageUtils.SplitStringBySize(textContent, DLConstants.DISCORD_MESSAGE_CHARACTER_LIMIT);
                 ICollection<DiscordEmbed> embedParts = MessageUtils.BuildDiscordEmbeds(embedContent);
 
-                Logger.Trace($"Sending DM to user \"{targetMember.Username}\" containing {stringParts.Count} raw string parts and {embedParts.Count} embed parts");
+                Logger.Trace($"Sending DM to user \"{recipientMember.Username}\" containing {stringParts.Count} raw string parts and {embedParts.Count} embed parts");
                 if (stringParts.Count <= 1 && embedParts.Count <= 1)
                 {
                     DiscordEmbed embed = (embedParts.Count >= 1) ? embedParts.First() : null;
-                    createdMessage = await targetMember.SendMessageAsync(textContent, embed);
+                    createdMessage = await recipientMember.SendMessageAsync(textContent, embed);
                 }
                 else
                 {
                     foreach (string textMessagePart in stringParts)
                     {
-                        createdMessage = await targetMember.SendMessageAsync(textMessagePart, null);
+                        createdMessage = await recipientMember.SendMessageAsync(textMessagePart, null);
                     }
                     foreach (DiscordEmbed embedPart in embedParts)
                     {
-                        createdMessage = await targetMember.SendMessageAsync(null, embedPart);
+                        createdMessage = await recipientMember.SendMessageAsync(null, embedPart);
                     }
                 }
             }
             catch (ServerErrorException e)
             {
-                Logger.DebugException($"ServerErrorException occurred while sending message to member \"{targetMember.Username}\"", e);
+                Logger.DebugException($"ServerErrorException occurred while sending message to member \"{recipientMember.Username}\"", e);
             }
             catch (Exception e)
             {
-                Logger.Exception($"Failed to send DM message to {targetMember.Username}", e);
+                Logger.Exception($"Failed to send DM message to {recipientMember.Username}", e);
             }
             return createdMessage;
         }
@@ -750,7 +722,7 @@ namespace Eco.Plugins.DiscordLink
                 DiscordRole role = await Guild.CreateRoleAsync(dlRole.Name, dlRole.Permissions, dlRole.Color, dlRole.Hoist, dlRole.Mentionable, dlRole.AddReason);
                 if (role != null)
                 {
-                    DLStorage.PersistentData.RoleIDs.Add(role.Id);
+                    DLStorage.PersistentData.RoleIds.Add(role.Id);
                     DLStorage.Instance.Write(); // Save immediately after creating so that we don't lose track of the roles in case of an ungraceful exit
                 }
                 else
@@ -775,19 +747,19 @@ namespace Eco.Plugins.DiscordLink
             return await Task.FromResult<DiscordRole>(null);
         }
 
-        public DiscordRole GetRoleById(ulong id)
+        public DiscordRole GetRoleById(ulong roleId)
         {
-            return Guild.RoleByID(id);
+            return Guild.GetRoleById(roleId);
         }
 
-        public DiscordRole GetRoleByName(string name)
+        public DiscordRole GetRoleByName(string roleName)
         {
-            return Guild.RoleByName(name);
+            return Guild.GetRoleByName(roleName);
         }
 
         public async Task AddRoleAsync(DiscordMember member, DiscordLinkRole dlRole)
         {
-            DiscordRole discordRole = Guild.RoleByName(dlRole.Name);
+            DiscordRole discordRole = Guild.GetRoleByName(dlRole.Name);
             if (discordRole == null)
                 discordRole = await CreateRoleAsync(dlRole);
 
@@ -823,7 +795,7 @@ namespace Eco.Plugins.DiscordLink
 
         public async Task RemoveRoleAsync(DiscordMember member, string roleName)
         {
-            DiscordRole role = Guild.RoleByName(roleName);
+            DiscordRole role = Guild.GetRoleByName(roleName);
             if (role == null)
             {
                 Logger.Debug($"Attempting to remove nonexistent role \"{roleName}\" from user \"{member.DisplayName}\"");

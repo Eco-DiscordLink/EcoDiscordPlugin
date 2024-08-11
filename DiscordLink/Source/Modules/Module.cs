@@ -47,7 +47,7 @@ namespace Eco.Plugins.DiscordLink.Modules
         public bool IsEnabled { get; private set; } = false;
 
         // These events may fire very frequently and may trigger rate limitations and therefore some special handling is done based on this field.
-        public const DLEventType HighFrequencyTriggerFlags = DLEventType.EcoMessageSent | DLEventType.DiscordMessageSent | DLEventType.Trade | DLEventType.WorkedWorkParty | DLEventType.WorkOrderCreated;
+        public const DlEventType HighFrequencyTriggerFlags = DlEventType.EcoMessageSent | DlEventType.DiscordMessageSent | DlEventType.Trade | DlEventType.WorkedWorkParty | DlEventType.WorkOrderCreated;
         protected readonly AsyncLock _overlapLock = new AsyncLock();
         protected string _status = "Off";
         protected DateTime _startTime = DateTime.MinValue;
@@ -111,7 +111,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             await Shutdown();
         }
 
-        protected abstract DLEventType GetTriggers();
+        protected abstract DlEventType GetTriggers();
 
         protected virtual async Task<bool> ShouldRun() { throw new NotImplementedException(); }
 
@@ -141,9 +141,9 @@ namespace Eco.Plugins.DiscordLink.Modules
         }
 
         // NOTE: Do NOT acquire the overlap lock in this function or there will be deadlocks
-        protected abstract Task UpdateInternal(DiscordLink plugin, DLEventType trigger, params object[] data);
+        protected abstract Task UpdateInternal(DiscordLink plugin, DlEventType trigger, params object[] data);
 
-        public virtual async Task Update(DiscordLink plugin, DLEventType trigger, params object[] data)
+        public virtual async Task Update(DiscordLink plugin, DlEventType trigger, params object[] data)
         {
             // Check if this module should execute on the supplied trigger
             if ((GetTriggers() & trigger) == 0)

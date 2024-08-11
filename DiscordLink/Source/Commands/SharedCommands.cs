@@ -98,7 +98,7 @@ namespace Eco.Plugins.DiscordLink
 
             DiscordLink plugin = DiscordLink.Obj;
             plugin.Modules.ForEach(async module => await module.HandleStartOrStop());
-            await plugin.HandleEvent(Events.DLEventType.ForceUpdate);
+            await plugin.HandleEvent(Events.DlEventType.ForceUpdate);
             await ReportCommandInfo(source, callContext, "Forced update");
             return true;
         }
@@ -121,7 +121,7 @@ namespace Eco.Plugins.DiscordLink
                 else if (source == ApplicationInterfaceType.Discord)
                 {
                     // Special handling since the call context is broken by the restart and can't be used to respond to the command
-                    DiscordChannel channel = plugin.Client.ChannelByNameOrID(((InteractionContext)callContext).Channel.Id.ToString());
+                    DiscordChannel channel = plugin.Client.ChannelByNameOrId(((InteractionContext)callContext).Channel.Id.ToString());
                     _ = plugin.Client.SendMessageAsync(channel, result);
                 }
             }
@@ -156,12 +156,12 @@ namespace Eco.Plugins.DiscordLink
             Logger.Info("ClearRoles command invoked - Deleting all created roles");
             DiscordLink plugin = DiscordLink.Obj;
             DiscordClient client = plugin.Client;
-            foreach (ulong roleID in DLStorage.PersistentData.RoleIDs)
+            foreach (ulong roleId in DLStorage.PersistentData.RoleIds)
             {
-                DiscordRole role = client.Guild.RoleByID(roleID);
+                DiscordRole role = client.Guild.GetRoleById(roleId);
                 await client.DeleteRoleAsync(role);
             }
-            DLStorage.PersistentData.RoleIDs.Clear();
+            DLStorage.PersistentData.RoleIds.Clear();
             DLStorage.Instance.Write();
             await ReportCommandInfo(source, callContext, "Deleted all tracked roles.");
             return true;
@@ -215,12 +215,12 @@ namespace Eco.Plugins.DiscordLink
             return true;
         }
 
-        public static async Task<bool> VerifyPermissionsForChannel(ApplicationInterfaceType source, object callContext, string channelNameOrID)
+        public static async Task<bool> VerifyPermissionsForChannel(ApplicationInterfaceType source, object callContext, string channelNameOrId)
         {
-            DiscordChannel channel = DiscordLink.Obj.Client.ChannelByNameOrID(channelNameOrID);
+            DiscordChannel channel = DiscordLink.Obj.Client.ChannelByNameOrId(channelNameOrId);
             if (channel == null)
             {
-                await ReportCommandError(source, callContext, $"No channel with the named \"{channelNameOrID}\" could be found.");
+                await ReportCommandError(source, callContext, $"No channel with the named \"{channelNameOrId}\" could be found.");
                 return false;
             }
 
@@ -238,12 +238,12 @@ namespace Eco.Plugins.DiscordLink
 
         #region Lookups
 
-        public static async Task<bool> PlayerReport(ApplicationInterfaceType source, object callContext, string playerNameOrID, PlayerReportComponentFlag ReportType)
+        public static async Task<bool> PlayerReport(ApplicationInterfaceType source, object callContext, string playerNameOrId, PlayerReportComponentFlag ReportType)
         {
-            User user = Lookups.UserByNameOrID(playerNameOrID);
+            User user = Lookups.UserByNameOrId(playerNameOrId);
             if (user == null)
             {
-                await ReportCommandError(source, callContext, $"No player with the name or ID \"{playerNameOrID}\" could be found.");
+                await ReportCommandError(source, callContext, $"No player with the name or ID \"{playerNameOrId}\" could be found.");
                 return false;
             }
 
@@ -255,12 +255,12 @@ namespace Eco.Plugins.DiscordLink
             return true;
         }
 
-        public static async Task<bool> CurrencyReport(ApplicationInterfaceType source, object callContext, string currencyNameOrID)
+        public static async Task<bool> CurrencyReport(ApplicationInterfaceType source, object callContext, string currencyNameOrId)
         {
-            Currency currency = Lookups.CurrencyByNameOrID(currencyNameOrID);
+            Currency currency = Lookups.CurrencyByNameOrId(currencyNameOrId);
             if (currency == null)
             {
-                await ReportCommandError(source, callContext, $"No currency with the name or ID \"{currencyNameOrID}\" could be found.");
+                await ReportCommandError(source, callContext, $"No currency with the name or ID \"{currencyNameOrId}\" could be found.");
                 return false;
             }
 
@@ -338,12 +338,12 @@ namespace Eco.Plugins.DiscordLink
             return true;
         }
 
-        public static async Task<bool> ElectionReport(ApplicationInterfaceType source, object callContext, string electionNameOrID)
+        public static async Task<bool> ElectionReport(ApplicationInterfaceType source, object callContext, string electionNameOrId)
         {
-            Election election = Lookups.ActiveElectionByNameOrID(electionNameOrID);
+            Election election = Lookups.ActiveElectionByNameOrId(electionNameOrId);
             if (election == null)
             {
-                await ReportCommandError(source, callContext, $"No election with the name or ID \"{electionNameOrID}\" could be found.");
+                await ReportCommandError(source, callContext, $"No election with the name or ID \"{electionNameOrId}\" could be found.");
                 return false;
             }
 
@@ -386,12 +386,12 @@ namespace Eco.Plugins.DiscordLink
             return true;
         }
 
-        public static async Task<bool> WorkPartyReport(ApplicationInterfaceType source, object callContext, string workPartyNameOrID)
+        public static async Task<bool> WorkPartyReport(ApplicationInterfaceType source, object callContext, string workPartyNameOrId)
         {
-            WorkParty workParty = Lookups.ActiveWorkPartyByNameOrID(workPartyNameOrID);
+            WorkParty workParty = Lookups.ActiveWorkPartyByNameOrId(workPartyNameOrId);
             if (workParty == null)
             {
-                await ReportCommandError(source, callContext, $"No work party with the name or ID \"{workPartyNameOrID}\" could be found.");
+                await ReportCommandError(source, callContext, $"No work party with the name or ID \"{workPartyNameOrId}\" could be found.");
                 return false;
             }
 
@@ -503,7 +503,7 @@ namespace Eco.Plugins.DiscordLink
             if (linkedUser == null)
                 return false;
 
-            ulong discordID = ulong.Parse(linkedUser.DiscordID);
+            ulong discordMemberId = ulong.Parse(linkedUser.DiscordId);
             if (type == Modules.ModuleArchetype.Display)
             {
                 if (DLConfig.Data.MaxTradeWatcherDisplaysPerUser <= 0)
@@ -512,7 +512,7 @@ namespace Eco.Plugins.DiscordLink
                     return false;
                 }
 
-                int watchedTradesCount = DLStorage.WorldData.GetTradeWatcherCountForUser(discordID);
+                int watchedTradesCount = DLStorage.WorldData.GetTradeWatcherCountForMember(discordMemberId);
                 if (watchedTradesCount >= DLConfig.Data.MaxTradeWatcherDisplaysPerUser)
                 {
                     await ReportCommandError(source, callContext, $"You are already watching {watchedTradesCount} trades and the limit is {DLConfig.Data.MaxTradeWatcherDisplaysPerUser} trade watcher displays per user.\nUse the `/DL-RemoveTradeWatcherDisplay` command to remove a trade watcher to make space if you wish to add a new one.");
@@ -529,7 +529,7 @@ namespace Eco.Plugins.DiscordLink
             if (offerType == TradeTargetType.Invalid)
                 return false;
 
-            bool added = await DLStorage.WorldData.AddTradeWatcher(discordID, new TradeWatcherEntry(matchedName, type));
+            bool added = await DLStorage.WorldData.AddTradeWatcher(discordMemberId, new TradeWatcherEntry(matchedName, type));
             if (added)
             {
                 await ReportCommandInfo(source, callContext, $"Watching all trades for {matchedName}.");
@@ -556,8 +556,8 @@ namespace Eco.Plugins.DiscordLink
             if (linkedUser == null)
                 return false;
 
-            ulong discordID = ulong.Parse(linkedUser.DiscordID);
-            bool removed = await DLStorage.WorldData.RemoveTradeWatcher(discordID, new TradeWatcherEntry(searchName, type));
+            ulong discordId = ulong.Parse(linkedUser.DiscordId);
+            bool removed = await DLStorage.WorldData.RemoveTradeWatcher(discordId, new TradeWatcherEntry(searchName, type));
             if (removed)
             {
                 await ReportCommandInfo(source, callContext, $"Stopped watching trades for {searchName}.");
@@ -578,7 +578,7 @@ namespace Eco.Plugins.DiscordLink
             if (linkedUser == null)
                 return false;
 
-            await ReportCommandInfo(source, callContext, $"Watched Trades\n{DLStorage.WorldData.ListTradeWatchers(ulong.Parse(linkedUser.DiscordID))}");
+            await ReportCommandInfo(source, callContext, $"Watched Trades\n{DLStorage.WorldData.ListTradeWatchers(ulong.Parse(linkedUser.DiscordId))}");
             return true;
         }
 

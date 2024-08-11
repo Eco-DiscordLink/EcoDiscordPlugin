@@ -13,18 +13,18 @@ namespace Eco.Plugins.DiscordLink.Modules
     public class WorkPartyDisplay : DisplayModule
     {
         protected override string BaseTag { get { return "[Work Party]"; } }
-        protected override int TimerUpdateIntervalMS { get { return 60000; } }
-        protected override int TimerStartDelayMS { get { return 10000; } }
+        protected override int TimerUpdateIntervalMs { get { return 60000; } }
+        protected override int TimerStartDelayMs { get { return 10000; } }
 
         public override string ToString()
         {
             return "Work Party Display";
         }
 
-        protected override DLEventType GetTriggers()
+        protected override DlEventType GetTriggers()
         {
-            return base.GetTriggers() | DLEventType.DiscordClientConnected | DLEventType.Timer | DLEventType.PostedWorkParty | DLEventType.CompletedWorkParty
-                | DLEventType.JoinedWorkParty | DLEventType.LeftWorkParty | DLEventType.WorkedWorkParty;
+            return base.GetTriggers() | DlEventType.DiscordClientConnected | DlEventType.Timer | DlEventType.PostedWorkParty | DlEventType.CompletedWorkParty
+                | DlEventType.JoinedWorkParty | DlEventType.LeftWorkParty | DlEventType.WorkedWorkParty;
         }
 
         protected override async Task<List<DiscordTarget>> GetDiscordTargets()
