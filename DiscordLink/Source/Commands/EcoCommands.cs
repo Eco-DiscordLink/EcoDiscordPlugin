@@ -548,11 +548,11 @@ namespace Eco.Plugins.DiscordLink
         #region Message Relaying
 
         [ChatSubCommand("DiscordLink", "Announces a message to everyone or a specified user. Alias for /Moose Announce.", ChatAuthorizationLevel.Admin)]
-        public static async Task Announce(User callingUser, string message, Moose.Data.Enums.MessageType messageType = Moose.Data.Enums.MessageType.Notification, User recipient = null)
+        public static async Task Announce(User callingUser, string message, string messageType = "Notification", User recipient = null)
         {
             await ExecuteCommand<object>(async (lUser, args) =>
             {
-                Moose.Plugin.Commands.Announce(callingUser, message, messageType.ToString(), recipient);
+                Moose.Plugin.Commands.Announce(callingUser, message, messageType, recipient);
             }, callingUser);
         }
 
