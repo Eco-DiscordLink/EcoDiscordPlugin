@@ -219,6 +219,15 @@ namespace Eco.Plugins.DiscordLink
             }, ctx);
         }
 
+        [SlashCommand("ReloadConfig", "Reloads the DiscordLink config.")]
+        public async Task ReloadConfig(InteractionContext ctx)
+        {
+            await ExecuteCommand<object>(PermissionType.Admin, async (lCtx, args) =>
+            {
+                await SharedCommands.ReloadConfig(ApplicationInterfaceType.Discord, ctx);
+            }, ctx);
+        }
+
         [SlashCommand("ResetPersistentData", "Removes all persistent storage data.")]
         public async Task ResetPersistentData(InteractionContext ctx)
         {

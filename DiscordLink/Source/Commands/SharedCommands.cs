@@ -8,6 +8,7 @@ using Eco.Gameplay.Economy;
 using Eco.Gameplay.Economy.WorkParties;
 using Eco.Gameplay.Players;
 using Eco.Moose.Tools.Logger;
+using Eco.Moose.Utils.Plugin;
 using Eco.Moose.Utils.Lookups;
 using Eco.Moose.Utils.Message;
 using Eco.Plugins.DiscordLink.Extensions;
@@ -22,7 +23,6 @@ using static Eco.Moose.Features.Trade;
 using static Eco.Plugins.DiscordLink.Enums;
 using static Eco.Plugins.DiscordLink.Utilities.MessageBuilder;
 using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.Store.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
-
 
 namespace Eco.Plugins.DiscordLink
 {
@@ -133,6 +133,20 @@ namespace Eco.Plugins.DiscordLink
 
             Logger.Info(result);
             return restarted;
+        }
+
+        public static async Task<bool> ReloadConfig(ApplicationInterfaceType source, object callContext)
+        {
+            var resultAndMessage = await PluginUtils.ReloadConfig(DiscordLink.Obj);
+            if (resultAndMessage.Item1)
+            {
+                await ReportCommandInfo(source, callContext, resultAndMessage.Item2);
+            }
+            else
+            {
+                await ReportCommandError(source, callContext, resultAndMessage.Item2);
+            }
+            return resultAndMessage.Item1;
         }
 
         public static async Task<bool> ResetPersistentData(ApplicationInterfaceType source, object callContext)

@@ -95,6 +95,15 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
+        [ChatSubCommand("DiscordLink", "Reloads the DiscordLink config.", ChatAuthorizationLevel.Admin)]
+        public static async Task ReloadConfig(User callingUser)
+        {
+            await ExecuteCommand<object>(async (lUser, args) =>
+            {
+                await SharedCommands.ReloadConfig(ApplicationInterfaceType.Eco, callingUser);
+            }, callingUser);
+        }
+
         [ChatSubCommand("DiscordLink", "Removes all persistent storage data.", ChatAuthorizationLevel.Admin)]
         public static async Task ResetPersistentData(User callingUser)
         {
