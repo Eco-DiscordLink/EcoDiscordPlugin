@@ -3,8 +3,8 @@ By linking your Eco and Discord accounts, you get access to more features like [
 
 # Linking your account
 1. Use [/DL LinkAccount \<UserName>](#Commands.md) in Eco.  
-    The username parameter is your Discord account name (not nickname) with or without the #xxxx at the end.  
-    Example: /DL LinkAccount Monzun#1234  
+    The UserName parameter is your Discord account name (not nickname).  
+    Example: /DL LinkAccount Monzun  
 2. If your account could be found on the Discord server, the bot will send you a DM.  
 3. Click the approve button on the message in your bot DMs to verify that you are the owner of both the Eco and Discord account.  
 4. Your account is now linked!  
