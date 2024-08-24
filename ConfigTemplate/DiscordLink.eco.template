@@ -1,6 +1,6 @@
 {
   "BotToken": "",
-  "DiscordServerID": 0,
+  "DiscordServerId": 0,
   "AdminRoles": [
     "Admin",
     "Administrator",
@@ -9,7 +9,6 @@
   ],
   "ServerName": "",
   "ServerDescription": "",
-  "MinEmbedSizeForFooter": "Medium",
   "ConnectionInfo": "",
   "ChatSyncMode": "OptOut",
   "ChatChannelLinks": [],
@@ -19,6 +18,7 @@
   "PlayerStatusFeedChannels": [],
   "ElectionFeedChannels": [],
   "ServerLogFeedChannels": [],
+  "UseTradeWatcherFeeds": false,
   "ServerInfoDisplayChannels": [],
   "WorkPartyDisplayChannels": [],
   "ElectionDisplayChannels": [],
@@ -37,11 +37,14 @@
     }
   ],
   "UseSpecialtyRoles": true,
+  "UseElectedTitleRoles": true,
   "DiscordCommandChannels": [],
   "MaxTradeWatcherDisplaysPerUser": 5,
   "InviteMessage": "Join us on Discord!\\n[LINK]",
   "LogLevel": "Information",
   "BackendLogLevel": "None",
+  "TraceFileLogging": false,
   "UseVerboseDisplay": false,
-  "EmoteIconSubstitutions": []
+  "EmoteIconSubstitutions": [],
+  "MinEmbedSizeForFooter": "Medium"
 }

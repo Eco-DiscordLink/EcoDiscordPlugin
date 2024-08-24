@@ -23,19 +23,17 @@ The config data needs to match your Eco server, Discord server and Discord bot.
 
 ```
 {  
-  "DiscordServerID": 112233445566778899,  
   "BotToken": "xxXXxxxXxXXxxxxxxXxxxxXXXXxxx.XxxXxx.xXXXxxxxXXxxxxXxxxXXXXXXXxxxxxxxX",  
+  "DiscordServerId": 112233445566778899,  
     "AdminRoles": [  
-    "admin",  
-    "administrator",  
-    "moderator",  
+    "Admin",  
+    "Administrator",  
+    "Moderator",  
     "Eco Admins"  
   ],  
-  "MinEmbedSizeForFooter": "Medium",
   "ServerName": "TheEcoServer",  
   "ServerDescription": "The place to play Eco!",  
   "ConnectionInfo": "xxx.xxx.xxx.xx",  
-  "ServerLogo": "https://github.com/Eco-DiscordLink/EcoDiscordPlugin/blob/develop/images/DiscordLinkLogo_Nameless.png",  
   "ChatSyncMode": "OptOut",  
   "ChatChannelLinks": [  
    {  
@@ -80,6 +78,7 @@ The config data needs to match your Eco server, Discord server and Discord bot.
       "DiscordChannelId": 980963363205025815  
     }  
   ],  
+  "UseTradeWatcherFeeds": false,  
   "ServerInfoDisplayChannels": [  
     {  
       "UseName": true,  
@@ -144,6 +143,7 @@ The config data needs to match your Eco server, Discord server and Discord bot.
     }  
   ],  
   "UseSpecialtyRoles": true,  
+  "UseElectedTitleRoles": true,  
   "DiscordCommandChannels": [  
     {  
       "DiscordChannelId": 980963363205025815
@@ -153,16 +153,19 @@ The config data needs to match your Eco server, Discord server and Discord bot.
   "InviteMessage": "Join us on Discord!\n[LINK]",
   "LogLevel": "Information",  
   "BackendLogLevel": "Error",  
+  "TraceFileLogging": false,  
+  "UseVerboseDisplay": false,  
   "EmoteIconSubstitutions": [
     {
       "DiscordEmoteKey": "DiscordLink",
       "EcoIconKey": "DiscordLinkLogo"
     },
     {
-      "DiscordEmoteKey": "rooThink",
-      "EcoIconKey": "rooThink"
+      "DiscordEmoteKey": "meow_pat",
+      "EcoIconKey": "meow_pat"
     }
-  ]
+  ],
+  "MinEmbedSizeForFooter": "Medium"
 }  
 ```  
 
@@ -267,3 +270,6 @@ Roles that will be used (and created if needed) for the given demographics.
 
 **UseSpecialtyRoles**
 Determines if Discord roles matching ingame specialties will be granted to users who have linked their accounts.
+
+**UseElectedTitleRoles**
+Determines if Discord roles matching ingame elected titles will be granted to users who have linked their accounts.
