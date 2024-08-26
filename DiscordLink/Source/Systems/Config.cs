@@ -3,7 +3,6 @@ using Eco.Core.Plugins;
 using Eco.Moose.Tools.Logger;
 using Eco.Moose.Utils.Message;
 using Eco.Plugins.DiscordLink.Extensions;
-using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Plugins.Networking;
 using Eco.Shared.Utils;
 using System;

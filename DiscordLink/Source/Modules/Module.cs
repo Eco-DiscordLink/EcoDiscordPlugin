@@ -1,6 +1,6 @@
 ﻿using DiscordLink.Source.Utilities;
-using Eco.Moose.Tools.Logger;
 using Eco.Moose.Data.Constants;
+using Eco.Moose.Tools.Logger;
 using Eco.Plugins.DiscordLink.Events;
 using Nito.AsyncEx;
 using System;

@@ -1,8 +1,6 @@
-﻿using DSharpPlus;
-using DSharpPlus.Entities;
+﻿using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using Eco.Shared.Utils;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 

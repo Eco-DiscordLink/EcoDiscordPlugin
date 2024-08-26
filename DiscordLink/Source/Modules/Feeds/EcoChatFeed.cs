@@ -1,6 +1,6 @@
 ﻿using DSharpPlus.Entities;
-using Eco.Moose.Tools.Logger;
 using Eco.Gameplay.GameActions;
+using Eco.Moose.Tools.Logger;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Utilities;
 using Eco.Shared.Utils;

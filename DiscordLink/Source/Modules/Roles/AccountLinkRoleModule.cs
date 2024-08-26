@@ -1,9 +1,9 @@
-﻿using DSharpPlus.Entities;
-using Eco.Plugins.DiscordLink.Events;
-using System.Threading.Tasks;
-using Eco.Plugins.DiscordLink.Extensions;
-using DSharpPlus;
+﻿using DSharpPlus;
+using DSharpPlus.Entities;
 using Eco.Moose.Tools.Logger;
+using Eco.Plugins.DiscordLink.Events;
+using Eco.Plugins.DiscordLink.Extensions;
+using System.Threading.Tasks;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {

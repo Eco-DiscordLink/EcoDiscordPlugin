@@ -1,6 +1,7 @@
 ﻿using DSharpPlus.Entities;
-using Eco.Moose.Tools.Logger;
 using Eco.Gameplay.Players;
+using Eco.Moose.Tools.Logger;
+using Eco.Moose.Utils.Message;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
@@ -9,7 +10,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Color = Eco.Shared.Utils.Color;
-using Eco.Moose.Utils.Message;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {

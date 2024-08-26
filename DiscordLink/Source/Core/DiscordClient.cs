@@ -476,12 +476,12 @@ namespace Eco.Plugins.DiscordLink
             }
             catch (ServerErrorException e)
             {
-                Logger.DebugException($"ServerErrorException occurred when attempting to read message with ID {messageId} from channel \"{channel.Name}\"", e);
+                Logger.DebugException($"ServerErrorException occurred when attempting to fetch message with ID {messageId} from channel \"{channel.Name}\"", e);
                 return null;
             }
             catch (Exception e)
             {
-                Logger.Exception($"Error occurred when attempting to read message with ID {messageId} from channel \"{channel.Name}\"", e);
+                Logger.Exception($"Error occurred when attempting to fetch message with ID {messageId} from channel \"{channel.Name}\"", e);
                 return null;
             }
         }

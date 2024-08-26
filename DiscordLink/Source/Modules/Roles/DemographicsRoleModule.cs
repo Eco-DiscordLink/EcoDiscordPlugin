@@ -1,13 +1,13 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Entities;
-using Eco.Plugins.DiscordLink.Events;
-using Eco.Plugins.DiscordLink.Extensions;
-using Eco.Gameplay.GameActions;
 using Eco.Gameplay.Civics.Demographics;
+using Eco.Gameplay.GameActions;
 using Eco.Gameplay.Settlements;
-using Eco.Shared.Utils;
 using Eco.Moose.Tools.Logger;
 using Eco.Moose.Utils.Lookups;
+using Eco.Plugins.DiscordLink.Events;
+using Eco.Plugins.DiscordLink.Extensions;
+using Eco.Shared.Utils;
 using System.Linq;
 using System.Threading.Tasks;
 

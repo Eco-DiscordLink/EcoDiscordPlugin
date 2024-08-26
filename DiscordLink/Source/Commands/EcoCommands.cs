@@ -185,7 +185,7 @@ namespace Eco.Plugins.DiscordLink
             }, callingUser);
         }
 
-        [ChatSubCommand("DiscordLink", "Open the documentation web page", ChatAuthorizationLevel.User)]
+        [ChatSubCommand("DiscordLink", "Opens the documentation web page", ChatAuthorizationLevel.User)]
         public static async Task Documentation(User callingUser)
         {
             await ExecuteCommand<object>(async (lUser, args) =>
