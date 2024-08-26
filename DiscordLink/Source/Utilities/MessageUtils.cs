@@ -106,11 +106,14 @@ namespace Eco.Plugins.DiscordLink.Utilities
             }
 
             // Early escape if no splitting is needed
-            if (totalCharsCount <= DLConstants.DISCORD_EMBED_TOTAL_CHARACTER_LIMIT && needsSplitFields.Count <= DLConstants.DISCORD_EMBED_FIELD_ALIGNED_COUNT_LIMIT && !needsSplitFields.Any(t => t == true))
+            int numFieldsToSplit = needsSplitFields.Count(t => t  == true);
+            if (totalCharsCount <= DLConstants.DISCORD_EMBED_TOTAL_CHARACTER_LIMIT && needsSplitFields.Count <= DLConstants.DISCORD_EMBED_FIELD_ALIGNED_COUNT_LIMIT && numFieldsToSplit <= 0)
             {
                 resultEmbeds.Add(BuildDiscordEmbed(fullEmbed));
                 return resultEmbeds;
             }
+
+            const int partCountCharactersMax = 6; // Space + Parenthesis + Number (No more than 999 parts)
 
             // Split too long fields
             List<DiscordLinkEmbedField> splitFields = new List<DiscordLinkEmbedField>();
@@ -119,8 +122,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 DiscordLinkEmbedField field = fullEmbed.Fields[i];
                 if (needsSplitFields[i] == true)
                 {
-                    const int PartCountCharactersMax = 6; // Space + Parenthesis + Number (No more than 999 parts)
-                    IEnumerable<string> splits = SplitStringBySize(field.Text, DLConstants.DISCORD_EMBED_FIELD_CHARACTER_LIMIT - (field.Title.Length + PartCountCharactersMax));
+                    IEnumerable<string> splits = SplitStringBySize(field.Text, DLConstants.DISCORD_EMBED_FIELD_CHARACTER_LIMIT - (field.Title.Length + partCountCharactersMax));
                     int partCount = 1;
                     foreach (string fieldSplit in splits)
                     {
@@ -139,12 +141,14 @@ namespace Eco.Plugins.DiscordLink.Utilities
             DiscordLinkEmbed splitEmbedBuilder = new DiscordLinkEmbed(fullEmbed);
             splitEmbedBuilder.WithFooter(string.Empty); // Remove the footer for now, we will add it back at the end
             splitEmbedBuilder.ClearFields();
+            int embedTitleAndFooterSize = fullEmbed.Title.Length + partCountCharactersMax + fullEmbed.Footer.Length;
             int characterCount = 0;
             int fieldCount = 0;
             foreach (DiscordLinkEmbedField field in splitFields)
             {
                 // If adding the next field would bring us over a limit, split into new embeds
-                if (characterCount + field.Text.Length > DLConstants.DISCORD_EMBED_TOTAL_CHARACTER_LIMIT || fieldCount + 1 > DLConstants.DISCORD_EMBED_FIELD_ALIGNED_COUNT_LIMIT)
+                int fieldTotalTextSize = field.Title.Length + field.Text.Length;
+                if (characterCount + fieldTotalTextSize > (DLConstants.DISCORD_EMBED_TOTAL_CHARACTER_LIMIT - embedTitleAndFooterSize) || fieldCount + 1 > DLConstants.DISCORD_EMBED_FIELD_ALIGNED_COUNT_LIMIT)
                 {
                     splitEmbedBuilder.WithTitle($"{fullEmbed.Title} ({splitEmbeds.Count + 1})");
                     splitEmbeds.Add(new DiscordLinkEmbed(splitEmbedBuilder));
@@ -154,7 +158,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 }
 
                 splitEmbedBuilder.AddField(field.Title, field.Text, field.AllowAutoLineBreak, field.Inline);
-                characterCount += field.Text.Length;
+                characterCount += fieldTotalTextSize;
                 ++fieldCount;
             }
             splitEmbeds.Add(splitEmbedBuilder);
