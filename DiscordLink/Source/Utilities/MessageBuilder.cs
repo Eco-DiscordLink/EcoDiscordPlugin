@@ -1296,7 +1296,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             {
                 // Format message
                 DiscordLinkEmbed embed = new DiscordLinkEmbed()
-                    .WithTitle($"Trade offers for {matchedName}");
+                    .WithTitle($"Trade offers for {matchedName.StripTags()}");
 
                 if (groupedSellOffers.Count() > 0 || groupedBuyOffers.Count() > 0)
                 {
