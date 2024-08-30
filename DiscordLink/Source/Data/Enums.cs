@@ -18,13 +18,6 @@ namespace Eco.Plugins.DiscordLink
             Removed
         }
 
-        public enum CallerType
-        {
-            Eco,
-            Discord,
-            Other,
-        }
-
         public enum CurrencyType
         {
             [ChoiceName("All")]
