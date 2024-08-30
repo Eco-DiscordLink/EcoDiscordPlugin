@@ -126,13 +126,13 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     int partCount = 1;
                     foreach (string fieldSplit in splits)
                     {
-                        splitFields.Add(new DiscordLinkEmbedField($"{field.Title} ({partCount})", fieldSplit, fullEmbed.Fields[i].AllowAutoLineBreak, fullEmbed.Fields[i].Inline));
+                        splitFields.Add(new DiscordLinkEmbedField($"{field.Title} ({partCount})", fieldSplit, field.AllowAutoLineBreak, field.Inline));
                         ++partCount;
                     }
                 }
                 else
                 {
-                    splitFields.Add(new DiscordLinkEmbedField(fullEmbed.Fields[i].Title, fullEmbed.Fields[i].Text, fullEmbed.Fields[i].AllowAutoLineBreak, fullEmbed.Fields[i].Inline));
+                    splitFields.Add(new DiscordLinkEmbedField(field.Title, field.Text, field.AllowAutoLineBreak, field.Inline));
                 }
             }
 

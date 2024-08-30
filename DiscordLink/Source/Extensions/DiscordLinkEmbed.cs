@@ -64,10 +64,10 @@ namespace Eco.Plugins.DiscordLink.Extensions
             return this;
         }
 
-        public DiscordLinkEmbed AddField(string name, string text, bool? allowAutoLineBreak = null, bool inline = false)
+        public DiscordLinkEmbed AddField(string title, string text, bool? allowAutoLineBreak = null, bool inline = false)
         {
-            if (string.IsNullOrWhiteSpace(name))
-                name = INVISIBLE_EMBED_CHAR;
+            if (string.IsNullOrWhiteSpace(title))
+                title = INVISIBLE_EMBED_CHAR;
 
             if (string.IsNullOrWhiteSpace(text))
                 text = INVISIBLE_EMBED_CHAR;
@@ -91,7 +91,7 @@ namespace Eco.Plugins.DiscordLink.Extensions
                 text = builder.ToString();
             }
 
-            Fields.Add(new DiscordLinkEmbedField(name, text, (bool)allowAutoLineBreak, inline));
+            Fields.Add(new DiscordLinkEmbedField(title, text, (bool)allowAutoLineBreak, inline));
             return this;
         }
 

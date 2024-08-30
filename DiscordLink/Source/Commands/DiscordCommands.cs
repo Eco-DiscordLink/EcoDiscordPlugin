@@ -192,7 +192,7 @@ namespace Eco.Plugins.DiscordLink
                 {
                     await Respond(ctx, errorMessage, null);
                 }
-                catch { } // If we fail, it's probably for the same reason as above, so let's not spam the log.
+                catch { } // If we fail, it's probably for the same reason as above, so let's not spam the log
             }
         }
 
