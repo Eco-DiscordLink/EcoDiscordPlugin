@@ -36,7 +36,7 @@ namespace Eco.Plugins.DiscordLink
 
         private delegate Task EcoCommand(User callingUser, params string[] parameters);
 
-        private static async Task ExecuteCommand<TRet>(EcoCommand command, User callingUser, params string[] parameters)
+        private static async Task ExecuteCommand(EcoCommand command, User callingUser, params string[] parameters)
         {
             // Trim the arguments since they often have a space at the beginning
             for (int i = 0; i < parameters.Length; ++i)
@@ -91,7 +91,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task Update(User callingUser)
         {
             EcoCommandContext ctx = new EcoCommandContext(callingUser);
-            await ExecuteCommand<object>(async (lUser, args) =>
+            await ExecuteCommand(async (lUser, args) =>
             {
                 await SharedCommands.Update(ApplicationInterfaceType.Eco, ctx);
             }, callingUser);
@@ -101,7 +101,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task RestartPlugin(User callingUser)
         {
             EcoCommandContext ctx = new EcoCommandContext(callingUser);
-            await ExecuteCommand<object>(async (lUser, args) =>
+            await ExecuteCommand(async (lUser, args) =>
             {
                 await SharedCommands.RestartPlugin(ApplicationInterfaceType.Eco, ctx);
             }, callingUser);
@@ -111,7 +111,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task ReloadConfig(User callingUser)
         {
             EcoCommandContext ctx = new EcoCommandContext(callingUser);
-            await ExecuteCommand<object>(async (lUser, args) =>
+            await ExecuteCommand(async (lUser, args) =>
             {
                 await SharedCommands.ReloadConfig(ApplicationInterfaceType.Eco, ctx);
             }, callingUser);
@@ -121,7 +121,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task ResetPersistentData(User callingUser)
         {
             EcoCommandContext ctx = new EcoCommandContext(callingUser);
-            await ExecuteCommand<object>(async (lUser, args) =>
+            await ExecuteCommand(async (lUser, args) =>
             {
                 await SharedCommands.ResetPersistentData(ApplicationInterfaceType.Eco, ctx);
             }, callingUser);
@@ -131,7 +131,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task ResetWorldData(User callingUser)
         {
             EcoCommandContext ctx = new EcoCommandContext(callingUser);
-            await ExecuteCommand<object>(async (lUser, args) =>
+            await ExecuteCommand(async (lUser, args) =>
             {
                 await SharedCommands.ResetWorldData(ApplicationInterfaceType.Eco, ctx);
             }, callingUser);
@@ -141,7 +141,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task ClearRoles(User callingUser)
         {
             EcoCommandContext ctx = new EcoCommandContext(callingUser);
-            await ExecuteCommand<object>(async (lUser, args) =>
+            await ExecuteCommand(async (lUser, args) =>
             {
                 await SharedCommands.ClearRoles(ApplicationInterfaceType.Eco, ctx);
             }, callingUser);
@@ -152,7 +152,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task PersistentStorageData(User callingUser)
         {
             EcoCommandContext ctx = new EcoCommandContext(callingUser);
-            await ExecuteCommand<object>(async (lUser, args) =>
+            await ExecuteCommand(async (lUser, args) =>
             {
                 await SharedCommands.PersistentStorageData(ApplicationInterfaceType.Eco, ctx);
             }, callingUser);
@@ -162,7 +162,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task WorldStorageData(User callingUser)
         {
             EcoCommandContext ctx = new EcoCommandContext(callingUser);
-            await ExecuteCommand<object>(async (lUser, args) =>
+            await ExecuteCommand(async (lUser, args) =>
             {
                 await SharedCommands.WorldStorageData(ApplicationInterfaceType.Eco, ctx);
             }, callingUser);
@@ -176,7 +176,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task ServerShutdown(User callingUser)
         {
             EcoCommandContext ctx = new EcoCommandContext(callingUser);
-            await ExecuteCommand<object>(async (lUser, args) =>
+            await ExecuteCommand(async (lUser, args) =>
             {
                 await SharedCommands.ServerShutdown(ApplicationInterfaceType.Eco, ctx);
             }, callingUser);
@@ -190,7 +190,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task Version(User callingUser)
         {
             EcoCommandContext ctx = new EcoCommandContext(callingUser);
-            await ExecuteCommand<object>(async (lUser, args) =>
+            await ExecuteCommand(async (lUser, args) =>
             {
                 ReportCommandInfo(ctx, MessageBuilder.Shared.GetVersionMessage());
             }, callingUser);
@@ -200,7 +200,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task About(User callingUser)
         {
             EcoCommandContext ctx = new EcoCommandContext(callingUser);
-            await ExecuteCommand<object>(async (lUser, args) =>
+            await ExecuteCommand(async (lUser, args) =>
             {
                 DisplayCommandData(ctx, DLConstants.ECO_PANEL_DL_MESSAGE_MEDIUM, $"About DiscordLink {Plugins.DiscordLink.DiscordLink.Obj.InstalledVersion.ToString(3)}", MessageBuilder.Shared.GetAboutMessage());
             }, callingUser);
@@ -210,7 +210,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task Documentation(User callingUser)
         {
             EcoCommandContext ctx = new EcoCommandContext(callingUser);
-            await ExecuteCommand<object>(async (lUser, args) =>
+            await ExecuteCommand(async (lUser, args) =>
             {
                 callingUser.OpenWebpage("https://github.com/Eco-DiscordLink/EcoDiscordPlugin");
             }, callingUser);
@@ -220,7 +220,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task PluginStatus(User callingUser, bool verbose = false)
         {
             EcoCommandContext ctx = new EcoCommandContext(callingUser);
-            await ExecuteCommand<object>(async (lUser, args) =>
+            await ExecuteCommand(async (lUser, args) =>
             {
                 DisplayCommandData(ctx, DLConstants.ECO_PANEL_COMPLEX_LIST, "DiscordLink Status", MessageBuilder.Shared.GetDisplayStringAsync(verbose).Result);
             }, callingUser);
@@ -230,7 +230,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task VerifyConfig(User callingUser)
         {
             EcoCommandContext ctx = new EcoCommandContext(callingUser);
-            await ExecuteCommand<object>(async (lUser, args) =>
+            await ExecuteCommand(async (lUser, args) =>
             {
                 await SharedCommands.VerifyConfig(ApplicationInterfaceType.Eco, ctx);
             }, callingUser);
@@ -240,7 +240,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task VerifyPermissions(User callingUser)
         {
             EcoCommandContext ctx = new EcoCommandContext(callingUser);
-            await ExecuteCommand<object>(async (lUser, args) =>
+            await ExecuteCommand(async (lUser, args) =>
             {
                 await SharedCommands.VerifyPermissions(ApplicationInterfaceType.Eco, ctx, MessageBuilder.PermissionReportComponentFlag.All);
             }, callingUser);
@@ -250,7 +250,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task VerifyIntents(User callingUser)
         {
             EcoCommandContext ctx = new EcoCommandContext(callingUser);
-            await ExecuteCommand<object>(async (lUser, args) =>
+            await ExecuteCommand(async (lUser, args) =>
             {
                 await SharedCommands.VerifyPermissions(ApplicationInterfaceType.Eco, ctx, MessageBuilder.PermissionReportComponentFlag.Intents);
             }, callingUser);
@@ -260,7 +260,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task VerifyServerPermissions(User callingUser)
         {
             EcoCommandContext ctx = new EcoCommandContext(callingUser);
-            await ExecuteCommand<object>(async (lUser, args) =>
+            await ExecuteCommand(async (lUser, args) =>
             {
                 await SharedCommands.VerifyPermissions(ApplicationInterfaceType.Eco, ctx, MessageBuilder.PermissionReportComponentFlag.ServerPermissions);
             }, callingUser);
@@ -270,7 +270,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task VerifyChannelPermissions(User callingUser, string channelNameOrId)
         {
             EcoCommandContext ctx = new EcoCommandContext(callingUser);
-            await ExecuteCommand<object>(async (lUser, args) =>
+            await ExecuteCommand(async (lUser, args) =>
             {
                 await SharedCommands.VerifyPermissionsForChannel(ApplicationInterfaceType.Eco, ctx, channelNameOrId);
             }, callingUser);
@@ -280,7 +280,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task ListLinkedChannels(User callingUser)
         {
             EcoCommandContext ctx = new EcoCommandContext(callingUser);
-            await ExecuteCommand<object>(async (lUser, args) =>
+            await ExecuteCommand(async (lUser, args) =>
             {
                 await SharedCommands.ListChannelLinks(ApplicationInterfaceType.Eco, ctx);
             }, callingUser);
@@ -294,7 +294,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task PlayerReport(User callingUser, string playerNameOrId, string reportType = "All")
         {
             EcoCommandContext ctx = new EcoCommandContext(callingUser);
-            await ExecuteCommand<object>(async (lUser, args) =>
+            await ExecuteCommand(async (lUser, args) =>
             {
                 if (!Enum.TryParse(reportType, out PlayerReportComponentFlag reportTypeEnum))
                 {
@@ -310,7 +310,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task CurrencyReport(User callingUser, string currencyNameOrId)
         {
             EcoCommandContext ctx = new EcoCommandContext(callingUser);
-            await ExecuteCommand<object>(async (lUser, args) =>
+            await ExecuteCommand(async (lUser, args) =>
             {
                 await SharedCommands.CurrencyReport(ApplicationInterfaceType.Eco, ctx, currencyNameOrId);
             }, callingUser);
@@ -322,7 +322,7 @@ namespace Eco.Plugins.DiscordLink
             int holdersPerCurrency = DLConstants.CURRENCY_REPORT_COMMAND_MAX_TOP_HOLDERS_PER_CURRENCY_DEFAULT)
         {
             EcoCommandContext ctx = new EcoCommandContext(callingUser);
-            await ExecuteCommand<object>(async (lUser, args) =>
+            await ExecuteCommand(async (lUser, args) =>
             {
                 CurrencyType type;
                 if (!Enum.TryParse(currencyType, out type))
@@ -339,7 +339,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task ElectionReport(User callingUser, string electionNameOrId)
         {
             EcoCommandContext ctx = new EcoCommandContext(callingUser);
-            await ExecuteCommand<object>(async (lUser, args) =>
+            await ExecuteCommand(async (lUser, args) =>
             {
                 await SharedCommands.ElectionReport(ApplicationInterfaceType.Eco, ctx, electionNameOrId);
             }, callingUser);
@@ -349,7 +349,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task ElectionsReport(User callingUser)
         {
             EcoCommandContext ctx = new EcoCommandContext(callingUser);
-            await ExecuteCommand<object>(async (lUser, args) =>
+            await ExecuteCommand(async (lUser, args) =>
             {
                 await SharedCommands.ElectionsReport(ApplicationInterfaceType.Eco, ctx);
             }, callingUser);
@@ -359,7 +359,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task WorkPartyReport(User callingUser, string workPartyNameOrId)
         {
             EcoCommandContext ctx = new EcoCommandContext(callingUser);
-            await ExecuteCommand<object>(async (lUser, args) =>
+            await ExecuteCommand(async (lUser, args) =>
             {
                 await SharedCommands.WorkPartyReport(ApplicationInterfaceType.Eco, ctx, workPartyNameOrId);
             }, callingUser);
@@ -369,7 +369,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task WorkPartiesReport(User callingUser)
         {
             EcoCommandContext ctx = new EcoCommandContext(callingUser);
-            await ExecuteCommand<object>(async (lUser, args) =>
+            await ExecuteCommand(async (lUser, args) =>
             {
                 await SharedCommands.WorkPartiesReport(ApplicationInterfaceType.Eco, ctx);
             }, callingUser);
@@ -383,7 +383,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task PostInviteMessage(User callingUser)
         {
             EcoCommandContext ctx = new EcoCommandContext(callingUser);
-            await ExecuteCommand<object>(async (lUser, args) =>
+            await ExecuteCommand(async (lUser, args) =>
             {
                 await SharedCommands.PostInviteMessage(ApplicationInterfaceType.Eco, ctx);
             }, callingUser);
@@ -393,7 +393,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task InviteMe(User callingUser)
         {
             EcoCommandContext ctx = new EcoCommandContext(callingUser);
-            await ExecuteCommand<object>(async (lUser, args) =>
+            await ExecuteCommand(async (lUser, args) =>
             {
                 string discordAddress = NetworkManager.Config.DiscordAddress;
                 if (string.IsNullOrEmpty(discordAddress))
@@ -423,7 +423,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task LinkInformation(User callingUser)
         {
             EcoCommandContext ctx = new EcoCommandContext(callingUser);
-            await ExecuteCommand<object>(async (lUser, args) =>
+            await ExecuteCommand(async (lUser, args) =>
             {
                 DisplayCommandData(ctx, DLConstants.ECO_PANEL_DL_MESSAGE_MEDIUM, $"Discord Account Linking", MessageUtils.FormatMessageForEco(MessageBuilder.Shared.GetLinkAccountInfoMessage()));
             }, callingUser);
@@ -433,7 +433,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task LinkAccount(User callingUser, string discordName)
         {
             EcoCommandContext ctx = new EcoCommandContext(callingUser);
-            await ExecuteCommand<object>(async (lUser, args) =>
+            await ExecuteCommand(async (lUser, args) =>
             {
                 var plugin = Plugins.DiscordLink.DiscordLink.Obj;
 
@@ -512,7 +512,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task UnlinkAccount(User callingUser)
         {
             EcoCommandContext ctx = new EcoCommandContext(callingUser);
-            await ExecuteCommand<object>(async (lUser, args) =>
+            await ExecuteCommand(async (lUser, args) =>
             {
                 bool result = UserLinkManager.RemoveLinkedUser(callingUser);
                 if (result)
@@ -530,7 +530,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task Trades(User callingUser, string searchName)
         {
             EcoCommandContext ctx = new EcoCommandContext(callingUser);
-            await ExecuteCommand<object>(async (lUser, args) =>
+            await ExecuteCommand(async (lUser, args) =>
             {
                 await SharedCommands.Trades(ApplicationInterfaceType.Eco, ctx, searchName);
             }, callingUser);
@@ -540,7 +540,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task WatchTradeDisplay(User callingUser, string searchName)
         {
             EcoCommandContext ctx = new EcoCommandContext(callingUser);
-            await ExecuteCommand<object>(async (lUser, args) =>
+            await ExecuteCommand(async (lUser, args) =>
             {
                 await SharedCommands.AddTradeWatcher(ApplicationInterfaceType.Eco, ctx, searchName, Modules.ModuleArchetype.Display);
             }, callingUser);
@@ -550,7 +550,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task UnwatchTradeDisplay(User callingUser, string searchName)
         {
             EcoCommandContext ctx = new EcoCommandContext(callingUser);
-            await ExecuteCommand<object>(async (lUser, args) =>
+            await ExecuteCommand(async (lUser, args) =>
             {
                 await SharedCommands.RemoveTradeWatcher(ApplicationInterfaceType.Eco, ctx, searchName, Modules.ModuleArchetype.Display);
             }, callingUser);
@@ -560,7 +560,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task WatchTradeFeed(User callingUser, string searchName)
         {
             EcoCommandContext ctx = new EcoCommandContext(callingUser);
-            await ExecuteCommand<object>(async (lUser, args) =>
+            await ExecuteCommand(async (lUser, args) =>
             {
                 await SharedCommands.AddTradeWatcher(ApplicationInterfaceType.Eco, ctx, searchName, Modules.ModuleArchetype.Feed);
             }, callingUser);
@@ -570,7 +570,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task UnwatchTradeFeed(User callingUser, string searchName)
         {
             EcoCommandContext ctx = new EcoCommandContext(callingUser);
-            await ExecuteCommand<object>(async (lUser, args) =>
+            await ExecuteCommand(async (lUser, args) =>
             {
                 await SharedCommands.RemoveTradeWatcher(ApplicationInterfaceType.Eco, ctx, searchName, Modules.ModuleArchetype.Feed);
             }, callingUser);
@@ -580,7 +580,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task ListTradeWatchers(User callingUser)
         {
             EcoCommandContext ctx = new EcoCommandContext(callingUser);
-            await ExecuteCommand<object>(async (lUser, args) =>
+            await ExecuteCommand(async (lUser, args) =>
             {
                 await SharedCommands.ListTradeWatchers(ApplicationInterfaceType.Eco, ctx);
             }, callingUser);
@@ -594,7 +594,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task Snippet(User callingUser, string snippetKey = "")
         {
             EcoCommandContext ctx = new EcoCommandContext(callingUser);
-            await ExecuteCommand<object>(async (lUser, args) =>
+            await ExecuteCommand(async (lUser, args) =>
             {
                 await SharedCommands.Snippet(ApplicationInterfaceType.Eco, ctx, ApplicationInterfaceType.Eco, callingUser.Name, snippetKey);
             }, callingUser);
@@ -608,7 +608,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task Announce(User callingUser, string message, string messageType = "Notification", User recipient = null)
         {
             EcoCommandContext ctx = new EcoCommandContext(callingUser);
-            await ExecuteCommand<object>(async (lUser, args) =>
+            await ExecuteCommand(async (lUser, args) =>
             {
                 Moose.Plugin.Commands.Announce(callingUser, message, messageType, recipient);
             }, callingUser);
@@ -618,7 +618,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task OptOut(User callingUser)
         {
             EcoCommandContext ctx = new EcoCommandContext(callingUser);
-            await ExecuteCommand<object>(async (lUser, args) =>
+            await ExecuteCommand(async (lUser, args) =>
             {
                 if (DLConfig.Data.ChatSyncMode == ChatSyncMode.OptOut)
                 {
@@ -653,7 +653,7 @@ namespace Eco.Plugins.DiscordLink
         public static async Task Optin(User callingUser)
         {
             EcoCommandContext ctx = new EcoCommandContext(callingUser);
-            await ExecuteCommand<object>(async (lUser, args) =>
+            await ExecuteCommand(async (lUser, args) =>
             {
                 if (DLConfig.Data.ChatSyncMode == ChatSyncMode.OptOut)
                 {
