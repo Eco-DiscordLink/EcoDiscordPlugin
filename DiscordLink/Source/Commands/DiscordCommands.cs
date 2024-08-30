@@ -27,6 +27,7 @@ namespace Eco.Plugins.DiscordLink
     {
         public DiscordCommandContext(InteractionContext interaction, ResponseTiming timing)
         {
+            base.Interface = ApplicationInterfaceType.Discord;
             Interaction = interaction;
             Timing = timing;
         }
@@ -266,7 +267,7 @@ namespace Eco.Plugins.DiscordLink
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Delayed);
             await ExecuteCommand<object>(PermissionType.Admin, ctx, async (lCtx, args) =>
             {
-                await SharedCommands.Update(ApplicationInterfaceType.Discord, ctx);
+                await SharedCommands.Update(ctx);
             });
         }
 
@@ -276,7 +277,7 @@ namespace Eco.Plugins.DiscordLink
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Delayed);
             await ExecuteCommand<object>(PermissionType.Admin, ctx, async (lCtx, args) =>
             {
-                await SharedCommands.RestartPlugin(ApplicationInterfaceType.Discord, ctx);
+                await SharedCommands.RestartPlugin(ctx);
             });
         }
 
@@ -286,7 +287,7 @@ namespace Eco.Plugins.DiscordLink
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Immediate);
             await ExecuteCommand<object>(PermissionType.Admin, ctx, async (lCtx, args) =>
             {
-                await SharedCommands.ReloadConfig(ApplicationInterfaceType.Discord, ctx);
+                await SharedCommands.ReloadConfig(ctx);
             });
         }
 
@@ -296,7 +297,7 @@ namespace Eco.Plugins.DiscordLink
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Immediate);
             await ExecuteCommand<object>(PermissionType.Admin, ctx, async (lCtx, args) =>
             {
-                await SharedCommands.ResetPersistentData(ApplicationInterfaceType.Discord, ctx);
+                await SharedCommands.ResetPersistentData(ctx);
             });
         }
 
@@ -306,7 +307,7 @@ namespace Eco.Plugins.DiscordLink
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Immediate);
             await ExecuteCommand<object>(PermissionType.Admin, ctx, async (lCtx, args) =>
             {
-                await SharedCommands.ResetWorldData(ApplicationInterfaceType.Discord, ctx);
+                await SharedCommands.ResetWorldData(ctx);
             });
         }
 
@@ -316,7 +317,7 @@ namespace Eco.Plugins.DiscordLink
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Immediate);
             await ExecuteCommand<object>(PermissionType.Admin, ctx, async (lCtx, args) =>
             {
-                await SharedCommands.PersistentStorageData(ApplicationInterfaceType.Discord, ctx);
+                await SharedCommands.PersistentStorageData(ctx);
             });
         }
 
@@ -326,7 +327,7 @@ namespace Eco.Plugins.DiscordLink
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Immediate);
             await ExecuteCommand<object>(PermissionType.Admin, ctx, async (lCtx, args) =>
             {
-                await SharedCommands.WorldStorageData(ApplicationInterfaceType.Discord, ctx);
+                await SharedCommands.WorldStorageData(ctx);
             });
         }
 
@@ -336,7 +337,7 @@ namespace Eco.Plugins.DiscordLink
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Delayed);
             await ExecuteCommand<object>(PermissionType.Admin, ctx, async (lCtx, args) =>
             {
-                await SharedCommands.ClearRoles(ApplicationInterfaceType.Discord, ctx);
+                await SharedCommands.ClearRoles(ctx);
             });
         }
 
@@ -350,7 +351,7 @@ namespace Eco.Plugins.DiscordLink
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Immediate);
             await ExecuteCommand<object>(PermissionType.Admin, ctx, async (lCtx, args) =>
             {
-                await SharedCommands.ServerShutdown(ApplicationInterfaceType.Discord, ctx);
+                await SharedCommands.ServerShutdown(ctx);
             });
         }
 
@@ -412,7 +413,7 @@ namespace Eco.Plugins.DiscordLink
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Immediate);
             await ExecuteCommand<object>(PermissionType.Admin, ctx, async (lCtx, args) =>
             {
-                await SharedCommands.VerifyConfig(ApplicationInterfaceType.Discord, ctx);
+                await SharedCommands.VerifyConfig(ctx);
             });
         }
 
@@ -422,7 +423,7 @@ namespace Eco.Plugins.DiscordLink
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Immediate);
             await ExecuteCommand<object>(PermissionType.Admin, ctx, async (lCtx, args) =>
             {
-                await SharedCommands.VerifyPermissions(ApplicationInterfaceType.Discord, ctx, MessageBuilder.PermissionReportComponentFlag.All);
+                await SharedCommands.VerifyPermissions(ctx, MessageBuilder.PermissionReportComponentFlag.All);
             });
         }
 
@@ -432,7 +433,7 @@ namespace Eco.Plugins.DiscordLink
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Immediate);
             await ExecuteCommand<object>(PermissionType.Admin, ctx, async (lCtx, args) =>
             {
-                await SharedCommands.VerifyPermissions(ApplicationInterfaceType.Discord, ctx, MessageBuilder.PermissionReportComponentFlag.Intents);
+                await SharedCommands.VerifyPermissions(ctx, MessageBuilder.PermissionReportComponentFlag.Intents);
             });
         }
 
@@ -442,7 +443,7 @@ namespace Eco.Plugins.DiscordLink
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Immediate);
             await ExecuteCommand<object>(PermissionType.Admin, ctx, async (lCtx, args) =>
             {
-                await SharedCommands.VerifyPermissions(ApplicationInterfaceType.Discord, ctx, MessageBuilder.PermissionReportComponentFlag.ServerPermissions);
+                await SharedCommands.VerifyPermissions(ctx, MessageBuilder.PermissionReportComponentFlag.ServerPermissions);
             });
         }
 
@@ -453,9 +454,9 @@ namespace Eco.Plugins.DiscordLink
             await ExecuteCommand<object>(PermissionType.Admin, ctx, async (lCtx, args) =>
             {
                 if (string.IsNullOrWhiteSpace(channelNameOrId))
-                    await SharedCommands.VerifyPermissionsForChannel(ApplicationInterfaceType.Discord, ctx, ctx.Interaction.Channel);
+                    await SharedCommands.VerifyPermissionsForChannel(ctx, ctx.Interaction.Channel);
                 else
-                    await SharedCommands.VerifyPermissionsForChannel(ApplicationInterfaceType.Discord, ctx, channelNameOrId);
+                    await SharedCommands.VerifyPermissionsForChannel(ctx, channelNameOrId);
             });
         }
 
@@ -465,7 +466,7 @@ namespace Eco.Plugins.DiscordLink
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Immediate);
             await ExecuteCommand<object>(PermissionType.Admin, ctx, async (lCtx, args) =>
             {
-                await SharedCommands.ListChannelLinks(ApplicationInterfaceType.Discord, ctx);
+                await SharedCommands.ListChannelLinks(ctx);
             });
         }
 
@@ -581,7 +582,7 @@ namespace Eco.Plugins.DiscordLink
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Immediate);
             await ExecuteCommand<object>(PermissionType.User, ctx, async (lCtx, args) =>
             {
-                await SharedCommands.PlayerReport(ApplicationInterfaceType.Discord, ctx, playerNameOrId, reportType);
+                await SharedCommands.PlayerReport(ctx, playerNameOrId, reportType);
             });
         }
 
@@ -592,7 +593,7 @@ namespace Eco.Plugins.DiscordLink
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Immediate);
             await ExecuteCommand<object>(PermissionType.User, ctx, async (lCtx, args) =>
             {
-                await SharedCommands.CurrencyReport(ApplicationInterfaceType.Discord, ctx, currencyNameOrId);
+                await SharedCommands.CurrencyReport(ctx, currencyNameOrId);
             });
         }
 
@@ -605,7 +606,7 @@ namespace Eco.Plugins.DiscordLink
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Immediate);
             await ExecuteCommand<object>(PermissionType.User, ctx, async (lCtx, args) =>
             {
-                await SharedCommands.CurrenciesReport(ApplicationInterfaceType.Discord, ctx, currencyType, (int)maxCurrenciesPerType, (int)holdersPerCurrency);
+                await SharedCommands.CurrenciesReport(ctx, currencyType, (int)maxCurrenciesPerType, (int)holdersPerCurrency);
             });
         }
 
@@ -616,7 +617,7 @@ namespace Eco.Plugins.DiscordLink
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Immediate);
             await ExecuteCommand<object>(PermissionType.User, ctx, async (lCtx, args) =>
             {
-                await SharedCommands.ElectionReport(ApplicationInterfaceType.Discord, ctx, electionNameOrId);
+                await SharedCommands.ElectionReport(ctx, electionNameOrId);
             });
         }
 
@@ -626,7 +627,7 @@ namespace Eco.Plugins.DiscordLink
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Immediate);
             await ExecuteCommand<object>(PermissionType.User, ctx, async (lCtx, args) =>
             {
-                await SharedCommands.ElectionsReport(ApplicationInterfaceType.Discord, ctx);
+                await SharedCommands.ElectionsReport(ctx);
             });
         }
 
@@ -637,7 +638,7 @@ namespace Eco.Plugins.DiscordLink
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Immediate);
             await ExecuteCommand<object>(PermissionType.User, ctx, async (lCtx, args) =>
             {
-                await SharedCommands.WorkPartyReport(ApplicationInterfaceType.Discord, ctx, workPartyNameOrI);
+                await SharedCommands.WorkPartyReport(ctx, workPartyNameOrI);
             });
         }
 
@@ -647,7 +648,7 @@ namespace Eco.Plugins.DiscordLink
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Immediate);
             await ExecuteCommand<object>(PermissionType.User, ctx, async (lCtx, args) =>
             {
-                await SharedCommands.WorkPartiesReport(ApplicationInterfaceType.Discord, ctx);
+                await SharedCommands.WorkPartiesReport(ctx);
             });
         }
 
@@ -661,7 +662,7 @@ namespace Eco.Plugins.DiscordLink
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Immediate);
             await ExecuteCommand<object>(PermissionType.User, ctx, async (lCtx, args) =>
             {
-                await SharedCommands.PostInviteMessage(ApplicationInterfaceType.Discord, ctx);
+                await SharedCommands.PostInviteMessage(ctx);
             });
         }
 
@@ -675,7 +676,7 @@ namespace Eco.Plugins.DiscordLink
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Delayed);
             await ExecuteCommand<object>(PermissionType.User, ctx, async (lCtx, args) =>
             {
-                await SharedCommands.Trades(ApplicationInterfaceType.Discord, ctx, searchName);
+                await SharedCommands.Trades(ctx, searchName);
             });
         }
 
@@ -695,7 +696,7 @@ namespace Eco.Plugins.DiscordLink
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Immediate);
             await ExecuteCommand<object>(PermissionType.User, ctx, async (lCtx, args) =>
             {
-                await SharedCommands.AddTradeWatcher(ApplicationInterfaceType.Discord, ctx, searchName, Modules.ModuleArchetype.Display);
+                await SharedCommands.AddTradeWatcher(ctx, searchName, Modules.ModuleArchetype.Display);
             });
         }
 
@@ -705,7 +706,7 @@ namespace Eco.Plugins.DiscordLink
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Immediate);
             await ExecuteCommand<object>(PermissionType.User, ctx, async (lCtx, args) =>
             {
-                await SharedCommands.RemoveTradeWatcher(ApplicationInterfaceType.Discord, ctx, searchName, Modules.ModuleArchetype.Display);
+                await SharedCommands.RemoveTradeWatcher(ctx, searchName, Modules.ModuleArchetype.Display);
             });
         }
 
@@ -715,7 +716,7 @@ namespace Eco.Plugins.DiscordLink
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Immediate);
             await ExecuteCommand<object>(PermissionType.User, ctx, async (lCtx, args) =>
             {
-                await SharedCommands.AddTradeWatcher(ApplicationInterfaceType.Discord, ctx, searchName, Modules.ModuleArchetype.Feed);
+                await SharedCommands.AddTradeWatcher(ctx, searchName, Modules.ModuleArchetype.Feed);
             });
         }
 
@@ -725,7 +726,7 @@ namespace Eco.Plugins.DiscordLink
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Immediate);
             await ExecuteCommand<object>(PermissionType.User, ctx, async (lCtx, args) =>
             {
-                await SharedCommands.RemoveTradeWatcher(ApplicationInterfaceType.Discord, ctx, searchName, Modules.ModuleArchetype.Feed);
+                await SharedCommands.RemoveTradeWatcher(ctx, searchName, Modules.ModuleArchetype.Feed);
             });
         }
 
@@ -735,7 +736,7 @@ namespace Eco.Plugins.DiscordLink
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Immediate);
             await ExecuteCommand<object>(PermissionType.User, ctx, async (lCtx, args) =>
             {
-                await SharedCommands.ListTradeWatchers(ApplicationInterfaceType.Discord, ctx);
+                await SharedCommands.ListTradeWatchers(ctx);
             });
         }
 
@@ -749,7 +750,7 @@ namespace Eco.Plugins.DiscordLink
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Immediate);
             await ExecuteCommand<object>(PermissionType.User, ctx, async (lCtx, args) =>
             {
-                await SharedCommands.Snippet(ApplicationInterfaceType.Discord, ctx, ApplicationInterfaceType.Discord, ctx.Interaction.GetSenderName(), snippetKey);
+                await SharedCommands.Snippet(ctx, ApplicationInterfaceType.Discord, ctx.Interaction.GetSenderName(), snippetKey);
             });
         }
 
@@ -759,7 +760,7 @@ namespace Eco.Plugins.DiscordLink
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Immediate);
             await ExecuteCommand<object>(PermissionType.User, ctx, async (lCtx, args) =>
             {
-                await SharedCommands.Snippet(ApplicationInterfaceType.Discord, ctx, ApplicationInterfaceType.Eco, ctx.Interaction.GetSenderName(), snippetKey);
+                await SharedCommands.Snippet(ctx, ApplicationInterfaceType.Eco, ctx.Interaction.GetSenderName(), snippetKey);
             });
         }
 

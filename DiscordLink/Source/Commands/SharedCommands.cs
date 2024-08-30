@@ -25,7 +25,10 @@ using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGroup
 
 namespace Eco.Plugins.DiscordLink
 {
-    public class CommandContext { }
+    public class CommandContext
+    {
+        public ApplicationInterfaceType Interface { get; protected set; }
+    }
 
     /**
      * Platform independent implementations of commands used in both Discord and Eco.
@@ -34,30 +37,29 @@ namespace Eco.Plugins.DiscordLink
     {
         #region Commands Base
 
-        private static async Task ReportCommandError(ApplicationInterfaceType source, CommandContext ctx, string message)
+        private static async Task ReportCommandError(CommandContext ctx, string message)
         {
-            if (source == ApplicationInterfaceType.Eco)
-                EcoCommands.ReportCommandError(ctx as EcoCommandContext, message);
-            else
-                await DiscordCommands.ReportCommandError(ctx as DiscordCommandContext, message);
+            if (ctx is EcoCommandContext ecoCtx)
+                EcoCommands.ReportCommandError(ecoCtx, message);
+            else if(ctx is DiscordCommandContext discordCtx)
+                await DiscordCommands.ReportCommandError(discordCtx, message);
         }
 
-        private static async Task ReportCommandInfo(ApplicationInterfaceType source, CommandContext ctx, string message)
+        private static async Task ReportCommandInfo(CommandContext ctx, string message)
         {
-            if (source == ApplicationInterfaceType.Eco)
-                EcoCommands.ReportCommandInfo(ctx as EcoCommandContext, message);
-            else
-                await DiscordCommands.ReportCommandInfo(ctx as DiscordCommandContext, message);
+            if (ctx is EcoCommandContext ecoCtx)
+                EcoCommands.ReportCommandInfo(ecoCtx, message);
+            else if (ctx is DiscordCommandContext discordCtx)
+                await DiscordCommands.ReportCommandInfo(discordCtx, message);
         }
 
-        private static async Task DisplayCommandData(ApplicationInterfaceType source, CommandContext commandContext, string title, object data, string panelInstance = "")
+        private static async Task DisplayCommandData(CommandContext ctx, string title, object data, string panelInstance = "")
         {
-            if (source == ApplicationInterfaceType.Eco)
+            if (ctx is EcoCommandContext ecoCtx)
             {
-                EcoCommandContext EcoCtx = commandContext as EcoCommandContext;
                 if (data is string message)
                 {
-                    EcoCommands.DisplayCommandData(EcoCtx, panelInstance, MessageUtils.FormatMessageForEco(title), MessageUtils.FormatMessageForEco(message));
+                    EcoCommands.DisplayCommandData(ecoCtx, panelInstance, MessageUtils.FormatMessageForEco(title), MessageUtils.FormatMessageForEco(message));
                 }
                 else if (data is DiscordLinkEmbed embed)
                 {
@@ -68,12 +70,11 @@ namespace Eco.Plugins.DiscordLink
                         titleToUse = embed.Title;
                     else if (!embed.Fields.First().Title.IsEmpty())
                         titleToUse = embed.Fields.First().Title;
-                    EcoCommands.DisplayCommandData(EcoCtx, panelInstance, MessageUtils.FormatMessageForEco(titleToUse), embed.AsEcoText());
+                    EcoCommands.DisplayCommandData(ecoCtx, panelInstance, MessageUtils.FormatMessageForEco(titleToUse), embed.AsEcoText());
                 }
             }
-            else if (source == ApplicationInterfaceType.Discord)
+            else if (ctx is DiscordCommandContext discordCtx)
             {
-                DiscordCommandContext discordCtx = commandContext as DiscordCommandContext;
                 if (data is DiscordLinkEmbed embed)
                     await DiscordCommands.DisplayCommandData(discordCtx, title, embed);
                 else if (data is IEnumerable<DiscordLinkEmbed> embeds)
@@ -89,98 +90,98 @@ namespace Eco.Plugins.DiscordLink
 
         #region Plugin Management
 
-        public static async Task<bool> Update(ApplicationInterfaceType source, CommandContext ctx)
+        public static async Task<bool> Update(CommandContext ctx)
         {
             if (DiscordLink.Obj.Client.ConnectionStatus != DiscordClient.ConnectionState.Connected)
             {
-                await ReportCommandError(source, ctx, "Failed to force update - Discord client not connected");
+                await ReportCommandError(ctx, "Failed to force update - Discord client not connected");
                 return false;
             }
 
             DiscordLink plugin = DiscordLink.Obj;
             plugin.Modules.ForEach(async module => await module.HandleStartOrStop());
             await plugin.HandleEvent(Events.DlEventType.ForceUpdate);
-            await ReportCommandInfo(source, ctx, "Forced update");
+            await ReportCommandInfo(ctx, "Forced update");
             return true;
         }
 
-        public static async Task<bool> RestartPlugin(ApplicationInterfaceType source, CommandContext ctx)
+        public static async Task<bool> RestartPlugin(CommandContext ctx)
         {
             DiscordLink plugin = DiscordLink.Obj;
             Logger.Info("Restart command executed - Restarting");
-            await ReportCommandInfo(source, ctx, "Attempting Restart!");
+            await ReportCommandInfo(ctx, "Attempting Restart!");
             bool restarted = plugin.Restart().Result;
 
             string result;
             if (restarted)
             {
                 result = "Restart Successful!";
-                if (source == ApplicationInterfaceType.Eco)
+                if (ctx is EcoCommandContext ecoCtx)
                 {
-                    await ReportCommandInfo(source, ctx, result);
+                    await ReportCommandInfo(ecoCtx, result);
                 }
-                else if (source == ApplicationInterfaceType.Discord)
+                else if (ctx is DiscordCommandContext discordCtx)
                 {
                     // Special handling since the call context is broken by the restart and can't be used to respond to the command
-                    DiscordChannel channel = plugin.Client.ChannelByNameOrId(((DiscordCommandContext)ctx).Interaction.Channel.Id.ToString());
+                    DiscordChannel channel = plugin.Client.ChannelByNameOrId(discordCtx.Interaction.Channel.Id.ToString());
                     _ = plugin.Client.SendMessageAsync(channel, result);
                 }
             }
             else
             {
                 result = "Restart failed or a restart was already in progress.";
-                await ReportCommandError(source, ctx, result);
+                await ReportCommandError(ctx, result);
             }
 
             Logger.Info(result);
             return restarted;
         }
 
-        public static async Task<bool> ReloadConfig(ApplicationInterfaceType source, CommandContext ctx)
+        public static async Task<bool> ReloadConfig(CommandContext ctx)
         {
             var resultAndMessage = await PluginUtils.ReloadConfig(DiscordLink.Obj);
             if (resultAndMessage.Item1)
             {
-                await ReportCommandInfo(source, ctx, resultAndMessage.Item2);
+                await ReportCommandInfo(ctx, resultAndMessage.Item2);
             }
             else
             {
-                await ReportCommandError(source, ctx, resultAndMessage.Item2);
+                await ReportCommandError(ctx, resultAndMessage.Item2);
             }
             return resultAndMessage.Item1;
         }
 
-        public static async Task<bool> ResetPersistentData(ApplicationInterfaceType source, CommandContext ctx)
+        public static async Task<bool> ResetPersistentData(CommandContext ctx)
         {
             Logger.Info("ResetPersistentData command invoked - Resetting persistent storage data");
             DLStorage.Instance.ResetPersistentData();
-            await ReportCommandInfo(source, ctx, "Persistent storage data has been reset.");
+            await ReportCommandInfo(ctx, "Persistent storage data has been reset.");
             return true;
         }
 
-        public static async Task<bool> ResetWorldData(ApplicationInterfaceType source, CommandContext ctx)
+        public static async Task<bool> ResetWorldData(CommandContext ctx)
         {
             Logger.Info("ResetWorldData command invoked - Resetting world storage data");
             DLStorage.Instance.ResetWorldData();
-            await ReportCommandInfo(source, ctx, "World storage data has been reset.");
+            await ReportCommandInfo(ctx, "World storage data has been reset.");
             return true;
         }
 
-        public static async Task<bool> PersistentStorageData(ApplicationInterfaceType source, CommandContext ctx)
+        public static async Task<bool> PersistentStorageData(CommandContext ctx)
         {
             DiscordLinkEmbed embed = await DLStorage.PersistentData.GetDataDescription();
-            await DisplayCommandData(source, ctx, "Persistent Storage Data", embed, DLConstants.ECO_PANEL_COMPLEX_LIST);
+            await DisplayCommandData(ctx, "Persistent Storage Data", embed, DLConstants.ECO_PANEL_COMPLEX_LIST);
             return true;
         }
 
-        public static async Task<bool> WorldStorageData(ApplicationInterfaceType source, CommandContext ctx)
+        public static async Task<bool> WorldStorageData(CommandContext ctx)
         {
             DiscordLinkEmbed embed = await DLStorage.WorldData.GetDataDescription();
-            await DisplayCommandData(source, ctx, "World Storage Data", embed, DLConstants.ECO_PANEL_COMPLEX_LIST);
+            await DisplayCommandData(ctx, "World Storage Data", embed, DLConstants.ECO_PANEL_COMPLEX_LIST);
             return true;
         }
 
-        public static async Task<bool> ClearRoles(ApplicationInterfaceType source, CommandContext ctx)
+        public static async Task<bool> ClearRoles(CommandContext ctx)
         {
             Logger.Info("ClearRoles command invoked - Deleting all created roles");
             DiscordLink plugin = DiscordLink.Obj;
@@ -192,7 +193,7 @@ namespace Eco.Plugins.DiscordLink
             }
             DLStorage.PersistentData.RoleIds.Clear();
             DLStorage.Instance.Write();
-            await ReportCommandInfo(source, ctx, "Deleted all tracked roles.");
+            await ReportCommandInfo(ctx, "Deleted all tracked roles.");
             return true;
         }
 
@@ -200,10 +201,10 @@ namespace Eco.Plugins.DiscordLink
 
         #region Server Management
 
-        public static async Task<bool> ServerShutdown(ApplicationInterfaceType source, CommandContext ctx)
+        public static async Task<bool> ServerShutdown(CommandContext ctx)
         {
             Logger.Info("Server shutdown command issued");
-            await ReportCommandInfo(source, ctx, "Shutdown command issued");
+            await ReportCommandInfo(ctx, "Shutdown command issued");
             PluginManager.Controller.FireShutdown(ApplicationExitCodes.NormalShutdown);
             return true;
         }
@@ -212,40 +213,40 @@ namespace Eco.Plugins.DiscordLink
 
         #region Troubleshooting
 
-        public static async Task<bool> ListChannelLinks(ApplicationInterfaceType source, CommandContext ctx)
+        public static async Task<bool> ListChannelLinks(CommandContext ctx)
         {
-            await DisplayCommandData(source, ctx, "List of Linked Channels", MessageBuilder.Shared.GetChannelLinkList());
+            await DisplayCommandData(ctx, "List of Linked Channels", MessageBuilder.Shared.GetChannelLinkList());
             return true;
         }
 
-        public static async Task<bool> VerifyConfig(ApplicationInterfaceType source, CommandContext ctx)
+        public static async Task<bool> VerifyConfig(CommandContext ctx)
         {
-            await DisplayCommandData(source, ctx, "Config Verification Report", MessageBuilder.Shared.GetConfigVerificationReport());
+            await DisplayCommandData(ctx, "Config Verification Report", MessageBuilder.Shared.GetConfigVerificationReport());
             return true;
         }
 
-        public static async Task<bool> VerifyPermissions(ApplicationInterfaceType source, CommandContext ctx, MessageBuilder.PermissionReportComponentFlag flag)
+        public static async Task<bool> VerifyPermissions(CommandContext ctx, MessageBuilder.PermissionReportComponentFlag flag)
         {
-            await DisplayCommandData(source, ctx, "Permission Verification Report", MessageBuilder.Shared.GetPermissionsReport(flag));
+            await DisplayCommandData(ctx, "Permission Verification Report", MessageBuilder.Shared.GetPermissionsReport(flag));
             return true;
         }
 
-        public static async Task<bool> VerifyPermissionsForChannel(ApplicationInterfaceType source, CommandContext ctx, string channelNameOrId)
+        public static async Task<bool> VerifyPermissionsForChannel(CommandContext ctx, string channelNameOrId)
         {
             DiscordChannel channel = DiscordLink.Obj.Client.ChannelByNameOrId(channelNameOrId);
             if (channel == null)
             {
-                await ReportCommandError(source, ctx, $"No channel with the named \"{channelNameOrId}\" could be found.");
+                await ReportCommandError(ctx, $"No channel with the named \"{channelNameOrId}\" could be found.");
                 return false;
             }
 
-            await VerifyPermissionsForChannel(source, ctx, channel);
+            await VerifyPermissionsForChannel(ctx, channel);
             return true;
         }
 
-        public static async Task<bool> VerifyPermissionsForChannel(ApplicationInterfaceType source, CommandContext ctx, DiscordChannel channel)
+        public static async Task<bool> VerifyPermissionsForChannel(CommandContext ctx, DiscordChannel channel)
         {
-            await DisplayCommandData(source, ctx, $"Permission Verification Report for {channel.Name}", MessageBuilder.Shared.GetPermissionsReportForChannel(channel));
+            await DisplayCommandData(ctx, $"Permission Verification Report for {channel.Name}", MessageBuilder.Shared.GetPermissionsReportForChannel(channel));
             return true;
         }
 
@@ -253,56 +254,56 @@ namespace Eco.Plugins.DiscordLink
 
         #region Lookups
 
-        public static async Task<bool> PlayerReport(ApplicationInterfaceType source, CommandContext ctx, string playerNameOrId, PlayerReportComponentFlag ReportType)
+        public static async Task<bool> PlayerReport(CommandContext ctx, string playerNameOrId, PlayerReportComponentFlag ReportType)
         {
             User user = Lookups.UserByNameOrId(playerNameOrId);
             if (user == null)
             {
-                await ReportCommandError(source, ctx, $"No player with the name or ID \"{playerNameOrId}\" could be found.");
+                await ReportCommandError(ctx, $"No player with the name or ID \"{playerNameOrId}\" could be found.");
                 return false;
             }
 
             DiscordLinkEmbed report = await MessageBuilder.Discord.GetPlayerReport(user, ReportType);
-            if (source == ApplicationInterfaceType.Eco)
-                await DisplayCommandData(source, ctx, $"Player report for {user.MarkedUpName}", report, DLConstants.ECO_PANEL_REPORT);
-            else
-                await DisplayCommandData(source, ctx, $"Player report for {MessageUtils.StripTags(user.Name)}", report);
+            if (ctx is EcoCommandContext ecoCtx)
+                await DisplayCommandData(ctx, $"Player report for {user.MarkedUpName}", report, DLConstants.ECO_PANEL_REPORT);
+            else if (ctx is DiscordCommandContext discordCtx)
+                await DisplayCommandData(ctx, $"Player report for {MessageUtils.StripTags(user.Name)}", report);
             return true;
         }
 
-        public static async Task<bool> CurrencyReport(ApplicationInterfaceType source, CommandContext ctx, string currencyNameOrId)
+        public static async Task<bool> CurrencyReport(CommandContext ctx, string currencyNameOrId)
         {
             Currency currency = Lookups.CurrencyByNameOrId(currencyNameOrId);
             if (currency == null)
             {
-                await ReportCommandError(source, ctx, $"No currency with the name or ID \"{currencyNameOrId}\" could be found.");
+                await ReportCommandError(ctx, $"No currency with the name or ID \"{currencyNameOrId}\" could be found.");
                 return false;
             }
 
             DiscordLinkEmbed report = MessageBuilder.Discord.GetCurrencyReport(currency, DLConfig.DefaultValues.MaxTopCurrencyHolderCount, useBackingInfo: true, useTradeCount: true);
             if (report == null)
             {
-                await ReportCommandError(source, ctx, $"Could not create a report for {currency} as no one holds this currency and no trades has been made with it.");
+                await ReportCommandError(ctx, $"Could not create a report for {currency} as no one holds this currency and no trades has been made with it.");
                 return false;
             }
 
-            if (source == ApplicationInterfaceType.Eco)
-                await DisplayCommandData(source, ctx, $"Currency report for {currency.MarkedUpName}", report, DLConstants.ECO_PANEL_REPORT);
-            else
-                await DisplayCommandData(source, ctx, $"Currency report for {currency}", report);
+            if (ctx is EcoCommandContext ecoCtx)
+                await DisplayCommandData(ecoCtx, $"Currency report for {currency.MarkedUpName}", report, DLConstants.ECO_PANEL_REPORT);
+            else if (ctx is DiscordCommandContext discordCtx)
+                await DisplayCommandData(discordCtx, $"Currency report for {currency}", report);
             return true;
         }
 
-        public static async Task<bool> CurrenciesReport(ApplicationInterfaceType source, CommandContext ctx, CurrencyType currencyType, int maxCurrenciesPerType, int holdersPerCurrency)
+        public static async Task<bool> CurrenciesReport(CommandContext ctx, CurrencyType currencyType, int maxCurrenciesPerType, int holdersPerCurrency)
         {
             if (maxCurrenciesPerType <= 0)
             {
-                await ReportCommandError(source, ctx, "The MaxCurrenciesPerType parameter must be a positive number.");
+                await ReportCommandError(ctx, "The MaxCurrenciesPerType parameter must be a positive number.");
                 return false;
             }
             if (holdersPerCurrency <= 0)
             {
-                await ReportCommandError(source, ctx, "The HoldersPerCurrency parameter must be a positive number.");
+                await ReportCommandError(ctx, "The HoldersPerCurrency parameter must be a positive number.");
                 return false;
             }
 
@@ -337,45 +338,45 @@ namespace Eco.Plugins.DiscordLink
                 }
             }
 
-            if (source == ApplicationInterfaceType.Eco)
+            if (ctx is EcoCommandContext ecoCtx)
             {
                 string fullReport = string.Join("\n\n", reports.Select(r => r.AsEcoText()));
-                await DisplayCommandData(source, ctx, $"Currencies Report", fullReport, DLConstants.ECO_PANEL_REPORT);
+                await DisplayCommandData(ecoCtx, $"Currencies Report", fullReport, DLConstants.ECO_PANEL_REPORT);
             }
-            else
+            else if (ctx is DiscordCommandContext discordCtx)
             {
                 if (reports.Count > 0)
-                    await DisplayCommandData(source, ctx, $"Currencies Report", reports);
+                    await DisplayCommandData(discordCtx, $"Currencies Report", reports);
                 else
-                    await ReportCommandError(source, ctx, "No matching currencies found.");
+                    await ReportCommandError(discordCtx, "No matching currencies found.");
             }
 
             return true;
         }
 
-        public static async Task<bool> ElectionReport(ApplicationInterfaceType source, CommandContext ctx, string electionNameOrId)
+        public static async Task<bool> ElectionReport(CommandContext ctx, string electionNameOrId)
         {
             Election election = Lookups.ActiveElectionByNameOrId(electionNameOrId);
             if (election == null)
             {
-                await ReportCommandError(source, ctx, $"No election with the name or ID \"{electionNameOrId}\" could be found.");
+                await ReportCommandError(ctx, $"No election with the name or ID \"{electionNameOrId}\" could be found.");
                 return false;
             }
 
             DiscordLinkEmbed report = MessageBuilder.Discord.GetElectionReport(election);
-            if (source == ApplicationInterfaceType.Eco)
-                await DisplayCommandData(source, ctx, $"Election report for {election.MarkedUpName}", report, DLConstants.ECO_PANEL_REPORT);
-            else
-                await DisplayCommandData(source, ctx, $"Election report for {election}", report);
+            if (ctx is EcoCommandContext ecoCtx)
+                await DisplayCommandData(ecoCtx, $"Election report for {election.MarkedUpName}", report, DLConstants.ECO_PANEL_REPORT);
+            else if (ctx is DiscordCommandContext discordCtx)
+                await DisplayCommandData(discordCtx, $"Election report for {election}", report);
             return true;
         }
 
-        public static async Task<bool> ElectionsReport(ApplicationInterfaceType source, CommandContext ctx)
+        public static async Task<bool> ElectionsReport(CommandContext ctx)
         {
             IEnumerable<Election> elections = Lookups.ActiveElections;
             if (elections.Count() <= 0)
             {
-                await ReportCommandInfo(source, ctx, "There are no active elections.");
+                await ReportCommandInfo(ctx, "There are no active elections.");
                 return false;
             }
 
@@ -389,42 +390,42 @@ namespace Eco.Plugins.DiscordLink
 
             if (reports.Count() <= 0)
             {
-                await ReportCommandInfo(source, ctx, "None of the active elections have a voting option.");
+                await ReportCommandInfo(ctx, "None of the active elections have a voting option.");
                 return false;
             }
 
-            if (source == ApplicationInterfaceType.Eco)
-                await DisplayCommandData(source, ctx, $"Elections Report", string.Join("\n\n", reports.Select(r => r.AsEcoText())), DLConstants.ECO_PANEL_REPORT);
-            else
-                await DisplayCommandData(source, ctx, $"Elections Report", reports);
+            if (ctx is EcoCommandContext ecoCtx)
+                await DisplayCommandData(ecoCtx, $"Elections Report", string.Join("\n\n", reports.Select(r => r.AsEcoText())), DLConstants.ECO_PANEL_REPORT);
+            else if (ctx is DiscordCommandContext discordCtx)
+                await DisplayCommandData(discordCtx, $"Elections Report", reports);
 
             return true;
         }
 
-        public static async Task<bool> WorkPartyReport(ApplicationInterfaceType source, CommandContext ctx, string workPartyNameOrId)
+        public static async Task<bool> WorkPartyReport(CommandContext ctx, string workPartyNameOrId)
         {
             WorkParty workParty = Lookups.ActiveWorkPartyByNameOrId(workPartyNameOrId);
             if (workParty == null)
             {
-                await ReportCommandError(source, ctx, $"No work party with the name or ID \"{workPartyNameOrId}\" could be found.");
+                await ReportCommandError(ctx, $"No work party with the name or ID \"{workPartyNameOrId}\" could be found.");
                 return false;
             }
 
             DiscordLinkEmbed report = MessageBuilder.Discord.GetWorkPartyReport(workParty);
-            if (source == ApplicationInterfaceType.Eco)
-                await DisplayCommandData(source, ctx, $"Work party report for {workParty}", report.AsEcoText(), DLConstants.ECO_PANEL_REPORT);
-            else
-                await DisplayCommandData(source, ctx, $"Work party report for {workParty}", report);
+            if (ctx is EcoCommandContext ecoCtx)
+                await DisplayCommandData(ecoCtx, $"Work party report for {workParty}", report.AsEcoText(), DLConstants.ECO_PANEL_REPORT);
+            else if (ctx is DiscordCommandContext discordCtx)
+                await DisplayCommandData(ctx, $"Work party report for {workParty}", report);
 
             return true;
         }
 
-        public static async Task<bool> WorkPartiesReport(ApplicationInterfaceType source, CommandContext ctx)
+        public static async Task<bool> WorkPartiesReport(CommandContext ctx)
         {
             IEnumerable<WorkParty> workParties = Lookups.ActiveWorkParties;
             if (workParties.Count() <= 0)
             {
-                await ReportCommandInfo(source, ctx, "There are no active work parties");
+                await ReportCommandInfo(ctx, "There are no active work parties");
                 return false;
             }
 
@@ -434,10 +435,10 @@ namespace Eco.Plugins.DiscordLink
                 reports.Add(MessageBuilder.Discord.GetWorkPartyReport(workParty));
             }
 
-            if (source == ApplicationInterfaceType.Eco)
-                await DisplayCommandData(source, ctx, $"Work Parties Report", string.Join("\n\n", reports.Select(r => r.AsEcoText())), DLConstants.ECO_PANEL_REPORT);
-            else
-                await DisplayCommandData(source, ctx, "Work Parties Report", reports);
+            if (ctx is EcoCommandContext ecoCtx)
+                await DisplayCommandData(ecoCtx, $"Work Parties Report", string.Join("\n\n", reports.Select(r => r.AsEcoText())), DLConstants.ECO_PANEL_REPORT);
+            else if (ctx is DiscordCommandContext discordCtx)
+                await DisplayCommandData(discordCtx, "Work Parties Report", reports);
 
             return true;
         }
@@ -446,29 +447,29 @@ namespace Eco.Plugins.DiscordLink
 
         #region Invites
 
-        public static async Task<bool> PostInviteMessage(ApplicationInterfaceType source, CommandContext ctx)
+        public static async Task<bool> PostInviteMessage(CommandContext ctx)
         {
             DLConfigData config = DLConfig.Data;
             string discordAddress = NetworkManager.Config.DiscordAddress;
             if (string.IsNullOrEmpty(discordAddress))
             {
-                await ReportCommandError(source, ctx, "This server does not have an associated Discord server.");
+                await ReportCommandError(ctx, "This server does not have an associated Discord server.");
                 return false;
             }
 
             string inviteMessage = config.InviteMessage;
             if (!inviteMessage.ContainsCaseInsensitive(DLConstants.INVITE_COMMAND_TOKEN))
             {
-                await ReportCommandError(source, ctx, "This server has not specified a valid invite message.");
+                await ReportCommandError(ctx, "This server has not specified a valid invite message.");
                 return false;
             }
 
             inviteMessage = Regex.Replace(inviteMessage, Regex.Escape(DLConstants.INVITE_COMMAND_TOKEN), discordAddress);
             bool sent = Message.SendChatToDefaultChannel(null, inviteMessage);
             if (sent)
-                await ReportCommandInfo(source, ctx, "Invite sent.");
+                await ReportCommandInfo(ctx, "Invite sent.");
             else
-                await ReportCommandError(source, ctx, "Failed to send invite.");
+                await ReportCommandError(ctx, "Failed to send invite.");
 
             return sent;
         }
@@ -476,43 +477,43 @@ namespace Eco.Plugins.DiscordLink
 
         #region Trades
 
-        public static async Task<bool> Trades(ApplicationInterfaceType source, CommandContext ctx, string searchName)
+        public static async Task<bool> Trades(CommandContext ctx, string searchName)
         {
             if (string.IsNullOrWhiteSpace(searchName))
             {
-                await ReportCommandInfo(source, ctx, "Please provide the name of a player, tag, item or store to search for.");
+                await ReportCommandInfo(ctx, "Please provide the name of a player, tag, item or store to search for.");
                 return false;
             }
 
             string matchedName = FindOffers(searchName, out TradeTargetType offerType, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
             if (offerType == TradeTargetType.Invalid)
             {
-                await ReportCommandError(source, ctx, $"No player, tag, item or store with the name \"{searchName}\" could be found.");
+                await ReportCommandError(ctx, $"No player, tag, item or store with the name \"{searchName}\" could be found.");
                 return false;
             }
 
-            if (source == ApplicationInterfaceType.Eco)
+            if (ctx is EcoCommandContext ecoCtx)
             {
-                Moose.Plugin.Commands.Trades(((EcoCommandContext)ctx).User, searchName);
+                Moose.Plugin.Commands.Trades(ecoCtx.User, searchName);
             }
-            else
+            else if (ctx is DiscordCommandContext discordCtx)
             {
                 MessageBuilder.Discord.FormatTrades(matchedName, offerType, groupedBuyOffers, groupedSellOffers, out DiscordLinkEmbed embed);
-                await DisplayCommandData(source, ctx, null, embed);
+                await DisplayCommandData(discordCtx, null, embed);
             }
 
             return true;
         }
 
-        public static async Task<bool> AddTradeWatcher(ApplicationInterfaceType source, CommandContext ctx, string searchName, Modules.ModuleArchetype type)
+        public static async Task<bool> AddTradeWatcher(CommandContext ctx, string searchName, Modules.ModuleArchetype type)
         {
             if (string.IsNullOrWhiteSpace(searchName))
             {
-                await ReportCommandInfo(source, ctx, "Please provide the name of a player, tag, item or store to watch trades for.");
+                await ReportCommandInfo(ctx, "Please provide the name of a player, tag, item or store to watch trades for.");
                 return false;
             }
 
-            LinkedUser linkedUser = source == ApplicationInterfaceType.Eco
+            LinkedUser linkedUser = ctx.Interface == ApplicationInterfaceType.Eco
                 ? UserLinkManager.LinkedUserByEcoUser(((EcoCommandContext)ctx).User, ((EcoCommandContext)ctx).User, "Trade Watcher Registration")
                 : UserLinkManager.LinkedUserByDiscordUser(((DiscordCommandContext)ctx).Interaction.User, ((DiscordCommandContext)ctx).Interaction.Member, "Trade Watcher Registration");
             if (linkedUser == null)
@@ -523,20 +524,20 @@ namespace Eco.Plugins.DiscordLink
             {
                 if (DLConfig.Data.MaxTradeWatcherDisplaysPerUser <= 0)
                 {
-                    await ReportCommandError(source, ctx, "Trade watcher displays are not enabled on this server.");
+                    await ReportCommandError(ctx, "Trade watcher displays are not enabled on this server.");
                     return false;
                 }
 
                 int watchedTradesCount = DLStorage.WorldData.GetTradeWatcherCountForMember(discordMemberId);
                 if (watchedTradesCount >= DLConfig.Data.MaxTradeWatcherDisplaysPerUser)
                 {
-                    await ReportCommandError(source, ctx, $"You are already watching {watchedTradesCount} trades and the limit is {DLConfig.Data.MaxTradeWatcherDisplaysPerUser} trade watcher displays per user.\nUse the `/DL-RemoveTradeWatcherDisplay` command to remove a trade watcher to make space if you wish to add a new one.");
+                    await ReportCommandError(ctx, $"You are already watching {watchedTradesCount} trades and the limit is {DLConfig.Data.MaxTradeWatcherDisplaysPerUser} trade watcher displays per user.\nUse the `/DL-RemoveTradeWatcherDisplay` command to remove a trade watcher to make space if you wish to add a new one.");
                     return false;
                 }
             }
             else if (!DLConfig.Data.UseTradeWatcherFeeds)
             {
-                await ReportCommandError(source, ctx, "Trade watcher feeds are not enabled on this server.");
+                await ReportCommandError(ctx, "Trade watcher feeds are not enabled on this server.");
                 return false;
             }
 
@@ -547,25 +548,25 @@ namespace Eco.Plugins.DiscordLink
             bool added = await DLStorage.WorldData.AddTradeWatcher(discordMemberId, new TradeWatcherEntry(matchedName, type));
             if (added)
             {
-                await ReportCommandInfo(source, ctx, $"Watching all trades for {matchedName}.");
+                await ReportCommandInfo(ctx, $"Watching all trades for {matchedName}.");
                 return true;
             }
             else
             {
-                await ReportCommandError(source, ctx, $"Failed to start watching trades for {matchedName}. \nUse `/DL-TradeWatchers` to see what is currently being watched.");
+                await ReportCommandError(ctx, $"Failed to start watching trades for {matchedName}. \nUse `/DL-TradeWatchers` to see what is currently being watched.");
                 return false;
             }
         }
 
-        public static async Task<bool> RemoveTradeWatcher(ApplicationInterfaceType source, CommandContext ctx, string searchName, Modules.ModuleArchetype type)
+        public static async Task<bool> RemoveTradeWatcher(CommandContext ctx, string searchName, Modules.ModuleArchetype type)
         {
             if (string.IsNullOrWhiteSpace(searchName))
             {
-                await ReportCommandInfo(source, ctx, "Please provide the name of a player, tag, item or store to watch trades for.");
+                await ReportCommandInfo(ctx, "Please provide the name of a player, tag, item or store to watch trades for.");
                 return false;
             }
 
-            LinkedUser linkedUser = source == ApplicationInterfaceType.Eco
+            LinkedUser linkedUser = ctx.Interface == ApplicationInterfaceType.Eco
                 ? UserLinkManager.LinkedUserByEcoUser(((EcoCommandContext)ctx).User, ((EcoCommandContext)ctx).User, "Trade Watcher Unregistration")
                 : UserLinkManager.LinkedUserByDiscordUser(((DiscordCommandContext)ctx).Interaction.User, ((DiscordCommandContext)ctx).Interaction.Member, "Trade Watcher Unregistration");
             if (linkedUser == null)
@@ -575,25 +576,25 @@ namespace Eco.Plugins.DiscordLink
             bool removed = await DLStorage.WorldData.RemoveTradeWatcher(discordId, new TradeWatcherEntry(searchName, type));
             if (removed)
             {
-                await ReportCommandInfo(source, ctx, $"Stopped watching trades for {searchName}.");
+                await ReportCommandInfo(ctx, $"Stopped watching trades for {searchName}.");
                 return true;
             }
             else
             {
-                await ReportCommandError(source, ctx, $"Failed to stop watching trades for {searchName}.\nUse `/DL-TradeWatchers` to see what is currently being watched.");
+                await ReportCommandError(ctx, $"Failed to stop watching trades for {searchName}.\nUse `/DL-TradeWatchers` to see what is currently being watched.");
                 return false;
             }
         }
 
-        public static async Task<bool> ListTradeWatchers(ApplicationInterfaceType source, CommandContext ctx)
+        public static async Task<bool> ListTradeWatchers(CommandContext ctx)
         {
-            LinkedUser linkedUser = source == ApplicationInterfaceType.Eco
+            LinkedUser linkedUser = ctx.Interface == ApplicationInterfaceType.Eco
                 ? UserLinkManager.LinkedUserByEcoUser(((EcoCommandContext)ctx).User, ((EcoCommandContext)ctx).User, "Trade Watchers Listing")
                 : UserLinkManager.LinkedUserByDiscordUser(((DiscordCommandContext)ctx).Interaction.User, ((DiscordCommandContext)ctx).Interaction.Member, "Trade Watchers Listing");
             if (linkedUser == null)
                 return false;
 
-            await ReportCommandInfo(source, ctx, $"Watched Trades\n{DLStorage.WorldData.ListTradeWatchers(ulong.Parse(linkedUser.DiscordId))}");
+            await ReportCommandInfo(ctx, $"Watched Trades\n{DLStorage.WorldData.ListTradeWatchers(ulong.Parse(linkedUser.DiscordId))}");
             return true;
         }
 
@@ -601,15 +602,15 @@ namespace Eco.Plugins.DiscordLink
 
         #region Snippets
 
-        public static async Task Snippet(ApplicationInterfaceType source, CommandContext ctx, ApplicationInterfaceType target, string userName, string snippetKey)
+        public static async Task Snippet(CommandContext ctx, ApplicationInterfaceType target, string userName, string snippetKey)
         {
             var snippets = DLStorage.Instance.Snippets;
             if (string.IsNullOrWhiteSpace(snippetKey)) // List all snippets if no key is given
             {
                 if (snippets.Count > 0)
-                    await DisplayCommandData(source, ctx, string.Empty, new DiscordLinkEmbed().AddField("Snippets", string.Join("\n", snippets.Keys)), DLConstants.ECO_PANEL_SIMPLE_LIST);
+                    await DisplayCommandData(ctx, string.Empty, new DiscordLinkEmbed().AddField("Snippets", string.Join("\n", snippets.Keys)), DLConstants.ECO_PANEL_SIMPLE_LIST);
                 else
-                    await ReportCommandInfo(source, ctx, "There are no registered snippets.");
+                    await ReportCommandInfo(ctx, "There are no registered snippets.");
             }
             else
             {
@@ -619,7 +620,7 @@ namespace Eco.Plugins.DiscordLink
                     if (target == ApplicationInterfaceType.Eco)
                     {
                         Message.SendChatToDefaultChannel(null, $"{userName} invoked snippet \"{snippetKey}\"\n- - -\n{snippetText}\n- - -");
-                        _ = ReportCommandInfo(source, ctx, "Snippet posted.");
+                        _ = ReportCommandInfo(ctx, "Snippet posted.");
                     }
                     else
                     {
@@ -628,7 +629,7 @@ namespace Eco.Plugins.DiscordLink
                 }
                 else
                 {
-                    await ReportCommandError(source, ctx, $"No snippet with key \"{snippetKey}\" could be found.");
+                    await ReportCommandError(ctx, $"No snippet with key \"{snippetKey}\" could be found.");
                 }
             }
         }
