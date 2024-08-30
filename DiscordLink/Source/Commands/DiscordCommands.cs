@@ -114,20 +114,34 @@ namespace Eco.Plugins.DiscordLink
                         builderEmbeds = MessageUtils.BuildDiscordEmbeds(embed);
                     }
                 }
-
+                
+                // Send initial response
                 if (ctx.Timing == ResponseTiming.Immediate)
                 {
                     DiscordInteractionResponseBuilder builder = new DiscordInteractionResponseBuilder();
                     builder.Content = bulderText;
-                    builder.AddEmbeds(builderEmbeds);
+                    if(builderEmbeds.Count > 0)
+                        builder.AddEmbed(builderEmbeds.First());
+
                     await ctx.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
                 }
                 else if (ctx.Timing == ResponseTiming.Delayed)
                 {
                     DiscordWebhookBuilder builder = new DiscordWebhookBuilder();
                     builder.Content = bulderText;
-                    builder.AddEmbeds(builderEmbeds);
+                    if (builderEmbeds.Count > 0)
+                        builder.AddEmbed(builderEmbeds.First());
+
                     await ctx.Interaction.EditResponseAsync(builder);
+                }
+
+                // Send any remaining embeds as follow up messages
+                for(int i = 1; i < builderEmbeds.Count; ++i)
+                {
+                    DiscordFollowupMessageBuilder builder = new DiscordFollowupMessageBuilder();
+                    builder.AddEmbed(builderEmbeds[i]);
+
+                    await ctx.Interaction.FollowUpAsync(builder);
                 }
             }
 
