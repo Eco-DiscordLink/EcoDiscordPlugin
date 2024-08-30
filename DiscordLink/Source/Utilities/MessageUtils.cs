@@ -132,6 +132,9 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 }
                 else
                 {
+                    if (i > 0 && needsSplitFields[i - 1] == true && field.IsAlignmentField)
+                        continue; // Replace alignment fields with split fields where possible
+
                     splitFields.Add(new DiscordLinkEmbedField(field.Title, field.Text, field.AllowAutoLineBreak, field.Inline));
                 }
             }

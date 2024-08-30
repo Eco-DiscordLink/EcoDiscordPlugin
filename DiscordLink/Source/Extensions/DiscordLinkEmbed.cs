@@ -165,6 +165,7 @@ namespace Eco.Plugins.DiscordLink.Extensions
         public string Text { get; private set; }
         public bool AllowAutoLineBreak { get; private set; }
         public bool Inline { get; private set; }
+        public bool IsAlignmentField => Title == INVISIBLE_EMBED_CHAR && Text == INVISIBLE_EMBED_CHAR;
 
         public DiscordLinkEmbedField(string title, string text, bool allowAutoLineBreak = true, bool inline = false)
         {
