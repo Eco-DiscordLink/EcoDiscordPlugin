@@ -56,7 +56,12 @@ namespace Eco.Plugins.DiscordLink
         {
             try
             {
-                if (!IsCommandAllowedForUser(ctx, requiredPermission))
+                if (ctx.Timing == ResponseTiming.Delayed)
+                {
+                    await ctx.Interaction.DeferAsync();
+                }
+
+                if (!IsCommandAllowedForUser(ctx.Interaction, requiredPermission))
                 {
                     string permittedRolesDesc = (DLConfig.Data.AdminRoles.Count > 0) ? string.Join("\n- ", DLConfig.Data.AdminRoles.ToArray()) : "No admin roles configured";
                     await RespondToCommand(ctx, $"You lack the `{requiredPermission}` level permission required to execute this command.\nThe permitted roles are:\n```- {permittedRolesDesc}```");
@@ -90,24 +95,38 @@ namespace Eco.Plugins.DiscordLink
         {
             async static Task Respond(DiscordCommandContext ctx, string textContent, IEnumerable<DiscordLinkEmbed> embedContent)
             {
-                DiscordInteractionResponseBuilder Builder = new DiscordInteractionResponseBuilder();
+                string bulderText = string.Empty;
                 if (!string.IsNullOrWhiteSpace(textContent))
                 {
                     if (textContent.Length < DLConstants.DISCORD_MESSAGE_CHARACTER_LIMIT)
-                        Builder.Content = textContent;
+                        bulderText = textContent;
                     else
-                        Builder.Content = $"{textContent.Substring(0, DLConstants.DISCORD_MESSAGE_CHARACTER_LIMIT - 4)}...";
+                        bulderText = $"{textContent.Substring(0, DLConstants.DISCORD_MESSAGE_CHARACTER_LIMIT - 4)}...";
                 }
 
+                List<DiscordEmbed> builderEmbeds = new List<DiscordEmbed>();
                 if (embedContent != null)
                 {
                     foreach (DiscordLinkEmbed embed in embedContent)
                     {
-                        Builder.AddEmbeds(MessageUtils.BuildDiscordEmbeds(embed));
+                        builderEmbeds = MessageUtils.BuildDiscordEmbeds(embed);
                     }
                 }
 
-                await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, Builder);
+                if (ctx.Timing == ResponseTiming.Immediate)
+                {
+                    DiscordInteractionResponseBuilder builder = new DiscordInteractionResponseBuilder();
+                    builder.Content = bulderText;
+                    builder.AddEmbeds(builderEmbeds);
+                    await ctx.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
+                }
+                else if (ctx.Timing == ResponseTiming.Delayed)
+                {
+                    DiscordWebhookBuilder builder = new DiscordWebhookBuilder();
+                    builder.Content = bulderText;
+                    builder.AddEmbeds(builderEmbeds);
+                    await ctx.Interaction.EditResponseAsync(builder);
+                }
             }
 
             try
