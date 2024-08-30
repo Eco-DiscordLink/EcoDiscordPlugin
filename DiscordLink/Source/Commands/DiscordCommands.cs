@@ -1,5 +1,6 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Entities;
+using DSharpPlus.Exceptions;
 using DSharpPlus.SlashCommands;
 using Eco.Core.Utils;
 using Eco.Gameplay.Players;
@@ -129,6 +130,7 @@ namespace Eco.Plugins.DiscordLink
                 }
             }
 
+            string errorMessage = string.Empty;
             try
             {
                 DiscordClient client = DiscordLink.Obj.Client;
@@ -155,9 +157,27 @@ namespace Eco.Plugins.DiscordLink
                     }
                 }
             }
+            catch (NotFoundException e)
+            {
+                errorMessage = $"An error occurred while attempting to respond to command\\nException {e}\nMessage: {e.JsonMessage}";
+            }
+            catch (BadRequestException e)
+            {
+                errorMessage = $"An error occurred while attempting to respond to command\nException {e}\nRequest Error: {e.Errors}";
+            }
             catch (Exception e)
             {
-                Logger.Exception($"An error occurred while attempting to respond to command", e);
+                errorMessage = $"An error occurred while attempting to respond to command\nException: {e}";
+            }
+
+            if (!errorMessage.IsEmpty())
+            {
+                Logger.Error(errorMessage);
+                try
+                {
+                    await Respond(ctx, errorMessage, null);
+                }
+                catch { } // If we fail, it's probably for the same reason as above, so let's not spam the log.
             }
         }
 
