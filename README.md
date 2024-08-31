@@ -18,7 +18,7 @@ For a full list of all supported feed modules, see the [feed module list](Module
 Add predefined messages in Discord and invoke them ingame using the /Snippet command.  
 For a full list of all supported input modules, see the [input module list](Modules.md#inputs).  
 * `Discord Roles`  
-Automatically assign roles to users based on their ingame specializations and demograhics.    
+Automatically assign roles to users based on their ingame specializations, demograhics and elected titles.    
 For a full list of all supported role modules, see the [role module list](Modules.md#roles).  
 * `Troubleshooting Tools`  
 DiscordLink comes with [troubleshooting commands](Commands.md#SAT) that you can use both in Eco and in Discord, to help diagnose configuration errors.

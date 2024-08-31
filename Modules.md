@@ -96,6 +96,10 @@ Gives linked users roles matching their ingame demographics.
 Gives linked users roles matching their ingame specializations.  
 ![Specialization Role](images/features/roles/specialization.png)
 
+### Elected Titles
+Gives linked users roles matching their ingame elected titles.  
+![Specialization Role](images/features/roles/elected_title.png)
+
 ## Inputs
 An Input is a source of information in Eco or Discord that can be utilized in commands or other features.  
 **Note**: The range for how far in the Discord message history Input messages can be found is limited.  
