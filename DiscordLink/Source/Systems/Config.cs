@@ -273,6 +273,7 @@ namespace Eco.Plugins.DiscordLink
                 UseLinkedAccountRole = this.UseLinkedAccountRole,
                 UseDemographicRoles = this.UseDemographicRoles,
                 UseSpecialtyRoles = this.UseSpecialtyRoles,
+                UseElectedTitleRoles = this.UseElectedTitleRoles,
                 AdminRoles = new ObservableCollection<string>(this.AdminRoles.Select(t => t.Clone()).Cast<string>()),
                 ChatChannelLinks = new ObservableCollection<ChatChannelLink>(this.ChatChannelLinks.Select(t => t.Clone()).Cast<ChatChannelLink>()),
                 TradeFeedChannels = new ObservableCollection<ChannelLink>(this.TradeFeedChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
