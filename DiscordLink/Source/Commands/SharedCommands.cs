@@ -553,7 +553,8 @@ namespace Eco.Plugins.DiscordLink
             }
             else
             {
-                await ReportCommandError(ctx, $"Failed to start watching trades for {matchedName}. \nUse `/DL-TradeWatchers` to see what is currently being watched.");
+                string commandName = ctx.Interface == ApplicationInterfaceType.Eco ? "\"/DL ListTradeWatchers\"" : "`ListTradeWatchers`";
+                await ReportCommandError(ctx, $"Failed to start watching trades for {matchedName}. \nUse {commandName} to see what is currently being watched.");
                 return false;
             }
         }
@@ -581,7 +582,8 @@ namespace Eco.Plugins.DiscordLink
             }
             else
             {
-                await ReportCommandError(ctx, $"Failed to stop watching trades for {searchName}.\nUse `/DL-TradeWatchers` to see what is currently being watched.");
+                string commandName = ctx.Interface == ApplicationInterfaceType.Eco ? "\"/DL ListTradeWatchers\"" : "`ListTradeWatchers`";
+                await ReportCommandError(ctx, $"Failed to stop watching trades for {searchName}.\nUse {commandName} to see what is currently being watched.");
                 return false;
             }
         }
