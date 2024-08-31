@@ -5,6 +5,7 @@ using DSharpPlus.SlashCommands;
 using Eco.Core.Utils;
 using Eco.Gameplay.Players;
 using Eco.Gameplay.Systems.Messaging.Chat;
+using Eco.Gameplay.Systems.Messaging.Chat.Commands;
 using Eco.Moose.Tools.Logger;
 using Eco.Moose.Utils.Lookups;
 using Eco.Moose.Utils.Message;
@@ -528,6 +529,20 @@ namespace Eco.Plugins.DiscordLink
                     .WithDescription(MessageBuilder.Shared.GetLinkAccountInfoMessage());
 
                 await RespondToCommand(ctx, null, embed);
+            });
+        }
+
+        [SlashCommand("UnlinkAccount", "Unlinks the Discord account from a linked Eco account.")]
+        public async Task UnlinkAccount(InteractionContext interaction)
+        {
+            DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Immediate);
+            await ExecuteCommand<object>(PermissionType.User, ctx, async (lCtx, args) =>
+            {
+                bool result = UserLinkManager.RemoveLinkedUser(interaction.Member);
+                if (result)
+                    await ReportCommandInfo(ctx, $"Eco account unlinked.");
+                else
+                    await ReportCommandError(ctx, $"No linked Eco account could be found.");
             });
         }
 

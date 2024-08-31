@@ -121,6 +121,18 @@ namespace Eco.Plugins.DiscordLink
             return result;
         }
 
+        public static bool RemoveLinkedUser(DiscordMember member)
+        {
+            bool deleted = false;
+            LinkedUser linkedUser = LinkedUserByDiscordId(member.Id, requireValid: false);
+            if (linkedUser != null)
+            {
+                RemoveLinkedUser(linkedUser);
+                deleted = true;
+            }
+            return deleted;
+        }
+
         public static bool RemoveLinkedUser(User user)
         {
             bool deleted = false;

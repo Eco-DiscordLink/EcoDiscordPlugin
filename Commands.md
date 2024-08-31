@@ -66,7 +66,7 @@ All Eco and Discord commands are case insensitive.
 | **Name**                   | **Alias**           | **Discord/Eco**   | **Parameters**                                                          | **Permissions** | **Description**                                                                                                      |
 |----------------------------|---------------------|-------------------|-------------------------------------------------------------------------|-----------------|----------------------------------------------------------------------------------------------------------------------|
 | LinkAccount                |                     | Eco               | DiscordName                                                             | User            | Links the calling user account to a Discord account. DiscordName is qualified or unqualified name. No nicknames.     |
-| UnlinkAccount              |                     | Eco               |                                                                         | User            | Unlinks the Eco account from a linked Discord account.                                                               |
+| UnlinkAccount              |                     | Both              |                                                                         | User            | Unlinks the Eco account from a linked Discord account.                                                               |
 
 
 # **Invites**
