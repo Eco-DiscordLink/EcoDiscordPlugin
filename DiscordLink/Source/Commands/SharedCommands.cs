@@ -599,7 +599,6 @@ namespace Eco.Plugins.DiscordLink
         }
 
         #endregion
-
         #region Snippets
 
         public static async Task Snippet(CommandContext ctx, ApplicationInterfaceType target, string userName, string snippetKey)

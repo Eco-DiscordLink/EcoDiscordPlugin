@@ -24,7 +24,6 @@ namespace Eco.Plugins.DiscordLink
             public static Microsoft.Extensions.Logging.LogLevel BackendLogLevel = Microsoft.Extensions.Logging.LogLevel.None;
             public static bool UseVerboseDisplay = false;
             public static readonly string[] AdminRoles = { "Admin", "Eco Admins", "Administrator", "Moderator" };
-            public const string DiscordCommandPrefix = "?";
             public const string InviteMessage = "Join us on Discord!\\n" + DLConstants.INVITE_COMMAND_TOKEN;
             public const ChatSyncMode ChatSynchronizationMode = ChatSyncMode.OptOut;
             public const int MaxMintedCurrencies = 1;
@@ -100,7 +99,6 @@ namespace Eco.Plugins.DiscordLink
             Data.ElectionDisplayChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.CurrencyDisplayChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.SnippetInputChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
-            Data.DiscordCommandChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
         }
 
         public void PostConnectionInit()
@@ -253,7 +251,6 @@ namespace Eco.Plugins.DiscordLink
             _allChannelLinks.AddRange(_config.Config.ElectionDisplayChannels);
             _allChannelLinks.AddRange(_config.Config.CurrencyDisplayChannels);
             _allChannelLinks.AddRange(_config.Config.SnippetInputChannels);
-            _allChannelLinks.AddRange(_config.Config.DiscordCommandChannels);
         }
     }
 
@@ -289,7 +286,6 @@ namespace Eco.Plugins.DiscordLink
                 ElectionDisplayChannels = new ObservableCollection<ChannelLink>(this.ElectionDisplayChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
                 CurrencyDisplayChannels = new ObservableCollection<CurrencyChannelLink>(this.CurrencyDisplayChannels.Select(t => t.Clone()).Cast<CurrencyChannelLink>()),
                 SnippetInputChannels = new ObservableCollection<ChannelLink>(this.SnippetInputChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
-                DiscordCommandChannels = new ObservableCollection<ChannelLink>(this.DiscordCommandChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
                 DemographicReplacementRoles = new ObservableCollection<DemographicRoleSubstitution>(this.DemographicReplacementRoles.Select(t => t.Clone()).Cast<DemographicRoleSubstitution>()),
                 EmoteIconSubstitutions = new ObservableCollection<EmoteIconSubstitution>(this.EmoteIconSubstitutions.Select(t => t.Clone()).Cast<EmoteIconSubstitution>()),
             };
@@ -369,9 +365,6 @@ namespace Eco.Plugins.DiscordLink
 
         [Description("Determines if Discord roles matching ingame elected titles will be granted to users who have linked their accounts. This setting can be changed while the server is running."), Category("Modules - Roles")]
         public bool UseElectedTitleRoles { get; set; } = DLConfig.DefaultValues.UseElectedTitleRoles;
-
-        [Description("Discord channels in which to allow commands. If no channels are specified, commands will be allowed in all channels. This setting can be changed while the server is running."), Category("Commands")]
-        public ObservableCollection<ChannelLink> DiscordCommandChannels { get; set; } = new ObservableCollection<ChannelLink>();
 
         [Description("Max amount of tracked trades allowed per user. Set to 0 to disable trade watchers. This setting can be changed while the server is running, but does not apply retroactively."), Category("Commands")]
         public int MaxTradeWatcherDisplaysPerUser { get; set; } = DLConfig.DefaultValues.MaxTradeWatcherDisplaysPerUser;

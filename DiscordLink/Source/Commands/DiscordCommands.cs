@@ -70,13 +70,6 @@ namespace Eco.Plugins.DiscordLink
                     return;
                 }
 
-                if (!IsCommandAllowedInChannel(ctx.Interaction))
-                {
-                    string commandChannels = string.Join("\n- ", DLConfig.Data.DiscordCommandChannels.Where(link => link.IsValid()).Select(channel => channel.Channel.Name));
-                    await RespondToCommand(ctx, $"You aren't allowed to post commands in this channel.\nCommands are allowed in the following channels:\n```- {commandChannels}```");
-                    return;
-                }
-
                 if (ctx.Interaction.Channel.IsPrivate)
                     Logger.Debug($"{ctx.Interaction.User.Username} invoked Discord command \"/{command.Method.Name}\" in DM");
                 else
@@ -204,30 +197,6 @@ namespace Eco.Plugins.DiscordLink
                 PermissionType.Admin => DiscordLink.Obj.Client.MemberIsAdmin(ctx.Member),
                 _ => false,
             };
-        }
-
-        private static bool IsCommandAllowedInChannel(InteractionContext ctx)
-        {
-            var commandChannels = DLConfig.Data.DiscordCommandChannels;
-            bool allowed =
-                ctx.Channel.IsPrivate
-                || DiscordLink.Obj.Client.MemberIsAdmin(ctx.Member) // Allow admins to override channel requirements
-                || !(commandChannels.Any(link => link.IsValid())); // Always allow if there are no valid command channels or the command is sent via DM
-
-            // Check if the discord channel used is listed as a command channel
-            if (!allowed)
-            {
-                foreach (ChannelLink link in commandChannels)
-                {
-                    if (link.IsChannel(ctx.Channel))
-                    {
-                        allowed = true;
-                        break;
-                    }
-                }
-            }
-
-            return allowed;
         }
 
         #endregion
