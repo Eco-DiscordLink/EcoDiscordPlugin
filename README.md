@@ -58,7 +58,7 @@ See this [configuration guide](ConfigurationNoGUI.md) for servers hosted by thir
 
 Do you have suggestions, questions or maybe a problem you need help with?
 Join the Eco [Community Discord](https://discord.gg/pCkWfzQ) server!
-DiscordLink has its own corner where you can talk to other users and the developer!
+DiscordLink has a channel under the Mighty Moose Mods section where you can get in touch with the maintainer!
 
 ## I want to contribute!
 
