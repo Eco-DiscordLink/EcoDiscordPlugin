@@ -112,7 +112,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         protected sealed override async Task UpdateInternal(DiscordLink plugin, DlEventType trigger, params object[] data)
         {
-            // Handle deleted messages first to avoid crashes
+            // Handle deleted messages first to avoid exceptions
             if (trigger == DlEventType.DiscordMessageDeleted)
             {
                 if (!(data[0] is DiscordMessage message))
@@ -192,7 +192,8 @@ namespace Eco.Plugins.DiscordLink.Modules
                         _dirty = true;
                         return; // We cannot know which messages are wrong and duplicates may be created if we continue.
                     }
-                    if (!message.Content.StartsWith(BaseTag)) continue; // The message belongs to a different display
+                    if (!message.Content.StartsWith(BaseTag))
+                        continue; // The message belongs to a different display
 
                     bool found = false;
                     foreach (var tagAndContent in tagsAndContent)
