@@ -63,7 +63,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             if (sender == null)
             {
                 DiscordMember memberAuthor = discordMessage.Author as DiscordMember ?? await discordMessage.Author.LookupMember();
-                messageContent = $"{Text.Color(Color.LightBlue, memberAuthor.DisplayName)} {DLConstants.ECO_DISCORDLINK_ICON} {messageContent}";
+                messageContent = $"{Text.Color(DLConstants.DISCORD_COLOR, memberAuthor.DisplayName)} {DLConstants.ECO_DISCORDLINK_ICON} {messageContent}";
             }
             else
             {
