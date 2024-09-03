@@ -1,5 +1,6 @@
 ﻿using DSharpPlus.Entities;
 using Eco.Gameplay.Players;
+using Eco.Moose.Data.Constants;
 using Eco.Moose.Tools.Logger;
 using Eco.Moose.Utils.Message;
 using Eco.Plugins.DiscordLink.Events;
@@ -58,7 +59,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             if (linkedUser != null)
                 sender = linkedUser.EcoUser;
 
-            string messageContent = GetReadableContent(discordMessage);
+            string messageContent = await GetReadableContent(discordMessage);
             if (sender == null)
             {
                 DiscordMember memberAuthor = discordMessage.Author as DiscordMember ?? await discordMessage.Author.LookupMember();
@@ -73,7 +74,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             ++_opsCount;
         }
 
-        private string GetReadableContent(DiscordMessage message)
+        private async Task<string> GetReadableContent(DiscordMessage message)
         {
             // Substitute Discord standard emojis
             string content = DLConstants.DISCORD_EMOJI_SUBSTITUTION_MAP.Aggregate(message.Content, (current, emojiMapping) => current.Replace(emojiMapping.Key, $"<ecoicon name=\"{emojiMapping.Value}\">"));
@@ -93,6 +94,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 }
             });
 
+            // Substitute mentioned user, roles and channels
             foreach (var user in message.MentionedUsers)
             {
                 if (user == null)
@@ -120,6 +122,36 @@ namespace Eco.Plugins.DiscordLink.Modules
                 content = content.Replace($"<#{channel.Id}>", $"#{channel.Name}");
             }
 
+            // Prefix message with referenced message preview
+            if (message.ReferencedMessage != null)
+            {
+                DiscordMessage refMessage = message.ReferencedMessage;
+
+                string authorName;
+                string referenceContent;
+                if (refMessage.Author == DiscordLink.Obj.Client.BotMember)
+                {
+                    const string subStringStartComparison = "**: ";
+                    authorName = MessageUtils.DiscordBoldRegex.Match(refMessage.Content).Groups[0].Value.Strip('*'); // Pull the original sender name from the reference message
+                    referenceContent = refMessage.Content.Substring(refMessage.Content.IndexOf(subStringStartComparison) + subStringStartComparison.Length); // Skip ahead to the actual message
+                }
+                else
+                {
+                    if (refMessage.Author is DiscordMember member)
+                        authorName = member.DisplayName;
+                    else
+                        authorName = (await refMessage.Author.LookupMember())?.DisplayName ?? refMessage.Author.Username; // Fall back on User if member for have left the guild or is otherwise unavailable
+
+                    referenceContent = refMessage.Content;
+                }
+
+                string referenceContentPreview = referenceContent.Length < DLConstants.DISCORD_REFERENCE_MESSAGE_CONTENT_PREVIEW_LENGTH
+                        ? referenceContent
+                        : $"{referenceContent.Substring(0, DLConstants.DISCORD_REFERENCE_MESSAGE_CONTENT_PREVIEW_LENGTH)}...";
+                content = $"{ Text.Color( DLConstants.DISCORD_COLOR, "[RE]")} \"{authorName}: {referenceContentPreview}\"\n{content}";
+            }
+
+            // Add attachment information
             if (message.Attachments.Count > 0)
             {
                 content += "\nAttachments:";
