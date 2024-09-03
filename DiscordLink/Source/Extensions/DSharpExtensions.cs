@@ -1,6 +1,9 @@
 ﻿using DSharpPlus.Entities;
+using DSharpPlus.Exceptions;
 using DSharpPlus.SlashCommands;
+using Eco.Moose.Tools.Logger;
 using Eco.Shared.Utils;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -78,7 +81,19 @@ namespace Eco.Plugins.DiscordLink.Extensions
             DiscordMember member = client.Guild.Members.FirstOrDefault(m => m.Key == user.Id).Value;
             if (member == null)
             {
-                member = await client.Guild.GetMemberAsync(user.Id);
+                try
+                {
+                    member = await client.Guild.GetMemberAsync(user.Id);
+                }
+                catch (NotFoundException)
+                {
+                    // No action: It's normal to fail to look up members of users who have left the guild
+                }
+                catch (Exception e)
+                {
+                    Logger.Exception($"Failed to look up discord member for discord user {user.Username} ({user.Id})", e);
+                }
+                
             }
 
             return member;
