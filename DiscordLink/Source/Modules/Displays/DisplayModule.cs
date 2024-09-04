@@ -219,6 +219,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 // Delete the messages that are no longer relevant
                 foreach (DiscordMessage message in unmatchedMessages)
                 {
+                    channelDisplayData.DisplayMessages.Remove(message.Id);
                     await plugin.Client.DeleteMessageAsync(message);
                     ++_opsCount;
                 }
