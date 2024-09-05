@@ -139,7 +139,12 @@ namespace Eco.Plugins.DiscordLink.Extensions
 
         public static bool HasRoleWithName(this DiscordMember member, string roleName)
         {
-            return member.Roles.Any(memberRole => memberRole.Name.EqualsCaseInsensitive(roleName));
+            return member.Roles.Any(role => role.Name.EqualsCaseInsensitive(roleName));
+        }
+
+        public static bool IsAdmin(this DiscordMember member)
+        {
+            return member.Roles.Any(role => DLConfig.Data.AdminRoles.Any(adminRoleName => adminRoleName.EqualsCaseInsensitive(role.Name)));
         }
 
         #endregion

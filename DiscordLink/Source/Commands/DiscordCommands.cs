@@ -3,17 +3,19 @@ using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
 using DSharpPlus.SlashCommands;
 using Eco.Core.Utils;
+using Eco.Gameplay.Civics.Laws;
 using Eco.Gameplay.Players;
 using Eco.Gameplay.Systems.Messaging.Chat;
-using Eco.Gameplay.Systems.Messaging.Chat.Commands;
 using Eco.Moose.Tools.Logger;
 using Eco.Moose.Utils.Lookups;
 using Eco.Moose.Utils.Message;
 using Eco.Moose.Utils.TextUtils;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
+using Eco.Plugins.Networking;
 using Eco.Shared.IoC;
 using Eco.Shared.Utils;
+using Eco.Simulation.WorldLayers.Layers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -647,6 +649,83 @@ namespace Eco.Plugins.DiscordLink
             await ExecuteCommand<object>(PermissionType.User, ctx, async (lCtx, args) =>
             {
                 await SharedCommands.WorkPartiesReport(ctx);
+            });
+        }
+
+        #endregion
+
+        #region Images
+
+        [SlashCommand("ShowLayer", "Posts a link to the requested layer image.")]
+        public async Task ShowLayer(InteractionContext interaction,
+            [Option("LayerName", "Name of the world layer to show. The layer must must be a visible layer.")] string layerName,
+            [Option("ShowLayerHistory", "If true; will post an animated gif showing how the history of the layer has changed per hour.")] bool showLayerHistory = false,
+            [Option("ShowTerrainComparison", "If true; will post a comparison gif showing the world terrain.")] bool showComparsionTerrain = false)
+        {
+            DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Delayed);
+            await ExecuteCommand<object>(PermissionType.User, ctx, async (lCtx, args) =>
+            {
+                string webServerUrl = NetworkManager.Config.WebServerUrl;
+                if(webServerUrl.IsEmpty())
+                {
+                    await ReportCommandError(ctx, "Web server URL not configured - Ensure that network config parameter `WebServerUrl` is set.");
+                    return;
+                }
+
+                IEnumerable<WorldLayer> layers = interaction.Member.IsAdmin() ? Lookups.Layers : Lookups.VisibleLayers;
+                WorldLayer layer = layers.FirstOrDefault(layer => layer.Name.EqualsCaseInsensitive(layerName));
+                if (layer == null)
+                {
+                    layer = Lookups.Layers.FirstOrDefault(layer => layer.Name.EqualsCaseInsensitive(layerName));
+                    if (layer != null)
+                        await ReportCommandError(ctx, $"{layer.Name} is not a visible layer.");
+                    else
+                        await ReportCommandError(ctx, $"No layer named \"{layerName}\" could be found.");
+                    return;
+                }
+
+                string layerFileName = showLayerHistory ? layer.Name : $"{layer.Name}Latest";
+                string terrainFileName = showLayerHistory ? "Terrain" : "TerrainLatest";
+                string output = showComparsionTerrain
+                ? $"{Lookups.WebServerUrl}/Layers/{layerFileName}.gif\n{Lookups.WebServerUrl}/Layers/{terrainFileName}.gif"
+                : $"{Lookups.WebServerUrl}/Layers/{layerFileName}.gif";
+                await ReportCommandInfo(ctx, output);
+            });
+        }
+
+        [SlashCommand("ShowMap", "Posts a link to an image showing the world map.")]
+        public async Task ShowMap(InteractionContext interaction)
+        {
+            DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Delayed);
+            await ExecuteCommand<object>(PermissionType.User, ctx, async (lCtx, args) =>
+            {
+                string webServerUrl = NetworkManager.Config.WebServerUrl;
+                if (webServerUrl.IsEmpty())
+                {
+                    await ReportCommandError(ctx, "Web server URL not configured - Ensure that network config parameter `WebServerUrl` is set.");
+                    return;
+                }
+
+                string layerName = "WorldPreview";
+                await ReportCommandInfo(ctx, $"{Lookups.WebServerUrl}/Layers/{layerName}.gif");
+            });
+        }
+
+        [SlashCommand("ShowWorldHistory", "Posts a link to a gif showing the world history.")]
+        public async Task ShowWorldHistory(InteractionContext interaction)
+        {
+            DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Delayed);
+            await ExecuteCommand<object>(PermissionType.User, ctx, async (lCtx, args) =>
+            {
+                string webServerUrl = NetworkManager.Config.WebServerUrl;
+                if (webServerUrl.IsEmpty())
+                {
+                    await ReportCommandError(ctx, "Web server URL not configured - Ensure that network config parameter `WebServerUrl` is set.");
+                    return;
+                }
+
+                string layerName = "Terrain";
+                await ReportCommandInfo(ctx, $"{Lookups.WebServerUrl}/Layers/{layerName}.gif");
             });
         }
 
