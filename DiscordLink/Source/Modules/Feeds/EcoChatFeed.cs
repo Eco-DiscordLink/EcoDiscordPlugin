@@ -53,7 +53,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
             bool blocked = false;
             string forwardedMessage = string.Empty;
-            if (DLConfig.Data.ChatSyncMode == Enums.ChatSyncMode.OptOut)
+            if (DLConfig.Data.ChatSyncMode == ChatSyncMode.OptOut)
             {
                 if (DLStorage.PersistentData.OptedOutUsers.Any(u => (u.SteamId != string.Empty && u.SteamId == chatMessage.Citizen.SteamId) || (u.StrangeId != string.Empty && u.StrangeId == chatMessage.Citizen.StrangeId)))
                 {
@@ -61,7 +61,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                     blocked = true;
                 }
             }
-            else if (DLConfig.Data.ChatSyncMode == Enums.ChatSyncMode.OptIn)
+            else if (DLConfig.Data.ChatSyncMode == ChatSyncMode.OptIn)
             {
                 if (DLStorage.PersistentData.OptedInUsers.None(u => (u.SteamId != string.Empty && u.SteamId == chatMessage.Citizen.SteamId) || (u.StrangeId != string.Empty && u.StrangeId == chatMessage.Citizen.StrangeId)))
                 {

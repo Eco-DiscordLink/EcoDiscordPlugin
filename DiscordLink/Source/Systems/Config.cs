@@ -12,7 +12,6 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
-using static Eco.Plugins.DiscordLink.Enums;
 
 namespace Eco.Plugins.DiscordLink
 {

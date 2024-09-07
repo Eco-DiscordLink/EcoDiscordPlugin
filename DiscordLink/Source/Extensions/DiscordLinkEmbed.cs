@@ -3,7 +3,6 @@ using Eco.Shared.Utils;
 using System.Collections.Generic;
 using System.Text;
 using static Eco.Plugins.DiscordLink.DLConstants;
-using static Eco.Plugins.DiscordLink.Enums;
 
 namespace Eco.Plugins.DiscordLink.Extensions
 {

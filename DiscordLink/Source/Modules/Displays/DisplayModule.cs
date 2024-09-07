@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using static Eco.Plugins.DiscordLink.Enums;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
