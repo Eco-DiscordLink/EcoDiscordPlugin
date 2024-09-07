@@ -14,7 +14,6 @@ namespace Eco.Plugins.DiscordLink
     */
     public class DiscordChannelPropertyConverter : TypeConverter
     {
-
         private string FormatChannelString(DiscordChannel discordChannel)
         {
             return $"#{discordChannel.Name} ({discordChannel.Id})";
@@ -86,6 +85,5 @@ namespace Eco.Plugins.DiscordLink
             }
             return base.ConvertFrom(context, culture, value);
         }
-
     }
 }
