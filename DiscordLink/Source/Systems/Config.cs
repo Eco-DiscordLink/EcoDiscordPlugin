@@ -281,7 +281,7 @@ namespace Eco.Plugins.DiscordLink
                 PlayerStatusFeedChannels = new ObservableCollection<ChannelLink>(this.PlayerStatusFeedChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
                 ElectionFeedChannels = new ObservableCollection<ChannelLink>(this.ElectionFeedChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
                 ServerLogFeedChannels = new ObservableCollection<ServerLogFeedChannelLink>(this.ServerLogFeedChannels.Select(t => t.Clone()).Cast<ServerLogFeedChannelLink>()),
-                ServerInfoDisplayChannels = new ObservableCollection<ServerInfoChannel>(this.ServerInfoDisplayChannels.Select(t => t.Clone()).Cast<ServerInfoChannel>()),
+                ServerInfoDisplayChannels = new ObservableCollection<ServerInfoChannelLink>(this.ServerInfoDisplayChannels.Select(t => t.Clone()).Cast<ServerInfoChannelLink>()),
                 WorkPartyDisplayChannels = new ObservableCollection<ChannelLink>(this.WorkPartyDisplayChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
                 ElectionDisplayChannels = new ObservableCollection<ChannelLink>(this.ElectionDisplayChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
                 CurrencyDisplayChannels = new ObservableCollection<CurrencyChannelLink>(this.CurrencyDisplayChannels.Select(t => t.Clone()).Cast<CurrencyChannelLink>()),
@@ -336,16 +336,16 @@ namespace Eco.Plugins.DiscordLink
         [Description("Determines if users can use trade watcher feeds. This setting can be changed while the server is running."), Category("Modules - Feeds")]
         public bool UseTradeWatcherFeeds { get; set; } = DLConfig.DefaultValues.UseTradeWatcherFeeds;
 
-        [Description("Discord channels in which to keep the Server Info display. DiscordLink will post one server info message in these channel and keep it updated through edits. This setting can be changed while the server is running."), Category("Modules - Displays")]
-        public ObservableCollection<ServerInfoChannel> ServerInfoDisplayChannels { get; set; } = new ObservableCollection<ServerInfoChannel>();
+        [Description("Discord channels in which to keep a Server Info display. DiscordLink will post one server info message in these channel and keep it updated through edits. This setting can be changed while the server is running."), Category("Modules - Displays")]
+        public ObservableCollection<ServerInfoChannelLink> ServerInfoDisplayChannels { get; set; } = new ObservableCollection<ServerInfoChannelLink>();
 
         [Description("Discord channels in which to keep ongoing work parties. DiscordLink will post messages in these channel and keep them updated through edits. This setting can be changed while the server is running."), Category("Modules - Displays")]
         public ObservableCollection<ChannelLink> WorkPartyDisplayChannels { get; set; } = new ObservableCollection<ChannelLink>();
 
-        [Description("Discord channels in which to keep the Election display. DiscordLink will post election messages in these channel and keep it updated through edits. This setting can be changed while the server is running."), Category("Modules - Displays")]
+        [Description("Discord channels in which to keep a Election display. DiscordLink will post election messages in these channel and keep it updated through edits. This setting can be changed while the server is running."), Category("Modules - Displays")]
         public ObservableCollection<ChannelLink> ElectionDisplayChannels { get; set; } = new ObservableCollection<ChannelLink>();
 
-        [Description("Discord channels in which to keep the currency display. DiscordLink will post currency messages in these channel and keep it updated through edits. This setting can be changed while the server is running."), Category("Modules - Displays")]
+        [Description("Discord channels in which to keep a currency display. DiscordLink will post currency messages in these channel and keep it updated through edits. This setting can be changed while the server is running."), Category("Modules - Displays")]
         public ObservableCollection<CurrencyChannelLink> CurrencyDisplayChannels { get; set; } = new ObservableCollection<CurrencyChannelLink>();
 
         [Description("Discord channels in which to search for snippets for the Snippet command. This setting can be changed while the server is running."), Category("Modules - Inputs")]

@@ -2,7 +2,7 @@
 
 namespace Eco.Plugins.DiscordLink
 {
-    public class ServerInfoChannel : ChannelLink
+    public class ServerInfoChannelLink : ChannelLink
     {
         [Description("Display the server name.")]
         public bool UseName { get; set; } = true;

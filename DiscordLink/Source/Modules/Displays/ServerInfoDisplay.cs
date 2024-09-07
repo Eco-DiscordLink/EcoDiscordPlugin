@@ -22,14 +22,14 @@ namespace Eco.Plugins.DiscordLink.Modules
         protected override void GetDisplayContent(DiscordTarget target, out List<Tuple<string, DiscordLinkEmbed>> tagAndContent)
         {
             tagAndContent = new List<Tuple<string, DiscordLinkEmbed>>();
-            if (!(target is ServerInfoChannel serverInfoChannel))
+            if (!(target is ServerInfoChannelLink serverInfoChannel))
                 return;
 
             DiscordLinkEmbed content = MessageBuilder.Discord.GetServerInfo(GetServerInfoFlagForChannel(serverInfoChannel));
             tagAndContent.Add(new Tuple<string, DiscordLinkEmbed>(BaseTag, content));
         }
 
-        private static MessageBuilder.ServerInfoComponentFlag GetServerInfoFlagForChannel(ServerInfoChannel infoChannel)
+        private static MessageBuilder.ServerInfoComponentFlag GetServerInfoFlagForChannel(ServerInfoChannelLink infoChannel)
         {
             MessageBuilder.ServerInfoComponentFlag statusFlag = 0;
             if (infoChannel.UseName)
