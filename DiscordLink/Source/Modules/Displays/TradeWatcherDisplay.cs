@@ -19,6 +19,14 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         private readonly List<DiscordTarget> UserLinks = new List<DiscordTarget>();
 
+        public override string ToString() => "Trade Watcher Display";
+        protected override DlEventType GetTriggers() => base.GetTriggers() | DlEventType.DiscordClientConnected | DlEventType.Timer | DlEventType.TradeWatcherDisplayAdded | DlEventType.TradeWatcherDisplayRemoved;
+
+        protected override async Task<bool> ShouldRun()
+        {
+            return await base.ShouldRun() && (DLConfig.Data.MaxTradeWatcherDisplaysPerUser > 0);
+        }
+
         public override string GetDisplayText(string childInfo, bool verbose)
         {
             string info = $"Trade Watcher Displays: {DLStorage.WorldData.TradeWatcherDisplayCountTotal}";
@@ -47,21 +55,6 @@ namespace Eco.Plugins.DiscordLink.Modules
         {
             await BuildUserLinkList();
             await base.Initialize();
-        }
-
-        public override string ToString()
-        {
-            return "Trade Watcher Display";
-        }
-
-        protected override DlEventType GetTriggers()
-        {
-            return base.GetTriggers() | DlEventType.DiscordClientConnected | DlEventType.Timer | DlEventType.TradeWatcherDisplayAdded | DlEventType.TradeWatcherDisplayRemoved;
-        }
-
-        protected override async Task<bool> ShouldRun()
-        {
-            return await base.ShouldRun() && (DLConfig.Data.MaxTradeWatcherDisplaysPerUser > 0);
         }
 
         protected override async Task<List<DiscordTarget>> GetDiscordTargets()

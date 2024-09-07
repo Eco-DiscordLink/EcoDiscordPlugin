@@ -16,21 +16,10 @@ namespace Eco.Plugins.DiscordLink.Modules
         protected override int TimerUpdateIntervalMs { get { return 60000; } }
         protected override int TimerStartDelayMs { get { return 10000; } }
 
-        public override string ToString()
-        {
-            return "Work Party Display";
-        }
-
-        protected override DlEventType GetTriggers()
-        {
-            return base.GetTriggers() | DlEventType.DiscordClientConnected | DlEventType.Timer | DlEventType.PostedWorkParty | DlEventType.CompletedWorkParty
-                | DlEventType.JoinedWorkParty | DlEventType.LeftWorkParty | DlEventType.WorkedWorkParty;
-        }
-
-        protected override async Task<List<DiscordTarget>> GetDiscordTargets()
-        {
-            return DLConfig.Data.WorkPartyDisplayChannels.Cast<DiscordTarget>().ToList();
-        }
+        public override string ToString() => "Work Party Display";
+        protected override DlEventType GetTriggers() => base.GetTriggers() | DlEventType.DiscordClientConnected | DlEventType.Timer
+            | DlEventType.PostedWorkParty | DlEventType.CompletedWorkParty | DlEventType.JoinedWorkParty | DlEventType.LeftWorkParty | DlEventType.WorkedWorkParty;
+        protected override async Task<List<DiscordTarget>> GetDiscordTargets() => DLConfig.Data.WorkPartyDisplayChannels.Cast<DiscordTarget>().ToList();
 
         protected override void GetDisplayContent(DiscordTarget target, out List<Tuple<string, DiscordLinkEmbed>> tagAndContent)
         {

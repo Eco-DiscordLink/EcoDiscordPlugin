@@ -27,6 +27,20 @@ namespace Eco.Plugins.DiscordLink.Modules
         private Timer _updateTimer = null;
         private Timer _HighFrequencyEventTimer = null;
 
+        protected override DlEventType GetTriggers() => DlEventType.ForceUpdate | DlEventType.DiscordMessageDeleted | DlEventType.DiscordReactionAdded | DlEventType.DiscordReactionRemoved;
+        protected virtual async Task<List<DiscordTarget>> GetDiscordTargets() { throw new NotImplementedException(); }
+
+        protected override async Task<bool> ShouldRun()
+        {
+            foreach (DiscordTarget target in await GetDiscordTargets())
+            {
+                // If there is at least one valid target, we should run the display
+                if (target.IsValid())
+                    return true;
+            }
+            return false;
+        }
+
         public override string GetDisplayText(string childInfo, bool verbose)
         {
             string lastUpdateTime = (LastUpdateTime == DateTime.MinValue) ? "Never" : LastUpdateTime.ToString("yyyy-MM-dd HH:mm");
@@ -40,11 +54,6 @@ namespace Eco.Plugins.DiscordLink.Modules
             info += $"\r\n{childInfo}";
 
             return base.GetDisplayText(info, verbose);
-        }
-
-        protected override DlEventType GetTriggers()
-        {
-            return DlEventType.ForceUpdate | DlEventType.DiscordMessageDeleted | DlEventType.DiscordReactionAdded | DlEventType.DiscordReactionRemoved;
         }
 
         protected override async Task Initialize()
@@ -68,17 +77,6 @@ namespace Eco.Plugins.DiscordLink.Modules
             await base.HandleConfigChanged(sender, e);
         }
 
-        protected override async Task<bool> ShouldRun()
-        {
-            foreach (DiscordTarget target in await GetDiscordTargets())
-            {
-                // If there is at least one valid target, we should run the display
-                if (target.IsValid())
-                    return true;
-            }
-            return false;
-        }
-
         public void StartTimer()
         {
             if ((GetTriggers() & DlEventType.Timer) == 0) return;
@@ -96,8 +94,6 @@ namespace Eco.Plugins.DiscordLink.Modules
 
             SystemUtils.StopAndDestroyTimer(ref _updateTimer);
         }
-
-        protected virtual async Task<List<DiscordTarget>> GetDiscordTargets() { throw new NotImplementedException(); }
 
         protected void ClearTargetDisplays()
         {

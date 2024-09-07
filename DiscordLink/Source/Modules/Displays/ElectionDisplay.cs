@@ -16,25 +16,14 @@ namespace Eco.Plugins.DiscordLink.Modules
 {
     class ElectionDisplay : DisplayModule
     {
-        protected override int TimerUpdateIntervalMs { get { return 60000; } }
         protected override string BaseTag { get { return "[Election]"; } }
+        protected override int TimerUpdateIntervalMs { get { return 60000; } }
         protected override int TimerStartDelayMs { get { return 15000; } }
 
-        public override string ToString()
-        {
-            return "Election Display";
-        }
-
-        protected override DlEventType GetTriggers()
-        {
-            return base.GetTriggers() | DlEventType.DiscordClientConnected | DlEventType.Timer | DlEventType.Login
-                | DlEventType.Vote | DlEventType.ElectionStarted | DlEventType.ElectionStopped;
-        }
-
-        protected override async Task<List<DiscordTarget>> GetDiscordTargets()
-        {
-            return DLConfig.Data.ElectionDisplayChannels.Cast<DiscordTarget>().ToList();
-        }
+        public override string ToString() => "Election Display";
+        protected override DlEventType GetTriggers() => base.GetTriggers() | DlEventType.DiscordClientConnected | DlEventType.Timer
+            | DlEventType.Login | DlEventType.Vote | DlEventType.ElectionStarted | DlEventType.ElectionStopped;
+        protected override async Task<List<DiscordTarget>> GetDiscordTargets() => DLConfig.Data.ElectionDisplayChannels.Cast<DiscordTarget>().ToList();
 
         protected override void GetDisplayContent(DiscordTarget target, out List<Tuple<string, DiscordLinkEmbed>> tagAndContent)
         {
