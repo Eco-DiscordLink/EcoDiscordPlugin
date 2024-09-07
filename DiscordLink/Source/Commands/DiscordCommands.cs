@@ -233,7 +233,8 @@ namespace Eco.Plugins.DiscordLink
         #region Eco Commands
 
         [SlashCommand("EcoCommand", "Executes an ingame command.")]
-        public async Task EcoCommand(InteractionContext interaction, [Option("Command", "The Eco command to run.")] string command)
+        public async Task EcoCommand(InteractionContext interaction,
+            [Option("Command", "The Eco command to run.")] string command)
         {
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Delayed);
             await ExecuteCommand<object>(PermissionType.User, ctx, async (lCtx, args) =>
@@ -384,7 +385,8 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [SlashCommand("PluginStatus", "Displays the current plugin status.")]
-        public async Task PluginStatus(InteractionContext interaction, [Option("Verbose", "Use verbose output with extra information.")] bool verbose = false)
+        public async Task PluginStatus(InteractionContext interaction,
+            [Option("Verbose", "Use verbose output with extra information.")] bool verbose = false)
         {
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Immediate);
             await ExecuteCommand<object>(PermissionType.Admin, ctx, async (lCtx, args) =>
@@ -457,7 +459,9 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [SlashCommand("Echo", "Sends a message to Eco and back to Discord again if a chat link is configured for the channel.")]
-        public async Task Echo(InteractionContext interaction, [Option("Message", "The message to send. Defaults to a random message.")] string message = "", [Option("EcoChannel", "The eco channel you want to test.")] string ecoChannel = "")
+        public async Task Echo(InteractionContext interaction,
+            [Option("Message", "The message to send. Defaults to a random message.")] string message = "",
+            [Option("EcoChannel", "The eco channel you want to test.")] string ecoChannel = "")
         {
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Immediate);
             await ExecuteCommand<object>(PermissionType.Admin, ctx, async (lCtx, args) =>
@@ -577,7 +581,8 @@ namespace Eco.Plugins.DiscordLink
 
         [SlashCommand("PlayerReport", "Displays the Player Report for the given player.")]
         public async Task PlayerReport(InteractionContext interaction,
-            [Option("Player", "Name or ID of the player for which to display the report.")] string playerNameOrId, [Option("Report", "Which type of information the report should include.")] PlayerReportComponentFlag reportType = PlayerReportComponentFlag.All)
+            [Option("Player", "Name or ID of the player for which to display the report.")] string playerNameOrId,
+            [Option("Report", "Which type of information the report should include.")] PlayerReportComponentFlag reportType = PlayerReportComponentFlag.All)
         {
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Immediate);
             await ExecuteCommand<object>(PermissionType.User, ctx, async (lCtx, args) =>
@@ -748,7 +753,8 @@ namespace Eco.Plugins.DiscordLink
         #region Trades
 
         [SlashCommand("Trades", "Displays available trades by player, tag, item or store.")]
-        public async Task Trades(InteractionContext interaction, [Option("SearchName", "The player name or item name for which to display trades. Case insensitive and auto completed.")] string searchName)
+        public async Task Trades(InteractionContext interaction,
+            [Option("SearchName", "The player name or item name for which to display trades. Case insensitive and auto completed.")] string searchName)
         {
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Delayed);
             await ExecuteCommand<object>(PermissionType.User, ctx, async (lCtx, args) =>
@@ -758,7 +764,8 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [SlashCommand("DLT", "Shorthand for the Trades command")]
-        public async Task DLT(InteractionContext interaction, [Option("SearchName", "The player name or item name for which to display trades. Case insensitive and auto completed.")] string searchName)
+        public async Task DLT(InteractionContext interaction,
+            [Option("SearchName", "The player name or item name for which to display trades. Case insensitive and auto completed.")] string searchName)
         {
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Delayed);
             await ExecuteCommand<object>(PermissionType.User, ctx, async (lCtx, args) =>
@@ -768,7 +775,8 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [SlashCommand("AddTradeWatcherDisplay", "Creates a live updated display of available trades by player, tag, item or store.")]
-        public async Task AddTradeWatcherDisplay(InteractionContext interaction, [Option("SearchName", "The player name or item name for which to display trades.")] string searchName)
+        public async Task AddTradeWatcherDisplay(InteractionContext interaction,
+            [Option("SearchName", "The player name or item name for which to display trades.")] string searchName)
         {
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Immediate);
             await ExecuteCommand<object>(PermissionType.User, ctx, async (lCtx, args) =>
@@ -778,7 +786,8 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [SlashCommand("RemoveTradeWatcherDisplay", "Removes the live updated display of available trades for a player, tag, item or store.")]
-        public async Task RemoveTradeWatcherDisplay(InteractionContext interaction, [Option("SearchName", "The player, tag, item or store name for which to display trades.")] string searchName)
+        public async Task RemoveTradeWatcherDisplay(InteractionContext interaction,
+            [Option("SearchName", "The player, tag, item or store name for which to display trades.")] string searchName)
         {
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Immediate);
             await ExecuteCommand<object>(PermissionType.User, ctx, async (lCtx, args) =>
@@ -788,7 +797,8 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [SlashCommand("AddTradeWatcherFeed", "Creates a trade feed filtered by a search query.")]
-        public async Task AddTradeWatcherFeed(InteractionContext interaction, [Option("SearchName", "The player, tag, item or store name for which to post trades.")] string searchName)
+        public async Task AddTradeWatcherFeed(InteractionContext interaction,
+            [Option("SearchName", "The player, tag, item or store name for which to post trades.")] string searchName)
         {
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Immediate);
             await ExecuteCommand<object>(PermissionType.User, ctx, async (lCtx, args) =>
@@ -798,7 +808,8 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [SlashCommand("RemoveTradeWatcherFeed", "Removes the trade watcher feed for a player, tag, item or store.")]
-        public async Task RemoveTradeWatcherFeed(InteractionContext interaction, [Option("SearchName", "The player, tag item or store name for which to remove trades.")] string searchName)
+        public async Task RemoveTradeWatcherFeed(InteractionContext interaction,
+            [Option("SearchName", "The player, tag item or store name for which to remove trades.")] string searchName)
         {
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Immediate);
             await ExecuteCommand<object>(PermissionType.User, ctx, async (lCtx, args) =>
@@ -822,7 +833,8 @@ namespace Eco.Plugins.DiscordLink
         #region Snippets
 
         [SlashCommand("Snippet", "Posts a predefined snippet to Eco or Discord.")]
-        public async Task Snippet(InteractionContext interaction, [Option("Key", "Key of the snippet to post. Displays the key list if omitted.")] string snippetKey = "")
+        public async Task Snippet(InteractionContext interaction,
+            [Option("Key", "Key of the snippet to post. Displays the key list if omitted.")] string snippetKey = "")
         {
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Immediate);
             await ExecuteCommand<object>(PermissionType.User, ctx, async (lCtx, args) =>
@@ -832,7 +844,8 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [SlashCommand("EcoSnippet", "Posts a predefined snippet to Eco.")]
-        public async Task EcoSnippet(InteractionContext interaction, [Option("Key", "Key of the snippet to post. Displays the key list if omitted.")] string snippetKey = "")
+        public async Task EcoSnippet(InteractionContext interaction,
+            [Option("Key", "Key of the snippet to post. Displays the key list if omitted.")] string snippetKey = "")
         {
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Immediate);
             await ExecuteCommand<object>(PermissionType.User, ctx, async (lCtx, args) =>
@@ -846,7 +859,10 @@ namespace Eco.Plugins.DiscordLink
         #region Message Relaying
 
         [SlashCommand("Announce", "Announces a message to everyone or a specified user.")]
-        public async Task Announce(InteractionContext interaction, [Option("Message", "The message to send.")] string message, [Option("MessageType", "The type of message to send.")] Moose.Data.Enums.MessageType messageType = Moose.Data.Enums.MessageType.Notification, [Option("Player", "Name or ID of the player to send the message to. Sends to everyone if omitted.")] string recipientUserNameOrId = "")
+        public async Task Announce(InteractionContext interaction,
+            [Option("Message", "The message to send.")] string message,
+            [Option("MessageType", "The type of message to send.")] Moose.Data.Enums.MessageType messageType = Moose.Data.Enums.MessageType.Notification,
+            [Option("Player", "Name or ID of the player to send the message to. Sends to everyone if omitted.")] string recipientUserNameOrId = "")
         {
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Immediate);
             await ExecuteCommand<object>(PermissionType.Admin, ctx, async (lCtx, args) =>
