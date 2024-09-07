@@ -82,7 +82,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             [ChoiceName("Access")]          AccessLists     = 1 << 4,
             [ChoiceName("Discord")]         DiscordInfo     = 1 << 5,
             [ChoiceName("Reputation")]      Reputation      = 1 << 6,
-            [ChoiceName("Reputation")]      Experience      = 1 << 7,
+            [ChoiceName("Experience")]      Experience      = 1 << 7,
             [ChoiceName("Skills")]          Skills          = 1 << 8,
             [ChoiceName("Demographics")]    Demographics    = 1 << 9,
             [ChoiceName("Titles")]          Titles          = 1 << 10,
