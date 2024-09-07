@@ -582,8 +582,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
                 if (flag.HasFlag(ServerInfoComponentFlag.WebServerAddress))
                 {
-                    string WebServerUrl = NetworkManager.Config.WebServerUrl;
-                    string fieldText = !string.IsNullOrEmpty(WebServerUrl) ? WebServerUrl : "Webserver URL not configured";
+                    string WebServerUrl = Lookups.WebServerUrl;
+                    string fieldText = !WebServerUrl.IsEmpty() ? WebServerUrl : "Web server URL not configured.";
                     embed.AddField("Webpage Address", fieldText);
                 }
 
