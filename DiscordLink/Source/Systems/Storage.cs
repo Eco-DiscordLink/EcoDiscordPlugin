@@ -15,8 +15,8 @@ namespace Eco.Plugins.DiscordLink
 {
     public sealed class DLStorage
     {
-        private const string PERSISANT_STORAGE_FILE_NAME = "DLPersistentData.json";
-        private const string WORLD_STORAGE_FILE_NAME = "DLWorldData.json";
+        private const string PERSISANT_STORAGE_FILE_NAME = "PersistentData.json";
+        private const string WORLD_STORAGE_FILE_NAME = "WorldData.json";
 
         public static readonly DLStorage Instance = new DLStorage();
         public static PersistentStorageData PersistentData { get; private set; } = new PersistentStorageData();
