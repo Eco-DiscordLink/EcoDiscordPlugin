@@ -105,6 +105,7 @@ namespace Eco.Plugins.DiscordLink
 
         public class PersistentStorageData
         {
+            public LayerDiscriminator LayerDiscriminator = new LayerDiscriminator();
             public List<LinkedUser> LinkedUsers = new List<LinkedUser>();
             public List<ulong> RoleIds = new List<ulong>();
             public List<EcoUser> OptedInUsers = new List<EcoUser>();
@@ -303,5 +304,25 @@ namespace Eco.Plugins.DiscordLink
 
         public string Key { get; private set; }
         public ModuleArchetype Type { get; private set; }
+    }
+
+    public class LayerDiscriminator
+    {
+        public long GetDiscriminator()
+        {
+            DateTime currentTime = DateTime.UtcNow;
+            if ((currentTime - LastIncrementTime).TotalHours > 1) // Once an hour as that is the update rate of layers
+            {
+                Value++;
+                LastIncrementTime = currentTime;
+                DLStorage.Instance.Write();
+            }
+
+            return Value;
+        }
+
+        public long Value { get; set; } = 0;
+
+        public DateTime LastIncrementTime { get; set; } = DateTime.MinValue;
     }
 }

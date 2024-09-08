@@ -59,5 +59,13 @@ namespace Eco.Plugins.DiscordLink
         Always,         // Always show the curreny type
     }
 
+    public enum MapRepresentationType
+    {
+        [ChoiceName("Preview")]
+        Preview,
+        [ChoiceName("Terrain")]
+        Terrain
+    }
+
     #endregion
 }

@@ -2,6 +2,7 @@
 using Eco.Moose.Data.Constants;
 using Eco.Moose.Tools.Logger;
 using Eco.Plugins.DiscordLink.Events;
+using Eco.Plugins.Networking;
 using Nito.AsyncEx;
 using System;
 using System.Threading;
@@ -16,6 +17,7 @@ namespace Eco.Plugins.DiscordLink.Modules
         ServerInfoDisplay,
         TradeWatcherDisplay,
         WorkPartyDisplay,
+        MapLayerDisplay,
         CraftingFeed,
         DiscordChatFeed,
         EcoChatFeed,
@@ -83,6 +85,7 @@ namespace Eco.Plugins.DiscordLink.Modules
         public virtual void Setup()
         {
             DLConfig.Instance.OnConfigChanged += HandleConfigChanged; // Always listen for config changes as those may enable/disable the module
+            NetworkManager.Obj.ParamChanged.Add(async (s, e) => await HandleConfigChanged(s, new EventArgs()));
         }
 
         public virtual void Destroy()

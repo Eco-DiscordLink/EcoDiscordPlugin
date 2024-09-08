@@ -97,6 +97,7 @@ namespace Eco.Plugins.DiscordLink
             Data.WorkPartyDisplayChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.ElectionDisplayChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.CurrencyDisplayChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
+            Data.MapDisplayChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
             Data.SnippetInputChannels.CollectionChanged += (obj, args) => { HandleCollectionChanged(args); };
         }
 
@@ -249,6 +250,7 @@ namespace Eco.Plugins.DiscordLink
             _allChannelLinks.AddRange(_config.Config.WorkPartyDisplayChannels);
             _allChannelLinks.AddRange(_config.Config.ElectionDisplayChannels);
             _allChannelLinks.AddRange(_config.Config.CurrencyDisplayChannels);
+            _allChannelLinks.AddRange(_config.Config.MapDisplayChannels);
             _allChannelLinks.AddRange(_config.Config.SnippetInputChannels);
         }
     }
@@ -285,6 +287,7 @@ namespace Eco.Plugins.DiscordLink
                 WorkPartyDisplayChannels = new ObservableCollection<ChannelLink>(this.WorkPartyDisplayChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
                 ElectionDisplayChannels = new ObservableCollection<ChannelLink>(this.ElectionDisplayChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
                 CurrencyDisplayChannels = new ObservableCollection<CurrencyChannelLink>(this.CurrencyDisplayChannels.Select(t => t.Clone()).Cast<CurrencyChannelLink>()),
+                MapDisplayChannels = new ObservableCollection<MapChannelLink>(this.MapDisplayChannels.Select(t => t.Clone()).Cast<MapChannelLink>()),
                 SnippetInputChannels = new ObservableCollection<ChannelLink>(this.SnippetInputChannels.Select(t => t.Clone()).Cast<ChannelLink>()),
                 DemographicReplacementRoles = new ObservableCollection<DemographicRoleSubstitution>(this.DemographicReplacementRoles.Select(t => t.Clone()).Cast<DemographicRoleSubstitution>()),
                 EmoteIconSubstitutions = new ObservableCollection<EmoteIconSubstitution>(this.EmoteIconSubstitutions.Select(t => t.Clone()).Cast<EmoteIconSubstitution>()),
@@ -347,6 +350,9 @@ namespace Eco.Plugins.DiscordLink
 
         [Description("Discord channels in which to keep a currency display. DiscordLink will post currency messages in these channel and keep it updated through edits. This setting can be changed while the server is running."), Category("Modules - Displays")]
         public ObservableCollection<CurrencyChannelLink> CurrencyDisplayChannels { get; set; } = new ObservableCollection<CurrencyChannelLink>();
+
+        [Description("Discord channels in which to keep a map display. This setting can be changed while the server is running."), Category("Modules - Displays")]
+        public ObservableCollection<MapChannelLink> MapDisplayChannels { get; set; } = new ObservableCollection<MapChannelLink>();
 
         [Description("Discord channels in which to search for snippets for the Snippet command. This setting can be changed while the server is running."), Category("Modules - Inputs")]
         public ObservableCollection<ChannelLink> SnippetInputChannels { get; set; } = new ObservableCollection<ChannelLink>();
