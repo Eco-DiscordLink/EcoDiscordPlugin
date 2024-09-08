@@ -151,7 +151,7 @@ namespace Eco.Plugins.DiscordLink
                 OnLinkedUserRemoved?.Invoke(null, linkedUser);
 
             DLStorage.PersistentData.LinkedUsers.Remove(linkedUser);
-            if(shouldFlush)
+            if (shouldFlush)
             {
                 DLStorage.Instance.Write();
             }
@@ -206,7 +206,7 @@ namespace Eco.Plugins.DiscordLink
                     {
                         DiscordMember member = data[0] as DiscordMember;
                         LinkedUser linkedUser = LinkedUserByDiscordId(member.Id);
-                        if(linkedUser != null)
+                        if (linkedUser != null)
                         {
                             Logger.Debug($"Removing linked user {member.Username} due to leaving guild");
                             RemoveLinkedUser(linkedUser);

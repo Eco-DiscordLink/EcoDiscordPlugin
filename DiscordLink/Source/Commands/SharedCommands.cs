@@ -40,7 +40,7 @@ namespace Eco.Plugins.DiscordLink
         {
             if (ctx is EcoCommandContext ecoCtx)
                 EcoCommands.ReportCommandError(ecoCtx, message);
-            else if(ctx is DiscordCommandContext discordCtx)
+            else if (ctx is DiscordCommandContext discordCtx)
                 await DiscordCommands.ReportCommandError(discordCtx, message);
         }
 

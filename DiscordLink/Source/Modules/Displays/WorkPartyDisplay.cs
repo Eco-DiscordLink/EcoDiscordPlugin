@@ -1,5 +1,4 @@
 ﻿using Eco.Gameplay.Economy.WorkParties;
-using Eco.Gameplay.Property;
 using Eco.Moose.Utils.Lookups;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Extensions;

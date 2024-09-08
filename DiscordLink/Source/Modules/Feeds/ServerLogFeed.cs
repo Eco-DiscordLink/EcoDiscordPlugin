@@ -39,15 +39,15 @@ namespace Eco.Plugins.DiscordLink.Modules
                     continue;
 
                 StringBuilder accumulatedLogBuilder = new StringBuilder();
-                foreach(Tuple<Logger.LogLevel, string> logEntry in logData)
+                foreach (Tuple<Logger.LogLevel, string> logEntry in logData)
                 {
                     if (serverFeedLink.LogLevel > logEntry.Item1)
                         continue;
 
-                    accumulatedLogBuilder.AppendLine(FormatLogMessage(logEntry.Item1, logEntry.Item2) );
+                    accumulatedLogBuilder.AppendLine(FormatLogMessage(logEntry.Item1, logEntry.Item2));
                 }
 
-                if(accumulatedLogBuilder.Length > 0)
+                if (accumulatedLogBuilder.Length > 0)
                 {
                     await DiscordLink.Obj.Client.SendMessageAsync(serverFeedLink.Channel, accumulatedLogBuilder.ToString());
                     ++_opsCount;

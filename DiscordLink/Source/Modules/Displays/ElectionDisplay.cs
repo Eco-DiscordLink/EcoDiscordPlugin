@@ -59,7 +59,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             if (linkedUser == null)
                 return;
 
-            if(!election.CanVote(linkedUser.EcoUser))
+            if (!election.CanVote(linkedUser.EcoUser))
             {
                 await linkedUser.DiscordMember.SendMessageAsync($"Your vote in election \"{election.Name}\" has not been registered as you are not an eligable voter for this election.");
                 return;

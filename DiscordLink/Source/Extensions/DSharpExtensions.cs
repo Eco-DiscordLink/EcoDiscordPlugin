@@ -93,7 +93,7 @@ namespace Eco.Plugins.DiscordLink.Extensions
                 {
                     Logger.Exception($"Failed to look up discord member for discord user {user.Username} ({user.Id})", e);
                 }
-                
+
             }
 
             return member;

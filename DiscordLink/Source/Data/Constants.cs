@@ -112,7 +112,7 @@ namespace Eco.Plugins.DiscordLink
                 ERROR_LOG_EMOJI = DiscordEmoji.FromName(DiscordLink.Obj.Client.DSharpClient, ":small_red_triangle:");
                 return true;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Logger.Exception("Failed to initialize constants.", e);
                 return false;

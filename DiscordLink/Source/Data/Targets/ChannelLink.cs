@@ -45,7 +45,7 @@ namespace Eco.Plugins.DiscordLink
         }
 
         public bool IsChannel(DiscordChannel channel)
-        {  
+        {
             return DiscordChannelId == channel.Id;
         }
     }

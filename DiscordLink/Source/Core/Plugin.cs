@@ -153,10 +153,10 @@ namespace Eco.Plugins.DiscordLink
             DLStorage.Instance.Initialize();
 
             WorldGeneratorPlugin.OnFinishGenerate.AddUnique(this.HandleWorldReset);
-            
+
             // Start the Discord client so that a connection has hopefully been established before the server is done initializing
             _ = Client.Start();
-            
+
             PluginManager.Controller.RunIfOrWhenInited(PostServerInitialize); // Defer some initialization for when the server initialization is completed
 
             // Check mod versioning if the required data exists
@@ -178,7 +178,7 @@ namespace Eco.Plugins.DiscordLink
 
             // The Server is Started at this point, but the guild download might not have been completed yet, so we wait for it.
             await DelayPostInitUntilConnectionAttemptIsCompleted();
-            
+
             if (Client.ConnectionStatus == DiscordClient.ConnectionState.Disconnected)
             {
                 HandleDiscordConnectionFailed("Failed to start DiscordLink. See previous errors for more Information.");

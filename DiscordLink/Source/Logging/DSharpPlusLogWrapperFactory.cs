@@ -19,7 +19,7 @@ public class DSharpPlusLogWrapperFactory : ILoggerFactory
 
     public void Dispose()
     {
-       // Nothing to dispose
+        // Nothing to dispose
     }
 
     public ILogger CreateLogger(string categoryName)

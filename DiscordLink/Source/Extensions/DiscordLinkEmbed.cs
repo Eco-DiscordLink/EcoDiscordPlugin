@@ -128,7 +128,7 @@ namespace Eco.Plugins.DiscordLink.Extensions
             if (includeFooter && !string.IsNullOrWhiteSpace(Footer))
                 builder.Append(Footer);
 
-            if(destination == ApplicationInterfaceType.Eco)
+            if (destination == ApplicationInterfaceType.Eco)
             {
                 builder.Replace(DLConstants.INVISIBLE_EMBED_CHAR, null);
                 builder.Replace("[", null);

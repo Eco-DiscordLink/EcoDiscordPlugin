@@ -53,7 +53,7 @@ namespace Eco.Plugins.DiscordLink.Events
                 {
                     try
                     {
-                        if (_accumulatedLogs.Count > 0 && DiscordLink.Obj.Status == DiscordLink.StatusState.Connected )
+                        if (_accumulatedLogs.Count > 0 && DiscordLink.Obj.Status == DiscordLink.StatusState.Connected)
                         {
                             // Fire the accumulated event
                             Tuple<Logger.LogLevel, string>[] logs = null;

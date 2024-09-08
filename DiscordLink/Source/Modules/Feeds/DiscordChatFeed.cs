@@ -1,6 +1,5 @@
 ﻿using DSharpPlus.Entities;
 using Eco.Gameplay.Players;
-using Eco.Moose.Data.Constants;
 using Eco.Moose.Tools.Logger;
 using Eco.Moose.Utils.Message;
 using Eco.Plugins.DiscordLink.Events;
@@ -10,7 +9,6 @@ using Eco.Shared.Utils;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Color = Eco.Shared.Utils.Color;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
@@ -148,7 +146,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 string referenceContentPreview = referenceContent.Length < DLConstants.DISCORD_REFERENCE_MESSAGE_CONTENT_PREVIEW_LENGTH
                         ? referenceContent
                         : $"{referenceContent.Substring(0, DLConstants.DISCORD_REFERENCE_MESSAGE_CONTENT_PREVIEW_LENGTH)}...";
-                content = $"{ Text.Color( DLConstants.DISCORD_COLOR, "[RE]")} \"{authorName}: {referenceContentPreview}\"\n{content}";
+                content = $"{Text.Color(DLConstants.DISCORD_COLOR, "[RE]")} \"{authorName}: {referenceContentPreview}\"\n{content}";
             }
 
             // Add attachment information

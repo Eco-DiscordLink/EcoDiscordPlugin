@@ -110,18 +110,18 @@ namespace Eco.Plugins.DiscordLink.Modules
                 if (!results.Passed)
                     return;
 
-                foreach(User winner in results.WinningUsers)
+                foreach (User winner in results.WinningUsers)
                 {
                     LinkedUser linkedUser = UserLinkManager.LinkedUserByEcoUser(winner);
-                    if(linkedUser == null)
+                    if (linkedUser == null)
                         continue;
 
                     ++_opsCount;
                     await AddElectedTitleRole(client, linkedUser.DiscordMember, title.Name);
                 }
-                
+
             }
-            else if(trigger == DlEventType.SettlementFounded)
+            else if (trigger == DlEventType.SettlementFounded)
             {
                 if (!DLConfig.Data.UseDemographicRoles)
                     return;
@@ -132,7 +132,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 if (settlement.Leader == null)
                     return;
 
-                foreach(User leader in settlement.Leader.DirectOccupants)
+                foreach (User leader in settlement.Leader.DirectOccupants)
                 {
                     LinkedUser linkedUser = UserLinkManager.LinkedUserByEcoUser(leader);
                     if (linkedUser == null)

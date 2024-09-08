@@ -40,12 +40,12 @@ namespace Eco.Plugins.DiscordLink
 
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
         {
-               return true;
+            return true;
         }
 
         public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
         {
-                return true;
+            return true;
         }
 
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
@@ -68,16 +68,16 @@ namespace Eco.Plugins.DiscordLink
                 }
             }
             return base.ConvertFrom(context, culture, value);
-         }
+        }
 
         public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
         {
             if (value != null && destinationType == typeof(string) && value.GetType() == typeof(ulong))
             {
-                if (DiscordLink.Obj?.Client?.Guild?.Channels?.Values == null) 
+                if (DiscordLink.Obj?.Client?.Guild?.Channels?.Values == null)
                     return "No Connection";
-                
-                if ((ulong)value == 0) 
+
+                if ((ulong)value == 0)
                     return "Select a Channel";
 
                 var channels = DiscordLink.Obj.Client.Guild.Channels.Values;

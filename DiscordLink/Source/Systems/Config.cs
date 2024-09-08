@@ -138,7 +138,7 @@ namespace Eco.Plugins.DiscordLink
                 Logger.Info("Critical config data changed - Please restart the plugin for these changes to take effect");
             }
 
-            if(logLevelChanged)
+            if (logLevelChanged)
             {
                 Logger.SetConfiguredLogLevel(Data.LogLevel);
             }
@@ -154,7 +154,7 @@ namespace Eco.Plugins.DiscordLink
             // If the guild becomes null, this check is unstable and will be performed on plugin restart anyway.
             if (!correctionMade && !guildChanged)
             {
-                if(OnConfigChanged != null)
+                if (OnConfigChanged != null)
                 {
                     await OnConfigChanged?.Invoke(this, EventArgs.Empty);
                 }
@@ -377,7 +377,7 @@ namespace Eco.Plugins.DiscordLink
 
         [Description("Determines what backend message types will be printed to the server log. All message types below the selected one will be printed as well. This setting requires a plugin restart to take effect."), Category("Plugin Configuration")]
         public Microsoft.Extensions.Logging.LogLevel BackendLogLevel { get; set; } = DLConfig.DefaultValues.BackendLogLevel;
-        
+
         [Description("Trace-Logs are not logged to file by default. Please only enable this to diagnose issues. Enabling this will save every single request made to the Discord API to the logfile. This will create huge logs over time. This setting requires a plugin restart to take effect."), Category("Plugin Configuration")]
         public bool TraceFileLogging { get; set; } = false;
 

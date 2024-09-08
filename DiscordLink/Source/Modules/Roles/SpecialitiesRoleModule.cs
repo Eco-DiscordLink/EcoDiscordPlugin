@@ -95,7 +95,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                     }
                     else if (trigger == DlEventType.AccountLinkVerified)
                     {
-                        if(!member.HasRoleWithName(specialty.DisplayName) && linkedUser.EcoUser.HasSpecialization(specialty.Type))
+                        if (!member.HasRoleWithName(specialty.DisplayName) && linkedUser.EcoUser.HasSpecialization(specialty.Type))
                         {
                             ++_opsCount;
                             await AddSpecialtyRole(client, member, specialty.DisplayName);
@@ -124,7 +124,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                     ++_opsCount;
                     await AddSpecialtyRole(client, linkedUser.DiscordMember, action.Specialty.DisplayName);
                 }
-                else if(trigger == DlEventType.LostSpecialty)
+                else if (trigger == DlEventType.LostSpecialty)
                 {
                     ++_opsCount;
                     await client.RemoveRoleAsync(linkedUser.DiscordMember, action.Specialty.DisplayName);

@@ -1,6 +1,5 @@
 ﻿using Eco.Core.Utils;
 using Eco.Plugins.DiscordLink.Extensions;
-using System;
 
 namespace Eco.Plugins.DiscordLink
 {
@@ -13,7 +12,7 @@ namespace Eco.Plugins.DiscordLink
             EmbedContent = embedContent;
         }
 
-        public string TagAndText =>  TextContent.IsEmpty() ? Tag : $"{Tag}\n{TextContent}";
+        public string TagAndText => TextContent.IsEmpty() ? Tag : $"{Tag}\n{TextContent}";
 
         public string Tag { get; private set; }
         public string TextContent { get; private set; }

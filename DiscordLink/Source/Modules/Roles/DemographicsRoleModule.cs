@@ -89,7 +89,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                     }
                     else if (trigger == DlEventType.AccountLinkVerified)
                     {
-                        if(!member.HasRoleWithName(demographicName) && demographic.ContainsUser(linkedUser.EcoUser))
+                        if (!member.HasRoleWithName(demographicName) && demographic.ContainsUser(linkedUser.EcoUser))
                         {
                             ++_opsCount;
                             await AddDemographicRole(client, linkedUser.DiscordMember, demographicName);
@@ -97,7 +97,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                     }
                 }
             }
-            else if(trigger == DlEventType.EnteredDemographic || trigger == DlEventType.LeftDemographic)
+            else if (trigger == DlEventType.EnteredDemographic || trigger == DlEventType.LeftDemographic)
             {
                 if (!DLConfig.Data.UseDemographicRoles)
                     return;

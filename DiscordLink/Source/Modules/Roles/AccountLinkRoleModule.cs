@@ -91,7 +91,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                     ++_opsCount;
                     await client.AddRoleAsync(member, _linkedAccountRole);
                 }
-                
+
             }
         }
 

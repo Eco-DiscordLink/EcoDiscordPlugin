@@ -25,7 +25,7 @@ namespace Eco.Plugins.DiscordLink
         public LocString MarkedUpName => Localizer.NotLocalizedStr(EcoUser != null ? EcoUser.MarkedUpName : DiscordCtx.Interaction.User.Username);
         public string ImplementationName => "DiscordLink Eco Command Client";
 
-        public string ReportUserId => EcoUser != null ? EcoUser.StrangeId: DiscordCtx.Interaction.User.Id.ToString();
+        public string ReportUserId => EcoUser != null ? EcoUser.StrangeId : DiscordCtx.Interaction.User.Id.ToString();
         public string ReportUsername => Name;
         public string ReportIpAddress => EcoUser != null ? EcoUser.ReportIpAddress : null;
 

@@ -608,7 +608,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     }
                 }
 
-                if(flag.HasFlag(ServerInfoComponentFlag.LawCount) || flag.HasFlag(ServerInfoComponentFlag.ActiveElectionCount))
+                if (flag.HasFlag(ServerInfoComponentFlag.LawCount) || flag.HasFlag(ServerInfoComponentFlag.ActiveElectionCount))
                 {
                     int fieldsAdded = 0;
                     if (flag.HasFlag(ServerInfoComponentFlag.LawCount))
@@ -711,7 +711,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     }
                 }
 
-                if(flag.HasFlag(ServerInfoComponentFlag.ActiveSettlementList))
+                if (flag.HasFlag(ServerInfoComponentFlag.ActiveSettlementList))
                 {
                     Shared.GetActiveSettlementsList(out string settlementList, out string activeCitizenCountList, out string leaderList);
                     if (!string.IsNullOrEmpty(settlementList))

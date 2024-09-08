@@ -108,13 +108,13 @@ namespace Eco.Plugins.DiscordLink
                         builderEmbeds = MessageUtils.BuildDiscordEmbeds(embed);
                     }
                 }
-                
+
                 // Send initial response
                 if (ctx.Timing == ResponseTiming.Immediate)
                 {
                     DiscordInteractionResponseBuilder builder = new DiscordInteractionResponseBuilder();
                     builder.Content = bulderText;
-                    if(builderEmbeds.Count > 0)
+                    if (builderEmbeds.Count > 0)
                         builder.AddEmbed(builderEmbeds.First());
 
                     await ctx.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
@@ -130,7 +130,7 @@ namespace Eco.Plugins.DiscordLink
                 }
 
                 // Send any remaining embeds as follow up messages
-                for(int i = 1; i < builderEmbeds.Count; ++i)
+                for (int i = 1; i < builderEmbeds.Count; ++i)
                 {
                     DiscordFollowupMessageBuilder builder = new DiscordFollowupMessageBuilder();
                     builder.AddEmbed(builderEmbeds[i]);
@@ -669,7 +669,7 @@ namespace Eco.Plugins.DiscordLink
             await ExecuteCommand<object>(PermissionType.User, ctx, async (lCtx, args) =>
             {
                 string webServerUrl = NetworkManager.Config.WebServerUrl;
-                if(webServerUrl.IsEmpty())
+                if (webServerUrl.IsEmpty())
                 {
                     await ReportCommandError(ctx, "Web server URL not configured - Ensure that network config parameter `WebServerUrl` is set.");
                     return;
