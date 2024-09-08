@@ -30,6 +30,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using Module = Eco.Plugins.DiscordLink.Modules.Module;
 
+// TODO: Temporarily implemented outside of plugin due to vanilla bug
+public class DiscordLinkMod : IModInit
+{
+    public static ModRegistration Register() => new()
+    {
+        ModName = "DiscordLink",
+        ModDescription = "Connects the Eco server with the Discord server for seamless cross posting of chat messages, live updated server information and many useful commands!",
+        ModDisplayName = "DiscordLink",
+    };
+}
 
 namespace Eco.Plugins.DiscordLink
 {
