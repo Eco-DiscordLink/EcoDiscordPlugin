@@ -690,14 +690,15 @@ namespace Eco.Plugins.DiscordLink
                 string layerFileName = showLayerHistory ? layer.Name : $"{layer.Name}Latest";
                 string terrainFileName = showLayerHistory ? "Terrain" : "TerrainLatest";
                 string output = showComparsionTerrain
-                ? $"{Lookups.WebServerUrl}/Layers/{layerFileName}.gif\n{Lookups.WebServerUrl}/Layers/{terrainFileName}.gif"
-                : $"{Lookups.WebServerUrl}/Layers/{layerFileName}.gif";
+                ? $"{LayerUtils.GetLayerLink(layerFileName)}\n{LayerUtils.GetLayerLink(terrainFileName)}"
+                : $"{LayerUtils.GetLayerLink(layerFileName)}";
                 await ReportCommandInfo(ctx, output);
             });
         }
 
         [SlashCommand("ShowMap", "Posts a link to an image showing the world map.")]
-        public async Task ShowMap(InteractionContext interaction)
+        public async Task ShowMap(InteractionContext interaction,
+            [Option("MapType", "The representation of the world map image.")] MapRepresentationType mapType = MapRepresentationType.Preview)
         {
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Delayed);
             await ExecuteCommand<object>(PermissionType.User, ctx, async (lCtx, args) =>
@@ -709,8 +710,14 @@ namespace Eco.Plugins.DiscordLink
                     return;
                 }
 
-                string layerName = "WorldPreview";
-                await ReportCommandInfo(ctx, $"{Lookups.WebServerUrl}/Layers/{layerName}.gif");
+                string layerName = LayerUtils.GetLayerName(mapType);
+                if (layerName.IsEmpty())
+                {
+                    await ReportCommandError(ctx, "Failed to resolve mapType parameter");
+                    return;
+                }
+                    
+                await ReportCommandInfo(ctx, $"{LayerUtils.GetLayerLink(layerName)}");
             });
         }
 
@@ -728,7 +735,7 @@ namespace Eco.Plugins.DiscordLink
                 }
 
                 string layerName = "Terrain";
-                await ReportCommandInfo(ctx, $"{Lookups.WebServerUrl}/Layers/{layerName}.gif");
+                await ReportCommandInfo(ctx, $"{LayerUtils.GetLayerLink(layerName)}");
             });
         }
 
