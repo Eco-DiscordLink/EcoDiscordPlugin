@@ -57,7 +57,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             await base.Initialize();
         }
 
-        protected override async Task<List<DiscordTarget>> GetDiscordTargets()
+        protected override async Task<IEnumerable<DiscordTarget>> GetDiscordTargets()
         {
             if (UserLinks.Count != DLStorage.WorldData.TradeWatcherDisplayCountTotal)
                 await BuildUserLinkList();
@@ -65,9 +65,9 @@ namespace Eco.Plugins.DiscordLink.Modules
             return UserLinks;
         }
 
-        protected override void GetDisplayContent(DiscordTarget target, out List<Tuple<string, DiscordLinkEmbed>> tagAndContent)
+        protected override void GetDisplayContent(DiscordTarget target, out List<DisplayContent> displayContent)
         {
-            tagAndContent = new List<Tuple<string, DiscordLinkEmbed>>();
+            displayContent = new List<DisplayContent>();
             IEnumerable<string> tradeWatchers = DLStorage.WorldData.TradeWatchers[(target as UserLink).Member.Id].Where(watcher => watcher.Type == ModuleArchetype.Display).Select(watcher => watcher.Key);
             foreach (string trade in tradeWatchers)
             {
@@ -75,8 +75,8 @@ namespace Eco.Plugins.DiscordLink.Modules
                 if (offerType == TradeTargetType.Invalid)
                     continue; // There was no match
 
-                MessageBuilder.Discord.FormatTrades(matchedName, offerType, groupedBuyOffers, groupedSellOffers, out DiscordLinkEmbed embedContent);
-                tagAndContent.Add(new Tuple<string, DiscordLinkEmbed>($"{BaseTag} [{matchedName}]", embedContent));
+                MessageBuilder.Discord.FormatTrades(matchedName, offerType, groupedBuyOffers, groupedSellOffers, out DiscordLinkEmbed embed);
+                displayContent.Add(new DisplayContent($"{BaseTag} [{matchedName}]", embedContent: embed));
             }
         }
 

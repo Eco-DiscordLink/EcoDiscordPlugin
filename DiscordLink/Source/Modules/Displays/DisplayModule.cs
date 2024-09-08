@@ -2,7 +2,6 @@
 using DSharpPlus.Entities;
 using Eco.Moose.Utils.SystemUtils;
 using Eco.Plugins.DiscordLink.Events;
-using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
 using System;
 using System.Collections.Generic;
@@ -27,7 +26,7 @@ namespace Eco.Plugins.DiscordLink.Modules
         private Timer _HighFrequencyEventTimer = null;
 
         protected override DlEventType GetTriggers() => DlEventType.ForceUpdate | DlEventType.DiscordMessageDeleted | DlEventType.DiscordReactionAdded | DlEventType.DiscordReactionRemoved;
-        protected virtual async Task<List<DiscordTarget>> GetDiscordTargets() { throw new NotImplementedException(); }
+        protected virtual async Task<IEnumerable<DiscordTarget>> GetDiscordTargets() { throw new NotImplementedException(); }
 
         protected override async Task<bool> ShouldRun()
         {
@@ -156,8 +155,8 @@ namespace Eco.Plugins.DiscordLink.Modules
             }
 
             List<DiscordMessage> createdMessages = new List<DiscordMessage>();
-            List<string> matchedTags = new List<string>();
             List<DiscordMessage> unmatchedMessages = new List<DiscordMessage>();
+            List<DisplayContent> matchedContent = new List<DisplayContent>();
             foreach (TargetDisplayData channelDisplayData in TargetDisplays)
             {
                 DiscordTarget target = channelDisplayData.Target;
@@ -177,7 +176,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 if (!plugin.Client.ChannelHasPermission(targetChannel, Permissions.ReadMessageHistory))
                     continue;
 
-                GetDisplayContent(target, out List<Tuple<string, DiscordLinkEmbed>> tagsAndContent);
+                GetDisplayContent(target, out List<DisplayContent> displayContent);
 
                 foreach (ulong messageId in channelDisplayData.DisplayMessages.Keys)
                 {
@@ -191,15 +190,15 @@ namespace Eco.Plugins.DiscordLink.Modules
                         continue; // The message belongs to a different display
 
                     bool found = false;
-                    foreach (var tagAndContent in tagsAndContent)
+                    foreach (DisplayContent content in displayContent)
                     {
-                        if (message.Content.Contains(tagAndContent.Item1))
+                        if (message.Content.Contains(content.Tag))
                         {
                             found = true;
-                            matchedTags.Add(tagAndContent.Item1);
+                            matchedContent.Add(content);
 
                             ++_opsCount;
-                            DiscordMessage editedMessage = await plugin.Client.ModifyMessageAsync(message, tagAndContent.Item1, tagAndContent.Item2);
+                            DiscordMessage editedMessage = await plugin.Client.ModifyMessageAsync(message, content.TagAndText, content.EmbedContent);
                             if (editedMessage != null)
                                 await PostDisplayEdited(editedMessage);
 
@@ -221,11 +220,11 @@ namespace Eco.Plugins.DiscordLink.Modules
                 unmatchedMessages.Clear();
 
                 // Send the messages that didn't already exist
-                foreach (var tagAndContent in tagsAndContent)
+                foreach (DisplayContent content in displayContent)
                 {
-                    if (!matchedTags.Contains(tagAndContent.Item1))
+                    if (!matchedContent.Contains(content))
                     {
-                        DiscordMessage createdMessage = await plugin.Client.SendMessageAsync(targetChannel, tagAndContent.Item1, tagAndContent.Item2);
+                        DiscordMessage createdMessage = await plugin.Client.SendMessageAsync(targetChannel, content.TagAndText, content.EmbedContent);
                         if (createdMessage == null)
                             continue;
 
@@ -233,7 +232,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                         ++_opsCount;
                     }
                 }
-                matchedTags.Clear();
+                matchedContent.Clear();
             }
 
             if (unmatchedMessages.Count > 0 || createdMessages.Count > 0)
@@ -249,7 +248,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             LastUpdateTime = DateTime.Now;
         }
 
-        protected abstract void GetDisplayContent(DiscordTarget target, out List<Tuple<string, DiscordLinkEmbed>> tagAndContent);
+        protected abstract void GetDisplayContent(DiscordTarget target, out List<DisplayContent> displayContent);
 
         protected async virtual Task PostDisplayCreated(DiscordMessage message) { }
 

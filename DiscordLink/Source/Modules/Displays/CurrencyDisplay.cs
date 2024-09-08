@@ -18,11 +18,11 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         public override string ToString() => "Currency Display";
         protected override DlEventType GetTriggers() => base.GetTriggers() | DlEventType.DiscordClientConnected | DlEventType.Timer | DlEventType.CurrencyCreated;
-        protected override async Task<List<DiscordTarget>> GetDiscordTargets() => DLConfig.Data.CurrencyDisplayChannels.Cast<DiscordTarget>().ToList();
+        protected override async Task<IEnumerable<DiscordTarget>> GetDiscordTargets() => DLConfig.Data.CurrencyDisplayChannels.Cast<DiscordTarget>();
 
-        protected override void GetDisplayContent(DiscordTarget target, out List<Tuple<string, DiscordLinkEmbed>> tagAndContent)
+        protected override void GetDisplayContent(DiscordTarget target, out List<DisplayContent> displayContent)
         {
-            tagAndContent = new List<Tuple<string, DiscordLinkEmbed>>();
+            displayContent = new List<DisplayContent>();
             IEnumerable<Currency> currencies = Lookups.Currencies;
             var currencyTradesMap = Moose.Plugin.MooseStorage.WorldData.CurrencyToTradeCountMap;
             if (!(target is CurrencyChannelLink currencyLink))
@@ -46,7 +46,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 {
                     DiscordLinkEmbed currencyReport = MessageBuilder.Discord.GetCurrencyReport(currencyEnumerator.Current, currencyLink.MaxTopCurrencyHolderCount, currencyLink.UseBackingInfo, currencyLink.UseTradeCount);
                     if (currencyReport != null)
-                        tagAndContent.Add(new Tuple<string, DiscordLinkEmbed>($"{BaseTag} [{currencyEnumerator.Current.Id}]", currencyReport));
+                        displayContent.Add(new DisplayContent($"{BaseTag} [{currencyEnumerator.Current.Id}]", embedContent: currencyReport));
                 }
             }
 
@@ -58,7 +58,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 {
                     DiscordLinkEmbed currencyReport = MessageBuilder.Discord.GetCurrencyReport(currencyEnumerator.Current, currencyLink.MaxTopCurrencyHolderCount, useBackingInfo: true, useTradeCount: true);
                     if (currencyReport != null)
-                        tagAndContent.Add(new Tuple<string, DiscordLinkEmbed>($"{BaseTag} [{currencyEnumerator.Current.Id}]", currencyReport));
+                        displayContent.Add(new DisplayContent($"{BaseTag} [{currencyEnumerator.Current.Id}]", embedContent: currencyReport));
                 }
             }
         }
