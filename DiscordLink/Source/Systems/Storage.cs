@@ -35,8 +35,7 @@ namespace Eco.Plugins.DiscordLink
         }
 
         private DLStorage()
-        {
-        }
+        { }
 
         public void Initialize()
         {
@@ -105,11 +104,13 @@ namespace Eco.Plugins.DiscordLink
 
         public class PersistentStorageData
         {
-            public LayerDiscriminator LayerDiscriminator = new LayerDiscriminator();
             public List<LinkedUser> LinkedUsers = new List<LinkedUser>();
-            public List<ulong> RoleIds = new List<ulong>();
             public List<EcoUser> OptedInUsers = new List<EcoUser>();
             public List<EcoUser> OptedOutUsers = new List<EcoUser>();
+
+            public List<ulong> RoleIds = new List<ulong>();
+
+            public LayerDiscriminator LayerDiscriminator = new LayerDiscriminator();
 
             public async Task<DiscordLinkEmbed> GetDataDescription()
             {
@@ -153,7 +154,7 @@ namespace Eco.Plugins.DiscordLink
                         permissionBuilder.AppendLine(role != null ? role.Permissions.ToString() : "Uknown");
                     }
                     embed.AddField("Role Names", nameBuilder.ToString(), inline: true);
-                    embed.AddField("Role ID", idBuilder.ToString(), inline: true);
+                    embed.AddField("Role IDs", idBuilder.ToString(), inline: true);
                     embed.AddField("Role Permissions", permissionBuilder.ToString(), inline: true);
                 }
 
@@ -174,7 +175,6 @@ namespace Eco.Plugins.DiscordLink
         public class WorldStorageData
         {
             public Dictionary<ulong, List<TradeWatcherEntry>> TradeWatchers = new Dictionary<ulong, List<TradeWatcherEntry>>();
-
             public IEnumerable<KeyValuePair<ulong, List<TradeWatcherEntry>>> DisplayTradeWatchers => TradeWatchers.Where(userAndWatchers => userAndWatchers.Value.Any(watcher => watcher.Type == ModuleArchetype.Display));
             public IEnumerable<KeyValuePair<ulong, List<TradeWatcherEntry>>> FeedTradeWatchers => TradeWatchers.Where(userAndWatchers => userAndWatchers.Value.Any(watcher => watcher.Type == ModuleArchetype.Feed));
 

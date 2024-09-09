@@ -15,7 +15,7 @@ namespace Eco.Plugins.DiscordLink.Extensions
         ///F => Weekday, Month Day, Year Time
         ///t => Time
         ///T => Hours:Minutes:Seconds
-        ///R => Time since
+        ///R => Time until/since
         /// </summary>
         public static string ToDiscordTimeStamp(this DateTime time, char discordTimeFormat = 'f') => $"<t:{time.ToUnixTime()}:{discordTimeFormat}>";
     }

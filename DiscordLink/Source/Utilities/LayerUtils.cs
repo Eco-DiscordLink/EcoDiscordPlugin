@@ -14,9 +14,9 @@ namespace Eco.Plugins.DiscordLink.Utilities
             };
         }
 
-        public static string GetLayerLink(string layerName)
+        public static string GetLayerLink(string layerFileName)
         {
-            return $"{Lookups.WebServerUrl}/Layers/{layerName}.gif?discriminator={DLStorage.PersistentData.LayerDiscriminator.GetDiscriminator()}";
+            return $"{Lookups.WebServerUrl}/Layers/{layerFileName}.gif?discriminator={DLStorage.PersistentData.LayerDiscriminator.GetDiscriminator()}";
         }
     }
 }

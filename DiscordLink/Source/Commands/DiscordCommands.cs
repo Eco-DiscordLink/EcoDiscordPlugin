@@ -710,14 +710,14 @@ namespace Eco.Plugins.DiscordLink
                     return;
                 }
 
-                string layerName = LayerUtils.GetLayerName(mapType);
-                if (layerName.IsEmpty())
+                string layerFileName = LayerUtils.GetLayerName(mapType);
+                if (layerFileName.IsEmpty())
                 {
                     await ReportCommandError(ctx, "Failed to resolve mapType parameter");
                     return;
                 }
                     
-                await ReportCommandInfo(ctx, $"{LayerUtils.GetLayerLink(layerName)}");
+                await ReportCommandInfo(ctx, $"{LayerUtils.GetLayerLink(layerFileName)}");
             });
         }
 
@@ -768,7 +768,7 @@ namespace Eco.Plugins.DiscordLink
             });
         }
 
-        [SlashCommand("DLT", "Shorthand for the Trades command")]
+        [SlashCommand("DLT", "Shorthand for the Trades command.")]
         public async Task DLT(InteractionContext interaction,
             [Option("SearchName", "The player name or item name for which to display trades. Case insensitive and auto completed.")] string searchName)
         {

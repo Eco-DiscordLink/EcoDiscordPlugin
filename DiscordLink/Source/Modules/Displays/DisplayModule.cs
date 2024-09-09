@@ -23,7 +23,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
         private bool _dirty = false;
         private Timer _updateTimer = null;
-        private Timer _HighFrequencyEventTimer = null;
+        private Timer _highFrequencyEventTimer = null;
 
         protected override DlEventType GetTriggers() => DlEventType.ForceUpdate | DlEventType.DiscordMessageDeleted | DlEventType.DiscordReactionAdded | DlEventType.DiscordReactionRemoved;
         protected virtual async Task<IEnumerable<DiscordTarget>> GetDiscordTargets() { throw new NotImplementedException(); }
@@ -101,7 +101,7 @@ namespace Eco.Plugins.DiscordLink.Modules
         private void TriggerTimedUpdate(object stateInfo)
         {
             _ = base.Update(DiscordLink.Obj, DlEventType.Timer, null);
-            SystemUtils.StopAndDestroyTimer(ref _HighFrequencyEventTimer);
+            SystemUtils.StopAndDestroyTimer(ref _highFrequencyEventTimer);
         }
 
         protected sealed override async Task UpdateInternal(DiscordLink plugin, DlEventType trigger, params object[] data)
@@ -142,8 +142,8 @@ namespace Eco.Plugins.DiscordLink.Modules
             // Avoid hitting the rate limitation by not allowig events that can be fired often to pass straight through.
             if ((trigger & HighFrequencyTriggerFlags) == trigger)
             {
-                if (_HighFrequencyEventTimer == null)
-                    _HighFrequencyEventTimer = new Timer(this.TriggerTimedUpdate, null, HighFrequencyEventDelayMs, Timeout.Infinite);
+                if (_highFrequencyEventTimer == null)
+                    _highFrequencyEventTimer = new Timer(this.TriggerTimedUpdate, null, HighFrequencyEventDelayMs, Timeout.Infinite);
                 return;
             }
 
