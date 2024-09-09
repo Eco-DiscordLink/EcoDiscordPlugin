@@ -734,8 +734,8 @@ namespace Eco.Plugins.DiscordLink
                     return;
                 }
 
-                string layerName = "Terrain";
-                await ReportCommandInfo(ctx, $"{LayerUtils.GetLayerLink(layerName)}");
+                string layerFileName = "Terrain";
+                await ReportCommandInfo(ctx, $"{LayerUtils.GetLayerLink(layerFileName)}");
             });
         }
 

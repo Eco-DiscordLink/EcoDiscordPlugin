@@ -428,7 +428,8 @@ namespace Eco.Plugins.DiscordLink
             Modules[(int)ModuleType.ServerInfoDisplay] = new ServerInfoDisplay();
             Modules[(int)ModuleType.TradeWatcherDisplay] = new TradeWatcherDisplay();
             Modules[(int)ModuleType.WorkPartyDisplay] = new WorkPartyDisplay();
-            Modules[(int)ModuleType.MapLayerDisplay] = new MapLayerDisplay();
+            Modules[(int)ModuleType.MapDisplay] = new MapDisplay();
+            Modules[(int)ModuleType.LayerDisplay] = new LayerDisplay();
             Modules[(int)ModuleType.CraftingFeed] = new CraftingFeed();
             Modules[(int)ModuleType.DiscordChatFeed] = new DiscordChatFeed();
             Modules[(int)ModuleType.EcoChatFeed] = new EcoChatFeed();
