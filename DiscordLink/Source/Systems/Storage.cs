@@ -157,6 +157,16 @@ namespace Eco.Plugins.DiscordLink
                     embed.AddField("Role Permissions", permissionBuilder.ToString(), inline: true);
                 }
 
+                // Layer discriminator
+                {
+                    embed.AddField("Layer Discriminator", LayerDiscriminator.Value.ToString(), inline: true);
+                    if (LayerDiscriminator.LastIncrementTime > DateTime.MinValue)
+                        embed.AddField("Last Updated", LayerDiscriminator.LastIncrementTime.ToDiscordTimeStamp('R'), inline: true);
+                    else
+                        embed.AddAlignmentField();
+                    embed.AddAlignmentField();
+                }
+
                 return embed;
             }
         }
