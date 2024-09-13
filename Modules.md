@@ -23,11 +23,19 @@
 
 ## Displays
 A Discord Display makes persistent information in Eco visible in Discord.  
-It does this by regularly (once every ~60 seconds) fetching information from the Eco server and sending/editing a message in Discord to keep the Display up to date. Some events in Eco will also update displays related to those events.  
+It does this by regularly fetching information from the Eco server and sending/editing a message in Discord to keep the Display up to date. Some events in Eco will also update displays related to those events.  
 
 ### Server info
 Displays a single message that contains customizable information about the server such as name, connection info, online players, settlements, ongoing elections and more.  
 ![Server Info Display](images/features/displays/serverInfo.png)
+
+### Map
+Displays a link to the map preview image.
+![Map Display](images/features/displays/map.png)
+
+### Layer
+Displays a link to a layer preview image.
+![Map Display](images/features/displays/layer.png)
 
 ### Work Parties
 Displays one message per work party, containing information about the status of that work party.  

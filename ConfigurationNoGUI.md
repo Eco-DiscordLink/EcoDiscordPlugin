@@ -112,6 +112,16 @@ The config data needs to match your Eco server, Discord server and Discord bot.
       "DiscordChannelId": 980963363205025815
     }  
   ],  
+  "MapDisplayChannels": [  
+    {  
+      "DiscordChannelId": 980963363205025815
+    }  
+  ],
+  "LayerDisplayChannels": [  
+    {  
+      "DiscordChannelId": 980963363205025815
+    }  
+  ],
   "CurrencyDisplayChannels": [  
     {  
       "UseMintedCurrency": "MintedExists",  

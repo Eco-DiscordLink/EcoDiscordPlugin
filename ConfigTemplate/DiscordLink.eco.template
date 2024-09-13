@@ -23,6 +23,8 @@
   "WorkPartyDisplayChannels": [],
   "ElectionDisplayChannels": [],
   "CurrencyDisplayChannels": [],
+  "MapDisplayChannels": [],
+  "LayerDisplayChannels": [],
   "SnippetInputChannels": [],
   "UseLinkedAccountRole": true,
   "UseDemographicRoles": true,
