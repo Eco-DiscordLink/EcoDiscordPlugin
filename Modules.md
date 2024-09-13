@@ -30,11 +30,11 @@ Displays a single message that contains customizable information about the serve
 ![Server Info Display](images/features/displays/serverInfo.png)
 
 ### Map
-Displays a link to the map preview image.
+Displays a link to the map preview image.  
 ![Map Display](images/features/displays/map.png)
 
 ### Layer
-Displays a link to a layer preview image.
+Displays a link to a layer preview image.  
 ![Map Display](images/features/displays/layer.png)
 
 ### Work Parties
