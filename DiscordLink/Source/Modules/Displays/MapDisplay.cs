@@ -40,7 +40,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             if (layerFileName.IsEmpty())
                 return;
 
-            displayContent.Add(new DisplayContent($"{BaseTag} [Map]", textContent: LayerUtils.GetLayerLink(layerFileName)));
+            displayContent.Add(new DisplayContent(BaseTag, textContent: LayerUtils.GetLayerLink(layerFileName)));
         }
     }
 }
