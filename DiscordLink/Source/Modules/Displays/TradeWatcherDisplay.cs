@@ -20,7 +20,8 @@ namespace Eco.Plugins.DiscordLink.Modules
         private readonly List<DiscordTarget> UserLinks = new List<DiscordTarget>();
 
         public override string ToString() => "Trade Watcher Display";
-        protected override DlEventType GetTriggers() => base.GetTriggers() | DlEventType.DiscordClientConnected | DlEventType.Timer | DlEventType.TradeWatcherDisplayAdded | DlEventType.TradeWatcherDisplayRemoved;
+        protected override DlEventType GetTriggers() => base.GetTriggers() | DlEventType.DiscordClientConnected // Not triggering on AccumulatedTrade messages as this could result in a lot of calls
+            | DlEventType.Timer | DlEventType.TradeWatcherDisplayAdded | DlEventType.TradeWatcherDisplayRemoved;
 
         protected override async Task<bool> ShouldRun()
         {
