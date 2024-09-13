@@ -772,11 +772,7 @@ namespace Eco.Plugins.DiscordLink
         public async Task DLT(InteractionContext interaction,
             [Option("SearchName", "The player name or item name for which to display trades. Case insensitive and auto completed.")] string searchName)
         {
-            DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Delayed);
-            await ExecuteCommand<object>(PermissionType.User, ctx, async (lCtx, args) =>
-            {
-                await Trades(ctx.Interaction, searchName);
-            });
+            await Trades(interaction, searchName);
         }
 
         [SlashCommand("AddTradeWatcherDisplay", "Creates a live updated display of available trades by player, tag, item or store.")]
