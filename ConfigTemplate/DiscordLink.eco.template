@@ -40,7 +40,6 @@
   ],
   "UseSpecialtyRoles": true,
   "UseElectedTitleRoles": true,
-  "DiscordCommandChannels": [],
   "MaxTradeWatcherDisplaysPerUser": 5,
   "InviteMessage": "Join us on Discord!\\n[LINK]",
   "LogLevel": "Information",

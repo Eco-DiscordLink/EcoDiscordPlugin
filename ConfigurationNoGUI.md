@@ -154,11 +154,6 @@ The config data needs to match your Eco server, Discord server and Discord bot.
   ],  
   "UseSpecialtyRoles": true,  
   "UseElectedTitleRoles": true,  
-  "DiscordCommandChannels": [  
-    {  
-      "DiscordChannelId": 980963363205025815
-    }  
-  ],  
   "MaxTradeWatcherDisplaysPerUser": 5,
   "InviteMessage": "Join us on Discord!\n[LINK]",
   "LogLevel": "Information",  
