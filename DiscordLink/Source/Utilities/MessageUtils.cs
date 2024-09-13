@@ -144,7 +144,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             DiscordLinkEmbed splitEmbedBuilder = new DiscordLinkEmbed(fullEmbed);
             splitEmbedBuilder.WithFooter(string.Empty); // Remove the footer for now, we will add it back at the end
             splitEmbedBuilder.ClearFields();
-            int embedTitleAndFooterSize = fullEmbed.Title.Length + partCountCharactersMax + fullEmbed.Footer.Length;
+            int embedTitleAndFooterSize = fullEmbed.Title.Length + partCountCharactersMax + (fullEmbed.Footer?.Length ?? 0);
             int characterCount = 0;
             int fieldCount = 0;
             foreach (DiscordLinkEmbedField field in splitFields)
