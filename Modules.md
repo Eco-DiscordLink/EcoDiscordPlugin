@@ -3,6 +3,8 @@
 #### Sections
 * [Displays](#displays)
 	* [Server Info](#server-info)
+	* [Map](#Map)
+	* [Layer](#Layer)
 	* [Player List](#player-list)
 	* [Work Parties](#work-parties)
 	* [Elections](#elections)
@@ -30,12 +32,12 @@ Displays a single message that contains customizable information about the serve
 ![Server Info Display](images/features/displays/serverInfo.png)
 
 ### Map
-Displays a link to the map preview image.  
+Displays a link to the map preview image. Updates once an hour (same rate as the server updates the images)  
 ![Map Display](images/features/displays/map.png)
 
 ### Layer
-Displays a link to a layer preview image.  
-![Map Display](images/features/displays/layer.png)
+Displays a link to a layer preview image. Updates once an hour (same rate as the server updates the images)  
+![Layer Display](images/features/displays/layer.png)
 
 ### Work Parties
 Displays one message per work party, containing information about the status of that work party.  
