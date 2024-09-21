@@ -1,5 +1,6 @@
 ﻿using DSharpPlus.Entities;
 using Eco.Core.Plugins;
+using Eco.Gameplay.Systems.Messaging.Chat.Channels;
 using Eco.Moose.Tools.Logger;
 using Eco.Moose.Utils.Message;
 using Eco.Plugins.DiscordLink.Extensions;
@@ -233,7 +234,14 @@ namespace Eco.Plugins.DiscordLink
             foreach (ChatChannelLink chatLink in Data.ChatChannelLinks)
             {
                 if (chatLink.IsValid())
-                    Message.EnsureChatChannelExists(chatLink.EcoChannel);
+                {
+                    // Ensure that the chat channel exists
+                    if(!Message.ChatChannelExists(chatLink.EcoChannel))
+                    {
+                        Message.CreateChatChannel(chatLink.EcoChannel);
+                        Message.SendChatToChannel(null, chatLink.EcoChannel, "Created by DiscordLink");
+                    }
+                }
             }
         }
 
