@@ -1,4 +1,5 @@
-﻿using Eco.Moose.Tools.Logger;
+﻿using Eco.Gameplay.Systems.Messaging.Chat.Channels;
+using Eco.Moose.Tools.Logger;
 using System.ComponentModel;
 
 namespace Eco.Plugins.DiscordLink
@@ -6,7 +7,7 @@ namespace Eco.Plugins.DiscordLink
     public class EcoChannelLink : ChannelLink
     {
         [Description("Eco channel to use (omit # prefix).")]
-        public string EcoChannel { get; set; } = string.Empty;
+        public string EcoChannel { get; set; } = ChannelManager.Obj?.Get(SpecialChannel.General)?.Name ?? string.Empty;
         public override string ToString()
         {
             string discordChannelName = IsValid() ? Channel.Name : "<Invalid Channel>";
