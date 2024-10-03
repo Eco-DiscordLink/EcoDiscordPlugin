@@ -1,5 +1,5 @@
 ﻿using DiscordLink.Source.Utilities;
-using Eco.Moose.Data.Constants;
+using Eco.Moose.Data;
 using Eco.Moose.Tools.Logger;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.Networking;

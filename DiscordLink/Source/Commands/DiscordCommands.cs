@@ -865,7 +865,7 @@ namespace Eco.Plugins.DiscordLink
         [SlashCommand("Announce", "Announces a message to everyone or a specified user.")]
         public async Task Announce(InteractionContext interaction,
             [Option("Message", "The message to send.")] string message,
-            [Option("MessageType", "The type of message to send.")] Moose.Data.Enums.MessageType messageType = Moose.Data.Enums.MessageType.Notification,
+            [Option("MessageType", "The type of message to send.")] Moose.Data.Enums.MessageTypes messageType = Moose.Data.Enums.MessageTypes.Notification,
             [Option("Player", "Name or ID of the player to send the message to. Sends to everyone if omitted.")] string recipientUserNameOrId = "")
         {
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Immediate);
@@ -889,7 +889,7 @@ namespace Eco.Plugins.DiscordLink
                 }
 
 
-                if (recipient != null && messageType != Moose.Data.Enums.MessageType.NotificationOffline && !recipient.IsOnline)
+                if (recipient != null && messageType != Moose.Data.Enums.MessageTypes.NotificationOffline && !recipient.IsOnline)
                 {
                     await ReportCommandError(ctx, $"Failed to send message - {recipient.Name} is offline.");
                     return;
@@ -897,19 +897,19 @@ namespace Eco.Plugins.DiscordLink
 
                 string formattedMessage = messageType switch
                 {
-                    Moose.Data.Enums.MessageType.Chat => $"{ctx.Interaction.Member.DisplayName}: {message}",
-                    Moose.Data.Enums.MessageType.Info => $"{ctx.Interaction.Member.DisplayName}: {message}",
-                    Moose.Data.Enums.MessageType.Warning => $"{ctx.Interaction.Member.DisplayName}: {message}",
-                    Moose.Data.Enums.MessageType.Error => $"{ctx.Interaction.Member.DisplayName}: {message}",
-                    Moose.Data.Enums.MessageType.Notification => $"[{ctx.Interaction.Member.DisplayName}]\n\n{message}",
-                    Moose.Data.Enums.MessageType.NotificationOffline => $"[{ctx.Interaction.Member.DisplayName}]\n\n{message}",
-                    Moose.Data.Enums.MessageType.Popup => $"[{ctx.Interaction.Member.DisplayName}]\n{message}",
+                    Moose.Data.Enums.MessageTypes.Chat => $"{ctx.Interaction.Member.DisplayName}: {message}",
+                    Moose.Data.Enums.MessageTypes.Info => $"{ctx.Interaction.Member.DisplayName}: {message}",
+                    Moose.Data.Enums.MessageTypes.Warning => $"{ctx.Interaction.Member.DisplayName}: {message}",
+                    Moose.Data.Enums.MessageTypes.Error => $"{ctx.Interaction.Member.DisplayName}: {message}",
+                    Moose.Data.Enums.MessageTypes.Notification => $"[{ctx.Interaction.Member.DisplayName}]\n\n{message}",
+                    Moose.Data.Enums.MessageTypes.NotificationOffline => $"[{ctx.Interaction.Member.DisplayName}]\n\n{message}",
+                    Moose.Data.Enums.MessageTypes.Popup => $"[{ctx.Interaction.Member.DisplayName}]\n{message}",
                 };
 
                 bool result = true;
                 switch (messageType)
                 {
-                    case Moose.Data.Enums.MessageType.Chat:
+                    case Moose.Data.Enums.MessageTypes.Chat:
                         {
                             if (recipient != null)
                             {
@@ -922,7 +922,7 @@ namespace Eco.Plugins.DiscordLink
                             break;
                         }
 
-                    case Moose.Data.Enums.MessageType.Info:
+                    case Moose.Data.Enums.MessageTypes.Info:
                         {
                             if (recipient != null)
                             {
@@ -938,7 +938,7 @@ namespace Eco.Plugins.DiscordLink
                             break;
                         }
 
-                    case Moose.Data.Enums.MessageType.Warning:
+                    case Moose.Data.Enums.MessageTypes.Warning:
                         {
                             if (recipient != null)
                             {
@@ -953,7 +953,7 @@ namespace Eco.Plugins.DiscordLink
                             }
                             break;
                         }
-                    case Moose.Data.Enums.MessageType.Error:
+                    case Moose.Data.Enums.MessageTypes.Error:
                         {
                             if (recipient != null)
                             {
@@ -968,7 +968,7 @@ namespace Eco.Plugins.DiscordLink
                             }
                             break;
                         }
-                    case Moose.Data.Enums.MessageType.Popup:
+                    case Moose.Data.Enums.MessageTypes.Popup:
                         {
                             if (recipient != null)
                             {
@@ -983,7 +983,7 @@ namespace Eco.Plugins.DiscordLink
                             }
                             break;
                         }
-                    case Moose.Data.Enums.MessageType.Notification:
+                    case Moose.Data.Enums.MessageTypes.Notification:
                         {
                             if (recipient != null)
                             {
@@ -999,7 +999,7 @@ namespace Eco.Plugins.DiscordLink
                             break;
                         }
 
-                    case Moose.Data.Enums.MessageType.NotificationOffline:
+                    case Moose.Data.Enums.MessageTypes.NotificationOffline:
                         {
                             if (recipient != null)
                             {

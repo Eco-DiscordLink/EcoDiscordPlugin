@@ -39,7 +39,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static Eco.Moose.Features.Trade;
 using static Eco.Shared.Mathf; // Avoiding collisions with system mathf
-using Constants = Eco.Moose.Data.Constants.Constants;
+using Constants = Eco.Moose.Data.Constants;
 using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.Store.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
 using Text = Eco.Shared.Utils.Text;
 
