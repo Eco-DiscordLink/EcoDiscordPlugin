@@ -7,7 +7,7 @@ Typing only /DiscordLink or the alias /DL will invoke the help message and provi
 ## Invoking Discord Commands
 Discord commands are invoked by typing "/" followed by the command you wish to run.
 
-## Commads
+## Commands
 All Eco and Discord commands are case insensitive.
 
 # **Plugin Management**
