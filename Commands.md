@@ -11,7 +11,7 @@ Discord commands are invoked by typing "/" followed by the command you wish to r
 All Eco and Discord commands are case insensitive.
 
 # **Plugin Management**
-| **Name**                   | **Alias**           | **Discord/Eco**   | **Parameters**                                                           | **Permissions** | **Description**                                                                                                      |
+| **Name**                   | **Alias**           | **Discord/Eco**   | **Parameters** (* = Optional)                                            | **Permissions** | **Description**                                                                                                      |
 |----------------------------|---------------------|-------------------|--------------------------------------------------------------------------|-----------------|----------------------------------------------------------------------------------------------------------------------|
 | DiscordLink                | DL                  | Eco               |                                                                          | User            | Displays a list of all available DiscordLink commands. This is the parent command of all other DiscordLink commands. |
 | RestartPlugin              |                     | Both              |                                                                          | Admin           | Restarts the plugin.                                                                                                 |
@@ -24,7 +24,7 @@ All Eco and Discord commands are case insensitive.
 
 
 # <a id="SAT"></a>**Setup and Troubleshooting**
-| **Name**                   | **Alias**           | **Discord/Eco**   | **Parameters**                                                           | **Permissions** | **Description**                                                                                                      |
+| **Name**                   | **Alias**           | **Discord/Eco**   | **Parameters** (* = Optional)                                            | **Permissions** | **Description**                                                                                                      |
 |----------------------------|-------------------- |-------------------|--------------------------------------------------------------------------|-----------------|----------------------------------------------------------------------------------------------------------------------|
 | VerifyConfig               |                     | Both              |                                                                          | Admin           | Checks configuration setup and reports any errors.                                                                   |
 | VerifyPermissions          |                     | Both              |                                                                          | Admin           | Checks all permissions and intents needed for the current configuration and reports any missing ones.                |
@@ -35,15 +35,15 @@ All Eco and Discord commands are case insensitive.
 
 
 # **Server Management**
-| **Name**                   | **Alias**           | **Discord/Eco**   | **Parameters**                                                           | **Permissions** | **Description**                                                                                                      |              
+| **Name**                   | **Alias**           | **Discord/Eco**   | **Parameters** (* = Optional)                                            | **Permissions** | **Description**                                                                                                      |              
 |----------------------------|---------------------|-------------------|--------------------------------------------------------------------------|-----------------|----------------------------------------------------------------------------------------------------------------------|
 | EcoCommand                 |                     | Discord           | Eco Command                                                              | Dynamic         | Executes the inputted eco command. The parameter should be styled as a full ingame Eco command.                      |
-| Announce                   |                     | Both              | Message, MessageType (optional), recipientUserNameOrID (optional)        | Admin           | Sends the message formatted as [MessageType] to everyone on the server or the specified recipient.                   |
+| Announce                   |                     | Both              | Message, MessageType*, recipientUserNameOrID*                            | Admin           | Sends the message formatted as [MessageType] to everyone on the server or the specified recipient.                   |
 | ServerShutdown             |                     | Both              |                                                                          | Admin           | Shuts down the eco server.                                                                                           |
 
 
 # **Info**
-| **Name**                   | **Alias**           | **Discord/Eco**   | **Parameters**                                                           | **Permissions** | **Description**                                                                                                      |
+| **Name**                   | **Alias**           | **Discord/Eco**   | **Parameters** (* = Optional)                                            | **Permissions** | **Description**                                                                                                      |
 |----------------------------|---------------------|-------------------|--------------------------------------------------------------------------|-----------------|----------------------------------------------------------------------------------------------------------------------|
 | Version                    |                     | Both              |                                                                          | User            | Displays the installed and latest available plugin version.                                                          |
 | About                      |                     | Both              |                                                                          | User            | Displays information about the DiscordLink plugin.                                                                   |
@@ -56,34 +56,34 @@ All Eco and Discord commands are case insensitive.
 
 
 # **User Settings**
-| **Name**                   | **Alias**           | **Discord/Eco**   | **Parameters**                                                           | **Permissions** | **Description**                                                                                                      |
+| **Name**                   | **Alias**           | **Discord/Eco**   | **Parameters** (* = Optional)                                            | **Permissions** | **Description**                                                                                                      |
 |----------------------------|---------------------|-------------------|--------------------------------------------------------------------------|-----------------|----------------------------------------------------------------------------------------------------------------------|
 | Optin                      |                     | Eco               |                                                                          | User            | Opts the calling user into chat synchronization.                                                                     |
 | OptOut                     |                     | Eco               |                                                                          | User            | Opts the calling user out of chat synchronization.                                                                   |
 
 
 # **Account Linking**
-| **Name**                   | **Alias**           | **Discord/Eco**   | **Parameters**                                                           | **Permissions** | **Description**                                                                                                      |
+| **Name**                   | **Alias**           | **Discord/Eco**   | **Parameters** (* = Optional)                                            | **Permissions** | **Description**                                                                                                      |
 |----------------------------|---------------------|-------------------|--------------------------------------------------------------------------|-----------------|----------------------------------------------------------------------------------------------------------------------|
 | LinkAccount                |                     | Eco               | DiscordName                                                              | User            | Links the calling user account to a Discord account. DiscordName is qualified or unqualified name. No nicknames.     |
 | UnlinkAccount              |                     | Both              |                                                                          | User            | Unlinks the Eco account from a linked Discord account.                                                               |
 
 # **Images**
-| **Name**                   | **Alias**           | **Discord/Eco**   | **Parameters**                                                           | **Permissions** | **Description**                                                                                                      |
+| **Name**                   | **Alias**           | **Discord/Eco**   | **Parameters** (* = Optional)                                            | **Permissions** | **Description**                                                                                                      |
 |----------------------------|---------------------|-------------------|--------------------------------------------------------------------------|-----------------|----------------------------------------------------------------------------------------------------------------------|
-| ShowLayer                  |                     | Discord           | LayerName, ShowLayerHistory (optional), ShowTerrainComparison (optional) | User            | Posts a link to the requested layer image. Admins can look up any layer while users are limited to visible layers.   |
+| ShowLayer                  |                     | Discord           | LayerName, ShowLayerHistory*, ShowTerrainComparison*                     | User            | Posts a link to the requested layer image. Admins can look up any layer while users are limited to visible layers.   |
 | ShowMap                    |                     | Discord           |                                                                          | User            | Posts a link to an image showing the world map.                                                                      |
 | ShowWorldHistory           |                     | Discord           |                                                                          | User            | Posts a link to a gif showing the world history.                                                                     |
 
 # **Invites**
-| **Name**                   | **Alias**           | **Discord/Eco**   | **Parameters**                                                           | **Permissions** | **Description**                                                                                                      |
+| **Name**                   | **Alias**           | **Discord/Eco**   | **Parameters** (* = Optional)                                            | **Permissions** | **Description**                                                                                                      |
 |----------------------------|---------------------|-------------------|--------------------------------------------------------------------------|-----------------|----------------------------------------------------------------------------------------------------------------------|
 | PostInviteMessage          |                     | Both              |                                                                          | User            | Posts a Discord invite message to the Eco chat.                                                                      |
 | InviteMe                   |                     | Eco               |                                                                          | User            | Opens an invite to the Discord server.                                                                               |
 
 
 # **Trades**
-| **Name**                   | **Alias**           | **Discord/Eco**   | **Parameters**                                                           | **Permissions** | **Description**                                                                                                      |
+| **Name**                   | **Alias**           | **Discord/Eco**   | **Parameters** (* = Optional)                                            | **Permissions** | **Description**                                                                                                      |
 |----------------------------|-------------------- |-------------------|--------------------------------------------------------------------------|-----------------|----------------------------------------------------------------------------------------------------------------------|
 | Trades                     | DLT                 | Both              | SearchName                                                               | User            | Displays available trades by player, tag, item or store. The search name is case insensitive and will auto complete. |
 | WatchTradeDisplay          |                     | Both              | SearchName                                                               | User            | Creates a live updated display of available trades by player, tag, item or store.                                    |
@@ -94,7 +94,7 @@ All Eco and Discord commands are case insensitive.
 
 
 # **Reports**
-| **Name**                   | **Alias**           | **Discord/Eco**   | **Parameters**                                                           | **Permissions** | **Description**                                                                                                      |
+| **Name**                   | **Alias**           | **Discord/Eco**   | **Parameters** (* = Optional)                                            | **Permissions** | **Description**                                                                                                      |
 |----------------------------|-------------------- |-------------------|--------------------------------------------------------------------------|-----------------|----------------------------------------------------------------------------------------------------------------------|
 | PlayerReport               |                     | Both              | PlayerNameOrID, Report                                                   | User            | Displays the requested report for the given player. Gives a full report if the Report parameter is omitted.          |
 | CurrencyReport             |                     | Both              | CurrencyNameOrID                                                         | User            | Displays the Currency Report for the given currency.                                                                 |
@@ -106,7 +106,7 @@ All Eco and Discord commands are case insensitive.
 
 
 # **Snippets**
-| **Name**                   | **Alias**           | **Discord/Eco**   | **Parameters**                                                           | **Permissions** | **Description**                                                                                                      |
+| **Name**                   | **Alias**           | **Discord/Eco**   | **Parameters** (* = Optional)                                            | **Permissions** | **Description**                                                                                                      |
 |----------------------------|---------------------|-------------------|--------------------------------------------------------------------------|-----------------|----------------------------------------------------------------------------------------------------------------------|
 | Snippet                    |                     | Both              | SnippetKey                                                               | User            | Posts a predefined snippet to where the command was called from.                                                     |
 | EcoSnippet                 |                     | Discord           | SnippetKey                                                               | User            | Posts a predefined snippet to Eco.                                                                                   |
