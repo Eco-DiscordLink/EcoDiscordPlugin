@@ -307,12 +307,15 @@ namespace Eco.Plugins.DiscordLink
         }
 
         [ChatSubCommand("DiscordLink", "Displays the Currency Report for the given currency.", ChatAuthorizationLevel.User)]
-        public static async Task CurrencyReport(User callingUser, string currencyNameOrId)
+        public static async Task CurrencyReport(User callingUser, string currencyNameOrId,
+            int maxTopHoldersCount = DLConfig.DefaultValues.MaxTopCurrencyHolderCount,
+            bool useTradeCount = true,
+            bool useBackingInfo = false)
         {
             EcoCommandContext ctx = new EcoCommandContext(callingUser);
             await ExecuteCommand(async (lUser, args) =>
             {
-                await SharedCommands.CurrencyReport(ctx, currencyNameOrId);
+                await SharedCommands.CurrencyReport(ctx, currencyNameOrId, maxTopHoldersCount, useTradeCount, useBackingInfo);
             }, callingUser);
         }
 

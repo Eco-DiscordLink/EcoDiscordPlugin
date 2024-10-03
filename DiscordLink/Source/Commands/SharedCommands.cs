@@ -270,7 +270,7 @@ namespace Eco.Plugins.DiscordLink
             return true;
         }
 
-        public static async Task<bool> CurrencyReport(CommandContext ctx, string currencyNameOrId)
+        public static async Task<bool> CurrencyReport(CommandContext ctx, string currencyNameOrId, int maxTopHoldersCount, bool useBackingInfo, bool useTradeCount )
         {
             Currency currency = Lookups.CurrencyByNameOrId(currencyNameOrId);
             if (currency == null)
@@ -279,7 +279,7 @@ namespace Eco.Plugins.DiscordLink
                 return false;
             }
 
-            DiscordLinkEmbed report = MessageBuilder.Discord.GetCurrencyReport(currency, DLConfig.DefaultValues.MaxTopCurrencyHolderCount, useBackingInfo: true, useTradeCount: true);
+            DiscordLinkEmbed report = MessageBuilder.Discord.GetCurrencyReport(currency, maxTopHoldersCount, useBackingInfo, useTradeCount);
             if (report == null)
             {
                 await ReportCommandError(ctx, $"Could not create a report for {currency} as no one holds this currency and no trades has been made with it.");

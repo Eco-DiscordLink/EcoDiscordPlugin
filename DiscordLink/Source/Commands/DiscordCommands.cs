@@ -591,12 +591,15 @@ namespace Eco.Plugins.DiscordLink
 
         [SlashCommand("CurrencyReport", "Displays the Currency Report for the given currency.")]
         public async Task CurrencyReport(InteractionContext interaction,
-            [Option("Currency", "Name or ID of the currency for which to display a report.")] string currencyNameOrId)
+            [Option("Currency", "Name or ID of the currency for which to display a report.")] string currencyNameOrId,
+            [Option("TopHoldersCount", "How many top account holders to include in the report")] long maxTopHoldersCount = DLConfig.DefaultValues.MaxTopCurrencyHolderCount,
+            [Option("ShowTradeCount", "Should the total trade count for the currency be displayed in the report?")] bool useTradeCount = true,
+            [Option("ShowBacking", "Should information about the currency backing be displayed in the report?")] bool useBackingInfo = false)
         {
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Immediate);
             await ExecuteCommand<object>(PermissionType.User, ctx, async (lCtx, args) =>
             {
-                await SharedCommands.CurrencyReport(ctx, currencyNameOrId);
+                await SharedCommands.CurrencyReport(ctx, currencyNameOrId, (int)maxTopHoldersCount, useBackingInfo, useTradeCount);
             });
         }
 
