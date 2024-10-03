@@ -1,6 +1,9 @@
-﻿namespace Eco.Plugins.DiscordLink.Events
+﻿using System;
+
+namespace Eco.Plugins.DiscordLink.Events
 {
     #pragma warning disable format
+    [Flags]
     public enum DlEventType : System.UInt64
     {
         Timer                       = 1L << 0,

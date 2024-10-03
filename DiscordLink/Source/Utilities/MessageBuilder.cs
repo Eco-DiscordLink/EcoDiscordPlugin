@@ -48,6 +48,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
     public static class MessageBuilder
     {
         #pragma warning disable format
+        [Flags]
         public enum ServerInfoComponentFlag
         {
             Name                        = 1 << 0,
@@ -73,6 +74,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             All                         = ~0
         }
 
+        [Flags]
         public enum PlayerReportComponentFlag
         {
             [ChoiceName("Online")]          OnlineStatus    = 1 << 0,
@@ -90,6 +92,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
             [ChoiceName("All")]             All             = ~0
         }
 
+        [Flags]
         public enum PermissionReportComponentFlag
         {
             Intents             = 1 << 0,
@@ -421,6 +424,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 return string.Join("\n", Lookups.OnlineUsersAlphabetical.Select(user => (user.ExhaustionMonitor?.IsExhausted ?? false) ? "Exhausted" : GetTimeDescription(user.GetSecondsLeftUntilExhaustion(), TimespanStringComponent.Day | TimespanStringComponent.Hour | TimespanStringComponent.Minute, TimespanStringComponent.Hour | TimespanStringComponent.Minute)));
             }
 
+            [Flags]
             public enum TimespanStringComponent
             {
                 None = 0,
