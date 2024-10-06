@@ -68,7 +68,7 @@ namespace Eco.Plugins.DiscordLink.Modules
                 messageContent = $"{DLConstants.ECO_DISCORDLINK_ICON} {messageContent}";
             }
 
-            Message.SendChatRaw(sender, MessageUtils.FormatMessageForEcoChannel(messageContent, ecoChannel));
+            Message.SendChatRaw(sender, MessageUtils.FormatChatMessageForEcoChannel(messageContent, ecoChannel));
             ++_opsCount;
         }
 

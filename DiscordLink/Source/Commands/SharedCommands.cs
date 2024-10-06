@@ -6,6 +6,7 @@ using Eco.Gameplay.Civics.Elections;
 using Eco.Gameplay.Economy;
 using Eco.Gameplay.Economy.WorkParties;
 using Eco.Gameplay.Players;
+using Eco.Moose.Features;
 using Eco.Moose.Tools.Logger;
 using Eco.Moose.Utils.Lookups;
 using Eco.Moose.Utils.Message;
@@ -18,9 +19,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using static Eco.Moose.Data.Enums;
 using static Eco.Moose.Features.Trade;
 using static Eco.Plugins.DiscordLink.Utilities.MessageBuilder;
-using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.Store.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
 
 namespace Eco.Plugins.DiscordLink
 {
@@ -270,7 +271,7 @@ namespace Eco.Plugins.DiscordLink
             return true;
         }
 
-        public static async Task<bool> CurrencyReport(CommandContext ctx, string currencyNameOrId, int maxTopHoldersCount, bool useBackingInfo, bool useTradeCount )
+        public static async Task<bool> CurrencyReport(CommandContext ctx, string currencyNameOrId, int maxTopHoldersCount, bool useBackingInfo, bool useTradeCount)
         {
             Currency currency = Lookups.CurrencyByNameOrId(currencyNameOrId);
             if (currency == null)
@@ -476,34 +477,6 @@ namespace Eco.Plugins.DiscordLink
 
         #region Trades
 
-        public static async Task<bool> Trades(CommandContext ctx, string searchName)
-        {
-            if (string.IsNullOrWhiteSpace(searchName))
-            {
-                await ReportCommandInfo(ctx, "Please provide the name of a player, tag, item or store to search for.");
-                return false;
-            }
-
-            string matchedName = FindOffers(searchName, out TradeTargetType offerType, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
-            if (offerType == TradeTargetType.Invalid)
-            {
-                await ReportCommandError(ctx, $"No player, tag, item or store with the name \"{searchName}\" could be found.");
-                return false;
-            }
-
-            if (ctx is EcoCommandContext ecoCtx)
-            {
-                Moose.Plugin.Commands.Trades(ecoCtx.User, searchName);
-            }
-            else if (ctx is DiscordCommandContext discordCtx)
-            {
-                MessageBuilder.Discord.FormatTrades(matchedName, offerType, groupedBuyOffers, groupedSellOffers, out DiscordLinkEmbed embed);
-                await DisplayCommandData(discordCtx, null, embed);
-            }
-
-            return true;
-        }
-
         public static async Task<bool> AddTradeWatcher(CommandContext ctx, string searchName, Modules.ModuleArchetype type)
         {
             if (string.IsNullOrWhiteSpace(searchName))
@@ -540,20 +513,28 @@ namespace Eco.Plugins.DiscordLink
                 return false;
             }
 
-            string matchedName = FindOffers(searchName, out TradeTargetType offerType, out _, out _);
-            if (offerType == TradeTargetType.Invalid)
-                return false;
+            LookupResult lookupRes = DynamicLookup.Lookup(searchName, FULL_TRADE_LOOKUP_MASK);
+            if (lookupRes.Result != LookupResultTypes.SingleMatch)
+            {
+                if (lookupRes.Result == LookupResultTypes.MultiMatch)
+                    await ReportCommandInfo(ctx, lookupRes.ErrorMessage);
+                else
+                    await ReportCommandError(ctx, lookupRes.ErrorMessage);
 
-            bool added = await DLStorage.WorldData.AddTradeWatcher(discordMemberId, new TradeWatcherEntry(matchedName, type));
+                return false;
+            }
+            string matchedEntityName = DynamicLookup.GetEntityName(lookupRes.Matches.First());
+
+            bool added = await DLStorage.WorldData.AddTradeWatcher(discordMemberId, new TradeWatcherEntry(matchedEntityName, type));
             if (added)
             {
-                await ReportCommandInfo(ctx, $"Watching all trades for {matchedName}.");
+                await ReportCommandInfo(ctx, $"Watching all trades for {matchedEntityName}.");
                 return true;
             }
             else
             {
                 string commandName = ctx.Interface == ApplicationInterfaceType.Eco ? "\"/DL ListTradeWatchers\"" : "`ListTradeWatchers`";
-                await ReportCommandError(ctx, $"Failed to start watching trades for {matchedName}. \nUse {commandName} to see what is currently being watched.");
+                await ReportCommandError(ctx, $"Failed to start watching trades for {matchedEntityName}. \nUse {commandName} to see what is currently being watched.");
                 return false;
             }
         }

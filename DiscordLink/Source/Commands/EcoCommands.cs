@@ -535,7 +535,7 @@ namespace Eco.Plugins.DiscordLink
             EcoCommandContext ctx = new EcoCommandContext(callingUser);
             await ExecuteCommand(async (lUser, args) =>
             {
-                await SharedCommands.Trades(ctx, searchName);
+                Moose.Plugin.Commands.Trades(callingUser, searchName);
             }, callingUser);
         }
 

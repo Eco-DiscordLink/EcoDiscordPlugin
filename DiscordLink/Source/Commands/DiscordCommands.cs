@@ -5,6 +5,7 @@ using DSharpPlus.SlashCommands;
 using Eco.Core.Utils;
 using Eco.Gameplay.Players;
 using Eco.Gameplay.Systems.Messaging.Chat;
+using Eco.Moose.Features;
 using Eco.Moose.Tools.Logger;
 using Eco.Moose.Utils.Lookups;
 using Eco.Moose.Utils.Message;
@@ -19,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using static Eco.Moose.Data.Enums;
 using static Eco.Plugins.DiscordLink.DiscordCommands;
 using static Eco.Plugins.DiscordLink.Utilities.MessageBuilder;
 
@@ -719,7 +721,7 @@ namespace Eco.Plugins.DiscordLink
                     await ReportCommandError(ctx, "Failed to resolve mapType parameter");
                     return;
                 }
-                    
+
                 await ReportCommandInfo(ctx, $"{LayerUtils.GetLayerLink(layerFileName)}");
             });
         }
@@ -767,7 +769,28 @@ namespace Eco.Plugins.DiscordLink
             DiscordCommandContext ctx = new DiscordCommandContext(interaction, ResponseTiming.Delayed);
             await ExecuteCommand<object>(PermissionType.User, ctx, async (lCtx, args) =>
             {
-                await SharedCommands.Trades(ctx, searchName);
+                if (string.IsNullOrWhiteSpace(searchName))
+                {
+                    await ReportCommandInfo(ctx, "Please provide the name of a player, tag, item or store to search for.");
+                    return;
+                }
+
+                LookupResult lookupRes = DynamicLookup.Lookup(searchName, Trade.FULL_TRADE_LOOKUP_MASK);
+                if (lookupRes.Result != LookupResultTypes.SingleMatch)
+                {
+                    if (lookupRes.Result == LookupResultTypes.MultiMatch)
+                        await ReportCommandInfo(ctx, lookupRes.ErrorMessage);
+                    else
+                        await ReportCommandError(ctx, lookupRes.ErrorMessage);
+                    return;
+                }
+                object matchedEntity = lookupRes.Matches.First();
+                LookupTypes matchedEntityType = lookupRes.MatchedTypes;
+                string matchedEntityName = DynamicLookup.GetEntityName(matchedEntity);
+
+                TradeOfferList offerList = Trade.FindOffers(matchedEntity, matchedEntityType);
+                MessageBuilder.Discord.FormatTrades(matchedEntityName, matchedEntityType, offerList, out DiscordLinkEmbed embed);
+                await DisplayCommandData(ctx, null, embed);
             });
         }
 

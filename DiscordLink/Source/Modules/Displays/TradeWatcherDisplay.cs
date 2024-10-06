@@ -1,4 +1,6 @@
 ﻿using DSharpPlus.Entities;
+using Eco.Moose.Features;
+using Eco.Moose.Tools.Logger;
 using Eco.Plugins.DiscordLink.Events;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.DiscordLink.Utilities;
@@ -6,8 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using static Eco.Moose.Data.Enums;
 using static Eco.Moose.Features.Trade;
-using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.Store.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
 
 namespace Eco.Plugins.DiscordLink.Modules
 {
@@ -72,12 +74,19 @@ namespace Eco.Plugins.DiscordLink.Modules
             IEnumerable<string> tradeWatchers = DLStorage.WorldData.TradeWatchers[(target as UserLink).Member.Id].Where(watcher => watcher.Type == ModuleArchetype.Display).Select(watcher => watcher.Key);
             foreach (string trade in tradeWatchers)
             {
-                string matchedName = Moose.Features.Trade.FindOffers(trade, out TradeTargetType offerType, out StoreOfferList groupedBuyOffers, out StoreOfferList groupedSellOffers);
-                if (offerType == TradeTargetType.Invalid)
-                    continue; // There was no match
+                LookupResult lookupRes = DynamicLookup.Lookup(trade, FULL_TRADE_LOOKUP_MASK);
+                if (lookupRes.Result != LookupResultTypes.SingleMatch)
+                {
+                    Logger.Warning($"Trade watcher lookup yielded unexpected result: {Enum.GetName(typeof(LookupResultTypes), lookupRes.Result)}");
+                    continue;
+                }
+                object matchedEntity = lookupRes.Matches.First();
+                LookupTypes matchedEntityType = lookupRes.MatchedTypes;
+                string matchedEntityName = DynamicLookup.GetEntityName(matchedEntity);
 
-                MessageBuilder.Discord.FormatTrades(matchedName, offerType, groupedBuyOffers, groupedSellOffers, out DiscordLinkEmbed embed);
-                displayContent.Add(new DisplayContent($"{BaseTag} [{matchedName}]", embedContent: embed));
+                TradeOfferList offerList = FindOffers(matchedEntity, matchedEntityType);
+                MessageBuilder.Discord.FormatTrades(matchedEntityName, matchedEntityType, offerList, out DiscordLinkEmbed embed);
+                displayContent.Add(new DisplayContent($"{BaseTag} [{matchedEntityName}]", embedContent: embed));
             }
         }
 

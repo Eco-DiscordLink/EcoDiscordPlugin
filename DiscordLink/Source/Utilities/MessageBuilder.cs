@@ -22,6 +22,7 @@ using Eco.Gameplay.Settlements;
 using Eco.Gameplay.Skills;
 using Eco.Gameplay.Systems.Exhaustion;
 using Eco.Moose.Extensions;
+using Eco.Moose.Features;
 using Eco.Moose.Utils.Lookups;
 using Eco.Plugins.DiscordLink.Extensions;
 using Eco.Plugins.Networking;
@@ -37,10 +38,11 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static Eco.Moose.Features.Trade;
+
+using static Eco.Moose.Data.Enums;
 using static Eco.Shared.Mathf; // Avoiding collisions with system mathf
+
 using Constants = Eco.Moose.Data.Constants;
-using StoreOfferList = System.Collections.Generic.IEnumerable<System.Linq.IGrouping<string, System.Tuple<Eco.Gameplay.Components.Store.StoreComponent, Eco.Gameplay.Components.TradeOffer>>>;
 using Text = Eco.Shared.Utils.Text;
 
 namespace Eco.Plugins.DiscordLink.Utilities
@@ -100,7 +102,6 @@ namespace Eco.Plugins.DiscordLink.Utilities
             ChannelPermissions  = 1 << 2,
             All                 = ~0
         }
-
         #pragma warning restore format
 
         private class StoreOffer
@@ -1296,84 +1297,81 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 return $"Message sent by DiscordLink @ {serverName} [{timestamp}]";
             }
 
-            public static void FormatTrades(string matchedName, TradeTargetType tradeType, StoreOfferList groupedBuyOffers, StoreOfferList groupedSellOffers, out DiscordLinkEmbed embedContent)
+            public static void FormatTrades(string matchedName, LookupTypes lookupType, TradeOfferList offerList, out DiscordLinkEmbed embedContent)
             {
                 // Format message
-                DiscordLinkEmbed embed = new DiscordLinkEmbed()
-                    .WithTitle($"Trade offers for {matchedName.StripTags()}");
+                embedContent = new DiscordLinkEmbed();
+                embedContent.WithTitle($"Trade offers for {matchedName.StripTags()}");
 
-                if (groupedSellOffers.Count() > 0 || groupedBuyOffers.Count() > 0)
+                if (offerList.OfferCount == 0)
                 {
-                    Func<Tuple<StoreComponent, TradeOffer>, string> getLabel = tradeType switch
-                    {
-                        TradeTargetType.Tag => t => $"{t.Item2.Stack.Item.DisplayName} @ *{MessageUtils.StripTags(t.Item1.Parent.Name)}*",
-                        TradeTargetType.Item => t => $"@ *{MessageUtils.StripTags(t.Item1.Parent.Name)}*",
-                        TradeTargetType.User => t => t.Item2.Stack.Item.DisplayName,
-                        TradeTargetType.Store => t => t.Item2.Stack.Item.DisplayName,
-                        _ => t => string.Empty,
-                    };
-                    ICollection<StoreOffer> Offers = TradeOffersToFields(groupedBuyOffers, groupedSellOffers, getLabel);
+                    embedContent.WithTitle($"No trade offers found for {matchedName}");
+                    return;
+                }
 
-                    for (int i = 0; i < Offers.Count; ++i)
-                    {
-                        StoreOffer currentOffer = Offers.ElementAt(i);
-                        StoreOffer previousOffer = null;
-                        if (i - 1 >= 0)
-                            previousOffer = Offers.ElementAt(i - 1);
+                Func<Tuple<StoreComponent, TradeOffer>, string> getLabel = lookupType switch
+                {
+                    LookupTypes.Item => t => $"@ *{t.Item1.Parent.Name.StripTags()}*",
+                    LookupTypes.Tag => t => $"{t.Item2.Stack.Item.DisplayName} @ *{t.Item1.Parent.Name.StripTags()}*",
+                    LookupTypes.User => t => t.Item2.Stack.Item.DisplayName,
+                    LookupTypes.Store => t => t.Item2.Stack.Item.DisplayName,
+                    _ => t => string.Empty,
+                };
+                ICollection<StoreOffer> Offers = TradeOffersToFields(offerList, getLabel);
 
-                        if (currentOffer.Buying)
+                for (int i = 0; i < Offers.Count; ++i)
+                {
+                    StoreOffer currentOffer = Offers.ElementAt(i);
+                    StoreOffer previousOffer = null;
+                    if (i - 1 >= 0)
+                        previousOffer = Offers.ElementAt(i - 1);
+
+                    if (currentOffer.Buying)
+                    {
+                        if (previousOffer != null)
                         {
-                            if (previousOffer != null)
+                            if (previousOffer.Buying)
                             {
-                                if (previousOffer.Buying)
-                                {
-                                    embed.AddAlignmentField();
-                                    embed.AddAlignmentField();
-                                }
+                                embedContent.AddAlignmentField();
+                                embedContent.AddAlignmentField();
                             }
-                            embed.AddField(currentOffer.Title, currentOffer.Description, allowAutoLineBreak: true, inline: true);
                         }
-                        else
+                        embedContent.AddField(currentOffer.Title, currentOffer.Description, allowAutoLineBreak: true, inline: true);
+                    }
+                    else
+                    {
+                        if (previousOffer != null)
                         {
-                            if (previousOffer != null)
+                            if (previousOffer.Buying)
                             {
-                                if (previousOffer.Buying)
+                                embedContent.AddAlignmentField();
+                                if (previousOffer.Currency != currentOffer.Currency)
                                 {
-                                    embed.AddAlignmentField();
-                                    if (previousOffer.Currency != currentOffer.Currency)
-                                    {
-                                        embed.AddAlignmentField();
-                                        embed.AddAlignmentField();
-                                        embed.AddAlignmentField();
-                                    }
-                                }
-                                else
-                                {
-                                    embed.AddAlignmentField();
-                                    embed.AddAlignmentField();
+                                    embedContent.AddAlignmentField();
+                                    embedContent.AddAlignmentField();
+                                    embedContent.AddAlignmentField();
                                 }
                             }
                             else
                             {
-                                embed.AddAlignmentField();
-                                embed.AddAlignmentField();
+                                embedContent.AddAlignmentField();
+                                embedContent.AddAlignmentField();
                             }
-                            embed.AddField(currentOffer.Title, currentOffer.Description, allowAutoLineBreak: true, inline: true);
                         }
+                        else
+                        {
+                            embedContent.AddAlignmentField();
+                            embedContent.AddAlignmentField();
+                        }
+                        embedContent.AddField(currentOffer.Title, currentOffer.Description, allowAutoLineBreak: true, inline: true);
                     }
                 }
-                else
-                {
-                    embed.WithTitle($"No trade offers found for {matchedName}");
-                }
-                embedContent = embed;
             }
 
-            private static ICollection<StoreOffer> TradeOffersToFields<T>(T buyOfferGroups, T sellOfferGroups, Func<Tuple<StoreComponent, TradeOffer>, string> getLabel)
-                where T : StoreOfferList
+            private static ICollection<StoreOffer> TradeOffersToFields(TradeOfferList offerList, Func<Tuple<StoreComponent, TradeOffer>, string> getLabel)
             {
                 List<StoreOffer> buyOffers = new List<StoreOffer>();
-                foreach (var group in buyOfferGroups)
+                foreach (var group in offerList.BuyOffers)
                 {
                     var offerDescriptions = TradeOffersToDescriptions(group,
                         t => t.Item2.Price.ToString(),
@@ -1390,7 +1388,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
                 }
 
                 List<StoreOffer> sellOffers = new List<StoreOffer>();
-                foreach (var group in sellOfferGroups)
+                foreach (var group in offerList.SellOffers)
                 {
                     var offerDescriptions = TradeOffersToDescriptions(group,
                         t => t.Item2.Price.ToString(),
