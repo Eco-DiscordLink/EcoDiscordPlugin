@@ -226,7 +226,24 @@ namespace Eco.Plugins.DiscordLink.Utilities
             return DiscordGlobalMentionRegex.Replace(toStrip, "$1");
         }
 
-        public static string FormatMessageForDiscord(string message, DiscordChannel channel, string username, bool useTimestamp, bool allowGlobalMentions, ChatLinkMentionPermissions linkMentionPermissions)
+        public static string FormatMessageForApplication(ApplicationInterfaceType targetApplication, string message)
+        {
+            if (targetApplication == ApplicationInterfaceType.Eco)
+            {
+                DiscordBoldRegex.Replace(message, Text.Bold("$1"));
+                return message;
+            }
+            else if (targetApplication == ApplicationInterfaceType.Discord)
+            {
+                message = StripGlobalMentions(message);
+                message = message.StripTags();
+                return message;
+            }
+
+            return message;
+        }
+
+        public static string FormatChatMessageForDiscord(string message, DiscordChannel channel, string username, bool useTimestamp, bool allowGlobalMentions, ChatLinkMentionPermissions linkMentionPermissions)
         {
             string formattedMessage = (username.IsEmpty() ? "" : $"**{username.Replace("@", "")}**: ") + StripTags(message); // All @ characters are removed from the name in order to avoid unintended mentions of the sender
             if (!allowGlobalMentions)
@@ -312,7 +329,7 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         #region Discord -> Eco
 
-        public static string FormatMessageForEcoChannel(string message, string ecoChannel) => $"#{ecoChannel} {FormatMessageForEco(message)}";
+        public static string FormatChatMessageForEcoChannel(string message, string ecoChannel) => $"#{ecoChannel} {FormatMessageForEco(message)}";
 
         public static string FormatMessageForEco(string message)
         {

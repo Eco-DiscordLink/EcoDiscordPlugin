@@ -151,6 +151,7 @@ namespace Eco.Plugins.DiscordLink
                     return;
                 }
 
+                fullTextContent = MessageUtils.FormatMessageForApplication(ApplicationInterfaceType.Discord, fullTextContent);
                 if (embedContent == null)
                 {
                     await Respond(ctx, fullTextContent, null);

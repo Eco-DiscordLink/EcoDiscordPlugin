@@ -70,16 +70,20 @@ namespace Eco.Plugins.DiscordLink
 
         public static void ReportCommandInfo(EcoCommandContext ctx, string message)
         {
+            message = MessageUtils.FormatMessageForApplication(ApplicationInterfaceType.Eco, message);
             Message.SendInfoBoxToUser(ctx.User, message);
         }
 
         public static void ReportCommandError(EcoCommandContext ctx, string message)
         {
+            message = MessageUtils.FormatMessageForApplication(ApplicationInterfaceType.Eco, message);
             Message.SendErrorBoxToUser(ctx.User, message);
         }
 
         public static void DisplayCommandData(EcoCommandContext ctx, string panelInstance, string title, string data)
         {
+            title = MessageUtils.FormatMessageForApplication(ApplicationInterfaceType.Eco, title);
+            data = MessageUtils.FormatMessageForApplication(ApplicationInterfaceType.Eco, data);
             Message.SendInfoPanelToUser(ctx.User, panelInstance, title, data);
         }
 
