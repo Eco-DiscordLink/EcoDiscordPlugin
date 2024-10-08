@@ -6,6 +6,7 @@ using Eco.Gameplay.Civics.Elections;
 using Eco.Gameplay.Economy;
 using Eco.Gameplay.Economy.WorkParties;
 using Eco.Gameplay.Players;
+using Eco.Moose.Data;
 using Eco.Moose.Features;
 using Eco.Moose.Tools.Logger;
 using Eco.Moose.Utils.Lookups;
@@ -17,6 +18,7 @@ using Eco.Plugins.Networking;
 using Eco.Shared.Utils;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using static Eco.Moose.Data.Enums;
@@ -513,7 +515,7 @@ namespace Eco.Plugins.DiscordLink
                 return false;
             }
 
-            LookupResult lookupRes = DynamicLookup.Lookup(searchName, FULL_TRADE_LOOKUP_MASK);
+            LookupResult lookupRes = DynamicLookup.Lookup(searchName, Constants.TRADE_LOOKUP_MASK);
             if (lookupRes.Result != LookupResultTypes.SingleMatch)
             {
                 if (lookupRes.Result == LookupResultTypes.MultiMatch)

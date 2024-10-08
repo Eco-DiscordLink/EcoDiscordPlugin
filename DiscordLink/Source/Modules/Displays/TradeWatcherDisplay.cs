@@ -1,4 +1,5 @@
 ﻿using DSharpPlus.Entities;
+using Eco.Moose.Data;
 using Eco.Moose.Features;
 using Eco.Moose.Tools.Logger;
 using Eco.Plugins.DiscordLink.Events;
@@ -74,7 +75,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             IEnumerable<string> tradeWatchers = DLStorage.WorldData.TradeWatchers[(target as UserLink).Member.Id].Where(watcher => watcher.Type == ModuleArchetype.Display).Select(watcher => watcher.Key);
             foreach (string trade in tradeWatchers)
             {
-                LookupResult lookupRes = DynamicLookup.Lookup(trade, FULL_TRADE_LOOKUP_MASK);
+                LookupResult lookupRes = DynamicLookup.Lookup(trade, Constants.TRADE_LOOKUP_MASK);
                 if (lookupRes.Result != LookupResultTypes.SingleMatch)
                 {
                     Logger.Warning($"Trade watcher lookup yielded unexpected result: {Enum.GetName(typeof(LookupResultTypes), lookupRes.Result)}");

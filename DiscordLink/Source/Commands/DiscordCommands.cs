@@ -5,6 +5,7 @@ using DSharpPlus.SlashCommands;
 using Eco.Core.Utils;
 using Eco.Gameplay.Players;
 using Eco.Gameplay.Systems.Messaging.Chat;
+using Eco.Moose.Data;
 using Eco.Moose.Features;
 using Eco.Moose.Tools.Logger;
 using Eco.Moose.Utils.Lookups;
@@ -776,7 +777,7 @@ namespace Eco.Plugins.DiscordLink
                     return;
                 }
 
-                LookupResult lookupRes = DynamicLookup.Lookup(searchName, Trade.FULL_TRADE_LOOKUP_MASK);
+                LookupResult lookupRes = DynamicLookup.Lookup(searchName, Constants.TRADE_LOOKUP_MASK);
                 if (lookupRes.Result != LookupResultTypes.SingleMatch)
                 {
                     if (lookupRes.Result == LookupResultTypes.MultiMatch)
