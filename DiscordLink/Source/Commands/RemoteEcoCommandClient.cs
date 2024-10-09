@@ -22,7 +22,7 @@ namespace Eco.Plugins.DiscordLink
         }
 
         public string Name => EcoUser != null ? EcoUser.Name : $"DiscordLinkClient_{DiscordCtx.Interaction.User.Username}";
-        public LocString MarkedUpName => Localizer.NotLocalizedStr(EcoUser != null ? EcoUser.MarkedUpName : DiscordCtx.Interaction.User.Username);
+        public LocString MarkedUpName => Localizer.NotLocalizedStr(EcoUser != null ? EcoUser.MarkedUpName : $"DiscordLinkClient_{DiscordCtx.Interaction.User.Username}");
         public string ImplementationName => "DiscordLink Eco Command Client";
 
         public string ReportUserId => EcoUser != null ? EcoUser.StrangeId : DiscordCtx.Interaction.User.Id.ToString();
