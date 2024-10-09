@@ -646,8 +646,8 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
                     if (flag.HasFlag(ServerInfoComponentFlag.MeteorTimeRemaining) && serverInfo.HasMeteor)
                     {
-                        string meteorContent = DisasterPlugin.MeteorDestroyed
-                            ? "Destroyed!"
+                        string meteorContent = DisasterPlugin.MeteorData.MeteorDestroyed || DisasterPlugin.MeteorData.MeteorImpacted
+                            ? DisasterPlugin.MeteorData.MeteorDestroyed ? "Destroyed!" : "Impacted!"
                             : DateTime.Now.AddSeconds(Lookups.SecondsLeftUntilMeteor).ToDiscordTimeStamp('R');
                         embed.AddField("Meteor", meteorContent, inline: true);
                         ++fieldsAdded;
