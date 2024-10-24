@@ -18,11 +18,9 @@ using Eco.Plugins.Networking;
 using Eco.Shared.Utils;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Metadata;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using static Eco.Moose.Data.Enums;
-using static Eco.Moose.Features.Trade;
 using static Eco.Plugins.DiscordLink.Utilities.MessageBuilder;
 
 namespace Eco.Plugins.DiscordLink
@@ -583,6 +581,7 @@ namespace Eco.Plugins.DiscordLink
         }
 
         #endregion
+
         #region Snippets
 
         public static async Task Snippet(CommandContext ctx, ApplicationInterfaceType target, string userName, string snippetKey)

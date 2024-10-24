@@ -249,6 +249,12 @@ namespace Eco.Plugins.DiscordLink.Utilities
                     builder.AppendLine($"- Invite message does not contain the invite link token {DLConstants.INVITE_COMMAND_TOKEN}.");
                 }
 
+                // WebServerURL
+                if (string.IsNullOrWhiteSpace(NetworkManager.Config.WebServerUrl))
+                {
+                    builder.AppendLine($"- Network Config WebServerURL field not configured - Some features (such as layer images) will not be available.");
+                }
+
                 if (DiscordLink.Obj.Client.ConnectionStatus == DiscordClient.ConnectionState.Connected)
                 {
                     // Discord guild and channel information isn't available the first time this function is called
