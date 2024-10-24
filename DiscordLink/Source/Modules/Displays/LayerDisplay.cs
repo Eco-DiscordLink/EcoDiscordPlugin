@@ -33,7 +33,8 @@ namespace Eco.Plugins.DiscordLink.Modules
         protected override void GetDisplayContent(DiscordTarget target, out List<DisplayContent> displayContent)
         {
             displayContent = new List<DisplayContent>();
-            if (!(target is LayerChannelLink layerTarget))
+            if (!(target is LayerChannelLink layerTarget) || !layerTarget.IsValid())
+                return;
                 return;
 
             string output = layerTarget.UseTerrainComparison
