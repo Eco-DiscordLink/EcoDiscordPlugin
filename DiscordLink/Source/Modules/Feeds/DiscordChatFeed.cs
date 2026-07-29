@@ -41,7 +41,7 @@ namespace Eco.Plugins.DiscordLink.Modules
 
             IEnumerable<ChatChannelLink> chatLinks = DiscordLinkConfig.ChatLinksForDiscordChannel(message.GetChannel());
             foreach (ChatChannelLink chatLink in chatLinks
-                .Where(link => link.Direction == ChatSyncDirection.EcoToDiscord || link.Direction == ChatSyncDirection.Duplex))
+                .Where(link => link.Direction == ChatSyncDirection.DiscordToEco || link.Direction == ChatSyncDirection.Duplex))
             {
                 await ForwardMessageToEcoChannel(message, chatLink.EcoChannel);
             }
