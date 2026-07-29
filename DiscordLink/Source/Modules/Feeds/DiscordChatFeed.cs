@@ -50,18 +50,23 @@ namespace Eco.Plugins.DiscordLink.Modules
         private async Task ForwardMessageToEcoChannel(DiscordMessage discordMessage, string ecoChannel)
         {
             Logger.Trace($"Sending Discord message to Eco channel: {ecoChannel}");
-            DiscordMember author = await discordMessage.GetChannel().Guild.GetMemberAsync(discordMessage.Author.Id);
+
+            DiscordMember author = discordMessage.Author as DiscordMember ?? await discordMessage.Author.LookupMember();
+            if (author == null)
+            {
+                Logger.Warning($"Could not resolve Discord member {discordMessage.Author?.GetLogName() ?? "Unknown"} while forwarding a chat message to Eco.");
+            }
 
             User sender = null;
-            LinkedUser linkedUser = UserLinkManager.LinkedUserByDiscordUser(author);
+            LinkedUser linkedUser = author != null ? UserLinkManager.LinkedUserByDiscordUser(author) : null;
             if (linkedUser != null)
                 sender = linkedUser.EcoUser;
 
             string messageContent = await GetReadableContent(discordMessage);
             if (sender == null)
             {
-                DiscordMember memberAuthor = discordMessage.Author as DiscordMember ?? await discordMessage.Author.LookupMember();
-                messageContent = $"{Text.Color(DLConstants.DISCORD_COLOR, memberAuthor.DisplayName)} {DLConstants.ECO_DISCORDLINK_ICON} {messageContent}";
+                string displayName = author?.DisplayName ?? discordMessage.Author?.Username ?? "Unknown Discord User";
+                messageContent = $"{Text.Color(DLConstants.DISCORD_COLOR, displayName)} {DLConstants.ECO_DISCORDLINK_ICON} {messageContent}";
             }
             else
             {
