@@ -26,7 +26,7 @@ namespace Eco.Plugins.DiscordLink.Modules
         {
             foreach (ChatChannelLink link in DiscordLinkConfig.ChatChannelLinks)
             {
-                if (link.IsValid() && link.Direction == ChatSyncDirection.EcoToDiscord || link.Direction == ChatSyncDirection.Duplex)
+                if (link.IsValid() && (link.Direction == ChatSyncDirection.EcoToDiscord || link.Direction == ChatSyncDirection.Duplex))
                     return true;
             }
             return false;
