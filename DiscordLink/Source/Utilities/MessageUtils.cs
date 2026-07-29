@@ -15,9 +15,6 @@ namespace Eco.Plugins.DiscordLink.Utilities
         // Snippet matching regex: Match the (case insensitive) [Snippet] header and capture the the content of the following bracket pair
         public static readonly Regex SnippetRegex = new Regex("(?i)\\[snippet\\]\\s*\\[([^\\]]+)\\].*\\s([^$]*)");
 
-        // Display tag matching regex: Match the [] header and the [] tag and capture them both. Will capture only the header if no tag exists.
-        public static readonly Regex DisplayTagRegex = new Regex("(\\[[^\\]]+\\])(?:\\s*\\[([^\\]]+)\\])*");
-
         // Discord custom emote regex: Match all characters starting with <: and ending in > while containing an additional : in between. Capture the content between the : pair.
         public static readonly Regex DiscordCustomEmoteRegex = new Regex("<:(.*?):.*?>");
 
@@ -26,9 +23,6 @@ namespace Eco.Plugins.DiscordLink.Utilities
 
         // Excessive newline matching regex: Match all cases of (0+)\r followed by (2+)\n.
         public static readonly Regex ExcessiveNewLineRegex = new Regex("(\\\r)*(\\\n){2,}");
-
-        // Eco tag matching regex: Match all characters that are used to create HTML style tags
-        private static readonly Regex HTMLTagRegex = new Regex("<[^>]*>");
 
         // Discord mention matching regex: Match all characters followed by a mention character(@ or #) character (including that character) until encountering any type of whitespace, end of string or a new mention character
         private static readonly Regex DiscordMentionRegex = new Regex("([@#].+?)(?=\\s|$|@|#)");
