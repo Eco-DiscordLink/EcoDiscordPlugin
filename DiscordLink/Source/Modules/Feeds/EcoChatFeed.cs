@@ -37,7 +37,13 @@ namespace Eco.Plugins.DiscordLink.Modules
             if (!(data[0] is ChatSent message))
                 return;
 
-            string ecoChannel = message.Tag.Substring(1); // Remove the # character from the start.
+            string ecoChannel = message.Tag?.Trim().TrimStart('#') ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(ecoChannel))
+            {
+                Logger.Warning($"Skipping Eco chat forwarding because channel tag was empty or invalid. Raw tag: \"{message.Tag ?? "<null>"}\"");
+                return;
+            }
+
             IEnumerable<ChatChannelLink> chatLinks = DiscordLinkConfig.ChatLinksForEcoChannel(ecoChannel);
 
             foreach (ChatChannelLink chatLink in chatLinks
