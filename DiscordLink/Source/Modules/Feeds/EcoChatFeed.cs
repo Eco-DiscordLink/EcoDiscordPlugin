@@ -85,8 +85,8 @@ namespace Eco.Plugins.DiscordLink.Modules
             if (!blocked)
                 forwardedMessage = chatMessage.Message;
 
-            bool allowGlobalMention = globalMentionPermission == GlobalMentionPermission.AnyUser
-                || globalMentionPermission == GlobalMentionPermission.Admin && chatMessage.Citizen.IsAdmin;
+            bool allowGlobalMention = chatLink.HereAndEveryoneMentionPermission == GlobalMentionPermission.AnyUser
+                || chatLink.HereAndEveryoneMentionPermission == GlobalMentionPermission.Admin && chatMessage.Citizen.IsAdmin;
 
             await DiscordLink.Obj.Client.SendMessageAsync(channel, MessageUtils.FormatChatMessageForDiscord(forwardedMessage, channel, chatMessage.Citizen.MarkedUpName.ToString().StripTags(), chatLink.UseTimestamp, allowGlobalMention, chatLink.MentionPermissions));
             ++_opsCount;
