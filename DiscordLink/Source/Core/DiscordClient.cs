@@ -381,7 +381,7 @@ namespace Eco.Plugins.DiscordLink
 
         public DiscordChannel GetChannelById(ulong channelId)
         {
-            return Guild.Channels.Values.FirstOrDefault(channel => channel.Id == channelId);
+            return Guild.Channels.Values.FirstOrDefault(channel => channel.Id == channelId, Guild.Threads.Values.FirstOrDefault(channel => channel.Id == channelId));
         }
 
         public DiscordChannel GetChannelByName(string channelName)
