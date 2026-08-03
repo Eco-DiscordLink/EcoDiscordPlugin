@@ -46,15 +46,21 @@ namespace Eco.Plugins.DiscordLink.Modules
 
             IEnumerable<ChatChannelLink> chatLinks = DiscordLinkConfig.ChatLinksForEcoChannel(ecoChannel);
 
-            foreach (ChatChannelLink chatLink in chatLinks
-                .Where(link => link.Direction == ChatSyncDirection.EcoToDiscord || link.Direction == ChatSyncDirection.Duplex))
+            foreach (ChatChannelLink chatLink in chatLinks.Where(link => link.Direction == ChatSyncDirection.EcoToDiscord || link.Direction == ChatSyncDirection.Duplex))
             {
-                await ForwardMessageToDiscordChannel(message, chatLink.Channel, chatLink.UseTimestamp, chatLink.HereAndEveryoneMentionPermission, chatLink.MentionPermissions);
+                await ForwardMessageToDiscordChannel(chatMessage: message, chatLink: chatLink);
             }
         }
 
-        private async Task ForwardMessageToDiscordChannel(ChatSent chatMessage, DiscordChannel channel, bool useTimestamp, GlobalMentionPermission globalMentionPermission, ChatLinkMentionPermissions chatlinkPermissions)
+        private async Task ForwardMessageToDiscordChannel(ChatSent chatMessage, ChatChannelLink chatLink)
         {
+            DiscordChannel channel = DiscordLink.Obj.Client.GetChannelById(chatLink.DiscordChannelId) ?? chatLink.Channel;
+            if (channel == null)
+            {
+                Logger.Warning($"Could not forward Eco chat to Discord because channel ID {chatLink.DiscordChannelId} is unresolved.");
+                return;
+            }
+
             Logger.Trace($"Sending Eco message to Discord channel {channel.Name}");
 
             bool blocked = false;
@@ -82,7 +88,7 @@ namespace Eco.Plugins.DiscordLink.Modules
             bool allowGlobalMention = globalMentionPermission == GlobalMentionPermission.AnyUser
                 || globalMentionPermission == GlobalMentionPermission.Admin && chatMessage.Citizen.IsAdmin;
 
-            await DiscordLink.Obj.Client.SendMessageAsync(channel, MessageUtils.FormatChatMessageForDiscord(forwardedMessage, channel, chatMessage.Citizen.MarkedUpName.ToString().StripTags(), useTimestamp, allowGlobalMention, chatlinkPermissions));
+            await DiscordLink.Obj.Client.SendMessageAsync(channel, MessageUtils.FormatChatMessageForDiscord(forwardedMessage, channel, chatMessage.Citizen.MarkedUpName.ToString().StripTags(), chatLink.UseTimestamp, allowGlobalMention, chatLink.MentionPermissions));
             ++_opsCount;
         }
     }
